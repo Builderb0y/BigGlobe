@@ -1,0 +1,48 @@
+{
+	"type": "bigglobe:geode",
+	"value": {
+		"biomes": "#bigglobe:has_structure/prismarine_geode",
+		"spawn_overrides": {
+			"ambient":                    { "bounding_box": "full", "spawns": [] },
+			"axolotls":                   { "bounding_box": "full", "spawns": [] },
+			"creature":                   { "bounding_box": "full", "spawns": [] },
+			"misc":                       { "bounding_box": "full", "spawns": [] },
+			"monster":                    { "bounding_box": "full", "spawns": [] },
+			"underground_water_creature": { "bounding_box": "full", "spawns": [] },
+			"water_ambient":              { "bounding_box": "full", "spawns": [] },
+			"water_creature":             { "bounding_box": "full", "spawns": [] }
+		},
+		"step": "raw_generation",
+		"noise": {
+			"type": "sum",
+			"layers": [
+				{ "type": "constant", "value": 32.0 },
+				{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 16.0 },
+				{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude":  8.0 },
+				{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude":  4.0 },
+				{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude":  2.0 },
+				{ "type": "linear", "scaleX":  2, "scaleY":  2, "scaleZ":  2, "amplitude":  1.0 }
+			]
+		},
+		"radius": { "type": "uniform", "min": 32.0, "max": 64.0 },
+		"blocks": [
+			{ "threshold": 4.0, "states": "minecraft:smooth_basalt" },
+			{ "threshold": 8.0, "states": "bigglobe:slated_prismarine" },
+			{
+				"threshold": 12.0,
+				"states": [
+					{ "weight": 5.0, "state": "minecraft:prismarine" },
+					{ "weight": 1.0, "state": "bigglobe:crystalline_prismarine" }
+				]
+			}
+		],
+		"spikes": {
+			"large_radius": { "type": "uniform",     "min": 2.0,      "max":  4.0   },
+			"small_radius": 1.0,
+			"length":       { "type": "uniform",     "min": 8.0,      "max": 12.0   },
+			"commonness":   { "type": "exponential", "min": 0.015625, "max":  0.125 },
+			"crookedness":  { "type": "linear_high", "min": 0.0,      "max":  6.0   }
+		},
+		"terrain_adaptation": "bury"
+	}
+}

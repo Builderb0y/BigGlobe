@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if(0.25:",
+				"while (getBlockState(originX, ++originY,, originY, originZ) == blockState('minecraft:basalt[axis=y]'):",
+					"setBlockState(originX, originY, originZ, 'minecraft:smooth_basalt')",
+				")",
+				"return(true)",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

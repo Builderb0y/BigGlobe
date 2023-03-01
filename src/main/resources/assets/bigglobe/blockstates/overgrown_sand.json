@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"": [
+			{ "model": "bigglobe:block/overgrown_sand", "y": 0   },
+			{ "model": "bigglobe:block/overgrown_sand", "y": 90  },
+			{ "model": "bigglobe:block/overgrown_sand", "y": 180 },
+			{ "model": "bigglobe:block/overgrown_sand", "y": 270 }
+		]
+	}
+}

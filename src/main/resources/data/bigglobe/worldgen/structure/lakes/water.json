@@ -1,0 +1,29 @@
+{
+	"type": "bigglobe:lake",
+	"value": {
+		"biomes": "#bigglobe:has_structure/water_lake",
+		"spawn_overrides": {
+			"monster": {
+				"bounding_box": "full",
+				"spawns": [
+					{ "type": "minecraft:zombie",          "weight":  95, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:zombie_villager", "weight":   5, "minCount": 1, "maxCount": 2 },
+					{ "type": "minecraft:skeleton",        "weight": 100, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:spider",          "weight": 100, "minCount": 1, "maxCount": 4 },
+					{ "type": "minecraft:creeper",         "weight": 100, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:slime",           "weight": 100, "minCount": 1, "maxCount": 2 },
+					{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
+					{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
+				]
+			}
+		},
+		"step": "surface_structures",
+		"horizontal_radius": { "type": "uniform", "min": 32.0, "max": 96.0 },
+		"vertical_depth": { "type": "uniform", "min": 0.125, "max": 0.25 },
+		"fluid": "minecraft:water[level=0]",
+		"top_state": "minecraft:mud",
+		"under_state": "minecraft:mud",
+		"subsurface_state": "minecraft:clay",
+		"fluid_surface_feature": "bigglobe:overworld/lakes/water_lake_surface"
+	}
+}

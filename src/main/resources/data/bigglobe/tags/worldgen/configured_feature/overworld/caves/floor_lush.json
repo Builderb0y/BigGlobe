@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:overworld/caves/floor_all",
+		"bigglobe:overworld/caves/big_dripleaf",
+		"bigglobe:overworld/caves/grass"
+	]
+}

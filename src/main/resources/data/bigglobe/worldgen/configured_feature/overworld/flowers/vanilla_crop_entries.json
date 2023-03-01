@@ -1,0 +1,33 @@
+{
+	"type": "bigglobe:overworld_flower_entry",
+	"config": {
+		"group": "bigglobe:overworld/flowers/vanilla_crops",
+		"entries": {
+			"defaults": {
+				"radius": { "type": "uniform", "min": 24.0, "max": 48.0 },
+				"restrictions": {
+					"type": "and_range",
+					"overworld/height_adjusted_foliage":     { "min": -0.5,             "max": 0.5 },
+					"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
+					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 }
+				},
+				"under": {
+					"place": "minecraft:farmland",
+					"replace": [
+						"minecraft:dirt",
+						"minecraft:coarse_dirt",
+						"minecraft:grass_block",
+						"minecraft:podzol",
+						"bigglobe:overgrown_podzol"
+					]
+				}
+			},
+			"variations": [
+				{ "weight": 20.0, "state": "minecraft:wheat"     },
+				{ "weight": 10.0, "state": "minecraft:carrots"   },
+				{ "weight": 10.0, "state": "minecraft:potatoes"  },
+				{ "weight":  5.0, "state": "minecraft:beetroots" }
+			]
+		}
+	}
+}

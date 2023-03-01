@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"iii",
+		" i "
+	],
+	"key": {
+		"i": { "tag": "c:iron_ingots" }
+	},
+	"result": {
+		"item": "bigglobe:rope_anchor"
+	}
+}

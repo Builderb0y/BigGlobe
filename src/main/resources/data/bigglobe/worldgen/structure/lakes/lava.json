@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:lake",
+	"value": {
+		"biomes": "#bigglobe:has_structure/lava_lake",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"horizontal_radius": { "type": "uniform", "min": 32.0, "max": 96.0 },
+		"vertical_depth": { "type": "uniform", "min": 0.125, "max": 0.25 },
+		"fluid": "minecraft:lava[level=0]",
+		"top_state": "minecraft:blackstone",
+		"under_state": "minecraft:blackstone",
+		"subsurface_state": "minecraft:basalt[axis=y]",
+		"fluid_surface_feature": "bigglobe:overworld/lakes/lava_lake_surface"
+	}
+}

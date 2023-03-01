@@ -1,0 +1,69 @@
+{
+	"type": "bigglobe:small_dungeon",
+	"value": {
+		"biomes": "#bigglobe:has_structure/small_dungeon",
+		"spawn_overrides": {},
+		"step": "underground_structures",
+		"terrain_adaptation": "bury",
+		"spawner_entries": [
+			{ "weight": 16, "entity": "minecraft:zombie" },
+			{ "weight": 12, "entity": "minecraft:skeleton" },
+			{ "weight":  8, "entity": "minecraft:spider" }
+		],
+		"palettes": [
+			{
+				"weight": 1.0,
+				"main": [
+					{ "weight": 1.0, "block": "minecraft:cobblestone" },
+					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone" }
+				],
+				"slab": [
+					{ "weight": 1.0, "block": "minecraft:cobblestone_slab" },
+					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_slab" }
+				],
+				"stairs": [
+					{ "weight": 1.0, "block": "minecraft:cobblestone_stairs" },
+					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_stairs" }
+				],
+				"wall": [
+					{ "weight": 1.0, "block": "minecraft:cobblestone_wall" },
+					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_wall" }
+				]
+			},
+			{
+				"weight": 1.0,
+				"main": [
+					{ "weight": 1.0, "block": "minecraft:stone_bricks" },
+					{ "weight": 1.5, "block": "minecraft:mossy_stone_bricks" },
+					{ "weight": 0.5, "block": "minecraft:cracked_stone_bricks" }
+				],
+				"slab": [
+					{ "weight": 1.0, "block": "minecraft:stone_brick_slab" },
+					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_slab" }
+				],
+				"stairs": [
+					{ "weight": 1.0, "block": "minecraft:stone_brick_stairs" },
+					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_stairs" }
+				],
+				"wall": [
+					{ "weight": 1.0, "block": "minecraft:stone_brick_wall" },
+					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_wall" }
+				]
+			},
+			{
+				"weight": 2.0,
+				"restrictions": {
+					"type": "script",
+					"script": "unmixSmooth(`max_y` - 256, `max_y` - 512, y)"
+				},
+				"main": [
+					{ "weight": 1.0, "block": "minecraft:deepslate" },
+					{ "weight": 1.0, "block": "minecraft:cobbled_deepslate" }
+				],
+				"slab": "minecraft:cobbled_deepslate_slab",
+				"stairs": "minecraft:cobbled_deepslate_stairs",
+				"wall": "minecraft:cobbled_deepslate_wall"
+			}
+		]
+	}
+}

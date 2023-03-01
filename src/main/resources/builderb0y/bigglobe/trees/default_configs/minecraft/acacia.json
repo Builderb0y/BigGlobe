@@ -1,0 +1,17 @@
+{
+	"states": {
+		"sapling": "minecraft:acacia_sapling[stage=0]",
+		"potted_sapling": "minecraft:potted_acacia_sapling",
+		"log": "minecraft:acacia_log[axis=y]",
+		"stripped_log": "minecraft:stripped_acacia_log[axis=y]",
+		"wood": "minecraft:acacia_wood[axis=y]",
+		"stripped_wood": "minecraft:stripped_acacia_wood[axis=y]",
+		"planks": "minecraft:acacia_planks",
+		"leaves": "minecraft:acacia_leaves[distance=1,persistent=false,waterlogged=false]",
+		"slab": "minecraft:acacia_slab[type=bottom,waterlogged=false]",
+		"stairs": "minecraft:acacia_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+		"fence": "minecraft:acacia_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+		"fence_gate": "minecraft:acacia_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
+	},
+	"feature": "bigglobe:overworld/trees/artificial/acacia"
+}

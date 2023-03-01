@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:campfire",
+	"value": {
+		"biomes": "#bigglobe:has_structure/campfire/birch",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"terrain_adaptation": "beard_thin",
+		"palette": "minecraft:birch",
+		"soul": false
+	}
+}

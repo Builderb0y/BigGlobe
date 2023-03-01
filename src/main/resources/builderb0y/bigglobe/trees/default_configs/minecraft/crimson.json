@@ -1,0 +1,16 @@
+{
+	"states": {
+		"sapling": "minecraft:crimson_fungus",
+		"potted_sapling": "minecraft:potted_crimson_fungus",
+		"log": "minecraft:crimson_stem[axis=y]",
+		"stripped_log": "minecraft:stripped_crimson_stem[axis=y]",
+		"wood": "minecraft:crimson_hyphae[axis=y]",
+		"stripped_wood": "minecraft:stripped_crimson_hyphae[axis=y]",
+		"planks": "minecraft:crimson_planks",
+		"leaves": "minecraft:nether_wart_block",
+		"slab": "minecraft:crimson_slab[type=bottom,waterlogged=false]",
+		"stairs": "minecraft:crimson_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+		"fence": "minecraft:crimson_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+		"fence_gate": "minecraft:crimson_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
+	}
+}

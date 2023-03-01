@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:mega_tree",
+	"value": {
+		"biomes": "#bigglobe:has_structure/mega_tree/spruce",
+		"spawn_overrides": {
+			"ambient": { "bounding_box": "full", "spawns": [] },
+			"monster": { "bounding_box": "full", "spawns": [] }
+		},
+		"step": "surface_structures",
+		"palette": "minecraft:spruce",
+		"size":            { "min": 96.0, "max": 192.0 },
+		"trunk_radius":    { "min":  4.0, "max":   8.0 },
+		"branch_sparsity": { "min":  2.0, "max":   4.0 }
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_ore",
+	"config": {
+		"stone_state": "minecraft:lapis_ore",
+		"deepslate_state": "minecraft:deepslate_lapis_ore",
+		"chance": "(y - `max_y`) / 1024 + sqrt(unmixLinear(`overworld/sea_level`, `min_y`, `max_y`))",
+		"radius": {
+			"type": "average",
+			"min": 3.0,
+			"max": 8.0,
+			"average": 4.0
+		}
+	}
+}

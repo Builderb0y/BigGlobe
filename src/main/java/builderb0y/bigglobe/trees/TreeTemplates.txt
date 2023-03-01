@@ -1,0 +1,583 @@
+package builderb0y.bigglobe.trees;
+
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.random.RandomGenerator;
+
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.StructureWorldAccess;
+
+import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.features.BlockQueue;
+import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomLists.SingletonRandomList;
+import builderb0y.bigglobe.trees.branches.BranchesConfig;
+import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
+import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
+import builderb0y.bigglobe.trees.decoration.ShelfDecorator;
+import builderb0y.bigglobe.trees.decoration.ShelfPlacer;
+import builderb0y.bigglobe.trees.decoration.ShroomlightSphereLeafPlacer;
+import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.trees.trunks.TwistedTrunkConfig;
+
+import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
+
+public class TreeTemplates {
+
+	/**
+	the set of sapling positions which are about to grow into trees
+	(see VanillaSaplingReplacer) is always processed in the same way,
+	but multiple values are derived from this processing.
+	since java methods can't return multiple values,
+	this class is a holder for those derived values.
+	the constructor acts as the method to process the positions.
+
+	the processed information includes:
+	a BlockQueue which is pre-scheduled to place air at all the sapling positions.
+	the average (center) position of all the saplings.
+	the radius of the tree which should spawn from them.
+	*/
+	public static class SaplingPositions implements Consumer<BlockPos> {
+
+		public final Set<BlockPos> positions;
+		public final BlockQueue queue;
+		public double centerX;
+		public int centerY;
+		public double centerZ;
+		public double radius;
+
+		public SaplingPositions(Set<BlockPos> positions, RandomGenerator random) {
+			this.positions = positions;
+			this.queue = new BlockQueue(true);
+			positions.forEach(this);
+			double saplingCount = this.queue.queuedBlocks.size();
+			//at this point, our centerX/Z are actually the sum of all the positions.
+			//we want an average, so divide by the number of positions.
+			this.centerX /= saplingCount;
+			this.centerZ /= saplingCount;
+			//also add some randomness so that voxellized circles end up slightly asymmetric.
+			//for example:
+			//
+			//symmetric:
+			//   #
+			// #####
+			// #####
+			//#######
+			// #####
+			// #####
+			//   #
+			//
+			//asymmetric:
+			//   ##
+			// #####
+			//#######
+			//#######
+			// ######
+			// #####
+			//   #
+			this.centerX += random.nextDouble() - 0.5D;
+			this.centerZ += random.nextDouble() - 0.5D;
+			//find the radius of a circle whose area is equal to saplingCount:
+			//area = pi * radius ^ 2
+			//area / pi = radius ^ 2
+			//sqrt(area / pi) = radius
+			this.radius = Math.max(Math.sqrt(saplingCount / Math.PI), TrunkConfig.MIN_RADIUS);
+		}
+
+		@Override
+		public void accept(BlockPos pos) {
+			this.queue.queueBlock(pos, BlockStates.AIR);
+			this.centerX += pos.getX();
+			this.centerY  = pos.getY(); //assume all positions are at the same Y level.
+			this.centerZ += pos.getZ();
+		}
+
+		public BlockPos getCenterPos() {
+			return new BlockPos(floorI(this.centerX), this.centerY, floorI(this.centerZ));
+		}
+	}
+
+	public static double oneOrTwoX(long seed, double bound) {
+		return Permuter.nextPositiveDouble(seed) * bound + bound;
+	}
+
+	public static double oneOrTwoX(RandomGenerator random, double bound) {
+		return random.nextDouble() * bound + bound;
+	}
+
+	public static int oneOrTwoX(long seed, int bound) {
+		return Permuter.nextBoundedInt(seed, bound) + bound;
+	}
+
+	public static int oneOrTwoX(RandomGenerator random, int bound) {
+		return random.nextInt(bound) + bound;
+	}
+
+	public static int getOverworldTrunkHeightForRadius(double radius, long seed) {
+		return (int)(oneOrTwoX(seed, radius * 8.0D));
+	}
+
+	public static int getOverworldTrunkHeightForRadius(double radius, RandomGenerator random) {
+		return (int)(oneOrTwoX(random, radius * 8.0D));
+	}
+
+	/*
+	public static boolean generateNaturalOverworldTree(
+		StructureWorldAccess world,
+		BlockPos pos,
+		double foliageForTrees,
+		double trunkRadius,
+		int trunkHeight,
+		OverworldColumn column,
+		RandomGenerator random
+	) {
+		TreeRegistry.Entry palette = TreeSpecialCases.getOverworldPalette(column);
+		if (palette == null) return false;
+		int branchCount = oneOrTwoX(random, trunkHeight);
+		double branchStartFrac = oneOrTwoX(random, 0.25D);
+		double maxBranchLength = Interpolator.mixLinear(trunkHeight * 0.5D, 0.0D, branchStartFrac);
+		if (TreeSpecialCases.branchesStartHigh(palette)) {
+			branchStartFrac += 0.25D;
+			branchCount <<= 1;
+		}
+		double foliageForDecorations = -Math.expm1(-foliageForTrees);
+		BlockDecorator snow = new SnowDecorator(column.blankCopy());
+		DecoratorConfig.Builder decoratorsBuilder = (
+			new DecoratorConfig.Builder()
+			//.trunkBlock(new VineDecorator(foliageForDecorations * 0.25D))
+			.trunkBlock(new StubbyBranchDecorator(0.5D, 0.25D))
+			.trunkBlock(RandomWalkLeafDecorator.TRUNK_TOP)
+			.branchBlock(RandomWalkLeafDecorator.BRANCH)
+			.trunkBlock(snow)
+			.branchBlock(snow)
+			.leafBlock(snow)
+		);
+		RegistryKey<TreeRegistry.Entry> key = palette.getRegistryKey();
+		if (key == TreeRegistry.JUNGLE) {
+			BlockDecorator cocoa = new CocoaDecorator(foliageForDecorations * 0.125D);
+			decoratorsBuilder.trunkBlock(cocoa).branchBlock(cocoa);
+		}
+		else if (key == TreeRegistry.MANGROVE) {
+			decoratorsBuilder.leafBlock(new MangrovePropaguleDecorator(0.03125D));
+		}
+		RandomList<ShelfPlacer> shelves = new RandomList<>(2);
+		shelves.add(
+			ShelfPlacer.create(Blocks.RED_MUSHROOM_BLOCK.getDefaultState()),
+			column
+			.settings
+			.miscellaneous()
+			.red_mushroom_shelf_restrictions()
+			.getRestriction(column, column.getFinalTopHeightD())
+			* 0.125D
+		);
+		shelves.add(
+			ShelfPlacer.create(Blocks.BROWN_MUSHROOM_BLOCK.getDefaultState()),
+			column
+			.settings
+			.miscellaneous()
+			.brown_mushroom_shelf_restrictions()
+			.getRestriction(column, column.getFinalTopHeightD())
+			* 0.125D
+		);
+		double shelfDensity = shelves.totalWeight;
+		if (shelfDensity > 0.0D) {
+			decoratorsBuilder.trunkLayer(new ShelfDecorator(shelves, branchStartFrac, shelfDensity));
+		}
+		return new TreeGenerator(
+			new BlockQueue(false),
+			palette,
+			StraightTrunkConfig.create(
+				pos,
+				trunkHeight,
+				trunkRadius,
+				random,
+				true,
+				palette.getRegistryKey() == TreeRegistry.MANGROVE
+			),
+			BranchesConfig.create(
+				branchStartFrac,
+				branchCount,
+				TreeSpecialCases.randomAngle(random),
+				trunkRadius,
+				TreeSpecialCases.getBranchLength(palette),
+				TreeSpecialCases.getBranchHeight(palette)
+			),
+			decoratorsBuilder.build(),
+			column
+		)
+		.generate(world, random);
+	}
+
+	public static boolean generateArtificialOverworldTree(
+		StructureWorldAccess world,
+		SaplingPositions saplingPositions,
+		TreeRegistry.Entry palette,
+		RandomGenerator random
+	) {
+		BlockPos center = saplingPositions.getCenterPos();
+		WorldColumn column = WorldColumn.forWorld(world);
+		column.setPosUnchecked(center.getX(), center.getZ());
+		int trunkHeight = getOverworldTrunkHeightForRadius(saplingPositions.radius, random);
+		int branchCount = oneOrTwoX(random, trunkHeight);
+		double branchStartFrac = oneOrTwoX(random, 0.25D);
+		double maxBranchLength = Interpolator.mixLinear(trunkHeight * 0.5D, 0.0D, branchStartFrac);
+		if (TreeSpecialCases.branchesStartHigh(palette)) {
+			branchStartFrac += 0.25D;
+			branchCount <<= 1;
+		}
+		return new TreeGenerator(
+			saplingPositions.queue,
+			palette,
+			new StraightTrunkConfig(
+				saplingPositions.centerX,
+				saplingPositions.centerY,
+				saplingPositions.centerZ,
+				trunkHeight,
+				saplingPositions.radius,
+				false,
+				palette.getRegistryKey() == TreeRegistry.MANGROVE
+			),
+			BranchesConfig.create(
+				branchStartFrac,
+				branchCount,
+				TreeSpecialCases.randomAngle(random),
+				saplingPositions.radius,
+				TreeSpecialCases.getBranchLength(palette),
+				TreeSpecialCases.getBranchHeight(palette)
+			),
+			new DecoratorConfig.Builder()
+			.trunkBlock(RandomWalkLeafDecorator.TRUNK_TOP)
+			.branchBlock(RandomWalkLeafDecorator.BRANCH)
+			.build(),
+			column
+		)
+		.generate(world, random);
+	}
+	*/
+
+	public static boolean generateNaturalNetherBigShroomTree(
+		StructureWorldAccess world,
+		BlockPos pos,
+		TreeRegistry.Entry palette,
+		int trunkHeight,
+		Permuter random
+	) {
+		WorldColumn column = WorldColumn.forWorld(world, pos.getX(), pos.getZ());
+		double trunkRadius = trunkHeight * oneOrTwoX(random, 0.0625D);
+		return new TreeGenerator(
+			world,
+			new BlockQueue(false),
+			random,
+			palette,
+			TwistedTrunkConfig.create(
+				pos,
+				trunkHeight,
+				trunkRadius,
+				random,
+				true,
+				false
+			),
+			new BranchesConfig(
+				0.5D,
+				trunkHeight >> 1,
+				TreeSpecialCases.randomAngle(random),
+				true,
+				ScriptedBranchShape.Lengths.SEMI_ROUND,
+				ScriptedBranchShape.Heights.UP_DOWN
+			),
+			new DecoratorConfig.Builder()
+			.branch(ShroomlightSphereLeafPlacer.INSTANCE)
+			.trunk(ShroomlightSphereLeafPlacer.INSTANCE)
+			.trunkLayer(
+				new ShelfDecorator(
+					new SingletonRandomList<>(
+						new ShelfPlacer.NoSides(
+							palette.getLeaves(1, false)
+						),
+						IRandomList.DEFAULT_WEIGHT
+					),
+					0.5D,
+					0.25D
+				)
+			)
+			.build(),
+			column
+		)
+		.generate();
+	}
+
+	public static boolean generateArtificialNetherBigShroomTree(
+		StructureWorldAccess world,
+		SaplingPositions saplingPositions,
+		TreeRegistry.Entry palette,
+		int trunkHeight,
+		Permuter random
+	) {
+		BlockPos center = saplingPositions.getCenterPos();
+		WorldColumn column = WorldColumn.forWorld(world, center.getX(), center.getZ());
+		return new TreeGenerator(
+			world,
+			saplingPositions.queue,
+			random,
+			palette,
+			new TwistedTrunkConfig(
+				saplingPositions.centerX,
+				saplingPositions.centerY,
+				saplingPositions.centerZ,
+				trunkHeight,
+				saplingPositions.radius,
+				TreeSpecialCases.randomAngle(random),
+				TwistedTrunkConfig.randomTwistSpeed(random),
+				false,
+				false
+			),
+			new BranchesConfig(
+				0.5D,
+				trunkHeight >> 1,
+				TreeSpecialCases.randomAngle(random),
+				true,
+				ScriptedBranchShape.Lengths.SEMI_ROUND,
+				ScriptedBranchShape.Heights.UP_DOWN
+			),
+			new DecoratorConfig.Builder()
+			.branch(ShroomlightSphereLeafPlacer.INSTANCE)
+			.trunk(ShroomlightSphereLeafPlacer.INSTANCE)
+			.build(),
+			column
+		)
+		.generate();
+	}
+
+	public static boolean generateNaturalNetherSmallShroomTree(
+		StructureWorldAccess world,
+		BlockPos pos,
+		TreeRegistry.Entry palette,
+		int trunkHeight,
+		Permuter random
+	) {
+		WorldColumn column = WorldColumn.forWorld(world, pos.getX(), pos.getZ());
+		double trunkRadius = random.nextFloat() * 0.5D + 1.0D;
+		return new TreeGenerator(
+			world,
+			new BlockQueue(false),
+			random,
+			palette,
+			TwistedTrunkConfig.create(
+				pos,
+				trunkHeight,
+				trunkRadius,
+				random,
+				true,
+				false
+			),
+			BranchesConfig.create(
+				0.5D,
+				trunkHeight >> 1,
+				TreeSpecialCases.randomAngle(random),
+				trunkRadius,
+				ScriptedBranchShape.Lengths.SEMI_ROUND,
+				ScriptedBranchShape.Heights.UP_DOWN
+			),
+			new DecoratorConfig.Builder()
+			.branch(ShroomlightSphereLeafPlacer.INSTANCE)
+			.trunk(ShroomlightSphereLeafPlacer.INSTANCE)
+			.build(),
+			column
+		)
+		.generate();
+	}
+
+	public static boolean generateArtificialNetherSmallShroomTree(
+		StructureWorldAccess world,
+		SaplingPositions saplingPositions,
+		TreeRegistry.Entry palette,
+		int trunkHeight,
+		Permuter random
+	) {
+		BlockPos center = saplingPositions.getCenterPos();
+		WorldColumn column = WorldColumn.forWorld(world, center.getX(), center.getZ());
+		return new TreeGenerator(
+			world,
+			saplingPositions.queue,
+			random,
+			palette,
+			new TwistedTrunkConfig(
+				saplingPositions.centerX,
+				saplingPositions.centerY,
+				saplingPositions.centerZ,
+				trunkHeight,
+				saplingPositions.radius,
+				TreeSpecialCases.randomAngle(random),
+				TwistedTrunkConfig.randomTwistSpeed(random),
+				false,
+				false
+			),
+			BranchesConfig.create(
+				0.5D,
+				trunkHeight >> 1,
+				TreeSpecialCases.randomAngle(random),
+				saplingPositions.radius,
+				ScriptedBranchShape.Lengths.SEMI_ROUND,
+				ScriptedBranchShape.Heights.UP_DOWN
+			),
+			new DecoratorConfig.Builder()
+			.branch(ShroomlightSphereLeafPlacer.INSTANCE)
+			.trunk(ShroomlightSphereLeafPlacer.INSTANCE)
+			.build(),
+			column
+		)
+		.generate();
+	}
+
+	public static boolean generateArtificialNetherCommonShroomTree(
+		StructureWorldAccess world,
+		SaplingPositions saplingPositions,
+		TreeRegistry.Entry pallet,
+		Permuter random
+	) {
+		int trunkHeight = (int)(oneOrTwoX(random, saplingPositions.radius * 8.0D));
+		int bigHeight = oneOrTwoX(random, 16);
+		return (
+			trunkHeight >= bigHeight
+			? generateArtificialNetherBigShroomTree(world, saplingPositions, pallet, trunkHeight, random)
+			: generateArtificialNetherSmallShroomTree(world, saplingPositions, pallet, trunkHeight, random)
+		);
+	}
+
+	/*
+	public static boolean generateNaturalNetherCharredTree(
+		StructureWorldAccess world,
+		BlockPos pos,
+		int maxHeight,
+		RandomGenerator random
+	) {
+		double trunkRadius = random.nextDouble() + TrunkConfig.MIN_RADIUS;
+		int trunkHeight = (int)(oneOrTwoX(random, trunkRadius * 8.0D));
+		if (trunkHeight + 8 > maxHeight) return false;
+		double branchStartFrac = Permuter.between(random, 0.25D, 0.5D);
+		double maxBranchLength = Interpolator.mixLinear(trunkHeight, 0.0D, branchStartFrac);
+		CharredLeafPlacer leafPlacer = new CharredLeafPlacer(0.0625D);
+		return new TreeGenerator(
+			new BlockQueue(false),
+			WoodRegistry.CHARRED,
+			SlantedTrunkConfig.createNatural(
+				pos,
+				trunkHeight,
+				trunkRadius,
+				random,
+				true
+			),
+			new BranchesConfig(
+				branchStartFrac,
+				oneOrTwoX(random, trunkHeight) >> 2,
+				TreeSpecialCases.randomAngle(random),
+				true,
+				BranchLength.ROUND,
+				new LinearHighRandomSource(maxBranchLength * 0.25D, maxBranchLength * 0.5D),
+				BranchHeight.FLAT_DOWN,
+				new GaussianRandomSource(0.0D, 0.5D, 4)
+			),
+			new DecoratorConfig.Builder()
+			.trunkBlock(leafPlacer)
+			.branchBlock(leafPlacer)
+			.build()
+		)
+		.generate(world, pos, random);
+	}
+
+	public static boolean generateArtificialNetherCharredTree(
+		StructureWorldAccess world,
+		SaplingPositions saplingPositions,
+		RandomGenerator random
+	) {
+		int trunkHeight = (int)(oneOrTwoX(random, saplingPositions.radius * 8.0D));
+		double branchStartFrac = Permuter.between(random, 0.25D, 0.5D);
+		double maxBranchLength = Interpolator.mixLinear(trunkHeight, 0.0D, branchStartFrac);
+		int fireBlocks = 0;
+		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+		for (BlockPos position : saplingPositions.positions) {
+			for (Direction direction : Enums.HORIZONTAL_DIRECTIONS) {
+				if (world.getBlockState(mutablePos.set(position, direction)).isIn(BlockTags.FIRE)) {
+					fireBlocks++;
+				}
+			}
+		}
+		CharredLeafPlacer leafPlacer = new CharredLeafPlacer(((double)(fireBlocks)) / ((double)(fireBlocks + saplingPositions.positions.size())));
+		return new TreeGenerator(
+			saplingPositions.queue,
+			WoodRegistry.CHARRED,
+			SlantedTrunkConfig.createArtificial(
+				saplingPositions.centerX,
+				saplingPositions.centerY,
+				saplingPositions.centerZ,
+				trunkHeight,
+				saplingPositions.radius,
+				random,
+				false
+			),
+			new BranchesConfig(
+				branchStartFrac,
+				oneOrTwoX(random, trunkHeight) >> 2,
+				TreeSpecialCases.randomAngle(random),
+				true,
+				BranchLength.ROUND,
+				new GaussianRandomSource(maxBranchLength * 0.25D, maxBranchLength * 0.5D, 2),
+				BranchHeight.FLAT_DOWN,
+				new GaussianRandomSource(0.0D, 0.5D, 4)
+			),
+			new DecoratorConfig.Builder()
+			.branchBlock(leafPlacer)
+			.build()
+		)
+		.generate(world, saplingPositions.getCenterPos(), random);
+	}
+	*/
+
+	/*
+	public static boolean generateNaturalEndChorusTree(
+		ISeedReader world,
+		BlockPos pos
+	) {
+		return new TreeGenerator(
+			new BlockQueue(true),
+			WoodRegistry.CHORUS,
+			OrganicTrunkConfig.create(
+				pos,
+				40,
+				4.0D,
+				world.getRandom()
+			),
+			new ShelfDecorator(
+				new RandomList<ShelfPlacer>(1)
+				.addSelf(
+					new ShelfPlacer.NoSides(
+						BigGlobeBlocks.CHORUS_SHELF.get().getDefaultState()
+					),
+					10.0D
+				),
+				1.0D,
+				0.25D
+			),
+			new BranchesConfig(
+				0.25D,
+				10,
+				TreeSpecialCases.randomAngle(world.getRandom()),
+				BranchLength.SEMI_ROUND,
+				new RangedFloat.UniformRangedFloat(10.0D, 20.0D),
+				BranchHeight.FLAT_UP,
+				new RangedFloat.GaussianRangedFloat(0.0D, 1.0D)
+			),
+			new LeavesConfig(
+				LeafRadius.NONE,
+				new RangedFloat.ConstantRangedFloat(0.0D),
+				NoopLeafPlacer.INSTANCE
+			),
+			DecoratorConfig.NONE,
+			false
+		)
+		.generate(world, pos, world.getRandom());
+	}
+	*/
+}

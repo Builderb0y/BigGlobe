@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"return(",
+				"getBlockState(originX, originY - 1, originZ).getBlock() == block('minecraft:water') &&",
+				"random.nextBoolean(0.015625) &&",
+				"placeBlockState(originX, originY, originZ, 'minecraft:lily_pad')",
+			")"
+		]
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_ore",
+	"config": {
+		"stone_state": "minecraft:iron_ore",
+		"deepslate_state": "minecraft:deepslate_iron_ore",
+		"chance": "2 ^ ((y - `max_y`) / 512 - 1) + 0.25",
+		"radius": {
+			"type": "average",
+			"min": 2.5,
+			"max": 8.0,
+			"average": 3.5
+		}
+	}
+}

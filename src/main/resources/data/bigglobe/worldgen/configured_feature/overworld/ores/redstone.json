@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_ore",
+	"config": {
+		"stone_state": "minecraft:redstone_ore[lit=false]",
+		"deepslate_state": "minecraft:deepslate_redstone_ore[lit=false]",
+		"chance": "((`max_y` - y) / 512 - 0.25) * max(-`overworld/temperature`, 0) ^ 2",
+		"radius": {
+			"type": "average",
+			"min": 2.5,
+			"max": 8.0,
+			"average": 3.5
+		}
+	}
+}

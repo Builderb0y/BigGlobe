@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_ore",
+	"config": {
+		"stone_state": "minecraft:coal_ore",
+		"deepslate_state": "minecraft:deepslate_coal_ore",
+		"chance": "1",
+		"radius": {
+			"type": "average",
+			"min": 3.0,
+			"max": 12.0,
+			"average": 4.0
+		}
+	}
+}

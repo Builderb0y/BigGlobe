@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cold_wasteland",
+		"bigglobe:temperate_wasteland",
+		"bigglobe:hot_wasteland"
+	]
+}

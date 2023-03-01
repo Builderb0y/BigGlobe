@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:overworld/caves/ceiling_all",
+		"bigglobe:overworld/caves/the_ceiling_is_lava",
+		"bigglobe:overworld/caves/occasional_smooth_basalt"
+	]
+}

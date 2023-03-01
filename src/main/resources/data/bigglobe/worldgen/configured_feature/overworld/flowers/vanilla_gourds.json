@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:overworld_flower_group",
+	"config": {
+		"scale": 32,
+		"variation": 32,
+		"spawn_chance": 0.25,
+		"randomize_chance": 0.25,
+		"randomize_radius": { "type": "uniform", "min": 16.0, "max": 32.0 }
+	}
+}

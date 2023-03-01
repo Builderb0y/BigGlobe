@@ -1,0 +1,30 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [{
+				"type": "minecraft:item",
+				"name": "bigglobe:rope_anchor"
+			}],
+			"conditions": [{
+				"condition": "minecraft:survives_explosion"
+			}]
+		},
+		{
+			"rolls": 1,
+			"entries": [{
+				"type": "minecraft:item",
+				"name": "bigglobe:spelunking_rope"
+			}],
+			"conditions": [
+				{ "condition": "minecraft:survives_explosion" },
+				{
+					"condition": "minecraft:block_state_property",
+					"block": "bigglobe:rope_anchor",
+					"properties": { "has_rope": "true" }
+				}
+			]
+		}
+	]
+}

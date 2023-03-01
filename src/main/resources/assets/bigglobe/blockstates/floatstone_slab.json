@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"type=top":    { "model": "bigglobe:block/floatstone_slab_top" },
+		"type=bottom": { "model": "bigglobe:block/floatstone_slab" },
+		"type=double": { "model": "bigglobe:block/floatstone" }
+	}
+}

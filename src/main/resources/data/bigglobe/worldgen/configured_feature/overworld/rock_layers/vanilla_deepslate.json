@@ -1,0 +1,7 @@
+{
+	"type": "bigglobe:overworld_rock_layer_group",
+	"config": {
+		"repeat": 16.0,
+		"generate_before_ores": true
+	}
+}

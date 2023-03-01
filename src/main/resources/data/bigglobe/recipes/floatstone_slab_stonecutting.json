@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": {
+		"item": "bigglobe:floatstone"
+	},
+	"result": "bigglobe:floatstone_slab",
+	"count": 2
+}

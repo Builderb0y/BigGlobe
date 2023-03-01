@@ -1,0 +1,17 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "villages",
+			"variation": 16,
+			"spacing": 32,
+			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 }
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:villages/plains" },
+		{ "weight": 1, "structure": "bigglobe:villages/desert" },
+		{ "weight": 1, "structure": "bigglobe:villages/snowy"  },
+		{ "weight": 1, "structure": "bigglobe:villages/taiga"  }
+	]
+}

@@ -1,0 +1,49 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "bigglobe:block/rope_anchor",
+		"anchor": "bigglobe:block/rope_anchor"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 6],
+			"to": [10, 6, 10],
+			"faces": {
+				"north": {"uv": [2, 10, 6, 16], "texture": "#anchor"},
+				"east": {"uv": [2, 10, 6, 16], "texture": "#anchor"},
+				"south": {"uv": [2, 10, 6, 16], "texture": "#anchor"},
+				"west": {"uv": [2, 10, 6, 16], "texture": "#anchor"}
+			}
+		},
+		{
+			"from": [4, 6, 4],
+			"to": [12, 8, 12],
+			"faces": {
+				"north": {"uv": [0, 8, 8, 10], "texture": "#anchor"},
+				"east": {"uv": [0, 8, 8, 10], "texture": "#anchor"},
+				"south": {"uv": [0, 8, 8, 10], "texture": "#anchor"},
+				"west": {"uv": [0, 8, 8, 10], "texture": "#anchor"},
+				"up": {"uv": [8, 0, 16, 8], "texture": "#anchor"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#anchor"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation":    [ 75,    45,     0     ],
+			"translation": [  0,     2.5,   2     ],
+			"scale":       [  0.375, 0.375, 0.375 ]
+		},
+		"firstperson_righthand": {
+			"rotation":    [ 0,  45,   0   ],
+			"translation": [ 0,   2.5, 0   ],
+			"scale":       [ 0.4, 0.4, 0.4 ]
+		},
+		"firstperson_lefthand": {
+			"rotation":    [ 0, 225,   0   ],
+			"translation": [ 0,   2.5, 0   ],
+			"scale":       [ 0.4, 0.4, 0.4 ]
+		}
+	}
+}

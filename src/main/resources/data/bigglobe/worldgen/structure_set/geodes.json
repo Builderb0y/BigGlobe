@@ -1,0 +1,15 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "geodes",
+			"variation": 3,
+			"spacing": 6,
+			"restrictions": { "type": "skip_distant_horizons" }
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:geodes/amethyst" },
+		{ "weight": 1, "structure": "bigglobe:geodes/prismarine" }
+	]
+}

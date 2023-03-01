@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_ore",
+	"config": {
+		"stone_state": "minecraft:gold_ore",
+		"deepslate_state": "minecraft:deepslate_gold_ore",
+		"chance": "((`max_y` - y) / 512 - 0.25) * max(`overworld/temperature`, 0) ^ 2",
+		"radius": {
+			"type": "average",
+			"min": 2.0,
+			"max": 6.0,
+			"average": 3.0
+		}
+	}
+}

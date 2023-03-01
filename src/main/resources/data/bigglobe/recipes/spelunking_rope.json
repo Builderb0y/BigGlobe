@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"sws",
+		"sws",
+		"sws"
+	],
+	"key": {
+		"s": { "tag": "c:string" },
+		"w": { "tag": "c:wood_sticks" }
+	},
+	"result": {
+		"item": "bigglobe:spelunking_rope",
+		"count": 6
+	}
+}

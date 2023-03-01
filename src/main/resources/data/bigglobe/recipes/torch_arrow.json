@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"c",
+		"s",
+		"f"
+	],
+	"key": {
+		"c": [
+			{ "tag": "c:coal" },
+			{ "tag": "c:charcoal" }
+		],
+		"s": { "tag": "c:wood_sticks" },
+		"f": { "tag": "c:feathers" }
+	},
+	"result": { "item": "bigglobe:torch_arrow", "count": 4 }
+}

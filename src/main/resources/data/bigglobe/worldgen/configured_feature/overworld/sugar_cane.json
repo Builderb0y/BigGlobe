@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"BlockState state = 'minecraft:sugar_cane[age=0]'",
+			"int maxHeight = random.nextInt(1, 5)",
+			"for (int height = 0, height < maxHeight && state.canPlaceAt(originX, originY + height, originZ), ++height:",
+				"setBlockState(originX, originY + height, originZ, state)",
+			")",
+			"return(true)"
+		]
+	}
+}

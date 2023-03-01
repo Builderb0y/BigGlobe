@@ -1,0 +1,17 @@
+{
+	"states": {
+		"sapling": "minecraft:azalea",
+		"potted_sapling": "minecraft:potted_azalea_bush",
+		"log": "minecraft:oak_log[axis=y]",
+		"stripped_log": "minecraft:stripped_oak_log[axis=y]",
+		"wood": "minecraft:oak_wood[axis=y]",
+		"stripped_wood": "minecraft:stripped_oak_wood[axis=y]",
+		"planks": "minecraft:oak_planks",
+		"leaves": "minecraft:azalea_leaves[distance=1,persistent=false,waterlogged=false]",
+		"slab": "minecraft:oak_slab[type=bottom,waterlogged=false]",
+		"stairs": "minecraft:oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+		"fence": "minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+		"fence_gate": "minecraft:oak_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
+	},
+	"feature": "bigglobe:overworld/trees/artificial/azalea"
+}

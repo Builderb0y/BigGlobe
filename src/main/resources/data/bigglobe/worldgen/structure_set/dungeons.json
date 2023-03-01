@@ -1,0 +1,16 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "dungeons",
+			"variation": 4,
+			"spacing": 8,
+			"restrictions": { "type": "skip_distant_horizons" }
+		}
+	},
+	"structures": [
+		{ "structure": "bigglobe:dungeons/small",  "weight": 1 },
+		{ "structure": "bigglobe:dungeons/medium", "weight": 1 },
+		{ "structure": "bigglobe:dungeons/large",  "weight": 1 }
+	]
+}

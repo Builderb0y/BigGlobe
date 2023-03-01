@@ -1,0 +1,85 @@
+bug fixes:
+	geode spikes can still spawn outside of geodes.
+	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
+		this is a fabric bug.
+
+testing:
+	cubic chunks compatibility, whenever that's released.
+
+where I left off:
+	column values for cliff frac and cliff bias.
+
+AutoCodec:
+	log when extra data is provided that isn't a field of the object being deserialized.
+	logging for Field/MethodPredicate?
+	better handling of default objects:
+		@DefaultGet: gets an object from a field or method.
+			field can be of type T_Decoded or AutoDecoder<T_Decoded>.
+			method can have a return type of T_Decoded or AutoDecoder<T_Decoded>.
+			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
+			this could also target a constructor.
+	builtin framework for key dispatching.
+
+scripting:
+	better syntax for specifying variable block states.
+		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
+	expose arrays.
+	break statements.
+	scriptable RandomSource?
+	WorldColumn as object, expose setPos().
+	pre and post update operators.
+	increment and decrement as expression.
+	postfix increment and decrement.
+	do while loop.
+
+features:
+	advancements for finding things?
+	allow flowers to place a Feature for every flower.
+	ice spikes.
+	all the todos scattered throughout my code.
+	log cabin structure?
+	trees:
+		roots.
+			use for mangrove trees.
+	cave biomes:
+		lush:
+			walls:
+				glow lichen.
+				vines.
+		mushroom:
+			glowing mushrooms?
+	make geode placement faster by only computing noise in a sphere instead of a cube.
+	make cave excluders and height overriders data-driven.
+	fallen logs.
+	dungeons:
+		cobwebs on ceiling corners.
+		skulls on floor.
+		redstone torches on walls.
+		chains on ceiling.
+		piles of gold?
+		occasional "big rooms".
+		collapsed rooms?
+			blocks in the ceiling (and possibly slightly above it) fall onto the floor.
+	underground bubbles:
+		slime pit.
+		lava lake.
+		natural bubble:
+			water, grass, foliage, etc.
+			some kind of light source.
+		deep dark bubble:
+			can spawn higher than normal deep dark areas.
+		ore jackpot:
+			lots of ores everywhere.
+	make lilypads renewable?
+	jessie wants worley noise for the end.
+
+before release:
+	disable dev mixins.
+	make sure nothing in test package is used.
+	disable BigGlobeItems.TEST_ITEM.
+	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
+
+when updating to a new version:
+	check how ChunkSection counts are used.
+		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
+		this usage matters for SectionGenerationContext.recalculateCounts().

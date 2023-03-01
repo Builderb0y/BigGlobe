@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": "random.nextBoolean(0.125) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/trees/decorators/cocoa')"
+	}
+}

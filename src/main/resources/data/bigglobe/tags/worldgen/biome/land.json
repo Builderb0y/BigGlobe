@@ -1,0 +1,14 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cold_forest",
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland",
+		"bigglobe:temperate_forest",
+		"bigglobe:temperate_plains",
+		"bigglobe:temperate_wasteland",
+		"bigglobe:hot_forest",
+		"bigglobe:hot_plains",
+		"bigglobe:hot_wasteland"
+	]
+}

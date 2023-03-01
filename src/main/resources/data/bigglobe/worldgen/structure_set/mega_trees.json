@@ -1,0 +1,20 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "mega_trees",
+			"variation": 16,
+			"spacing": 32,
+			"restrictions": { "type": "range", "property": "overworld/surface_foliage", "min": 0.0 }
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:mega_trees/oak"      },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/spruce"   },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/birch"    },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/jungle"   },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/acacia"   },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/dark_oak" },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/mangrove" }
+	]
+}

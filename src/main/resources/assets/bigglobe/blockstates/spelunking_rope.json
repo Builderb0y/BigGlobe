@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"facing=north": { "model": "bigglobe:block/spelunking_rope", "y": 0   },
+		"facing=east":  { "model": "bigglobe:block/spelunking_rope", "y": 90  },
+		"facing=south": { "model": "bigglobe:block/spelunking_rope", "y": 180 },
+		"facing=west":  { "model": "bigglobe:block/spelunking_rope", "y": 270 }
+	}
+}

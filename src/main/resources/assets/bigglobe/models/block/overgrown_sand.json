@@ -1,0 +1,9 @@
+{
+	"parent": "block/cube_bottom_top",
+	"textures": {
+		"particle": "bigglobe:block/overgrown_sand_top",
+		"bottom":   "block/sand",
+		"top":      "bigglobe:block/overgrown_sand_top",
+		"side":     "bigglobe:block/overgrown_sand_side"
+	}
+}

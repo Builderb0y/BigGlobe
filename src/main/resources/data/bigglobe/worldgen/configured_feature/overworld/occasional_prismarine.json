@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if(sqrt(`overworld/sea_level` - `max_y`) / 2048.0:",
+				"int y = int(floor(`max_y` - min(random.nextDouble(64.0), random.nextDouble(64.0))))",
+				"return(placeFeature(originX, y, originZ, 'bigglobe:overworld/prismarine'))",
+			")",
+			"return(false)"
+		]
+	}
+}

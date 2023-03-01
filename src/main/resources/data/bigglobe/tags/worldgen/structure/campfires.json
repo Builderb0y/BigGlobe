@@ -1,0 +1,11 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:campfires/oak",
+		"bigglobe:campfires/spruce",
+		"bigglobe:campfires/birch",
+		"bigglobe:campfires/jungle",
+		"bigglobe:campfires/acacia",
+		"bigglobe:campfires/dark_oak"
+	]
+}

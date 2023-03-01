@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "bigglobe",
+	"version": "${version}",
+	"name": "Big Globe",
+	"description": "Round earth is a hoax invented by Big Globe to sell more globes!",
+	"authors": [
+		"Builderb0y"
+	],
+	"contributors": [
+		"Mr Slime - helped with overgrown podzol textures."
+	],
+	"license": "CC-BY-NC 4.0",
+	"icon": "assets/bigglobe/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main":          [ "builderb0y.bigglobe.BigGlobeMod" ],
+		"client":        [ "builderb0y.bigglobe.BigGlobeClient" ],
+		"server":        [ "builderb0y.bigglobe.BigGlobeServer" ],
+		"modmenu":       [ "builderb0y.bigglobe.compat.ModMenuCompat" ],
+		"dynamiclights": [ "builderb0y.bigglobe.compat.LambDynamicLightsCompat" ]
+	},
+	"mixins": [
+		"bigglobe.mixins.json"
+	],
+	"accessWidener": "bigglobe.accesswidener",
+	"depends": {
+		"fabricloader": ">=0.14.9",
+		"fabric": "*",
+		"minecraft": "1.19.2",
+		"java": ">=17"
+	},
+	"suggests": {
+	}
+}

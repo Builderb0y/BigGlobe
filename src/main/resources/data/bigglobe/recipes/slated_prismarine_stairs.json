@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"#  ",
+		"## ",
+		"###"
+	],
+	"key": {
+		"#": { "item": "bigglobe:slated_prismarine" }
+	},
+	"result": { "item": "bigglobe:slated_prismarine_stairs", "count": 4 }
+}

@@ -1,0 +1,244 @@
+package builderb0y.bigglobe.settings;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapLike;
+import org.jetbrains.annotations.NotNull;
+
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseEncoder;
+import builderb0y.autocodec.annotations.UseImprinter;
+import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.decoders.AutoDecoder;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.imprinters.AutoImprinter.NamedImprinter;
+import builderb0y.autocodec.imprinters.ImprintContext;
+import builderb0y.autocodec.imprinters.ImprintException;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.autocodec.util.AutoCodecUtil;
+
+@UseImprinter(name = "new", in = VariationsList.Imprinter.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
+@UseEncoder  (name = "new", in = VariationsList.Encoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
+public class VariationsList<T> {
+
+	public static final Consumer<String> throwDecode = s -> {
+		throw AutoCodecUtil.rethrow(new DecodeException(s));
+	};
+
+	public transient Dynamic<?> source;
+	public transient List<T> elements;
+
+	public static <T_Encoded> T_Encoded merge(T_Encoded oldObject, T_Encoded newObject, DynamicOps<T_Encoded> ops, boolean deep) {
+		MapLike<T_Encoded> oldMap = ops.getMap(oldObject).result().orElse(null);
+		MapLike<T_Encoded> newMap = ops.getMap(newObject).result().orElse(null);
+		if (oldMap != null && newMap != null) {
+			Map<T_Encoded, T_Encoded> result = new HashMap<>();
+			oldMap.entries().forEach(pair -> result.put(pair.getFirst(), pair.getSecond()));
+			if (deep) {
+				newMap.entries().forEach(pair -> result.merge(
+					pair.getFirst(),
+					pair.getSecond(),
+					(first, second) -> merge(first, second, ops, true)
+				));
+			}
+			else {
+				newMap.entries().forEach(pair -> result.put(pair.getFirst(), pair.getSecond()));
+			}
+			return ops.createMap(result);
+		}
+		return newObject;
+	}
+
+	public static <T_Encoded> Stream<T_Encoded> flatten(Stream<T_Encoded> oldLayer, T_Encoded[] newLayer, DynamicOps<T_Encoded> ops, boolean deep) {
+		return oldLayer.flatMap((T_Encoded element1) -> {
+			return Arrays.stream(newLayer).map((T_Encoded element2) -> {
+				return merge(element1, element2, ops, deep);
+			});
+		});
+	}
+
+	@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+	public static <T_Encoded> Stream<T_Encoded> expand(T_Encoded root, DynamicOps<T_Encoded> ops) {
+		Stream<T_Encoded> variations = ops.get(root, "variations").flatMap(ops::getStream).result().orElse(null);
+		if (variations != null) {
+			boolean deep = ops.get(root, "deep").flatMap(ops::getBooleanValue).result().orElse(Boolean.FALSE);
+			T_Encoded defaults = ops.get(root, "defaults").result().orElse(null);
+			if (defaults != null) {
+				T_Encoded[] layers = (T_Encoded[])(
+					variations /* [ {}, {} ] */.flatMap(
+						(T_Encoded element /* {} */) -> expand(element, ops)
+					)
+					.toArray()
+				);
+				return flatten(Stream.of(defaults), layers, ops, deep);
+			}
+			else {
+				T_Encoded[] layers = (T_Encoded[])(
+					variations /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
+						(T_Encoded list /* [ {}, {} ] */) -> ops.createList(
+							ops
+								.getStream(list)
+								.getOrThrow(false, throwDecode)
+								.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
+						)
+					)
+					.toArray()
+				);
+				Stream<T_Encoded> stream = ops.getStream(layers[0]).getOrThrow(false, throwDecode);
+				for (int index = 1, length = layers.length; index < length; index++) {
+					stream = flatten(stream, (T_Encoded[])(ops.getStream(layers[index]).getOrThrow(false, throwDecode).toArray()), ops, deep);
+				}
+				return stream;
+			}
+		}
+		else {
+			Stream<T_Encoded> stream = ops.getStream(root).result().orElse(null);
+			if (stream != null) {
+				return stream /* [ {}, {} ] */.flatMap((T_Encoded element /* {} */) -> expand(element, ops));
+			}
+			return Stream.of(root);
+		}
+	}
+
+	public static class Imprinter<T> extends NamedImprinter<VariationsList<T>> {
+
+		public final AutoDecoder<List<T>> listEncoder;
+
+		public Imprinter(ReifiedType<VariationsList<T>> type, AutoDecoder<List<T>> imprinter) {
+			super(type);
+			this.listEncoder = imprinter;
+		}
+
+		public Imprinter(FactoryContext<VariationsList<T>> context) {
+			this(context.type, context.type(ReifiedType.<List<T>>parameterize(List.class, context.type.resolveParameter(VariationsList.class))).forceCreateDecoder());
+		}
+
+		@Override
+		public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, VariationsList<T>> context) throws ImprintException {
+			try {
+				context.object.source = new Dynamic<>(context.ops, context.input);
+				T_Encoded list = context.ops.createList(expand(context.input, context.ops));
+				context.object.elements = context.input(list).decodeWith(this.listEncoder);
+			}
+			catch (ImprintException exception) {
+				throw exception;
+			}
+			catch (DecodeException exception) {
+				throw new ImprintException(exception);
+			}
+		}
+	}
+
+	/*
+	public static class FlattenTask<T_Encoded> extends LoggableTask<Stream<T_Encoded>, ImprintException> {
+
+		public final T_Encoded encoded;
+		public final DynamicOps<T_Encoded> ops;
+		public final TaskLogger logger;
+
+		public FlattenTask(T_Encoded encoded, DynamicOps<T_Encoded> ops, TaskLogger logger) {
+			this.encoded = encoded;
+			this.ops = ops;
+			this.logger = logger;
+		}
+
+		public Stream<T_Encoded> unwrapIfList() {
+			Stream<T_Encoded> stream = this.ops.getStream(this.encoded).result().orElse(null);
+			return (
+				stream == null
+				? Stream.of(this.encoded)
+				: stream.flatMap(element -> {
+					try {
+						return this.logger.runTask(new FlattenTask<>(element, this.ops, this.logger));
+					}
+					catch (ImprintException exception) {
+						throw AutoCodecUtil.rethrow(exception);
+					}
+				})
+			);
+		}
+
+		@Override
+		public Stream<T_Encoded> run() throws ImprintException {
+			T_Encoded defaults = this.ops.get(this.encoded, "defaults").result().orElse(null);
+			if (defaults == null) return this.unwrapIfList();
+			T_Encoded variations = this.ops.get(this.encoded, "variations").result().orElse(null);
+			if (variations == null) return this.unwrapIfList();
+
+			Map<T_Encoded, T_Encoded> defaultsMap = (
+				this
+				.logger
+				.unwrap(
+					this.ops.getMapValues(defaults),
+					false,
+					ImprintException::new
+				)
+				.collect(Pair.toMap())
+			);
+			Stream<T_Encoded> variationsStream = this.logger.unwrap(
+				this.ops.getStream(variations),
+				false,
+				ImprintException::new
+			);
+			return variationsStream.flatMap(element -> {
+				try {
+					Stream<T_Encoded> recursiveFlattened = this.logger.runTask(new FlattenTask<>(element, this.ops, this.logger));
+					return recursiveFlattened.map(flattenedElement -> {
+						try {
+							Map<T_Encoded, T_Encoded> map = new HashMap<>(defaultsMap);
+							this.logger.unwrap(
+								this.ops.getMapValues(flattenedElement),
+								false,
+								ImprintException::new
+							)
+							.forEachOrdered(pair -> map.put(pair.getFirst(), pair.getSecond()));
+							return this.ops.createMap(map);
+						}
+						catch (ImprintException exception) {
+							throw AutoCodecUtil.rethrow(exception);
+						}
+					});
+				}
+				catch (ImprintException exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
+			});
+		}
+
+		@Override
+		public String toString() {
+			return "Flattening " + this.encoded;
+		}
+	}
+	*/
+
+	public static class Encoder<T> extends NamedEncoder<VariationsList<T>> {
+
+		public Encoder(ReifiedType<VariationsList<T>> type) {
+			super(type);
+		}
+
+		public Encoder(FactoryContext<VariationsList<T>> context) {
+			this(context.type);
+		}
+
+		@Override
+		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, VariationsList<T>> context) throws EncodeException {
+			return context.input == null ? context.empty() : convert(context.input.source, context.ops);
+		}
+
+		public static <T_From, T_To> T_To convert(Dynamic<T_From> dynamic, DynamicOps<T_To> ops) {
+			return Dynamic.convert(dynamic.getOps(), ops, dynamic.getValue());
+		}
+	}
+}

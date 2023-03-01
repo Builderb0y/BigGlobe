@@ -1,0 +1,27 @@
+{
+	"type": "bigglobe:artificial_tree",
+	"config": {
+		"palette": "minecraft:jungle",
+		"trunk": {
+			"type": "bigglobe:straight",
+			"require_natural_ground": true,
+			"can_generate_in_liquid": false
+		},
+		"branches": {
+			"start_frac_y": { "type": "uniform", "min": 0.5, "max": 0.75 },
+			"count_per_layer": { "type": "uniform", "min": 4.0, "max": 8.0 },
+			"length_function": "fraction ^ 2 * random.nextDouble(1.5, 2.0)",
+			"height_function": "-0.25 * fraction ^ 2"
+		},
+		"decorations": {
+			"trunk": [
+				{ "type": "bigglobe:drooping_leaves", "is_trunk": true },
+				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
+				{ "type": "bigglobe:stubby_branch", "chance": 0.125 }
+			],
+			"branches": [
+				{ "type": "bigglobe:drooping_leaves", "is_trunk": false }
+			]
+		}
+	}
+}

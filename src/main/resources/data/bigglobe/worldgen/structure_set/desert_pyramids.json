@@ -1,0 +1,15 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "desert_pyramids",
+			"variation": 8,
+			"spacing": 16,
+			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 }
+		}
+	},
+	"structures": [
+		{ "weight": 2, "structure": "bigglobe:desert_pyramid" },
+		{ "weight": 1, "structure": "bigglobe:bigger_desert_pyramid" }
+	]
+}

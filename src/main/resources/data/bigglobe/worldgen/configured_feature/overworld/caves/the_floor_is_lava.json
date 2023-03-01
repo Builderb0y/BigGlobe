@@ -1,0 +1,42 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"boolean flatBlackstoneAt(int x, int z:",
+				"return(",
+					"getBlockState(x, originY, z).isAir() &&",
+					"getBlockState(x, originY - 1, z) == blockState('minecraft:blackstone')",
+				")",
+			")",
+
+			"void placeMagma(int x, int z:",
+				"setBlockState(x, originY - 1, z, 'minecraft:magma_block')",
+			")",
+
+			"if (`overworld/cave_surface_depth` > 0.0 && random.nextBoolean(1.0 / 64.0):",
+				"if (",
+					"random.nextBoolean() &&",
+					"flatBlackstoneAt(originX - 1, originZ) &&",
+					"flatBlackstoneAt(originX + 1, originZ) &&",
+					"flatBlackstoneAt(originX, originZ - 1) &&",
+					"flatBlackstoneAt(originX, originZ + 1) &&",
+					"getBlockState(originX, originY - 2, originZ) == blockState('minecraft:blackstone')",
+				":",
+					"placeMagma(originX - 1, originZ)",
+					"placeMagma(originX + 1, originZ)",
+					"placeMagma(originX, originZ - 1)",
+					"placeMagma(originX, originZ + 1)",
+					"setBlockState(originX, originY - 2, originZ, 'minecraft:magma_block')",
+					"setBlockState(originX, originY - 1, originZ, 'minecraft:lava[level=0]')",
+				")",
+				"else (",
+					"placeMagma(originX, originZ)",
+				")",
+				"return(true)",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

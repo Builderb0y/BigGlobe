@@ -1,0 +1,33 @@
+{
+	"type": "bigglobe:overworld_rock_layer_entry",
+	"config": {
+		"group": "bigglobe:overworld/rock_layers/vanilla_dirt",
+		"entries": {
+			"defaults": {
+				"weight": 1.0,
+				"center": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 8.0 },
+						{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
+						{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 }
+					]
+				},
+				"thickness": {
+					"type": "sum",
+					"layers": [
+						{ "type": "constant", "value": -4.0 },
+						{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 8.0 },
+						{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 4.0 },
+						{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 2.0 }
+					]
+				}
+			},
+			"variations": [
+				{ "smooth_state": "minecraft:dirt",   "cobble_state": "minecraft:dirt",   "weight": 2.0 },
+				{ "smooth_state": "minecraft:gravel", "cobble_state": "minecraft:gravel", "weight": 2.0 },
+				{ "smooth_state": "minecraft:clay",   "cobble_state": "minecraft:clay",   "weight": 1.0 }
+			]
+		}
+	}
+}

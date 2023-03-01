@@ -1,0 +1,15 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "lakes",
+			"variation": 24,
+			"spacing": 32,
+			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.25, "max": 0.5 }
+		}
+	},
+	"structures": [
+		{ "weight": 2, "structure": "bigglobe:lakes/water" },
+		{ "weight": 1, "structure": "bigglobe:lakes/lava" }
+	]
+}

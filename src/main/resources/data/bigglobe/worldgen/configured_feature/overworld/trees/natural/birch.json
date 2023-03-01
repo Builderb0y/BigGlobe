@@ -1,0 +1,32 @@
+{
+	"type": "bigglobe:natural_tree",
+	"config": {
+		"palette": "minecraft:birch",
+		"height": "random.nextDouble(`overworld/foliage`) * 32.0 + 4.0",
+		"trunk": {
+			"type": "bigglobe:straight",
+			"require_natural_ground": true,
+			"can_generate_in_liquid": false
+		},
+		"branches": {
+			"start_frac_y": { "type": "uniform", "min": 0.25, "max": 0.5 },
+			"count_per_layer": { "type": "uniform", "min": 2.0, "max": 4.0 },
+			"length_function": "fraction * (1.0 - fraction)",
+			"height_function": "fraction * 0.25"
+		},
+		"decorations": {
+			"trunk": [
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true },
+				{ "type": "bigglobe:adjacent_leaf", "chance": 0.25 },
+				{ "type": "bigglobe:snow" }
+			],
+			"branches": [
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
+				{ "type": "bigglobe:snow" }
+			],
+			"leaves": [
+				{ "type": "bigglobe:snow" }
+			]
+		}
+	}
+}

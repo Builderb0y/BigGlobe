@@ -1,0 +1,11 @@
+accessWidener v1 named
+
+#used for really fast multi-threaded worldgen magic.
+accessible class net/minecraft/world/chunk/PalettedContainer$Data
+
+#used to filter where structures can spawn.
+extendable method net/minecraft/world/gen/chunk/ChunkGenerator trySetStructureStart (Lnet/minecraft/structure/StructureSet$WeightedEntry;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/gen/noise/NoiseConfig;Lnet/minecraft/structure/StructureTemplateManager;JLnet/minecraft/world/chunk/Chunk;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/ChunkSectionPos;)Z
+
+#used to make ocean monuments spawn at the correct Y level,
+#instead of a hard-coded Y level which only works for vanilla worlds.
+accessible class net/minecraft/structure/OceanMonumentGenerator$Piece

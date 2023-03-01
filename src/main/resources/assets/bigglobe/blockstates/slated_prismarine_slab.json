@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"type=top":    { "model": "bigglobe:block/slated_prismarine_slab_top" },
+		"type=bottom": { "model": "bigglobe:block/slated_prismarine_slab" },
+		"type=double": { "model": "bigglobe:block/slated_prismarine" }
+	}
+}

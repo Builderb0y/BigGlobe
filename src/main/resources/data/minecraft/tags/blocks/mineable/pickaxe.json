@@ -1,0 +1,13 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:rope_anchor",
+		"bigglobe:crystalline_prismarine",
+		"bigglobe:slated_prismarine",
+		"bigglobe:slated_prismarine_slab",
+		"bigglobe:slated_prismarine_stairs",
+		"bigglobe:floatstone",
+		"bigglobe:floatstone_slab",
+		"bigglobe:floatstone_stairs"
+	]
+}

@@ -1,0 +1,34 @@
+package builderb0y.scripting.bytecode.tree.conditions;
+
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+
+import builderb0y.scripting.bytecode.MethodCompileContext;
+
+public class AndConditionTree implements ConditionTree {
+
+	public final ConditionTree left, right;
+
+	public AndConditionTree(ConditionTree left, ConditionTree right) {
+		this.left = left;
+		this.right = right;
+	}
+
+	public static ConditionTree create(ConditionTree left, ConditionTree right) {
+		return new AndConditionTree(left, right);
+	}
+
+	@Override
+	public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {
+		ConditionTree.checkLabels(ifTrue, ifFalse);
+		boolean madeFalse = ifFalse == null;
+		if (madeFalse) ifFalse = new Label();
+		this.left.emitBytecode(method, null, ifFalse);
+		//context.node.visitLabel(new Label());
+		this.right.emitBytecode(method, null, ifFalse);
+		//context.node.visitLabel(new Label());
+		if (ifTrue != null) method.node.visitJumpInsn(Opcodes.GOTO, ifTrue);
+		if (madeFalse) method.node.visitLabel(ifFalse);
+	}
+}

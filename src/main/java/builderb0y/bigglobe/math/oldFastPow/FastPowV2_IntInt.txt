@@ -1,0 +1,269 @@
+package builderb0y.bigglobe.math;
+
+import java.io.PrintWriter;
+import java.lang.invoke.*;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongUnaryOperator;
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceClassVisitor;
+
+import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.math.DoubleFastPow.DoublePowOperator;
+import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.instructions.ConstantInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ReturnInsnTree;
+
+import static org.objectweb.asm.Opcodes.*;
+
+/** similar to {@link DoubleFastPow}, but for ints and longs. */
+public class IntFastPow {
+
+	public static final boolean DEBUG = false;
+
+	/** similar to {@link DoublePowOperator}, but for ints and longs. */
+	public static abstract class IntPowOperator implements IntUnaryOperator, LongUnaryOperator {
+
+		public abstract int getPower();
+	}
+
+	public static record CacheEntry(
+		MethodHandles.Lookup lookup,
+		IntPowOperator operator,
+		CallSite intCallSite,
+		CallSite longCallSite
+	) {}
+	public static final Int2ObjectMap<CacheEntry> CACHE = new Int2ObjectOpenHashMap<>(8);
+	public static int counter;
+
+	public static int pow(int a, int b) {
+		if (b > 0) {
+			int result = a;
+			int bit = Integer.highestOneBit(b);
+			while ((bit >>>= 1) != 0) {
+				result *= result;
+				if ((b & bit) != 0) {
+					result *= a;
+				}
+			}
+			return result;
+		}
+		else if (b < 0) {
+			return (
+				(b & 1) == 0
+				? SpecialCases.negativeEven(a)
+				: SpecialCases.negativeOdd(a)
+			);
+		}
+		else {
+			return 1;
+		}
+	}
+
+	public static long pow(long a, int b) {
+		if (b > 0L) {
+			long result = a;
+			int bit = Integer.highestOneBit(b);
+			while ((bit >>>= 1) != 0) {
+				result *= result;
+				if ((b & bit) != 0) {
+					result *= a;
+				}
+			}
+			return result;
+		}
+		else if (b < 0L) {
+			return (
+				(b & 1) == 0
+				? SpecialCases.negativeEven(a)
+				: SpecialCases.negativeOdd(a)
+			);
+		}
+		else {
+			return 1;
+		}
+	}
+
+	/** returns an IntPowOperator which will raise numbers to the specified power. */
+	public static IntPowOperator makePowFunction(final int power) {
+		return getCacheEntry(power).operator;
+	}
+
+	/** returns a MethodHandle which will raise ints to the specified power. */
+	public static MethodHandle makeIntPowMethodHandle(final int power) {
+		return getCacheEntry(power).intCallSite.getTarget();
+	}
+
+	/** returns a CallSite whose {@link CallSite#getTarget()} will raise ints to the specified power. */
+	public static CallSite makeIntPowCallSite(final int power) {
+		return getCacheEntry(power).intCallSite;
+	}
+
+	/** returns a MethodHandle which will raise longs to the specified power. */
+	public static MethodHandle makeLongPowMethodHandle(final int power) {
+		return getCacheEntry(power).longCallSite.getTarget();
+	}
+
+	/** returns a CallSite whose {@link CallSite#getTarget()} will raise longs to the specified power. */
+	public static CallSite makeLongPowCallSite(final int power) {
+		return getCacheEntry(power).longCallSite;
+	}
+
+	public static CacheEntry getCacheEntry(final int power) {
+		synchronized (CACHE) {
+			CacheEntry entry = CACHE.get(power);
+			if (entry != null) return entry;
+			entry = makeCacheEntry(power);
+			CACHE.put(power, entry);
+			return entry;
+		}
+	}
+
+	public static CacheEntry makeCacheEntry(final int power) {
+		try {
+			MethodHandles.Lookup lookup = compile(power);
+			Class<? extends IntPowOperator> clazz = lookup.lookupClass().asSubclass(IntPowOperator.class);
+			IntPowOperator operator = (IntPowOperator)(lookup.findConstructor(clazz, MethodType.methodType(void.class)).invoke());
+			MethodHandle intPow = lookup.findStatic(clazz, "pow", MethodType.methodType(int.class, int.class));
+			MethodHandle longPow = lookup.findStatic(clazz, "pow", MethodType.methodType(long.class, long.class));
+			CallSite intSite = new ConstantCallSite(intPow);
+			CallSite longSite = new ConstantCallSite(longPow);
+			return new CacheEntry(lookup, operator, intSite, longSite);
+		}
+		catch (Throwable throwable) {
+			throw AutoCodecUtil.rethrow(throwable);
+		}
+	}
+
+	public static MethodHandles.Lookup compile(final int power) {
+		assert Thread.holdsLock(CACHE);
+		String className = Type.getInternalName(IntFastPow.class) + "$Generated$" + counter++;
+		ClassInfo superClass = ClassInfo.of(IntPowOperator.class);
+		ClassCompileContext clazz = new ClassCompileContext(
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ClassType.CLASS,
+			className,
+			superClass,
+			ClassInfo.ARRAY_FACTORY.empty()
+		);
+
+		clazz.addNoArgConstructor(ACC_PUBLIC);
+
+		compileMethod(clazz, "applyAsInt", "I", "(I)I", ACC_PUBLIC, power);
+		compileMethod(clazz, "pow", "I", "(I)I", ACC_PUBLIC | ACC_STATIC, power);
+		compileMethod(clazz, "applyAsLong", "J", "(J)J", ACC_PUBLIC, power);
+		compileMethod(clazz, "pow", "J", "(J)J", ACC_PUBLIC | ACC_STATIC, power);
+
+		MethodCompileContext method;
+		method = clazz.newMethod(ACC_PUBLIC, "getPower", "()I");
+		method.scopes.pushScope();
+		method.addThis();
+		new ReturnInsnTree(new ConstantInsnTree(power)).emitBytecode(method);
+		method.scopes.popScope();
+
+		method = clazz.newMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;");
+		method.scopes.pushScope();
+		method.addThis();
+		new ReturnInsnTree(new ConstantInsnTree("IntPowOperator for power " + power)).emitBytecode(method);
+		method.scopes.popScope();
+
+		byte[] bytes = clazz.toByteArray();
+		if (DEBUG) {
+			System.out.println("IntPowOperator created with power " + power + ':');
+			TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, new Textifier(), new PrintWriter(System.out));
+			new ClassReader(bytes).accept(traceClassVisitor, 0);
+		}
+		try {
+			return MethodHandles.lookup().defineHiddenClass(bytes, false);
+		}
+		catch (IllegalAccessException exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
+	}
+
+	public static void compileMethod(ClassCompileContext clazz, String name, String typeName, String descName, int access, int power) {
+		Type type = Type.getType(typeName);
+		Type desc = Type.getMethodType(descName);
+		boolean wide = type.getSize() == 2;
+		MethodCompileContext method = clazz.newMethod(access, name, desc);
+		method.scopes.pushScope();
+		if (!method.info.isStatic()) method.addThis();
+		VarInfo operand = method.newVariable("operand", type);
+		if (power > 0) {
+			new LoadInsnTree(operand).emitBytecode(method);
+			int bit = Integer.highestOneBit(power);
+			while ((bit >>>= 1) != 0) {
+				method.node.visitInsn(wide ? DUP2 : DUP);
+				method.node.visitInsn(wide ? LMUL : IMUL);
+				if ((power & bit) != 0) {
+					method.node.visitVarInsn(wide ? LLOAD : ILOAD, operand.index);
+					method.node.visitInsn(wide ? LMUL : IMUL);
+				}
+			}
+			method.node.visitInsn(wide ? LRETURN : IRETURN);
+		}
+		else if (power < 0) {
+			new ReturnInsnTree(
+				new InvokeStaticInsnTree(
+					new MethodInfo(
+						ACC_PUBLIC | ACC_STATIC,
+						Type.getType(SpecialCases.class),
+						(power & 1) == 0 ? "negativeEven" : "negativeOdd",
+						desc,
+						false
+					),
+					new LoadInsnTree(operand)
+				)
+			)
+			.emitBytecode(method);
+		}
+		else {
+			new ReturnInsnTree(
+				wide
+				? new ConstantInsnTree(1L)
+				: new ConstantInsnTree(1)
+			)
+			.emitBytecode(method);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static class SpecialCases {
+
+		public static int negativeEven(int operand) {
+			return switch (operand) {
+				case -1, 1 -> 1;
+				case 0 -> throw new ArithmeticException("divide by 0");
+				default -> 0;
+			};
+		}
+
+		public static long negativeEven(long operand) {
+			if (operand ==  1L) return 1L;
+			if (operand ==  0L) throw new ArithmeticException("divide by 0");
+			if (operand == -1L) return 1L;
+			return 0L;
+		}
+
+		public static int negativeOdd(int operand) {
+			return switch (operand) {
+				case -1, 1 -> operand;
+				case 0 -> throw new ArithmeticException("divide by 0");
+				default -> 0;
+			};
+		}
+
+		public static long negativeOdd(long operand) {
+			if (operand ==  1L) return 1L;
+			if (operand ==  0L) throw new ArithmeticException("divide by 0");
+			if (operand == -1L) return -1L;
+			return 0L;
+		}
+	}
+}

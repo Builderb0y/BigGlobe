@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:campfire",
+	"value": {
+		"biomes": "#bigglobe:has_structure/campfire/acacia",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"terrain_adaptation": "beard_thin",
+		"palette": "minecraft:acacia",
+		"soul": false
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "campfires",
+			"variation": 8,
+			"spacing": 16,
+			"restrictions": {
+				"type": "or",
+				"restrictions": [
+					{ "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 },
+					{ "type": "range", "property": "overworld/cliffiness", "min": 0.0, "mid": 1.0, "smooth": false }
+				]
+			}
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:campfires/oak" },
+		{ "weight": 1, "structure": "bigglobe:campfires/spruce" },
+		{ "weight": 1, "structure": "bigglobe:campfires/birch" },
+		{ "weight": 1, "structure": "bigglobe:campfires/jungle" },
+		{ "weight": 1, "structure": "bigglobe:campfires/acacia" },
+		{ "weight": 1, "structure": "bigglobe:campfires/dark_oak" }
+	]
+}

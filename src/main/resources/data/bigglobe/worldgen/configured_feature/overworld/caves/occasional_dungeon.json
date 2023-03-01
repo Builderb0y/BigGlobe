@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.nextBoolean(1.0 / 2048.0) &&",
+			"placeFeature(originX, originY, originZ,",
+				"random.nextBoolean()",
+				"? 'bigglobe:overworld/caves/spider_pit'",
+				": 'bigglobe:overworld/caves/dungeon'",
+			")"
+		]
+	}
+}

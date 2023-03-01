@@ -1,0 +1,30 @@
+{
+	"type": "minecraft:block",
+	"pools": [{
+		"rolls": 1,
+		"entries": [{
+			"type": "minecraft:alternatives",
+			"children": [
+				{
+					"type": "minecraft:item",
+					"name": "bigglobe:overgrown_podzol",
+					"conditions": [{
+						"condition": "minecraft:match_tool",
+						"predicate": {
+							"enchantments": [{
+								"enchantment": "minecraft:silk_touch"
+							}]
+						}
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:dirt",
+					"conditions": [{
+						"condition": "minecraft:survives_explosion"
+					}]
+				}
+			]
+		}]
+	}]
+}

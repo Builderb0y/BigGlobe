@@ -1,0 +1,40 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double chance = `overworld/normalized_cave_surface_depth`",
+			"random.nextBoolean(chance) && (",
+				"placeBlockState(originX, originY, originZ,",
+					"random.if(0.125:",
+						"random.nextBoolean(0.25)",
+						"? 'minecraft:flowering_azalea'",
+						": 'minecraft:azalea'",
+					")",
+					"else (",
+						"random.if(chance:",
+							"random.if(chance:",
+								"random.if(chance:",
+									"blockState('minecraft:small_dripleaf[facing=north,half=lower,waterlogged=false]')",
+									".with('facing', random.switch('north', 'east', 'south', 'west'))",
+								")",
+								"else (",
+									"random.nextBoolean(0.25)",
+									"? 'minecraft:large_fern[half=lower]'",
+									": 'minecraft:tall_grass[half=lower]'",
+								")",
+							")",
+							"else (",
+								"random.nextBoolean(0.25)",
+								"? 'minecraft:fern'",
+								": 'minecraft:grass'",
+							")",
+						")",
+						"else (",
+							"'bigglobe:short_grass'",
+						")",
+					")",
+				")",
+			")"
+		]
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"multipart": [
+		{ "apply": { "model": "bigglobe:block/rope_anchor" } },
+		{ "apply": { "model": "bigglobe:block/anchored_rope", "y": 0   }, "when": { "has_rope": "true", "facing": "north" } },
+		{ "apply": { "model": "bigglobe:block/anchored_rope", "y": 90  }, "when": { "has_rope": "true", "facing": "east"  } },
+		{ "apply": { "model": "bigglobe:block/anchored_rope", "y": 180 }, "when": { "has_rope": "true", "facing": "south" } },
+		{ "apply": { "model": "bigglobe:block/anchored_rope", "y": 270 }, "when": { "has_rope": "true", "facing": "west"  } }
+	]
+}

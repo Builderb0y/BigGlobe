@@ -1,0 +1,11 @@
+{
+	"variants": {
+		"snowy=false": [
+			{ "model": "bigglobe:block/overgrown_podzol", "y": 0 },
+			{ "model": "bigglobe:block/overgrown_podzol", "y": 90 },
+			{ "model": "bigglobe:block/overgrown_podzol", "y": 180 },
+			{ "model": "bigglobe:block/overgrown_podzol", "y": 270 }
+		],
+		"snowy=true": { "model": "bigglobe:block/overgrown_podzol" }
+	}
+}

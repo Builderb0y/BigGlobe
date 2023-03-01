@@ -1,0 +1,47 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "builderb0y.bigglobe.mixins",
+	"compatibilityLevel": "JAVA_17",
+	"plugin": "builderb0y.bigglobe.mixins.ClothConfigCompatibilityPlugin",
+	"mixins": [
+		"AzaleaBlock_GrowIntoBigGlobeTree",
+		"BigGlobeConfig_ImplementConfigData",
+		"CactusBlock_AllowPlacementOnOvergrownSand",
+		"ChunkGenerator_getStructurePlacementAccess",
+		"ChunkSection_CountsAccess",
+		"FallingBlockEntity_DestroyOnLandingAccess",
+		"Heightmap_StorageAccess",
+		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
+		"MinecraftServer_InitializeSpawnPoint",
+		"MinecraftServer_SessionAccess",
+		"MobSpawnerLogic_GettersAndSettersForEverything",
+		"NbtIo_ReadElementAccess",
+		"OceanMonumentGeneratorBase_VanillaBugFixes",
+		"OceanRuinGeneratorPiece_UseGeneratorHeight",
+		"PalettedContainer_DataAccess",
+		"PlantBlock_CanPlantOnTopAccess",
+		"PlayerManager_InitializeSpawnPoint",
+		"PlayerManager_SyncOverworldSettingsHook",
+		"ProtoChunk_ImplementPositionCacheHolder",
+		"SaplingBlock_GrowIntoBigGlobeTree",
+		"ServerWorld_CustomTimeSpeed",
+		"ShipwreckGeneratorPiece_UseGeneratorHeight",
+		"SingularPalette_EntryAccess",
+		"SpawnHelper_AllowSlimeSpawningInLakes",
+		"StairsBlock_MirrorProperly",
+		"StructurePiece_DirectRotationSetter",
+		"StructureStart_BoundingBoxSetter",
+		"WoodlandMansionStructure_DontHardCodeSeaLevel"
+	],
+	"client": [
+		"BiomeColors_UseNoiseInBigGlobeWorlds",
+		"ClientWorld_CustomTimeSpeed",
+		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
+		"Dev_InGameHud_DisableVignette",
+		"MinecraftClient_ResetOverworldSettingsHook"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

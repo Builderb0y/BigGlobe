@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"Random perIsland = Random.new(",
+				"worldSeed # 16x4AC7180457808109L, ;make sure this matches skyland_top",
+				"int(`overworld/skyland_center_x`),",
+				"int(`overworld/skyland_center_z`)",
+			")",
+			"return(perIsland.nextBoolean() && placeFeature(originX, originY, originZ, 'bigglobe:overworld/occasional_hanging_roots'))"
+		]
+	}
+}

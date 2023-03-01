@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cold_plains",
+		"bigglobe:temperate_plains",
+		"bigglobe:hot_plains"
+	]
+}

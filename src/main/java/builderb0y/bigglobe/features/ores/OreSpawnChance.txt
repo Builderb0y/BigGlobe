@@ -1,0 +1,194 @@
+package builderb0y.bigglobe.features.ores;
+
+import com.mojang.serialization.Lifecycle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.SimpleRegistry;
+
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.annotations.VerifyFloatRange;
+import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.CoderRegistry;
+import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.ColumnValue;
+import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.Permuter;
+
+@UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_THING)
+public interface OreSpawnChance extends CoderRegistryTyped {
+
+	public static final CoderRegistry<OreSpawnChance> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("ore_spawn_chance"), "curve") {
+
+		@Override
+		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, OreSpawnChance> context) throws EncodeException {
+			OreSpawnChance chance = context.input;
+			if (chance == null) {
+				return context.empty();
+			}
+			else if (chance instanceof ModifiedOreSpawnChance modified) {
+				return context.addToStringMap(
+					super.encode(context.input(modified.chance)),
+					"modifier",
+					context.input(modified.modifier).encodeWith(ChanceModifier.CODER)
+				);
+			}
+			else {
+				return super.encode(context);
+			}
+		}
+
+		@Override
+		public @Nullable <T_Encoded> OreSpawnChance decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			DecodeContext<T_Encoded> modifierContext = context.getMember("modifier");
+			if (!modifierContext.isEmpty()) {
+				context = context.input(context.ops.remove(context.input, "modifier"));
+				return new ModifiedOreSpawnChance(
+					super.decode(context),
+					modifierContext.decodeWith(ChanceModifier.CODER)
+				);
+			}
+			else {
+				return super.decode(context);
+			}
+		}
+	};
+	public static final Object INITIALIZER = new Object() {{
+		REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantOreSpawnChance.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("linear"), LinearOreSpawnChance.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("exponential"), ExponentialOreSpawnChance.class);
+	}};
+
+	public abstract float getChance(WorldColumn column, float veinCenterY);
+
+	public default boolean test(WorldColumn column, float fractionY, long seed) {
+		return Permuter.toChancedBoolean(seed, this.getChance(column, fractionY));
+	}
+
+	public static class ConstantOreSpawnChance implements OreSpawnChance {
+
+		public final @VerifyFloatRange(min = 0.0D, minInclusive = false, max = 1.0D, maxInclusive = true) float value;
+
+		public ConstantOreSpawnChance(float value) {
+			this.value = value;
+		}
+
+		@Override
+		public float getChance(WorldColumn column, float veinCenterY) {
+			return this.value;
+		}
+	}
+
+	public static abstract class AnchoredOreSpawnChance implements OreSpawnChance {
+
+		public final ColumnValue<?> anchor0, anchor1;
+		public final float value0, value1;
+
+		public AnchoredOreSpawnChance(ColumnValue<?> anchor0, float value0, ColumnValue<?> anchor1, float value1) {
+			this.anchor0 = anchor0;
+			this.value0  = value0;
+			this.anchor1 = anchor1;
+			this.value1  = value1;
+		}
+
+		public abstract float mix(float fraction);
+
+		@Override
+		public float getChance(WorldColumn column, float veinCenterY) {
+			float anchor0 = this.anchor0.getValue(column, veinCenterY);
+			if (Float.isNaN(anchor0)) return Float.NaN;
+			float anchor1 = this.anchor1.getValue(column, veinCenterY);
+			if (Float.isNaN(anchor1)) return Float.NaN;
+			return this.mix(Interpolator.unmixLinear(anchor0, anchor1, veinCenterY));
+		}
+	}
+
+	public static class LinearOreSpawnChance extends AnchoredOreSpawnChance {
+
+		public LinearOreSpawnChance(ColumnValue<?> anchor0, float value0, ColumnValue<?> anchor1, float value1) {
+			super(anchor0, value0, anchor1, value1);
+		}
+
+		@Override
+		public float mix(float fraction) {
+			return Interpolator.mixLinear(this.value0, this.value1, fraction);
+		}
+	}
+
+	public static class ExponentialOreSpawnChance extends AnchoredOreSpawnChance {
+
+		public final @VerifySorted(lessThan = { "value0", "value1" }) float baseline;
+		public final transient float logValue0, logValue1;
+
+		public ExponentialOreSpawnChance(float baseline, ColumnValue<?> anchor0, float value0, ColumnValue<?> anchor1, float value1) {
+			super(anchor0, value0, anchor1, value1);
+			this.baseline = baseline;
+			this.logValue0 = BigGlobeMath.ln(value0 - baseline);
+			this.logValue1 = BigGlobeMath.ln(value1 - baseline);
+		}
+
+		@Override
+		public float mix(float fraction) {
+			return BigGlobeMath.exp(Interpolator.mixLinear(this.logValue0, this.logValue1, fraction)) + this.baseline;
+		}
+	}
+
+	public static class ModifiedOreSpawnChance implements OreSpawnChance {
+
+		public final OreSpawnChance chance;
+		public final ChanceModifier modifier;
+
+		public ModifiedOreSpawnChance(OreSpawnChance chance, ChanceModifier modifier) {
+			this.chance = chance;
+			this.modifier = modifier;
+		}
+
+		@Override
+		public float getChance(WorldColumn column, float veinCenterY) {
+			return this.modifier.apply(this.chance.getChance(column, veinCenterY), column, veinCenterY);
+		}
+	}
+
+	@UseCoder(name = "CODER", usage = MemberUsage.FIELD_CONTAINS_THING)
+	public static interface ChanceModifier {
+
+		public static final Registry<ChanceModifier> REGISTRY = new SimpleRegistry<>(RegistryKey.ofRegistry(BigGlobeMod.modID("ore_spawn_chance_modifier")), Lifecycle.experimental(), null);
+		public static final AutoCoder<ChanceModifier> CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(REGISTRY.getCodec(), false);
+		public static final ChanceModifier
+			HOT = register("hot", (chance, column, y) -> {
+				float temperature = ColumnValue.OVERWORLD_TEMPERATURE.getValueWithoutY(column);
+				return Float.isNaN(temperature) ? Float.NaN : BigGlobeMath.positiveProduct(chance, signedSquare(temperature));
+			}),
+			COLD = register("cold", (chance, column, y) -> {
+				float temperature = ColumnValue.OVERWORLD_TEMPERATURE.getValueWithoutY(column);
+				return Float.isNaN(temperature) ? Float.NaN : BigGlobeMath.positiveProduct(chance, -signedSquare(temperature));
+			}),
+			OCEAN = register("ocean", (chance, column, y) -> {
+				double seaLevel = ColumnValue.OVERWORLD_SEA_LEVEL.getValueWithoutY(column);
+				return Double.isNaN(seaLevel) ? Double.NaN : chance + Math.sqrt(Interpolator.unmixLinear(seaLevel, column.getFinalBottomHeightD(), column.getFinalTopHeightD()));
+			});
+
+		public abstract float apply(float chance, WorldColumn column, float veinCenterY);
+
+		public static ChanceModifier register(String name, ChanceModifier modifier) {
+			return Registry.register(REGISTRY, BigGlobeMod.modID(name), modifier);
+		}
+
+		public static float signedSquare(float value) {
+			return value * Math.abs(value);
+		}
+	}
+}

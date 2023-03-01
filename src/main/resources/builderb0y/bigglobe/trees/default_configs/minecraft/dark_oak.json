@@ -1,0 +1,17 @@
+{
+	"states": {
+		"sapling": "minecraft:dark_oak_sapling[stage=0]",
+		"potted_sapling": "minecraft:potted_dark_oak_sapling",
+		"log": "minecraft:dark_oak_log[axis=y]",
+		"stripped_log": "minecraft:stripped_dark_oak_log[axis=y]",
+		"wood": "minecraft:dark_oak_wood[axis=y]",
+		"stripped_wood": "minecraft:stripped_dark_oak_wood[axis=y]",
+		"planks": "minecraft:dark_oak_planks",
+		"leaves": "minecraft:dark_oak_leaves[distance=1,persistent=false,waterlogged=false]",
+		"slab": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]",
+		"stairs": "minecraft:dark_oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+		"fence": "minecraft:dark_oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+		"fence_gate": "minecraft:dark_oak_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
+	},
+	"feature": "bigglobe:overworld/trees/artificial/dark_oak"
+}

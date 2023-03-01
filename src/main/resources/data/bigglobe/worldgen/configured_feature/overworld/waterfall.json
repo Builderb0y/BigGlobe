@@ -1,0 +1,45 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"int frontX = 0",
+			"int frontZ = 0",
+			"int sideX = 0",
+			"int sideZ = 0",
+			"random.switch(",
+				"frontX =  1,, sideZ = -1,",
+				"frontX = -1,, sideZ =  1,",
+				"frontZ =  1,, sideX =  1,",
+				"frontZ = -1,, sideX = -1",
+			")",
+
+			";check area",
+			"for (int front = 1, front <= 4, ++front:",
+				"for (int side = -2, side <= 2, ++side:",
+					"for (int up = -1, up <= 3, ++up:",
+						"int x = originX + front * frontX + side * sideX",
+						"int y = originY + up",
+						"int z = originZ + front * frontZ + side * sideZ",
+						"if (getBlockState(x, y, z).isReplaceable(): return(false))",
+					")",
+				")",
+			")",
+
+			";place blocks",
+			"for (int front = 0, front <= 3, ++front:",
+				"for (int side = -1, side <= 1, ++side:",
+					"for (int up = 0, up <= 2, ++up:",
+						"if (abs(side) + abs(up - 1) < 2 || random.nextBoolean():",
+							"int x = originX + front * frontX + side * sideX",
+							"int y = originY + up",
+							"int z = originZ + front * frontZ + side * sideZ",
+							"setBlockState(x, y, z, up == 0 && front != 0 ? 'minecraft:water[level=0]' : 'minecraft:air')",
+						")",
+					")",
+				")",
+			")",
+
+			"return(true)"
+		]
+	}
+}

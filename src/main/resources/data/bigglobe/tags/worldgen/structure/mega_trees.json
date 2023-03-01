@@ -1,0 +1,12 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:mega_trees/oak",
+		"bigglobe:mega_trees/spruce",
+		"bigglobe:mega_trees/birch",
+		"bigglobe:mega_trees/jungle",
+		"bigglobe:mega_trees/acacia",
+		"bigglobe:mega_trees/dark_oak",
+		"bigglobe:mega_trees/mangrove"
+	]
+}

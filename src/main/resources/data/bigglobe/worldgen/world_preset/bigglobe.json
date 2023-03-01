@@ -1,0 +1,1067 @@
+{
+	"dimensions": {
+		"minecraft:overworld": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:overworld",
+				"value": {
+					"height": {
+						"min_y": -1024,
+						"max_y":  1024,
+						"sea_level": 0,
+						"hilliness": {
+							"type": "script",
+							"script": "1 / (exp(-4 * base) + 1) ;sigmoid curve",
+							"min": 0.0,
+							"max": 1.0,
+							"inputs": {
+								"base": {
+									"type": "sum",
+									"layers": [
+										{ "type": "cubic", "scaleX": 4096, "scaleY": 4096, "amplitude": 0.5 },
+										{ "type": "cubic", "scaleX": 2048, "scaleY": 2048, "amplitude": 0.25 },
+										{ "type": "cubic", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.125 },
+										{ "type": "cubic", "scaleX":  512, "scaleY":  512, "amplitude": 0.0625 },
+										{ "type": "cubic", "scaleX":  256, "scaleY":  256, "amplitude": 0.03125 },
+										{ "type": "cubic", "scaleX":  128, "scaleY":  128, "amplitude": 0.015625 },
+										{ "type": "cubic", "scaleX":   64, "scaleY":   64, "amplitude": 0.0078125 }
+									]
+								}
+							}
+						},
+						"cliffs": {
+							"scale": 128.0,
+							"cliffiness": {
+								"type": "script",
+								"script": "1 / (exp(-4 * base) + 1) ;sigmoid curve",
+								"min": 0.0,
+								"max": 1.0,
+								"inputs": {
+									"base": {
+										"type": "sum",
+										"layers": [
+											{ "type": "cubic", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.5 },
+											{ "type": "cubic", "scaleX":  512, "scaleY":  512, "amplitude": 0.25 },
+											{ "type": "cubic", "scaleX":  256, "scaleY":  256, "amplitude": 0.125 },
+											{ "type": "cubic", "scaleX":  128, "scaleY":  128, "amplitude": 0.0625 },
+											{ "type": "cubic", "scaleX":   64, "scaleY":   64, "amplitude": 0.03125 }
+										]
+									}
+								}
+							},
+							"shelf_height": {
+								"type": "script",
+								"min": -1.0,
+								"max":  1.0,
+								"script": [
+									"double curve(double value:",
+										"value /= 1.0 - 0.125",
+										"return(1 - 2 * (1 - (1 - abs(value)) ^ 2) ^ 2)",
+									")",
+
+									"return(",
+										"+ curve(layer1) * 0.5",
+										"- curve(layer2) * 0.25",
+										"+ curve(layer3) * 0.125",
+										"- curve(layer4) * 0.0625",
+									")"
+								],
+								"inputs": {
+									"layer1": {
+										"type": "sum",
+										"layers": [
+											{ "type": "smooth", "scaleX": 512, "scaleY": 512, "amplitude": 0.5 },
+											{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 0.25 },
+											{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.125 }
+										]
+									},
+									"layer2": {
+										"type": "sum",
+										"layers": [
+											{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 0.5 },
+											{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.25 },
+											{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.125 }
+										]
+									},
+									"layer3": {
+										"type": "sum",
+										"layers": [
+											{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.5 },
+											{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.25 },
+											{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.125 }
+										]
+									},
+									"layer4": {
+										"type": "sum",
+										"layers": [
+											{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 0.5 },
+											{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+											{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.125 }
+										]
+									}
+								}
+							},
+							"flatness": 0.875
+						},
+						"erosion": [
+							{
+								"amplitude": 512.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 4096, "scaleY": 4096, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 2048, "scaleY": 2048, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  512, "scaleY":  512, "amplitude": 0.0625 },
+										{ "type": "smooth", "scaleX":  256, "scaleY":  256, "amplitude": 0.03125 },
+										{ "type": "smooth", "scaleX":  128, "scaleY":  128, "amplitude": 0.015625 },
+										{ "type": "smooth", "scaleX":   64, "scaleY":   64, "amplitude": 0.0078125 }
+									]
+								}
+							},
+							{
+								"amplitude": -256.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 2048, "scaleY": 2048, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  512, "scaleY":  512, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  256, "scaleY":  256, "amplitude": 0.0625 },
+										{ "type": "smooth", "scaleX":  128, "scaleY":  128, "amplitude": 0.03125 },
+										{ "type": "smooth", "scaleX":   64, "scaleY":   64, "amplitude": 0.015625 }
+									]
+								}
+							},
+							{
+								"amplitude": 128.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX":  512, "scaleY":  512, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  256, "scaleY":  256, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  128, "scaleY":  128, "amplitude": 0.0625 },
+										{ "type": "smooth", "scaleX":   64, "scaleY":   64, "amplitude": 0.03125 },
+										{ "type": "smooth", "scaleX":   32, "scaleY":   32, "amplitude": 0.015625 }
+									]
+								}
+							},
+							{
+								"amplitude": -64.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 512, "scaleY": 512, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.0625 },
+										{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.03125 }
+									]
+								}
+							},
+							{
+								"amplitude": 32.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.0625 },
+										{ "type": "smooth", "scaleX":  16, "scaleY":  16, "amplitude": 0.03125 }
+									]
+								}
+							},
+							{
+								"amplitude": -16.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  16, "scaleY":  16, "amplitude": 0.0625 }
+									]
+								}
+							},
+							{
+								"amplitude": 8.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.125 },
+										{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.0625 }
+									]
+								}
+							},
+							{
+								"amplitude": -4.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.125 }
+									]
+								}
+							},
+							{
+								"amplitude": 2.0,
+								"grid": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.125 }
+									]
+								}
+							}
+						]
+					},
+
+
+
+					"temperature": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 2048, "scaleY": 2048, "amplitude": 1.0 },
+								{ "type": "cubic", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.5 },
+								{ "type": "cubic", "scaleX":  512, "scaleY":  512, "amplitude": 0.25 },
+								{ "type": "cubic", "scaleX":  256, "scaleY":  256, "amplitude": 0.125 },
+								{ "type": "cubic", "scaleX":  128, "scaleY":  128, "amplitude": 0.0625 },
+								{ "type": "cubic", "scaleX":   64, "scaleY":   64, "amplitude": 0.03125 },
+								{ "type": "cubic", "scaleX":   32, "scaleY":   32, "amplitude": 0.015625 }
+							]
+						}
+					},
+
+
+
+					"foliage": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.5    },
+								{ "type": "cubic", "scaleX":  512, "scaleY":  512, "amplitude": 0.25   },
+								{ "type": "cubic", "scaleX":  256, "scaleY":  256, "amplitude": 0.125  },
+								{ "type": "cubic", "scaleX":  128, "scaleY":  128, "amplitude": 0.25   },
+								{ "type": "cubic", "scaleX":   64, "scaleY":   64, "amplitude": 0.25   },
+								{ "type": "cubic", "scaleX":   32, "scaleY":   32, "amplitude": 0.125  },
+								{ "type": "cubic", "scaleX":   16, "scaleY":   16, "amplitude": 0.0625 }
+							]
+						}
+					},
+
+
+
+					"surface": {
+						"blocks": {
+							"top": "minecraft:grass_block[snowy=false]",
+							"under": "minecraft:dirt",
+							"children": [
+								{
+									"restriction": { "type": "range", "property": "max_y", "mid": 4.0, "max": 8.0 },
+									"top": "minecraft:sand",
+									"under": "minecraft:sand",
+									"children": {
+										"restriction": {
+											"type": "and",
+											"restrictions": [
+												{ "type": "range", "property": "max_y", "min": 2.0, "mid": 6.0 },
+												{
+													"type": "not",
+													"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 }
+												},
+												{
+													"type": "or",
+													"restrictions": [
+														{
+															"type": "not",
+															"restriction": { "type": "range", "property": "overworld/temperature", "min": 0.375, "mid": 0.625 }
+														},
+														{ "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 }
+													]
+												}
+											]
+										},
+										"top": "bigglobe:overgrown_sand",
+										"under": "minecraft:sand"
+									}
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/height_adjusted_temperature", "min": 0.375, "mid": 0.625 },
+									"top": "minecraft:sand",
+									"under": "minecraft:sand",
+									"children": [
+										{
+											"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.375, "mid": 0.625 },
+											"top": "bigglobe:overgrown_sand",
+											"under": "minecraft:sand"
+										},
+										{
+											"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+											"top": "minecraft:red_sand",
+											"under": "minecraft:red_sand"
+										}
+									]
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+									"top": "minecraft:coarse_dirt",
+									"under": "minecraft:coarse_dirt"
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.125, "mid": 0.375 },
+									"top": "bigglobe:overgrown_podzol[snowy=false]",
+									"under": "minecraft:dirt",
+									"children": {
+										"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.375, "mid": 0.625 },
+										"top": "minecraft:podzol[snowy=false]",
+										"under": "minecraft:dirt"
+									}
+								}
+							]
+						},
+						"biomes": {
+							"biome": "bigglobe:temperate_plains",
+							"children": [
+								{
+									"restriction": { "type": "range", "property": "max_y", "mid": 4.0, "max": 8.0 },
+									"biome": "bigglobe:beach",
+									"children": {
+										"restriction": { "type": "range", "property": "max_y", "max": 0.0 },
+										"biome": "bigglobe:shallow_ocean",
+										"children": {
+											"restriction": { "type": "range", "property": "max_y", "mid": -8.0, "max": -4.0 },
+											"biome": "bigglobe:ocean",
+											"children": {
+												"restriction": { "type": "range", "property": "max_y", "mid": -64.0, "max": -32.0 },
+												"biome": "bigglobe:deep_ocean"
+											}
+										}
+									}
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/height_adjusted_temperature", "min": 0.375, "mid": 0.625 },
+									"biome": "bigglobe:hot_plains",
+									"children": [
+										{
+											"restriction": { "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 },
+											"biome": "bigglobe:hot_forest"
+										},
+										{
+											"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+											"biome": "bigglobe:hot_wasteland"
+										}
+									]
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/height_adjusted_temperature", "max": -0.375, "mid": -0.625 },
+									"biome": "bigglobe:cold_plains",
+									"children": [
+										{
+											"restriction": { "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 },
+											"biome": "bigglobe:cold_forest"
+										},
+										{
+											"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+											"biome": "bigglobe:cold_wasteland"
+										}
+									]
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 },
+									"biome": "bigglobe:temperate_forest"
+								},
+								{
+									"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+									"biome": "bigglobe:temperate_wasteland"
+								}
+							]
+						},
+						"decorator": "bigglobe:overworld/surface_decorators"
+					},
+
+
+
+					"miscellaneous": {
+						"subsurface_state": "minecraft:gravel",
+						"beach_y": 8.0,
+						"snow_temperature_multiplier": 8.0,
+						"temperature_height_falloff": 512.0,
+						"foliage_height_falloff": 512.0,
+						"surface_depth_falloff": 512.0,
+						"red_mushroom_shelf_restrictions": {
+							"type": "and_range",
+							"overworld/height_adjusted_foliage":     { "min":  0.0, "mid": 1.0             },
+							"overworld/height_adjusted_temperature": { "min": -0.5, "mid": 0.5, "max": 1.0 },
+							"max_y":                                 { "min":  4.0, "mid": 8.0              }
+						},
+						"brown_mushroom_shelf_restrictions": {
+							"type": "and_range",
+							"overworld/height_adjusted_foliage":     { "min":  0.0, "mid":  1.0             },
+							"overworld/height_adjusted_temperature": { "min": -1.0, "mid": -0.5, "max": 0.5 },
+							"max_y":                                 { "min":  4.0, "mid": 8.0              }
+						}
+					},
+
+
+
+					"flower_noise": {
+						"type": "abs",
+						"grid": {
+							"type": "sum",
+							"layers": [
+								{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.25 }
+							]
+						}
+					},
+
+
+
+					"underground": {
+						"cobble_per_section": 512,
+						"caves": {
+							"placement": {
+								"distance": 512,
+								"variation": 384
+							},
+							"templates": {
+								"defaults": {
+									"depth": 512,
+									"upper_width": 8.0
+								},
+								"variations": [
+									{
+										"defaults": {
+											"noise": {
+												"type": "script",
+												"script": "layer1^2 + layer2^2",
+												"min": 0.0,
+												"max": 312520.0,
+												"inputs": {
+													"layer1": {
+														"type": "sum",
+														"layers": [
+															{ "type": "smooth", "scaleX": 256, "scaleY": 128, "scaleZ": 256, "amplitude": 256.0 },
+															{ "type": "smooth", "scaleX": 128, "scaleY":  64, "scaleZ": 128, "amplitude": 128.0 },
+															{ "type": "smooth", "scaleX":  64, "scaleY":  32, "scaleZ":  64, "amplitude":  64.0 },
+															{ "type": "smooth", "scaleX":  32, "scaleY":  24, "scaleZ":  32, "amplitude":  32.0 },
+															{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+															{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+															{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+														]
+													},
+													"layer2": {
+														"type": "sum",
+														"layers": [
+															{ "type": "smooth", "scaleX": 128, "scaleY": 64, "scaleZ": 128, "amplitude": 128.0 },
+															{ "type": "smooth", "scaleX":  64, "scaleY": 32, "scaleZ":  64, "amplitude":  64.0 },
+															{ "type": "smooth", "scaleX":  32, "scaleY": 24, "scaleZ":  32, "amplitude":  32.0 },
+															{ "type": "smooth", "scaleX":  16, "scaleY": 16, "scaleZ":  16, "amplitude":  14.0 },
+															{ "type": "smooth", "scaleX":   8, "scaleY":  8, "scaleZ":   8, "amplitude":   6.0 },
+															{ "type": "smooth", "scaleX":   4, "scaleY":  4, "scaleZ":   4, "amplitude":   2.0 }
+														]
+													}
+												}
+											},
+											"surface_depth_noise": {
+												"type": "sum",
+												"layers": [
+													{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 4.0 },
+													{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 2.0 },
+													{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 1.0 }
+												]
+											}
+										},
+										"variations": [
+											{
+												"defaults": {
+													"ledge_noise": {
+														"type": "sum",
+														"layers": [
+															{ "type": "cubic", "scaleX": 32, "scaleY": 8, "scaleZ": 32, "amplitude": 0.5  },
+															{ "type": "cubic", "scaleX": 16, "scaleY": 4, "scaleZ": 16, "amplitude": 0.25 }
+														]
+													},
+													"lower_width": 64.0
+												},
+												"variations": [
+													{
+														"weight": 1.0,
+														"floor_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
+														"ceiling_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
+														"floor_decorator": "bigglobe:overworld/caves/floor_lush",
+														"ceiling_decorator": "bigglobe:overworld/caves/ceiling_lush"
+													},
+													{
+														"weight": 0.5,
+														"floor_blocks": { "surface": "minecraft:mycelium[snowy=false]", "subsurface": "minecraft:dirt" },
+														"floor_decorator": "bigglobe:overworld/caves/floor_mushrooms",
+														"ceiling_decorator": "bigglobe:overworld/caves/ceiling_mushrooms"
+													}
+												]
+											},
+											{
+												"weight": 2.0,
+												"lower_width": 48.0,
+												"floor_decorator": "bigglobe:overworld/caves/floor_generic",
+												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_generic"
+											}
+										]
+									},
+									{
+										"defaults": {
+											"surface_depth_noise": {
+												"type": "sum",
+												"layers": [
+													{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 8.0 },
+													{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
+													{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
+													{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
+												]
+											}
+										},
+										"variations": [
+											{
+												"weight": 1.0,
+												"noise": {
+													"type": "script",
+													"script": "layer1^2 + layer2^2",
+													"min": 0.0,
+													"max": 312520.0,
+													"inputs": {
+														"layer1": {
+															"type": "sum",
+															"layers": [
+																{ "type": "smooth", "scaleX": 256, "scaleY": 256, "scaleZ": 256, "amplitude": 256.0 },
+																{ "type": "smooth", "scaleX": 128, "scaleY": 128, "scaleZ": 128, "amplitude": 128.0 },
+																{ "type": "smooth", "scaleX":  64, "scaleY":  64, "scaleZ":  64, "amplitude":  64.0 },
+																{ "type": "smooth", "scaleX":  32, "scaleY":  32, "scaleZ":  32, "amplitude":  32.0 },
+																{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+																{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+																{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+															]
+														},
+														"layer2": {
+															"type": "sum",
+															"layers": [
+																{ "type": "smooth", "scaleX": 128, "scaleY": 128, "scaleZ": 128, "amplitude": 128.0 },
+																{ "type": "smooth", "scaleX":  64, "scaleY":  64, "scaleZ":  64, "amplitude":  64.0 },
+																{ "type": "smooth", "scaleX":  32, "scaleY":  32, "scaleZ":  32, "amplitude":  32.0 },
+																{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+																{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+																{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+															]
+														}
+													}
+												},
+												"floor_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" },
+												"ceiling_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" },
+												"floor_decorator": "bigglobe:overworld/caves/floor_dripping",
+												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_dripping",
+												"lower_width": 32.0
+											},
+											{
+												"weight": 0.5,
+												"noise": {
+													"type": "script",
+													"script": "layer1^2 + layer2^2",
+													"min": 0.0,
+													"max": 321568.0,
+													"inputs": {
+														"layer1": {
+															"type": "sum",
+															"layers": [
+																{ "type": "smooth", "scaleX": 256, "scaleY": 128, "scaleZ": 256, "amplitude": 256.0 },
+																{ "type": "smooth", "scaleX": 128, "scaleY":  64, "scaleZ": 128, "amplitude": 128.0 },
+																{ "type": "smooth", "scaleX":  64, "scaleY":  32, "scaleZ":  64, "amplitude":  64.0 },
+																{ "type": "smooth", "scaleX":  32, "scaleY":  24, "scaleZ":  32, "amplitude":  32.0 },
+																{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  16.0 },
+																{ "type": "smooth", "scaleX":   8, "scaleY":  12, "scaleZ":   8, "amplitude":   8.0 },
+																{ "type": "smooth", "scaleX":   4, "scaleY":   8, "scaleZ":   4, "amplitude":   4.0 }
+															]
+														},
+														"layer2": {
+															"type": "sum",
+															"layers": [
+																{ "type": "smooth", "scaleX": 128, "scaleY": 64, "scaleZ": 128, "amplitude": 128.0 },
+																{ "type": "smooth", "scaleX":  64, "scaleY": 32, "scaleZ":  64, "amplitude":  64.0 },
+																{ "type": "smooth", "scaleX":  32, "scaleY": 24, "scaleZ":  32, "amplitude":  32.0 },
+																{ "type": "smooth", "scaleX":  16, "scaleY": 16, "scaleZ":  16, "amplitude":  16.0 },
+																{ "type": "smooth", "scaleX":   8, "scaleY": 12, "scaleZ":   8, "amplitude":   8.0 },
+																{ "type": "smooth", "scaleX":   4, "scaleY":  8, "scaleZ":   4, "amplitude":   4.0 }
+															]
+														}
+													}
+												},
+												"floor_blocks": { "surface": "minecraft:blackstone", "subsurface": "minecraft:blackstone" },
+												"ceiling_blocks": { "surface": "minecraft:basalt[axis=y]", "subsurface": "minecraft:basalt[axis=y]" },
+												"floor_decorator": "bigglobe:overworld/caves/floor_molten",
+												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_molten",
+												"lower_width": 48.0
+											}
+										]
+									}
+								]
+							}
+						},
+						"deep_caverns": {
+							"placement": {
+								"distance": 1024,
+								"variation": 768
+							},
+							"templates": {
+								"variations": [
+									[
+										{
+											"weight": 1.0,
+											"average_center": -768.0
+										}
+									],
+									[
+										{
+											"fluid": "minecraft:water[level=0]",
+											"floor_decorator": "bigglobe:overworld/caverns/floor_water",
+											"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_water"
+										},
+										{
+											"fluid": "minecraft:lava[level=0]",
+											"floor_decorator": "bigglobe:overworld/caverns/floor_lava",
+											"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_lava"
+										},
+										{
+											"fluid": "minecraft:air",
+											"floor_decorator": "bigglobe:overworld/caverns/floor_air",
+											"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_air",
+											"has_ancient_cities": true
+										}
+									],
+									[
+										{
+											"defaults": {
+												"padding": 128.0,
+												"center": {
+													"type": "sum",
+													"layers": [
+														{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 64.0 },
+														{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 32.0 },
+														{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 14.0 },
+														{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  6.0 },
+														{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  2.0 }
+													]
+												}
+											},
+											"variations": [
+												{
+													"thickness": {
+														"type": "script",
+														"script": "base > 0 && stalactites < 1 ? base * (1 - stalactites) : 0",
+														"min": 0.0,
+														"max": 4032.0,
+														"inputs": {
+															"base": {
+																"type": "sum",
+																"layers": [
+																	{ "type": "constant", "value": 32.0 },
+																	{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 2048.0 },
+																	{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 1024.0 },
+																	{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  512.0 },
+																	{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude":  256.0 },
+																	{ "type": "cubic", "scaleX":   8, "scaleY":   8, "amplitude":  128.0 },
+																	{ "type": "cubic", "scaleX":   4, "scaleY":   4, "amplitude":   64.0 }
+																]
+															},
+															"stalactites": {
+																"type": "sum",
+																"layers": [
+																	{ "type": "stalactites", "scale": 32, "amplitude": 2.0  },
+																	{ "type": "stalactites", "scale": 16, "amplitude": 1.0  },
+																	{ "type": "stalactites", "scale":  8, "amplitude": 0.5  },
+																	{ "type": "stalactites", "scale":  4, "amplitude": 0.25 }
+																]
+															}
+														}
+													}
+												},
+												{
+													"thickness": {
+														"type": "sum",
+														"layers": [
+															{ "type": "constant", "value": 32.0 },
+															{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 2048.0 },
+															{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 1024.0 },
+															{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  512.0 },
+															{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude":  256.0 },
+															{ "type": "cubic", "scaleX":   8, "scaleY":   8, "amplitude":  128.0 },
+															{ "type": "cubic", "scaleX":   4, "scaleY":   4, "amplitude":   64.0 }
+														]
+													}
+												}
+											]
+										},
+										{
+											"defaults": {
+												"padding": 64.0,
+												"center": {
+													"type": "sum",
+													"layers": [
+														{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 32.0 },
+														{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 14.0 },
+														{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  6.0 },
+														{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  2.0 }
+													]
+												}
+											},
+											"variations": [
+												{
+													"thickness": {
+														"type": "script",
+														"script": "base > 0 && stalactites < 1 ? base * (1 - stalactites) : 0",
+														"min": 0.0,
+														"max": 496.0,
+														"inputs": {
+															"base": {
+																"type": "sum",
+																"layers": [
+																	{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 256.0 },
+																	{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 128.0 },
+																	{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude":  64.0 },
+																	{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude":  32.0 },
+																	{ "type": "cubic", "scaleX":  4, "scaleY":  4, "amplitude":  16.0 }
+																]
+															},
+															"stalactites": {
+																"type": "sum",
+																"layers": [
+																	{ "type": "stalactites", "scale": 16, "amplitude": 2.0 },
+																	{ "type": "stalactites", "scale":  8, "amplitude": 1.0 },
+																	{ "type": "stalactites", "scale":  4, "amplitude": 0.5 }
+																]
+															}
+														}
+													}
+												},
+												{
+													"thickness": {
+														"type": "sum",
+														"layers": [
+															{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 256.0 },
+															{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 128.0 },
+															{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude":  64.0 },
+															{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude":  32.0 },
+															{ "type": "cubic", "scaleX":  4, "scaleY":  4, "amplitude":  16.0 }
+														]
+													}
+												}
+											]
+										},
+										{
+											"padding": 32.0,
+											"center": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 14.0 },
+													{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  6.0 },
+													{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  2.0 }
+												]
+											},
+											"thickness": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 64.0 },
+													{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 48.0 },
+													{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 32.0 },
+													{ "type": "cubic", "scaleX":  4, "scaleY":  4, "amplitude": 24.0 }
+												]
+											}
+										}
+									]
+								]
+							}
+						}
+					},
+
+
+
+					"skylands": {
+						"placement": {
+							"distance": 1024,
+							"variation": 768
+						},
+						"templates": {
+							"defaults": {
+								"weight": 1.0,
+								"padding": 32.0,
+								"average_center": { "type": "uniform", "min": 256.0, "max": 768.0 },
+								"floor_decorator": "bigglobe:overworld/skyland_top",
+								"ceiling_decorator": "bigglobe:overworld/skyland_bottom"
+							},
+							"variations": [
+								{
+									"defaults": {
+										"center": {
+											"type": "sum",
+											"layers": [
+												{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 8.0 },
+												{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 4.0 },
+												{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 3.0 },
+												{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 2.0 }
+											]
+										},
+										"min_y": [
+											"if (`max_y` >= -64.0: return(nan))",
+											"double center = `overworld/skyland_center`",
+											";make half of the terrain reversed in Y level from the other half, for variety.",
+											"if (`overworld/skyland_thickness` < 0.0:",
+												"center = `overworld/skyland_average_center` * 2 - center",
+											")",
+											"double dip        = abs(`overworld/skyland_thickness`)",
+											"double cellBias   =     `overworld/skyland_edginess_squared`",
+											"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+											"return(center + ((cellBias + heightBias) * 1.5 - dip) * `overworld/skyland_auxiliary_noise`)"
+										],
+										"max_y": [
+											"if (`max_y` >= -64.0: return(nan))",
+											"double center = `overworld/skyland_center`",
+											";make half of the terrain reversed in Y level from the other half, for variety.",
+											"if (`overworld/skyland_thickness` < 0.0:",
+												"center = `overworld/skyland_average_center` * 2 - center",
+											")",
+											"center"
+										],
+										"surface": {
+											"top_state": "minecraft:grass_block[snowy=false]",
+											"under_state": "minecraft:dirt",
+											"depth": "random.nextDouble(3.0, 6.0)"
+										}
+									},
+									"variations": [
+										{
+											"thickness": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0        },
+													{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.33333333 },
+													{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.11111111 }
+												]
+											},
+											"auxiliary_noise": { "type": "constant", "value": 32.0 }
+										},
+										{
+											"thickness": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 1.0         },
+													{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 0.33333333  },
+													{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.11111111  },
+													{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.037037037 }
+												]
+											},
+											"auxiliary_noise": { "type": "constant", "value": 64.0 }
+										}
+									]
+								},
+								{
+									"center": {
+										"type": "sum",
+										"layers": [
+											{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 16.0 },
+											{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude":  8.0 },
+											{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  6.0 },
+											{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  4.0 },
+											{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude":  1.0 }
+										]
+									},
+									"thickness": {
+										"type": "sum",
+										"layers": [
+											{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 0.5 },
+											{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+											{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.125 },
+											{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.0625 }
+										]
+									},
+									"auxiliary_noise": {
+										"type": "script",
+										"script": "3.0 * value ^ 2 + 1.0",
+										"min": 1.0,
+										"max": 4.0,
+										"inputs": {
+											"value": {
+												"type": "sum",
+												"layers": [
+													{ "type": "constant", "value": 0.5 },
+													{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 0.25 },
+													{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 0.125 },
+													{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 0.0625 },
+													{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.03125 },
+													{ "type": "smooth", "scaleX":  16, "scaleY":  16, "amplitude": 0.015625 }
+												]
+											}
+										}
+									},
+									"min_y": [
+										"if (`max_y` >= -64.0: return(nan))",
+										"double cellBias   = `overworld/skyland_edginess_squared`",
+										"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+										"double bias2      = (cellBias + heightBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
+										"if (bias2 >= 1.0: return(nan))",
+										"double bias1      = sqrt(bias2)",
+										"double holes      = `overworld/skyland_thickness`",
+										"holes             = holes * (bias1 * 0.5 + 0.25) + (bias1 * -0.5 + 0.75)",
+										"if (holes <= 0.0: return(nan))",
+										"double dip        = 1.0 - bias2",
+										"double center     = `overworld/skyland_center`",
+										"return(center - sqrt(dip * holes) * 32.0)"
+									],
+									"max_y": [
+										"if (`max_y` >= -64.0: return(nan))",
+										"double cellBias   = `overworld/skyland_edginess_squared`",
+										"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+										"double bias2      = (cellBias + heightBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
+										"if (bias2 >= 1.0: return(nan))",
+										"double bias1      = sqrt(bias2)",
+										"double holes      = `overworld/skyland_thickness`",
+										"holes             = holes * (bias1 * 0.5 + 0.25) + (bias1 * -0.5 + 0.75)",
+										"if (holes <= 0.0: return(nan))",
+										"double mountain   = (1.0 - bias1) / (bias1 * 8.0 + 1.0)",
+										"double center     = `overworld/skyland_center`",
+										"return(center + sqrt(mountain * holes) * 128.0)"
+									],
+									"surface": {
+										"top_state": "minecraft:grass_block[snowy=false]",
+										"under_state": "minecraft:dirt",
+										"depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
+									}
+								},
+								{
+									"defaults": {
+										"center": {
+											"type": "sum",
+											"layers": [
+												{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 8.0 },
+												{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 4.0 },
+												{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 3.0 },
+												{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 2.0 }
+											]
+										},
+										"min_y": [
+											"if (`max_y` >= -64.0: return(nan))",
+
+											"double cellBias   = `overworld/skyland_edginess_squared`",
+											"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+											"double bias2      = cellBias + heightBias",
+											"if (bias2 >= 1.0: return(nan))",
+
+											"double thickness  = `overworld/skyland_thickness`",
+											"double dip        = sqrt(unmixLinear(bias2, 1.0, abs(thickness)))",
+											"if (isNaN(dip): return(nan))",
+
+											"double center     = `overworld/skyland_center`",
+											";make half of the terrain reversed in Y level from the other half, for variety.",
+											"if (thickness < 0.0:",
+												"center = `overworld/skyland_average_center` * 2 - center",
+											")",
+
+											"return(center - dip * 32.0)"
+										],
+										"max_y": [
+											"if (`max_y` >= -64.0: return(nan))",
+
+											"double cellBias   = `overworld/skyland_edginess_squared`",
+											"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+											"double bias2      = cellBias + heightBias",
+											"if (bias2 >= 1.0: return(nan))",
+
+											"double thickness  = `overworld/skyland_thickness`",
+											"double mountain   = unmixSmooth(bias2, 1.0, abs(thickness))",
+											"if (mountain <= 0.0: return(nan))",
+
+											"double center     = `overworld/skyland_center`",
+											";make half of the terrain reversed in Y level from the other half, for variety.",
+											"if (thickness < 0.0:",
+												"center = `overworld/skyland_average_center` * 2 - center",
+											")",
+
+											"return(center + mountain * `overworld/skyland_auxiliary_noise`)"
+										],
+										"surface": {
+											"top_state": "minecraft:grass_block[snowy=false]",
+											"under_state": "minecraft:dirt",
+											"depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
+										}
+									},
+									"variations": [
+										{
+											"thickness": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.5 },
+													{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.25 },
+													{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.125 },
+													{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0625 },
+													{ "type": "cubic", "scaleX":   8, "scaleY":   8, "amplitude": 0.03125 }
+												]
+											},
+											"auxiliary_noise": { "type": "constant", "value": 128.0 }
+										},
+										{
+											"thickness": {
+												"type": "sum",
+												"layers": [
+													{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 0.5 },
+													{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+													{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.125 },
+													{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.0625 }
+												]
+											},
+											"auxiliary_noise": { "type": "constant", "value": 64.0 }
+										}
+									]
+								}
+							]
+						}
+					}
+
+
+
+				}
+			}
+		},
+
+
+
+		"minecraft:the_nether": {
+			"type": "minecraft:the_nether",
+			"generator": {
+				"type": "minecraft:noise",
+				"biome_source": {
+					"preset": "minecraft:nether",
+					"type": "minecraft:multi_noise"
+				},
+				"settings": "minecraft:nether"
+			}
+		},
+
+
+
+		"minecraft:the_end": {
+			"type": "minecraft:the_end",
+			"generator": {
+				"type": "minecraft:noise",
+				"biome_source": {
+					"type": "minecraft:the_end"
+				},
+				"settings": "minecraft:end"
+			}
+		}
+	}
+}
