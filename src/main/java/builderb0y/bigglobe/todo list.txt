@@ -43,6 +43,7 @@ scripting:
 	pre and post update operators.
 	increment and decrement as expression.
 	postfix increment and decrement.
+	unit test for user-defined function parameter shadowing existing variable.
 
 features:
 	advancements for finding things?

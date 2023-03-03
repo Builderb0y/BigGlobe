@@ -48,6 +48,9 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		if (this.returnsUnconditionally()) {
 			return new CastInsnTree(this, type, CasterData.ARRAY_FACTORY.empty());
 		}
+		if (type.generic) {
+			mode = mode.toExplicit();
+		}
 		return this.doCast(parser, type, mode);
 	}
 
