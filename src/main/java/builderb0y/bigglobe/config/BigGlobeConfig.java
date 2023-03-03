@@ -1,5 +1,9 @@
 package builderb0y.bigglobe.config;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
 import me.shedaniel.autoconfig.annotation.Config;
@@ -13,7 +17,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
-@SuppressWarnings("NullableProblems")
 @Config(name = BigGlobeMod.MODID)
 public class BigGlobeConfig {
 
@@ -28,34 +31,34 @@ public class BigGlobeConfig {
 
 	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Big Globe Worlds")
-	@VerifyNullable
+	@DefaultIgnore
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;
 
 	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Other Worlds")
-	@VerifyNullable
+	@DefaultIgnore
 	public boolean bigGlobeTreesInOtherWorlds = false;
 
 	@Tooltip(count = 2)
 	@UseName("Distant Horizons Integration")
 	@CollapsibleObject(startExpanded = true)
-	@VerifyNullable
+	@DefaultIgnore
 	public final DistantHorizonsIntegration distantHorizonsIntegration = new DistantHorizonsIntegration();
 	public static class DistantHorizonsIntegration {
 
 		@Tooltip(count = 3)
 		@UseName("Skip Structures")
-		@VerifyNullable
+		@DefaultIgnore
 		public boolean skipStructures = false;
 
 		@Tooltip(count = 3)
 		@UseName("Skip Underground")
-		@VerifyNullable
+		@DefaultIgnore
 		public boolean skipUnderground = true;
 
 		@Tooltip(count = 3)
 		@UseName("Skip Caves")
-		@VerifyNullable
+		@DefaultIgnore
 		public boolean skipCaves = true;
 
 		public boolean areCavesSkipped() {
@@ -68,22 +71,33 @@ public class BigGlobeConfig {
 	@Tooltip(count = 2)
 	@UseName("Player Spawning")
 	@CollapsibleObject(startExpanded = true)
-	@VerifyNullable
+	@DefaultIgnore
 	public final PlayerSpawning playerSpawning = new PlayerSpawning();
 	public static class PlayerSpawning {
 
 		@Tooltip(count = 2)
 		@UseName("Max Spawn Radius")
-		@VerifyNullable
+		@DefaultIgnore
 		public double maxSpawnRadius = 10000.0D;
 
 		@Tooltip(count = 3)
 		@UseName("Per-Player Spawn Points")
-		@VerifyNullable
+		@DefaultIgnore
 		public boolean perPlayerSpawnPoints = false;
 
 		public void validatePostLoad() {
 			this.maxSpawnRadius = Math.max(this.maxSpawnRadius, 0.0D);
 		}
 	}
+
+	/**
+	tricks AutoCodec into ignoring missing data and leaving
+	the java object as it was after initialization,
+	while simultaneously tricking intellij into
+	*not* complaining that the object can be null.
+	*/
+	@VerifyNullable
+	@Target(ElementType.TYPE_USE)
+	@Retention(RetentionPolicy.RUNTIME)
+	public static @interface DefaultIgnore {}
 }

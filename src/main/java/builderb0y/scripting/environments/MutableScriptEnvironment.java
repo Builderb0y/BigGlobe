@@ -12,7 +12,6 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -299,7 +298,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		public static InsnTree make(ExpressionParser parser, InsnTree receiver, String name, MethodInfo info, InsnTree... arguments) throws ScriptParsingException {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, info.paramTypes, CastMode.IMPLICIT_NULL, arguments);
 			if (castArguments != null) {
-				return new InvokeInsnTree(info.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, info, castArguments);
+				return invokeVirtualOrInterface(receiver, info, castArguments);
 			}
 			else throw new ScriptParsingException(
 				"Invalid arguments for " + name + "(): expected " + info.getDescriptor() + ", got " + descriptorOfArguments(arguments),
@@ -315,7 +314,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			}
 			return (parser, receiver, name, arguments) -> {
 				return getBestArguments(parser, name, infos, arguments, (info, castArguments) -> {
-					return new InvokeInsnTree(info.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, info, castArguments);
+					return invokeVirtualOrInterface(receiver, info, castArguments);
 				});
 			};
 		}

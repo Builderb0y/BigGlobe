@@ -238,6 +238,10 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new InvokeInsnTree(INVOKEINTERFACE, receiver, method, args);
 	}
 
+	public static InsnTree invokeVirtualOrInterface(InsnTree receiver, MethodInfo method, InsnTree... args) {
+		return new InvokeInsnTree(method.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, method, args);
+	}
+
 	public static InsnTree invokeDynamic(MethodInfo bootstrapMethod, MethodInfo runtimeMethod, ConstantValue[] bootstrapArgs, InsnTree[] runtimeArgs) {
 		return new InvokeDynamicInsnTree(bootstrapMethod, runtimeMethod, bootstrapArgs, runtimeArgs);
 	}

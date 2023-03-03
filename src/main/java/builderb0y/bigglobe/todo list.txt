@@ -8,6 +8,19 @@ testing:
 
 where I left off:
 	column values for cliff frac and cliff bias.
+	need a structure API for scripting.
+		will use for data-driven overriders.
+		StructureStartWrapper:
+			StructureEntry structure
+			int min/max x, y, z
+			List<StructurePiece> pieces
+		StructurePiece:
+			int min/max x, y, z
+		StructureEntry:
+			isIn(StructureTag)
+		StructureTag:
+			iterator()
+			random()
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -30,7 +43,6 @@ scripting:
 	pre and post update operators.
 	increment and decrement as expression.
 	postfix increment and decrement.
-	do while loop.
 
 features:
 	advancements for finding things?
@@ -48,6 +60,7 @@ features:
 				vines.
 		mushroom:
 			glowing mushrooms?
+				that hang from the ceiling?
 	make geode placement faster by only computing noise in a sphere instead of a cube.
 	make cave excluders and height overriders data-driven.
 	fallen logs.

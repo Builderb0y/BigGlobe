@@ -209,7 +209,7 @@ public class TypeInfo {
 	public Set<TypeInfo> getAllAssignableTypes() {
 		Set<TypeInfo> set = this.allAssignableTypes;
 		if (set == null) {
-			set = new HashSet<>(8);
+			set = new LinkedHashSet<>(8);
 			this.recursiveAddTypes(set, false);
 			this.allAssignableTypes = set;
 		}

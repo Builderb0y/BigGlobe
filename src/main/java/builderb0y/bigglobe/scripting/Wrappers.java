@@ -1,10 +1,7 @@
 package builderb0y.bigglobe.scripting;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -18,12 +15,15 @@ import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.state.property.Property;
+import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
@@ -34,6 +34,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -43,6 +44,10 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.ClassScriptEnvironment;
+import builderb0y.scripting.environments.ClassScriptEnvironment.ExposeAsField;
+import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.WhitelistClassScriptEnvironment.Expose;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -235,11 +240,7 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(BiomeEntry.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BiomeEntry.class, "of", String.class, BiomeEntry.class);
-		public static final MethodInfo
-			IS_IN             = MethodInfo.findFirstMethod(BiomeEntry.class, "isIn"),
-			GET_TEMPERATURE   = MethodInfo.findFirstMethod(BiomeEntry.class, "getTemperature"),
-			GET_DOWNFALL      = MethodInfo.findFirstMethod(BiomeEntry.class, "getDownfall"),
-			GET_PRECIPITATION = MethodInfo.findFirstMethod(BiomeEntry.class, "getPrecipitation");
+		public static final ScriptEnvironment ENVIRONMENT = new ClassScriptEnvironment(BiomeEntry.class);
 
 		public static BiomeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
@@ -255,18 +256,22 @@ public class Wrappers {
 			);
 		}
 
+		@Expose
 		public boolean isIn(BiomeTagKey key) {
 			return this.biome.isIn(key.key);
 		}
 
+		@ExposeAsField
 		public float getTemperature() {
 			return this.biome.value().getTemperature();
 		}
 
+		@ExposeAsField
 		public float getDownfall() {
 			return this.biome.value().getDownfall();
 		}
 
+		@ExposeAsField
 		public String getPrecipitation() {
 			return this.biome.value().getPrecipitation().asString();
 		}
@@ -322,6 +327,7 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(ConfiguredFeatureEntry.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureEntry.class, "of", String.class, ConfiguredFeatureEntry.class);
+		public static final MethodInfo IS_IN = MethodInfo.findFirstMethod(ConfiguredFeatureEntry.class, "isIn");
 
 		public static ConfiguredFeatureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
@@ -335,6 +341,10 @@ public class Wrappers {
 				.get(Registry.CONFIGURED_FEATURE_KEY)
 				.entryOf(RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)))
 			);
+		}
+
+		public boolean isIn(ConfiguredFeatureTagKey tag) {
+			return this.entry.isIn(tag.key);
 		}
 
 		@Override
@@ -351,20 +361,20 @@ public class Wrappers {
 		}
 	}
 
-	public static record ConfiguredFeatureTag(TagKey<ConfiguredFeature<?, ?>> key) implements TagWrapper<ConfiguredFeatureEntry> {
+	public static record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) implements TagWrapper<ConfiguredFeatureEntry> {
 
-		public static final TypeInfo TYPE = type(ConfiguredFeatureTag.class);
+		public static final TypeInfo TYPE = type(ConfiguredFeatureTagKey.class);
 		public static final MethodInfo
-			RANDOM = method(ACC_PUBLIC, ConfiguredFeatureTag.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class),
-			ITERATOR = method(ACC_PUBLIC, ConfiguredFeatureTag.class, "iterator", Iterator.class);
-		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureTag.class, "of", String.class, ConfiguredFeatureTag.class);
+			RANDOM = method(ACC_PUBLIC, ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class),
+			ITERATOR = method(ACC_PUBLIC, ConfiguredFeatureTagKey.class, "iterator", Iterator.class);
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureTagKey.class, "of", String.class, ConfiguredFeatureTagKey.class);
 
-		public static ConfiguredFeatureTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+		public static ConfiguredFeatureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
 		}
 
-		public static ConfiguredFeatureTag of(String id) {
-			return new ConfiguredFeatureTag(TagKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)));
+		public static ConfiguredFeatureTagKey of(String id) {
+			return new ConfiguredFeatureTagKey(TagKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)));
 		}
 
 		@Override
@@ -415,14 +425,17 @@ public class Wrappers {
 			this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
 		}
 
+		@ExposeAsField
 		public long getSeed() {
 			return this.world.getSeed();
 		}
 
+		@Expose
 		public BlockState getBlockState(int x, int y, int z) {
 			return this.world.getBlockState(this.pos.set(x, y, z));
 		}
 
+		@Expose
 		public void setBlockState(int x, int y, int z, BlockState state) {
 			this.world.setBlockState(this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
 			if (!state.getFluidState().isEmpty()) {
@@ -434,10 +447,12 @@ public class Wrappers {
 			}
 		}
 
+		@Expose
 		public boolean placeBlockState(int x, int y, int z, BlockState state) {
 			return SingleBlockFeature.place(this.world, this.pos.set(x, y, z), state, SingleBlockFeature.IS_REPLACEABLE);
 		}
 
+		@Expose
 		public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
 			int tmp;
 			if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
@@ -452,6 +467,7 @@ public class Wrappers {
 			}
 		}
 
+		@Expose
 		public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 			return feature.entry.value().generate(
 				this.world,
@@ -461,20 +477,24 @@ public class Wrappers {
 			);
 		}
 
+		@Expose
 		public BiomeEntry getBiome(int x, int y, int z) {
 			this.biomeColumn.setPos(x, z);
 			return new BiomeEntry(this.biomeColumn.getBiome(y));
 		}
 
+		@Expose
 		public boolean isYLevelValid(int y) {
 			return !this.world.isOutOfHeightLimit(y);
 		}
 
+		@Expose
 		public @Nullable NbtCompound getBlockData(int x, int y, int z) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			return blockEntity == null ? null : blockEntity.createNbtWithIdentifyingData();
 		}
 
+		@Expose
 		public void setBlockData(int x, int y, int z, NbtCompound nbt) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			if (blockEntity != null) {
@@ -482,6 +502,7 @@ public class Wrappers {
 			}
 		}
 
+		@Expose
 		public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			if (blockEntity != null) {
@@ -505,6 +526,171 @@ public class Wrappers {
 		@Override
 		public String toString() {
 			return this.getClass().getSimpleName() + ": { " + this.world + " }";
+		}
+	}
+
+	public static record StructureStartWrapper(RegistryEntry<Structure> entry, StructureStart start, BlockBox box) {
+
+		public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
+
+		public static StructureStartWrapper of(RegistryEntry<Structure> entry, StructureStart start) {
+			int
+				minX = Integer.MAX_VALUE,
+				minY = Integer.MAX_VALUE,
+				minZ = Integer.MAX_VALUE,
+				maxX = Integer.MIN_VALUE,
+				maxY = Integer.MIN_VALUE,
+				maxZ = Integer.MIN_VALUE;
+			for (StructurePiece child : start.getChildren()) {
+				BlockBox box = child.getBoundingBox();
+				minX = Math.min(minX, box.getMinX());
+				minY = Math.min(minY, box.getMinY());
+				minZ = Math.min(minZ, box.getMinZ());
+				maxX = Math.max(maxX, box.getMaxX());
+				maxY = Math.max(maxY, box.getMaxY());
+				maxZ = Math.max(maxZ, box.getMaxZ());
+			}
+			return new StructureStartWrapper(entry, start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
+		}
+
+		@ExposeAsField public int minX() { return this.box.getMinX(); }
+		@ExposeAsField public int minY() { return this.box.getMinY(); }
+		@ExposeAsField public int minZ() { return this.box.getMinZ(); }
+		@ExposeAsField public int maxX() { return this.box.getMaxX(); }
+		@ExposeAsField public int maxY() { return this.box.getMaxY(); }
+		@ExposeAsField public int maxZ() { return this.box.getMaxZ(); }
+
+		@Expose
+		public StructureEntry structure() {
+			return new StructureEntry(this.entry);
+		}
+
+		@Expose
+		public List<StructurePiece> pieces() {
+			return this.start.getChildren();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof StructureStartWrapper that &&
+				this.start.equals(that.start)
+			);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.start.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return "StructureStart" + this.pieces();
+		}
+	}
+
+	public static class StructurePieceWrapper {
+
+		public static final TypeInfo TYPE = TypeInfo.of(StructurePiece.class);
+
+		public static int minX(StructurePiece piece) { return piece.getBoundingBox().getMinX(); }
+		public static int minY(StructurePiece piece) { return piece.getBoundingBox().getMinY(); }
+		public static int minZ(StructurePiece piece) { return piece.getBoundingBox().getMinZ(); }
+		public static int maxX(StructurePiece piece) { return piece.getBoundingBox().getMaxX(); }
+		public static int maxY(StructurePiece piece) { return piece.getBoundingBox().getMaxY(); }
+		public static int maxZ(StructurePiece piece) { return piece.getBoundingBox().getMaxZ(); }
+	}
+
+	public static record StructureEntry(RegistryEntry<Structure> entry) {
+
+		public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
+		public static final MethodInfo IS_IN = MethodInfo.findFirstMethod(StructureEntry.class, "isIn");
+
+		public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+			return of(id);
+		}
+
+		public static StructureEntry of(String id) {
+			return new StructureEntry(
+				BigGlobeMod
+				.getCurrentServer()
+				.getRegistryManager()
+				.get(Registry.STRUCTURE_KEY)
+				.entryOf(RegistryKey.of(Registry.STRUCTURE_KEY, new Identifier(id)))
+			);
+		}
+
+		public boolean isIn(StructureTagKey tag) {
+			return this.entry.isIn(tag.key);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof StructureEntry that &&
+				this.entry.getKey().orElseThrow().equals(that.entry.getKey().orElseThrow())
+			);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.entry.getKey().orElseThrow().hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return "Structure: { " + this.entry.getKey().orElseThrow() + " }";
+		}
+	}
+
+	public static record StructureTagKey(TagKey<Structure> key) implements TagWrapper<StructureEntry> {
+
+		public static final TypeInfo TYPE = TypeInfo.of(StructureTagKey.class);
+		public static final MethodInfo
+			RANDOM = method(ACC_PUBLIC, StructureTagKey.class, "random", StructureTagKey.class, RandomGenerator.class),
+			ITERATOR = method(ACC_PUBLIC, StructureTagKey.class, "iterator", Iterator.class);
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTagKey.class, "of", String.class, ConfiguredFeatureTagKey.class);
+
+		public static StructureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+			return of(id);
+		}
+
+		public static StructureTagKey of(String id) {
+			return new StructureTagKey(TagKey.of(Registry.STRUCTURE_KEY, new Identifier(id)));
+		}
+
+		@Override
+		public StructureEntry random(RandomGenerator random) {
+			Optional<RegistryEntryList.Named<Structure>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_KEY).getEntryList(this.key);
+			if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
+			Optional<RegistryEntry<Structure>> feature = list.get().getRandom(new MojangPermuter(random.nextLong()));
+			if (feature.isEmpty()) throw new RuntimeException("Structure tag is empty: " + this.key.id());
+			return new StructureEntry(feature.get());
+		}
+
+		@Override
+		public Iterator<StructureEntry> iterator() {
+			Optional<RegistryEntryList.Named<Structure>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_KEY).getEntryList(this.key);
+			if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
+			return list.get().stream().map(StructureEntry::new).iterator();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof StructureTagKey that &&
+				this.key.id().equals(that.key.id())
+			);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.key.id().hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return "StructureTag: { " + this.key.id() + " }";
 		}
 	}
 }

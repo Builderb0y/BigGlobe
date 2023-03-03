@@ -10,6 +10,6 @@ public class ObjectScriptEnvironment extends ClassScriptEnvironment {
 
 	@Override
 	public boolean shouldExposeMethod(Method method) {
-		return method.getName() == "toString" || method.getName() == "equals" || method.getName() == "hashCode";
+		return method.getName() == "toString" || method.getName() == "equals" || method.getName() == "hashCode" || method.getName() == "getClass";
 	}
 }

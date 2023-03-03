@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 
+@Deprecated //replaced with ReflectionData.
 public class UncheckedReflection {
 
 	public static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... args) {

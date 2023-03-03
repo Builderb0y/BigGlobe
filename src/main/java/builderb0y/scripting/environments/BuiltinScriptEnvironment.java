@@ -126,7 +126,7 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 			case "Comparable" -> TypeInfos.COMPARABLE;
 			case "String"     -> TypeInfos.STRING;
 			case "Throwable"  -> TypeInfos.THROWABLE;
-			case "Class"      -> TypeInfos.CLASS;
+			case "Class"      -> TypeInfos.CLASS; //todo: casting from String to Class. make sure this uses ScriptEnvironment.getType(), NOT Class.forName()!
 
 			default           -> null;
 		};

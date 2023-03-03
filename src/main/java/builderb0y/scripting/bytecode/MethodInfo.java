@@ -69,10 +69,12 @@ public class MethodInfo {
 		return (this.access & PURE) != 0;
 	}
 
+	@Deprecated
 	public static MethodInfo findMethod(Class<?> owner, String name, Class<?>... parameterTypes) {
 		return forMethod(UncheckedReflection.getDeclaredMethod(owner, name, parameterTypes));
 	}
 
+	@Deprecated
 	public static MethodInfo findFirstMethod(Class<?> owner, String name) {
 		name = name.intern();
 		for (Method method : owner.getDeclaredMethods()) {
@@ -93,6 +95,7 @@ public class MethodInfo {
 		);
 	}
 
+	@Deprecated
 	public static MethodInfo findConstructor(Class<?> owner, Class<?>... parameterTypes) {
 		return forConstructor(UncheckedReflection.getDeclaredConstructor(owner, parameterTypes));
 	}
