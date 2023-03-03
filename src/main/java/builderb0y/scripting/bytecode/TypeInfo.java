@@ -9,7 +9,6 @@ import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
@@ -60,13 +59,16 @@ public class TypeInfo {
 		this.generic = generic;
 	}
 
-	@Contract("null -> null; !null -> !null")
-	public static TypeInfo of(Class<?> clazz) {
-		return clazz == null ? null : CACHE.get(clazz);
+	public static TypeInfo of(@NotNull Class<?> clazz) {
+		return CACHE.get(clazz);
 	}
 
-	public static TypeInfo[] allOf(Class<?> @NotNull ... classes) {
+	public static TypeInfo[] allOf(@NotNull Class<?> @NotNull ... classes) {
 		return CollectionTransformer.convertArray(classes, ARRAY_FACTORY, TypeInfo::of);
+	}
+
+	public static TypeInfo[] allOf(java.lang.reflect.@NotNull Type @NotNull ... types) {
+		return CollectionTransformer.convertArray(types, ARRAY_FACTORY, TypeInfo::of);
 	}
 
 	public static record ParsedTypeInfo(TypeInfo type, int endIndex) {}

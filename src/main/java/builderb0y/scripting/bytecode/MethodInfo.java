@@ -90,8 +90,8 @@ public class MethodInfo {
 			access,
 			TypeInfo.of(method.getDeclaringClass()),
 			method.getName(),
-			TypeInfo.of(method.getReturnType()),
-			TypeInfo.allOf(method.getParameterTypes())
+			TypeInfo.of(method.getGenericReturnType()),
+			TypeInfo.allOf(method.getGenericParameterTypes())
 		);
 	}
 
@@ -106,7 +106,7 @@ public class MethodInfo {
 			TypeInfo.of(constructor.getDeclaringClass()),
 			"<init>",
 			TypeInfos.VOID,
-			TypeInfo.allOf(constructor.getParameterTypes())
+			TypeInfo.allOf(constructor.getGenericParameterTypes())
 		);
 	}
 

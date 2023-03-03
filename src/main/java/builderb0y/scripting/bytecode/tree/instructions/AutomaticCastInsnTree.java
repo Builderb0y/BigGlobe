@@ -7,6 +7,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
+@Deprecated //replaced by TypeInfo.generic.
 public class AutomaticCastInsnTree implements InsnTree {
 
 	public InsnTree value;

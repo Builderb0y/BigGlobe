@@ -1,5 +1,6 @@
 package builderb0y.scripting.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -19,6 +20,7 @@ public class ReflectionData {
 	public final Class<?> clazz;
 	public final List<Field> declaredFields, derivedFields;
 	public final List<Method> declaredMethods, derivedMethods;
+	public final List<Constructor<?>> constructors;
 	public final Map<String, List<Field>> declaredFieldsByName, derivedFieldsByName;
 	public final Map<String, List<Method>> declaredMethodsByName, derivedMethodsByName;
 
@@ -26,6 +28,7 @@ public class ReflectionData {
 		this.clazz = clazz;
 		this.declaredFields = Arrays.asList(clazz.getDeclaredFields());
 		this.declaredMethods = Arrays.asList(clazz.getDeclaredMethods());
+		this.constructors = Arrays.asList(clazz.getDeclaredConstructors());
 		this.declaredFieldsByName = this.declaredFields.stream().collect(Collectors.groupingBy(Field::getName));
 		this.declaredMethodsByName = this.declaredMethods.stream().collect(Collectors.groupingBy(Method::getName));
 		this.derivedFields = new ArrayList<>(16);
@@ -53,6 +56,10 @@ public class ReflectionData {
 
 	public List<Method> getDerivedMethods() {
 		return this.derivedMethods;
+	}
+
+	public List<Constructor<?>> getConstructors() {
+		return this.constructors;
 	}
 
 	public List<Field> getDeclaredFields(String name) {
@@ -87,6 +94,17 @@ public class ReflectionData {
 		return this.checkSingleton(this.getDerivedMethods(name), name, "method");
 	}
 
+	public Constructor<?> getConstructor() {
+		List<Constructor<?>> list = this.getConstructors();
+		if (list.isEmpty()) {
+			throw new IllegalArgumentException("No constructors in " + this.clazz);
+		}
+		if (list.size() > 1) {
+			throw new IllegalArgumentException("More than one constructor in " + this.clazz);
+		}
+		return list.get(0);
+	}
+
 	public Field findDeclaredField(String name, Class<?> type) {
 		for (Field field : this.getDeclaredFields(name)) {
 			if (field.getType() == type) return field;
@@ -115,6 +133,13 @@ public class ReflectionData {
 		throw new IllegalArgumentException("No such method with name " + name + " of type " + returnType.getName() + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(", ", "(", ")")) + " in " + this.clazz);
 	}
 
+	public Constructor<?> findConstructor(Class<?>... parameterTypes) {
+		for (Constructor<?> constructor : this.getConstructors()) {
+			if (Arrays.equals(constructor.getParameterTypes(), parameterTypes)) return constructor;
+		}
+		throw new IllegalArgumentException("No such constructor of type " + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(", ", "(", ")")) + " in " + this.clazz);
+	}
+
 	public Field findDeclaredField(String name, Predicate<Field> predicate) {
 		return this.find(this.getDeclaredFields(name), predicate, name, "field");
 	}
@@ -131,6 +156,19 @@ public class ReflectionData {
 		return this.find(this.getDerivedMethods(name), predicate, name, "method");
 	}
 
+	public Constructor<?> findConstructor(Predicate<Constructor<?>> predicate) {
+		List<Constructor<?>> list = this.getConstructors();
+		Constructor<?> found = null;
+		for (Constructor<?> element : list) {
+			if (predicate.test(element)) {
+				if (found == null) found = element;
+				else throw new IllegalArgumentException("More than one constructor which matches " + predicate + " in " + this.clazz);
+			}
+		}
+		if (found == null) throw new IllegalArgumentException("No constructors which match " + predicate + " in " + this.clazz);
+		return found;
+	}
+
 	public <T> T find(List<T> list, Predicate<T> predicate, String name, String type) {
 		T found = null;
 		for (T element : list) {
@@ -139,7 +177,7 @@ public class ReflectionData {
 				else throw new IllegalArgumentException("More than one " + type + " with name " + name + " which matches " + predicate + " in " + this.clazz);
 			}
 		}
-		if (found == null) throw new IllegalArgumentException("No " + type + "s with name " + name + " which matches " + predicate + " in " + this.clazz);
+		if (found == null) throw new IllegalArgumentException("No " + type + "s with name " + name + " which match " + predicate + " in " + this.clazz);
 		return found;
 	}
 

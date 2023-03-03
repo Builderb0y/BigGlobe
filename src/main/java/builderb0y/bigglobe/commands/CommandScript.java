@@ -43,7 +43,7 @@ public interface CommandScript extends Script {
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
 			this
-			.addEnvironment(JavaUtilScriptEnvironment.INSTANCE)
+			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
 			.addEnvironment(new MinecraftScriptEnvironment(

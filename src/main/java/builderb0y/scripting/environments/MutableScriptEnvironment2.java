@@ -1,5 +1,6 @@
 package builderb0y.scripting.environments;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -78,6 +79,13 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		this.functions.putAll(that.functions);
 		this.methods  .putAll(that.methods);
 		this.types    .putAll(that.types);
+		return this;
+	}
+
+	public MutableScriptEnvironment2 multiAddAll(MutableScriptEnvironment2... environments) {
+		for (MutableScriptEnvironment2 environment : environments) {
+			this.addAll(environment);
+		}
 		return this;
 	}
 
@@ -321,6 +329,10 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment2 addMethodInvokeSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+		return this.addMethodInvoke(name, MethodInfo.forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, returnType, paramTypes)));
+	}
+
 	//////////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment2 addMethodInvokeStatic(String name, MethodInfo method) {
@@ -511,7 +523,55 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this.addQualifiedFunctionInvokeStatic(TypeInfo.of(in), MethodInfo.forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, returnType, paramTypes)));
 	}
 
+	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatic(TypeInfo owner, Class<?> in, String name) {
+		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
+			this.addQualifiedFunctionInvokeStatic(owner, name, MethodInfo.forMethod(method));
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatic(Class<?> in, String name) {
+		return this.addQualifiedFunctionMultiInvokeStatic(TypeInfo.of(in), in, name);
+	}
+
+	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
+		for (String name : names) {
+			this.addQualifiedFunctionMultiInvokeStatic(owner, in, name);
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatics(Class<?> in, String... names) {
+		return this.addQualifiedFunctionMultiInvokeStatics(TypeInfo.of(in), in, names);
+	}
+
 	//////////////// invoke ////////////////
+
+	//todo: finish this section.
+
+	//////////////// constructor ////////////////
+
+	public MutableScriptEnvironment2 addQualifiedConstructor(MethodInfo constructor) {
+		return this.addQualifiedFunction(constructor.owner, "new", (parser, name, arguments) -> {
+			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
+			return castArguments == null ? null : newInstance(constructor, castArguments);
+		});
+	}
+
+	public MutableScriptEnvironment2 addQualifiedConstructor(Class<?> in) {
+		return this.addQualifiedConstructor(MethodInfo.forConstructor(ReflectionData.forClass(in).getConstructor()));
+	}
+
+	public MutableScriptEnvironment2 addQualifiedSpecificConstructor(Class<?> in, Class<?>... parameterTypes) {
+		return this.addQualifiedConstructor(MethodInfo.forConstructor(ReflectionData.forClass(in).findConstructor(parameterTypes)));
+	}
+
+	public MutableScriptEnvironment2 addQualifiedMultiConstructor(Class<?> in) {
+		for (Constructor<?> constructor : ReflectionData.forClass(in).getConstructors()) {
+			this.addQualifiedConstructor(MethodInfo.forConstructor(constructor));
+		}
+		return this;
+	}
 
 	//////////////////////////////// getters ////////////////////////////////
 

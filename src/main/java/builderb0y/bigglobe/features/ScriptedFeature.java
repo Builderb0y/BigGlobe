@@ -79,7 +79,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			public Holder(String script) throws ScriptParsingException {
 				super(
 					new ScriptParser<>(FeatureScript.class, script)
-					.addEnvironment(JavaUtilScriptEnvironment.INSTANCE)
+					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
 					.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
 					.addEnvironment(new MinecraftScriptEnvironment(

@@ -32,7 +32,7 @@ public class FieldInfo {
 			field.getModifiers(),
 			TypeInfo.of(field.getDeclaringClass()),
 			field.getName(),
-			TypeInfo.of(field.getType())
+			TypeInfo.of(field.getGenericType())
 		);
 	}
 

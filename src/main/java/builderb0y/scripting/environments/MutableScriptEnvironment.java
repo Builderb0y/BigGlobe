@@ -19,6 +19,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@Deprecated //replaced with the better MutableScriptEnvironment2.
 public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public Map<String,    InsnTree       > variables;
