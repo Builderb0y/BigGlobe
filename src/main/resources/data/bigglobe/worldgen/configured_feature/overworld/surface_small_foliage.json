@@ -5,7 +5,7 @@
 			";handle cave intersecting surface.",
 			"while (getBlockState(originX, originY - 1, originZ).isReplaceable():",
 				"--originY",
-				"unless (isValidYLevel(originY): return(false))",
+				"unless (isYLevelValid(originY): return(false))",
 			")",
 
 			";sigmoid curve",

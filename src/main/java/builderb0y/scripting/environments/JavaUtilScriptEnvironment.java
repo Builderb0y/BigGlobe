@@ -85,7 +85,8 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 		COLLECTION = (
 			new MutableScriptEnvironment2()
 			.addType("Collection", Collection.class)
-			.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "add", "remove", "containsAll", "addAll", "removeAll", "retainAll", "clear")
+			.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "add", "containsAll", "addAll", "removeAll", "retainAll", "clear")
+			.addMethodRenamedInvoke("removeElement", Collection.class, "remove")
 		),
 		SET = (
 			new MutableScriptEnvironment2()
@@ -131,7 +132,8 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 		LIST = (
 			new MutableScriptEnvironment2()
 			.addType("List", List.class)
-			.addMethodMultiInvokes(List.class, "addAll", "add", "remove", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
+			.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
+			.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
 			.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, arguments) -> {
 				InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
 				return new ListGetInsnTree(receiver, index);

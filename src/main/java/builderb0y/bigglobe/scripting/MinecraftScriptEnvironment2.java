@@ -12,7 +12,9 @@ import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -37,7 +39,7 @@ public class MinecraftScriptEnvironment2 extends MutableScriptEnvironment2 {
 		InsnTree loadRandom = InsnTrees.getField(loadWorld, field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "permuter", Permuter.class));
 
 		this
-		.addVariableInvoke(loadWorld, method(ACC_PUBLIC | ACC_PURE, WorldWrapper.TYPE, "getSeed", TypeInfos.LONG))
+		.addVariableRenamedInvoke(loadWorld, "worldSeed", method(ACC_PUBLIC | ACC_PURE, WorldWrapper.TYPE, "getSeed", TypeInfos.LONG))
 		.addFunction("block",                BlockWrapper           .CONSTANT_FACTORY)
 		.addFunction("blockState",           BlockStateWrapper      .CONSTANT_FACTORY)
 		.addFunction("blockTag",             BlockTagKey            .CONSTANT_FACTORY)
@@ -63,7 +65,11 @@ public class MinecraftScriptEnvironment2 extends MutableScriptEnvironment2 {
 		.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "isIn")
 		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 		.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
-		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "blocksLight", "hasCollision", "hasFullCubeCollision", "rotate", "mirror", "with", "canPlaceAt")
+		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "blocksLight", "hasCollision", "hasFullCubeCollision", "rotate", "mirror", "with")
+		.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", (parser, receiver, name, arguments) -> {
+			InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_THROW, arguments);
+			return invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]);
+		})
 		.addMethodInvoke(BiomeEntry.class, "isIn")
 		.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
 		.addMethod(BiomeTagKey.TYPE, "random", randomFromWorld(loadRandom, BiomeTagKey.class, BiomeEntry.class))

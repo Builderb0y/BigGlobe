@@ -341,6 +341,14 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this.addMethodInvoke(name, MethodInfo.getMethod(in, name));
 	}
 
+	public MutableScriptEnvironment2 addMethodRenamedInvoke(String exposedName, Class<?> in, String actualName) {
+		return this.addMethodInvoke(exposedName, MethodInfo.getMethod(in, actualName));
+	}
+
+	public MutableScriptEnvironment2 addMethodRenamedInvokeSpecific(String exposedName, Class<?> in, String actualName, Class<?> returnType, Class<?> paramTypes) {
+		return this.addMethodInvoke(exposedName, MethodInfo.findMethod(in, actualName, returnType, paramTypes));
+	}
+
 	public MutableScriptEnvironment2 addMethodInvokes(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addMethodInvoke(in, name);

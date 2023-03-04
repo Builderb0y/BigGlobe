@@ -38,8 +38,8 @@
 				"int index = random.nextInt(queue.size())",
 				"Pos center = (",
 					"index == queue.size() - 1",
-					"? queue.remove(index)",
-					": queue.set(index, queue.remove(queue.size() - 1))",
+					"? queue.removeIndex(index)",
+					": queue.set(index, queue.removeIndex(queue.size() - 1))",
 				")",
 
 				";;",
