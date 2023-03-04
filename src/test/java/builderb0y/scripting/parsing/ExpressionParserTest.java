@@ -40,11 +40,11 @@ public class ExpressionParserTest {
 		assertSuccess(8, "2 * 2 * 2");
 		assertSuccess(8, "( 2 + 2 ) * 2");
 		assertSuccess(8, "2 * ( 2 + 2 )");
-		assertFail("Unmatched parentheses", "(");
-		assertFail("Unmatched parentheses", "(2");
+		assertFail("Unexpected end of input", "(");
+		assertFail("Expected ')'", "(2");
 		assertFail("Unexpected end of input", "(2 +");
-		assertFail("Unmatched parentheses", "(2 + 2");
-		assertFail("Unmatched parentheses", "((2 + 2)");
+		assertFail("Expected ')'", "(2 + 2");
+		assertFail("Expected ')'", "((2 + 2)");
 		assertFail("Unexpected character: )", ")");
 		assertFail("Unexpected trailing character: )", "2)");
 		assertFail("Unexpected trailing character: )", "+ 2)");
@@ -267,7 +267,13 @@ public class ExpressionParserTest {
 		);
 		assertSuccess(true,
 			"""
-			for ( byte value in List . of ( 1 , 2 , 3 , 4 , 5 ) :
+			List list = ArrayList . new ( 5 )
+			list . add ( 1 )
+			list . add ( 2 )
+			list . add ( 3 )
+			list . add ( 4 )
+			list . add ( 5 )
+			for ( byte value in list :
 				if ( value == 3 : return ( true ) )
 			)
 			return ( false )
@@ -637,6 +643,12 @@ public class ExpressionParserTest {
 	}
 
 	public static Object evaluate(String input) throws ScriptParsingException {
-		return new ScriptParser<>(Supplier.class, input).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(JavaUtilScriptEnvironment.INSTANCE).parse().get();
+		return (
+			new ScriptParser<>(Supplier.class, input)
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(JavaUtilScriptEnvironment.ALL)
+			.parse()
+			.get()
+		);
 	}
 }

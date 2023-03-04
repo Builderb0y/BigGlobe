@@ -2,7 +2,6 @@ package builderb0y.scripting.environments;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
@@ -163,6 +162,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	this is a hack to work around generics.
 	see {@link ClassScriptEnvironment#getMethod(ExpressionParser, InsnTree, String, InsnTree...)}.
 	*/
+	/*
 	public static <I extends InsnTree, M> I getBestArgumentsGeneric(
 		ExpressionParser parser,
 		String name,
@@ -202,6 +202,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			parser.input
 		);
 	}
+	*/
 
 	public static String descriptorOfArguments(InsnTree... arguments) {
 		return (

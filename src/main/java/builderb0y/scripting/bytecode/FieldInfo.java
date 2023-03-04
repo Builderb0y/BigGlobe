@@ -2,6 +2,8 @@ package builderb0y.scripting.bytecode;
 
 import java.lang.reflect.Field;
 
+import builderb0y.scripting.util.ReflectionData;
+
 import static org.objectweb.asm.Opcodes.*;
 
 public class FieldInfo {
@@ -25,6 +27,14 @@ public class FieldInfo {
 		if (type.isVoid()) {
 			throw new IllegalArgumentException("Cannot have a field of type void: " + this);
 		}
+	}
+
+	public static FieldInfo getField(Class<?> in, String name) {
+		return forField(ReflectionData.forClass(in).getDeclaredField(name));
+	}
+
+	public static FieldInfo findField(Class<?> in, String name, Class<?> type) {
+		return forField(ReflectionData.forClass(in).findDeclaredField(name, type));
 	}
 
 	public static FieldInfo forField(Field field) {

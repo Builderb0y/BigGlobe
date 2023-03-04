@@ -41,13 +41,8 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.environments.ClassScriptEnvironment;
-import builderb0y.scripting.environments.ClassScriptEnvironment.ExposeAsField;
-import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.environments.WhitelistClassScriptEnvironment.Expose;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -63,10 +58,6 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(BlockTagKey.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockTagKey.class, "of", String.class, BlockTagKey.class);
-
-		public static final MethodInfo
-			RANDOM   = MethodInfo.findFirstMethod(BlockTagKey.class, "random"),
-			ITERATOR = MethodInfo.findFirstMethod(BlockTagKey.class, "iterator");
 
 		public static BlockTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
@@ -97,9 +88,6 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(Block.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockWrapper.class, "getBlock", String.class, Block.class);
-		public static final MethodInfo
-			IS_IN             = MethodInfo.findFirstMethod(BlockWrapper.class, "isIn"),
-			GET_DEFAULT_STATE = MethodInfo.findFirstMethod(BlockWrapper.class, "getDefaultState");
 
 		public static Block getBlock(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return getBlock(id);
@@ -123,21 +111,6 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(BlockState.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class);
-		public static final MethodInfo
-			IS_IN                   = MethodInfo.findFirstMethod(BlockStateWrapper.class, "isIn"),
-			GET_BLOCK               = MethodInfo.findFirstMethod(BlockStateWrapper.class, "getBlock"),
-			IS_AIR                  = MethodInfo.findFirstMethod(BlockStateWrapper.class, "isAir"),
-			IS_REPLACEABLE          = MethodInfo.findFirstMethod(BlockStateWrapper.class, "isReplaceable"),
-			BLOCKS_LIGHT            = MethodInfo.findFirstMethod(BlockStateWrapper.class, "blocksLight"),
-			HAS_COLLISION           = MethodInfo.findFirstMethod(BlockStateWrapper.class, "hasCollision"),
-			HAS_FULL_CUBE_COLLISION = MethodInfo.findFirstMethod(BlockStateWrapper.class, "hasFullCubeCollision"),
-			ROTATE                  = MethodInfo.findFirstMethod(BlockStateWrapper.class, "rotate"),
-			MIRROR                  = MethodInfo.findFirstMethod(BlockStateWrapper.class, "mirror"),
-			GET_PROPERTY            = MethodInfo.findFirstMethod(BlockStateWrapper.class, "getProperty"),
-			WITH                    = MethodInfo.findFirstMethod(BlockStateWrapper.class, "with"),
-			CAN_PLACE_AT            = MethodInfo.findFirstMethod(BlockStateWrapper.class, "canPlaceAt"),
-			HAS_WATER               = MethodInfo.findFirstMethod(BlockStateWrapper.class, "hasWater"),
-			HAS_LAVA                = MethodInfo.findFirstMethod(BlockStateWrapper.class, "hasLava");
 
 		public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
 			BlockResult result = BlockArgumentParser.block(Registry.BLOCK, id, false);
@@ -240,7 +213,6 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(BiomeEntry.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BiomeEntry.class, "of", String.class, BiomeEntry.class);
-		public static final ScriptEnvironment ENVIRONMENT = new ClassScriptEnvironment(BiomeEntry.class);
 
 		public static BiomeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
@@ -256,23 +228,19 @@ public class Wrappers {
 			);
 		}
 
-		@Expose
 		public boolean isIn(BiomeTagKey key) {
 			return this.biome.isIn(key.key);
 		}
 
-		@ExposeAsField
-		public float getTemperature() {
+		public float temperature() {
 			return this.biome.value().getTemperature();
 		}
 
-		@ExposeAsField
-		public float getDownfall() {
+		public float downfall() {
 			return this.biome.value().getDownfall();
 		}
 
-		@ExposeAsField
-		public String getPrecipitation() {
+		public String precipitation() {
 			return this.biome.value().getPrecipitation().asString();
 		}
 
@@ -327,7 +295,6 @@ public class Wrappers {
 
 		public static final TypeInfo TYPE = type(ConfiguredFeatureEntry.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureEntry.class, "of", String.class, ConfiguredFeatureEntry.class);
-		public static final MethodInfo IS_IN = MethodInfo.findFirstMethod(ConfiguredFeatureEntry.class, "isIn");
 
 		public static ConfiguredFeatureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);
@@ -397,21 +364,6 @@ public class Wrappers {
 	public static class WorldWrapper {
 
 		public static final TypeInfo TYPE = type(WorldWrapper.class);
-		public static final FieldInfo
-			PERMUTER          = field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "permuter", Permuter.class),
-			COLUMN            = field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "column", WorldColumn.class);
-		public static final MethodInfo
-			GET_SEED          = MethodInfo.findFirstMethod(WorldWrapper.class, "getSeed"),
-			GET_BLOCK_STATE   = MethodInfo.findFirstMethod(WorldWrapper.class, "getBlockState"),
-			SET_BLOCK_STATE   = MethodInfo.findFirstMethod(WorldWrapper.class, "setBlockState"),
-			PLACE_BLOCK_STATE = MethodInfo.findFirstMethod(WorldWrapper.class, "placeBlockState"),
-			FILL_BLOCK_STATE  = MethodInfo.findFirstMethod(WorldWrapper.class, "fillBlockState"),
-			PLACE_FEATURE     = MethodInfo.findFirstMethod(WorldWrapper.class, "placeFeature"),
-			GET_BIOME         = MethodInfo.findFirstMethod(WorldWrapper.class, "getBiome"),
-			IS_Y_LEVEL_VALID  = MethodInfo.findFirstMethod(WorldWrapper.class, "isYLevelValid"),
-			GET_BLOCK_DATA    = MethodInfo.findFirstMethod(WorldWrapper.class, "getBlockData"),
-			SET_BLOCK_DATA    = MethodInfo.findFirstMethod(WorldWrapper.class, "setBlockData"),
-			MERGE_BLOCK_DATA  = MethodInfo.findFirstMethod(WorldWrapper.class, "mergeBlockData");
 
 		public final StructureWorldAccess world;
 		public final BlockPos.Mutable pos;
@@ -425,17 +377,14 @@ public class Wrappers {
 			this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
 		}
 
-		@ExposeAsField
 		public long getSeed() {
 			return this.world.getSeed();
 		}
 
-		@Expose
 		public BlockState getBlockState(int x, int y, int z) {
 			return this.world.getBlockState(this.pos.set(x, y, z));
 		}
 
-		@Expose
 		public void setBlockState(int x, int y, int z, BlockState state) {
 			this.world.setBlockState(this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
 			if (!state.getFluidState().isEmpty()) {
@@ -447,12 +396,10 @@ public class Wrappers {
 			}
 		}
 
-		@Expose
 		public boolean placeBlockState(int x, int y, int z, BlockState state) {
 			return SingleBlockFeature.place(this.world, this.pos.set(x, y, z), state, SingleBlockFeature.IS_REPLACEABLE);
 		}
 
-		@Expose
 		public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
 			int tmp;
 			if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
@@ -467,7 +414,6 @@ public class Wrappers {
 			}
 		}
 
-		@Expose
 		public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 			return feature.entry.value().generate(
 				this.world,
@@ -477,24 +423,20 @@ public class Wrappers {
 			);
 		}
 
-		@Expose
 		public BiomeEntry getBiome(int x, int y, int z) {
 			this.biomeColumn.setPos(x, z);
 			return new BiomeEntry(this.biomeColumn.getBiome(y));
 		}
 
-		@Expose
 		public boolean isYLevelValid(int y) {
 			return !this.world.isOutOfHeightLimit(y);
 		}
 
-		@Expose
 		public @Nullable NbtCompound getBlockData(int x, int y, int z) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			return blockEntity == null ? null : blockEntity.createNbtWithIdentifyingData();
 		}
 
-		@Expose
 		public void setBlockData(int x, int y, int z, NbtCompound nbt) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			if (blockEntity != null) {
@@ -502,7 +444,6 @@ public class Wrappers {
 			}
 		}
 
-		@Expose
 		public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
 			BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
 			if (blockEntity != null) {
@@ -553,19 +494,17 @@ public class Wrappers {
 			return new StructureStartWrapper(entry, start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
 		}
 
-		@ExposeAsField public int minX() { return this.box.getMinX(); }
-		@ExposeAsField public int minY() { return this.box.getMinY(); }
-		@ExposeAsField public int minZ() { return this.box.getMinZ(); }
-		@ExposeAsField public int maxX() { return this.box.getMaxX(); }
-		@ExposeAsField public int maxY() { return this.box.getMaxY(); }
-		@ExposeAsField public int maxZ() { return this.box.getMaxZ(); }
+		public int minX() { return this.box.getMinX(); }
+		public int minY() { return this.box.getMinY(); }
+		public int minZ() { return this.box.getMinZ(); }
+		public int maxX() { return this.box.getMaxX(); }
+		public int maxY() { return this.box.getMaxY(); }
+		public int maxZ() { return this.box.getMaxZ(); }
 
-		@Expose
 		public StructureEntry structure() {
 			return new StructureEntry(this.entry);
 		}
 
-		@Expose
 		public List<StructurePiece> pieces() {
 			return this.start.getChildren();
 		}
@@ -604,7 +543,7 @@ public class Wrappers {
 	public static record StructureEntry(RegistryEntry<Structure> entry) {
 
 		public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
-		public static final MethodInfo IS_IN = MethodInfo.findFirstMethod(StructureEntry.class, "isIn");
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureEntry.class, "of", String.class, StructureEntry.class);
 
 		public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);

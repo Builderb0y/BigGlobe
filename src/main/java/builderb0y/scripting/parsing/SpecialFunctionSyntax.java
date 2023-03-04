@@ -35,21 +35,9 @@ public class SpecialFunctionSyntax {
 	public static record ParenthesizedScript(InsnTree contents, boolean hasNewVariables) implements CodeBlock {
 
 		public static ParenthesizedScript parse(ExpressionParser parser) throws ScriptParsingException {
-			parser.input.expectAfterWhitespace('(');
-			CursorPos openParentheses = parser.input.getCursor();
-			if (!parser.input.canReadAfterWhitespace()) {
-				parser.input.setCursor(openParentheses);
-				throw new ScriptParsingException("Unmatched parentheses", parser.input);
-			}
-			parser.environment.user().push();
+			parser.beginCodeBlock();
 			InsnTree result = parser.nextScript();
-			if (!parser.input.canReadAfterWhitespace()) {
-				parser.input.setCursor(openParentheses);
-				throw new ScriptParsingException("Unmatched parentheses", parser.input);
-			}
-			parser.input.expect(')');
-			boolean newVariables = parser.environment.user().hasNewVariables();
-			parser.environment.user().pop();
+			boolean newVariables = parser.endCodeBlock();
 			return new ParenthesizedScript(result, newVariables);
 		}
 
@@ -61,32 +49,23 @@ public class SpecialFunctionSyntax {
 	public static record CommaSeparatedExpressions(InsnTree[] arguments, boolean hasNewVariables) implements CodeBlock {
 
 		public static CommaSeparatedExpressions parse(ExpressionParser parser) throws ScriptParsingException {
-			parser.input.expectAfterWhitespace('(');
-			CursorPos openParentheses = parser.input.getCursor();
-			if (!parser.input.canReadAfterWhitespace()) {
-				parser.input.setCursor(openParentheses);
-				throw new ScriptParsingException("Unmatched parentheses", parser.input);
-			}
-			if (parser.input.hasAfterWhitespace(')')) {
+			parser.beginCodeBlock();
+			if (parser.input.peekAfterWhitespace() == ')') {
+				parser.endCodeBlock();
 				return new CommaSeparatedExpressions(InsnTree.ARRAY_FACTORY.empty(), false);
 			}
-			parser.environment.user().push();
 			List<InsnTree> args = new ArrayList<>(4);
+			boolean newVariables;
 			while (true) {
 				args.add(parser.nextScript());
-				if (!parser.input.canReadAfterWhitespace()) {
-					parser.input.setCursor(openParentheses);
-					throw new ScriptParsingException("Unmatched parentheses", parser.input);
-				}
 				if (parser.input.hasAfterWhitespace(',')) {
 					continue;
 				}
-				else if (parser.input.hasAfterWhitespace(')')) {
+				else {
+					newVariables = parser.endCodeBlock();
 					break;
 				}
 			}
-			boolean newVariables = parser.environment.user().hasNewVariables();
-			parser.environment.user().pop();
 			return new CommaSeparatedExpressions(InsnTree.ARRAY_FACTORY.collectionToArray(args), newVariables);
 		}
 	}

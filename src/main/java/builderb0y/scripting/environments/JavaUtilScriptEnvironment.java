@@ -9,7 +9,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.ReflectionData;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -183,14 +182,14 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 		),
 		ALL = (
 			new MutableScriptEnvironment2()
-			.multiAddAll(MAPS, ITERABLES, ITERATORS)
+			.multiAddAll(OBJECT, MAPS, ITERABLES, ITERATORS)
 		);
 
 	public static class MapGetInsnTree extends InvokeInsnTree {
 
 		public static final MethodInfo
-			GET = MethodInfo.forMethod(ReflectionData.forClass(Map.class).getDeclaredMethod("get")),
-			PUT = MethodInfo.forMethod(ReflectionData.forClass(Map.class).getDeclaredMethod("put"));
+			GET = MethodInfo.getMethod(Map.class, "get"),
+			PUT = MethodInfo.getMethod(Map.class, "put");
 
 		public MapGetInsnTree(InsnTree map, InsnTree key) {
 			super(INVOKEINTERFACE, map, GET, key);
@@ -208,8 +207,8 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 	public static class ListGetInsnTree extends InvokeInsnTree {
 
 		public static final MethodInfo
-			GET = MethodInfo.forMethod(ReflectionData.forClass(List.class).getDeclaredMethod("get")),
-			SET = MethodInfo.forMethod(ReflectionData.forClass(List.class).getDeclaredMethod("set"));
+			GET = MethodInfo.getMethod(List.class, "get"),
+			SET = MethodInfo.getMethod(List.class, "set");
 
 		public ListGetInsnTree(InsnTree list, InsnTree index) {
 			super(INVOKEINTERFACE, list, GET, index);

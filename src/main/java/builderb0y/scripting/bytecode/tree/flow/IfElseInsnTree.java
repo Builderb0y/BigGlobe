@@ -67,30 +67,14 @@ public class IfElseInsnTree implements InsnTree {
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Label falseLabel = new Label(), end = new Label();
-		this.condition.emitBytecode(method, null, falseLabel);
-		this.runtimeTrueBody.emitBytecode(method);
-		if (!isJump(method.node.instructions.getLast().getOpcode())) {
-			method.node.visitJumpInsn(GOTO, end);
-		}
+		method.scopes.withScope(method1 -> {
+			this.condition.emitBytecode(method1, null, falseLabel);
+			this.runtimeTrueBody.emitBytecode(method1);
+		});
+		method.node.visitJumpInsn(GOTO, end);
 		method.node.visitLabel(falseLabel);
 		this.runtimeFalseBody.emitBytecode(method);
 		method.node.visitLabel(end);
-	}
-
-	public static boolean isJump(int opcode) {
-		return switch (opcode) {
-			case
-				IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE,
-				IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE,
-				IF_ACMPEQ, IF_ACMPNE, IFNULL, IFNONNULL,
-				GOTO,
-				JSR, RET,
-				TABLESWITCH, LOOKUPSWITCH,
-				IRETURN, LRETURN, FRETURN, DRETURN, ARETURN, RETURN,
-				ATHROW
-				-> true;
-			default -> false;
-		};
 	}
 
 	@Override

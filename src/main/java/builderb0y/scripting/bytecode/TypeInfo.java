@@ -9,6 +9,7 @@ import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
@@ -39,7 +40,7 @@ public class TypeInfo {
 	public final @Nullable TypeInfo superClass;
 	public final @NotNull TypeInfo @NotNull [] superInterfaces;
 	public final @Nullable TypeInfo componentType;
-	public final boolean generic;
+	public final boolean isGeneric;
 
 	public Set<TypeInfo> allAssignableTypes, allCastableTypes;
 
@@ -49,18 +50,19 @@ public class TypeInfo {
 		@Nullable TypeInfo superClass,
 		@NotNull TypeInfo @NotNull [] superInterfaces,
 		@Nullable TypeInfo componentType,
-		boolean generic
+		boolean isGeneric
 	) {
 		this.type = type;
 		this.name = name;
 		this.superClass = superClass;
 		this.superInterfaces = superInterfaces;
 		this.componentType = componentType;
-		this.generic = generic;
+		this.isGeneric = isGeneric;
 	}
 
-	public static TypeInfo of(@NotNull Class<?> clazz) {
-		return CACHE.get(clazz);
+	@Contract("!null -> !null")
+	public static TypeInfo of(@Nullable Class<?> clazz) {
+		return clazz == null ? null : CACHE.get(clazz);
 	}
 
 	public static TypeInfo[] allOf(@NotNull Class<?> @NotNull ... classes) {
@@ -157,11 +159,11 @@ public class TypeInfo {
 	}
 
 	public TypeInfo generic() {
-		return this.generic ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, true);
+		return this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, true);
 	}
 
 	public TypeInfo notGeneric() {
-		return !this.generic ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, false);
+		return !this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, false);
 	}
 
 	public Sort getSort() {
@@ -217,7 +219,7 @@ public class TypeInfo {
 	}
 
 	public static TypeInfo makeArray(Type name, TypeInfo componentType) {
-		return new TypeInfo(ClassType.ARRAY, name, TypeInfos.OBJECT, ARRAY_INTERFACES, componentType, componentType.generic);
+		return new TypeInfo(ClassType.ARRAY, name, TypeInfos.OBJECT, ARRAY_INTERFACES, componentType, componentType.isGeneric);
 	}
 
 	public static TypeInfo makeArray(TypeInfo componentType) {
@@ -348,6 +350,7 @@ public class TypeInfo {
 		if (this.superClass != null) builder.append(" extends ").append(this.superClass.name.getInternalName());
 		if (this.superInterfaces.length != 0) builder.append(" implements ").append(Arrays.stream(this.superInterfaces).map(anInterface -> anInterface.name.getInternalName()).collect(Collectors.joining(", ")));
 		if (this.componentType != null) builder.append(" arrayof ").append(this.componentType.name.getInternalName());
+		if (this.isGeneric) builder.append(" (generic)");
 		return builder.toString();
 	}
 

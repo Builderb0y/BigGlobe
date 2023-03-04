@@ -68,7 +68,7 @@ public class ClassCompileContext {
 		TypeInfo superClass,
 		TypeInfo[] superInterfaces
 	) {
-		this(access, new TypeInfo(type, name, superClass, superInterfaces, null));
+		this(access, new TypeInfo(type, name, superClass, superInterfaces, null, false));
 	}
 
 	public ClassCompileContext(
@@ -78,7 +78,7 @@ public class ClassCompileContext {
 		TypeInfo superClass,
 		TypeInfo[] superInterfaces
 	) {
-		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null));
+		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false));
 	}
 
 	public byte[] toByteArray() {

@@ -6,13 +6,11 @@ import java.util.random.RandomGenerator;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.scripting.bytecode.VarInfo;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -32,15 +30,15 @@ public interface ColumnYRandomToDoubleScript extends Script {
 
 		public static Holder create(String script) throws ScriptParsingException {
 			ColumnYScriptEnvironment columnYScriptEnvironment = new ColumnYScriptEnvironment(
-				new VarInfo("column", 1, type(WorldColumn.class)),
-				new VarInfo("y", 2, TypeInfos.DOUBLE)
+				variable("column", 1, type(WorldColumn.class)),
+				variable("y", 2, TypeInfos.DOUBLE)
 			);
 			ColumnYRandomToDoubleScript actualScript = (
 				new ScriptParser<>(ColumnYRandomToDoubleScript.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment)
-				.addEnvironment(new RandomScriptEnvironment(
-					new LoadInsnTree(new VarInfo("random", 4, RandomScriptEnvironment.RANDOM_GENERATOR_TYPE))
+				.addEnvironment(new RandomScriptEnvironment2(
+					load("random", 4, type(RandomGenerator.class))
 				))
 				.parse()
 			);

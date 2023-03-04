@@ -1011,4 +1011,16 @@ public class ExpressionParser {
 	public static boolean isNumber(char c) {
 		return c >= '0' && c <= '9';
 	}
+
+	public void beginCodeBlock() throws ScriptParsingException {
+		this.input.expectAfterWhitespace('(');
+		this.environment.user().push();
+	}
+
+	public boolean endCodeBlock() throws ScriptParsingException {
+		this.input.expectAfterWhitespace(')');
+		boolean newVariables = this.environment.user().hasNewVariables();
+		this.environment.user().pop();
+		return newVariables;
+	}
 }

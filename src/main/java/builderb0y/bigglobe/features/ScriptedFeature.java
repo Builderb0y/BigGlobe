@@ -19,10 +19,12 @@ import builderb0y.bigglobe.scripting.Wrappers.WorldWrapper;
 import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.parsing.*;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -81,19 +83,19 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					new ScriptParser<>(FeatureScript.class, script)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
-					.addEnvironment(new MinecraftScriptEnvironment(
+					.addCastProvider(MinecraftScriptEnvironment2.CAST_PROVIDER)
+					.addEnvironment(new MinecraftScriptEnvironment2(
 						load("world", 1, WorldWrapper.TYPE)
 					))
 					.addEnvironment(NBTScriptEnvironment.INSTANCE)
 					.addCastProvider(NBTScriptEnvironment.NBT_CASTS)
 					.addEnvironment(
-						new MutableScriptEnvironment()
-						.addParameter("originX", 2, TypeInfos.INT)
-						.addParameter("originY", 3, TypeInfos.INT)
-						.addParameter("originZ", 4, TypeInfos.INT)
+						new MutableScriptEnvironment2()
+						.addVariableLoad("originX", 2, TypeInfos.INT)
+						.addVariableLoad("originY", 3, TypeInfos.INT)
+						.addVariableLoad("originZ", 4, TypeInfos.INT)
 					)
-					.addEnvironment(new RandomScriptEnvironment(
+					.addEnvironment(new RandomScriptEnvironment2(
 						getField(
 							load("world", 1, WorldWrapper.TYPE),
 							field(

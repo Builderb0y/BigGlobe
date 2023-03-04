@@ -2,6 +2,7 @@ package builderb0y.bigglobe.scripting;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -23,17 +24,18 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@Deprecated
 public class MinecraftScriptEnvironment implements ScriptEnvironment {
 
 	public static final CastProvider CAST_PROVIDER = (
 		new LookupCastProvider()
 
-		.append(TypeInfos.STRING, BlockTagKey           .TYPE, true, new ConstantCaster(BlockTagKey           .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockWrapper          .TYPE, true, new ConstantCaster(BlockWrapper          .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockStateWrapper     .TYPE, true, new ConstantCaster(BlockStateWrapper     .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeEntry            .TYPE, true, new ConstantCaster(BiomeEntry            .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeTagKey           .TYPE, true, new ConstantCaster(BiomeTagKey           .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, ConfiguredFeatureEntry.TYPE, true, new ConstantCaster(ConfiguredFeatureEntry.CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockTagKey            .TYPE, true, new ConstantCaster(BlockTagKey            .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockWrapper           .TYPE, true, new ConstantCaster(BlockWrapper           .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockStateWrapper      .TYPE, true, new ConstantCaster(BlockStateWrapper      .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BiomeEntry             .TYPE, true, new ConstantCaster(BiomeEntry             .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BiomeTagKey            .TYPE, true, new ConstantCaster(BiomeTagKey            .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, ConfiguredFeatureEntry .TYPE, true, new ConstantCaster(ConfiguredFeatureEntry .CONSTANT_FACTORY))
 		.append(TypeInfos.STRING, ConfiguredFeatureTagKey.TYPE, true, new ConstantCaster(ConfiguredFeatureTagKey.CONSTANT_FACTORY))
 	);
 
@@ -54,12 +56,12 @@ public class MinecraftScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		return switch (name) {
-			case "block"                -> BlockWrapper          .CONSTANT_FACTORY.create(parser, name, arguments);
-			case "blockState"           -> BlockStateWrapper     .CONSTANT_FACTORY.create(parser, name, arguments);
-			case "blockTag"             -> BlockTagKey           .CONSTANT_FACTORY.create(parser, name, arguments);
-			case "biome"                -> BiomeEntry            .CONSTANT_FACTORY.create(parser, name, arguments);
-			case "biomeTag"             -> BiomeTagKey           .CONSTANT_FACTORY.create(parser, name, arguments);
-			case "configuredFeature"    -> ConfiguredFeatureEntry.CONSTANT_FACTORY.create(parser, name, arguments);
+			case "block"                -> BlockWrapper           .CONSTANT_FACTORY.create(parser, name, arguments);
+			case "blockState"           -> BlockStateWrapper      .CONSTANT_FACTORY.create(parser, name, arguments);
+			case "blockTag"             -> BlockTagKey            .CONSTANT_FACTORY.create(parser, name, arguments);
+			case "biome"                -> BiomeEntry             .CONSTANT_FACTORY.create(parser, name, arguments);
+			case "biomeTag"             -> BiomeTagKey            .CONSTANT_FACTORY.create(parser, name, arguments);
+			case "configuredFeature"    -> ConfiguredFeatureEntry .CONSTANT_FACTORY.create(parser, name, arguments);
 			case "configuredFeatureTag" -> ConfiguredFeatureTagKey.CONSTANT_FACTORY.create(parser, name, arguments);
 
 			case "getBlockState"        -> this.makeWorldFunction(parser, WorldWrapper.GET_BLOCK_STATE,   arguments);
@@ -177,7 +179,7 @@ public class MinecraftScriptEnvironment implements ScriptEnvironment {
 				case "random" -> {
 					yield switch (arguments.length) {
 						case 0 -> invokeVirtual(receiver, BlockTagKey.RANDOM, InsnTrees.getField(this.loadWorld, WorldWrapper.PERMUTER));
-						case 1 -> invokeVirtual(receiver, BlockTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", RandomScriptEnvironment.RANDOM_GENERATOR_TYPE, CastMode.IMPLICIT_THROW, arguments));
+						case 1 -> invokeVirtual(receiver, BlockTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", type(RandomGenerator.class), CastMode.IMPLICIT_THROW, arguments));
 						default -> throw new ScriptParsingException("BlockTag.random() requires 0 or 1 arguments", parser.input);
 					};
 				}
@@ -234,7 +236,7 @@ public class MinecraftScriptEnvironment implements ScriptEnvironment {
 				case "random" -> {
 					yield switch (arguments.length) {
 						case 0 -> invokeVirtual(receiver, BiomeTagKey.RANDOM, InsnTrees.getField(this.loadWorld, WorldWrapper.PERMUTER));
-						case 1 -> invokeVirtual(receiver, BiomeTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", RandomScriptEnvironment.RANDOM_GENERATOR_TYPE, CastMode.IMPLICIT_THROW, arguments));
+						case 1 -> invokeVirtual(receiver, BiomeTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", type(RandomGenerator.class), CastMode.IMPLICIT_THROW, arguments));
 						default -> throw new ScriptParsingException("BiomeTag.random() requires 0 or 1 arguments", parser.input);
 					};
 				}
@@ -250,7 +252,7 @@ public class MinecraftScriptEnvironment implements ScriptEnvironment {
 			case CONFIGURED_FEATURE_TAG -> switch (name) {
 				case "random" -> switch (arguments.length) {
 					case 0 -> invokeVirtual(receiver, ConfiguredFeatureTagKey.RANDOM, InsnTrees.getField(this.loadWorld, WorldWrapper.PERMUTER));
-					case 1 -> invokeVirtual(receiver, ConfiguredFeatureTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", RandomScriptEnvironment.RANDOM_GENERATOR_TYPE, CastMode.IMPLICIT_THROW, arguments));
+					case 1 -> invokeVirtual(receiver, ConfiguredFeatureTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", type(RandomGenerator.class), CastMode.IMPLICIT_THROW, arguments));
 					default -> throw new ScriptParsingException("ConfiguredFeatureTag.random() requires 0 or 1 arguments", parser.input);
 				};
 				default -> null;
@@ -267,7 +269,7 @@ public class MinecraftScriptEnvironment implements ScriptEnvironment {
 			case STRUCTURE_TAG -> switch (name) {
 				case "random" -> switch (arguments.length) {
 					case 0 -> invokeVirtual(receiver, StructureTagKey.RANDOM, InsnTrees.getField(this.loadWorld, WorldWrapper.PERMUTER));
-					case 1 -> invokeVirtual(receiver, StructureTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", RandomScriptEnvironment.RANDOM_GENERATOR_TYPE, CastMode.IMPLICIT_THROW, arguments));
+					case 1 -> invokeVirtual(receiver, StructureTagKey.RANDOM, ScriptEnvironment.castArgument(parser, "random", type(RandomGenerator.class), CastMode.IMPLICIT_THROW, arguments));
 					default -> throw new ScriptParsingException("StructureTag.random() requires 0 or 1 arguments", parser.input);
 				};
 				default -> null;

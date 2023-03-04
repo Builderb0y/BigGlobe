@@ -24,6 +24,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@Deprecated
 public class ClassScriptEnvironment implements ScriptEnvironment {
 
 	public final Class<?> clazz;

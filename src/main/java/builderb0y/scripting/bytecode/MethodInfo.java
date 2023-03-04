@@ -6,9 +6,8 @@ import java.lang.reflect.Modifier;
 
 import org.objectweb.asm.Handle;
 
-import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.scripting.util.ReflectionData;
 import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.util.UncheckedReflection;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -35,6 +34,14 @@ public class MethodInfo {
 				throw new IllegalArgumentException("Void-type parameter: " + this);
 			}
 		}
+	}
+
+	public MethodInfo pure() {
+		return this.isPure() ? this : new MethodInfo(this.access | PURE, this.owner, this.name, this.returnType, this.paramTypes);
+	}
+
+	public MethodInfo notPure() {
+		return !this.isPure() ? this : new MethodInfo(this.access & ~PURE, this.owner, this.name, this.returnType, this.paramTypes);
 	}
 
 	public String getDescriptor() {
@@ -69,18 +76,12 @@ public class MethodInfo {
 		return (this.access & PURE) != 0;
 	}
 
-	@Deprecated
-	public static MethodInfo findMethod(Class<?> owner, String name, Class<?>... parameterTypes) {
-		return forMethod(UncheckedReflection.getDeclaredMethod(owner, name, parameterTypes));
+	public static MethodInfo getMethod(Class<?> in, String name) {
+		return forMethod(ReflectionData.forClass(in).getDeclaredMethod(name));
 	}
 
-	@Deprecated
-	public static MethodInfo findFirstMethod(Class<?> owner, String name) {
-		name = name.intern();
-		for (Method method : owner.getDeclaredMethods()) {
-			if (method.getName() == name) return forMethod(method);
-		}
-		throw AutoCodecUtil.rethrow(new NoSuchMethodException(name + " in " + owner));
+	public static MethodInfo findMethod(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+		return forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, returnType, paramTypes));
 	}
 
 	public static MethodInfo forMethod(Method method) {
@@ -95,9 +96,12 @@ public class MethodInfo {
 		);
 	}
 
-	@Deprecated
-	public static MethodInfo findConstructor(Class<?> owner, Class<?>... parameterTypes) {
-		return forConstructor(UncheckedReflection.getDeclaredConstructor(owner, parameterTypes));
+	public static MethodInfo getConstructor(Class<?> in) {
+		return forConstructor(ReflectionData.forClass(in).getConstructor());
+	}
+
+	public static MethodInfo findConstructor(Class<?> in, Class<?>... paramTypes) {
+		return forConstructor(ReflectionData.forClass(in).findConstructor(paramTypes));
 	}
 
 	public static MethodInfo forConstructor(Constructor<?> constructor) {

@@ -5,10 +5,10 @@ import java.util.random.RandomGenerator;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
-import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.RandomScriptEnvironment2;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -28,15 +28,15 @@ public interface ScriptedBranchShape extends Script {
 				new ScriptParser<>(ScriptedBranchShape.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
-					new MutableScriptEnvironment()
-					.addParameter("fraction", 1, TypeInfos.DOUBLE)
+					new MutableScriptEnvironment2()
+					.addVariableLoad("fraction", 1, TypeInfos.DOUBLE)
 				)
 				.addEnvironment(new ColumnYScriptEnvironment(
 					variable("column", 3, ColumnYScriptEnvironment.WORLD_COLUMN_TYPE),
 					variable("y", 4, TypeInfos.DOUBLE)
 				))
-				.addEnvironment(new RandomScriptEnvironment(
-					load("random", 6, RandomScriptEnvironment.RANDOM_GENERATOR_TYPE)
+				.addEnvironment(new RandomScriptEnvironment2(
+					load("random", 6, type(RandomGenerator.class))
 				))
 				.parse()
 			);

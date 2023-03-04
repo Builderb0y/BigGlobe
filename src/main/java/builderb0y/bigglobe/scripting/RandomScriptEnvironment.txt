@@ -192,7 +192,7 @@ public class RandomScriptEnvironment implements ScriptEnvironment {
 			Sort sort = firstPart.getTypeInfo().getSort();
 			if (sort != Sort.FLOAT && sort != Sort.DOUBLE) {
 				parser.input.setCursor(revert);
-				throw new ScriptParsingException("random.if() chance should be float or double, but was " + firstPart.getTypeInfo(), parser.input);
+				throw new ScriptParsingException("random." + (negate ? "unless" : "if") + "() chance should be float or double, but was " + firstPart.getTypeInfo(), parser.input);
 			}
 			InsnTree secondPart = parser.nextScript();
 			conditionInsnTree = invokeStatic(

@@ -9,18 +9,16 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.Wrappers.WorldWrapper;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.UncheckedReflection;
-import builderb0y.scripting.parsing.*;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -45,27 +43,27 @@ public interface CommandScript extends Script {
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
-			.addEnvironment(new MinecraftScriptEnvironment(
-				new LoadInsnTree(new VarInfo("world", 1, WorldWrapper.TYPE))
+			.addCastProvider(MinecraftScriptEnvironment2.CAST_PROVIDER)
+			.addEnvironment(new MinecraftScriptEnvironment2(
+				load("world", 1, WorldWrapper.TYPE)
 			))
 			.addEnvironment(NBTScriptEnvironment.INSTANCE)
 			.addCastProvider(NBTScriptEnvironment.NBT_CASTS)
 			.addEnvironment(new ColumnYScriptEnvironment(
-				new LoadInsnTree(new VarInfo("column", 2, type(WorldColumn.class))),
-				new LoadInsnTree(new VarInfo("y", 5, TypeInfos.DOUBLE)),
+				load("column", 2, type(WorldColumn.class)),
+				load("y", 5, TypeInfos.DOUBLE),
 				false
 			))
 			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addParameter("x", 3, TypeInfos.DOUBLE)
-				.addParameter("y", 5, TypeInfos.DOUBLE)
-				.addParameter("z", 7, TypeInfos.DOUBLE)
+				new MutableScriptEnvironment2()
+				.addVariableLoad("x", 3, TypeInfos.DOUBLE)
+				.addVariableLoad("y", 5, TypeInfos.DOUBLE)
+				.addVariableLoad("z", 7, TypeInfos.DOUBLE)
 			)
-			.addEnvironment(new RandomScriptEnvironment(
-				new GetFieldInsnTree(
-					new LoadInsnTree(new VarInfo("world", 1, WorldWrapper.TYPE)),
-					new FieldInfo(
+			.addEnvironment(new RandomScriptEnvironment2(
+				getField(
+					load("world", 1, WorldWrapper.TYPE),
+					field(
 						Opcodes.ACC_PUBLIC,
 						WorldWrapper.TYPE,
 						"permuter",
