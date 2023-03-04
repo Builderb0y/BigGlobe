@@ -18,7 +18,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class RandomScriptEnvironment2 extends MutableScriptEnvironment2 {
+public class RandomScriptEnvironment extends MutableScriptEnvironment2 {
 
 	public static final MethodInfo
 		CONSTRUCTOR = MethodInfo.findConstructor(Permuter.class, long.class),
@@ -28,7 +28,7 @@ public class RandomScriptEnvironment2 extends MutableScriptEnvironment2 {
 		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class),
 		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class);
 
-	public RandomScriptEnvironment2(InsnTree loader) {
+	public RandomScriptEnvironment(InsnTree loader) {
 		this
 		.addType("Random", RandomGenerator.class)
 		.addVariable("random", loader)

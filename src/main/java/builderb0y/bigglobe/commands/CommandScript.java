@@ -43,8 +43,8 @@ public interface CommandScript extends Script {
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addCastProvider(MinecraftScriptEnvironment2.CAST_PROVIDER)
-			.addEnvironment(new MinecraftScriptEnvironment2(
+			.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
+			.addEnvironment(new MinecraftScriptEnvironment(
 				load("world", 1, WorldWrapper.TYPE)
 			))
 			.addEnvironment(NBTScriptEnvironment.INSTANCE)
@@ -60,7 +60,7 @@ public interface CommandScript extends Script {
 				.addVariableLoad("y", 5, TypeInfos.DOUBLE)
 				.addVariableLoad("z", 7, TypeInfos.DOUBLE)
 			)
-			.addEnvironment(new RandomScriptEnvironment2(
+			.addEnvironment(new RandomScriptEnvironment(
 				getField(
 					load("world", 1, WorldWrapper.TYPE),
 					field(

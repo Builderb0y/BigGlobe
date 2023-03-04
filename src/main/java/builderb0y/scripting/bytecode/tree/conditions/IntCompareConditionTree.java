@@ -61,7 +61,6 @@ public class IntCompareConditionTree implements ConditionTree {
 
 	public static ConditionTree greaterThan(InsnTree left, InsnTree right) {
 		return createInt(left, right, IF_ICMPGT, IFGT, (l, r) -> l > r);
-
 	}
 
 	public static ConditionTree lessThanOrEqual(InsnTree left, InsnTree right) {

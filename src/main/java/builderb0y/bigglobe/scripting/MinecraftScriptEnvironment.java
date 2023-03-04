@@ -19,7 +19,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class MinecraftScriptEnvironment2 extends MutableScriptEnvironment2 {
+public class MinecraftScriptEnvironment extends MutableScriptEnvironment2 {
 
 	public static final CastProvider CAST_PROVIDER = (
 		new LookupCastProvider()
@@ -35,7 +35,7 @@ public class MinecraftScriptEnvironment2 extends MutableScriptEnvironment2 {
 		.append(TypeInfos.STRING, StructureTagKey        .TYPE, true, new ConstantCaster(StructureTagKey        .CONSTANT_FACTORY))
 	);
 
-	public MinecraftScriptEnvironment2(InsnTree loadWorld) {
+	public MinecraftScriptEnvironment(InsnTree loadWorld) {
 		InsnTree loadRandom = InsnTrees.getField(loadWorld, field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "permuter", Permuter.class));
 
 		this

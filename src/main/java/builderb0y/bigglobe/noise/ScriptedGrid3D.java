@@ -10,10 +10,10 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 

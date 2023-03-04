@@ -83,8 +83,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					new ScriptParser<>(FeatureScript.class, script)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addCastProvider(MinecraftScriptEnvironment2.CAST_PROVIDER)
-					.addEnvironment(new MinecraftScriptEnvironment2(
+					.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
+					.addEnvironment(new MinecraftScriptEnvironment(
 						load("world", 1, WorldWrapper.TYPE)
 					))
 					.addEnvironment(NBTScriptEnvironment.INSTANCE)
@@ -95,7 +95,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						.addVariableLoad("originY", 3, TypeInfos.INT)
 						.addVariableLoad("originZ", 4, TypeInfos.INT)
 					)
-					.addEnvironment(new RandomScriptEnvironment2(
+					.addEnvironment(new RandomScriptEnvironment(
 						getField(
 							load("world", 1, WorldWrapper.TYPE),
 							field(

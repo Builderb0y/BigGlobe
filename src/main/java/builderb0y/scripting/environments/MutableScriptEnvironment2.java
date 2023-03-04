@@ -168,6 +168,56 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
+	//////////////// constant ////////////////
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, ConstantValue constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, boolean constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, byte constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, char constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, short constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, int constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, long constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, float constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, double constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, String constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, TypeInfo constant) {
+		return this.addVariable(name, ldc(constant));
+	}
+
+	public MutableScriptEnvironment2 addVariableConstant(String name, Object constant, TypeInfo type) {
+		return this.addVariable(name, ldc(constant, type));
+	}
+
 	//////////////////////////////// fields ////////////////////////////////
 
 	public MutableScriptEnvironment2 addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
@@ -260,6 +310,10 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this.addFunctionInvokeStatic(method.name, method);
 	}
 
+	public MutableScriptEnvironment2 addFunctionRenamedInvokeStatic(String exposedName, Class<?> in, String actualName) {
+		return this.addFunctionInvokeStatic(exposedName, MethodInfo.getMethod(in, actualName));
+	}
+
 	public MutableScriptEnvironment2 addFunctionInvokeStatic(Class<?> in, String name) {
 		return this.addFunctionInvokeStatic(MethodInfo.getMethod(in, name));
 	}
@@ -285,6 +339,13 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	public MutableScriptEnvironment2 addFunctionMultiInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFunctionMultiInvokeStatic(in, name);
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment2 addFunctionRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
+		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(actualName)) {
+			this.addFunctionInvokeStatic(exposedName, MethodInfo.forMethod(method));
 		}
 		return this;
 	}

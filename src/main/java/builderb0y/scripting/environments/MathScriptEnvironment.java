@@ -2,140 +2,88 @@ package builderb0y.scripting.environments;
 
 import java.util.Arrays;
 
-import builderb0y.bigglobe.math.BigGlobeMath;
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Label;
+
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReduceInsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class MathScriptEnvironment extends MutableScriptEnvironment {
+public class MathScriptEnvironment extends MutableScriptEnvironment2 {
 
 	public static final MathScriptEnvironment INSTANCE = new MathScriptEnvironment();
 
 	public MathScriptEnvironment() {
 		this
-		.addVariable("pi",  ldc(Math.PI))
-		.addVariable("tau", ldc(Math.PI * 2.0D))
-		.addVariable("e",   ldc(Math.E))
-		.addVariable("nan", ldc(Float.NaN))
-		.addVariable("inf", ldc(Float.POSITIVE_INFINITY));
-		for (String name : new String[] {
-			"sin", "cos", "tan",
-			"asin", "acos", "atan",
-			"sinh", "cosh", "tanh",
-			"toRadians", "toDegrees",
-			"exp", "log",
-			"sqrt", "cbrt",
-			"floor", "ceil"
-		}) {
-			this.addFloatCompatibleFunction(name, method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, name, double.class, double.class));
-		}
-		for (String name : new String[] { "pow", "atan2" }) {
-			this.addFloatCompatibleFunction(name, method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, name, double.class, double.class, double.class));
-		}
-		for (String name : new String[] { "exp2", "log2" }) {
-			this.addFloatCompatibleFunction(name, method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, BigGlobeMath.class, name, double.class, double.class));
-		}
-		for (String name : new String[] { "asinh", "acosh", "atanh" }) {
-			this.addFloatCompatibleFunction(name, method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, MathScriptEnvironment.class, name, double.class, double.class));
-		}
-		this
-		.addFunction("abs", FunctionHandler.ofAll(
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "abs", int.class, int.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "abs", long.class, long.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "abs", float.class, float.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "abs", double.class, double.class)
-		))
-		.addFunction("sign", FunctionHandler.ofAll(
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Integer.class, "signum", int.class, int.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Long.class, "signum", long.class, long.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "signum", float.class, float.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Math.class, "signum", double.class, double.class)
-		))
+		.addVariableConstant("pi", Math.PI)
+		.addVariableConstant("tau", Math.PI * 2.0D)
+		.addVariableConstant("e", Math.E)
+		.addVariableConstant("nan", Float.NaN)
+		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
+		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow", "atan2")
+		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh")
+		.addFunctionMultiInvokeStatic(Math.class, "abs")
+		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
+		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
+		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
 		.addFunction("mod", (parser, name, arguments) -> {
 			ScriptEnvironment.checkArgumentCount(parser, name, 2, arguments);
 			return mod(parser, arguments[0], arguments[1]);
 		})
-		.addFunction("isNaN", FunctionHandler.ofAll(
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Float.class, "isNaN", boolean.class, float.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Double.class, "isNaN", boolean.class, double.class)
-		))
-		.addFunction("isNotNaN", FunctionHandler.ofAll(
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, MathScriptEnvironment.class, "isNaN", boolean.class, float.class),
-			method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, MathScriptEnvironment.class, "isNaN", boolean.class, double.class)
-		));
-		FunctionHandler minMax = (parser, name, arguments) -> {
-			if (arguments.length < 2) {
-				throw new ScriptParsingException(name + "requires at least 2 arguments, got " + arguments.length, parser.input);
+		.addFunction("isNaN", createNaN(true))
+		.addFunction("isNotNaN", createNaN(false))
+		.addFunction("min", createReducer())
+		.addFunction("max", createReducer())
+		.addFunctionMultiInvokeStatics(Interpolator.class, "mixLinear", "mixClamp", "mixSmooth", "mixSmoother", "unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother", "clamp")
+		.addFunctionRenamedMultiInvokeStatic("smooth", Interpolator.class, "smoothClamp")
+		.addFunctionRenamedMultiInvokeStatic("smoother", Interpolator.class, "smootherClamp")
+		.addFunctionInvokeStatics(Float.class, "intBitsToFloat", "floatToIntBits")
+		.addFunctionInvokeStatics(Double.class, "longBitsToDouble", "doubleToLongBits")
+		;
+	}
+
+	public static FunctionHandler createNaN(boolean nan) {
+		return (parser, name, arguments) -> {
+			ScriptEnvironment.checkArgumentCount(parser, name, 1, arguments);
+			if (arguments[0].getTypeInfo().isFloat()) {
+				return bool(new NaNConditionTree(arguments[0], nan));
 			}
+			else {
+				throw new ScriptParsingException(name + "() requires a float or double as an argument", parser.input);
+			}
+		};
+	}
+
+	public static FunctionHandler createReducer() {
+		return (parser, name, arguments) -> {
+			if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
 			return new ReduceInsnTree(
 				method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(Math.class), name, type, type, type),
 				Arrays.stream(arguments).map(argument -> {
-					return argument.cast(parser, type, CastMode.EXPLICIT_THROW);
+					return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
 				})
 				.toArray(InsnTree[]::new)
 			);
 		};
-		this.addFunction("min", minMax).addFunction("max", minMax);
-
-		for (String name : new String[] {
-			"mixLinear", "mixClamp", "mixSmooth", "mixSmoother",
-			"unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother",
-			"clamp"
-		}) {
-			this.addInterpolatorFunction(name, 3);
-		}
-		this.addInterpolatorFunction("smooth", 1);
-		this.addInterpolatorFunction("smoother", 1);
-		this.addInterpolatorFunction("smoothClamp", 3);
-		this.addInterpolatorFunction("clampSmooth", "smoothClamp", 3);
-		this.addInterpolatorFunction("smootherClamp", 3);
-		this.addInterpolatorFunction("clampSmoother", "smootherClamp", 3);
-
-		this
-		.addFunction("intToFloatBits", FunctionHandler.of(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Float.class, "intToFloatBits", float.class, int.class)))
-		.addFunction("floatToIntBits", FunctionHandler.of(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Float.class, "floatToIntBits", int.class, float.class)))
-		.addFunction("longToDoubleBits", FunctionHandler.of(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Integer.class, "longToDoubleBits", double.class, long.class)))
-		.addFunction("doubleToLongBits", FunctionHandler.of(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Integer.class, "doubleToLongBits", long.class, double.class)));
 	}
 
-	public void addFloatCompatibleFunction(String name, MethodInfo info) {
-		this.addFunction(name, (parser, name1, arguments) -> {
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name1, info.paramTypes, CastMode.IMPLICIT_THROW, arguments);
-			InsnTree result = invokeStatic(info, castArguments);
-			if (Arrays.stream(arguments).map(InsnTree::getTypeInfo).map(TypeInfo::getSort).allMatch(Sort.FLOAT::equals)) {
-				result = result.cast(parser, TypeInfos.FLOAT, CastMode.EXPLICIT_THROW);
-			}
-			return result;
-		});
+	public static final double LN2 = Math.log(2.0D);
+
+	public static double exp2(double d) {
+		return Math.exp(d * LN2);
 	}
 
-	public void addInterpolatorFunction(String name, int argCount) {
-		this.addInterpolatorFunction(name, name, argCount);
-	}
-
-	public void addInterpolatorFunction(String name, String internalName, int argCount) {
-		MethodInfo  floatMethod = method(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(Interpolator.class), internalName, TypeInfos.FLOAT,  types("F".repeat(argCount)));
-		MethodInfo doubleMethod = method(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(Interpolator.class), internalName, TypeInfos.DOUBLE, types("D".repeat(argCount)));
-		this.addFunction(name, (parser, name1, arguments) -> {
-			MethodInfo method = (
-				Arrays
-				.stream(arguments)
-				.allMatch(argument -> argument.getTypeInfo().isSingleWidth())
-			)
-			? floatMethod
-			: doubleMethod;
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name1, method.paramTypes, CastMode.IMPLICIT_THROW, arguments);
-			return invokeStatic(method, castArguments);
-		});
+	public static double log2(double d) {
+		return Math.log(d) / LN2;
 	}
 
 	public static double asinh(double x) {
@@ -151,11 +99,32 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
 	}
 
-	public static boolean isNotNaN(float value) {
-		return value == value;
-	}
+	public static class NaNConditionTree implements ConditionTree {
 
-	public static boolean isNotNaN(double value) {
-		return value == value;
+		public InsnTree value;
+		public boolean nan;
+
+		public NaNConditionTree(InsnTree value, boolean nan) {
+			this.value = value;
+			this.nan = nan;
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {
+			ConditionTree.checkLabels(ifTrue, ifFalse);
+			this.value.emitBytecode(method);
+			boolean doubleWidth = this.value.getTypeInfo().isDoubleWidth();
+			method.node.visitInsn(doubleWidth ? DUP2 : DUP);
+			method.node.visitInsn(doubleWidth ? DCMPL : FCMPL);
+			if (ifTrue != null) {
+				method.node.visitJumpInsn(this.nan ? IFNE : IFEQ, ifTrue);
+				if (ifFalse != null) {
+					method.node.visitJumpInsn(GOTO, ifFalse);
+				}
+			}
+			else {
+				method.node.visitJumpInsn(this.nan ? IFEQ : IFNE, ifFalse);
+			}
+		}
 	}
 }

@@ -4,11 +4,11 @@ import java.util.function.*;
 
 import org.junit.jupiter.api.Test;
 
-import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static org.junit.jupiter.api.Assertions.*;
 
