@@ -17,7 +17,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class MathScriptEnvironment extends MutableScriptEnvironment2 {
+public class MathScriptEnvironment extends MutableScriptEnvironment {
 
 	public static final MathScriptEnvironment INSTANCE = new MathScriptEnvironment();
 

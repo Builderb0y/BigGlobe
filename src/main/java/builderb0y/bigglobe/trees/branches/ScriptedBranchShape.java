@@ -8,7 +8,7 @@ import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
 import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -28,7 +28,7 @@ public interface ScriptedBranchShape extends Script {
 				new ScriptParser<>(ScriptedBranchShape.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
-					new MutableScriptEnvironment2()
+					new MutableScriptEnvironment()
 					.addVariableLoad("fraction", 1, TypeInfos.DOUBLE)
 				)
 				.addEnvironment(new ColumnYScriptEnvironment(

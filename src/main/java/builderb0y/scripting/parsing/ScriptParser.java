@@ -12,7 +12,7 @@ import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.ClassType;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -92,7 +92,7 @@ public class ScriptParser<I> extends ExpressionParser {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addEnvironment(MutableScriptEnvironment2 environment) {
+	public ScriptParser<I> addEnvironment(MutableScriptEnvironment environment) {
 		return (ScriptParser<I>)(super.addEnvironment(environment));
 	}
 

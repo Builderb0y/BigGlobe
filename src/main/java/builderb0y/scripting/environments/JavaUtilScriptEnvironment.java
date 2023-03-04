@@ -15,28 +15,28 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 
-	public static final MutableScriptEnvironment2
+	public static final MutableScriptEnvironment
 		OBJECT = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Object", Object.class)
 			.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
 		),
 		ITERATOR = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Iterator", Iterator.class)
 			.addMethodInvokes(Iterator.class, "hasNext", "next", "remove")
 		),
 		LIST_ITERATOR = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("ListIterator", ListIterator.class)
 			.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex", "set", "add")
 		),
 		ITERATORS = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(ITERATOR, LIST_ITERATOR)
 		),
 		MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Map", Map.class)
 			.addType("MapEntry", Map.Entry.class)
 			.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
@@ -47,70 +47,70 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			})
 		),
 		SORTED_MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("SortedMap", SortedMap.class)
 			.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
 		),
 		NAVIGABLE_MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("NavigableMap", NavigableMap.class)
 			.addMethodMultiInvokes(NavigableMap.class, "lowerEntry", "lowerKey", "floorEntry", "floorKey", "ceilingEntry", "ceilingKey", "higherEntry", "higherKey", "firstEntry", "lastEntry", "pollFirstEntry", "pollLastEntry", "descendingMap", "navigableKeySet", "descendingKeySet", "subMap", "headMap", "tailMap")
 		),
 		TREE_MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("TreeMap", TreeMap.class)
 			.addQualifiedSpecificConstructor(TreeMap.class, SortedMap.class)
 			.addQualifiedSpecificConstructor(TreeMap.class, Map.class)
 			.addQualifiedSpecificConstructor(TreeMap.class)
 		),
 		HASH_MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("HashMap", HashMap.class)
 			.addQualifiedMultiConstructor(HashMap.class)
 		),
 		LINKED_HASH_MAP = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("LinkedHashMap", LinkedHashMap.class)
 			.addQualifiedMultiConstructor(LinkedHashMap.class)
 		),
 		MAPS = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(MAP, SORTED_MAP, NAVIGABLE_MAP, TREE_MAP, HASH_MAP, LINKED_HASH_MAP)
 		),
 		ITERABLE = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Iterable", Iterable.class)
 			.addMethodInvoke(Iterable.class, "iterator")
 		),
 		COLLECTION = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Collection", Collection.class)
 			.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "add", "containsAll", "addAll", "removeAll", "retainAll", "clear")
 			.addMethodRenamedInvoke("removeElement", Collection.class, "remove")
 		),
 		SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Set", Set.class)
 		),
 		SORTED_SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("SortedSet", SortedSet.class)
 			.addMethodInvokes(SortedSet.class, "subSet", "headSet", "tailSet", "first", "last")
 		),
 		NAVIGABLE_SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("NavigableSet", NavigableSet.class)
 			.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "pollFirst", "pollLast", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
 		),
 		TREE_SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("TreeSet", TreeSet.class)
 			.addQualifiedSpecificConstructor(TreeSet.class, SortedSet.class)
 			.addQualifiedSpecificConstructor(TreeSet.class, Collection.class)
 			.addQualifiedSpecificConstructor(TreeSet.class)
 		),
 		HASH_SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("HashSet", HashSet.class)
 			.addQualifiedSpecificConstructor(HashSet.class)
 			.addQualifiedSpecificConstructor(HashSet.class, int.class)
@@ -118,7 +118,7 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			.addQualifiedSpecificConstructor(HashSet.class, int.class, float.class)
 		),
 		LINKED_HASH_SET = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("LinkedHashSet", LinkedHashSet.class)
 			.addQualifiedSpecificConstructor(LinkedHashSet.class)
 			.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class)
@@ -126,11 +126,11 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
 		),
 		SETS = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(SET, SORTED_SET, NAVIGABLE_SET, TREE_SET, HASH_SET, LINKED_HASH_SET)
 		),
 		LIST = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("List", List.class)
 			.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
 			.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
@@ -140,50 +140,50 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			})
 		),
 		LINKED_LIST = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("LinkedList", LinkedList.class)
 			.addQualifiedMultiConstructor(LinkedList.class)
 		),
 		ARRAY_LIST = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("ArrayList", ArrayList.class)
 			.addQualifiedMultiConstructor(ArrayList.class)
 			.addMethodInvokes(ArrayList.class, "trimToSize", "ensureCapacity")
 		),
 		LISTS = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(LIST, LINKED_LIST, ARRAY_LIST)
 		),
 		QUEUE = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Queue", Queue.class)
 			.addMethodInvokes(Queue.class, "offer", "remove", "poll", "element", "peek")
 		),
 		DEQUE = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("Deque", Deque.class)
 			.addMethodInvokes(Deque.class, "addFirst", "addLast", "offerFirst", "offerLast", "removeFirst", "removeLast", "pollFirst", "pollLast", "getFirst", "getLast", "peekFirst", "peekLast", "removeFirstOccurrence", "removeLastOccurrence", "push", "pop")
 		),
 		ARRAY_DEQUE = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("ArrayDeque", ArrayDeque.class)
 			.addQualifiedMultiConstructor(ArrayDeque.class)
 		),
 		PRIORITY_QUEUE = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.addType("PriorityQueue", PriorityQueue.class)
 			.addQualifiedMultiConstructor(PriorityQueue.class)
 		),
 		QUEUES = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(QUEUE, DEQUE, ARRAY_DEQUE, PRIORITY_QUEUE)
 		),
 		ITERABLES = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(ITERABLE, COLLECTION, SETS, LISTS, QUEUES)
 		),
 		ALL = (
-			new MutableScriptEnvironment2()
+			new MutableScriptEnvironment()
 			.multiAddAll(OBJECT, MAPS, ITERABLES, ITERATORS)
 		);
 

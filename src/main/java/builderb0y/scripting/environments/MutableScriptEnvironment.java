@@ -19,7 +19,7 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 @SuppressWarnings({ "unused", "UnusedReturnValue" })
-public class MutableScriptEnvironment2 implements ScriptEnvironment {
+public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public Map<String,    VariableHandler      > variables;
 	public Map<NamedType, FieldHandler         > fields;
@@ -29,7 +29,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	public Map<String,    KeywordHandler       > keywords;
 	public Map<NamedType, MemberKeywordHandler > memberKeywords;
 
-	public MutableScriptEnvironment2() {
+	public MutableScriptEnvironment() {
 		this.variables      = new HashMap<>(16);
 		this.fields         = new HashMap<>(16);
 		this.functions      = new HashMap<>(16);
@@ -39,7 +39,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		this.memberKeywords = new HashMap<>( 8);
 	}
 
-	public MutableScriptEnvironment2(
+	public MutableScriptEnvironment(
 		Map<String,    VariableHandler      > variables,
 		Map<NamedType, FieldHandler         > fields,
 		Map<String,    List<FunctionHandler>> functions,
@@ -57,7 +57,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		this.memberKeywords = memberKeywords;
 	}
 
-	public MutableScriptEnvironment2 addAllVariables(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
 		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
 			if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
@@ -66,7 +66,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addAllFields(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAllFields(MutableScriptEnvironment that) {
 		for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
 			if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
@@ -75,7 +75,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addAllFunctions(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAllFunctions(MutableScriptEnvironment that) {
 		for (Map.Entry<String, List<FunctionHandler>> entry : that.functions.entrySet()) {
 			List<FunctionHandler> handlers = this.functions.get(entry.getKey());
 			if (handlers != null) handlers.addAll(entry.getValue());
@@ -84,7 +84,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addAllMethods(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAllMethods(MutableScriptEnvironment that) {
 		for (Map.Entry<NamedType, List<MethodHandler>> entry : that.methods.entrySet()) {
 			List<MethodHandler> handlers = this.methods.get(entry.getKey());
 			if (handlers != null) handlers.addAll(entry.getValue());
@@ -93,7 +93,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addAllTypes(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAllTypes(MutableScriptEnvironment that) {
 		for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
 			if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
@@ -102,7 +102,7 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addAll(MutableScriptEnvironment2 that) {
+	public MutableScriptEnvironment addAll(MutableScriptEnvironment that) {
 		return (
 			this
 			.addAllVariables(that)
@@ -113,8 +113,8 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		);
 	}
 
-	public MutableScriptEnvironment2 multiAddAll(MutableScriptEnvironment2... environments) {
-		for (MutableScriptEnvironment2 environment : environments) {
+	public MutableScriptEnvironment multiAddAll(MutableScriptEnvironment... environments) {
+		for (MutableScriptEnvironment environment : environments) {
 			this.addAll(environment);
 		}
 		return this;
@@ -122,56 +122,56 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////////////////////// variables ////////////////////////////////
 
-	public MutableScriptEnvironment2 addVariable(String name, VariableHandler variableHandler) {
+	public MutableScriptEnvironment addVariable(String name, VariableHandler variableHandler) {
 		if (this.variables.putIfAbsent(name, variableHandler) != null) {
 			throw new IllegalArgumentException(name + " is already defined in this scope");
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addVariable(String name, InsnTree tree) {
+	public MutableScriptEnvironment addVariable(String name, InsnTree tree) {
 		return this.addVariable(name, (parser, name1) -> tree);
 	}
 
 	//////////////// load ////////////////
 
-	public MutableScriptEnvironment2 addVariableLoad(String name, VarInfo variable) {
+	public MutableScriptEnvironment addVariableLoad(String name, VarInfo variable) {
 		return this.addVariable(name, load(variable));
 	}
 
-	public MutableScriptEnvironment2 addVariableLoad(VarInfo variable) {
+	public MutableScriptEnvironment addVariableLoad(VarInfo variable) {
 		return this.addVariable(variable.name, load(variable));
 	}
 
-	public MutableScriptEnvironment2 addVariableLoad(String name, int index, TypeInfo type) {
+	public MutableScriptEnvironment addVariableLoad(String name, int index, TypeInfo type) {
 		return this.addVariable(name, load(name, index, type));
 	}
 
 	//////////////// getField ////////////////
 
-	public MutableScriptEnvironment2 addVariableRenamedGetField(InsnTree receiver, String name, FieldInfo field) {
+	public MutableScriptEnvironment addVariableRenamedGetField(InsnTree receiver, String name, FieldInfo field) {
 		return this.addVariable(name, InsnTrees.getField(receiver, field));
 	}
 
-	public MutableScriptEnvironment2 addVariableGetField(InsnTree receiver, FieldInfo field) {
+	public MutableScriptEnvironment addVariableGetField(InsnTree receiver, FieldInfo field) {
 		return this.addVariable(field.name, InsnTrees.getField(receiver, field));
 	}
 
 	//////////////// getStatic ////////////////
 
-	public MutableScriptEnvironment2 addVariableGetStatic(String name, FieldInfo field) {
+	public MutableScriptEnvironment addVariableGetStatic(String name, FieldInfo field) {
 		return this.addVariable(name, getStatic(field));
 	}
 
-	public MutableScriptEnvironment2 addVariableGetStatic(FieldInfo field) {
+	public MutableScriptEnvironment addVariableGetStatic(FieldInfo field) {
 		return this.addVariableGetStatic(field.name, field);
 	}
 
-	public MutableScriptEnvironment2 addVariableGetStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addVariableGetStatic(Class<?> in, String name) {
 		return this.addVariableGetStatic(name, FieldInfo.getField(in, name));
 	}
 
-	public MutableScriptEnvironment2 addVariableGetStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addVariableGetStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addVariableGetStatic(in, name);
 		}
@@ -180,30 +180,30 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// invoke ////////////////
 
-	public MutableScriptEnvironment2 addVariableRenamedInvoke(InsnTree receiver, String name, MethodInfo method) {
+	public MutableScriptEnvironment addVariableRenamedInvoke(InsnTree receiver, String name, MethodInfo method) {
 		return this.addVariable(name, invokeVirtualOrInterface(receiver, method));
 	}
 
-	public MutableScriptEnvironment2 addVariableInvoke(InsnTree receiver, MethodInfo method) {
+	public MutableScriptEnvironment addVariableInvoke(InsnTree receiver, MethodInfo method) {
 		return this.addVariable(method.name, invokeVirtualOrInterface(receiver, method));
 	}
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addVariableInvokeStatic(String name, MethodInfo method) {
+	public MutableScriptEnvironment addVariableInvokeStatic(String name, MethodInfo method) {
 		if (method.paramTypes.length != 0) throw new IllegalArgumentException("Static getter requires parameters");
 		return this.addVariable(name, invokeStatic(method));
 	}
 
-	public MutableScriptEnvironment2 addVariableInvokeStatic(MethodInfo method) {
+	public MutableScriptEnvironment addVariableInvokeStatic(MethodInfo method) {
 		return this.addVariableInvokeStatic(method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addVariableInvokeStatic(Class<?> in, String getterName) {
+	public MutableScriptEnvironment addVariableInvokeStatic(Class<?> in, String getterName) {
 		return this.addVariableInvokeStatic(getterName, MethodInfo.forMethod(ReflectionData.forClass(in).findDeclaredMethod(getterName, m -> m.getParameterCount() == 0)));
 	}
 
-	public MutableScriptEnvironment2 addVariableInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addVariableInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addVariableInvokeStatic(in, name);
 		}
@@ -212,57 +212,57 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// constant ////////////////
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, ConstantValue constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, ConstantValue constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, boolean constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, boolean constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, byte constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, byte constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, char constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, char constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, short constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, short constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, int constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, int constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, long constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, long constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, float constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, float constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, double constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, double constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, String constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, String constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, TypeInfo constant) {
+	public MutableScriptEnvironment addVariableConstant(String name, TypeInfo constant) {
 		return this.addVariable(name, ldc(constant));
 	}
 
-	public MutableScriptEnvironment2 addVariableConstant(String name, Object constant, TypeInfo type) {
+	public MutableScriptEnvironment addVariableConstant(String name, Object constant, TypeInfo type) {
 		return this.addVariable(name, ldc(constant, type));
 	}
 
 	//////////////////////////////// fields ////////////////////////////////
 
-	public MutableScriptEnvironment2 addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
+	public MutableScriptEnvironment addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
 		if (this.fields.putIfAbsent(new NamedType(owner, name), fieldHandler) != null) {
 			throw new IllegalArgumentException(owner + "." + name + " is already defined in this scope");
 		}
@@ -271,19 +271,19 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// get ////////////////
 
-	public MutableScriptEnvironment2 addFieldGet(String name, FieldInfo field) {
+	public MutableScriptEnvironment addFieldGet(String name, FieldInfo field) {
 		return this.addField(field.owner, name, (parser, receiver, name1) -> InsnTrees.getField(receiver, field));
 	}
 
-	public MutableScriptEnvironment2 addFieldGet(FieldInfo field) {
+	public MutableScriptEnvironment addFieldGet(FieldInfo field) {
 		return this.addField(field.owner, field.name, (parser, receiver, name1) -> InsnTrees.getField(receiver, field));
 	}
 
-	public MutableScriptEnvironment2 addFieldGet(Class<?> in, String name) {
+	public MutableScriptEnvironment addFieldGet(Class<?> in, String name) {
 		return this.addFieldGet(name, FieldInfo.getField(in, name));
 	}
 
-	public MutableScriptEnvironment2 addFieldGets(Class<?> in, String... names) {
+	public MutableScriptEnvironment addFieldGets(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFieldGet(in, name);
 		}
@@ -292,20 +292,20 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// invoke ////////////////
 
-	public MutableScriptEnvironment2 addFieldInvoke(String name, MethodInfo getter) {
+	public MutableScriptEnvironment addFieldInvoke(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 0) throw new IllegalArgumentException("Getter requires parameters");
 		return this.addField(getter.owner, name, (parser, receiver, name1) -> invokeVirtualOrInterface(receiver, getter));
 	}
 
-	public MutableScriptEnvironment2 addFieldInvoke(MethodInfo getter) {
+	public MutableScriptEnvironment addFieldInvoke(MethodInfo getter) {
 		return this.addFieldInvoke(getter.name, getter);
 	}
 
-	public MutableScriptEnvironment2 addFieldInvoke(Class<?> in, String name) {
+	public MutableScriptEnvironment addFieldInvoke(Class<?> in, String name) {
 		return this.addFieldInvoke(name, MethodInfo.forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, m -> m.getParameterCount() == 0)));
 	}
 
-	public MutableScriptEnvironment2 addFieldInvokes(Class<?> in, String... names) {
+	public MutableScriptEnvironment addFieldInvokes(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFieldInvoke(in, name);
 		}
@@ -314,20 +314,20 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addFieldInvokeStatic(String name, MethodInfo getter) {
+	public MutableScriptEnvironment addFieldInvokeStatic(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 1) throw new IllegalArgumentException("Static getter requires parameters");
 		return this.addField(getter.paramTypes[0], name, (parser, receiver, name1) -> invokeStatic(getter, receiver));
 	}
 
-	public MutableScriptEnvironment2 addFieldInvokeStatic(MethodInfo getter) {
+	public MutableScriptEnvironment addFieldInvokeStatic(MethodInfo getter) {
 		return this.addFieldInvokeStatic(getter.name, getter);
 	}
 
-	public MutableScriptEnvironment2 addFieldInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addFieldInvokeStatic(Class<?> in, String name) {
 		return this.addFieldInvokeStatic(MethodInfo.forMethod(ReflectionData.forClass(in).getDeclaredMethod(name)));
 	}
 
-	public MutableScriptEnvironment2 addFieldInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addFieldInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFieldInvokeStatic(in, name);
 		}
@@ -336,58 +336,58 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////////////////////// functions ////////////////////////////////
 
-	public MutableScriptEnvironment2 addFunction(String name, FunctionHandler functionHandler) {
+	public MutableScriptEnvironment addFunction(String name, FunctionHandler functionHandler) {
 		this.functions.computeIfAbsent(name, $ -> new ArrayList<>(8)).add(functionHandler);
 		return this;
 	}
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addFunctionInvokeStatic(String name, MethodInfo method) {
+	public MutableScriptEnvironment addFunctionInvokeStatic(String name, MethodInfo method) {
 		return this.addFunction(name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
 			return castArguments == null ? null : invokeStatic(method, castArguments);
 		});
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvokeStatic(MethodInfo method) {
+	public MutableScriptEnvironment addFunctionInvokeStatic(MethodInfo method) {
 		return this.addFunctionInvokeStatic(method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addFunctionRenamedInvokeStatic(String exposedName, Class<?> in, String actualName) {
+	public MutableScriptEnvironment addFunctionRenamedInvokeStatic(String exposedName, Class<?> in, String actualName) {
 		return this.addFunctionInvokeStatic(exposedName, MethodInfo.getMethod(in, actualName));
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addFunctionInvokeStatic(Class<?> in, String name) {
 		return this.addFunctionInvokeStatic(MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvokeStatic(Class<?> in, String name, Class<?> returnType, Class<?>... parameterTypes) {
+	public MutableScriptEnvironment addFunctionInvokeStatic(Class<?> in, String name, Class<?> returnType, Class<?>... parameterTypes) {
 		return this.addFunctionInvokeStatic(MethodInfo.findMethod(in, name, returnType, parameterTypes));
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addFunctionInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFunctionInvokeStatic(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addFunctionMultiInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addFunctionMultiInvokeStatic(Class<?> in, String name) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
 			this.addFunctionInvokeStatic(name, MethodInfo.forMethod(method));
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addFunctionMultiInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addFunctionMultiInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFunctionMultiInvokeStatic(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addFunctionRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
+	public MutableScriptEnvironment addFunctionRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(actualName)) {
 			this.addFunctionInvokeStatic(exposedName, MethodInfo.forMethod(method));
 		}
@@ -396,26 +396,26 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// invoke ////////////////
 
-	public MutableScriptEnvironment2 addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
+	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
 		return this.addFunction(name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
 			return castArguments == null ? null : invokeVirtualOrInterface(receiver, method, castArguments);
 		});
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvoke(InsnTree receiver, MethodInfo method) {
+	public MutableScriptEnvironment addFunctionInvoke(InsnTree receiver, MethodInfo method) {
 		return this.addFunctionInvoke(method.name, receiver, method);
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvoke(InsnTree receiver, Class<?> in, String name) {
+	public MutableScriptEnvironment addFunctionInvoke(InsnTree receiver, Class<?> in, String name) {
 		return this.addFunctionInvoke(name, receiver, MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvoke(InsnTree receiver, Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+	public MutableScriptEnvironment addFunctionInvoke(InsnTree receiver, Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addFunctionInvoke(name, receiver, MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
-	public MutableScriptEnvironment2 addFunctionInvokes(InsnTree receiver, Class<?> in, String... names) {
+	public MutableScriptEnvironment addFunctionInvokes(InsnTree receiver, Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFunctionInvoke(receiver, in, name);
 		}
@@ -424,64 +424,64 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////////////////////// methods ////////////////////////////////
 
-	public MutableScriptEnvironment2 addMethod(TypeInfo owner, String name, MethodHandler methodHandler) {
+	public MutableScriptEnvironment addMethod(TypeInfo owner, String name, MethodHandler methodHandler) {
 		this.methods.computeIfAbsent(new NamedType(owner, name), $ -> new ArrayList<>(8)).add(methodHandler);
 		return this;
 	}
 
 	//////////////// invoke ////////////////
 
-	public MutableScriptEnvironment2 addMethodInvoke(String name, MethodInfo method) {
+	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, (parser, receiver, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
 			return castArguments == null ? null : invokeVirtualOrInterface(receiver, method, castArguments);
 		});
 	}
 
-	public MutableScriptEnvironment2 addMethodInvoke(MethodInfo method) {
+	public MutableScriptEnvironment addMethodInvoke(MethodInfo method) {
 		return this.addMethodInvoke(method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addMethodInvoke(Class<?> in, String name) {
+	public MutableScriptEnvironment addMethodInvoke(Class<?> in, String name) {
 		return this.addMethodInvoke(name, MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addMethodRenamedInvoke(String exposedName, Class<?> in, String actualName) {
+	public MutableScriptEnvironment addMethodRenamedInvoke(String exposedName, Class<?> in, String actualName) {
 		return this.addMethodInvoke(exposedName, MethodInfo.getMethod(in, actualName));
 	}
 
-	public MutableScriptEnvironment2 addMethodRenamedInvokeSpecific(String exposedName, Class<?> in, String actualName, Class<?> returnType, Class<?> paramTypes) {
+	public MutableScriptEnvironment addMethodRenamedInvokeSpecific(String exposedName, Class<?> in, String actualName, Class<?> returnType, Class<?> paramTypes) {
 		return this.addMethodInvoke(exposedName, MethodInfo.findMethod(in, actualName, returnType, paramTypes));
 	}
 
-	public MutableScriptEnvironment2 addMethodInvokes(Class<?> in, String... names) {
+	public MutableScriptEnvironment addMethodInvokes(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addMethodInvoke(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodMultiInvoke(Class<?> in, String name) {
+	public MutableScriptEnvironment addMethodMultiInvoke(Class<?> in, String name) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
 			this.addMethodInvoke(name, MethodInfo.forMethod(method));
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodMultiInvokes(Class<?> in, String... names) {
+	public MutableScriptEnvironment addMethodMultiInvokes(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addMethodMultiInvoke(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodInvokeSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+	public MutableScriptEnvironment addMethodInvokeSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addMethodInvoke(name, MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addMethodInvokeStatic(String name, MethodInfo method) {
+	public MutableScriptEnvironment addMethodInvokeStatic(String name, MethodInfo method) {
 		return this.addMethod(method.paramTypes[0], name, (parser, receiver, name1, arguments) -> {
 			InsnTree[] concatArguments = ObjectArrays.concat(receiver, arguments);
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, concatArguments);
@@ -489,63 +489,63 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		});
 	}
 
-	public MutableScriptEnvironment2 addMethodInvokeStatic(MethodInfo method) {
+	public MutableScriptEnvironment addMethodInvokeStatic(MethodInfo method) {
 		return this.addMethodInvokeStatic(method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addMethodRenamedInvokeStatic(String exposedName, Class<?> in, String actualName) {
+	public MutableScriptEnvironment addMethodRenamedInvokeStatic(String exposedName, Class<?> in, String actualName) {
 		return this.addMethodInvokeStatic(exposedName, MethodInfo.getMethod(in, actualName));
 	}
 
-	public MutableScriptEnvironment2 addMethodInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addMethodInvokeStatic(Class<?> in, String name) {
 		return this.addMethodRenamedInvokeStatic(name, in, name);
 	}
 
-	public MutableScriptEnvironment2 addMethodInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addMethodInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addMethodInvokeStatic(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
+	public MutableScriptEnvironment addMethodRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(actualName)) {
 			this.addMethodInvokeStatic(exposedName, MethodInfo.forMethod(method));
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodMultiInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addMethodMultiInvokeStatic(Class<?> in, String name) {
 		return this.addMethodRenamedMultiInvokeStatic(name, in, name);
 	}
 
-	public MutableScriptEnvironment2 addMethodMultiInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addMethodMultiInvokeStatics(Class<?> in, String... names) {
 		for (String name : names) {
 			this.addMethodMultiInvokeStatic(in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMethodRenamedInvokeStaticSpecific(String exposedName, Class<?> in, String actualName, Class<?> returnType, Class<?>... paramTypes) {
+	public MutableScriptEnvironment addMethodRenamedInvokeStaticSpecific(String exposedName, Class<?> in, String actualName, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addMethodInvokeStatic(exposedName, MethodInfo.findMethod(in, actualName, returnType, paramTypes));
 	}
 
 	//////////////////////////////// types ////////////////////////////////
 
-	public MutableScriptEnvironment2 addType(String name, TypeInfo type) {
+	public MutableScriptEnvironment addType(String name, TypeInfo type) {
 		if (this.types.putIfAbsent(name, type) != null) {
 			throw new IllegalArgumentException("Type " + name + " is already defined in this scope");
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addType(String name, Class<?> type) {
+	public MutableScriptEnvironment addType(String name, Class<?> type) {
 		return this.addType(name, TypeInfo.of(type));
 	}
 
 	//////////////////////////////// qualified variables ////////////////////////////////
 
-	public MutableScriptEnvironment2 addQualifiedVariable(TypeInfo owner, String name, VariableHandler variableHandler) {
+	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler variableHandler) {
 		return this.addField(TypeInfos.CLASS, name, (parser, receiver, name1) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
@@ -555,88 +555,88 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 		});
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariable(TypeInfo owner, String name, InsnTree tree) {
+	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, InsnTree tree) {
 		return this.addQualifiedVariable(owner, name, (parser, name1) -> tree);
 	}
 
 	//////////////// getStatic ////////////////
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(TypeInfo owner, String name, FieldInfo field) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(TypeInfo owner, String name, FieldInfo field) {
 		return this.addQualifiedVariable(owner, name, getStatic(field));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(String name, FieldInfo field) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(String name, FieldInfo field) {
 		return this.addQualifiedVariable(field.owner, name, getStatic(field));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(TypeInfo owner, FieldInfo field) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(TypeInfo owner, FieldInfo field) {
 		return this.addQualifiedVariable(owner, field.name, getStatic(field));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(FieldInfo field) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(FieldInfo field) {
 		return this.addQualifiedVariable(field.owner, field.name, getStatic(field));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(TypeInfo owner, Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(TypeInfo owner, Class<?> in, String name) {
 		return this.addQualifiedVariableGetStatic(owner, name, FieldInfo.getField(in, name));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatic(Class<?> in, String name) {
 		return this.addQualifiedVariableGetStatic(TypeInfo.of(in), in, name);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatics(TypeInfo owner, Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatics(TypeInfo owner, Class<?> in, String... names) {
 		for (String name : names) {
 			this.addQualifiedVariableGetStatic(owner, in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableGetStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedVariableGetStatics(Class<?> in, String... names) {
 		return this.addQualifiedVariableGetStatics(TypeInfo.of(in), in, names);
 	}
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
 		if (method.paramTypes.length != 0) throw new IllegalArgumentException("Qualified static getter requires parameters");
 		return this.addQualifiedVariable(owner, name, invokeStatic(method));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(TypeInfo owner, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(TypeInfo owner, MethodInfo method) {
 		return this.addQualifiedVariableInvokeStatic(owner, method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(String name, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(String name, MethodInfo method) {
 		return this.addQualifiedVariableInvokeStatic(method.owner, name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(MethodInfo method) {
 		return this.addQualifiedVariableInvokeStatic(method.owner, method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(TypeInfo owner, Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(TypeInfo owner, Class<?> in, String name) {
 		return this.addQualifiedVariableInvokeStatic(owner, name, MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(Class<?> in, String name) {
 		return this.addQualifiedVariableInvokeStatic(TypeInfo.of(in), in, name);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
 		for (String name : names) {
 			return this.addQualifiedVariableInvokeStatic(owner, in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addQualifiedVariableInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedVariableInvokeStatics(Class<?> in, String... names) {
 		return this.addQualifiedVariableInvokeStatics(TypeInfo.of(in), in, names);
 	}
 
 	//////////////////////////////// qualified functions ////////////////////////////////
 
-	public MutableScriptEnvironment2 addQualifiedFunction(TypeInfo owner, String name, FunctionHandler functionHandler) {
+	public MutableScriptEnvironment addQualifiedFunction(TypeInfo owner, String name, FunctionHandler functionHandler) {
 		return this.addMethod(TypeInfos.CLASS, name, (parser, receiver, name1, arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
@@ -648,60 +648,60 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// invokeStatic ////////////////
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
 		return this.addQualifiedFunction(owner, name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
 			return castArguments == null ? null : invokeStatic(method, castArguments);
 		});
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(String name, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(String name, MethodInfo method) {
 		return this.addQualifiedFunctionInvokeStatic(method.owner, name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(TypeInfo owner, MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, MethodInfo method) {
 		return this.addQualifiedFunctionInvokeStatic(owner, method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(MethodInfo method) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(MethodInfo method) {
 		return this.addQualifiedFunctionInvokeStatic(method.owner, method.name, method);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(TypeInfo owner, Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, Class<?> in, String name) {
 		return this.addQualifiedFunctionInvokeStatic(owner, MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(Class<?> in, String name) {
 		return this.addQualifiedFunctionInvokeStatic(TypeInfo.of(in), MethodInfo.getMethod(in, name));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(TypeInfo owner, Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addQualifiedFunctionInvokeStatic(owner, MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionInvokeStatic(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addQualifiedFunctionInvokeStatic(TypeInfo.of(in), MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatic(TypeInfo owner, Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedFunctionMultiInvokeStatic(TypeInfo owner, Class<?> in, String name) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
 			this.addQualifiedFunctionInvokeStatic(owner, name, MethodInfo.forMethod(method));
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatic(Class<?> in, String name) {
+	public MutableScriptEnvironment addQualifiedFunctionMultiInvokeStatic(Class<?> in, String name) {
 		return this.addQualifiedFunctionMultiInvokeStatic(TypeInfo.of(in), in, name);
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedFunctionMultiInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
 		for (String name : names) {
 			this.addQualifiedFunctionMultiInvokeStatic(owner, in, name);
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addQualifiedFunctionMultiInvokeStatics(Class<?> in, String... names) {
+	public MutableScriptEnvironment addQualifiedFunctionMultiInvokeStatics(Class<?> in, String... names) {
 		return this.addQualifiedFunctionMultiInvokeStatics(TypeInfo.of(in), in, names);
 	}
 
@@ -711,22 +711,22 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////// constructor ////////////////
 
-	public MutableScriptEnvironment2 addQualifiedConstructor(MethodInfo constructor) {
+	public MutableScriptEnvironment addQualifiedConstructor(MethodInfo constructor) {
 		return this.addQualifiedFunction(constructor.owner, "new", (parser, name, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
 			return castArguments == null ? null : newInstance(constructor, castArguments);
 		});
 	}
 
-	public MutableScriptEnvironment2 addQualifiedConstructor(Class<?> in) {
+	public MutableScriptEnvironment addQualifiedConstructor(Class<?> in) {
 		return this.addQualifiedConstructor(MethodInfo.getConstructor(in));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedSpecificConstructor(Class<?> in, Class<?>... parameterTypes) {
+	public MutableScriptEnvironment addQualifiedSpecificConstructor(Class<?> in, Class<?>... parameterTypes) {
 		return this.addQualifiedConstructor(MethodInfo.findConstructor(in, parameterTypes));
 	}
 
-	public MutableScriptEnvironment2 addQualifiedMultiConstructor(Class<?> in) {
+	public MutableScriptEnvironment addQualifiedMultiConstructor(Class<?> in) {
 		for (Constructor<?> constructor : ReflectionData.forClass(in).getConstructors()) {
 			this.addQualifiedConstructor(MethodInfo.forConstructor(constructor));
 		}
@@ -735,14 +735,14 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
 	//////////////////////////////// keywords ////////////////////////////////
 
-	public MutableScriptEnvironment2 addKeyword(String name, KeywordHandler keywordHandler) {
+	public MutableScriptEnvironment addKeyword(String name, KeywordHandler keywordHandler) {
 		if (this.keywords.putIfAbsent(name, keywordHandler) != null) {
 			throw new IllegalArgumentException("Keyword " + name + " is already defined in this scope");
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment2 addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler memberKeywordHandler) {
+	public MutableScriptEnvironment addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler memberKeywordHandler) {
 		if (this.memberKeywords.putIfAbsent(new NamedType(type, name), memberKeywordHandler) != null) {
 			throw new IllegalArgumentException("Member keyword " + type + '.' + name + " is already defined in this scope");
 		}

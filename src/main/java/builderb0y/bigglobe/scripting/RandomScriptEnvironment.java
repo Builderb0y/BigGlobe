@@ -11,14 +11,14 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class RandomScriptEnvironment extends MutableScriptEnvironment2 {
+public class RandomScriptEnvironment extends MutableScriptEnvironment {
 
 	public static final MethodInfo
 		CONSTRUCTOR = MethodInfo.findConstructor(Permuter.class, long.class),

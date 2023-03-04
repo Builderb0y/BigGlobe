@@ -13,7 +13,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -47,7 +47,7 @@ public interface CommandScript extends Script {
 				false
 			))
 			.addEnvironment(
-				new MutableScriptEnvironment2()
+				new MutableScriptEnvironment()
 				.addVariableLoad("x", 3, TypeInfos.DOUBLE)
 				.addVariableLoad("y", 5, TypeInfos.DOUBLE)
 				.addVariableLoad("z", 7, TypeInfos.DOUBLE)

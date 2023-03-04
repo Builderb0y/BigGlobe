@@ -13,13 +13,13 @@ import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class MinecraftScriptEnvironment extends MutableScriptEnvironment2 {
+public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 
 	public static final CastProvider CAST_PROVIDER = (
 		new LookupCastProvider()

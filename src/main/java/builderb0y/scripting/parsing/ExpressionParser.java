@@ -28,7 +28,7 @@ import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
@@ -71,7 +71,7 @@ public class ExpressionParser {
 		this.environment = new RootScriptEnvironment(from.environment);
 	}
 
-	public ExpressionParser addEnvironment(MutableScriptEnvironment2 environment) {
+	public ExpressionParser addEnvironment(MutableScriptEnvironment environment) {
 		this.environment.mutable().addAll(environment);
 		return this;
 	}
@@ -770,7 +770,7 @@ public class ExpressionParser {
 			newParameters.add(builtin);
 			currentOffset += builtin.type.getSize();
 		}
-		MutableScriptEnvironment2 userParametersEnvironment = new MutableScriptEnvironment2();
+		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment();
 		for (VarInfo captured : this.environment.user().getVariables()) {
 			VarInfo added = new VarInfo(captured.name, currentOffset, captured.type);
 			newParameters.add(added);

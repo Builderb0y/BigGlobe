@@ -20,7 +20,7 @@ import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment2;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -90,7 +90,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					.addEnvironment(NBTScriptEnvironment.INSTANCE)
 					.addCastProvider(NBTScriptEnvironment.NBT_CASTS)
 					.addEnvironment(
-						new MutableScriptEnvironment2()
+						new MutableScriptEnvironment()
 						.addVariableLoad("originX", 2, TypeInfos.INT)
 						.addVariableLoad("originY", 3, TypeInfos.INT)
 						.addVariableLoad("originZ", 4, TypeInfos.INT)
