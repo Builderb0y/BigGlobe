@@ -262,6 +262,6 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public @Nullable InsnTree nextElse(ExpressionParser parser) throws ScriptParsingException {
-		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextExpression() : null;
+		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextCompoundExpression() : null;
 	}
 }

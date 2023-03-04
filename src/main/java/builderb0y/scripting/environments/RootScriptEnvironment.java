@@ -11,6 +11,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 		this.castProviders = new MultiCastProvider();
 		this.environments.add(new UserScriptEnvironment());
 		this.environments.add(BuiltinScriptEnvironment.INSTANCE);
+		this.environments.add(new MutableScriptEnvironment2());
 		this.castProviders.add(CastingSupport.BUILTIN_CAST_PROVIDERS);
 	}
 
@@ -26,5 +27,9 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 
 	public BuiltinScriptEnvironment builtin() {
 		return (BuiltinScriptEnvironment)(this.environments.get(1));
+	}
+
+	public MutableScriptEnvironment2 mutable() {
+		return (MutableScriptEnvironment2)(this.environments.get(2));
 	}
 }

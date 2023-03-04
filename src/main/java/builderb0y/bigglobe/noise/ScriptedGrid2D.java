@@ -10,7 +10,6 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -25,12 +24,11 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 	public ScriptedGrid2D(String script, Map<String, Grid2D> inputs, double min, double max) throws ScriptParsingException {
 		super(inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_2D_TYPE_INFO);
-		this.delegate = (
-			new Parser(script, processedInputs)
-			.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.parse()
-		);
+		Parser parser = new Parser(script, processedInputs);
+		parser
+		.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
+		.addEnvironment(MathScriptEnvironment.INSTANCE);
+		this.delegate = parser.parse();
 	}
 
 	public static ScriptedGrid2D createUnchecked(String script, Map<String, Grid2D> inputs, double min, double max) {
@@ -66,11 +64,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 		public Parser(String input, LinkedHashMap<String, Input> inputs) {
 			super(input, inputs, GRID_2D_TYPE_INFO);
-		}
-
-		@Override
-		public Parser addEnvironment(ScriptEnvironment environment) {
-			return (Parser)(super.addEnvironment(environment));
 		}
 
 		@Override

@@ -12,6 +12,7 @@ import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.ClassType;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -89,6 +90,24 @@ public class ScriptParser<I> extends ExpressionParser {
 		this(implementingClass, findImplementingMethod(implementingClass), input);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public ScriptParser<I> addEnvironment(MutableScriptEnvironment2 environment) {
+		return (ScriptParser<I>)(super.addEnvironment(environment));
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ScriptParser<I> addEnvironment(ScriptEnvironment environment) {
+		return (ScriptParser<I>)(super.addEnvironment(environment));
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ScriptParser<I> addCastProvider(CastProvider castProvider) {
+		return (ScriptParser<I>)(super.addCastProvider(castProvider));
+	}
+
 	public static Method findImplementingMethod(Class<?> implementingClass) {
 		Method implementingMethod = null;
 		for (Method method : implementingClass.getMethods()) {
@@ -106,18 +125,6 @@ public class ScriptParser<I> extends ExpressionParser {
 			throw new IllegalArgumentException("implementingClass must have exactly 1 abstract method.");
 		}
 		return implementingMethod;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addEnvironment(ScriptEnvironment environment) {
-		return (ScriptParser<I>)(super.addEnvironment(environment));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addCastProvider(CastProvider castProvider) {
-		return (ScriptParser<I>)(super.addCastProvider(castProvider));
 	}
 
 	public I parse() throws ScriptParsingException {

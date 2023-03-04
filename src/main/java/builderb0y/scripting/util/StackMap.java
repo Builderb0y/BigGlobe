@@ -58,16 +58,11 @@ public class StackMap<K, V> extends Object2ObjectLinkedOpenHashMap<K, V> {
 		return this.size() > this.sizes.getInt(this.sizes.size() - 1);
 	}
 
-	/**
-	associates the given key with the given value if, and only if,
-	the key is not already associated with any value.
-	if the key is already associated with a value,
-	throws {@link IllegalArgumentException}.
-	*/
-	public void putUnique(K key, V value) {
-		if (this.containsKey(key)) {
-			throw new IllegalArgumentException(key + " is already defined in this scope");
+	@Override
+	public V put(K k, V v) {
+		if (super.putIfAbsent(k, v) != null) {
+			throw new IllegalArgumentException(k + " is already defined in this scope");
 		}
-		this.putAndMoveToLast(key, value);
+		return null;
 	}
 }

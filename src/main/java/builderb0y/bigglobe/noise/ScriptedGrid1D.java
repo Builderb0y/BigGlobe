@@ -10,7 +10,6 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -25,12 +24,11 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 	public ScriptedGrid1D(String script, Map<String, Grid1D> inputs, double min, double max) throws ScriptParsingException {
 		super(inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_1D_TYPE_INFO);
-		this.delegate = (
-			new Parser(script, processedInputs)
-			.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.parse()
-		);
+		Parser parser = new Parser(script, processedInputs);
+		parser
+		.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
+		.addEnvironment(MathScriptEnvironment.INSTANCE);
+		this.delegate = parser.parse();
 	}
 
 	@Override
@@ -53,11 +51,6 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 		public Parser(String source, LinkedHashMap<String, Input> inputs) {
 			super(source, inputs, GRID_1D_TYPE_INFO);
-		}
-
-		@Override
-		public Parser addEnvironment(ScriptEnvironment environment) {
-			return (Parser)(super.addEnvironment(environment));
 		}
 
 		@Override

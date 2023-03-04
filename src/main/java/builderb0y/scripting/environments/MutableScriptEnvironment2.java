@@ -21,21 +21,57 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 @SuppressWarnings({ "unused", "UnusedReturnValue" })
 public class MutableScriptEnvironment2 implements ScriptEnvironment {
 
-	public Map<String,    VariableHandler      > variables      = new HashMap<>(16);
-	public Map<NamedType, FieldHandler         > fields         = new HashMap<>(16);
-	public Map<String,    List<FunctionHandler>> functions      = new HashMap<>(16);
-	public Map<NamedType, List<  MethodHandler>> methods        = new HashMap<>(16);
-	public Map<String,    TypeInfo             > types          = new HashMap<>( 8);
-	public Map<String,    KeywordHandler       > keywords       = new HashMap<>( 8);
-	public Map<NamedType, MemberKeywordHandler > memberKeywords = new HashMap<>( 8);
+	public Map<String,    VariableHandler      > variables;
+	public Map<NamedType, FieldHandler         > fields;
+	public Map<String,    List<FunctionHandler>> functions;
+	public Map<NamedType, List<  MethodHandler>> methods;
+	public Map<String,    TypeInfo             > types;
+	public Map<String,    KeywordHandler       > keywords;
+	public Map<NamedType, MemberKeywordHandler > memberKeywords;
+
+	public MutableScriptEnvironment2() {
+		this.variables      = new HashMap<>(16);
+		this.fields         = new HashMap<>(16);
+		this.functions      = new HashMap<>(16);
+		this.methods        = new HashMap<>(16);
+		this.types          = new HashMap<>( 8);
+		this.keywords       = new HashMap<>( 8);
+		this.memberKeywords = new HashMap<>( 8);
+	}
+
+	public MutableScriptEnvironment2(
+		Map<String,    VariableHandler      > variables,
+		Map<NamedType, FieldHandler         > fields,
+		Map<String,    List<FunctionHandler>> functions,
+		Map<NamedType, List<  MethodHandler>> methods,
+		Map<String,    TypeInfo             > types,
+		Map<String,    KeywordHandler       > keywords,
+		Map<NamedType, MemberKeywordHandler > memberKeywords
+	) {
+		this.variables = variables;
+		this.fields = fields;
+		this.functions = functions;
+		this.methods = methods;
+		this.types = types;
+		this.keywords = keywords;
+		this.memberKeywords = memberKeywords;
+	}
 
 	public MutableScriptEnvironment2 addAllVariables(MutableScriptEnvironment2 that) {
-		this.variables.putAll(that.variables);
+		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
+			if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+			}
+		}
 		return this;
 	}
 
 	public MutableScriptEnvironment2 addAllFields(MutableScriptEnvironment2 that) {
-		this.fields.putAll(that.fields);
+		for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
+			if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+			}
+		}
 		return this;
 	}
 
@@ -58,7 +94,11 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment2 addAllTypes(MutableScriptEnvironment2 that) {
-		this.types.putAll(that.types);
+		for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
+			if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+			}
+		}
 		return this;
 	}
 
@@ -83,7 +123,9 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	//////////////////////////////// variables ////////////////////////////////
 
 	public MutableScriptEnvironment2 addVariable(String name, VariableHandler variableHandler) {
-		this.variables.put(name, variableHandler);
+		if (this.variables.putIfAbsent(name, variableHandler) != null) {
+			throw new IllegalArgumentException(name + " is already defined in this scope");
+		}
 		return this;
 	}
 
@@ -221,7 +263,9 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	//////////////////////////////// fields ////////////////////////////////
 
 	public MutableScriptEnvironment2 addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
-		this.fields.put(new NamedType(owner, name), fieldHandler);
+		if (this.fields.putIfAbsent(new NamedType(owner, name), fieldHandler) != null) {
+			throw new IllegalArgumentException(owner + "." + name + " is already defined in this scope");
+		}
 		return this;
 	}
 
@@ -489,7 +533,9 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	//////////////////////////////// types ////////////////////////////////
 
 	public MutableScriptEnvironment2 addType(String name, TypeInfo type) {
-		this.types.put(name, type);
+		if (this.types.putIfAbsent(name, type) != null) {
+			throw new IllegalArgumentException("Type " + name + " is already defined in this scope");
+		}
 		return this;
 	}
 
@@ -690,12 +736,16 @@ public class MutableScriptEnvironment2 implements ScriptEnvironment {
 	//////////////////////////////// keywords ////////////////////////////////
 
 	public MutableScriptEnvironment2 addKeyword(String name, KeywordHandler keywordHandler) {
-		this.keywords.put(name, keywordHandler);
+		if (this.keywords.putIfAbsent(name, keywordHandler) != null) {
+			throw new IllegalArgumentException("Keyword " + name + " is already defined in this scope");
+		}
 		return this;
 	}
 
 	public MutableScriptEnvironment2 addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler memberKeywordHandler) {
-		this.memberKeywords.put(new NamedType(type, name), memberKeywordHandler);
+		if (this.memberKeywords.putIfAbsent(new NamedType(type, name), memberKeywordHandler) != null) {
+			throw new IllegalArgumentException("Member keyword " + type + '.' + name + " is already defined in this scope");
+		}
 		return this;
 	}
 

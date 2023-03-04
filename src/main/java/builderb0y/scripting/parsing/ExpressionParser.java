@@ -28,8 +28,7 @@ import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
@@ -58,7 +57,6 @@ public class ExpressionParser {
 		this.clazz = clazz;
 		this.method = method;
 		this.environment = new RootScriptEnvironment();
-		this.environment.castProviders.add(CastingSupport.BUILTIN_CAST_PROVIDERS);
 	}
 
 	/**
@@ -71,6 +69,11 @@ public class ExpressionParser {
 		this.method = method;
 		this.currentLine = from.currentLine;
 		this.environment = new RootScriptEnvironment(from.environment);
+	}
+
+	public ExpressionParser addEnvironment(MutableScriptEnvironment2 environment) {
+		this.environment.mutable().addAll(environment);
+		return this;
 	}
 
 	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
@@ -161,7 +164,7 @@ public class ExpressionParser {
 
 	public InsnTree nextStatementList() throws ScriptParsingException {
 		try {
-			InsnTree left = this.nextExpression();
+			InsnTree left = this.nextCompoundExpression();
 			while (true) {
 				//end of input, ')', ',', and ':' mark the end of the script.
 				if (!this.input.canReadAfterWhitespace()) {
@@ -178,9 +181,6 @@ public class ExpressionParser {
 						return left;
 					}
 					case "", "++", "--" -> {} //indicates that there's another statement to read.
-					case ",," -> { //indicates that there's another statement to read, but we need to skip over the ",," first.
-						this.input.onCharsRead(operator);
-					}
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -190,7 +190,7 @@ public class ExpressionParser {
 				if (!left.canBeStatement()) {
 					throw new ScriptParsingException("Not a statement", this.input);
 				}
-				InsnTree next = this.nextExpression();
+				InsnTree next = this.nextCompoundExpression();
 				if (left.returnsUnconditionally()) {
 					throw new ScriptParsingException("Unreachable statement", this.input);
 				}
@@ -205,7 +205,30 @@ public class ExpressionParser {
 		}
 	}
 
-	public InsnTree nextExpression() throws ScriptParsingException {
+	public InsnTree nextCompoundExpression() throws ScriptParsingException {
+		try {
+			InsnTree left = this.nextSingleExpression();
+			while (this.input.hasOperatorAfterWhitespace(",,")) {
+				if (!left.canBeStatement()) {
+					throw new ScriptParsingException("Not a statement", this.input);
+				}
+				InsnTree next = this.nextSingleExpression();
+				if (left.returnsUnconditionally()) {
+					throw new ScriptParsingException("Unreachable statement", this.input);
+				}
+				left = left.then(this, next);
+			}
+			return left;
+		}
+		catch (RuntimeException exception) {
+			throw new ScriptParsingException(exception, this.input);
+		}
+		catch (StackOverflowError error) {
+			throw new ScriptParsingException("Script too long or too complex", error, this.input);
+		}
+	}
+
+	public InsnTree nextSingleExpression() throws ScriptParsingException {
 		return this.nextAssignment();
 	}
 
@@ -235,7 +258,7 @@ public class ExpressionParser {
 			};
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, this.nextExpression());
+				left = left.update(this, op, this.nextSingleExpression());
 			}
 			return left;
 		}
@@ -252,9 +275,9 @@ public class ExpressionParser {
 			InsnTree left = this.nextBoolean();
 			if (this.input.hasOperatorAfterWhitespace("?")) {
 				ConditionTree condition = condition(this, left);
-				InsnTree trueBody = this.nextExpression();
+				InsnTree trueBody = this.nextSingleExpression();
 				this.input.expectOperatorAfterWhitespace(":");
-				InsnTree falseBody = this.nextExpression();
+				InsnTree falseBody = this.nextSingleExpression();
 				return ifElse(this, condition, trueBody, falseBody);
 			}
 			else {
@@ -677,7 +700,7 @@ public class ExpressionParser {
 			if (name.equals("var")) {
 				String varName = this.input.expectIdentifierAfterWhitespace();
 				this.input.expectOperatorAfterWhitespace("=");
-				InsnTree initializer = this.nextExpression();
+				InsnTree initializer = this.nextSingleExpression();
 				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
 				return declaration.then(this, new StoreInsnTree(declaration.loader.variable, initializer));
 			}
@@ -695,7 +718,7 @@ public class ExpressionParser {
 						String varName = this.input.readIdentifierAfterWhitespace();
 						if (!varName.isEmpty()) { //variable or method declaration.
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
-								InsnTree initializer = this.nextExpression().cast(this, type, CastMode.IMPLICIT_THROW);
+								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return declaration.then(this, new StoreInsnTree(declaration.loader.variable, initializer));
 							}
@@ -747,17 +770,17 @@ public class ExpressionParser {
 			newParameters.add(builtin);
 			currentOffset += builtin.type.getSize();
 		}
-		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment();
+		MutableScriptEnvironment2 userParametersEnvironment = new MutableScriptEnvironment2();
 		for (VarInfo captured : this.environment.user().getVariables()) {
 			VarInfo added = new VarInfo(captured.name, currentOffset, captured.type);
 			newParameters.add(added);
-			userParametersEnvironment.addParameter(added);
+			userParametersEnvironment.addVariableLoad(added);
 			currentOffset += added.type.getSize();
 		}
 		for (UserParameter userParameter : userParameters.parameters()) {
 			VarInfo variable = new VarInfo(userParameter.name(), currentOffset, userParameter.type());
 			newParameters.add(variable);
-			userParametersEnvironment.addParameter(variable);
+			userParametersEnvironment.addVariableLoad(variable);
 			currentOffset += variable.type.getSize();
 		}
 		MethodCompileContext newMethod = this.clazz.newMethod(
@@ -769,18 +792,6 @@ public class ExpressionParser {
 			.map(var -> var.type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
-		/*
-		newMethod.scopes.pushScope();
-		if (!this.method.info.isStatic()) {
-			newMethod.addThis();
-		}
-		for (VarInfo parameter : newParameters) {
-			VarInfo added = newMethod.newParameter(parameter.name, parameter.type);
-			if (added.index != parameter.index) {
-				throw new AssertionError("Parameter index mismatch: " + parameter + " -> " + added);
-			}
-		}
-		*/
 		ExpressionParser newParser = new ExpressionParser(this, newMethod);
 		newParser.environment.environments.add(1, userParametersEnvironment);
 		InsnTree result = newParser.parseRemainingInput(true);
@@ -801,7 +812,7 @@ public class ExpressionParser {
 			.map(UserParameter::type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
-		this.environment.user().functions().putUnique(methodName, (parser, name, arguments) -> {
+		this.environment.user().addFunction(methodName, (parser, name, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, expectedTypes, CastMode.IMPLICIT_THROW, arguments);
 			InsnTree[] concatenatedArguments = ObjectArrays.concat(implicitParameters, castArguments, InsnTree.class);
 			if (this.method.info.isStatic()) {
@@ -835,7 +846,7 @@ public class ExpressionParser {
 			fields.add(field);
 
 			if (this.input.hasOperatorAfterWhitespace("=")) {
-				ConstantValue initializer = this.nextExpression().cast(this, type, CastMode.IMPLICIT_THROW).getConstantValue();
+				ConstantValue initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW).getConstantValue();
 				if (initializer.isConstant()) {
 					field.initializer = initializer;
 				}
@@ -984,15 +995,13 @@ public class ExpressionParser {
 			}
 		});
 		//setup user definitions.
-		this.environment.user().types().putUnique(className, innerClass.info);
-		MethodInfo noArgConstructor = method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID);
-		MethodInfo yesArgConstructor = method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY));
-		if (nonDefaulted.size() != fields.size()) {
-			MethodInfo someArgConstructor = method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY));
-			this.environment.user().addClassFunction(innerClass.info, "new", FunctionHandler.ofAllConstructors(noArgConstructor, someArgConstructor, yesArgConstructor));
-		}
-		else {
-			this.environment.user().addClassFunction(innerClass.info, "new", FunctionHandler.ofAllConstructors(noArgConstructor, yesArgConstructor));
+		this.environment.user().types.put(className, innerClass.info);
+		this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID));
+		if (!fields.isEmpty()) {
+			this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			if (nonDefaulted.size() != fields.size()) {
+				this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			}
 		}
 		fields.stream().map(field -> field.info).forEach(this.environment.user()::addField);
 		return noop;

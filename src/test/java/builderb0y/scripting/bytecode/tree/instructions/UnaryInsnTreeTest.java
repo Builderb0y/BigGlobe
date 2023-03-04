@@ -5,7 +5,7 @@ import java.util.function.*;
 import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment2;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -32,7 +32,7 @@ public class UnaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING INT");
 		for (String operator : INT_OPERATORS) {
 			System.out.println(operator);
-			IntUnaryOperator var = new ScriptParser<>(IntUnaryOperator.class, operator + " x").addEnvironment(new MutableScriptEnvironment().addParameter("x", 1, TypeInfos.INT)).parse();
+			IntUnaryOperator var = new ScriptParser<>(IntUnaryOperator.class, operator + " x").addEnvironment(new MutableScriptEnvironment2().addVariableLoad("x", 1, TypeInfos.INT)).parse();
 			for (int operand : INTS) {
 				int a = var.applyAsInt(operand);
 				int b = new ScriptParser<>(IntSupplier.class, operator + " " + operand).parse().getAsInt();
@@ -46,7 +46,7 @@ public class UnaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING LONG");
 		for (String operator : LONG_OPERATORS) {
 			System.out.println(operator);
-			LongUnaryOperator var = new ScriptParser<>(LongUnaryOperator.class, operator + " x").addEnvironment(new MutableScriptEnvironment().addParameter("x", 1, TypeInfos.LONG)).parse();
+			LongUnaryOperator var = new ScriptParser<>(LongUnaryOperator.class, operator + " x").addEnvironment(new MutableScriptEnvironment2().addVariableLoad("x", 1, TypeInfos.LONG)).parse();
 			for (long operand : LONGS) {
 				long a = var.applyAsLong(operand);
 				long b = new ScriptParser<>(LongSupplier.class, operator + " " + operand + "L").parse().getAsLong();
@@ -60,7 +60,7 @@ public class UnaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING FLOAT");
 		for (String operator : FLOAT_OPERATORS) {
 			System.out.println(operator);
-			FloatUnaryOperator var = new ScriptParser<>(FloatUnaryOperator.class, operator + "x").addEnvironment(new MutableScriptEnvironment().addParameter("x", 1, TypeInfos.FLOAT)).parse();
+			FloatUnaryOperator var = new ScriptParser<>(FloatUnaryOperator.class, operator + "x").addEnvironment(new MutableScriptEnvironment2().addVariableLoad("x", 1, TypeInfos.FLOAT)).parse();
 			for (float operand : FLOATS) {
 				float a = var.applyAsFloat(operand);
 				float b = new ScriptParser<>(FloatSupplier.class, operator + FLOAT_FORMAT.format(operand)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsFloat();
@@ -74,7 +74,7 @@ public class UnaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING DOUBLE");
 		for (String operator : DOUBLE_OPERATORS) {
 			System.out.println(operator);
-			DoubleUnaryOperator var = new ScriptParser<>(DoubleUnaryOperator.class, operator + "x").addEnvironment(new MutableScriptEnvironment().addParameter("x", 1, TypeInfos.DOUBLE)).parse();
+			DoubleUnaryOperator var = new ScriptParser<>(DoubleUnaryOperator.class, operator + "x").addEnvironment(new MutableScriptEnvironment2().addVariableLoad("x", 1, TypeInfos.DOUBLE)).parse();
 			for (double operand : DOUBLES) {
 				double a = var.applyAsDouble(operand);
 				double b = new ScriptParser<>(DoubleSupplier.class, operator + DOUBLE_FORMAT.format(operand)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsDouble();

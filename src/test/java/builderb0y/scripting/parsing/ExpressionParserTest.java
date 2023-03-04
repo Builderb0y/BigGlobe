@@ -139,6 +139,7 @@ public class ExpressionParserTest {
 			"""
 		);
 		assertFail("tmp is already defined in this scope", "int tmp = 1 int tmp = 2 3");
+		assertFail("tmp is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
 		assertSuccess(1,
 			"""
 			int counter = 0
@@ -277,6 +278,22 @@ public class ExpressionParserTest {
 				if ( value == 3 : return ( true ) )
 			)
 			return ( false )
+			"""
+		);
+		assertSuccess(3,
+			"""
+			int result = 0
+			if ( false : result = 1 )
+			else result = 2 result = 3
+			result
+			"""
+		);
+		assertSuccess(3,
+			"""
+			int result = 0
+			if ( false : result = 1 )
+			else result = 2 ,, result = 3
+			result
 			"""
 		);
 	}
@@ -527,6 +544,8 @@ public class ExpressionParserTest {
 			return ( squared == 16 && x == 2 ? 1.0L : 0.0L )
 			"""
 		);
+		assertFail("a is already defined in this scope", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
+		assertFail("a is already defined in this scope", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
 	}
 
 	@Test

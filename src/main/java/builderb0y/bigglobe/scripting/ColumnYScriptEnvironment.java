@@ -16,10 +16,9 @@ import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -118,8 +117,7 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public InsnTree getColumnValue(String id, InsnTree y) {
-		return new InvokeInsnTree(
-			INVOKEVIRTUAL,
+		return invokeVirtual(
 			ldc(
 				GET_COLUMN_VALUE,
 				constant(id)

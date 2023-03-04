@@ -166,7 +166,7 @@ public class SpecialFunctionSyntax {
 		}
 
 		public static int nextConstantInt(ExpressionParser parser) throws ScriptParsingException {
-			ConstantValue value = parser.nextExpression().getConstantValue();
+			ConstantValue value = parser.nextSingleExpression().getConstantValue();
 			if (value.isConstant() && value.getTypeInfo().isSingleWidthInt()) {
 				return value.asInt();
 			}

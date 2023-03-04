@@ -44,7 +44,6 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	unit test for user-defined function parameter shadowing existing variable.
-	make ,, act as an *expression* operator, not a *script* ignored operator.
 
 features:
 	advancements for finding things?

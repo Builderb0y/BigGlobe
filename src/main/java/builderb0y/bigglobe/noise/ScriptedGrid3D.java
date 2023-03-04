@@ -11,7 +11,6 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -26,12 +25,11 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 	public ScriptedGrid3D(String script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
 		super(inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_3D_TYPE_INFO);
-		this.delegate = (
-			new Parser(script, processedInputs)
-			.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.parse()
-		);
+		Parser parser = new Parser(script, processedInputs);
+		parser
+		.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
+		.addEnvironment(MathScriptEnvironment.INSTANCE);
+		this.delegate = parser.parse();
 	}
 
 	@Override
@@ -63,11 +61,6 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 		public Parser(String input, LinkedHashMap<String, Input> inputs) {
 			super(input, inputs, GRID_3D_TYPE_INFO);
-		}
-
-		@Override
-		public Parser addEnvironment(ScriptEnvironment environment) {
-			return (Parser)(super.addEnvironment(environment));
 		}
 
 		@Override

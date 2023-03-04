@@ -17,8 +17,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment2;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.ReflectionData;
 import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.util.UncheckedReflection;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -28,15 +28,7 @@ public interface CommandScript extends Script {
 
 	public static class Parser extends ScriptParser<CommandScript> {
 
-		public static final Method IMPLEMENTING_METHOD = UncheckedReflection.getDeclaredMethod(
-			CommandScript.class,
-			"evaluate",
-			WorldWrapper.class,
-			WorldColumn.class,
-			double.class,
-			double.class,
-			double.class
-		);
+		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
 
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
