@@ -15,8 +15,11 @@ import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.state.property.Property;
+import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructureStart;
+import net.minecraft.structure.pool.StructurePool.Projection;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.BlockMirror;
@@ -35,6 +38,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.structure.Structure;
+import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -246,15 +250,20 @@ public class Wrappers {
 
 		@Override
 		public int hashCode() {
-			return this.biome.getKey().hashCode();
+			return this.biome.getKey().orElseThrow().hashCode();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			return this == obj || (
 				obj instanceof BiomeEntry that &&
-				this.biome.getKey().equals(that.biome.getKey())
+				this.biome.getKey().orElseThrow().equals(that.biome.getKey().orElseThrow())
 			);
+		}
+
+		@Override
+		public String toString() {
+			return "Biome: { " + this.biome.getKey().orElseThrow().getValue() + " }";
 		}
 	}
 
@@ -538,6 +547,33 @@ public class Wrappers {
 		public static int maxX(StructurePiece piece) { return piece.getBoundingBox().getMaxX(); }
 		public static int maxY(StructurePiece piece) { return piece.getBoundingBox().getMaxY(); }
 		public static int maxZ(StructurePiece piece) { return piece.getBoundingBox().getMaxZ(); }
+
+		public static StructurePieceType type(StructurePiece piece) {
+			return piece.getType();
+		}
+
+		public static boolean hasPreferredTerrainHeight(StructurePiece piece) {
+			return piece instanceof PoolStructurePiece pool && pool.getPoolElement().getProjection() == Projection.RIGID;
+		}
+
+		public static int preferredTerrainHeight(StructurePiece piece) {
+			int y = piece.getBoundingBox().getMinY();
+			return piece instanceof PoolStructurePiece pool ? pool.getGroundLevelDelta() + y : y;
+		}
+	}
+
+	public static class StructurePieceTypeWrapper {
+
+		public static final TypeInfo TYPE = type(StructurePieceType.class);
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructurePieceTypeWrapper.class, "of", String.class, StructurePieceType.class);
+
+		public static StructurePieceType of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+			return of(id);
+		}
+
+		public static StructurePieceType of(String id) {
+			return Registry.STRUCTURE_PIECE.get(new Identifier(id));
+		}
 	}
 
 	public static record StructureEntry(RegistryEntry<Structure> entry) {
@@ -563,6 +599,14 @@ public class Wrappers {
 			return this.entry.isIn(tag.key);
 		}
 
+		public StructureType<?> type() {
+			return this.entry.value().getType();
+		}
+
+		public String generationStep() {
+			return this.entry.value().getFeatureGenerationStep().asString();
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			return this == obj || (
@@ -578,7 +622,21 @@ public class Wrappers {
 
 		@Override
 		public String toString() {
-			return "Structure: { " + this.entry.getKey().orElseThrow() + " }";
+			return "Structure: { " + this.entry.getKey().orElseThrow().getValue() + " }";
+		}
+	}
+
+	public static class StructureTypeWrapper {
+
+		public static final TypeInfo TYPE = type(StructureType.class);
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTypeWrapper.class, "of", String.class, StructureType.class);
+
+		public static StructureType<?> of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+			return of(id);
+		}
+
+		public static StructureType<?> of(String id) {
+			return Registry.STRUCTURE_TYPE.get(new Identifier(id));
 		}
 	}
 
@@ -588,7 +646,7 @@ public class Wrappers {
 		public static final MethodInfo
 			RANDOM = method(ACC_PUBLIC, StructureTagKey.class, "random", StructureTagKey.class, RandomGenerator.class),
 			ITERATOR = method(ACC_PUBLIC, StructureTagKey.class, "iterator", Iterator.class);
-		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTagKey.class, "of", String.class, ConfiguredFeatureTagKey.class);
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTagKey.class, "of", String.class, StructureTagKey.class);
 
 		public static StructureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 			return of(id);

@@ -82,7 +82,7 @@ public class ExpressionParser {
 	}
 
 	public ExpressionParser addCastProvider(CastProvider castProvider) {
-		this.environment.castProviders.add(castProvider);
+		this.environment.castProviders.providers.add(0, castProvider);
 		return this;
 	}
 
@@ -624,6 +624,18 @@ public class ExpressionParser {
 				else {
 					string.append((char)(1));
 					arguments.add(this.nextTerm());
+					//in some cases, input.skipWhitespace() may
+					//be called after the next term has ended.
+					//this is problematic because if the input
+					//is, for example, "$a b", then the output
+					//would be "ab", without a space between.
+					//so, here we add any whitespace which got
+					//skipped over.
+					int skippedWhitespace = this.input.cursor - 1;
+					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
+						skippedWhitespace--;
+					}
+					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
 				}
 			}
 			else {

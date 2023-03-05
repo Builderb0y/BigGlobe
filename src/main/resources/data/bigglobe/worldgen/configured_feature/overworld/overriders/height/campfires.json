@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:overworld_height_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.isIn('bigglobe:campfires'):",
+					"for (StructurePiece piece in start.pieces:",
+						"double mixLevel = excludeCircle(",
+							"(piece.minX + piece.maxX) * 0.5L,",
+							"(piece.minZ + piece.maxZ) * 0.5L,",
+							"4.0L,",
+							"8.0L",
+						")",
+						"double oldY = terrainY",
+						"terrainY = mixLinear(terrainY, piece.minY + 0.5L, mixLevel)",
+						"if (terrainY < oldY:",
+							"snowY = mixLinear(snowY, piece.minY + 0.5L, mixLevel)",
+						")",
+					")",
+				")",
+			")"
+		]
+	}
+}

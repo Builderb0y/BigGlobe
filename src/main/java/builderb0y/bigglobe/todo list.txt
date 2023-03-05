@@ -34,6 +34,7 @@ AutoCodec:
 	builtin framework for key dispatching.
 
 scripting:
+	string interpolation skips whitespace after end of expression.
 	better syntax for specifying variable block states.
 		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
 	expose arrays.

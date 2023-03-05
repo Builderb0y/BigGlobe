@@ -13,7 +13,6 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
-import builderb0y.bigglobe.overriders.overworld.height.IglooHeightOverrider;
 
 @Mixin(IglooGenerator.Piece.class)
 public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends SimpleStructurePiece {
@@ -33,16 +32,13 @@ public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends Simpl
 	/**
 	igloos spawn at Y90, always. when generate() is called, they move down to the correct position.
 
-	why this is important: {@link IglooHeightOverrider} tries to query their bounding box before they move,
+	why this is important: data/bigglobe/worldgen/configured_feature/overworld/overriders/height/igloo.json
+	tries to query their bounding box before they move,
 	and gets the wrong bounding box. this causes them to be placed on a hill or in a pit.
 	to get around this, I would normally just move the structure via
 	{@link BigGlobeChunkGenerator#moveStructure(StructureStart, int, int, int)},
 	but they still move when generating, so now they are underground or floating in the sky.
 	so, I now need to prevent them from moving on their own when I already moved them myself.
-
-	alternate solutions:
-	I could calculate the ideal Y inside {@link IglooHeightOverrider},
-	but this will be unnecessarily slow because that runs on every column.
 	*/
 	@Redirect(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/BlockPos;add(III)Lnet/minecraft/util/math/BlockPos;"))
 	private BlockPos bigglobe_dontAdd(BlockPos instance, int dx, int dy, int dz, StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator) {

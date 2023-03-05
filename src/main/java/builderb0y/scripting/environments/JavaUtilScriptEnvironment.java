@@ -40,6 +40,7 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			.addType("Map", Map.class)
 			.addType("MapEntry", Map.Entry.class)
 			.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
+			.addFieldInvokes(Map.class, "size", "isEmpty")
 			.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 			.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, arguments) -> {
 				InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
@@ -87,6 +88,7 @@ public class JavaUtilScriptEnvironment extends MultiScriptEnvironment {
 			.addType("Collection", Collection.class)
 			.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "add", "containsAll", "addAll", "removeAll", "retainAll", "clear")
 			.addMethodRenamedInvoke("removeElement", Collection.class, "remove")
+			.addFieldInvokes(Collection.class, "size", "isEmpty")
 		),
 		SET = (
 			new MutableScriptEnvironment()

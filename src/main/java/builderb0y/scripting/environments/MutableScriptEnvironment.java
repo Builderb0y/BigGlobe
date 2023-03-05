@@ -21,41 +21,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 @SuppressWarnings({ "unused", "UnusedReturnValue" })
 public class MutableScriptEnvironment implements ScriptEnvironment {
 
-	public Map<String,    VariableHandler      > variables;
-	public Map<NamedType, FieldHandler         > fields;
-	public Map<String,    List<FunctionHandler>> functions;
-	public Map<NamedType, List<  MethodHandler>> methods;
-	public Map<String,    TypeInfo             > types;
-	public Map<String,    KeywordHandler       > keywords;
-	public Map<NamedType, MemberKeywordHandler > memberKeywords;
-
-	public MutableScriptEnvironment() {
-		this.variables      = new HashMap<>(16);
-		this.fields         = new HashMap<>(16);
-		this.functions      = new HashMap<>(16);
-		this.methods        = new HashMap<>(16);
-		this.types          = new HashMap<>( 8);
-		this.keywords       = new HashMap<>( 8);
-		this.memberKeywords = new HashMap<>( 8);
-	}
-
-	public MutableScriptEnvironment(
-		Map<String,    VariableHandler      > variables,
-		Map<NamedType, FieldHandler         > fields,
-		Map<String,    List<FunctionHandler>> functions,
-		Map<NamedType, List<  MethodHandler>> methods,
-		Map<String,    TypeInfo             > types,
-		Map<String,    KeywordHandler       > keywords,
-		Map<NamedType, MemberKeywordHandler > memberKeywords
-	) {
-		this.variables = variables;
-		this.fields = fields;
-		this.functions = functions;
-		this.methods = methods;
-		this.types = types;
-		this.keywords = keywords;
-		this.memberKeywords = memberKeywords;
-	}
+	public Map<String,    VariableHandler      > variables      = new HashMap<>(16);
+	public Map<NamedType, FieldHandler         > fields         = new HashMap<>(16);
+	public Map<String,    List<FunctionHandler>> functions      = new HashMap<>(16);
+	public Map<NamedType, List<  MethodHandler>> methods        = new HashMap<>(16);
+	public Map<String,    TypeInfo             > types          = new HashMap<>( 8);
+	public Map<String,    KeywordHandler       > keywords       = new HashMap<>( 8);
+	public Map<NamedType, MemberKeywordHandler > memberKeywords = new HashMap<>( 8);
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
 		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
@@ -102,6 +74,24 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addAllKeywords(MutableScriptEnvironment that) {
+		for (Map.Entry<String, KeywordHandler> entry : that.keywords.entrySet()) {
+			if (this.keywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+			}
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
+		for (Map.Entry<NamedType, MemberKeywordHandler> entry : that.memberKeywords.entrySet()) {
+			if (this.memberKeywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+			}
+		}
+		return this;
+	}
+
 	public MutableScriptEnvironment addAll(MutableScriptEnvironment that) {
 		return (
 			this
@@ -110,6 +100,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			.addAllFunctions(that)
 			.addAllMethods  (that)
 			.addAllTypes    (that)
+			.addAllKeywords(that)
+			.addAllMemberKeywords(that)
 		);
 	}
 

@@ -29,6 +29,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	public StackMap<String, List<FunctionHandler>> functions;
 	public StackMap<NamedType, List<MethodHandler>> methods;
 	public StackMap<String, TypeInfo> types;
+	public int varUniquifier;
 
 	public UserScriptEnvironment() {
 		this.variables = new StackMap<>(8);
@@ -141,6 +142,10 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		VariableDeclarationInsnTree tree = new VariableDeclarationInsnTree(name, type);
 		this.variables.put(name, tree.loader);
 		return tree;
+	}
+
+	public VariableDeclarationInsnTree newAnonymousVariable(TypeInfo type) {
+		return this.newVariable("$" + this.varUniquifier++, type);
 	}
 
 	public Stream<VarInfo> streamVariables() {

@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:overworld_height_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.type == StructureType('minecraft:jigsaw') && start.structure.generationStep == 'surface_structures':",
+					"for (StructurePiece piece in start.pieces:",
+						"if (piece.hasPreferredTerrainHeight:",
+							"int diameter = max(piece.maxX - piece.minX, piece.maxZ - piece.minZ) + 1",
+							"double mixLevel = excludeCircle(piece, min(diameter * 0.5, 16.0L))",
+							"double oldY = terrainY",
+							"double newY = piece.preferredTerrainHeight - 0.5L",
+							"terrainY = mixLinear(terrainY, newY, mixLevel)",
+							"if (terrainY < oldY:",
+								"snowY = mixLinear(snowY, newY, mixLevel)",
+							")",
+						")",
+					")",
+				")",
+			")"
+		]
+	}
+}

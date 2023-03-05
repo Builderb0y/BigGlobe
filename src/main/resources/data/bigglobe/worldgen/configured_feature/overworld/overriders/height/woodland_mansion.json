@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:overworld_height_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.type == StructureType('minecraft:woodland_mansion'):",
+					"double mixLevel = excludeSquare(start, 16.0L)",
+					"double oldY = terrainY",
+					"terrainY = mixLinear(terrainY, start.minY - 0.5L, mixLevel)",
+					"snowY += terrainY - oldY",
+				")",
+			")"
+		]
+	}
+}

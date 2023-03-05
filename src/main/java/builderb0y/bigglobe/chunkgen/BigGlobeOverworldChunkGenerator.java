@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -41,6 +42,7 @@ import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.IglooStructure;
 import net.minecraft.world.gen.structure.OceanMonumentStructure;
@@ -70,27 +72,33 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
+import builderb0y.bigglobe.features.overriders.HeightOverrideFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.CachedStructures;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.overworld.DataOverworldHeightOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldOverrideContext.OverridePhase;
 import builderb0y.bigglobe.overriders.overworld.caverns.*;
 import builderb0y.bigglobe.overriders.overworld.caves.*;
 import builderb0y.bigglobe.overriders.overworld.foliage.*;
-import builderb0y.bigglobe.overriders.overworld.height.*;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSettings;
 import builderb0y.bigglobe.settings.OverworldSettings.OverworldSurfaceSettings.OverworldSurfaceBlocks;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
 import builderb0y.bigglobe.settings.OverworldUndergroundSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
+import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.RawOverworldGenerationStructure;
 import builderb0y.bigglobe.structures.RawOverworldGenerationStructure.RawOverworldGenerationStructurePiece;
@@ -119,6 +127,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient OverworldOreFeature.Config[] oreConfigs;
 	public final transient LinkedFlowerConfig[] flowerGroups;
 	public final transient LinkedRockLayerConfig[] rockLayers;
+	public final transient DataOverworldHeightOverrider.Holder[] heightOverriders;
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
@@ -152,14 +161,26 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			.toArray(ColumnValue.ARRAY_FACTORY.generic())
 		);
 		this.oreConfigs = (
-			configuredFeatures
-			.stream()
-			.map(ConfiguredFeature::config)
-			.filter(OverworldOreFeature.Config.class::isInstance)
+			filterFeatures(configuredFeatures, OverworldOreFeature.Config.class)
 			.toArray(OverworldOreFeature.Config[]::new)
 		);
 		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatures);
 		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
+		this.heightOverriders = (
+			filterFeatures(configuredFeatures, HeightOverrideFeature.Config.class)
+			.map(config -> config.script)
+			.toArray(DataOverworldHeightOverrider.Holder[]::new)
+		);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <C extends FeatureConfig> Stream<C> filterFeatures(Registry<ConfiguredFeature<?, ?>> registry, Class<C> clazz) {
+		return (Stream<C>)(
+			registry
+			.stream()
+			.map(ConfiguredFeature::config)
+			.filter(clazz::isInstance)
+		);
 	}
 
 	@Override
@@ -650,17 +671,36 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void runHeightOverrides(OverworldColumn column, CachedStructures structures, OverridePhase phase) {
-		OverworldHeightOverrider.Context context = (
-			new OverworldHeightOverrider.Context(this, column, structures, phase)
-		);
-		LakeHeightOverrider.INSTANCE.override(context);
-		VillageHeightOverrider.INSTANCE.override(context);
-		MansionHeightOverrider.INSTANCE.override(context);
-		DesertPyramidHeightOverrider.INSTANCE.override(context);
-		IglooHeightOverrider.INSTANCE.override(context);
-		CampfireHeightOverrider.INSTANCE.override(context);
-		column.populateInLake(structures.lake);
+	public void runHeightOverrides(OverworldColumn column, ScriptStructures structures, OverridePhase phase) {
+		LakeStructure.Piece lakePiece = null;
+		for (StructureStartWrapper structure : structures) {
+			if (structure.structure().type() == BigGlobeStructures.LAKE_TYPE) {
+				lakePiece = (LakeStructure.Piece)(structure.pieces().get(0));
+				double distance = Math.sqrt(
+					BigGlobeMath.squareD(
+						column.x - lakePiece.data.x(),
+						column.z - lakePiece.data.z()
+					)
+				);
+				double radius = lakePiece.data.horizontalRadius();
+				double y = lakePiece.data.y();
+				if (distance < radius + 16.0D && column.finalHeight < y) {
+					double mixLevel = Interpolator.unmixSmooth(radius + 16.0D, radius, distance);
+					double newHeight = Interpolator.mixLinear(column.finalHeight, y, mixLevel);
+					column.snowHeight += newHeight - column.finalHeight;
+					column.finalHeight = newHeight;
+				}
+				if (distance < radius) {
+					double dip = lakePiece.getDip(column.x, column.z, distance);
+					column.finalHeight += dip;
+					column.snowHeight += dip;
+				}
+			}
+		}
+		column.populateInLake(lakePiece);
+		for (DataOverworldHeightOverrider.Holder overrider : this.heightOverriders) {
+			overrider.override(structures, column, phase == OverridePhase.RAW_TERRAIN);
+		}
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, CachedStructures structures, OverridePhase phase) {
@@ -705,12 +745,14 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
 		ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
+		@Deprecated
 		CachedStructures structures = CachedStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+		ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 		this.profiler.run("initial terrain column values", () -> {
 			columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), (OverworldColumn column) -> {
 				column.getFinalTopHeightD();
 				column.getSnowHeight();
-				this.runHeightOverrides(column, structures, OverridePhase.RAW_TERRAIN);
+				this.runHeightOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
 				if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 					column.getCaveCell();
 					column.getCaveNoise();
@@ -790,11 +832,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 			ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 			OverworldPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof OverworldPositionCache overworld ? overworld : null;
+			@Deprecated
 			CachedStructures structures = CachedStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+			ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 			this.profiler.run("Initial feature column values", () -> {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getFinalTopHeightD();
-					this.runHeightOverrides(column, structures, OverridePhase.DECORATION);
+					this.runHeightOverrides(column, scriptStructures, OverridePhase.DECORATION);
 					if (cache == null && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 						column.getCaveCell();
 						column.getCaveNoise();

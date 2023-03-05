@@ -31,8 +31,6 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.append(TypeInfos.STRING, BiomeTagKey            .TYPE, true, new ConstantCaster(BiomeTagKey            .CONSTANT_FACTORY))
 		.append(TypeInfos.STRING, ConfiguredFeatureEntry .TYPE, true, new ConstantCaster(ConfiguredFeatureEntry .CONSTANT_FACTORY))
 		.append(TypeInfos.STRING, ConfiguredFeatureTagKey.TYPE, true, new ConstantCaster(ConfiguredFeatureTagKey.CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructureEntry         .TYPE, true, new ConstantCaster(StructureEntry         .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructureTagKey        .TYPE, true, new ConstantCaster(StructureTagKey        .CONSTANT_FACTORY))
 	);
 
 	public MinecraftScriptEnvironment(InsnTree loadWorld) {
@@ -55,13 +53,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addType("BiomeTag",             BiomeTagKey            .TYPE)
 		.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
 		.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
-		.addType("StructureStart",       StructureStartWrapper  .TYPE)
-		.addType("StructurePiece",       StructurePieceWrapper  .TYPE)
-		.addType("Structure",            StructureEntry         .TYPE)
-		.addType("StructureTag",         StructureTagKey        .TYPE)
 		.addFieldInvokes(BiomeEntry.class, "temperature", "downfall", "precipitation")
-		.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "structure", "pieces")
-		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ")
 		.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "isIn")
 		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 		.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
@@ -76,9 +68,6 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addMethodInvoke(ConfiguredFeatureEntry.class, "isIn")
 		.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
 		.addMethod(ConfiguredFeatureTagKey.TYPE, "random", randomFromWorld(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
-		.addMethodInvoke(StructureEntry.class, "isIn")
-		.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, RandomGenerator.class)
-		.addMethod(StructureTagKey.TYPE, "random", randomFromWorld(loadRandom, StructureTagKey.class, StructureEntry.class))
 		;
 	}
 

@@ -51,7 +51,7 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 		);
 	}
 
-		@Override
+	@Override
 	public StructureStartWrapper get(int index) {
 		return this.starts[index];
 	}

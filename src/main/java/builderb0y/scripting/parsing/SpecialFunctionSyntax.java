@@ -222,7 +222,7 @@ public class SpecialFunctionSyntax {
 				throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 			}
 			parser.environment.user().push();
-			VariableDeclarationInsnTree iterator = parser.environment.user().newVariable("iterator", TypeInfos.ITERATOR);
+			VariableDeclarationInsnTree iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 			VariableDeclarationInsnTree userVar = parser.environment.user().newVariable(name, type);
 			InsnTree iterable = parser.nextScript().cast(parser, TypeInfos.ITERABLE, CastMode.IMPLICIT_THROW);
 			parser.input.expectOperatorAfterWhitespace(":");

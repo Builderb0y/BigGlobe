@@ -4,13 +4,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.NotNull;
+
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 
 public class TypeInfos {
 
-	public static final TypeInfo
+	public static final @NotNull TypeInfo
 		OBJECT          = TypeInfo.of(Object    .class),
 		ENUM            = TypeInfo.of(Enum      .class),
 		RECORD          = TypeInfo.of(Record    .class),

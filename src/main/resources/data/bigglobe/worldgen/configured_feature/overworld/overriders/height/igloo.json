@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:overworld_height_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.type == StructureType('minecraft:igloo'):",
+					"StructurePiece last = start.pieces.(start.pieces.size - 1)",
+					"double mixLevel = excludeCircle(last, 8.0L)",
+					"snowY = mixLinear(snowY, last.minY + 1.0625, mixLevel)",
+				")",
+			")"
+		]
+	}
+}

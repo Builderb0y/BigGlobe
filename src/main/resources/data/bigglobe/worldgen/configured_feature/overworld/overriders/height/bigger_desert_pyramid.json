@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:overworld_height_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.type == StructureType('bigglobe:bigger_desert_pyramid'):",
+					"double mixLevel = excludeSquare(start, 16.0L)",
+					"terrainY = mixLinear(terrainY, start.minY + 16.5, mixLevel)",
+				")",
+			")"
+		]
+	}
+}

@@ -22,6 +22,7 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -29,7 +30,8 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.overriders.overworld.height.LakeHeightOverrider;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.overworld.OverworldOverrideContext.OverridePhase;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Dvec3;
 
@@ -244,7 +246,7 @@ public class LakeStructure extends BigGlobeStructure implements RawOverworldGene
 			}
 		}
 
-		/** used by {@link LakeHeightOverrider}. */
+		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, OverridePhase)}. */
 		public double getDip(int x, int z, double distance) {
 			double distanceFraction = distance / this.data.horizontalRadius;
 			double angle = Math.atan2(z - this.data.z, x - this.data.x) * (1.0D / BigGlobeMath.TAU) + 0.5D;
