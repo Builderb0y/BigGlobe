@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:overworld_foliage_overrider",
+	"config": {
+		"script": [
+			"if (!rawGeneration:",
+				"for (StructureStart start in structureStarts:",
+					"if (start.structure.type == StructureType('bigglobe:campfire'):",
+						"for (StructurePiece piece in start.pieces:",
+							"double distance = distanceToCircle(piece, 6.0L)",
+							"foliage *= smooth(distance * 0.125)",
+						")",
+					")",
+				")",
+			")"
+		]
+	}
+}

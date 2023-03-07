@@ -98,7 +98,13 @@ public class Wrappers {
 		}
 
 		public static Block getBlock(String id) {
-			return Registry.BLOCK.get(new Identifier(id));
+			Identifier identifier = new Identifier(id);
+			if (Registry.BLOCK.containsId(identifier)) {
+				return Registry.BLOCK.get(identifier);
+			}
+			else {
+				throw new IllegalArgumentException("Unknown block: " + id);
+			}
 		}
 
 		@SuppressWarnings("deprecation")
@@ -572,7 +578,9 @@ public class Wrappers {
 		}
 
 		public static StructurePieceType of(String id) {
-			return Registry.STRUCTURE_PIECE.get(new Identifier(id));
+			StructurePieceType type = Registry.STRUCTURE_PIECE.get(new Identifier(id));
+			if (type != null) return type;
+			else throw new IllegalArgumentException("Unknown structure piece type: " + id);
 		}
 	}
 
@@ -636,7 +644,9 @@ public class Wrappers {
 		}
 
 		public static StructureType<?> of(String id) {
-			return Registry.STRUCTURE_TYPE.get(new Identifier(id));
+			StructureType<?> type = Registry.STRUCTURE_TYPE.get(new Identifier(id));
+			if (type != null) return type;
+			throw new IllegalArgumentException("Unknown structure type: " + id);
 		}
 	}
 

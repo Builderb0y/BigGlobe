@@ -8,19 +8,6 @@ testing:
 
 where I left off:
 	column values for cliff frac and cliff bias.
-	need a structure API for scripting.
-		will use for data-driven overriders.
-		StructureStartWrapper:
-			StructureEntry structure
-			int min/max x, y, z
-			List<StructurePiece> pieces
-		StructurePiece:
-			int min/max x, y, z
-		StructureEntry:
-			isIn(StructureTag)
-		StructureTag:
-			iterator()
-			random()
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -34,9 +21,8 @@ AutoCodec:
 	builtin framework for key dispatching.
 
 scripting:
-	string interpolation skips whitespace after end of expression.
 	better syntax for specifying variable block states.
-		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
+		blockState('minecraft:stairs', 'facing': 'north', 'shape': 'straight', 'half': 'bottom')
 	expose arrays.
 	break statements.
 	scriptable RandomSource?
@@ -44,7 +30,6 @@ scripting:
 	pre and post update operators.
 	increment and decrement as expression.
 	postfix increment and decrement.
-	unit test for user-defined function parameter shadowing existing variable.
 
 features:
 	advancements for finding things?

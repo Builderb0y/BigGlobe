@@ -52,7 +52,8 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 		COLUMN_X_INFO = field(ACC_PUBLIC, BASE_COLUMN_TYPE, "x", TypeInfos.INT),
 		COLUMN_Z_INFO = field(ACC_PUBLIC, BASE_COLUMN_TYPE, "z", TypeInfos.INT);
 
-	public InsnTree loadColumn, loadY;
+	public InsnTree loadColumn;
+	public @Nullable InsnTree loadY;
 	public boolean exposePosition;
 	public Set<ColumnValue<?>> usedValues = new HashSet<>(4);
 
@@ -62,7 +63,7 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 		this.exposePosition = true;
 	}
 
-	public ColumnYScriptEnvironment(InsnTree loadColumn, InsnTree loadY, boolean exposePosition) {
+	public ColumnYScriptEnvironment(InsnTree loadColumn, @Nullable InsnTree loadY, boolean exposePosition) {
 		this.loadColumn = loadColumn;
 		this.loadY = loadY;
 		this.exposePosition = exposePosition;
@@ -78,7 +79,14 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 
 	public @Nullable ColumnValue<?> getValue(String name) {
 		ColumnValue<?> value = ColumnValue.get(name);
-		if (value != null) this.usedValues.add(value);
+		if (value != null) {
+			if (value.dependsOnY() && this.loadY == null) {
+				value = null;
+			}
+			else {
+				this.usedValues.add(value);
+			}
+		}
 		return value;
 	}
 
@@ -90,7 +98,7 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 					yield this.loadX();
 				}
 				case "y" -> {
-					this.usedValues.add(ColumnValue.Y);
+					if (this.loadY != null) this.usedValues.add(ColumnValue.Y);
 					yield this.loadY;
 				}
 				case "z" -> {

@@ -627,10 +627,10 @@ public class ExpressionParser {
 					//in some cases, input.skipWhitespace() may
 					//be called after the next term has ended.
 					//this is problematic because if the input
-					//is, for example, "$a b", then the output
-					//would be "ab", without a space between.
-					//so, here we add any whitespace which got
-					//skipped over.
+					//is, for example, "var a = 'a',, '$a b'",
+					//then the output would be "ab", without
+					//a space between. so, here we add any
+					//whitespace which got skipped over.
 					int skippedWhitespace = this.input.cursor - 1;
 					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
 						skippedWhitespace--;
@@ -753,7 +753,7 @@ public class ExpressionParser {
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 						result = this.environment.getFunction(this, name, arguments.arguments());
 						if (result != null) return arguments.maybeWrap(result);
-						throw new ScriptParsingException("Unknown function: " + name, this.input);
+						throw new ScriptParsingException("Unknown function or incorrect arguments: " + name, this.input);
 					}
 					else { //variable.
 						InsnTree variable = this.environment.getVariable(this, name);

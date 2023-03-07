@@ -9,7 +9,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class DataOverworldHeightOverrider {
+public class DataOverworldFoliageOverrider {
 
 	@Wrapper
 	public static class Holder extends DataOverrider.Holder {
@@ -17,7 +17,7 @@ public class DataOverworldHeightOverrider {
 		public Holder(String script) throws ScriptParsingException {
 			super(
 				new ScriptParser<>(DataOverrider.class, script)
-				.addEnvironment(DataOverworldHeightOverrider.Environment.INSTANCE)
+				.addEnvironment(DataOverworldFoliageOverrider.Environment.INSTANCE)
 			);
 		}
 	}
@@ -30,10 +30,7 @@ public class DataOverworldHeightOverrider {
 			super();
 
 			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
-			this
-			.addVariableRenamedGetField(columnLoader, "terrainY", FieldInfo.getField(OverworldColumn.class, "finalHeight"))
-			.addVariableRenamedGetField(columnLoader, "snowY", FieldInfo.getField(OverworldColumn.class, "snowHeight"))
-			;
+			this.addVariableGetField(columnLoader, FieldInfo.getField(OverworldColumn.class, "foliage"));
 		}
 	}
 }

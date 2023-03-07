@@ -5,7 +5,8 @@
 			"for (StructureStart start in structureStarts:",
 				"if (start.structure.type == StructureType('minecraft:igloo'):",
 					"StructurePiece last = start.pieces.(start.pieces.size - 1)",
-					"double mixLevel = excludeCircle(last, 8.0L)",
+					"double distance = distanceToCircle(last, 6.0L)",
+					"double mixLevel = smooth(1.0 - distance / 12.0L)",
 					"snowY = mixLinear(snowY, last.minY + 1.0625, mixLevel)",
 				")",
 			")"

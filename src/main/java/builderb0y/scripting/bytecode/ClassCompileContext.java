@@ -31,7 +31,7 @@ public class ClassCompileContext {
 		this.node = new ClassNode();
 		this.info = info;
 		this.inheritance = new InheritanceContext();
-		this.inheritance.lookup.put(info.toAsmType(), info);
+		this.inheritance.lookup.put(info.getInternalName(), info);
 		this.node.visit(
 			V17,
 			access,
@@ -48,7 +48,7 @@ public class ClassCompileContext {
 		this.node = new ClassNode();
 		this.info = info;
 		this.inheritance = parent.inheritance;
-		this.inheritance.lookup.put(info.toAsmType(), info);
+		this.inheritance.lookup.put(info.getInternalName(), info);
 		this.node.visit(
 			V17,
 			access,
@@ -87,13 +87,12 @@ public class ClassCompileContext {
 			@Override
 			public String getCommonSuperClass(String type1, String type2) {
 				InheritanceContext inheritance = ClassCompileContext.this.inheritance;
-				return TypeMerger.computeMostSpecificType(
-					inheritance.getInheritances(
-						Type.getObjectType(type1),
-						Type.getObjectType(type2)
-					)
-				)
-				.getInternalName();
+				TypeInfo info1 = inheritance.getInheritance(type1);
+				TypeInfo info2 = inheritance.getInheritance(type2);
+				if (info1 != null && info2 != null) {
+					return TypeMerger.computeMostSpecificType(info1, info2).getInternalName();
+				}
+				return super.getCommonSuperClass(type1, type2);
 			}
 		};
 		this.node.accept(writer);

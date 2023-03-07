@@ -15,7 +15,6 @@ import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.util.UncheckedReflection;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -72,16 +71,16 @@ public class InvokeStaticInsnTree implements InsnTree {
 	}
 
 	public static MethodHandle getMethodHandle(MethodInfo method) throws NoSuchMethodException, IllegalAccessException {
-		Class<?> owner = UncheckedReflection.findClass(method.owner.getClassName());
+		Class<?> owner = method.owner.toClass();
 		MethodType methodType = getMethodType(method);
 		return MethodHandles.lookup().findStatic(owner, method.name, methodType);
 	}
 
 	public static MethodType getMethodType(MethodInfo method) {
 		return MethodType.methodType(
-			UncheckedReflection.findClass(method.returnType.getClassName()),
+			method.returnType.toClass(),
 			Arrays.stream(method.paramTypes)
-			.map(arg -> UncheckedReflection.findClass(arg.getClassName()))
+			.map(TypeInfo::toClass)
 			.toArray(ArrayFactories.CLASS)
 		);
 	}

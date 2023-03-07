@@ -183,6 +183,28 @@ public class TypeInfo {
 		};
 	}
 
+	public Class<?> toClass() {
+		return switch (this.getSort()) {
+			case BYTE          -> byte   .class;
+			case SHORT         -> short  .class;
+			case INT           -> int    .class;
+			case LONG          -> long   .class;
+			case FLOAT         -> float  .class;
+			case DOUBLE        -> double .class;
+			case CHAR          -> char   .class;
+			case BOOLEAN       -> boolean.class;
+			case VOID          -> void   .class;
+			case OBJECT, ARRAY -> {
+				try {
+					yield Class.forName(this.getClassName());
+				}
+				catch (ClassNotFoundException exception) {
+					throw new IllegalArgumentException(this + " does not correspond to a currently defined class.", exception);
+				}
+			}
+		};
+	}
+
 	public Type toAsmType() {
 		return this.name;
 	}

@@ -72,6 +72,7 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
+import builderb0y.bigglobe.features.overriders.FoliageOverrideFeature;
 import builderb0y.bigglobe.features.overriders.HeightOverrideFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -83,11 +84,11 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.CachedStructures;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.overworld.DataOverworldFoliageOverrider;
 import builderb0y.bigglobe.overriders.overworld.DataOverworldHeightOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldOverrideContext.OverridePhase;
 import builderb0y.bigglobe.overriders.overworld.caverns.*;
 import builderb0y.bigglobe.overriders.overworld.caves.*;
-import builderb0y.bigglobe.overriders.overworld.foliage.*;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
@@ -128,6 +129,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient LinkedFlowerConfig[] flowerGroups;
 	public final transient LinkedRockLayerConfig[] rockLayers;
 	public final transient DataOverworldHeightOverrider.Holder[] heightOverriders;
+	public final transient DataOverworldFoliageOverrider.Holder[] foliageOverriders;
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
@@ -170,6 +172,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			filterFeatures(configuredFeatures, HeightOverrideFeature.Config.class)
 			.map(config -> config.script)
 			.toArray(DataOverworldHeightOverrider.Holder[]::new)
+		);
+		this.foliageOverriders = (
+			filterFeatures(configuredFeatures, FoliageOverrideFeature.Config.class)
+			.map(config -> config.script)
+			.toArray(DataOverworldFoliageOverrider.Holder[]::new)
 		);
 	}
 
@@ -703,14 +710,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void runFoliageOverrides(OverworldColumn column, CachedStructures structures, OverridePhase phase) {
-		OverworldFoliageExcluder.Context context = (
-			new OverworldFoliageExcluder.Context(this, column, structures, phase)
-		);
-		LakeFoliageExcluder.INSTANCE.exclude(context);
-		VillageFoliageExcluder.INSTANCE.exclude(context);
-		IglooFoliageExcluder.INSTANCE.exclude(context);
-		CampfireFoliageExcluder.INSTANCE.exclude(context);
+	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures, OverridePhase phase) {
+		column.foliage *= 1.0D - column.getInLake();
+		for (DataOverworldFoliageOverrider.Holder overrider : this.foliageOverriders) {
+			overrider.override(structures, column, phase == OverridePhase.RAW_TERRAIN);
+		}
 	}
 
 	public void runCaveOverrides(OverworldColumn column, CachedStructures structures, OverridePhase phase) {
@@ -766,7 +770,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				}
 				column.getTemperature();
 				column.getFoliage();
-				this.runFoliageOverrides(column, structures, OverridePhase.RAW_TERRAIN);
+				this.runFoliageOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
 
 				column.getSkylandMinY();
 				column.getSkylandMaxY();
@@ -852,7 +856,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 					column.getTemperature();
 					column.getFoliage();
-					this.runFoliageOverrides(column, structures, OverridePhase.DECORATION);
+					this.runFoliageOverrides(column, scriptStructures, OverridePhase.DECORATION);
 
 					column.getSkylandMinY();
 					column.getSkylandMaxY();
