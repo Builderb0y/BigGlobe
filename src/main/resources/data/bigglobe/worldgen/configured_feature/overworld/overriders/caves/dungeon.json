@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:overworld_cave_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (",
+					"StructureType type = start.structure.type,,",
+					"type == StructureType('bigglobe:small_dungeon') ||",
+					"type == StructureType('bigglobe:medium_dungeon') ||",
+					"type == StructureType('bigglobe:large_dungeon')",
+				":",
+					"excludeCylinder(start, 16.0L)",
+				")",
+			")"
+		]
+	}
+}
