@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:geode",
+		"bigglobe:small_dungeon",
+		"bigglobe:medium_dungeon",
+		"bigglobe:large_dungeon"
+	]
+}

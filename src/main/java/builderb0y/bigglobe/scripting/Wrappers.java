@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.random.RandomGenerator;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -31,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.registry.RegistryEntryList.Named;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.StructureWorldAccess;
@@ -650,12 +652,42 @@ public class Wrappers {
 		}
 	}
 
+	public static record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWrapper<StructureType<?>> {
+
+		public static final TypeInfo TYPE = TypeInfo.of(StructureTypeTagKey.class);
+
+		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTypeTagKey.class, "of", String.class, StructureTypeTagKey.class);
+
+		public static StructureTypeTagKey of(MethodHandles.Lookup lookup, String name, Class<?> type, String id) {
+			return of(id);
+		}
+
+		public static StructureTypeTagKey of(String id) {
+			return new StructureTypeTagKey(TagKey.of(Registry.STRUCTURE_TYPE_KEY, new Identifier(id)));
+		}
+
+		@Override
+		public StructureType<?> random(RandomGenerator random) {
+			Optional<Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_TYPE_KEY).getEntryList(this.key);
+			if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
+			Optional<RegistryEntry<StructureType<?>>> feature = list.get().getRandom(new MojangPermuter(random.nextLong()));
+			if (feature.isEmpty()) throw new RuntimeException("Structure tag is empty: " + this.key.id());
+			return feature.get().value();
+
+		}
+
+		@NotNull
+		@Override
+		public Iterator<StructureType<?>> iterator() {
+			Optional<RegistryEntryList.Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_TYPE_KEY).getEntryList(this.key);
+			if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
+			return list.get().stream().<StructureType<?>>map(RegistryEntry::value).iterator();
+		}
+	}
+
 	public static record StructureTagKey(TagKey<Structure> key) implements TagWrapper<StructureEntry> {
 
 		public static final TypeInfo TYPE = TypeInfo.of(StructureTagKey.class);
-		public static final MethodInfo
-			RANDOM = method(ACC_PUBLIC, StructureTagKey.class, "random", StructureTagKey.class, RandomGenerator.class),
-			ITERATOR = method(ACC_PUBLIC, StructureTagKey.class, "iterator", Iterator.class);
 		public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTagKey.class, "of", String.class, StructureTagKey.class);
 
 		public static StructureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {

@@ -3,22 +3,16 @@ package builderb0y.bigglobe.math;
 public class Interpolator {
 
 	/**
-	returns a value between low and high when value is between 0 and 1
-	mixLinear(a, b, 0.0) returns a
-	mixLinear(a, b, 1.0) returns b
+	returns a value between low and high when value is between 0 and 1.
+	mixLinear(a, b, 0.0) returns a.
+	mixLinear(a, b, 1.0) returns b.
 	*/
-	public static double mixLinear(double low, double high, double value) {
-		return (high - low) * value + low;
-	}
-
 	public static float mixLinear(float low, float high, float value) {
 		return (high - low) * value + low;
 	}
 
-	public static double mixClamp(double low, double high, double value) {
-		if (value <= 0.0D) return low;
-		if (value >= 1.0D) return high;
-		return mixLinear(low, high, value);
+	public static double mixLinear(double low, double high, double value) {
+		return (high - low) * value + low;
 	}
 
 	public static float mixClamp(float low, float high, float value) {
@@ -27,10 +21,10 @@ public class Interpolator {
 		return mixLinear(low, high, value);
 	}
 
-	public static double mixSmooth(double low, double high, double value) {
+	public static double mixClamp(double low, double high, double value) {
 		if (value <= 0.0D) return low;
 		if (value >= 1.0D) return high;
-		return mixLinear(low, high, smooth(value));
+		return mixLinear(low, high, value);
 	}
 
 	public static float mixSmooth(float low, float high, float value) {
@@ -39,15 +33,21 @@ public class Interpolator {
 		return mixLinear(low, high, smooth(value));
 	}
 
-	public static double mixSmoother(double low, double high, double value) {
+	public static double mixSmooth(double low, double high, double value) {
 		if (value <= 0.0D) return low;
 		if (value >= 1.0D) return high;
-		return mixLinear(low, high, smoother(value));
+		return mixLinear(low, high, smooth(value));
 	}
 
 	public static float mixSmoother(float low, float high, float value) {
 		if (value <= 0.0F) return low;
 		if (value >= 1.0F) return high;
+		return mixLinear(low, high, smoother(value));
+	}
+
+	public static double mixSmoother(double low, double high, double value) {
+		if (value <= 0.0D) return low;
+		if (value >= 1.0D) return high;
 		return mixLinear(low, high, smoother(value));
 	}
 
@@ -59,31 +59,27 @@ public class Interpolator {
 	mixLinear(a, b, unmixLinear(a, b, f)) also returns f.
 	results are undefined when low == high, including in the above examples.
 	*/
-	public static double unmixLinear(double low, double high, double value) {
-		return (value - low) / (high - low);
-	}
-
 	public static float unmixLinear(float low, float high, float value) {
 		return (value - low) / (high - low);
 	}
 
-	public static double unmixClamp(double low, double high, double value) {
-		return clamp(0.0D, 1.0D, unmixLinear(low, high, value));
+	public static double unmixLinear(double low, double high, double value) {
+		return (value - low) / (high - low);
 	}
 
 	public static float unmixClamp(float low, float high, float value) {
 		return clamp(0.0F, 1.0F, unmixLinear(low, high, value));
 	}
 
-	public static double unmixSmooth(double low, double high, double value) {
-		return smoothClamp(unmixLinear(low, high, value));
+	public static double unmixClamp(double low, double high, double value) {
+		return clamp(0.0D, 1.0D, unmixLinear(low, high, value));
 	}
 
 	public static float unmixSmooth(float low, float high, float value) {
 		return smoothClamp(unmixLinear(low, high, value));
 	}
 
-	public static double unmixSmoother(double low, double high, double value) {
+	public static double unmixSmooth(double low, double high, double value) {
 		return smoothClamp(unmixLinear(low, high, value));
 	}
 
@@ -91,8 +87,19 @@ public class Interpolator {
 		return smoothClamp(unmixLinear(low, high, value));
 	}
 
-	public static double clamp(double low, double high, double value) {
-		if (high < low) return Double.NaN;
+	public static double unmixSmoother(double low, double high, double value) {
+		return smoothClamp(unmixLinear(low, high, value));
+	}
+
+	public static int clamp(int low, int high, int value) {
+		if (high < low) throw new ArithmeticException("high (" + high + ") < low (" + low + ')');
+		if (value <= low) return low;
+		if (value >= high) return high;
+		return value;
+	}
+
+	public static long clamp(long low, long high, long value) {
+		if (high < low) throw new ArithmeticException("high (" + high + ") < low (" + low + ')');
 		if (value <= low) return low;
 		if (value >= high) return high;
 		return value;
@@ -100,6 +107,13 @@ public class Interpolator {
 
 	public static float clamp(float low, float high, float value) {
 		if (high < low) return Float.NaN;
+		if (value <= low) return low;
+		if (value >= high) return high;
+		return value;
+	}
+
+	public static double clamp(double low, double high, double value) {
+		if (high < low) return Double.NaN;
 		if (value <= low) return low;
 		if (value >= high) return high;
 		return value;

@@ -31,7 +31,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.overriders.overworld.OverworldOverrideContext.OverridePhase;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Dvec3;
 
@@ -246,7 +245,7 @@ public class LakeStructure extends BigGlobeStructure implements RawOverworldGene
 			}
 		}
 
-		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, OverridePhase)}. */
+		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, boolean)}. */
 		public double getDip(int x, int z, double distance) {
 			double distanceFraction = distance / this.data.horizontalRadius;
 			double angle = Math.atan2(z - this.data.z, x - this.data.x) * (1.0D / BigGlobeMath.TAU) + 0.5D;

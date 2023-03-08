@@ -2,6 +2,7 @@ bug fixes:
 	geode spikes can still spawn outside of geodes.
 	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
 		this is a fabric bug.
+	can't /locate ancient_city due to unusual hard-coded spawning rules.
 
 testing:
 	cubic chunks compatibility, whenever that's released.

@@ -7,7 +7,7 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.overriders.CachedStructures;
+import builderb0y.bigglobe.overriders.ScriptStructures;
 
 /**
 a {@link Structure} which has at least one StructurePiece which
@@ -30,14 +30,14 @@ public interface RawOverworldGenerationStructure {
 
 			public long seed;
 			public Chunk chunk;
-			public CachedStructures structures;
+			public ScriptStructures structures;
 			public ChunkOfColumns<OverworldColumn> columns;
 			public boolean distantHorizons;
 
 			public Context(
 				long seed,
 				Chunk chunk,
-				CachedStructures structures,
+				ScriptStructures structures,
 				ChunkOfColumns<OverworldColumn> columns,
 				boolean distantHorizons
 			) {

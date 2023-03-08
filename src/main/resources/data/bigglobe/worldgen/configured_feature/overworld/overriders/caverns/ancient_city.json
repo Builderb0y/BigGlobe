@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:overworld_cavern_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure == Structure('minecraft:ancient_city'):",
+					"double factor = 1.0L",
+					"for (StructurePiece piece in start.pieces:",
+						"int clampedRelativeX = clamp(piece.minX, piece.maxX, x) - x",
+						"int clampedRelativeZ = clamp(piece.minZ, piece.maxZ, z) - z",
+						"factor *= min(clampedRelativeX ^ 2 + clampedRelativeZ ^ 2, 256) / 256.0L",
+					")",
+					"if (factor < 1.0L:",
+						"double centerY = (start.minY + start.maxY) * 0.5L + 2.0L",
+						"double thickness = (start.maxY - start.minY) * 0.5L + 0.75L",
+						"cavernCenterY = mixLinear(centerY, cavernCenterY, factor)",
+						"cavernThicknessSquared = mixLinear(thickness ^ 2, cavernThicknessSquared > 0.0L ? cavernThicknessSquared : 0.0L ;; treat NaN as 0. ;;, factor)",
+					")",
+				")",
+			")"
+		]
+	}
+}

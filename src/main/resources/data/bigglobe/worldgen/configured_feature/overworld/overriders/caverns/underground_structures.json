@@ -1,0 +1,22 @@
+{
+	"type": "bigglobe:overworld_cavern_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"StructureType type = start.structure.type",
+				"if (type.isIn('bigglobe:cavern_exclusion_circle'):",
+					"double distance = distanceToCircle(start)",
+					"double horizontalFactor = unmixSmooth(16.0L, 0.0L, distance)",
+					"double verticalFactor = getOverlap(start, 16.0L)",
+					"exclude(horizontalFactor * verticalFactor)",
+				")",
+				"else if (type.isIn('bigglobe:cavern_exclusion_square'):",
+					"double distance = distanceToSquare(start)",
+					"double horizontalFactor = unmixSmooth(16.0L, 0.0L, distance)",
+					"double verticalFactor = getOverlap(start, 16.0L)",
+					"exclude(horizontalFactor * verticalFactor)",
+				")",
+			")"
+		]
+	}
+}

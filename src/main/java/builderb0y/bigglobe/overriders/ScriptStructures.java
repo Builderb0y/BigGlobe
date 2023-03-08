@@ -14,6 +14,7 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.structures.LakeStructure;
 
 public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 
@@ -21,9 +22,11 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 	public static final ScriptStructures EMPTY_SCRIPT_STRUCTURES = new ScriptStructures(EMPTY_STRUCTURE_START_ARRAY);
 
 	public final StructureStartWrapper[] starts;
+	public final LakeStructure.Piece lake; //used frequently in other hard-coded areas, so might as well cache it.
 
 	public ScriptStructures(StructureStartWrapper[] starts) {
 		this.starts = starts;
+		this.lake = this.findLake();
 	}
 
 	public static ScriptStructures getStructures(StructureAccessor structureAccessor, ChunkPos chunkPos, boolean distantHorizons) {
@@ -59,5 +62,14 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 	@Override
 	public int size() {
 		return this.starts.length;
+	}
+
+	public LakeStructure.Piece findLake() {
+		for (StructureStartWrapper start : this.starts) {
+			if (start.structure().entry().value() instanceof LakeStructure) {
+				return ((LakeStructure.Piece)(start.pieces().get(0)));
+			}
+		}
+		return null;
 	}
 }

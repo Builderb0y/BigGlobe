@@ -8,10 +8,10 @@ import net.minecraft.world.chunk.SingularPalette;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.overriders.CachedStructures;
+import builderb0y.bigglobe.overriders.ScriptStructures;
 
 /**
-used for optimization in {@link BigGlobeOverworldChunkGenerator#generateRawSectionsAndCaves(Chunk, ChunkOfColumns, CachedStructures, boolean)}.
+used for optimization in {@link BigGlobeOverworldChunkGenerator#generateRawSectionsAndCaves(Chunk, ChunkOfColumns, ScriptStructures, boolean)}.
 we first make a guess as to what the majority of blocks in the chunk section will be,
 based on information at the center of the chunk section,
 and set the entire chunk section to that block with this hook.

@@ -55,8 +55,7 @@ public interface DataOverrider extends Script {
 		return Math.max(Math.sqrt(BigGlobeMath.squareD(centerX - column.x, centerZ - column.z)) - radius, 0.0D);
 	}
 
-	public static double distanceToCircle(OverworldColumn column, StructureStartWrapper structure, double radius) {
-		BlockBox box = structure.box();
+	public static double _distanceToCircle(OverworldColumn column, BlockBox box, double radius) {
 		return distanceToCircle(
 			column,
 			(box.getMinX() + box.getMaxX()) * 0.5D,
@@ -65,14 +64,32 @@ public interface DataOverrider extends Script {
 		);
 	}
 
-	public static double distanceToCircle(OverworldColumn column, StructurePiece piece, double radius) {
-		BlockBox box = piece.getBoundingBox();
-		return distanceToCircle(
+	public static double _distanceToCircle(OverworldColumn column, BlockBox box) {
+		return _distanceToCircle(
 			column,
-			(box.getMinX() + box.getMaxX()) * 0.5D,
-			(box.getMinZ() + box.getMaxZ()) * 0.5D,
-			radius
+			box,
+			Math.min(
+				box.getMaxX() - box.getMinX(),
+				box.getMaxZ() - box.getMinZ()
+			)
+			* 0.5D
 		);
+	}
+
+	public static double distanceToCircle(OverworldColumn column, StructureStartWrapper structure, double radius) {
+		return _distanceToCircle(column, structure.box(), radius);
+	}
+
+	public static double distanceToCircle(OverworldColumn column, StructurePiece piece, double radius) {
+		return _distanceToCircle(column, piece.getBoundingBox(), radius);
+	}
+
+	public static double distanceToCircle(OverworldColumn column, StructureStartWrapper structure) {
+		return _distanceToCircle(column, structure.box());
+	}
+
+	public static double distanceToCircle(OverworldColumn column, StructurePiece piece) {
+		return _distanceToCircle(column, piece.getBoundingBox());
 	}
 
 	public static class Holder extends ScriptHolder<DataOverrider> implements DataOverrider {
@@ -106,6 +123,7 @@ public interface DataOverrider extends Script {
 			.append(TypeInfos.STRING, StructureEntry           .TYPE, true, new ConstantCaster(StructureEntry           .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructureTagKey          .TYPE, true, new ConstantCaster(StructureTagKey          .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructureTypeWrapper     .TYPE, true, new ConstantCaster(StructureTypeWrapper     .CONSTANT_FACTORY))
+			.append(TypeInfos.STRING, StructureTypeTagKey      .TYPE, true, new ConstantCaster(StructureTypeTagKey      .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructurePieceTypeWrapper.TYPE, true, new ConstantCaster(StructurePieceTypeWrapper.CONSTANT_FACTORY))
 		);
 
@@ -116,6 +134,7 @@ public interface DataOverrider extends Script {
 			.addType("Structure",          StructureEntry           .TYPE)
 			.addType("StructureTag",       StructureTagKey          .TYPE)
 			.addType("StructureType",      StructureTypeWrapper     .TYPE)
+			.addType("StructureTypeTag",   StructureTypeTagKey      .TYPE)
 			.addType("StructurePieceType", StructurePieceTypeWrapper.TYPE)
 			.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "structure", "pieces")
 			.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
@@ -130,6 +149,10 @@ public interface DataOverrider extends Script {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, prefixedArguments);
 				return castArguments == null ? null : invokeStatic(method, castArguments);
 			});
+		}
+
+		public void addColumnFunction(InsnTree column, Class<?> in, String name) {
+			this.addColumnFunction(column, MethodInfo.getMethod(in, name));
 		}
 
 		public void addMultiColumnFunction(InsnTree column, Class<?> in, String name) {
