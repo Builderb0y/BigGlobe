@@ -111,8 +111,6 @@ public interface DataOverrider extends Script {
 
 		public Environment() {
 			this
-			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
-			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class))
 			.addType("StructureStart",     StructureStartWrapper    .TYPE)
 			.addType("StructurePiece",     StructurePieceWrapper    .TYPE)
 			.addType("Structure",          StructureEntry           .TYPE)
@@ -124,8 +122,6 @@ public interface DataOverrider extends Script {
 			.addMethodInvoke(StructureEntry.class, "isIn")
 			.addFieldInvokes(StructureEntry.class, "type", "generationStep")
 			;
-			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
-			this.addMultiColumnFunctions(columnLoader, DataOverrider.class, "distanceToSquare", "distanceToCircle");
 		}
 
 		public void addColumnFunction(InsnTree column, MethodInfo method) {
@@ -146,6 +142,10 @@ public interface DataOverrider extends Script {
 			for (String name : names) {
 				this.addMultiColumnFunction(column, in, name);
 			}
+		}
+
+		public void addDistanceFunctions(InsnTree column) {
+			this.addMultiColumnFunctions(column, DataOverrider.class, "distanceToSquare", "distanceToCircle");
 		}
 	}
 }

@@ -7,6 +7,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.FlowerGroupFeature;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
+import builderb0y.bigglobe.features.overriders.CaveOverrideFeature;
 import builderb0y.bigglobe.features.overriders.FoliageOverrideFeature;
 import builderb0y.bigglobe.features.overriders.HeightOverrideFeature;
 import builderb0y.bigglobe.features.rockLayers.RockLayerEntryFeature;
@@ -28,6 +29,7 @@ public class BigGlobeFeatures {
 	public static final RockLayerEntryFeature  ROCK_LAYER_ENTRY  = register("overworld_rock_layer_entry",  new  RockLayerEntryFeature());
 	public static final HeightOverrideFeature  HEIGHT_OVERRIDER  = register("overworld_height_overrider",  new  HeightOverrideFeature());
 	public static final FoliageOverrideFeature FOLIAGE_OVERRIDER = register("overworld_foliage_overrider", new FoliageOverrideFeature());
+	public static final CaveOverrideFeature    CAVE_OVERRIDER    = register("overworld_cave_overrider",    new    CaveOverrideFeature());
 	public static final ScriptedFeature        SCRIPT            = register("script",                      new        ScriptedFeature());
 
 	static { BigGlobeMod.LOGGER.debug("Done registering features."); }

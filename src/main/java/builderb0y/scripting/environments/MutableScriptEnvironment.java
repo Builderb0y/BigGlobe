@@ -149,6 +149,21 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addVariable(field.name, InsnTrees.getField(receiver, field));
 	}
 
+	public MutableScriptEnvironment addVariableRenamedGetField(InsnTree receiver, String exposedName, Class<?> in, String actualName) {
+		return this.addVariable(exposedName, InsnTrees.getField(receiver, FieldInfo.getField(in, actualName)));
+	}
+
+	public MutableScriptEnvironment addVariableGetField(InsnTree receiver, Class<?> in, String name) {
+		return this.addVariable(name, InsnTrees.getField(receiver, FieldInfo.getField(in, name)));
+	}
+
+	public MutableScriptEnvironment addVariableGetFields(InsnTree receiver, Class<?> in, String... names) {
+		for (String name : names) {
+			this.addVariableGetField(receiver, in, name);
+		}
+		return this;
+	}
+
 	//////////////// getStatic ////////////////
 
 	public MutableScriptEnvironment addVariableGetStatic(String name, FieldInfo field) {
@@ -410,6 +425,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addFunctionInvokes(InsnTree receiver, Class<?> in, String... names) {
 		for (String name : names) {
 			this.addFunctionInvoke(receiver, in, name);
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addFunctionMultiInvoke(InsnTree receiver, Class<?> in, String name) {
+		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
+			this.addFunctionInvoke(receiver, MethodInfo.forMethod(method));
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addFunctionMultiInvokes(InsnTree receiver, Class<?> in, String... names) {
+		for (String name : names) {
+			this.addFunctionMultiInvoke(receiver, in, name);
 		}
 		return this;
 	}

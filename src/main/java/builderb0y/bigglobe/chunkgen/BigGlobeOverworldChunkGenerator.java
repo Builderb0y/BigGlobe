@@ -72,6 +72,7 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
+import builderb0y.bigglobe.features.overriders.CaveOverrideFeature;
 import builderb0y.bigglobe.features.overriders.FoliageOverrideFeature;
 import builderb0y.bigglobe.features.overriders.HeightOverrideFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
@@ -84,11 +85,11 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.CachedStructures;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.overworld.DataOverworldCaveOverrider;
 import builderb0y.bigglobe.overriders.overworld.DataOverworldFoliageOverrider;
 import builderb0y.bigglobe.overriders.overworld.DataOverworldHeightOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldOverrideContext.OverridePhase;
 import builderb0y.bigglobe.overriders.overworld.caverns.*;
-import builderb0y.bigglobe.overriders.overworld.caves.*;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
@@ -130,6 +131,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient LinkedRockLayerConfig[] rockLayers;
 	public final transient DataOverworldHeightOverrider.Holder[] heightOverriders;
 	public final transient DataOverworldFoliageOverrider.Holder[] foliageOverriders;
+	public final transient DataOverworldCaveOverrider.Holder[] caveOverriders;
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
@@ -177,6 +179,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			filterFeatures(configuredFeatures, FoliageOverrideFeature.Config.class)
 			.map(config -> config.script)
 			.toArray(DataOverworldFoliageOverrider.Holder[]::new)
+		);
+		this.caveOverriders = (
+			filterFeatures(configuredFeatures, CaveOverrideFeature.Config.class)
+			.map(config -> config.script)
+			.toArray(DataOverworldCaveOverrider.Holder[]::new)
 		);
 	}
 
@@ -717,19 +724,40 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void runCaveOverrides(OverworldColumn column, CachedStructures structures, OverridePhase phase) {
+	public void runCaveOverrides(OverworldColumn column, ScriptStructures structures, OverridePhase phase) {
 		if (this.settings.underground().hasCaves()) {
-			OverworldCaveExcluder.Context context = (
-				new OverworldCaveExcluder.Context(this, column, structures, phase)
+			DataOverworldCaveOverrider.Context context = (
+				new DataOverworldCaveOverrider.Context(structures, column, phase == OverridePhase.RAW_TERRAIN)
 			);
-			LowerCutoffCaveExcluder.INSTANCE.exclude(context);
-			PaddingCaveExcluder.INSTANCE.exclude(context);
-			GeodeCaveExcluder.INSTANCE.exclude(context);
-			DungeonCaveExcluder.INSTANCE.exclude(context);
-			StrongholdCaveExcluder.INSTANCE.exclude(context);
-			OceanFloorCaveExcluder.INSTANCE.exclude(context);
-			LakeCaveExcluder.INSTANCE.exclude(context);
-			SurfaceStructuresCaveExcluder.INSTANCE.exclude(context);
+			//lower cutoff
+			{
+				double minY = Math.max(context.bottomD, context.column.settings.height().minYAboveBedrock());
+				CaveCell cell = context.column.getCaveCell();
+				int topY = Math.min(BigGlobeMath.floorI(minY + cell.settings.lower_width()), context.topI - 1);
+				double rcpLowerWidth = 1.0D / cell.settings.lower_width();
+				for (int y = topY; y >= context.bottomI; y--) {
+					double above = (y - minY) * rcpLowerWidth;
+					context.excludeUnchecked(y, BigGlobeMath.squareD(1.0D - above));
+				}
+			}
+			//edge
+			{
+				int distance = context.column.settings.underground().caves().placement().distance;
+				double progress = context.caveCell.voronoiCell.progressToEdgeD(context.column.x, context.column.z);
+				for (int y = context.bottomI; y < context.topI; y++) {
+					double
+						width     = context.caveSettings.getWidth(context.topD, y),
+						threshold = 1.0D - width / (distance * 0.5D),
+						fraction  = Interpolator.unmixLinear(threshold, 1.0D, progress);
+					if (fraction > 0.0D) {
+						context.excludeUnchecked(y, BigGlobeMath.squareD(fraction));
+					}
+				}
+			}
+			//scripts
+			for (DataOverworldCaveOverrider.Holder overrider : this.caveOverriders) {
+				overrider.override(context);
+			}
 			column.populateCaveFloorsAndCeilings();
 		}
 	}
@@ -757,20 +785,22 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.getFinalTopHeightD();
 				column.getSnowHeight();
 				this.runHeightOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
+
+				column.getTemperature();
+				column.getFoliage();
+				this.runFoliageOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
+
 				if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 					column.getCaveCell();
 					column.getCaveNoise();
 					column.getCaveSurfaceDepth();
-					this.runCaveOverrides(column, structures, OverridePhase.RAW_TERRAIN);
+					this.runCaveOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
 
 					column.getCavernCell();
 					column.getCavernCenter();
 					column.getCavernThicknessSquared();
 					this.runCavernOverrides(column, structures, OverridePhase.RAW_TERRAIN);
 				}
-				column.getTemperature();
-				column.getFoliage();
-				this.runFoliageOverrides(column, scriptStructures, OverridePhase.RAW_TERRAIN);
 
 				column.getSkylandMinY();
 				column.getSkylandMaxY();
@@ -847,7 +877,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 						column.getCaveCell();
 						column.getCaveNoise();
 						column.getCaveSurfaceDepth();
-						this.runCaveOverrides(column, structures, OverridePhase.DECORATION);
+						this.runCaveOverrides(column, scriptStructures, OverridePhase.DECORATION);
 					}
 					column.getCavernCell();
 					column.getCavernCenter();

@@ -1,0 +1,28 @@
+{
+	"type": "bigglobe:overworld_cave_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (",
+					"(start.structure.type == StructureType('minecraft:jigsaw') && start.structure.generationStep == 'surface_structures') ||",
+					"start.structure.type == StructureType('bigglobe:campfire')",
+				":",
+					"for (StructurePiece piece in start.pieces:",
+						"double distance = distanceToSquare(piece)",
+						"double mixLevel = smooth(1.0L - distance * 0.125L)",
+						"excludeSurface(mixLevel)",
+					")",
+				")",
+				"else if (",
+					"start.structure.type == StructureType('minecraft:desert_pyramid') ||",
+					"start.structure.type == StructureType('bigglobe:bigger_desert_pyramid') ||",
+					"start.structure.type == StructureType('minecraft:woodland_mansion')",
+				":",
+					"double distance = distanceToSquare(start)",
+					"double mixLevel = smooth(1.0L - distance * 0.125L)",
+					"excludeSurface(mixLevel)",
+				")",
+			")"
+		]
+	}
+}

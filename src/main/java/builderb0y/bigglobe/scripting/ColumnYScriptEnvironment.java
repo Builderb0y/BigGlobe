@@ -30,24 +30,9 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 		BASE_COLUMN_TYPE  = type(Column.class),
 		WORLD_COLUMN_TYPE = type(WorldColumn.class);
 	public static final MethodInfo
-		GET_COLUMN_VALUE = method(
-			ACC_PUBLIC | ACC_STATIC,
-			ColumnYScriptEnvironment.class,
-			"getColumnValue",
-			ColumnValue.class,
-			MethodHandles.Lookup.class,
-			String.class,
-			Class.class,
-			String.class
-		),
-		COLUMN_GET_VALUE = method(
-			ACC_PUBLIC,
-			type(ColumnValue.class),
-			"getValue",
-			TypeInfos.DOUBLE,
-			WORLD_COLUMN_TYPE,
-			TypeInfos.DOUBLE
-		);
+		GET_COLUMN_VALUE = MethodInfo.getMethod(ColumnYScriptEnvironment.class, "getColumnValue"),
+		COLUMN_GET_VALUE = MethodInfo.getMethod(ColumnValue.class, "getValue"),
+		COLUMN_GET_VALUE_WITHOUT_Y = MethodInfo.getMethod(ColumnValue.class, "getValueWithoutY");
 	public static final FieldInfo
 		COLUMN_X_INFO = field(ACC_PUBLIC, BASE_COLUMN_TYPE, "x", TypeInfos.INT),
 		COLUMN_Z_INFO = field(ACC_PUBLIC, BASE_COLUMN_TYPE, "z", TypeInfos.INT);
@@ -105,13 +90,13 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 					yield this.loadZ();
 				}
 				default -> {
-					yield this.getValue(name) != null ? this.getColumnValue(name, this.loadY) : null;
+					yield this.getValue(name) != null ? this.makeColumnValueGetter(name, this.loadY) : null;
 				}
 			};
 		}
 		else {
 			ColumnValue<?> value = this.getValue(name);
-			return value != null && value != ColumnValue.Y ? this.getColumnValue(name, this.loadY) : null;
+			return value != null && value != ColumnValue.Y ? this.makeColumnValueGetter(name, this.loadY) : null;
 		}
 	}
 
@@ -119,21 +104,19 @@ public class ColumnYScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		if (this.getValue(name) != null) {
 			InsnTree castArgument = ScriptEnvironment.castArgument(parser, name, TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW, arguments);
-			return this.getColumnValue(name, castArgument);
+			return this.makeColumnValueGetter(name, castArgument);
 		}
 		return null;
 	}
 
-	public InsnTree getColumnValue(String id, InsnTree y) {
-		return invokeVirtual(
-			ldc(
-				GET_COLUMN_VALUE,
-				constant(id)
-			),
-			COLUMN_GET_VALUE,
-			this.loadColumn,
-			y
-		);
+	public InsnTree makeColumnValueGetter(String id, InsnTree y) {
+		InsnTree loadColumnValue = ldc(GET_COLUMN_VALUE, constant(id));
+		if (y != null) {
+			return invokeVirtual(loadColumnValue, COLUMN_GET_VALUE, this.loadColumn, y);
+		}
+		else {
+			return invokeVirtual(loadColumnValue, COLUMN_GET_VALUE_WITHOUT_Y, this.loadColumn);
+		}
 	}
 
 	@SuppressWarnings("unused")
