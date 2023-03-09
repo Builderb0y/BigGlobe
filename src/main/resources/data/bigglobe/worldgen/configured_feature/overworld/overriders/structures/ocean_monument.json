@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:overworld_structure_overrider",
+	"config": {
+		"script": [
+			"if (start.structure.type == StructureType('minecraft:ocean_monument'):",
+				"double fromY = start.minY",
+				"double toY = max(",
+					"`max_y`(start.minX, start.minZ),",
+					"`max_y`(start.minX, start.maxZ),",
+					"`max_y`(start.maxX, start.minZ),",
+					"`max_y`(start.maxX, start.maxZ)",
+				")",
+				"start.move(int(toY - fromY))",
+			")",
+			"return(true)"
+		]
+	}
+}

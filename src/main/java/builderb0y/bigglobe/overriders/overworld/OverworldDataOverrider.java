@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.overriders.overworld;
 
 import java.lang.reflect.Method;
-import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ObjectArrays;
 
@@ -14,10 +13,8 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.wrappers.*;
-import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
-import builderb0y.scripting.bytecode.CastingSupport.ConstantCaster;
-import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
+import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -29,11 +26,10 @@ import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.ReflectionData;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface DataOverrider extends Script {
+public interface OverworldDataOverrider extends Script {
 
 	public abstract void override(ScriptStructures structureStarts, OverworldColumn column, boolean rawGeneration);
 
@@ -93,12 +89,12 @@ public interface DataOverrider extends Script {
 		return _distanceToCircle(column, piece.getBoundingBox());
 	}
 
-	public static class Holder extends ScriptHolder<DataOverrider> implements DataOverrider {
+	public static class Holder extends ScriptHolder<OverworldDataOverrider> implements OverworldDataOverrider {
 
-		public Holder(ScriptParser<DataOverrider> parser) throws ScriptParsingException {
+		public Holder(ScriptParser<OverworldDataOverrider> parser) throws ScriptParsingException {
 			super(
 				parser
-				.addCastProvider(DataOverrider.Environment.CAST_PROVIDER)
+				.addCastProvider(StructureScriptEnvironment.CAST_PROVIDER)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(new ColumnYScriptEnvironment(load("column", 2, type(OverworldColumn.class)), null, true))
@@ -119,32 +115,8 @@ public interface DataOverrider extends Script {
 
 	public static class Environment extends MutableScriptEnvironment {
 
-		public static final CastProvider CAST_PROVIDER = (
-			new LookupCastProvider()
-			.append(TypeInfos.STRING, StructureEntry           .TYPE, true, new ConstantCaster(StructureEntry           .CONSTANT_FACTORY))
-			.append(TypeInfos.STRING, StructureTagKey          .TYPE, true, new ConstantCaster(StructureTagKey          .CONSTANT_FACTORY))
-			.append(TypeInfos.STRING, StructureTypeEntry       .TYPE, true, new ConstantCaster(StructureTypeEntry       .CONSTANT_FACTORY))
-			.append(TypeInfos.STRING, StructureTypeTagKey      .TYPE, true, new ConstantCaster(StructureTypeTagKey      .CONSTANT_FACTORY))
-			.append(TypeInfos.STRING, StructurePieceTypeWrapper.TYPE, true, new ConstantCaster(StructurePieceTypeWrapper.CONSTANT_FACTORY))
-		);
-
 		public Environment() {
-			this
-			.addType("StructureStart",     StructureStartWrapper    .TYPE)
-			.addType("StructurePiece",     StructurePieceWrapper    .TYPE)
-			.addType("Structure",          StructureEntry           .TYPE)
-			.addType("StructureTag",       StructureTagKey          .TYPE)
-			.addType("StructureType",      StructureTypeEntry       .TYPE)
-			.addType("StructureTypeTag",   StructureTypeTagKey      .TYPE)
-			.addType("StructurePieceType", StructurePieceTypeWrapper.TYPE)
-			.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "structure", "pieces")
-			.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
-			.addMethodInvoke(StructureEntry.class, "isIn")
-			.addFieldInvokes(StructureEntry.class, "type", "generationStep")
-			.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, RandomGenerator.class)
-			.addMethodInvoke(StructureTypeEntry.class, "isIn")
-			.addMethodInvokeSpecific(StructureTypeTagKey.class, "random", StructureTypeEntry.class, RandomGenerator.class)
-			;
+			this.addAll(StructureScriptEnvironment.INSTANCE);
 		}
 
 		public void addColumnFunction(InsnTree column, MethodInfo method) {
@@ -172,7 +144,7 @@ public interface DataOverrider extends Script {
 		}
 
 		public void addDistanceFunctions(InsnTree column) {
-			this.addMultiColumnFunctions(column, DataOverrider.class, "distanceToSquare", "distanceToCircle");
+			this.addMultiColumnFunctions(column, OverworldDataOverrider.class, "distanceToSquare", "distanceToCircle");
 		}
 	}
 }

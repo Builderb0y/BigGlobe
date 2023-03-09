@@ -6,7 +6,7 @@
 				"if (start.structure.type == StructureType('minecraft:jigsaw') && start.structure.generationStep == 'surface_structures':",
 					"for (StructurePiece piece in start.pieces:",
 						"if (piece.hasPreferredTerrainHeight:",
-							"int diameter = max(piece.maxX - piece.minX, piece.maxZ - piece.minZ) + 1",
+							"int diameter = max(piece.sizeX, piece.sizeZ) + 1",
 							"double radius = diameter * 0.5L",
 							"double distance = distanceToCircle(piece, radius)",
 							"double mixLevel = smooth(1.0 - distance / min(radius, 16.0L))",

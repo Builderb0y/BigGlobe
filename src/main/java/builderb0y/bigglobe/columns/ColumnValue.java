@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -51,15 +52,20 @@ public class ColumnValue<T_Column extends WorldColumn> {
 	};
 
 	public static @Nullable ColumnValue<?> get(String name) {
-		int colon = name.indexOf(':');
-		Identifier id;
-		if (colon >= 0) {
-			id = new Identifier(name.substring(0, colon), name.substring(colon + 1));
+		try {
+			int colon = name.indexOf(':');
+			Identifier id;
+			if (colon >= 0) {
+				id = new Identifier(name.substring(0, colon), name.substring(colon + 1));
+			}
+			else {
+				id = BigGlobeMod.modID(name);
+			}
+			return REGISTRY.get(id);
 		}
-		else {
-			id = BigGlobeMod.modID(name);
+		catch (InvalidIdentifierException ignored) {
+			return null;
 		}
-		return REGISTRY.get(id);
 	}
 
 	public static final ColumnValue<WorldColumn>

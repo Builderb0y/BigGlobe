@@ -34,29 +34,18 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 		return new StructureStartWrapper(entry, start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
 	}
 
-	public int minX() {
-		return this.box.getMinX();
-	}
-
-	public int minY() {
-		return this.box.getMinY();
-	}
-
-	public int minZ() {
-		return this.box.getMinZ();
-	}
-
-	public int maxX() {
-		return this.box.getMaxX();
-	}
-
-	public int maxY() {
-		return this.box.getMaxY();
-	}
-
-	public int maxZ() {
-		return this.box.getMaxZ();
-	}
+	public int minX() { return this.box.getMinX(); }
+	public int minY() { return this.box.getMinY(); }
+	public int minZ() { return this.box.getMinZ(); }
+	public int maxX() { return this.box.getMaxX(); }
+	public int maxY() { return this.box.getMaxY(); }
+	public int maxZ() { return this.box.getMaxZ(); }
+	public double midX() { return (this.box.getMinX() + this.box.getMaxX()) * 0.5D; }
+	public double midY() { return (this.box.getMinY() + this.box.getMaxY()) * 0.5D; }
+	public double midZ() { return (this.box.getMinZ() + this.box.getMaxZ()) * 0.5D; }
+	public int sizeX() { return this.box.getMaxX() - this.box.getMinX(); }
+	public int sizeY() { return this.box.getMaxY() - this.box.getMinY(); }
+	public int sizeZ() { return this.box.getMaxZ() - this.box.getMinZ(); }
 
 	public StructureEntry structure() {
 		return new StructureEntry(this.entry);

@@ -28,10 +28,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.registry.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -45,8 +42,6 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
-import net.minecraft.world.gen.structure.IglooStructure;
-import net.minecraft.world.gen.structure.OceanMonumentStructure;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
 
@@ -74,10 +69,7 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
-import builderb0y.bigglobe.features.overriders.CaveOverrideFeature;
-import builderb0y.bigglobe.features.overriders.CavernOverrideFeature;
-import builderb0y.bigglobe.features.overriders.FoliageOverrideFeature;
-import builderb0y.bigglobe.features.overriders.HeightOverrideFeature;
+import builderb0y.bigglobe.features.overriders.*;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -87,10 +79,7 @@ import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldCaveOverrider;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldCavernOverrider;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldFoliageOverrider;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldHeightOverrider;
+import builderb0y.bigglobe.overriders.overworld.*;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -130,10 +119,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient OverworldOreFeature.Config[] oreConfigs;
 	public final transient LinkedFlowerConfig[] flowerGroups;
 	public final transient LinkedRockLayerConfig[] rockLayers;
-	public final transient DataOverworldHeightOverrider.Holder[] heightOverriders;
-	public final transient DataOverworldFoliageOverrider.Holder[] foliageOverriders;
-	public final transient DataOverworldCaveOverrider.Holder[] caveOverriders;
-	public final transient DataOverworldCavernOverrider.Holder[] cavernOverriders;
+	public final transient OverworldHeightOverrider.Holder[] heightOverriders;
+	public final transient OverworldFoliageOverrider.Holder[] foliageOverriders;
+	public final transient OverworldCaveOverrider.Holder[] caveOverriders;
+	public final transient OverworldCavernOverrider.Holder[] cavernOverriders;
+	public final transient OverworldStructureOverrider.Holder[] structureOverriders;
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
@@ -170,17 +160,21 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
 		Map<Class<?>, List<DummyConfig>> sortedFeatures = (
 			configuredFeatures
+			.getEntrySet()
 			.stream()
+			.sorted(Map.Entry.comparingByKey(Comparator.comparing(RegistryKey::getValue)))
+			.map(Map.Entry::getValue)
 			.map(ConfiguredFeature::config)
 			.filter(DummyConfig.class::isInstance)
 			.map(DummyConfig.class::cast)
 			.collect(Collectors.groupingBy(Object::getClass))
 		);
-		this.       oreConfigs = sortedFeatures.getOrDefault(OverworldOreFeature.Config.class, Collections.emptyList()).toArray(new OverworldOreFeature.Config[0]);
-		this. heightOverriders = filterFeatures(sortedFeatures, HeightOverrideFeature.Config.class, config -> config.script, DataOverworldHeightOverrider.Holder[]::new);
-		this.foliageOverriders = filterFeatures(sortedFeatures, FoliageOverrideFeature.Config.class, config -> config.script, DataOverworldFoliageOverrider.Holder[]::new);
-		this.   caveOverriders = filterFeatures(sortedFeatures, CaveOverrideFeature.Config.class, config -> config.script, DataOverworldCaveOverrider.Holder[]::new);
-		this. cavernOverriders = filterFeatures(sortedFeatures, CavernOverrideFeature.Config.class, config -> config.script, DataOverworldCavernOverrider.Holder[]::new);
+		this.         oreConfigs = sortedFeatures.getOrDefault(                   OverworldOreFeature.Config.class, Collections.emptyList()).toArray(new OverworldOreFeature.Config[0]);
+		this.   heightOverriders = filterFeatures(sortedFeatures,    HeightOverrideFeature.Config.class, config -> config.script,    OverworldHeightOverrider.Holder[]::new);
+		this.  foliageOverriders = filterFeatures(sortedFeatures,   FoliageOverrideFeature.Config.class, config -> config.script,   OverworldFoliageOverrider.Holder[]::new);
+		this.     caveOverriders = filterFeatures(sortedFeatures,      CaveOverrideFeature.Config.class, config -> config.script,      OverworldCaveOverrider.Holder[]::new);
+		this.   cavernOverriders = filterFeatures(sortedFeatures,    CavernOverrideFeature.Config.class, config -> config.script,    OverworldCavernOverrider.Holder[]::new);
+		this.structureOverriders = filterFeatures(sortedFeatures, StructureOverrideFeature.Config.class, config -> config.script, OverworldStructureOverrider.Holder[]::new);
 	}
 
 	public static <C extends DummyConfig, H extends ScriptHolder<?>> H[] filterFeatures(
@@ -711,22 +705,22 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 		}
 		column.populateInLake(lakePiece);
-		for (DataOverworldHeightOverrider.Holder overrider : this.heightOverriders) {
+		for (OverworldHeightOverrider.Holder overrider : this.heightOverriders) {
 			overrider.override(structures, column, rawTerrain);
 		}
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures, boolean rawTerrain) {
 		column.foliage *= 1.0D - column.getInLake();
-		for (DataOverworldFoliageOverrider.Holder overrider : this.foliageOverriders) {
+		for (OverworldFoliageOverrider.Holder overrider : this.foliageOverriders) {
 			overrider.override(structures, column, rawTerrain);
 		}
 	}
 
 	public void runCaveOverrides(OverworldColumn column, ScriptStructures structures, boolean rawTerrain) {
 		if (this.settings.underground().hasCaves()) {
-			DataOverworldCaveOverrider.Context context = (
-				new DataOverworldCaveOverrider.Context(structures, column, rawTerrain)
+			OverworldCaveOverrider.Context context = (
+				new OverworldCaveOverrider.Context(structures, column, rawTerrain)
 			);
 			//lower cutoff
 			{
@@ -754,7 +748,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 			//scripts
-			for (DataOverworldCaveOverrider.Holder overrider : this.caveOverriders) {
+			for (OverworldCaveOverrider.Holder overrider : this.caveOverriders) {
 				overrider.override(context);
 			}
 			column.populateCaveFloorsAndCeilings();
@@ -763,7 +757,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void runCavernOverrides(OverworldColumn column, ScriptStructures structures, boolean rawTerrain) {
 		if (this.settings.underground().hasCaverns()) {
-			for (DataOverworldCavernOverrider.Holder overrider : this.cavernOverriders) {
+			for (OverworldCavernOverrider.Holder overrider : this.cavernOverriders) {
 				overrider.override(structures, column, rawTerrain);
 			}
 		}
@@ -1178,6 +1172,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				if (wrongBiome(validBiomes, column, box.getMaxX(), z)) return false;
 			}
 		}
+		/*
 		if (start.getStructure() instanceof OceanMonumentStructure) {
 			BlockBox box = start.getBoundingBox();
 			int desiredY = max4(
@@ -1207,6 +1202,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			double cavernCenter = column.getCavernCenter();
 			if (Double.isNaN(cavernCenter)) return false;
 			moveStructure(start, 0, BigGlobeMath.floorI(cavernCenter) - center.getY(), 0);
+		}
+		*/
+		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
+		for (OverworldStructureOverrider.Holder overrider : this.structureOverriders) {
+			if (!overrider.override(wrapper, column)) {
+				return false;
+			}
 		}
 		//expand structure bounding boxes so that overriders
 		//which depend on them being expanded work properly.

@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.DummyFeature;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldCaveOverrider;
-import builderb0y.bigglobe.overriders.overworld.DataOverworldCaveOverrider.Holder;
+import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider;
+import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider.Holder;
 
 public class CaveOverrideFeature extends DummyFeature<CaveOverrideFeature.Config> {
 
@@ -19,7 +19,7 @@ public class CaveOverrideFeature extends DummyFeature<CaveOverrideFeature.Config
 
 	public static class Config extends DummyConfig {
 
-		public final DataOverworldCaveOverrider.Holder script;
+		public final OverworldCaveOverrider.Holder script;
 
 		public Config(Holder script) {
 			this.script = script;

@@ -11,20 +11,20 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class DataOverworldHeightOverrider {
+public class OverworldHeightOverrider {
 
 	@Wrapper
-	public static class Holder extends DataOverrider.Holder {
+	public static class Holder extends OverworldDataOverrider.Holder {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(DataOverrider.class, script)
-				.addEnvironment(DataOverworldHeightOverrider.Environment.INSTANCE)
+				new ScriptParser<>(OverworldDataOverrider.class, script)
+				.addEnvironment(OverworldHeightOverrider.Environment.INSTANCE)
 			);
 		}
 	}
 
-	public static class Environment extends DataOverrider.Environment {
+	public static class Environment extends OverworldDataOverrider.Environment {
 
 		public static final Environment INSTANCE = new Environment();
 

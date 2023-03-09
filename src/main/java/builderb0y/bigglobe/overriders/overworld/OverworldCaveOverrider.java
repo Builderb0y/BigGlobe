@@ -14,6 +14,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -27,18 +28,18 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface DataOverworldCaveOverrider extends Script {
+public interface OverworldCaveOverrider extends Script {
 
 	public abstract void override(Context context);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<DataOverworldCaveOverrider> implements DataOverworldCaveOverrider {
+	public static class Holder extends ScriptHolder<OverworldCaveOverrider> implements OverworldCaveOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(DataOverworldCaveOverrider.class, script)
-				.addEnvironment(DataOverworldCaveOverrider.Environment.INSTANCE)
-				.addCastProvider(DataOverrider.Environment.CAST_PROVIDER)
+				new ScriptParser<>(OverworldCaveOverrider.class, script)
+				.addEnvironment(OverworldCaveOverrider.Environment.INSTANCE)
+				.addCastProvider(StructureScriptEnvironment.CAST_PROVIDER)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
@@ -66,7 +67,7 @@ public interface DataOverworldCaveOverrider extends Script {
 		}
 	}
 
-	public static class Environment extends DataOverrider.Environment {
+	public static class Environment extends OverworldDataOverrider.Environment {
 
 		public static final Environment INSTANCE = new Environment();
 
