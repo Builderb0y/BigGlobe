@@ -12,7 +12,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.Wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 
 public class EvaluateCommand {
 

@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
-import builderb0y.bigglobe.scripting.Wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;

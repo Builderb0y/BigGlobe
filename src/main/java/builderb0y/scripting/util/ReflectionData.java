@@ -2,6 +2,7 @@ package builderb0y.scripting.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
@@ -9,10 +10,10 @@ import java.util.stream.Collectors;
 
 public class ReflectionData {
 
-	public static final ClassValue<ReflectionData> LOOKUP = new ClassValue<ReflectionData>() {
+	public static final ClassValue<ReflectionData> LOOKUP = new ClassValue<>() {
 
 		@Override
-		protected ReflectionData computeValue(Class<?> type) {
+		public ReflectionData computeValue(Class<?> type) {
 			return new ReflectionData(type);
 		}
 	};
@@ -25,17 +26,33 @@ public class ReflectionData {
 	public final Map<String, List<Method>> declaredMethodsByName, derivedMethodsByName;
 
 	public ReflectionData(Class<?> clazz) {
-		this.clazz = clazz;
-		this.declaredFields = Arrays.asList(clazz.getDeclaredFields());
-		this.declaredMethods = Arrays.asList(clazz.getDeclaredMethods());
-		this.constructors = Arrays.asList(clazz.getDeclaredConstructors());
-		this.declaredFieldsByName = this.declaredFields.stream().collect(Collectors.groupingBy(Field::getName));
-		this.declaredMethodsByName = this.declaredMethods.stream().collect(Collectors.groupingBy(Method::getName));
-		this.derivedFields = new ArrayList<>(16);
-		this.derivedMethods = new ArrayList<>(64);
-		this.derivedFieldsByName = new HashMap<>(16);
-		this.derivedMethodsByName = new HashMap<>(64);
+		this.clazz                 = clazz;
+		this.declaredFields        = Arrays.asList(clazz.getDeclaredFields());
+		this.declaredMethods       = Arrays.asList(clazz.getDeclaredMethods());
+		this.constructors          = Arrays.asList(clazz.getDeclaredConstructors());
+		this.declaredFieldsByName  = collectMembers(this.declaredFields);
+		this.declaredMethodsByName = collectMembers(this.declaredMethods);
+		this.derivedFields         = new ArrayList<>(16);
+		this.derivedMethods        = new ArrayList<>(64);
+		this.derivedFieldsByName   = new HashMap<>(16);
+		this.derivedMethodsByName  = new HashMap<>(64);
 		this.recursiveAddDerived(this, new HashSet<>(16));
+	}
+
+	/**
+	equivalent to: {@code
+		list.stream().collect(Collectors.groupingBy(M::getName))
+	},
+	but I can't use the above code because that generates unordered lists.
+	in other words, the members are added to the map in a different order
+	than they were in the input list.
+	*/
+	public static <M extends Member> Map<String, List<M>> collectMembers(List<M> list) {
+		Map<String, List<M>> map = new HashMap<>(list.size());
+		for (M member : list) {
+			map.computeIfAbsent(member.getName(), $ -> new ArrayList<>(4)).add(member);
+		}
+		return map;
 	}
 
 	public static ReflectionData forClass(Class<?> clazz) {

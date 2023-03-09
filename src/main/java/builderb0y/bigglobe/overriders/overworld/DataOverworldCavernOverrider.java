@@ -8,7 +8,7 @@ import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

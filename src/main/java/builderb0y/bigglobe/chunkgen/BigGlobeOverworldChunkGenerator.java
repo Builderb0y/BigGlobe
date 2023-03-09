@@ -93,7 +93,7 @@ import builderb0y.bigglobe.overriders.overworld.DataOverworldHeightOverrider;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSettings;
 import builderb0y.bigglobe.settings.OverworldSettings.OverworldSurfaceSettings.OverworldSurfaceBlocks;

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.overriders.overworld;
 
 import java.lang.reflect.Method;
+import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ObjectArrays;
 
@@ -13,7 +14,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.Wrappers.*;
+import builderb0y.bigglobe.scripting.wrappers.*;
 import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
 import builderb0y.scripting.bytecode.CastingSupport.ConstantCaster;
 import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
@@ -122,7 +123,7 @@ public interface DataOverrider extends Script {
 			new LookupCastProvider()
 			.append(TypeInfos.STRING, StructureEntry           .TYPE, true, new ConstantCaster(StructureEntry           .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructureTagKey          .TYPE, true, new ConstantCaster(StructureTagKey          .CONSTANT_FACTORY))
-			.append(TypeInfos.STRING, StructureTypeWrapper     .TYPE, true, new ConstantCaster(StructureTypeWrapper     .CONSTANT_FACTORY))
+			.append(TypeInfos.STRING, StructureTypeEntry       .TYPE, true, new ConstantCaster(StructureTypeEntry       .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructureTypeTagKey      .TYPE, true, new ConstantCaster(StructureTypeTagKey      .CONSTANT_FACTORY))
 			.append(TypeInfos.STRING, StructurePieceTypeWrapper.TYPE, true, new ConstantCaster(StructurePieceTypeWrapper.CONSTANT_FACTORY))
 		);
@@ -133,13 +134,16 @@ public interface DataOverrider extends Script {
 			.addType("StructurePiece",     StructurePieceWrapper    .TYPE)
 			.addType("Structure",          StructureEntry           .TYPE)
 			.addType("StructureTag",       StructureTagKey          .TYPE)
-			.addType("StructureType",      StructureTypeWrapper     .TYPE)
+			.addType("StructureType",      StructureTypeEntry       .TYPE)
 			.addType("StructureTypeTag",   StructureTypeTagKey      .TYPE)
 			.addType("StructurePieceType", StructurePieceTypeWrapper.TYPE)
 			.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "structure", "pieces")
 			.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
 			.addMethodInvoke(StructureEntry.class, "isIn")
 			.addFieldInvokes(StructureEntry.class, "type", "generationStep")
+			.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, RandomGenerator.class)
+			.addMethodInvoke(StructureTypeEntry.class, "isIn")
+			.addMethodInvokeSpecific(StructureTypeTagKey.class, "random", StructureTypeEntry.class, RandomGenerator.class)
 			;
 		}
 

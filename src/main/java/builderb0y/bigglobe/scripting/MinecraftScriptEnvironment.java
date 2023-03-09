@@ -5,7 +5,7 @@ import java.util.random.RandomGenerator;
 import net.minecraft.block.Block;
 
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.Wrappers.*;
+import builderb0y.bigglobe.scripting.wrappers.*;
 import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
 import builderb0y.scripting.bytecode.CastingSupport.ConstantCaster;
 import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
@@ -24,11 +24,11 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 	public static final CastProvider CAST_PROVIDER = (
 		new LookupCastProvider()
 
-		.append(TypeInfos.STRING, BlockTagKey            .TYPE, true, new ConstantCaster(BlockTagKey            .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockWrapper           .TYPE, true, new ConstantCaster(BlockWrapper           .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockStateWrapper      .TYPE, true, new ConstantCaster(BlockStateWrapper      .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeEntry             .TYPE, true, new ConstantCaster(BiomeEntry             .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeTagKey            .TYPE, true, new ConstantCaster(BiomeTagKey            .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockTagKey.TYPE, true, new ConstantCaster(BlockTagKey            .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockWrapper.TYPE, true, new ConstantCaster(BlockWrapper           .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BlockStateWrapper.TYPE, true, new ConstantCaster(BlockStateWrapper      .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BiomeEntry.TYPE, true, new ConstantCaster(BiomeEntry             .CONSTANT_FACTORY))
+		.append(TypeInfos.STRING, BiomeTagKey.TYPE, true, new ConstantCaster(BiomeTagKey            .CONSTANT_FACTORY))
 		.append(TypeInfos.STRING, ConfiguredFeatureEntry .TYPE, true, new ConstantCaster(ConfiguredFeatureEntry .CONSTANT_FACTORY))
 		.append(TypeInfos.STRING, ConfiguredFeatureTagKey.TYPE, true, new ConstantCaster(ConfiguredFeatureTagKey.CONSTANT_FACTORY))
 	);

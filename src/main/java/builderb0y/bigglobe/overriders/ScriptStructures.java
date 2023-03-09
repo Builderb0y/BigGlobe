@@ -13,7 +13,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.scripting.Wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.LakeStructure;
 
 public class ScriptStructures extends AbstractList<StructureStartWrapper> {
