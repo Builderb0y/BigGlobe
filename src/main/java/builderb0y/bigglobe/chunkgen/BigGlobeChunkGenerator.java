@@ -452,6 +452,102 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		}
 	}
 
+	public class StructureFinder {
+
+		public final ServerWorld world;
+		public final StructureAccessor structureAccessor;
+		public final NoiseConfig noiseConfig;
+		public final RegistryEntryList<Structure> structures;
+		public final boolean skipReferencedStructures;
+
+		public int chunkX;
+		public int chunkZ;
+		public RegistryEntry<Structure> structure;
+
+		public StructureFinder(ServerWorld world, RegistryEntryList<Structure> structures, boolean skipReferencedStructures) {
+			this.world = world;
+			this.structureAccessor = world.getStructureAccessor();
+			this.noiseConfig = world.getChunkManager().getNoiseConfig();
+			this.structures = structures;
+			this.skipReferencedStructures = skipReferencedStructures;
+		}
+
+		public boolean tryStrongholds(int centerChunkX, int centerChunkZ) {
+			int distance = Integer.MAX_VALUE;
+			for (RegistryEntry<Structure> structure : this.structures) {
+				List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, this.noiseConfig);
+				for (StructurePlacement placement : placements) {
+					if (placement instanceof ConcentricRingsStructurePlacement concentric) {
+						List<ChunkPos> positions = BigGlobeChunkGenerator.this.getConcentricRingsStartChunks(concentric, this.noiseConfig);
+						if (positions != null) for (ChunkPos pos : positions) {
+							int newDistance = BigGlobeMath.squareI(pos.x - centerChunkX, pos.z - centerChunkZ);
+							if (newDistance < distance) {
+								distance = newDistance;
+								this.chunkX = pos.x;
+								this.chunkZ = pos.z;
+								this.structure = structure;
+							}
+						}
+					}
+				}
+			}
+			return this.structure != null;
+		}
+
+		public static boolean checkNotReferenced(StructureAccessor accessor, StructureStart start) {
+			//match logic from ChunkGenerator.checkNotReferenced().
+			if (start.isNeverReferenced()) {
+				accessor.incrementReferences(start);
+				return true;
+			}
+			return false;
+		}
+
+		public boolean canPossiblyGenerate(int chunkX, int chunkZ, RegistryEntry<Structure> structure) {
+			List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, this.noiseConfig);
+			for (StructurePlacement placement : placements) {
+				if (placement.shouldGenerate(BigGlobeChunkGenerator.this, this.noiseConfig, this.world.getSeed(), chunkX, chunkZ)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public boolean update(int chunkX, int chunkZ) {
+			if (this.structure == null) {
+				for (RegistryEntry<Structure> structure : this.structures) {
+					if (this.canPossiblyGenerate(chunkX, chunkZ, structure)) {
+						//match logic from ChunkGenerator.locateStructure().
+						StructurePresence presence = this.structureAccessor.getStructurePresence(new ChunkPos(chunkX, chunkZ), structure.value(), this.skipReferencedStructures);
+						if (presence == StructurePresence.START_NOT_PRESENT) continue;
+						if (!this.skipReferencedStructures && presence == StructurePresence.START_PRESENT) {
+							this.chunkX = chunkX;
+							this.chunkZ = chunkZ;
+							this.structure = structure;
+							break;
+						}
+						Chunk chunk = this.world.getChunk(chunkX, chunkZ, ChunkStatus.STRUCTURE_STARTS);
+						StructureStart start = this.structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), structure.value(), chunk);
+						if (start == null || !start.hasChildren() || this.skipReferencedStructures && !checkNotReferenced(this.structureAccessor, start)) continue;
+						this.chunkX = chunkX;
+						this.chunkZ = chunkZ;
+						this.structure = structure;
+						break;
+					}
+				}
+			}
+			return this.structure != null;
+		}
+
+		public Pair<BlockPos, RegistryEntry<Structure>> toPair() {
+			return Pair.of(new BlockPos((this.chunkX << 4) | 8, 0, (this.chunkZ << 4) | 8), this.structure);
+		}
+	}
+
+	public StructureFinder structureFinder(ServerWorld world, RegistryEntryList<Structure> structures, boolean skipReferencedStructures) {
+		return this.new StructureFinder(world, structures, skipReferencedStructures);
+	}
+
 	@Nullable
 	@Override
 	public Pair<BlockPos, RegistryEntry<Structure>> locateStructure(
@@ -464,109 +560,30 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		if (structures.size() == 0) {
 			return null;
 		}
-		StructureAccessor structureAccessor = world.getStructureAccessor();
-		NoiseConfig noiseConfig = world.getChunkManager().getNoiseConfig();
 		int centerChunkX = center.getX() >> 4;
 		int centerChunkZ = center.getZ() >> 4;
-		class Helper {
-
-			public int chunkX;
-			public int chunkZ;
-			public RegistryEntry<Structure> structure;
-
-			public boolean tryStrongholds() {
-				int distance = Integer.MAX_VALUE;
-				for (RegistryEntry<Structure> structure : structures) {
-					List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, noiseConfig);
-					for (StructurePlacement placement : placements) {
-						if (placement instanceof ConcentricRingsStructurePlacement concentric) {
-							List<ChunkPos> positions = BigGlobeChunkGenerator.this.getConcentricRingsStartChunks(concentric, noiseConfig);
-							if (positions != null) for (ChunkPos pos : positions) {
-								int newDistance = BigGlobeMath.squareI(pos.x - centerChunkX, pos.z - centerChunkZ);
-								if (newDistance < distance) {
-									distance = newDistance;
-									this.chunkX = pos.x;
-									this.chunkZ = pos.z;
-									this.structure = structure;
-								}
-							}
-						}
-					}
-				}
-				return this.structure != null;
-			}
-
-			public static boolean checkNotReferenced(StructureAccessor accessor, StructureStart start) {
-				//match logic from ChunkGenerator.checkNotReferenced().
-				if (start.isNeverReferenced()) {
-					accessor.incrementReferences(start);
-					return true;
-				}
-				return false;
-			}
-
-			public boolean canPossiblyGenerate(int x, int z, RegistryEntry<Structure> structure) {
-				List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, noiseConfig);
-				for (StructurePlacement placement : placements) {
-					if (placement.shouldGenerate(BigGlobeChunkGenerator.this, noiseConfig, world.getSeed(), x, z)) {
-						return true;
-					}
-				}
-				return false;
-			}
-
-			public boolean update(int x, int z) {
-				if (this.structure == null) {
-					for (RegistryEntry<Structure> structure : structures) {
-						if (this.canPossiblyGenerate(x, z, structure)) {
-							//match logic from ChunkGenerator.locateStructure().
-							StructurePresence presence = structureAccessor.getStructurePresence(new ChunkPos(x, z), structure.value(), skipReferencedStructures);
-							if (presence == StructurePresence.START_NOT_PRESENT) continue;
-							if (!skipReferencedStructures && presence == StructurePresence.START_PRESENT) {
-								this.chunkX = x;
-								this.chunkZ = z;
-								this.structure = structure;
-								break;
-							}
-							Chunk chunk = world.getChunk(x, z, ChunkStatus.STRUCTURE_STARTS);
-							StructureStart start = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), structure.value(), chunk);
-							if (start == null || !start.hasChildren() || skipReferencedStructures && !checkNotReferenced(structureAccessor, start)) continue;
-							this.chunkX = x;
-							this.chunkZ = z;
-							this.structure = structure;
-							break;
-						}
-					}
-				}
-				return this.structure != null;
-			}
-
-			public Pair<BlockPos, RegistryEntry<Structure>> toPair() {
-				return Pair.of(new BlockPos((this.chunkX << 4) | 8, 0, (this.chunkZ << 4) | 8), this.structure);
-			}
-		}
-		Helper helper = new Helper();
-		if (helper.tryStrongholds()) return helper.toPair();
-		if (helper.update(centerChunkX, centerChunkZ)) return helper.toPair();
+		StructureFinder finder = this.structureFinder(world, structures, skipReferencedStructures);
+		if (finder.tryStrongholds(centerChunkX, centerChunkZ)) return finder.toPair();
+		if (finder.update(centerChunkX, centerChunkZ)) return finder.toPair();
 		for (int radius = 1; radius <= maxRadius; radius++) {
-			if (helper.update(centerChunkX + radius, centerChunkZ)) return helper.toPair();
-			if (helper.update(centerChunkX - radius, centerChunkZ)) return helper.toPair();
-			if (helper.update(centerChunkX, centerChunkZ + radius)) return helper.toPair();
-			if (helper.update(centerChunkX, centerChunkZ - radius)) return helper.toPair();
+			if (finder.update(centerChunkX + radius, centerChunkZ)) return finder.toPair();
+			if (finder.update(centerChunkX - radius, centerChunkZ)) return finder.toPair();
+			if (finder.update(centerChunkX, centerChunkZ + radius)) return finder.toPair();
+			if (finder.update(centerChunkX, centerChunkZ - radius)) return finder.toPair();
 			for (int outwards = 1; outwards < radius; outwards++) {
-				if (helper.update(centerChunkX + radius, centerChunkZ + outwards)) return helper.toPair();
-				if (helper.update(centerChunkX + radius, centerChunkZ - outwards)) return helper.toPair();
-				if (helper.update(centerChunkX - radius, centerChunkZ + outwards)) return helper.toPair();
-				if (helper.update(centerChunkX - radius, centerChunkZ - outwards)) return helper.toPair();
-				if (helper.update(centerChunkX + outwards, centerChunkZ + radius)) return helper.toPair();
-				if (helper.update(centerChunkX - outwards, centerChunkZ + radius)) return helper.toPair();
-				if (helper.update(centerChunkX + outwards, centerChunkZ - radius)) return helper.toPair();
-				if (helper.update(centerChunkX - outwards, centerChunkZ - radius)) return helper.toPair();
+				if (finder.update(centerChunkX + radius, centerChunkZ + outwards)) return finder.toPair();
+				if (finder.update(centerChunkX + radius, centerChunkZ - outwards)) return finder.toPair();
+				if (finder.update(centerChunkX - radius, centerChunkZ + outwards)) return finder.toPair();
+				if (finder.update(centerChunkX - radius, centerChunkZ - outwards)) return finder.toPair();
+				if (finder.update(centerChunkX + outwards, centerChunkZ + radius)) return finder.toPair();
+				if (finder.update(centerChunkX - outwards, centerChunkZ + radius)) return finder.toPair();
+				if (finder.update(centerChunkX + outwards, centerChunkZ - radius)) return finder.toPair();
+				if (finder.update(centerChunkX - outwards, centerChunkZ - radius)) return finder.toPair();
 			}
-			if (helper.update(centerChunkX + radius, centerChunkZ + radius)) return helper.toPair();
-			if (helper.update(centerChunkX + radius, centerChunkZ - radius)) return helper.toPair();
-			if (helper.update(centerChunkX - radius, centerChunkZ + radius)) return helper.toPair();
-			if (helper.update(centerChunkX - radius, centerChunkZ - radius)) return helper.toPair();
+			if (finder.update(centerChunkX + radius, centerChunkZ + radius)) return finder.toPair();
+			if (finder.update(centerChunkX + radius, centerChunkZ - radius)) return finder.toPair();
+			if (finder.update(centerChunkX - radius, centerChunkZ + radius)) return finder.toPair();
+			if (finder.update(centerChunkX - radius, centerChunkZ - radius)) return finder.toPair();
 		}
 		return null;
 	}

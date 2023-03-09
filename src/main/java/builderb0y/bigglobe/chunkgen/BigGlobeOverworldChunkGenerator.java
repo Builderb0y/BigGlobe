@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
@@ -1071,6 +1072,44 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		else {
 			SingleBlockFeature.place(world, pos.setY(flowerY), permuter, patch.state);
 		}
+	}
+
+	public class OverworldStructureFinder extends StructureFinder {
+
+		public OverworldColumn ancientCityColumn;
+
+		public OverworldStructureFinder(ServerWorld world, RegistryEntryList<Structure> structures, boolean skipReferencedStructures) {
+			super(world, structures, skipReferencedStructures);
+		}
+
+		@Override
+		public boolean canPossiblyGenerate(int chunkX, int chunkZ, RegistryEntry<Structure> structure) {
+			if (structure.getKey().orElseThrow() == StructureKeys.ANCIENT_CITY) {
+				OverworldCavernSettings cavernSettings = BigGlobeOverworldChunkGenerator.this.settings.underground().deep_caverns();
+				if (cavernSettings != null) {
+					VoronoiDiagram2D placement = cavernSettings.placement();
+					int distance = placement.distance;
+					int cellX = Math.floorDiv(chunkX << 4, distance);
+					int cellZ = Math.floorDiv(chunkZ << 4, distance);
+					int centerX = placement.getCenterX(cellX, cellZ);
+					int centerZ = placement.getCenterZ(cellX, cellZ);
+					if (centerX >> 4 == chunkX && centerZ >> 4 == chunkZ) {
+						OverworldColumn column = this.ancientCityColumn;
+						if (column == null) column = BigGlobeOverworldChunkGenerator.this.column(centerX, centerZ);
+						if (column.getCavernCell().settings.has_ancient_cities()) {
+							return true;
+						}
+					}
+				}
+
+			}
+			return super.canPossiblyGenerate(chunkX, chunkZ, structure);
+		}
+	}
+
+	@Override
+	public StructureFinder structureFinder(ServerWorld world, RegistryEntryList<Structure> structures, boolean skipReferencedStructures) {
+		return this.new OverworldStructureFinder(world, structures, skipReferencedStructures);
 	}
 
 	@Override
