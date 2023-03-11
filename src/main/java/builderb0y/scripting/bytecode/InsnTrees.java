@@ -206,10 +206,6 @@ public class InsnTrees implements ExtendedOpcodes {
 		return InstanceOfInsnTree.create(operand, type);
 	}
 
-	public static InsnTree automaticCast(InsnTree value) {
-		return new AutomaticCastInsnTree(value);
-	}
-
 	public static InsnTree neg(InsnTree value) {
 		return NegateInsnTree.create(value);
 	}

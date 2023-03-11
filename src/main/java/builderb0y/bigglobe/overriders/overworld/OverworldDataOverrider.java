@@ -123,7 +123,7 @@ public interface OverworldDataOverrider extends Script {
 			this.addFunction(method.name, (parser, name, arguments) -> {
 				InsnTree[] prefixedArguments = ObjectArrays.concat(column, arguments);
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, prefixedArguments);
-				return castArguments == null ? null : invokeStatic(method, castArguments);
+				return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != prefixedArguments);
 			});
 		}
 

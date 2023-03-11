@@ -36,7 +36,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
 		.addFunction("mod", (parser, name, arguments) -> {
 			ScriptEnvironment.checkArgumentCount(parser, name, 2, arguments);
-			return mod(parser, arguments[0], arguments[1]);
+			return new CastResult(mod(parser, arguments[0], arguments[1]), false);
 		})
 		.addFunction("isNaN", createNaN(true))
 		.addFunction("isNotNaN", createNaN(false))
@@ -54,10 +54,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return (parser, name, arguments) -> {
 			ScriptEnvironment.checkArgumentCount(parser, name, 1, arguments);
 			if (arguments[0].getTypeInfo().isFloat()) {
-				return bool(new NaNConditionTree(arguments[0], nan));
+				return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
 			}
 			else {
-				throw new ScriptParsingException(name + "() requires a float or double as an argument", parser.input);
+				return null;
 			}
 		};
 	}
@@ -66,12 +66,15 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return (parser, name, arguments) -> {
 			if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
-			return new ReduceInsnTree(
-				method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(Math.class), name, type, type, type),
-				Arrays.stream(arguments).map(argument -> {
-					return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
-				})
-				.toArray(InsnTree[]::new)
+			return new CastResult(
+				new ReduceInsnTree(
+					method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(Math.class), name, type, type, type),
+					Arrays.stream(arguments).map(argument -> {
+						return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
+					})
+					.toArray(InsnTree[]::new)
+				),
+				false
 			);
 		};
 	}

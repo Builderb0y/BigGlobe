@@ -35,11 +35,13 @@ public class RandomScriptEnvironment extends MutableScriptEnvironment {
 		.addQualifiedFunction(type(RandomGenerator.class), "new", (parser, name, arguments) -> {
 			if (arguments.length == 0) throw new ScriptParsingException("Random.new() requires a seed.", parser.input);
 			InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW);
+			boolean needCasting = seed != arguments[0];
 			for (int index = 1, length = arguments.length; index < length; index++) {
 				InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+				needCasting |= next != arguments[index];
 				seed = invokeStatic(PERMUTE_INT, seed, next);
 			}
-			return newInstance(CONSTRUCTOR, seed);
+			return new CastResult(newInstance(CONSTRUCTOR, seed), needCasting);
 		})
 		.addMethodInvoke(RandomGenerator.class, "nextBoolean")
 		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
@@ -65,14 +67,17 @@ public class RandomScriptEnvironment extends MutableScriptEnvironment {
 					)
 				)
 			);
-			return switch_(
-				parser,
-				invokeInterface(
-					loader,
-					NEXT_INT_1,
-					ldc(arguments.length)
+			return new CastResult(
+				switch_(
+					parser,
+					invokeInterface(
+						loader,
+						NEXT_INT_1,
+						ldc(arguments.length)
+					),
+					cases
 				),
-				cases
+				false
 			);
 		})
 		.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)

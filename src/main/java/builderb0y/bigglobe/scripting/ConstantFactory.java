@@ -7,6 +7,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -25,23 +26,23 @@ public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler
 	}
 
 	@Override
-	public InsnTree create(ExpressionParser parser, String name, InsnTree[] arguments) throws ScriptParsingException {
+	public CastResult create(ExpressionParser parser, String name, InsnTree[] arguments) throws ScriptParsingException {
 		ScriptEnvironment.checkArgumentCount(parser, name, 1, arguments);
 		return this.create(parser, name, arguments[0]);
 	}
 
-	public InsnTree create(ExpressionParser parser, String name, InsnTree argument) {
+	public CastResult create(ExpressionParser parser, String name, InsnTree argument) {
 		if (argument.getTypeInfo().simpleEquals(this.variableMethod.paramTypes[0])) {
 			if (argument.getConstantValue().isConstant()) {
-				return ldc(this.constantMethod, argument.getConstantValue());
+				return new CastResult(ldc(this.constantMethod, argument.getConstantValue()), true);
 			}
 			else {
 				ScriptLogger.LOGGER.warn("", new ScriptParsingException("Non-constant String input for " + name + "(). This will be worse on performance", parser.input));
-				return invokeStatic(this.variableMethod, argument);
+				return new CastResult(invokeStatic(this.variableMethod, argument), true);
 			}
 		}
 		else if (argument.getTypeInfo().simpleEquals(this.type)) {
-			return argument;
+			return new CastResult(argument, false);
 		}
 		else {
 			throw new InvalidOperandException("Must be a " + this.variableMethod.paramTypes[0] + " or a " + this.type + "; was " + argument.getTypeInfo());

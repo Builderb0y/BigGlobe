@@ -7,6 +7,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -30,7 +31,7 @@ public class JavaUtilScriptEnvironment {
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
-			return new MapGetInsnTree(receiver, key);
+			return new CastResult(new MapGetInsnTree(receiver, key), key != arguments[0]);
 		})
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
@@ -74,7 +75,7 @@ public class JavaUtilScriptEnvironment {
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
 		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
-			return new ListGetInsnTree(receiver, index);
+			return new CastResult(new ListGetInsnTree(receiver, index), index != arguments[0]);
 		})
 		.addType("LinkedList", LinkedList.class)
 		.addQualifiedMultiConstructor(LinkedList.class)

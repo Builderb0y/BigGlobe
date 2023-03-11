@@ -107,6 +107,11 @@ java() {
 	//withSourcesJar()
 }
 
+jar() {
+	exclude('assets/bigglobe/icon_1440x.png') //big file that isn't even used.
+	exclude('wip/**')
+}
+
 // configure the maven publication
 /*
 publishing() {

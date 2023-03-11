@@ -59,8 +59,8 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
 		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "blocksLight", "hasCollision", "hasFullCubeCollision", "rotate", "mirror", "with")
 		.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", (parser, receiver, name, arguments) -> {
-			InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_THROW, arguments);
-			return invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]);
+			InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_NULL, arguments);
+			return position == null ? null : new CastResult(invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]), position != arguments);
 		})
 		.addMethodInvoke(BiomeEntry.class, "isIn")
 		.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
@@ -75,7 +75,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		MethodInfo randomFunction = MethodInfo.findMethod(owner, "random", returnType, RandomGenerator.class);
 		return (parser, receiver, name, arguments) -> {
 			if (arguments.length == 0) {
-				return invokeVirtual(receiver, randomFunction, loadRandom);
+				return new CastResult(invokeVirtual(receiver, randomFunction, loadRandom), false);
 			}
 			return null;
 		};

@@ -353,7 +353,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addFunctionInvokeStatic(String name, MethodInfo method) {
 		return this.addFunction(name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : invokeStatic(method, castArguments);
+			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
 		});
 	}
 
@@ -406,7 +406,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
 		return this.addFunction(name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : invokeVirtualOrInterface(receiver, method, castArguments);
+			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
 		});
 	}
 
@@ -455,7 +455,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, (parser, receiver, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : invokeVirtualOrInterface(receiver, method, castArguments);
+			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
 		});
 	}
 
@@ -506,7 +506,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addMethod(method.paramTypes[0], name, (parser, receiver, name1, arguments) -> {
 			InsnTree[] concatArguments = ObjectArrays.concat(receiver, arguments);
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, concatArguments);
-			return castArguments == null ? null : invokeStatic(method, castArguments);
+			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != concatArguments);
 		});
 	}
 
@@ -672,7 +672,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
 		return this.addQualifiedFunction(owner, name, (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : invokeStatic(method, castArguments);
+			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
 		});
 	}
 
@@ -735,7 +735,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addQualifiedConstructor(MethodInfo constructor) {
 		return this.addQualifiedFunction(constructor.owner, "new", (parser, name, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : newInstance(constructor, castArguments);
+			return castArguments == null ? null : new CastResult(newInstance(constructor, castArguments), castArguments != arguments);
 		});
 	}
 
@@ -793,9 +793,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		List<FunctionHandler> handlers = this.functions.get(name);
-		if (handlers != null) for (int index = 0, size = handlers.size(); index < size; index++) {
-			InsnTree tree = handlers.get(index).create(parser, name, arguments);
-			if (tree != null) return tree;
+		if (handlers != null) {
+			InsnTree result = null;
+			for (int index = 0, size = handlers.size(); index < size; index++) {
+				CastResult casted = handlers.get(index).create(parser, name, arguments);
+				if (casted != null) {
+					if (!casted.requiredCasting) {
+						return casted.tree;
+					}
+					else if (result == null) {
+						result = casted.tree;
+					}
+				}
+			}
+			return result;
 		}
 		return null;
 	}
@@ -807,9 +818,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
 			List<MethodHandler> handlers = this.methods.get(query);
-			if (handlers != null) for (int index = 0, size = handlers.size(); index < size; index++) {
-				InsnTree tree = handlers.get(index).create(parser, receiver, name, arguments);
-				if (tree != null) return tree;
+			if (handlers != null) {
+				InsnTree result = null;
+				for (int index = 0, size = handlers.size(); index < size; index++) {
+					CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
+					if (casted != null) {
+						if (!casted.requiredCasting) {
+							return casted.tree;
+						}
+						else if (result == null) {
+							result = casted.tree;
+						}
+					}
+				}
+				return result;
 			}
 		}
 		return null;
@@ -840,6 +862,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// handlers ////////////////////////////////
 
+	public static record CastResult(InsnTree tree, boolean requiredCasting) {}
+
 	@FunctionalInterface
 	public static interface VariableHandler {
 
@@ -855,13 +879,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface FunctionHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException;
+		public abstract @Nullable CastResult create(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException;
 	}
 
 	@FunctionalInterface
 	public static interface MethodHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException;
+		public abstract @Nullable CastResult create(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException;
 	}
 
 	@FunctionalInterface

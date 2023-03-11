@@ -11,7 +11,7 @@
 		"Mr Slime - helped with overgrown podzol textures."
 	],
 	"license": "CC-BY-NC 4.0",
-	"icon": "assets/bigglobe/icon.png",
+	"icon": "assets/bigglobe/icon_64x.png",
 	"environment": "*",
 	"entrypoints": {
 		"main":          [ "builderb0y.bigglobe.BigGlobeMod" ],

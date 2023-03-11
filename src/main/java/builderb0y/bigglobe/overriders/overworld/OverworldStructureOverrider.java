@@ -21,6 +21,7 @@ public interface OverworldStructureOverrider extends Script {
 
 	public abstract boolean override(StructureStartWrapper start, OverworldColumn column);
 
+	@SuppressWarnings("deprecation")
 	public static void move(StructureStartWrapper start, int yOffset) {
 		start.box().move(0, yOffset, 0);
 		start.start().getBoundingBox().move(0, yOffset, 0);

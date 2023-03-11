@@ -9,12 +9,9 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.MathHelper;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.LinkedArrayList;
@@ -75,7 +72,7 @@ public class VoronoiDiagram2D {
 	};
 
 	public final Seed seed;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @UseVerifier(name = "verifyDivisibleBy16", in = VoronoiDiagram2D.class, usage = MemberUsage.METHOD_IS_HANDLER) int distance;
+	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifyDivisibleBy16 int distance;
 	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifySorted(lessThanOrEqual = "distance") int variation;
 
 	public final transient Cell[] cellCache = new Cell[CACHE_SIZE];
@@ -84,12 +81,6 @@ public class VoronoiDiagram2D {
 		this.seed = seed;
 		this.distance = distance;
 		this.variation = variation;
-	}
-
-	public static <T_Encoded> void verifyDivisibleBy16(VerifyContext<T_Encoded, Integer> context) throws VerifyException {
-		if (context.object != null && (context.object.intValue() & 15) != 0) {
-			throw new VerifyException(context.pathToStringBuilder().append(" must be divisible by 16.").toString());
-		}
 	}
 
 	public int getCenterX(int cellX, int cellZ) {

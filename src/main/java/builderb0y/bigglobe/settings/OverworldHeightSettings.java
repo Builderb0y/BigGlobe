@@ -1,17 +1,16 @@
 package builderb0y.bigglobe.settings;
 
-import builderb0y.autocodec.annotations.*;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.autocodec.annotations.VerifyFloatRange;
+import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
+import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.noise.ErosionGrid2D;
 import builderb0y.bigglobe.noise.Grid2D;
 
 public record OverworldHeightSettings(
-	@UseVerifier(name = "verifyDivisibleBy16", in = OverworldHeightSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	int min_y,
-	@UseVerifier(name = "verifyDivisibleBy16", in = OverworldHeightSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	int max_y,
+	@VerifyDivisibleBy16 int min_y,
+	@VerifyDivisibleBy16 int max_y,
 	@VerifySorted(greaterThanOrEqual = "min_y", lessThanOrEqual = "max_y")
 	int sea_level,
 	Grid2D hilliness,
@@ -25,12 +24,6 @@ public record OverworldHeightSettings(
 
 	public int minYAboveBedrock() {
 		return this.min_y + BigGlobeOverworldChunkGenerator.BEDROCK_HEIGHT;
-	}
-
-	public static <T_Encoded> void verifyDivisibleBy16(VerifyContext<T_Encoded, Integer> context) throws VerifyException {
-		if (context.object != null && (context.object.intValue() & 15) != 0) {
-			throw new VerifyException(context.pathToStringBuilder().append(" must be divisible by 16.").toString());
-		}
 	}
 
 	public void getErosionAndSnow(long seed, int x, int z, double sharpness, double[] out) {

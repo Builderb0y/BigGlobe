@@ -1172,38 +1172,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				if (wrongBiome(validBiomes, column, box.getMaxX(), z)) return false;
 			}
 		}
-		/*
-		if (start.getStructure() instanceof OceanMonumentStructure) {
-			BlockBox box = start.getBoundingBox();
-			int desiredY = max4(
-				y(column, box.getMinX(), box.getMinZ()),
-				y(column, box.getMinX(), box.getMaxZ()),
-				y(column, box.getMaxX(), box.getMinZ()),
-				y(column, box.getMaxX(), box.getMaxZ())
-			);
-			moveStructure(start, 0, desiredY - box.getMinY(), 0);
-		}
-		else if (start.getStructure() instanceof IglooStructure) {
-			BlockBox box = start.getChildren().get(start.getChildren().size() - 1).getBoundingBox();
-			int desiredY = BigGlobeMath.ceilI(
-				pos(
-					column,
-					(box.getMinX() + box.getMaxX() + 1) >> 1,
-					(box.getMinZ() + box.getMaxZ() + 1) >> 1
-				)
-				.getSnowHeight()
-			)
-			- 1;
-			moveStructure(start, 0, desiredY - box.getMinY(), 0);
-		}
-		else if (entry.getKey().orElseThrow() == StructureKeys.ANCIENT_CITY) {
-			BlockPos center = start.getBoundingBox().getCenter();
-			column.setPos(center.getX(), center.getZ());
-			double cavernCenter = column.getCavernCenter();
-			if (Double.isNaN(cavernCenter)) return false;
-			moveStructure(start, 0, BigGlobeMath.floorI(cavernCenter) - center.getY(), 0);
-		}
-		*/
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (OverworldStructureOverrider.Holder overrider : this.structureOverriders) {
 			if (!overrider.override(wrapper, column)) {

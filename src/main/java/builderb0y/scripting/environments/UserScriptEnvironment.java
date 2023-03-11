@@ -12,6 +12,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.NamedType;
@@ -68,7 +69,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return invokeStatic(method, castArguments);
+				if (castArguments != null) return new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
 			}
 			return null;
 		});
@@ -79,7 +80,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return newInstance(method, castArguments);
+				if (castArguments != null) return new CastResult(newInstance(method, castArguments), castArguments != arguments);
 			}
 			return null;
 		});
@@ -107,9 +108,16 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		List<FunctionHandler> handlers = this.functions.get(name);
-		if (handlers != null) for (int index = 0, size = handlers.size(); index < size; index++) {
-			InsnTree tree = handlers.get(index).create(parser, name, arguments);
-			if (tree != null) return tree;
+		if (handlers != null) {
+			InsnTree result = null;
+			for (int index = 0, size = handlers.size(); index < size; index++) {
+				CastResult casted = handlers.get(index).create(parser, name, arguments);
+				if (casted != null) {
+					if (!casted.requiredCasting()) return casted.tree();
+					else if (result == null) result = casted.tree();
+				}
+			}
+			return result;
 		}
 		return null;
 	}
@@ -121,9 +129,16 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
 			List<MethodHandler> handlers = this.methods.get(query);
-			if (handlers != null) for (int index = 0, size = handlers.size(); index < size; index++) {
-				InsnTree tree = handlers.get(index).create(parser, receiver, name, arguments);
-				if (tree != null) return tree;
+			if (handlers != null) {
+				InsnTree result = null;
+				for (int index = 0, size = handlers.size(); index < size; index++) {
+					CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
+					if (casted != null) {
+						if (!casted.requiredCasting()) return casted.tree();
+						else if (result == null) result = casted.tree();
+					}
+				}
+				return result;
 			}
 		}
 		return null;

@@ -2,7 +2,6 @@ bug fixes:
 	geode spikes can still spawn outside of geodes.
 	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
 		this is a fabric bug.
-	can't /locate ancient_city due to unusual hard-coded spawning rules.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -20,6 +19,8 @@ AutoCodec:
 			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
 			this could also target a constructor.
 	builtin framework for key dispatching.
+	add @VerifyNotEmpty.
+		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = 0).
 
 scripting:
 	better syntax for specifying variable block states.

@@ -29,6 +29,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
@@ -828,10 +829,10 @@ public class ExpressionParser {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, expectedTypes, CastMode.IMPLICIT_THROW, arguments);
 			InsnTree[] concatenatedArguments = ObjectArrays.concat(implicitParameters, castArguments, InsnTree.class);
 			if (this.method.info.isStatic()) {
-				return invokeStatic(newMethodInfo, concatenatedArguments);
+				return new CastResult(invokeStatic(newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
 			else {
-				return invokeVirtual(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments);
+				return new CastResult(invokeVirtual(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
 		});
 		return new MethodDeclarationInsnTree(newMethod, result, newParameters.toArray(VarInfo.ARRAY_FACTORY));
