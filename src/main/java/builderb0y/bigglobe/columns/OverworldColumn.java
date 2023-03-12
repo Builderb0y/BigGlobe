@@ -406,7 +406,7 @@ public class OverworldColumn extends WorldColumn {
 			return caveCell;
 		}
 		caveCell.voronoiCell = voronoiCell;
-		caveCell.settings = DelegatingContainedRandomList.from(globalCaves.templates().elements).getRandomElement(caveCell.voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.settings = DelegatingContainedRandomList.from(globalCaves.templates().elements).getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
 		return caveCell;
 	}
 

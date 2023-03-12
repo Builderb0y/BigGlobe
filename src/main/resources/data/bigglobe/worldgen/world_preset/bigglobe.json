@@ -360,7 +360,7 @@
 									]
 								},
 								{
-									"restriction": { "type": "range", "property": "overworld/height_adjusted_temperature", "max": -0.375, "mid": -0.625 },
+									"restriction": { "type": "range", "property": "overworld/snow_chance", "min": 0.0, "mid": 1.0, "smooth": false },
 									"biome": "bigglobe:cold_plains",
 									"children": [
 										{
@@ -1040,14 +1040,177 @@
 
 
 		"minecraft:the_nether": {
-			"type": "minecraft:the_nether",
+			"type": "bigglobe:nether",
 			"generator": {
-				"type": "minecraft:noise",
-				"biome_source": {
-					"preset": "minecraft:nether",
-					"type": "minecraft:multi_noise"
-				},
-				"settings": "minecraft:nether"
+				"type": "bigglobe:nether",
+				"value": {
+					"min_y": 0,
+					"max_y": 1024,
+					"biome_placement": {
+						"distance": 1024,
+						"variation": 768
+					},
+					"local_settings": [
+						{
+							"deep": true,
+							"defaults": {
+								"caverns": {
+									"min_y": 512,
+									"max_y": 1008,
+									"lower_padding": 128,
+									"upper_padding": 128,
+									"side_padding": 128
+								},
+								"caves": {
+									"width": "2 ^ (y / -128.0L) * 512.0L + 8.0L",
+									"noise": {
+										"type": "script",
+										"script": "layer1^2 + layer2^2",
+										"min": 0.0,
+										"max": 312520.0,
+										"inputs": {
+											"layer1": {
+												"type": "sum",
+												"layers": [
+													{ "type": "smooth", "scaleX": 256, "scaleY": 128, "scaleZ": 256, "amplitude": 256.0 },
+													{ "type": "smooth", "scaleX": 128, "scaleY":  64, "scaleZ": 128, "amplitude": 128.0 },
+													{ "type": "smooth", "scaleX":  64, "scaleY":  32, "scaleZ":  64, "amplitude":  64.0 },
+													{ "type": "smooth", "scaleX":  32, "scaleY":  24, "scaleZ":  32, "amplitude":  32.0 },
+													{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+													{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+													{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+												]
+											},
+											"layer2": {
+												"type": "sum",
+												"layers": [
+													{ "type": "smooth", "scaleX": 128, "scaleY": 64, "scaleZ": 128, "amplitude": 128.0 },
+													{ "type": "smooth", "scaleX":  64, "scaleY": 32, "scaleZ":  64, "amplitude":  64.0 },
+													{ "type": "smooth", "scaleX":  32, "scaleY": 24, "scaleZ":  32, "amplitude":  32.0 },
+													{ "type": "smooth", "scaleX":  16, "scaleY": 16, "scaleZ":  16, "amplitude":  14.0 },
+													{ "type": "smooth", "scaleX":   8, "scaleY":  8, "scaleZ":   8, "amplitude":   6.0 },
+													{ "type": "smooth", "scaleX":   4, "scaleY":  4, "scaleZ":   4, "amplitude":   2.0 }
+												]
+											}
+										}
+									}
+								},
+								"lava_level": 64,
+								"filler": "minecraft:netherrack"
+							},
+							"variations": [
+								{
+									"deep": true,
+									"defaults": {
+										"caverns": {
+											"noise": {
+												"type": "sum",
+												"layers": [
+													{ "type": "smooth", "scaleX": 128.0, "scaleY": 64.0, "scaleZ": 128.0, "amplitude": 128.0 },
+													{ "type": "smooth", "scaleX":  64.0, "scaleY": 32.0, "scaleZ":  64.0, "amplitude":  51.2 },
+													{ "type": "smooth", "scaleX":  32.0, "scaleY": 24.0, "scaleZ":  32.0, "amplitude":  20.48 },
+													{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 },
+													{ "type": "smooth", "scaleX":   8.0, "scaleY":  8.0, "scaleZ":   8.0, "amplitude":   3.2768 }
+												]
+											},
+											"surface": {
+												"depth": "1.0"
+											}
+										}
+									},
+									"variations": [
+										{
+											"weight": 0.75,
+											"biome": "minecraft:crimson_forest",
+											"caverns": {
+												"surface": {
+													"top_state": "minecraft:crimson_nylium",
+													"under_state": "minecraft:crimson_nylium"
+												}
+											}
+										},
+										{
+											"weight": 0.25,
+											"biome": "minecraft:warped_forest",
+											"caverns": {
+												"surface": {
+													"top_state": "minecraft:warped_nylium",
+													"under_state": "minecraft:warped_nylium"
+												}
+											}
+										}
+									]
+								},
+								{
+									"weight": 1.0,
+									"biome": "minecraft:nether_wastes",
+									"caverns": {
+										"noise": {
+											"type": "sum",
+											"layers": [
+												{ "type": "smooth", "scaleX": 64.0, "scaleY": 64.0, "scaleZ": 64.0, "amplitude": 64.0 },
+												{ "type": "smooth", "scaleX": 32.0, "scaleY": 32.0, "scaleZ": 32.0, "amplitude": 32.0 },
+												{ "type": "smooth", "scaleX": 16.0, "scaleY": 16.0, "scaleZ": 16.0, "amplitude": 16.0 },
+												{ "type": "smooth", "scaleX":  8.0, "scaleY":  8.0, "scaleZ":  8.0, "amplitude":  8.0 },
+												{ "type": "smooth", "scaleX":  4.0, "scaleY":  4.0, "scaleZ":  4.0, "amplitude":  4.0 },
+												{ "type": "linear", "scaleX":  2.0, "scaleY":  2.0, "scaleZ":  2.0, "amplitude":  2.0 },
+												{ "type": "white_noise", "amplitude": 1.0 }
+											]
+										},
+										"surface": {
+											"top_state": "minecraft:netherrack",
+											"under_state": "minecraft:netherrack",
+											"depth": "0.0"
+										}
+									}
+								},
+								{
+									"weight": 0.5,
+									"biome": "minecraft:basalt_deltas",
+									"filler": "minecraft:basalt[axis=y]",
+									"caverns": {
+										"noise": {
+											"type": "sum",
+											"layers": [
+												{ "type": "smooth", "scaleX": 64.0, "scaleY": 64.0, "scaleZ": 64.0, "amplitude": 64.0 },
+												{ "type": "smooth", "scaleX": 32.0, "scaleY": 32.0, "scaleZ": 32.0, "amplitude": 32.0 },
+												{ "type": "smooth", "scaleX": 16.0, "scaleY": 24.0, "scaleZ": 16.0, "amplitude": 16.0 },
+												{ "type": "smooth", "scaleX":  8.0, "scaleY": 16.0, "scaleZ":  8.0, "amplitude":  8.0 },
+												{ "type": "smooth", "scaleX":  4.0, "scaleY":  8.0, "scaleZ":  4.0, "amplitude":  4.0 }
+											]
+										},
+										"surface": {
+											"top_state": "minecraft:blackstone",
+											"under_state": "minecraft:blackstone",
+											"depth": "random.nextDouble(1.0, 5.0)"
+										}
+									}
+								},
+								{
+									"weight": 0.75,
+									"biome": "minecraft:soul_sand_valley",
+									"filler": "minecraft:soul_soil",
+									"caverns": {
+										"noise": {
+											"type": "sum",
+											"layers": [
+												{ "type": "smooth", "scaleX": 128.0, "scaleY": 64.0, "scaleZ": 128.0, "amplitude": 128.0 },
+												{ "type": "smooth", "scaleX":  64.0, "scaleY": 32.0, "scaleZ":  64.0, "amplitude":  51.2 },
+												{ "type": "smooth", "scaleX":  32.0, "scaleY": 24.0, "scaleZ":  32.0, "amplitude":  20.48 },
+												{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 }
+											]
+										},
+										"surface": {
+											"top_state": "minecraft:soul_sand",
+											"under_state": "minecraft:soul_sand",
+											"depth": "0.0"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
 			}
 		},
 

@@ -35,46 +35,58 @@ scripting:
 	compareTo operator <=>
 
 features:
-	advancements for finding things?
-	allow flowers to place a Feature for every flower.
-	ice spikes.
-	all the todos scattered throughout my code.
-	log cabin structure?
-	trees:
-		roots.
-			use for mangrove trees.
-	cave biomes:
-		lush:
-			walls:
-				glow lichen.
-				vines.
-		mushroom:
-			glowing mushrooms?
-				that hang from the ceiling?
-	make geode placement faster by only computing noise in a sphere instead of a cube.
-	make cave excluders and height overriders data-driven.
-	fallen logs.
-	dungeons:
-		cobwebs on ceiling corners.
-		skulls on floor.
-		redstone torches on walls.
-		chains on ceiling.
-		piles of gold?
-		occasional "big rooms".
-		collapsed rooms?
-			blocks in the ceiling (and possibly slightly above it) fall onto the floor.
-	underground bubbles:
-		slime pit.
-		lava lake.
-		natural bubble:
-			water, grass, foliage, etc.
-			some kind of light source.
-		deep dark bubble:
-			can spawn higher than normal deep dark areas.
-		ore jackpot:
-			lots of ores everywhere.
-	make lilypads renewable?
-	jessie wants worley noise for the end.
+	general:
+		advancements for finding things?
+		all the todos scattered throughout my code.
+	overworld:
+		allow flowers to place a Feature for every flower.
+		ice spikes.
+		log cabin structure?
+		trees:
+			roots.
+				use for mangrove trees.
+		cave biomes:
+			lush:
+				walls:
+					glow lichen.
+					vines.
+			mushroom:
+				glowing mushrooms?
+					that hang from the ceiling?
+		make geode placement faster by only computing noise in a sphere instead of a cube.
+		fallen logs.
+		dungeons:
+			cobwebs on ceiling corners.
+			skulls on floor.
+			redstone torches on walls.
+			chains on ceiling.
+			piles of gold?
+			occasional "big rooms".
+			collapsed rooms?
+				blocks in the ceiling (and possibly slightly above it) fall onto the floor.
+			Feature that spawns in every room.
+				or possibly tag of features.
+		underground bubbles:
+			slime pit.
+			lava lake.
+			natural bubble:
+				water, grass, foliage, etc.
+				some kind of light source.
+			deep dark bubble:
+				can spawn higher than normal deep dark areas.
+			ore jackpot:
+				lots of ores everywhere.
+		make lilypads renewable?
+	nether:
+		surface needs to take depth into account.
+		surface blocks for caves?
+		ceiling blocks for caverns/caves?
+		all biomes.
+			including charred forest.
+				needs assets from old version.
+		bedrock.
+	end:
+		jessie wants worley noise for the end.
 
 before release:
 	disable dev mixins.

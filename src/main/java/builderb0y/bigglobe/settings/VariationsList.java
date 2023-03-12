@@ -87,9 +87,9 @@ public class VariationsList<T> {
 					variations /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
 						(T_Encoded list /* [ {}, {} ] */) -> ops.createList(
 							ops
-								.getStream(list)
-								.getOrThrow(false, throwDecode)
-								.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
+							.getStream(list)
+							.getOrThrow(false, throwDecode)
+							.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
 						)
 					)
 					.toArray()
@@ -138,89 +138,6 @@ public class VariationsList<T> {
 			}
 		}
 	}
-
-	/*
-	public static class FlattenTask<T_Encoded> extends LoggableTask<Stream<T_Encoded>, ImprintException> {
-
-		public final T_Encoded encoded;
-		public final DynamicOps<T_Encoded> ops;
-		public final TaskLogger logger;
-
-		public FlattenTask(T_Encoded encoded, DynamicOps<T_Encoded> ops, TaskLogger logger) {
-			this.encoded = encoded;
-			this.ops = ops;
-			this.logger = logger;
-		}
-
-		public Stream<T_Encoded> unwrapIfList() {
-			Stream<T_Encoded> stream = this.ops.getStream(this.encoded).result().orElse(null);
-			return (
-				stream == null
-				? Stream.of(this.encoded)
-				: stream.flatMap(element -> {
-					try {
-						return this.logger.runTask(new FlattenTask<>(element, this.ops, this.logger));
-					}
-					catch (ImprintException exception) {
-						throw AutoCodecUtil.rethrow(exception);
-					}
-				})
-			);
-		}
-
-		@Override
-		public Stream<T_Encoded> run() throws ImprintException {
-			T_Encoded defaults = this.ops.get(this.encoded, "defaults").result().orElse(null);
-			if (defaults == null) return this.unwrapIfList();
-			T_Encoded variations = this.ops.get(this.encoded, "variations").result().orElse(null);
-			if (variations == null) return this.unwrapIfList();
-
-			Map<T_Encoded, T_Encoded> defaultsMap = (
-				this
-				.logger
-				.unwrap(
-					this.ops.getMapValues(defaults),
-					false,
-					ImprintException::new
-				)
-				.collect(Pair.toMap())
-			);
-			Stream<T_Encoded> variationsStream = this.logger.unwrap(
-				this.ops.getStream(variations),
-				false,
-				ImprintException::new
-			);
-			return variationsStream.flatMap(element -> {
-				try {
-					Stream<T_Encoded> recursiveFlattened = this.logger.runTask(new FlattenTask<>(element, this.ops, this.logger));
-					return recursiveFlattened.map(flattenedElement -> {
-						try {
-							Map<T_Encoded, T_Encoded> map = new HashMap<>(defaultsMap);
-							this.logger.unwrap(
-								this.ops.getMapValues(flattenedElement),
-								false,
-								ImprintException::new
-							)
-							.forEachOrdered(pair -> map.put(pair.getFirst(), pair.getSecond()));
-							return this.ops.createMap(map);
-						}
-						catch (ImprintException exception) {
-							throw AutoCodecUtil.rethrow(exception);
-						}
-					});
-				}
-				catch (ImprintException exception) {
-					throw AutoCodecUtil.rethrow(exception);
-				}
-			});
-		}
-
-		@Override
-		public String toString() {
-			return "Flattening " + this.encoded;
-		}
-	}
-	*/
 
 	public static class Encoder<T> extends NamedEncoder<VariationsList<T>> {
 

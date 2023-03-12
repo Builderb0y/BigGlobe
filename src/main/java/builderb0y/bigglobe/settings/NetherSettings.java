@@ -1,12 +1,15 @@
 package builderb0y.bigglobe.settings;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 
 public record NetherSettings(
@@ -25,7 +28,8 @@ public record NetherSettings(
 		RegistryEntry<Biome> biome,
 		NetherCavernSettings caverns,
 		NetherCaveSettings caves,
-		RandomSource lava_level
+		RandomSource lava_level,
+		BlockState filler
 	)
 	implements IWeightedListElement {
 
@@ -38,13 +42,22 @@ public record NetherSettings(
 	public static record NetherCavernSettings(
 		int min_y,
 		int max_y,
-		double lower_padding,
-		double upper_padding,
-		Grid3D noise
+		int lower_padding,
+		int upper_padding,
+		int side_padding,
+		Grid3D noise,
+		NetherSurfaceSettings surface
 	) {}
 
 	public static record NetherCaveSettings(
 		Grid3D noise,
-		ColumnYToDoubleScript.Holder width
+		ColumnYToDoubleScript.Holder width,
+		@VerifyNullable Integer lower_padding
+	) {}
+
+	public static record NetherSurfaceSettings(
+		BlockState top_state,
+		BlockState under_state,
+		ColumnYRandomToDoubleScript.Holder depth
 	) {}
 }

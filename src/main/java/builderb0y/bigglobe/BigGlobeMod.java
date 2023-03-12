@@ -22,6 +22,7 @@ import net.minecraft.world.level.storage.LevelStorage;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
@@ -65,6 +66,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
+		BigGlobeNetherChunkGenerator.init();
 		BigGlobeBuiltinRegistries.init();
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();

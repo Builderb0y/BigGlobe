@@ -42,7 +42,9 @@ public class BlockStates {
 		SNOW                   = Blocks.SNOW.getDefaultState(),
 		WATER                  = Blocks.WATER.getDefaultState(),
 		LAVA                   = Blocks.LAVA.getDefaultState(),
-		ICE                    = Blocks.ICE.getDefaultState();
+		ICE                    = Blocks.ICE.getDefaultState(),
+
+		NETHERRACK             = Blocks.NETHERRACK.getDefaultState();
 
 	/**
 	the syntax for {@link BlockState#with(Property, Comparable)}

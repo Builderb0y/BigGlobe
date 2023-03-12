@@ -33,7 +33,8 @@ public class BigGlobeBuiltinRegistries {
 	public static final RegistryKey<WorldPreset>
 		BIG_GLOBE_WORLD_PRESET_KEY = RegistryKey.of(Registry.WORLD_PRESET_KEY, BigGlobeMod.modID(BigGlobeMod.MODID));
 	public static final RegistryKey<DimensionType>
-		BIG_GLOBE_OVERWORLD_DIMENSION_TYPE_KEY = RegistryKey.of(Registry.DIMENSION_TYPE_KEY, BigGlobeMod.modID("overworld"));
+		BIG_GLOBE_OVERWORLD_DIMENSION_TYPE_KEY = RegistryKey.of(Registry.DIMENSION_TYPE_KEY, BigGlobeMod.modID("overworld")),
+		BIG_GLOBE_NETHER_DIMENSION_TYPE_KEY = RegistryKey.of(Registry.DIMENSION_TYPE_KEY, BigGlobeMod.modID("nether"));
 
 	public static JsonElement getJson(String path) {
 		try (
@@ -100,6 +101,11 @@ public class BigGlobeBuiltinRegistries {
 			BuiltinRegistries.DIMENSION_TYPE,
 			BIG_GLOBE_OVERWORLD_DIMENSION_TYPE_KEY,
 			parseJson(getJson("/data/bigglobe/dimension_type/overworld.json"), DimensionType.CODEC)
+		);
+		BuiltinRegistries.add(
+			BuiltinRegistries.DIMENSION_TYPE,
+			BIG_GLOBE_NETHER_DIMENSION_TYPE_KEY,
+			parseJson(getJson("/data/bigglobe/dimension_type/nether.json"), DimensionType.CODEC)
 		);
 		BuiltinRegistries.add(
 			BuiltinRegistries.WORLD_PRESET,

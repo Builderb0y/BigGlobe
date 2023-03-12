@@ -767,36 +767,36 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
 		ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		this.profiler.run("initial terrain column values", () -> {
-			columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), (OverworldColumn column) -> {
-				column.getFinalTopHeightD();
-				column.getSnowHeight();
-				this.runHeightOverrides(column, structures, true);
-
-				column.getTemperature();
-				column.getFoliage();
-				this.runFoliageOverrides(column, structures, true);
-
-				if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
-					column.getCaveCell();
-					column.getCaveNoise();
-					column.getCaveSurfaceDepth();
-					this.runCaveOverrides(column, structures, true);
-
-					column.getCavernCell();
-					column.getCavernCenter();
-					column.getCavernThicknessSquared();
-					this.runCavernOverrides(column, structures, true);
-				}
-
-				column.getSkylandMinY();
-				column.getSkylandMaxY();
-			});
-		});
-		if (chunk instanceof PositionCacheHolder holder) {
-			holder.bigglobe_setPositionCache(new OverworldPositionCache(columns));
-		}
 		try {
+			this.profiler.run("initial terrain column values", () -> {
+				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), (OverworldColumn column) -> {
+					column.getFinalTopHeightD();
+					column.getSnowHeight();
+					this.runHeightOverrides(column, structures, true);
+
+					column.getTemperature();
+					column.getFoliage();
+					this.runFoliageOverrides(column, structures, true);
+
+					if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
+						column.getCaveCell();
+						column.getCaveNoise();
+						column.getCaveSurfaceDepth();
+						this.runCaveOverrides(column, structures, true);
+
+						column.getCavernCell();
+						column.getCavernCenter();
+						column.getCavernThicknessSquared();
+						this.runCavernOverrides(column, structures, true);
+					}
+
+					column.getSkylandMinY();
+					column.getSkylandMaxY();
+				});
+			});
+			if (chunk instanceof PositionCacheHolder holder) {
+				holder.bigglobe_setPositionCache(new OverworldPositionCache(columns));
+			}
 			this.profiler.run("generateRawSectionsAndCaves", () -> {
 				this.generateRawSectionsAndCaves(chunk, columns, structures, distantHorizons);
 			});
@@ -1201,10 +1201,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public static int y(OverworldColumn column, int x, int z) {
 		return pos(column, x, z).getFinalTopHeightI();
-	}
-
-	public static int max4(int a, int b, int c, int d) {
-		return Math.max(Math.max(a, b), Math.max(c, d));
 	}
 
 	////////////////////////////////////////////////////////////////

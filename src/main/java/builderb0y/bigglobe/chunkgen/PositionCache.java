@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.chunk.ProtoChunk;
 
 import builderb0y.bigglobe.columns.ChunkOfColumns;
+import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.OverworldColumn;
 
 public interface PositionCache {
@@ -34,6 +35,25 @@ public interface PositionCache {
 
 		public @Nullable IntList getCaveCeilings(int index) {
 			return this.caveCeilings[index];
+		}
+	}
+
+	public static class NetherPositionCache implements PositionCache {
+
+		public IntList[] caveFloors, caveCeilings, cavernFloors, cavernCeilings;
+
+		public NetherPositionCache(ChunkOfColumns<NetherColumn> columns) {
+			this.caveFloors     = new IntList[256];
+			this.caveCeilings   = new IntList[256];
+			this.cavernFloors   = new IntList[256];
+			this.cavernCeilings = new IntList[256];
+			for (int index = 0; index < 256; index++) {
+				NetherColumn column = columns.getColumn(index);
+				this.caveFloors    [index] = column.caveFloors;
+				this.caveCeilings  [index] = column.caveCeilings;
+				this.cavernFloors  [index] = column.cavernFloors;
+				this.cavernCeilings[index] = column.cavernCeilings;
+			}
 		}
 	}
 

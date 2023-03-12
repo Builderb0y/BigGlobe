@@ -124,6 +124,12 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SKYLAND_EDGINESS              = registerOverworld("skyland_edginess",              withoutY(OverworldColumn::getSkylandEdginess           ), null),
 		OVERWORLD_SKYLAND_EDGINESS_SQUARED      = registerOverworld("skyland_edginess_squared",      withoutY(OverworldColumn::getSkylandEdginessSquared    ), null);
 
+	public static final ColumnValue<NetherColumn>
+		BIOME_CENTER_X                          = registerNether   ("biome_center_x",                withoutY(   NetherColumn::getBiomeCenterX              ), NetherColumn::debugBiomeCenterX),
+		BIOME_CENTER_Z                          = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ              ), NetherColumn::debugBiomeCenterZ),
+		BIOME_EDGINESS                          = registerNether   ("biome_edginess",                withoutY(   NetherColumn::getEdginess                  ), null),
+		BIOME_EDGINESS_SQUARED                  = registerNether   ("biome_edginess_squared",        withoutY(   NetherColumn::getEdginessSquared           ), null);
+
 	public final Class<T_Column> columnClass;
 	public final Getter<T_Column> getter;
 	public final @Nullable CustomDisplay customDisplay;
@@ -157,6 +163,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	public static ColumnValue<OverworldColumn> registerOverworld(String name, Getter<OverworldColumn> getter, @Nullable CustomDisplay customDisplay) {
 		return register("overworld/" + name, OverworldColumn.class, getter, customDisplay);
+	}
+
+	public static ColumnValue<NetherColumn> registerNether(String name, Getter<NetherColumn> getter, @Nullable CustomDisplay customDisplay) {
+		return register("nether/" + name, NetherColumn.class, getter, customDisplay);
 	}
 
 	public static <T_Column extends WorldColumn> ColumnValue<T_Column> register(String name, Class<T_Column> columnClass, Getter<T_Column> getter, @Nullable CustomDisplay customDisplay) {
