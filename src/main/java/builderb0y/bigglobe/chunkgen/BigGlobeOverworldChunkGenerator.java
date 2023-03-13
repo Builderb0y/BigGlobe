@@ -887,11 +887,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					this.generateFlowers(world, columns, pos, permuter);
 				});
 				this.profiler.run("non-flower (custom) features", () -> {
+					MojangPermuter mojang = permuter.mojang();
 					for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
 						OverworldColumn column = columns.getColumn(columnIndex);
 						pos.setX(column.x).setZ(column.z);
 						permuter.setSeed(Permuter.permute(this.seed ^ 0xF9C81CB5E3A312C9L, column.x, column.z));
-						MojangPermuter mojang = permuter.mojang();
 
 						if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 							CavernCell cavernCell = column.getCavernCell();

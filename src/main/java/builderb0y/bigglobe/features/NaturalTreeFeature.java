@@ -7,12 +7,14 @@ import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.FeatureColumns;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -28,10 +30,7 @@ import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.trees.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
-import builderb0y.bigglobe.trees.decoration.BlockDecorator;
-import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
-import builderb0y.bigglobe.trees.decoration.ShelfDecorator;
-import builderb0y.bigglobe.trees.decoration.ShelfPlacer;
+import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 
 public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
@@ -86,7 +85,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		}
 		return new TreeGenerator(
 			context.getWorld(),
-			new BlockQueue(false),
+			config.delay_generation
+			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), Block.NOTIFY_LISTENERS | Block.SKIP_LIGHTING_UPDATES)
+			: new BlockQueue(false),
 			permuter,
 			config.palette,
 			trunkConfig,
@@ -98,6 +99,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	}
 
 	public static record Config(
+		@DefaultBoolean(false) boolean delay_generation,
 		TreeRegistry.Entry palette,
 		ColumnYRandomToDoubleScript.Holder height,
 		TrunkFactory trunk,
@@ -122,7 +124,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
 		BlockDecorator @VerifyNullable [] branches,
-		BlockDecorator @VerifyNullable [] leaves
+		BlockDecorator @VerifyNullable [] leaves,
+		@VerifyNullable BallLeaves ball_leaves
 	) {
 
 		public static List<BlockDecorator> addAll(
@@ -142,6 +145,12 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			builder.trunkBlock  = addAll(this.trunk,    builder. trunkBlock);
 			builder.branchBlock = addAll(this.branches, builder.branchBlock);
 			builder.leafBlock   = addAll(this.leaves,   builder.  leafBlock);
+			if (this.ball_leaves != null) {
+				BallLeafDecorator decorator = new BallLeafDecorator(this.ball_leaves.inner_state);
+				builder.branch(decorator).trunk(decorator);
+			}
 		}
 	}
+
+	public static record BallLeaves(BlockState inner_state) {}
 }

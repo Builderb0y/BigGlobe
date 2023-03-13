@@ -1113,7 +1113,7 @@
 													{ "type": "smooth", "scaleX":   8.0, "scaleY":  8.0, "scaleZ":   8.0, "amplitude":   3.2768 }
 												]
 											},
-											"surface": {
+											"floor_surface": {
 												"depth": "1.0"
 											}
 										}
@@ -1123,20 +1123,32 @@
 											"weight": 0.75,
 											"biome": "minecraft:crimson_forest",
 											"caverns": {
-												"surface": {
+												"floor_surface": {
 													"top_state": "minecraft:crimson_nylium",
 													"under_state": "minecraft:crimson_nylium"
-												}
+												},
+												"floor_decorator": "bigglobe:nether/crimson_forest_cavern_floors",
+												"ceiling_decorator": "bigglobe:nether/crimson_forest_cavern_ceilings"
+											},
+											"caves": {
+												"floor_decorator": "bigglobe:nether/crimson_forest_cave_floors",
+												"ceiling_decorator": "bigglobe:nether/crimson_forest_cave_ceilings"
 											}
 										},
 										{
 											"weight": 0.25,
 											"biome": "minecraft:warped_forest",
 											"caverns": {
-												"surface": {
+												"floor_surface": {
 													"top_state": "minecraft:warped_nylium",
 													"under_state": "minecraft:warped_nylium"
-												}
+												},
+												"floor_decorator": "bigglobe:nether/warped_forest_cavern_floors",
+												"ceiling_decorator": "bigglobe:nether/warped_forest_cavern_ceilings"
+											},
+											"caves": {
+												"floor_decorator": "bigglobe:nether/warped_forest_cave_floors",
+												"ceiling_decorator": "bigglobe:nether/warped_forest_cave_ceilings"
 											}
 										}
 									]
@@ -1157,11 +1169,12 @@
 												{ "type": "white_noise", "amplitude": 1.0 }
 											]
 										},
-										"surface": {
-											"top_state": "minecraft:netherrack",
-											"under_state": "minecraft:netherrack",
-											"depth": "0.0"
-										}
+										"floor_decorator": "bigglobe:nether/nether_wastes_cavern_floors",
+										"ceiling_decorator": "bigglobe:nether/nether_wastes_cavern_ceilings"
+									},
+									"caves": {
+										"floor_decorator": "bigglobe:nether/nether_wastes_cave_floors",
+										"ceiling_decorator": "bigglobe:nether/nether_wastes_cave_ceilings"
 									}
 								},
 								{
@@ -1183,7 +1196,13 @@
 											"top_state": "minecraft:blackstone",
 											"under_state": "minecraft:blackstone",
 											"depth": "random.nextDouble(1.0, 5.0)"
-										}
+										},
+										"floor_decorator": "bigglobe:nether/basalt_deltas_cavern_floors",
+										"ceiling_decorator": "bigglobe:nether/basalt_deltas_cavern_ceilings"
+									},
+									"caves": {
+										"floor_decorator": "bigglobe:nether/basalt_deltas_cave_floors",
+										"ceiling_decorator": "bigglobe:nether/basalt_deltas_cave_ceilings"
 									}
 								},
 								{
@@ -1203,8 +1222,14 @@
 										"surface": {
 											"top_state": "minecraft:soul_sand",
 											"under_state": "minecraft:soul_sand",
-											"depth": "0.0"
-										}
+											"depth": "random.nextDouble(1.0, 5.0)"
+										},
+										"floor_decorator": "bigglobe:nether/soul_sand_valley_cavern_floors",
+										"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cavern_ceilings"
+									},
+									"caves": {
+										"floor_decorator": "bigglobe:nether/soul_sand_valley_cave_floors",
+										"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cave_ceilings"
 									}
 								}
 							]

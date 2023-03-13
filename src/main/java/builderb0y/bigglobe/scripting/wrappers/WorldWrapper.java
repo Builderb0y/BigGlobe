@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -43,7 +44,7 @@ public class WorldWrapper {
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
-		this.world.setBlockState(this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
+		WorldUtil.setBlockState(this.world, this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
 		if (!state.getFluidState().isEmpty()) {
 			this.world.createAndScheduleFluidTick(
 				this.pos,

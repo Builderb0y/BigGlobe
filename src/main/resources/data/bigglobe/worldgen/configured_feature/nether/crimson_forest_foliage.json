@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if(0.25:",
+				"random.if(0.125:",
+					"random.if(0.75:",
+						"return(placeFeature(originX, originY, originZ, 'bigglobe:nether/trees/natural/crimson'))",
+					")",
+					"else (",
+						"return(placeBlockState(originX, originY, originZ, 'minecraft:crimson_fungus'))",
+					")",
+				")",
+				"else (",
+					"return(placeBlockState(originX, originY, originZ, 'minecraft:crimson_roots'))",
+				")",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

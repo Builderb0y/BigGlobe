@@ -20,6 +20,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.level.storage.LevelStorage;
 
+import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
@@ -55,6 +56,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeLoot.init();
 		BigGlobeBlocks.init();
 		BigGlobeItems.init();
+		BigGlobeBlockEntityTypes.init();
 		//normally I would initialize TreeRegistry here,
 		//since that needs to be done after blocks,
 		//but it also needs to be done after *other* mods' blocks.

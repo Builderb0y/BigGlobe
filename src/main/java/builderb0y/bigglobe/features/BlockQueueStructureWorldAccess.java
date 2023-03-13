@@ -41,6 +41,8 @@ import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.event.GameEvent.Emitter;
 import net.minecraft.world.tick.QueryableTickScheduler;
 
+import builderb0y.bigglobe.blocks.BlockStates;
+
 public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
 	public final StructureWorldAccess world;
@@ -63,7 +65,13 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
 	@Override
 	public BlockState getBlockState(BlockPos pos) {
-		return this.queue.getBlockState(pos, this.world);
+		BlockState state = this.queue.getBlockStateOrNull(pos);
+		return state != null ? state : this.getWorldState(pos);
+	}
+
+	public BlockState getWorldState(BlockPos pos) {
+		Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.NOISE, false);
+		return chunk != null ? chunk.getBlockState(pos) : BlockStates.AIR;
 	}
 
 	@Override

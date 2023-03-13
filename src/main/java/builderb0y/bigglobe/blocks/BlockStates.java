@@ -44,7 +44,9 @@ public class BlockStates {
 		LAVA                   = Blocks.LAVA.getDefaultState(),
 		ICE                    = Blocks.ICE.getDefaultState(),
 
-		NETHERRACK             = Blocks.NETHERRACK.getDefaultState();
+		NETHERRACK             = Blocks.NETHERRACK.getDefaultState(),
+
+		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
 
 	/**
 	the syntax for {@link BlockState#with(Property, Comparable)}

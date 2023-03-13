@@ -115,7 +115,7 @@ public class TreeGenerator {
 			for (int blockZ = minZ; blockZ <= maxZ; blockZ++) {
 				if (offsetX2 + squareD(blockZ - centerZ) < radius2) {
 					mutablePos.setZ(blockZ);
-					BlockState existingState = this.worldQueue.world.getBlockState(mutablePos);
+					BlockState existingState = this.worldQueue.getWorldState(mutablePos);
 					if (this.canTrunkReplace(mutablePos, existingState)) {
 						this.worldQueue.setBlockState(mutablePos, logY);
 						for (BlockDecorator decorator : this.decorators.trunkBlock) {
@@ -222,7 +222,7 @@ public class TreeGenerator {
 	}
 
 	public void generateBranchBlock(BlockPos pos, BlockState branchState) throws NotEnoughSpaceException {
-		if (this.canLogReplace(this.worldQueue.world.getBlockState(pos))) {
+		if (this.canLogReplace(this.worldQueue.getWorldState(pos))) {
 			if (this.canLogReplace(this.worldQueue.queue.getBlockState(pos))) { //don't overwrite logs with other logs.
 				this.worldQueue.setBlockState(pos, branchState);
 				for (BlockDecorator decorator : this.decorators.branchBlock) {
@@ -243,7 +243,7 @@ public class TreeGenerator {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);
-			existingState = this.worldQueue.world.getBlockState(mutablePos);
+			existingState = this.worldQueue.getWorldState(mutablePos);
 			mutablePos.setY(oldY);
 			return TreeSpecialCases.getGroundReplacements().containsKey(existingState);
 		}

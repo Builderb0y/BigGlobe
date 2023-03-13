@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"unless (random.nextBoolean(0.25): return(false))",
+			"while (--originY,, random.nextBoolean() && getBlockState(originX, originY, originZ).isAir():",
+				"setBlockState(originX, originY, originZ, 'minecraft:weeping_vines_plant')",
+			")",
+			"++originY",
+			"if (getBlockState(originX, originY, originZ) == BlockState('minecraft:weeping_vines_plant'):",
+				"setBlockState(originX, originY, originZ, 'minecraft:weeping_vines[age=25]')",
+			")",
+			"return(true)"
+		]
+	}
+}

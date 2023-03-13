@@ -20,6 +20,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -29,13 +30,17 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.PositionCache.NetherPositionCache;
+import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
+import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
+import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -214,28 +219,86 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			long columnSeed = Permuter.permute(chunkSeed, horizontalIndex);
 			pos.setX(horizontalIndex & 15).setZ(horizontalIndex >>> 4);
 			NetherColumn column = columns.getColumn(horizontalIndex);
-			BlockState expect = column.getLocalCell().settings.filler();
-			NetherSurfaceSettings surface = column.getLocalCell().settings.caverns().surface();
-			ColumnYRandomToDoubleScript.Holder depthScript = surface.depth();
-			IntList floors = column.cavernFloors;
-			for (int floorIndex = 0, floorCount = floors.size(); floorIndex < floorCount; floorIndex++) {
-				int y = floors.getInt(floorIndex) - 1;
-				permuter.setSeed(Permuter.permute(columnSeed, y));
-				int depth = BigGlobeMath.floorI(depthScript.evaluate(column, y, permuter));
-				boolean top = true;
-				for (int i = 0; i < depth; i++) {
-					pos.setY(y - i);
-					BlockState existingState = chunk.getBlockState(pos);
-					if (existingState == expect) {
-						chunk.setBlockState(pos, top ? surface.top_state() : surface.under_state(), false);
-						top = false;
-					}
-					else if (existingState.isAir()) {
-						top = true;
-					}
+			LocalNetherSettings localSettings = column.getLocalCell().settings;
+			BlockState expect = localSettings.filler();
+			this.generateSurface(
+				chunk,
+				column,
+				pos,
+				permuter,
+				columnSeed,
+				localSettings.caverns().floor_surface(),
+				-1,
+				column.cavernFloors,
+				expect
+			);
+			this.generateSurface(
+				chunk,
+				column,
+				pos,
+				permuter,
+				columnSeed,
+				localSettings.caverns().ceiling_surface(),
+				1,
+				column.cavernCeilings,
+				expect
+			);
+			this.generateSurface(
+				chunk,
+				column,
+				pos,
+				permuter,
+				columnSeed,
+				localSettings.caves().floor_surface(),
+				-1,
+				column.caveFloors,
+				expect
+			);
+			this.generateSurface(
+				chunk,
+				column,
+				pos,
+				permuter,
+				columnSeed,
+				localSettings.caves().ceiling_surface(),
+				1,
+				column.caveCeilings,
+				expect
+			);
+		}
+	}
+
+	public void generateSurface(
+		Chunk chunk,
+		NetherColumn column,
+		BlockPos.Mutable pos,
+		Permuter permuter,
+		long columnSeed,
+		NetherSurfaceSettings surface,
+		int delta,
+		IntList yLevels,
+		BlockState expect
+	) {
+		if (surface == null) return;
+		Holder depthScript = surface.depth();
+		for (int floorIndex = 0, floorCount = yLevels.size(); floorIndex < floorCount; floorIndex++) {
+			int y = yLevels.getInt(floorIndex) - 1;
+			permuter.setSeed(Permuter.permute(columnSeed, y));
+			int depth = BigGlobeMath.floorI(depthScript.evaluate(column, y, permuter));
+			boolean top = true;
+			for (int i = 0; i < depth; i++) {
+				pos.setY(y - i * delta);
+				BlockState existingState = chunk.getBlockState(pos);
+				if (existingState == expect) {
+					chunk.setBlockState(pos, top ? surface.top_state() : surface.under_state(), false);
+					top = false;
+				}
+				else if (existingState.isAir()) {
+					top = true;
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -245,17 +308,17 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			this.profiler.run("initial terrain column values", () -> {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getLocalCell();
+					column.getEdginess();
 					column.getCaveNoise();
 					this.runCaveOverriders(column);
 					column.getCavernNoise();
 					this.runCavernOverriders(column);
-					column.getEdginess();
 					column.populateCaveAndCavernFloors();
 				});
 			});
-			//if (chunk instanceof PositionCacheHolder holder) {
-			//	holder.bigglobe_setPositionCache(new NetherPositionCache(columns));
-			//}
+			if (chunk instanceof PositionCacheHolder holder) {
+				holder.bigglobe_setPositionCache(new NetherPositionCache(columns));
+			}
 			this.profiler.run("set raw terrain blocks", () -> {
 				this.generateRawSections(chunk, columns, structureAccessor);
 			});
@@ -283,7 +346,73 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
+		this.profiler.run("Features", () -> {
+			NetherPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof NetherPositionCache nether ? nether : null;
+			ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
+			try {
+				this.profiler.run("Initial feature column values", () -> {
+					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
+						column.getLocalCell();
+						column.getEdginess();
+						if (cache == null) {
+							column.getCaveNoise();
+							this.runCaveOverriders(column);
+							column.getCavernNoise();
+							this.runCavernOverriders(column);
+							column.populateCaveAndCavernFloors();
+						}
+					});
+				});
+				NetherPositionCache cache_ = cache != null ? cache : new NetherPositionCache(columns);
+				this.profiler.run("Feature placement", () -> {
+					BlockPos.Mutable pos = new BlockPos.Mutable();
+					Permuter permuter = new Permuter(0L);
+					MojangPermuter mojang = permuter.mojang();
+					for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
+						NetherColumn column = columns.getColumn(columnIndex);
+						pos.setX(column.x).setZ(column.z);
+						permuter.setSeed(Permuter.permute(this.seed ^ 0xC4D38782789D95FDL, column.x, column.z));
+						LocalNetherSettings localSettings = column.getLocalCell().settings;
+						this.runDecorators(world, pos, mojang, localSettings.caverns().floor_decorator(), cache_.cavernFloors[columnIndex]);
+						this.runDecorators(world, pos, mojang, localSettings.caverns().ceiling_decorator(), cache_.cavernCeilings[columnIndex]);
+						this.runDecorators(world, pos, mojang, localSettings.caves().floor_decorator(), cache_.caveFloors[columnIndex]);
+						this.runDecorators(world, pos, mojang, localSettings.caves().ceiling_decorator(), cache_.caveCeilings[columnIndex]);
+					}
+				});
+			}
+			finally {
+				this.chunkColumnCache.reclaim(columns);
+			}
+		});
+	}
+
+	public void runDecorators(
+		StructureWorldAccess world,
+		BlockPos.Mutable pos,
+		MojangPermuter permuter,
+		SortedFeatureTag decorator,
+		IntList yLevels
+	) {
+		if (decorator != null && !yLevels.isEmpty()) {
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			if (features.length != 0) {
+				this.profiler.run(decorator.key.id(), () -> {
+					long columnSeed = permuter.getSeed();
+					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
+						int y = yLevels.getInt(yIndex);
+						pos.setY(y);
+						long blockSeed = Permuter.permute(columnSeed, y);
+						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
+							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
+							features[featureIndex].generate(world, this, permuter, pos);
+						}
+					}
+					permuter.setSeed(columnSeed);
+				});
+			}
+		}
 	}
 
 	@Override
@@ -342,7 +471,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					states[index] = y < lavaLevel ? BlockStates.LAVA : BlockStates.AIR;
 				}
 				else {
-					states[index] = BlockStates.NETHERRACK;
+					states[index] = localSettings.filler();
 				}
 			}
 		}));

@@ -5,7 +5,9 @@ import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -29,7 +31,7 @@ public record NetherSettings(
 		NetherCavernSettings caverns,
 		NetherCaveSettings caves,
 		RandomSource lava_level,
-		BlockState filler
+		@VerifyNormal BlockState filler
 	)
 	implements IWeightedListElement {
 
@@ -46,13 +48,20 @@ public record NetherSettings(
 		int upper_padding,
 		int side_padding,
 		Grid3D noise,
-		NetherSurfaceSettings surface
+		@VerifyNullable NetherSurfaceSettings floor_surface,
+		@VerifyNullable NetherSurfaceSettings ceiling_surface,
+		SortedFeatureTag floor_decorator,
+		SortedFeatureTag ceiling_decorator
 	) {}
 
 	public static record NetherCaveSettings(
 		Grid3D noise,
 		ColumnYToDoubleScript.Holder width,
-		@VerifyNullable Integer lower_padding
+		@VerifyNullable Integer lower_padding,
+		@VerifyNullable NetherSurfaceSettings floor_surface,
+		@VerifyNullable NetherSurfaceSettings ceiling_surface,
+		SortedFeatureTag floor_decorator,
+		SortedFeatureTag ceiling_decorator
 	) {}
 
 	public static record NetherSurfaceSettings(

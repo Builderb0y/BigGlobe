@@ -11,6 +11,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 
@@ -18,6 +20,31 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 
 public class WorldUtil {
+
+	/**
+	sets a block state PROPERLY. there are some bugs in ChunkRegion where it doesn't
+	do it right for states with block entities, and this method fixes that logic.
+	*/
+	public static void setBlockState(WorldAccess world, BlockPos pos, BlockState state, int flags) {
+		//ChunkRegion.setBlockState() doesn't call toImmutable(),
+		//which could lead to block entities containing a leaked mutable pos.
+		//note: calling toImmutable() is unnecessary if the state does not have a tile entity.
+		boolean special = world instanceof ChunkRegion && state.hasBlockEntity();
+		if (special) pos = pos.toImmutable();
+		world.setBlockState(pos, state, flags);
+		if (special) {
+			//ChunkRegion's will prefer to create deferred block entities sometimes instead of regular block entities.
+			//manually fetching the block entity will force it to convert from deferred to regular.
+			BlockEntity blockEntity = getBlockEntity(world, pos, BlockEntity.class); //log error if nothing was found.
+			//however, this does not remove it from the deferred list.
+			Chunk chunk = world.getChunk(pos);
+			chunk.removeBlockEntity(pos);
+			//NOW it's removed from the deferred list.
+			//but it's also removed from the normal list,
+			//so we need to re-add it.
+			if (blockEntity != null) chunk.setBlockEntity(blockEntity);
+		}
+	}
 
 	public static BlockPos.@Nullable Mutable findNonReplaceableGround(BlockView world, BlockPos start) {
 		return findNonReplaceableGroundMutable(world, start.mutableCopy());

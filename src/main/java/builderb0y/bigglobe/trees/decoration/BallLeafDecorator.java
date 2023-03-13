@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.trees.decoration;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 
 import builderb0y.bigglobe.trees.TreeGenerator;
@@ -10,9 +9,13 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
-public class ShroomlightSphereLeafPlacer implements BranchDecorator, TrunkDecorator {
+public class BallLeafDecorator implements BranchDecorator, TrunkDecorator {
 
-	public static final ShroomlightSphereLeafPlacer INSTANCE = new ShroomlightSphereLeafPlacer();
+	public final BlockState innerState;
+
+	public BallLeafDecorator(BlockState innerState) {
+		this.innerState = innerState;
+	}
 
 	@Override
 	public void decorate(TreeGenerator generator, TrunkConfig trunk) {
@@ -53,13 +56,13 @@ public class ShroomlightSphereLeafPlacer implements BranchDecorator, TrunkDecora
 					mutablePos.setY(y);
 					//noinspection AssignmentUsedAsCondition
 					if (placed = generator.canLeavesReplace(generator.worldQueue.getBlockState(mutablePos))) {
-						BlockState toPlace = offsetXYZ2 < lightRadius2 ? Blocks.SHROOMLIGHT.getDefaultState() : leafState;
+						BlockState toPlace = offsetXYZ2 < lightRadius2 ? this.innerState : leafState;
 						generator.queueAndDecorateLeaf(mutablePos, toPlace);
 					}
 				}
 				if (placed) while (generator.random.nextBoolean()) {
 					mutablePos.setY(mutablePos.getY() - 1);
-					if (mutablePos.getY() < 0) break;
+					if (generator.worldQueue.isOutOfHeightLimit(mutablePos)) break;
 					if (generator.canLeavesReplace(generator.worldQueue.getBlockState(mutablePos))) {
 						generator.queueAndDecorateLeaf(mutablePos, leafState);
 					}

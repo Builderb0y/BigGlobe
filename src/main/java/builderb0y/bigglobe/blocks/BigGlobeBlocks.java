@@ -131,6 +131,16 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings.copy(FLOATSTONE)
 		)
 	);
+	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
+		"delayed_generation",
+		new DelayedGenerationBlock(
+			AbstractBlock.Settings.of(Material.PLANT)
+			.breakInstantly()
+			.noCollision()
+			.nonOpaque()
+			.dropsNothing()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 

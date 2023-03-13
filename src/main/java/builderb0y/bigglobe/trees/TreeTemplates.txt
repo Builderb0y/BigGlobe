@@ -18,7 +18,7 @@ import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
 import builderb0y.bigglobe.trees.decoration.ShelfDecorator;
 import builderb0y.bigglobe.trees.decoration.ShelfPlacer;
-import builderb0y.bigglobe.trees.decoration.ShroomlightSphereLeafPlacer;
+import builderb0y.bigglobe.trees.decoration.BallLeafDecorator;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TwistedTrunkConfig;
 

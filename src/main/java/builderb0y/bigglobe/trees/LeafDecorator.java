@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
 
@@ -20,7 +21,7 @@ public abstract class LeafDecorator implements BlockDecorator {
 	public boolean placeAt(TreeGenerator generator, BlockPos.Mutable pos, int distance) {
 		BlockState existingState = generator.worldQueue.getBlockState(pos);
 		if (generator.canLeavesReplace(existingState)) {
-			distance = Math.min(distance, 7);
+			distance = Interpolator.clamp(1, 7, distance);
 			BlockState toPlace;
 			if (this.leaf_states != null) {
 				toPlace = this.leaf_states.getRandomElement(generator.random);

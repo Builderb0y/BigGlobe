@@ -5,6 +5,9 @@ bug fixes:
 
 testing:
 	cubic chunks compatibility, whenever that's released.
+	compatibility with chunk pre-generator mods.
+		"chunky" is the one reported to me, and apparently it either
+		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
 	column values for cliff frac and cliff bias.
@@ -20,7 +23,7 @@ AutoCodec:
 			this could also target a constructor.
 	builtin framework for key dispatching.
 	add @VerifyNotEmpty.
-		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = 0).
+		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = false).
 
 scripting:
 	better syntax for specifying variable block states.
@@ -78,13 +81,17 @@ features:
 				lots of ores everywhere.
 		make lilypads renewable?
 	nether:
-		surface needs to take depth into account.
-		surface blocks for caves?
-		ceiling blocks for caverns/caves?
 		all biomes.
 			including charred forest.
 				needs assets from old version.
 		bedrock.
+		weeping and twisting vines in crimson and warped forests.
+		ores.
+			nether quartz.
+			sulfur.
+		nether quartz geodes?
+		structures.
+		rock layers.
 	end:
 		jessie wants worley noise for the end.
 

@@ -1,0 +1,28 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if(0.25:",
+				"random.if(0.125:",
+					"random.if(0.75:",
+						"return(placeFeature(originX, originY, originZ, 'bigglobe:nether/trees/natural/warped'))",
+					")",
+					"else (",
+						"return(placeBlockState(originX, originY, originZ, 'minecraft:warped_fungus'))",
+					")",
+				")",
+				"else (",
+					"random.if(",
+						"return(placeBlockState(originX, originY, originZ, 'minecraft:warped_roots'))",
+					")",
+					"else (",
+						"return(placeBlockState(originX, originY, originZ, 'minecraft:nether_sprouts'))",
+					")",
+				")",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}
