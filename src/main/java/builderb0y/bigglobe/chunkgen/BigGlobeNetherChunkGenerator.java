@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.chunkgen;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import com.mojang.serialization.Codec;
@@ -32,6 +33,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.PositionCache.NetherPositionCache;
 import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
+import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
@@ -162,8 +164,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, StructureAccessor structures) {
 		this.generateSectionsParallel(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
 			BlockState previousFiller = null;
+			BlockState previousFluid  = null;
 			int fillerID = -1;
-			int lavaID = context.id(BlockStates.LAVA);
+			int fluidID  = -1;
 			PaletteStorage storage = context.storage();
 
 			int startY = context.startY();
@@ -177,12 +180,14 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				int cavernUpperY = localSettings.caverns().max_y();
 				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().width();
 				int lavaLevel = column.getLocalCell().lavaLevel;
-				if (localSettings.filler() != previousFiller) {
+				if (localSettings.filler() != previousFiller || localSettings.fluid_state() != previousFluid) {
 					previousFiller = localSettings.filler();
+					previousFluid = localSettings.fluid_state();
 					fillerID = context.id(previousFiller);
+					fluidID = context.id(previousFluid);
 					if (storage != (storage = context.storage())) { //resize
 						fillerID = context.id(previousFiller);
-						lavaID = context.id(BlockStates.LAVA);
+						fluidID = context.id(previousFluid);
 						assert storage == context.storage();
 					}
 				}
@@ -199,7 +204,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 						)
 					) {
 						if (y < lavaLevel) {
-							storage.set(index, lavaID);
+							storage.set(index, fluidID);
 							context.addLight(index);
 						}
 					}
@@ -282,7 +287,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		if (surface == null) return;
 		Holder depthScript = surface.depth();
 		for (int floorIndex = 0, floorCount = yLevels.size(); floorIndex < floorCount; floorIndex++) {
-			int y = yLevels.getInt(floorIndex) - 1;
+			int y = yLevels.getInt(floorIndex) + delta;
 			permuter.setSeed(Permuter.permute(columnSeed, y));
 			int depth = BigGlobeMath.floorI(depthScript.evaluate(column, y, permuter));
 			boolean top = true;
@@ -321,6 +326,12 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			}
 			this.profiler.run("set raw terrain blocks", () -> {
 				this.generateRawSections(chunk, columns, structureAccessor);
+			});
+			this.profiler.run("Bedrock", () -> {
+				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y()     )), this.seed, columns)));
+				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y() - 16)), this.seed, columns)));
+				lower.join();
+				upper.join();
 			});
 			this.profiler.run("Recount", () -> {
 				this.generateSectionsParallelSimple(

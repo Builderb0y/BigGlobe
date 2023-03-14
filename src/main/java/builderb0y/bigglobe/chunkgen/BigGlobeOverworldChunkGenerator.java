@@ -407,7 +407,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			});
 			this.generateRockLayers(chunk, minHeight, maxSurface, columns, false);
 			ChunkSection bottomSection = chunk.getSection(chunk.getSectionIndex(this.getMinimumY()));
-			BedrockReplacer.generate(new SectionGenerationContext(chunk, bottomSection, this.seed, columns));
+			BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, bottomSection, this.seed, columns));
 		}
 		this.profiler.run("Recalculate counts", () -> {
 			this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, SectionGenerationContext::recalculateCounts);

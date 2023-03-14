@@ -185,7 +185,7 @@ public class NetherColumn extends WorldColumn {
 		}
 		localCell.voronoiCell = voronoiCell;
 		localCell.settings = DelegatingContainedRandomList.from(this.settings.local_settings().elements).getRandomElement(voronoiCell.center.getSeed(0x3609EABAE4B4765CL));
-		localCell.lavaLevel = BigGlobeMath.ceilI(localCell.settings.lava_level().get(voronoiCell.center.getSeed(0xEAC12131FA3753DEL)));
+		localCell.lavaLevel = BigGlobeMath.ceilI(localCell.settings.fluid_level().get(voronoiCell.center.getSeed(0xEAC12131FA3753DEL)));
 		return localCell;
 	}
 

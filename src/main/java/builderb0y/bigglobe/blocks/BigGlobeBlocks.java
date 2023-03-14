@@ -17,6 +17,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.fluids.BigGlobeFluids;
 
 public class BigGlobeBlocks {
 
@@ -142,6 +143,41 @@ public class BigGlobeBlocks {
 		)
 	);
 
+	public static final NetherGrassBlock WART_WEED = register(
+		"wart_weed",
+		new NetherGrassBlock(
+			AbstractBlock.Settings.of(Material.NETHER_SHOOTS, MapColor.RED)
+			.nonOpaque()
+			.noCollision()
+			.breakInstantly()
+			.sounds(BlockSoundGroup.GRASS)
+			.offsetType(OffsetType.XZ)
+		)
+	);
+	public static final NetherGrassBlock CHARRED_GRASS = register(
+		"charred_grass",
+		new NetherGrassBlock(
+			AbstractBlock.Settings.of(Material.NETHER_SHOOTS, MapColor.BLACK)
+			.nonOpaque()
+			.noCollision()
+			.breakInstantly()
+			.sounds(BlockSoundGroup.GRASS)
+			.offsetType(OffsetType.XZ)
+		)
+	);
+	public static final SoulLavaBlock SOUL_LAVA = register(
+		"soul_lava",
+		new SoulLavaBlock(
+			BigGlobeFluids.SOUL_LAVA,
+			AbstractBlock.Settings.of(Material.LAVA, MapColor.DIAMOND_BLUE)
+			.noCollision()
+			.ticksRandomly()
+			.strength(100.0F)
+			.luminance(state -> 15)
+			.dropsNothing()
+		)
+	);
+
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
 	public static FlowerPotBlock newPottedPlant(Block plant) {
@@ -175,7 +211,9 @@ public class BigGlobeBlocks {
 			ROSE,
 			POTTED_ROSE,
 			SHORT_GRASS,
-			MUSHROOM_SPORES
+			MUSHROOM_SPORES,
+			WART_WEED,
+			CHARRED_GRASS
 		);
 
 		ColorProviderRegistry.BLOCK.register(

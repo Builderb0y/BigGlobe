@@ -35,6 +35,7 @@
 		"WoodlandMansionStructure_DontHardCodeSeaLevel"
 	],
 	"client": [
+		"BackgroundRenderer_SoulLavaFogColor",
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",

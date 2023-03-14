@@ -3,18 +3,17 @@ package builderb0y.bigglobe.items;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ToolMaterials;
+import net.minecraft.item.*;
 import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.fluids.BigGlobeFluids;
 
 public class BigGlobeItems {
 
@@ -40,7 +39,9 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE_STAIRS = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
 		FLOATSTONE               = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE),
 		FLOATSTONE_SLAB          = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE_SLAB),
-		FLOATSTONE_STAIRS        = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE_STAIRS);
+		FLOATSTONE_STAIRS        = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE_STAIRS),
+		WART_WEED                = registerDecoPlacer(BigGlobeBlocks.WART_WEED),
+		CHARRED_GRASS            = registerDecoPlacer(BigGlobeBlocks.CHARRED_GRASS);
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
 		new TorchArrowItem(
@@ -55,6 +56,19 @@ public class BigGlobeItems {
 			ToolMaterials.IRON,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
 			new Item.Settings().group(ItemGroup.TOOLS)
+		)
+	);
+	public static final Item ASH = register(
+		"ash",
+		new Item(
+			new Item.Settings().group(ItemGroup.BREWING)
+		)
+	);
+	public static final BucketItem SOUL_LAVA_BUCKET = register(
+		"soul_lava_bucket",
+		new BucketItem(
+			BigGlobeFluids.SOUL_LAVA,
+			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1).group(ItemGroup.MISC)
 		)
 	);
 
@@ -81,7 +95,7 @@ public class BigGlobeItems {
 	}
 
 	public static void init() {
-		//triggers static initializer.
+		FuelRegistry.INSTANCE.add(SOUL_LAVA_BUCKET, 20000);
 	}
 
 	@Environment(EnvType.CLIENT)

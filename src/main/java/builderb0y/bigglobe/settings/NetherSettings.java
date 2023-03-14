@@ -30,7 +30,8 @@ public record NetherSettings(
 		RegistryEntry<Biome> biome,
 		NetherCavernSettings caverns,
 		NetherCaveSettings caves,
-		RandomSource lava_level,
+		BlockState fluid_state,
+		RandomSource fluid_level,
 		@VerifyNormal BlockState filler
 	)
 	implements IWeightedListElement {

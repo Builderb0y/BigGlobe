@@ -84,16 +84,28 @@ features:
 		all biomes.
 			including charred forest.
 				needs assets from old version.
-		bedrock.
-		weeping and twisting vines in crimson and warped forests.
 		ores.
 			nether quartz.
 			sulfur.
 		nether quartz geodes?
 		structures.
 		rock layers.
+		obsidian spires.
+		flowers:
+			fire in nether wastes and ashen wastes.
+			soul fire in valley of souls.
+			nether wart in nether wastes, crimson forest, and valley of souls.
+			glowing goldenrod in nether wastes, crimson forest, and warped forest.
+			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
+		glowstone in nether wastes, ashen wastes, and basalt deltas, extra glowstone in crimson forest and warped forest.
+		custom biomes for custom mob spawning.
+		charred grass in nether wastes, ashen wastes, and valley of souls.
+		soul campfire in valley of souls.
+		worley noise for nether wastes?
+			concave.
 	end:
 		jessie wants worley noise for the end.
+			convex.
 
 before release:
 	disable dev mixins.

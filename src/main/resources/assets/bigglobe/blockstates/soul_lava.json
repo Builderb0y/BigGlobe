@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"level=0":  { "model": "bigglobe:block/soul_lava" },
+		"level=1":  { "model": "bigglobe:block/soul_lava" },
+		"level=2":  { "model": "bigglobe:block/soul_lava" },
+		"level=3":  { "model": "bigglobe:block/soul_lava" },
+		"level=4":  { "model": "bigglobe:block/soul_lava" },
+		"level=5":  { "model": "bigglobe:block/soul_lava" },
+		"level=6":  { "model": "bigglobe:block/soul_lava" },
+		"level=7":  { "model": "bigglobe:block/soul_lava" },
+		"level=8":  { "model": "bigglobe:block/soul_lava" },
+		"level=9":  { "model": "bigglobe:block/soul_lava" },
+		"level=10": { "model": "bigglobe:block/soul_lava" },
+		"level=11": { "model": "bigglobe:block/soul_lava" },
+		"level=12": { "model": "bigglobe:block/soul_lava" },
+		"level=13": { "model": "bigglobe:block/soul_lava" },
+		"level=14": { "model": "bigglobe:block/soul_lava" },
+		"level=15": { "model": "bigglobe:block/soul_lava" }
+	}
+}

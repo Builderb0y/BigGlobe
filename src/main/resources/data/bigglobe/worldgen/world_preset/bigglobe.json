@@ -1095,7 +1095,8 @@
 										}
 									}
 								},
-								"lava_level": 64,
+								"fluid_state": "minecraft:lava[level=0]",
+								"fluid_level": 64,
 								"filler": "minecraft:netherrack"
 							},
 							"variations": [
@@ -1219,7 +1220,7 @@
 												{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 }
 											]
 										},
-										"surface": {
+										"floor_surface": {
 											"top_state": "minecraft:soul_sand",
 											"under_state": "minecraft:soul_sand",
 											"depth": "random.nextDouble(1.0, 5.0)"
@@ -1230,7 +1231,8 @@
 									"caves": {
 										"floor_decorator": "bigglobe:nether/soul_sand_valley_cave_floors",
 										"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cave_ceilings"
-									}
+									},
+									"fluid_state": "bigglobe:soul_lava[level=0]"
 								}
 							]
 						}

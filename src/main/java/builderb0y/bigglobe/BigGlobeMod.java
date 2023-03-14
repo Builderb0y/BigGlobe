@@ -22,6 +22,7 @@ import net.minecraft.world.level.storage.LevelStorage;
 
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
@@ -30,6 +31,7 @@ import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
+import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
@@ -54,9 +56,11 @@ public class BigGlobeMod implements ModInitializer {
 		LOGGER.info("Initializing...");
 		BigGlobeConfig.init();
 		BigGlobeLoot.init();
+		BigGlobeFluids.init();
 		BigGlobeBlocks.init();
 		BigGlobeItems.init();
 		BigGlobeBlockEntityTypes.init();
+		BigGlobeBrewing.init();
 		//normally I would initialize TreeRegistry here,
 		//since that needs to be done after blocks,
 		//but it also needs to be done after *other* mods' blocks.
