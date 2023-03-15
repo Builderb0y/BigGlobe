@@ -12,5 +12,6 @@
 		"stairs": "minecraft:warped_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
 		"fence": "minecraft:warped_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
 		"fence_gate": "minecraft:warped_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
-	}
+	},
+	"feature": "bigglobe:nether/trees/artificial/crimson"
 }

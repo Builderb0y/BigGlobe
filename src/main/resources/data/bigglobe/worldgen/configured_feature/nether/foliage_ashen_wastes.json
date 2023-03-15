@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if(0.25:",
+				"random.if(0.0625:",
+					"return(placeFeature(originX, originY, originZ, 'bigglobe:nether/trees/natural/charred'))",
+				")",
+				"else (",
+					"return(placeBlockState(originX, originY, originZ, 'bigglobe:charred_grass'))",
+				")",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

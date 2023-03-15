@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "wooden_door",
+	"pattern": [
+		"xx",
+		"xx",
+		"xx"
+	],
+	"key": {
+		"x": { "item": "bigglobe:charred_planks" }
+	},
+	"result": {
+		"item": "bigglobe:charred_door",
+		"count": 3
+	}
+}

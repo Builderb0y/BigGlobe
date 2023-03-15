@@ -57,7 +57,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "isIn")
 		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 		.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
-		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "blocksLight", "hasCollision", "hasFullCubeCollision", "rotate", "mirror", "with")
+		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
 		.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", (parser, receiver, name, arguments) -> {
 			InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_NULL, arguments);
 			return position == null ? null : new CastResult(invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]), position != arguments);

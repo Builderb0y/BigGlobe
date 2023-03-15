@@ -8,9 +8,15 @@ testing:
 	compatibility with chunk pre-generator mods.
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
+	verify that all new nether blocks are breakable with the correct tool.
+	verify that all new nether blocks have recipes.
 
 where I left off:
 	column values for cliff frac and cliff bias.
+
+changelog:
+	* Fixed cold biomes not quite lining up with where snow forms in the overworld.
+	* Added nether support.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -87,6 +93,9 @@ features:
 		ores.
 			nether quartz.
 			sulfur.
+			nether pyrite.
+				needs model/blockstate/lang/loot table/etc...
+			ancient debris.
 		nether quartz geodes?
 		structures.
 		rock layers.
@@ -103,6 +112,10 @@ features:
 		soul campfire in valley of souls.
 		worley noise for nether wastes?
 			concave.
+		soul lava cauldron.
+		hidden lava.
+		magma blocks for variation.
+		recipes for sulfur blocks and charred blocks.
 	end:
 		jessie wants worley noise for the end.
 			convex.
@@ -112,6 +125,9 @@ before release:
 	make sure nothing in test package is used.
 	disable BigGlobeItems.TEST_ITEM.
 	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
+
+porting:
+	add sniffer_diggable_block tag to include overgrown podzol.
 
 when updating to a new version:
 	check how ChunkSection counts are used.

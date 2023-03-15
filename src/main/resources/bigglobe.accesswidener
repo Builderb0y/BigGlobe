@@ -9,3 +9,6 @@ extendable method net/minecraft/world/gen/chunk/ChunkGenerator trySetStructureSt
 #used to make ocean monuments spawn at the correct Y level,
 #instead of a hard-coded Y level which only works for vanilla worlds.
 accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
+
+#used to make charred buttons press for 10 ticks instead of 20 or 30.
+extendable method net/minecraft/block/AbstractButtonBlock getPressTicks ()I

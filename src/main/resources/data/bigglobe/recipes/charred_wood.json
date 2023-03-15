@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "bark",
+	"pattern": [
+		"xx",
+		"xx"
+	],
+	"key": {
+		"x": { "item": "bigglobe:charred_log" }
+	},
+	"result": {
+		"item": "bigglobe:charred_wood",
+		"count": 3
+	}
+}

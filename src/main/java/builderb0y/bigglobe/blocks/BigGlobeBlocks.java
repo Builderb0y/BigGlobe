@@ -4,24 +4,43 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.sign.SignTypeRegistry;
+import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.sapling.SaplingGenerator;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.HoeItem;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.SignType;
+import net.minecraft.util.math.intprovider.UniformIntProvider;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.blockEntities.MutableBlockEntityType;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.trees.SaplingGrowHandler;
 
 public class BigGlobeBlocks {
 
 	static { BigGlobeMod.LOGGER.debug("Registering blocks..."); }
+
+	public static final SignType CHARRED_SIGN_TYPE = SignTypeRegistry.registerSignType(BigGlobeMod.modID("charred"));
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = register(
 		"overgrown_sand",
@@ -143,6 +162,32 @@ public class BigGlobeBlocks {
 		)
 	);
 
+	public static final AshenNetherrackBlock ASHEN_NETHERRACK = register(
+		"ashen_netherrack",
+		new AshenNetherrackBlock(
+			AbstractBlock.Settings.of(Material.STONE, MapColor.BLACK)
+			.requiresTool()
+			.strength(0.4F)
+			.sounds(BlockSoundGroup.NETHERRACK)
+		)
+	);
+	public static final Block SULFUR_ORE = register(
+		"sulfur_ore",
+		new OreBlock(
+			AbstractBlock.Settings.of(Material.STONE, MapColor.DARK_RED)
+			.strength(3.0F)
+			.requiresTool(),
+			UniformIntProvider.create(0, 2)
+		)
+	);
+	public static final Block SULFUR_BLOCK = register(
+		"sulfur_block",
+		new Block(
+			AbstractBlock.Settings.of(Material.STONE, MapColor.YELLOW)
+			.strength(5.0F, 6.0F)
+			.requiresTool()
+		)
+	);
 	public static final NetherGrassBlock WART_WEED = register(
 		"wart_weed",
 		new NetherGrassBlock(
@@ -165,6 +210,34 @@ public class BigGlobeBlocks {
 			.offsetType(OffsetType.XZ)
 		)
 	);
+	public static final BlazingBlossomBlock BLAZING_BLOSSOM = register(
+		"blazing_blossom",
+		new BlazingBlossomBlock(
+			StatusEffects.FIRE_RESISTANCE,
+			8,
+			AbstractBlock.Settings.of(Material.PLANT, MapColor.TERRACOTTA_ORANGE)
+			.breakInstantly()
+			.nonOpaque()
+			.noCollision()
+			.sounds(BlockSoundGroup.GRASS)
+			.luminance(state -> 7)
+		)
+	);
+	public static final NetherFlowerBlock GLOWING_GOLDENROD = register(
+		"glowing_goldenrod",
+		new NetherFlowerBlock(
+			StatusEffects.GLOWING,
+			8,
+			AbstractBlock.Settings.of(Material.PLANT, MapColor.PALE_YELLOW)
+			.breakInstantly()
+			.nonOpaque()
+			.noCollision()
+			.sounds(BlockSoundGroup.GRASS)
+			.luminance(state -> 11)
+		)
+	);
+	public static final FlowerPotBlock POTTED_BLAZING_BLOSSOM = register("potted_blazing_blossom", newPottedPlant(BLAZING_BLOSSOM));
+	public static final FlowerPotBlock POTTED_GLOWING_GOLDENROD = register("potted_glowing_goldenrod", newPottedPlant(GLOWING_GOLDENROD));
 	public static final SoulLavaBlock SOUL_LAVA = register(
 		"soul_lava",
 		new SoulLavaBlock(
@@ -177,6 +250,186 @@ public class BigGlobeBlocks {
 			.dropsNothing()
 		)
 	);
+	public static final Block CHARRED_PLANKS = register(
+		"charred_planks",
+		new Block(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.strength(2.0F, 3.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+	public static final SaplingBlock CHARRED_SAPLING = register(
+		"charred_sapling",
+		new CharredSaplingBlock(
+			new SaplingGenerator() {
+
+				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, BigGlobeMod.modID("charred_tree_vanilla"));
+
+				/**
+				note: the ConfiguredFeature returned by this method will be
+				overridden in big globe worlds by {@link SaplingGrowHandler}.
+				*/
+				@Nullable
+				@Override
+				public RegistryEntry<? extends ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
+					MinecraftServer server = BigGlobeMod.currentServer;
+					return server == null ? null : server.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).entryOf(KEY);
+				}
+			},
+			AbstractBlock.Settings.of(Material.PLANT)
+			.noCollision()
+			.nonOpaque()
+			.ticksRandomly()
+			.breakInstantly()
+			.sounds(BlockSoundGroup.GRASS)
+		)
+	);
+	public static final Block CHARRED_LOG = register(
+		"charred_log",
+		new PillarBlock(
+			AbstractBlock.Settings.of(Material.NETHER_WOOD, MapColor.BLACK)
+			.strength(2.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+	public static final Block STRIPPED_CHARRED_LOG = register(
+		"stripped_charred_log",
+		new PillarBlock(
+			AbstractBlock.Settings.of(Material.NETHER_WOOD, MapColor.BLACK)
+			.strength(2.0F)
+			.sounds(BlockSoundGroup.WOOD))
+	);
+	public static final Block CHARRED_WOOD = register(
+		"charred_wood",
+		new PillarBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.strength(2.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+	public static final Block STRIPPED_CHARRED_WOOD = register(
+		"stripped_charred_wood",
+		new PillarBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.strength(2.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+	//copy-paste of Blocks.createLeavesBlock(), but with MapColor.BLACK added.
+	public static final LeavesBlock CHARRED_LEAVES = register(
+		"charred_leaves",
+		new LeavesBlock(
+			AbstractBlock.Settings.of(Material.LEAVES, MapColor.BLACK)
+			.strength(0.2F)
+			.ticksRandomly()
+			.sounds(BlockSoundGroup.GRASS)
+			.nonOpaque()
+			.allowsSpawning((state, world, pos, type) -> type == EntityType.OCELOT || type == EntityType.PARROT)
+			.suffocates((state, world, pos) -> false)
+			.blockVision((state, world, pos) -> false)
+		)
+	);
+	public static final SignBlock CHARRED_SIGN = register(
+		"charred_sign",
+		new SignBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.noCollision()
+			.nonOpaque()
+			.strength(1.0F)
+			.sounds(BlockSoundGroup.WOOD),
+			CHARRED_SIGN_TYPE
+		)
+	);
+	public static final WallSignBlock CHARRED_WALL_SIGN = register(
+		"charred_wall_sign",
+		new WallSignBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.noCollision()
+			.nonOpaque()
+			.strength(1.0F)
+			.sounds(BlockSoundGroup.WOOD)
+			.dropsLike(CHARRED_SIGN),
+			CHARRED_SIGN_TYPE
+		)
+	);
+	public static final PressurePlateBlock CHARRED_PRESSURE_PLATE = register(
+		"charred_pressure_plate",
+		new PressurePlateBlock(
+			PressurePlateBlock.ActivationRule.EVERYTHING,
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+				.noCollision()
+				.nonOpaque()
+				.strength(0.5F)
+				.sounds(BlockSoundGroup.WOOD)
+		) {
+
+			@Override
+			public int getTickRate() {
+				return 10;
+			}
+		}
+	);
+	public static final TrapdoorBlock CHARRED_TRAPDOOR = register(
+		"charred_trapdoor",
+		new TrapdoorBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.strength(3.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+	public static final StairsBlock CHARRED_STAIRS = register(
+		"charred_stairs",
+		new StairsBlock(
+			CHARRED_PLANKS.getDefaultState(),
+			AbstractBlock.Settings.copy(CHARRED_PLANKS)
+		)
+	);
+	public static final FlowerPotBlock POTTED_CHARRED_SAPLING = register(
+		"potted_charred_sapling",
+		newPottedPlant(CHARRED_SAPLING)
+	);
+	public static final AbstractButtonBlock CHARRED_BUTTON = register(
+		"charred_button",
+		new WoodenButtonBlock(
+			AbstractBlock.Settings.of(Material.WOOD)
+			.noCollision()
+			.strength(0.5F)
+			.sounds(BlockSoundGroup.WOOD)
+		) {
+
+			@Override
+			public int getPressTicks() {
+				return 10;
+			}
+		}
+	);
+	public static final SlabBlock CHARRED_SLAB = register(
+		"charred_slab",
+		new SlabBlock(
+			AbstractBlock.Settings.copy(CHARRED_PLANKS)
+		)
+	);
+	public static final Block CHARRED_FENCE = register(
+		"charred_fence",
+		new FenceBlock(
+			AbstractBlock.Settings.copy(CHARRED_PLANKS)
+		)
+	);
+	public static final FenceGateBlock CHARRED_FENCE_GATE = register(
+		"charred_fence_gate",
+		new FenceGateBlock(
+			AbstractBlock.Settings.copy(CHARRED_PLANKS)
+		)
+	);
+	public static final Block CHARRED_DOOR = register(
+		"charred_door",
+		new DoorBlock(
+			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
+			.strength(3.0F)
+			.sounds(BlockSoundGroup.WOOD)
+		)
+	);
+
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
@@ -198,6 +451,11 @@ public class BigGlobeBlocks {
 
 	public static void init() {
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::canTillFarmland, Blocks.FARMLAND.getDefaultState());
+		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
+		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
+		LandPathNodeTypesRegistry.register(BLAZING_BLOSSOM, PathNodeType.DAMAGE_FIRE, null);
+		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_SIGN);
+		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_WALL_SIGN);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -213,7 +471,14 @@ public class BigGlobeBlocks {
 			SHORT_GRASS,
 			MUSHROOM_SPORES,
 			WART_WEED,
-			CHARRED_GRASS
+			CHARRED_GRASS,
+			BLAZING_BLOSSOM,
+			GLOWING_GOLDENROD,
+			POTTED_BLAZING_BLOSSOM,
+			POTTED_GLOWING_GOLDENROD,
+			CHARRED_SAPLING,
+			POTTED_CHARRED_SAPLING,
+			CHARRED_DOOR
 		);
 
 		ColorProviderRegistry.BLOCK.register(

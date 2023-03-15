@@ -1,6 +1,9 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:potted_rose"
+		"bigglobe:potted_rose",
+		"bigglobe:potted_blazing_blossom",
+		"bigglobe:potted_glowing_goldenrod",
+		"bigglobe:potted_charred_sapling"
 	]
 }

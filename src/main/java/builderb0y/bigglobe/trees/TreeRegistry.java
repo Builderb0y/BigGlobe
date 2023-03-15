@@ -15,7 +15,6 @@ import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.enums.BlockHalf;
@@ -28,7 +27,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -60,14 +58,12 @@ public class TreeRegistry {
 		AZALEA           = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("azalea"          )),
 		FLOWERING_AZALEA = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("flowering_azalea")),
 		CRIMSON          = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("crimson"         )),
-		WARPED           = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("warped"          ));
+		WARPED           = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("warped"          )),
+		CHARRED          = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.modID("charred"        ));
 
 	public static void init() {
 		Path treeDirectory = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("trees");
-		if (!Files.exists(treeDirectory)) {
-			LOGGER.info("config/bigglobe/trees does not exist. Loading defaults...");
-			populateDefaults(treeDirectory);
-		}
+		populateDefaults(treeDirectory);
 		load(treeDirectory);
 		LOGGER.info("Loaded " + REGISTRY.size() + " trees from config folder.");
 		TreeSpecialCases.init();
@@ -85,13 +81,16 @@ public class TreeRegistry {
 			BigGlobeMod.mcID("mangrove"),
 			BigGlobeMod.mcID("azalea"),
 			BigGlobeMod.mcID("flowering_azalea"),
+			BigGlobeMod.mcID("crimson"),
+			BigGlobeMod.mcID("warped"),
+			BigGlobeMod.modID("charred")
 		}) {
 			String inPath = "/builderb0y/bigglobe/trees/default_configs/" + identifier.getNamespace() + '/' + identifier.getPath() + ".json";
 			Path namespacePath = treeDirectory.resolve(identifier.getNamespace());
 			try { Files.createDirectories(namespacePath); }
 			catch (IOException ioException) { throw new UncheckedIOException(ioException); }
 			Path pathPath = namespacePath.resolve(identifier.getPath() + ".json");
-			try (
+			if (!Files.exists(pathPath)) try (
 				InputStream in = BigGlobeMod.class.getResourceAsStream(inPath);
 				OutputStream out = Files.newOutputStream(pathPath);
 			) {
@@ -150,7 +149,6 @@ public class TreeRegistry {
 		}
 	}
 
-	@AddPseudoField(name = "feature", getter = "getFeatureID")
 	@UseCoder(name = "CODER", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 	public static class Entry {
 
@@ -161,15 +159,11 @@ public class TreeRegistry {
 		public static final AutoCoder<Entry> CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(REGISTRY.getCodec(), false);
 
 		public final EnumMap<Type, BlockState> states;
-		public final transient @Nullable RegistryKey<ConfiguredFeature<?, ?>> feature;
+		public final @VerifyNullable RegistryKey<ConfiguredFeature<?, ?>> feature;
 
-		public Entry(EnumMap<Type, BlockState> states, @Nullable Identifier feature) {
+		public Entry(EnumMap<Type, BlockState> states, RegistryKey<ConfiguredFeature<?, ?>> feature) {
 			this.states = states;
-			this.feature = feature == null ? null : RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, feature);
-		}
-
-		public @VerifyNullable Identifier getFeatureID() {
-			return this.feature == null ? null : this.feature.getValue();
+			this.feature = feature;
 		}
 
 		public RegistryKey<Entry> getRegistryKey() {

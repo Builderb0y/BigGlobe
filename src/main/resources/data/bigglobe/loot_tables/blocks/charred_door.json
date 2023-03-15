@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:block",
+	"pools": [{
+		"rolls": 1,
+		"entries": [{
+			"type": "minecraft:item",
+			"conditions": [
+				{
+					"condition": "minecraft:block_state_property",
+					"block": "bigglobe:charred_door",
+					"properties": { "half": "lower" }
+				},
+				{ "condition": "minecraft:survives_explosion" }
+			],
+			"name": "bigglobe:charred_door"
+		}]
+	}]
+}

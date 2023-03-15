@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"powered=true":  { "model": "bigglobe:block/charred_pressure_plate_down" },
+		"powered=false": { "model": "bigglobe:block/charred_pressure_plate_up" }
+	}
+}

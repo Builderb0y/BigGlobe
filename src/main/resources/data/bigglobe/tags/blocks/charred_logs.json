@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:charred_log",
+		"bigglobe:stripped_charred_log",
+		"bigglobe:charred_wood",
+		"bigglobe:stripped_charred_wood"
+	]
+}

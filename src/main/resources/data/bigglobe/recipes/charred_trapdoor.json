@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "wooden_trapdoor",
+	"pattern": [
+		"xxx",
+		"xxx"
+	],
+	"key": {
+		"x": { "item": "bigglobe:charred_planks" }
+	},
+	"result": {
+		"item": "bigglobe:charred_trapdoor",
+		"count": 2
+	}
+}

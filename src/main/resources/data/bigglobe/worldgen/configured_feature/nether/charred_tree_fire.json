@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (random.nextBoolean(0.0625) && getBlockState(originX, originY + 1, originZ).isAir():",
+				"setBlockState(originX, originY + 1, originZ, 'minecraft:fire[age=0,north=false,east=false,south=false,west=false,up=false]')",
+				"return(true)",
+			")",
+			"return(false)"
+		]
+	}
+}

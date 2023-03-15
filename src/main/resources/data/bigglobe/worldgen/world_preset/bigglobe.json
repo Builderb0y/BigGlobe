@@ -1121,6 +1121,22 @@
 									},
 									"variations": [
 										{
+											"weight": 1.0,
+											"biome": "bigglobe:ashen_wastes",
+											"caverns": {
+												"floor_surface": {
+													"top_state": "bigglobe:ashen_netherrack",
+													"under_state": "bigglobe:ashen_netherrack"
+												},
+												"floor_decorator": "bigglobe:nether/ashen_wastes_cavern_floors",
+												"ceiling_decorator": "bigglobe:nether/ashen_wastes_cavern_ceilings"
+											},
+											"caves": {
+												"floor_decorator": "bigglobe:nether/ashen_wastes_cave_floors",
+												"ceiling_decorator": "bigglobe:nether/ashen_wastes_cave_ceilings"
+											}
+										},
+										{
 											"weight": 0.75,
 											"biome": "minecraft:crimson_forest",
 											"caverns": {

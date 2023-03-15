@@ -1,0 +1,28 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (",
+				"random.nextBoolean(1.0 / 1024.0) &&",
+				"getBlockState(originX,     originY + 2, originZ    ).hasFullCubeOutline() &&",
+				"getBlockState(originX + 1, originY + 1, originZ    ).hasFullCubeOutline() &&",
+				"getBlockState(originX - 1, originY + 1, originZ    ).hasFullCubeOutline() &&",
+				"getBlockState(originX,     originY + 1, originZ + 1).hasFullCubeOutline() &&",
+				"getBlockState(originX,     originY + 1, originZ - 1).hasFullCubeOutline()",
+			":",
+				"int bottom = originY",
+				"while (getBlockState(originX, bottom, originZ).isAir():",
+					"--bottom",
+				")",
+				"if (getBlockState(originX, bottom, originZ) == BlockState('bigglobe:soul_lava[level=0]'):",
+					"setBlockState(originX, originY + 1, originZ, 'bigglobe:soul_lava[level=0]')",
+					"for (int y = originY, y > bottom, --y:",
+						"setBlockState(originX, y, originZ, 'bigglobe:soul_lava[level=8]')",
+					")",
+					"return(true)",
+				")",
+			")",
+			"return(false)"
+		]
+	}
+}

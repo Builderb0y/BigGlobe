@@ -429,7 +429,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			for (LinkedRockLayerConfig rock : this.rockLayers) {
 				if (rock.group.generate_before_ores == early) {
 					this.profiler.run(rock.name, () -> {
-						RockLayerResplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
+						RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
 					});
 				}
 			}

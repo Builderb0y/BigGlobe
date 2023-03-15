@@ -39,15 +39,15 @@ public class TreeSpecialCases {
 		addGroundReplacement(        Blocks.SAND,             BlockStates.SAND);
 		addGroundReplacement(BigGlobeBlocks.OVERGROWN_SAND,   BlockStates.SAND);
 
-		addGroundReplacement(        Blocks.CRIMSON_NYLIUM,    BlockStates.NETHERRACK);
-		addGroundReplacement(        Blocks.WARPED_NYLIUM,     BlockStates.NETHERRACK);
-		//addGroundReplacement(Blocks.ASHEN_NETHERRACK,  BlockStates.NETHERRACK);
-		addGroundReplacement(        Blocks.NETHERRACK,        BlockStates.NETHERRACK);
+		addGroundReplacement(        Blocks.CRIMSON_NYLIUM,   BlockStates.NETHERRACK);
+		addGroundReplacement(        Blocks.WARPED_NYLIUM,    BlockStates.NETHERRACK);
+		addGroundReplacement(BigGlobeBlocks.ASHEN_NETHERRACK, BlockStates.NETHERRACK);
+		addGroundReplacement(        Blocks.NETHERRACK,       BlockStates.NETHERRACK);
 
-		addGroundReplacement(        Blocks.SOUL_SAND,         Blocks.SOUL_SAND.getDefaultState());
-		addGroundReplacement(        Blocks.SOUL_SOIL,         Blocks.SOUL_SOIL.getDefaultState());
+		addGroundReplacement(        Blocks.SOUL_SAND,        Blocks.SOUL_SAND.getDefaultState());
+		addGroundReplacement(        Blocks.SOUL_SOIL,        Blocks.SOUL_SOIL.getDefaultState());
 
-		addGroundReplacement(        Blocks.END_STONE,         Blocks.END_STONE.getDefaultState());
+		addGroundReplacement(        Blocks.END_STONE,        Blocks.END_STONE.getDefaultState());
 	}
 
 	public static void addGroundReplacement(BlockState from, BlockState to) {

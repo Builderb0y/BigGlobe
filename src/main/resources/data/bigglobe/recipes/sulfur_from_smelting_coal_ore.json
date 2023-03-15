@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:smelting",
+	"cookingtime": 200,
+	"experience": 0.1,
+	"group": "bigglobe:sulfur",
+	"ingredient": { "item": "bigglobe:sulfur_ore" },
+	"result": "bigglobe:sulfur"
+}

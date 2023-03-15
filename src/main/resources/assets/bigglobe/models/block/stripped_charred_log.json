@@ -1,0 +1,7 @@
+{
+	"parent": "block/cube_column",
+	"textures": {
+		"end": "bigglobe:block/stripped_charred_log_top",
+		"side": "bigglobe:block/stripped_charred_log"
+	}
+}

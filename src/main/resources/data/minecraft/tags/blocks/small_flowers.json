@@ -1,6 +1,8 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:rose"
+		"bigglobe:rose",
+		"bigglobe:blazing_blossom",
+		"bigglobe:glowing_goldenrod"
 	]
 }

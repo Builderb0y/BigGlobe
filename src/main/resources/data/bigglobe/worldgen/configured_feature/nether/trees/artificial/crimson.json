@@ -1,0 +1,22 @@
+{
+	"type": "bigglobe:artificial_tree",
+	"config": {
+		"palette": "minecraft:crimson",
+		"trunk": {
+			"type": "bigglobe:twisted",
+			"require_natural_ground": false,
+			"can_generate_in_liquid": false
+		},
+		"branches": {
+			"start_frac_y": { "type": "constant", "value": 0.5 },
+			"count_per_layer": { "type": "uniform", "min": 1.0, "max": 2.0 },
+			"length_function": "sqrt(1.0 - fraction ^ 2)",
+			"height_function": "fraction * (1.0 - fraction)"
+		},
+		"decorations": {
+			"ball_leaves": {
+				"inner_state": "minecraft:shroomlight"
+			}
+		}
+	}
+}

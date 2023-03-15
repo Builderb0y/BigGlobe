@@ -1,0 +1,8 @@
+{
+	"parent": "block/slab",
+	"textures": {
+		"bottom": "bigglobe:block/charred_planks",
+		"top": "bigglobe:block/charred_planks",
+		"side": "bigglobe:block/charred_planks"
+	}
+}

@@ -1,0 +1,52 @@
+{
+	"carvers": {},
+	"downfall": 0.0,
+	"effects": {
+		"fog_color": 4140847,
+		"mood_sound": {
+			"sound": "minecraft:ambient.nether_wastes.mood",
+			"tick_delay": 6000,
+			"block_search_extent": 8,
+			"offset": 2.0
+		},
+		"additions_sound": {
+			"sound": "minecraft:ambient.nether_wastes.additions",
+			"tick_chance": 0.0111
+		},
+		"music": {
+			"sound": "minecraft:music.nether.nether_wastes",
+			"min_delay": 12000,
+			"max_delay": 24000,
+			"replace_current_music": false
+		},
+		"particle": {
+			"options": {
+				"type": "minecraft:ash"
+			},
+			"probability": 0.0625
+		},
+		"sky_color": 7254527,
+		"water_color": 4159204,
+		"water_fog_color": 329011
+	},
+	"features": [ [], [], [], [], [], [], [], [], [], [] ],
+	"precipitation": "rain",
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [],
+		"creature": [
+			{ "type": "minecraft:strider",          "weight": 100, "minCount": 1, "maxCount": 2 }
+		],
+		"misc": [],
+		"monster": [
+			{ "type": "minecraft:zombified_piglin", "weight": 100, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:piglin",           "weight": 10,  "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:ghast",            "weight": 50,  "minCount": 1, "maxCount": 1 },
+			{ "type": "minecraft:wither_skeleton",  "weight": 5,   "minCount": 2, "maxCount": 4 }
+		],
+		"underground_water_creature": [],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 2.0
+}

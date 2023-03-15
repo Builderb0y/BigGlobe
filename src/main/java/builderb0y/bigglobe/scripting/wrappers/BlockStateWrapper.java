@@ -75,12 +75,16 @@ public class BlockStateWrapper {
 		return Block.isShapeFullCube(state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN));
 	}
 
+	public static boolean hasFullCubeOutline(BlockState state) {
+		return Block.isShapeFullCube(state.getOutlineShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN));
+	}
+
 	public static BlockState rotate(BlockState state, int rotation) {
 		return switch (rotation) {
-			case 90 -> state.rotate(BlockRotation.CLOCKWISE_90);
+			case  90 -> state.rotate(BlockRotation.CLOCKWISE_90);
 			case 180 -> state.rotate(BlockRotation.CLOCKWISE_180);
 			case 270 -> state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
-			default -> state;
+			default  -> state;
 		};
 	}
 

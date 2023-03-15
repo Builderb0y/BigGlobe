@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "wooden_fence_gate",
+	"pattern": [
+		"sps",
+		"sps"
+	],
+	"key": {
+		"s": { "item": "minecraft:stick" },
+		"p": { "item": "bigglobe:charred_planks" }
+	},
+	"result": {
+		"item": "bigglobe:charred_fence_gate"
+	}
+}

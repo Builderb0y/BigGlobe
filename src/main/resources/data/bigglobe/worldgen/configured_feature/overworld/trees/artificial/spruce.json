@@ -4,7 +4,7 @@
 		"palette": "minecraft:spruce",
 		"trunk": {
 			"type": "bigglobe:straight",
-			"require_natural_ground": true,
+			"require_natural_ground": false,
 			"can_generate_in_liquid": false
 		},
 		"branches": {

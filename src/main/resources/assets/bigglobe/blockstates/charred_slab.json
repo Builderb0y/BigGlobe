@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"type=bottom": { "model": "bigglobe:block/charred_slab" },
+		"type=top": { "model": "bigglobe:block/charred_slab_top" },
+		"type=double": { "model": "bigglobe:block/charred_planks" }
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"parent": "block/cube_bottom_top",
+	"textures": {
+		"particle": "bigglobe:block/ashen_netherrack_side",
+		"top":      "bigglobe:block/ashen_netherrack_top",
+		"side":     "bigglobe:block/ashen_netherrack_side",
+		"bottom":   "minecraft:block/netherrack"
+	}
+}

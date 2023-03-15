@@ -292,7 +292,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			int depth = BigGlobeMath.floorI(depthScript.evaluate(column, y, permuter));
 			boolean top = true;
 			for (int i = 0; i < depth; i++) {
-				pos.setY(y - i * delta);
+				pos.setY(y + i * delta);
 				BlockState existingState = chunk.getBlockState(pos);
 				if (existingState == expect) {
 					chunk.setBlockState(pos, top ? surface.top_state() : surface.under_state(), false);
