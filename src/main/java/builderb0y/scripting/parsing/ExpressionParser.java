@@ -32,6 +32,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
@@ -58,6 +59,7 @@ public class ExpressionParser {
 		this.clazz = clazz;
 		this.method = method;
 		this.environment = new RootScriptEnvironment();
+		this.environment.user().parser = this;
 	}
 
 	/**
@@ -70,6 +72,7 @@ public class ExpressionParser {
 		this.method = method;
 		this.currentLine = from.currentLine;
 		this.environment = new RootScriptEnvironment(from.environment);
+		this.environment.user().parser = this;
 	}
 
 	public ExpressionParser addEnvironment(MutableScriptEnvironment environment) {
@@ -85,6 +88,18 @@ public class ExpressionParser {
 	public ExpressionParser addCastProvider(CastProvider castProvider) {
 		this.environment.castProviders.providers.add(0, castProvider);
 		return this;
+	}
+
+	public void checkVariable(String name) throws ScriptParsingException {
+		if (this.environment.getVariable(this, name) != null) {
+			throw new ScriptParsingException("Variable '" + name + "' is already defined in this scope", this.input);
+		}
+	}
+
+	public void checkType(String name) throws ScriptParsingException {
+		if (this.environment.getType(this, name) != null) {
+			throw new ScriptParsingException("Type '" + name + "' is already defined in this scope", this.input);
+		}
 	}
 
 	public Class<?> compile() {
@@ -733,7 +748,7 @@ public class ExpressionParser {
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return declaration.then(this, new StoreInsnTree(declaration.loader.variable, initializer));
+								return declaration.then(this, store(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								return this.nextUserDefinedFunction(type, varName);
@@ -785,13 +800,15 @@ public class ExpressionParser {
 		}
 		//System.out.println(methodName + " builtin: " + newParameters);
 		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment().addAll(this.environment.mutable());
+		UserScriptEnvironment userVariablesEnvironment = new UserScriptEnvironment(this.environment.user());
+		userVariablesEnvironment.variables.clear();
 		for (VarInfo captured : this.environment.user().getVariables()) {
 			VarInfo added = new VarInfo(captured.name, currentOffset, captured.type);
 			newParameters.add(added);
 			InsnTree loader = load(added);
 			//must force put in backing map directly,
 			//as normally this variable is "already defined".
-			userParametersEnvironment.variables.put(added.name, (parser, name1) -> loader);
+			userParametersEnvironment.variables.put(added.name, (parser, name) -> loader);
 			currentOffset += added.type.getSize();
 		}
 		//System.out.println(methodName + " builtin + captured: " + newParameters);
@@ -823,7 +840,8 @@ public class ExpressionParser {
 		}
 
 		ExpressionParser newParser = new ExpressionParser(this, newMethod);
-		newParser.environment.mutable(userParametersEnvironment);
+		userVariablesEnvironment.parser = newParser;
+		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
 		InsnTree result = newParser.parseRemainingInput(true);
 
 		MethodInfo newMethodInfo = newMethod.info;
@@ -1024,6 +1042,7 @@ public class ExpressionParser {
 			}
 		});
 		//setup user definitions.
+		this.checkType(className);
 		this.environment.user().types.put(className, innerClass.info);
 		this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID));
 		if (!fields.isEmpty()) {

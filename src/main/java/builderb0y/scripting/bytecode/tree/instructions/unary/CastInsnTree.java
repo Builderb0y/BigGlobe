@@ -55,4 +55,9 @@ public class CastInsnTree extends UnaryInsnTree {
 	public TypeInfo getTypeInfo() {
 		return this.to;
 	}
+
+	@Override
+	public boolean canBeStatement() {
+		return this.operand.canBeStatement() && this.to.isVoid();
+	}
 }

@@ -25,13 +25,17 @@ public class JavaUtilScriptEnvironment {
 		.addType("ListIterator", ListIterator.class)
 		.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex", "set", "add")
 		.addType("Map", Map.class)
-		.addType("MapEntry", Map.Entry.class)
 		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(new MapGetInsnTree(receiver, key), key != arguments[0]);
+		})
+		.addType("MapEntry", Map.Entry.class)
+		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
+		.addFieldRenamedInvoke("key", Map.Entry.class, "getKey")
+		.addField(type(Map.Entry.class), "value", (parser, receiver, name) -> {
+			return new MapEntryValueInsnTree(receiver);
 		})
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
@@ -127,6 +131,25 @@ public class JavaUtilScriptEnvironment {
 				return invokeInterface(this.receiver, SET, this.args[0], rightValue.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW)).cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
 			}
 			throw new ScriptParsingException("Updating List not yet implemented", parser.input);
+		}
+	}
+
+	public static class MapEntryValueInsnTree extends InvokeInsnTree {
+
+		public static final MethodInfo
+			GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
+			SET = MethodInfo.getMethod(Map.Entry.class, "setValue");
+
+		public MapEntryValueInsnTree(InsnTree entry) {
+			super(INVOKEINTERFACE, entry, GET);
+		}
+
+		@Override
+		public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+			if (op == UpdateOp.ASSIGN) {
+				return invokeInterface(this.receiver, SET, rightValue.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW)).cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
+			}
+			throw new ScriptParsingException("Updating MapEntry not yet implemented", parser.input);
 		}
 	}
 }

@@ -140,8 +140,6 @@ public class ExpressionParserTest {
 			tmp
 			"""
 		);
-		assertFail("tmp is already defined in this scope", "int tmp = 1 int tmp = 2 3");
-		assertFail("tmp is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
 		assertSuccess(1,
 			"""
 			int counter = 0
@@ -320,6 +318,12 @@ public class ExpressionParserTest {
 			result
 			"""
 		);
+	}
+
+	@Test
+	public void testDuplicateVariables() {
+		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, int tmp = 2 ,, 3");
+		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
 	}
 
 	@Test
@@ -568,8 +572,8 @@ public class ExpressionParserTest {
 			return ( squared == 16 && x == 2 ? 1.0L : 0.0L )
 			"""
 		);
-		assertFail("a is already defined in this scope", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
-		assertFail("a is already defined in this scope", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
+		assertFail("Variable 'a' is already defined in this scope", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
+		assertFail("Variable 'a' is already defined in this scope", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
 	}
 
 	@Test
@@ -711,6 +715,22 @@ public class ExpressionParserTest {
 			)
 			
 			return ( b ( a ( 1 ) ) )
+			"""
+		);
+	}
+
+	@Test
+	public void testFunctionsCapturingWithOffset() throws ScriptParsingException {
+		assertSuccess(1,
+			"""
+			block (
+				float x = 2
+			)
+			int x = 1
+			int get(:
+				return(x)
+			)
+			return(get())
 			"""
 		);
 	}

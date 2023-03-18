@@ -59,10 +59,8 @@ public class StackMap<K, V> extends Object2ObjectLinkedOpenHashMap<K, V> {
 	}
 
 	@Override
-	public V put(K k, V v) {
-		if (super.putIfAbsent(k, v) != null) {
-			throw new IllegalArgumentException(k + " is already defined in this scope");
-		}
-		return null;
+	public void clear() {
+		super.clear();
+		this.sizes.clear();
 	}
 }

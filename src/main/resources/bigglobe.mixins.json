@@ -18,6 +18,7 @@
 		"MinecraftServer_InitializeSpawnPoint",
 		"MinecraftServer_SessionAccess",
 		"MobSpawnerLogic_GettersAndSettersForEverything",
+		"MobSpawnerLogic_SpawnLightning",
 		"NbtIo_ReadElementAccess",
 		"NetherrackBlock_GrowProperly",
 		"OceanMonumentGeneratorBase_VanillaBugFixes",

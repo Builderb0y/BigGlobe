@@ -22,7 +22,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 
 	public RootScriptEnvironment(RootScriptEnvironment from) {
 		super(from);
-		this.environments.set(USER_INDEX, new UserScriptEnvironment(from.user()));
+		this.environments.set(USER_INDEX, new UserScriptEnvironment());
 		this.environments.set(MUTABLE_INDEX, new MutableScriptEnvironment().addAll(from.mutable()));
 		this.castProviders = new MultiCastProvider(from.castProviders);
 	}

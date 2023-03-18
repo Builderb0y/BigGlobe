@@ -44,6 +44,8 @@ scripting:
 	compareTo operator <=>
 	ensure doubles cannot be implicitly cast to ints.
 		this seemed to be the case for /bigglobe:evaluate.
+	scrap multi-step casts.
+		allow ScriptEnvironment's to provide casters, but only for one step.
 
 features:
 	general:
@@ -100,7 +102,6 @@ features:
 		nether quartz geodes?
 		structures.
 		rock layers.
-		obsidian spires.
 		flowers:
 			fire in nether wastes and ashen wastes.
 			soul fire in valley of souls.

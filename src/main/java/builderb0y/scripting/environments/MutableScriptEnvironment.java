@@ -32,7 +32,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
 		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
 			if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+				throw new IllegalArgumentException("Variable '" + entry.getKey() + "' is already defined in this scope");
 			}
 		}
 		return this;
@@ -41,7 +41,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllFields(MutableScriptEnvironment that) {
 		for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
 			if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+				throw new IllegalArgumentException("Field '" + entry.getKey() + "' is already defined in this scope");
 			}
 		}
 		return this;
@@ -68,7 +68,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllTypes(MutableScriptEnvironment that) {
 		for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
 			if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+				throw new IllegalArgumentException("Type '" + entry.getKey() + "' is already defined in this scope");
 			}
 		}
 		return this;
@@ -77,7 +77,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllKeywords(MutableScriptEnvironment that) {
 		for (Map.Entry<String, KeywordHandler> entry : that.keywords.entrySet()) {
 			if (this.keywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+				throw new IllegalArgumentException("Keyword '" + entry.getKey() + "' is already defined in this scope");
 			}
 		}
 		return this;
@@ -86,7 +86,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
 		for (Map.Entry<NamedType, MemberKeywordHandler> entry : that.memberKeywords.entrySet()) {
 			if (this.memberKeywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException(entry.getKey() + " is already defined in this scope");
+				throw new IllegalArgumentException("Member keyword '" + entry.getKey() + "' is already defined in this scope");
 			}
 		}
 		return this;
@@ -116,7 +116,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addVariable(String name, VariableHandler variableHandler) {
 		if (this.variables.putIfAbsent(name, variableHandler) != null) {
-			throw new IllegalArgumentException(name + " is already defined in this scope");
+			throw new IllegalArgumentException("Variable '" + name + "' is already defined in this scope");
 		}
 		return this;
 	}
@@ -271,7 +271,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
 		if (this.fields.putIfAbsent(new NamedType(owner, name), fieldHandler) != null) {
-			throw new IllegalArgumentException(owner + "." + name + " is already defined in this scope");
+			throw new IllegalArgumentException("Field '" + owner + '.' + name + "' is already defined in this scope");
 		}
 		return this;
 	}
@@ -306,6 +306,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvoke(MethodInfo getter) {
 		return this.addFieldInvoke(getter.name, getter);
+	}
+
+	public MutableScriptEnvironment addFieldRenamedInvoke(String exposedName, Class<?> in, String actualName) {
+		return this.addFieldInvoke(exposedName, MethodInfo.forMethod(ReflectionData.forClass(in).findDeclaredMethod(actualName, m -> m.getParameterCount() == 0)));
 	}
 
 	public MutableScriptEnvironment addFieldInvoke(Class<?> in, String name) {
@@ -928,7 +932,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 		@Override
 		public String toString() {
-			return "NamedType: { owner: " + this.owner + ", name: " + this.name + " }";
+			return this.owner + "." + this.name;
 		}
 	}
 }

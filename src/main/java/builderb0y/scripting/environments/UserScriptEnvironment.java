@@ -25,6 +25,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class UserScriptEnvironment implements ScriptEnvironment {
 
+	public ExpressionParser parser;
 	public StackMap<String, LoadInsnTree> variables;
 	public StackMap<NamedType, FieldInfo> fields;
 	public StackMap<String, List<FunctionHandler>> functions;
@@ -154,6 +155,12 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public VariableDeclarationInsnTree newVariable(String name, TypeInfo type) {
+		try {
+			this.parser.checkVariable(name);
+		}
+		catch (ScriptParsingException exception) {
+			throw new RuntimeException(exception.getMessage(), exception);
+		}
 		VariableDeclarationInsnTree tree = new VariableDeclarationInsnTree(name, type);
 		this.variables.put(name, tree.loader);
 		return tree;
