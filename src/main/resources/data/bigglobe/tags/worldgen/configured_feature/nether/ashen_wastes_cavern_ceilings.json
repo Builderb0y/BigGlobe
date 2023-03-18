@@ -1,4 +1,6 @@
 {
 	"replace": false,
-	"values": []
+	"values": [
+		"bigglobe:nether/occasional_glowstone_normal"
+	]
 }

@@ -390,6 +390,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 						this.runDecorators(world, pos, mojang, localSettings.caverns().ceiling_decorator(), cache_.cavernCeilings[columnIndex]);
 						this.runDecorators(world, pos, mojang, localSettings.caves().floor_decorator(), cache_.caveFloors[columnIndex]);
 						this.runDecorators(world, pos, mojang, localSettings.caves().ceiling_decorator(), cache_.caveCeilings[columnIndex]);
+						this.runDecorators(world, pos, mojang, localSettings.fluid_decorator(), column.getLocalCell().lavaLevel);
 					}
 				});
 			}
@@ -419,6 +420,30 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
 							features[featureIndex].generate(world, this, permuter, pos);
 						}
+					}
+					permuter.setSeed(columnSeed);
+				});
+			}
+		}
+	}
+
+	public void runDecorators(
+		StructureWorldAccess world,
+		BlockPos.Mutable pos,
+		MojangPermuter permuter,
+		SortedFeatureTag decorator,
+		int yLevel
+	) {
+		if (decorator != null) {
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			if (features.length != 0) {
+				this.profiler.run(decorator.key.id(), () -> {
+					long columnSeed = permuter.getSeed();
+					pos.setY(yLevel);
+					long blockSeed = Permuter.permute(columnSeed, yLevel);
+					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
+						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
+						features[featureIndex].generate(world, this, permuter, pos);
 					}
 					permuter.setSeed(columnSeed);
 				});

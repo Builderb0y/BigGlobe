@@ -14,7 +14,7 @@ public class ReturnInsnTree implements InsnTree {
 	}
 
 	public static InsnTree create(InsnTree value) {
-		return value.returnsUnconditionally() ? value : new ReturnInsnTree(value);
+		return value.jumpsUnconditionally() ? value : new ReturnInsnTree(value);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ReturnInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
+	public boolean jumpsUnconditionally() {
 		return true;
 	}
 

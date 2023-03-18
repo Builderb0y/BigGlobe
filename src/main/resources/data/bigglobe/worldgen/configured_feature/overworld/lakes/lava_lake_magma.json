@@ -3,11 +3,11 @@
 	"config": {
 		"script": [
 			"boolean lavaAt(int x, int z:",
-				"return (getBlockState(x, originY, z).getBlock() == block('minecraft:lava'))",
+				"return(getBlockState(x, originY, z).getBlock() == block('minecraft:lava'))",
 			")",
 
 			"--originY",
-			"if (lavaAt(originX, originZ) && random.nextBoolean(0.015625):",
+			"if (random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ):",
 				"setBlockState(originX, originY, originZ, 'minecraft:magma_block')",
 				"repeat (20:",
 					";attempt to place 20 more magma blocks in a 7x7 area centered around the feature origin.",

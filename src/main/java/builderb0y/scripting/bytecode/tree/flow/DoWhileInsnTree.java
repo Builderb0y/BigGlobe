@@ -1,8 +1,7 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
-import org.objectweb.asm.Label;
-
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -25,10 +24,10 @@ public class DoWhileInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Label start = new Label();
-		method.node.visitLabel(start);
+		Scope scope = method.scopes.pushLoop();
 		this.body.emitBytecode(method);
-		this.condition.emitBytecode(method, start, null);
+		this.condition.emitBytecode(method, scope.start.getLabel(), null);
+		method.scopes.popLoop();
 	}
 
 	@Override
@@ -37,7 +36,7 @@ public class DoWhileInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
+	public boolean jumpsUnconditionally() {
 		//while (true) doesn't need a return after it.
 		return this.condition instanceof ConstantConditionTree constant && constant.value;
 	}

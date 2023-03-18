@@ -57,8 +57,8 @@ public class LineNumberInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
-		return this.content.returnsUnconditionally();
+	public boolean jumpsUnconditionally() {
+		return this.content.jumpsUnconditionally();
 	}
 
 	@Override

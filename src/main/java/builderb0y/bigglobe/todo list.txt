@@ -8,11 +8,11 @@ testing:
 	compatibility with chunk pre-generator mods.
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
-	verify that all new nether blocks are breakable with the correct tool.
-	verify that all new nether blocks have recipes.
 
 where I left off:
-	column values for cliff frac and cliff bias.
+	working on overhauling how scopes work for scripting.
+		flow control InsnTree's should push and pop the scope manually.
+			SwitchInsnTree still needs to do this.
 
 changelog:
 	* Fixed cold biomes not quite lining up with where snow forms in the overworld.
@@ -42,12 +42,16 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
+	ensure doubles cannot be implicitly cast to ints.
+		this seemed to be the case for /bigglobe:evaluate.
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 	overworld:
+		script for cave width.
+		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
 		log cabin structure?
@@ -87,15 +91,12 @@ features:
 				lots of ores everywhere.
 		make lilypads renewable?
 	nether:
-		all biomes.
-			including charred forest.
-				needs assets from old version.
 		ores.
 			nether quartz.
 			sulfur.
-			nether pyrite.
-				needs model/blockstate/lang/loot table/etc...
+			nether gold (vanilla block).
 			ancient debris.
+				extra below lava oceans.
 		nether quartz geodes?
 		structures.
 		rock layers.
@@ -108,14 +109,13 @@ features:
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
 		glowstone in nether wastes, ashen wastes, and basalt deltas, extra glowstone in crimson forest and warped forest.
 		custom biomes for custom mob spawning.
-		charred grass in nether wastes, ashen wastes, and valley of souls.
 		soul campfire in valley of souls.
 		worley noise for nether wastes?
 			concave.
-		soul lava cauldron.
 		hidden lava.
 		magma blocks for variation.
-		recipes for sulfur blocks and charred blocks.
+		lava falls multiple blocks wide.
+			integrate with hidden lava.
 	end:
 		jessie wants worley noise for the end.
 			convex.
@@ -128,8 +128,6 @@ before release:
 
 porting:
 	add sniffer_diggable_block tag to include overgrown podzol.
-
-when updating to a new version:
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().

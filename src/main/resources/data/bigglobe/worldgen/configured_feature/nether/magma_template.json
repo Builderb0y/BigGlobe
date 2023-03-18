@@ -1,0 +1,56 @@
+{
+	"type": "bigglobe:define_script_template",
+	"config": {
+		"script": [
+			"random.unless(1.0 / 256.0: return(false))",
+
+			"boolean isValid(int x, int z:",
+				"return (",
+					"getBlockState(x, originY - 1, z) == LAVA_BLOCK &&",
+					"getBlockState(x, originY, z).isAir()",
+				")",
+			")",
+
+			"unless(isValid(originX, originZ): return(false))",
+
+			"class Pos (",
+				"int x",
+				"int z",
+			")",
+
+			"int count = int(exp2(random.nextDouble(8.0L)))",
+			"Set positions = HashSet.new(count << 1)",
+			"List growing = ArrayList.new(count << 1)",
+
+			"void addIfValid(int x, int z:",
+				"if (isValid(x, z):",
+					"Pos pos = Pos.new(x, z)",
+					"if (positions.add(pos): growing.add(pos))",
+				")",
+			")",
+
+			"Pos origin = Pos.new(originX, originZ)",
+			"positions.add(origin)",
+			"growing.add(origin)",
+
+			"until (--count,, count <= 0 || growing.isEmpty():",
+				"int index = random.nextInt(growing.size())",
+				"Pos pos = (",
+					"index == growing.size() - 1",
+					"? growing.removeIndex(index)",
+					": growing.set(index, growing.removeIndex(growing.size() - 1))",
+				")",
+				"setBlockState(pos.x, originY - 1, pos.z, MAGMA_BLOCK)",
+				"addIfValid(pos.x, pos.z + 1)",
+				"addIfValid(pos.x, pos.z - 1)",
+				"addIfValid(pos.x + 1, pos.z)",
+				"addIfValid(pos.x - 1, pos.z)",
+			")",
+			"return(true)"
+		],
+		"inputs": [
+			"LAVA_BLOCK",
+			"MAGMA_BLOCK"
+		]
+	}
+}

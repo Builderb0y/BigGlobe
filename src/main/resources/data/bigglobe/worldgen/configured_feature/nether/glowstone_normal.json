@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:use_script_template",
+	"config": {
+		"script": "bigglobe:nether/glowstone_template",
+		"inputs": {
+			"SIZE": "exp(random.nextDouble(log(8.0), log(128.0)))",
+			"STATE": "BlockState('minecraft:glowstone')"
+		}
+	}
+}

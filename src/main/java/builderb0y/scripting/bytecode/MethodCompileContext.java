@@ -37,7 +37,7 @@ public class MethodCompileContext {
 		int index = this.nextLocalVariableIndex();
 		Scope scope = this.scopes.peekScope();
 		this.node.localVariables.add(new LocalVariableNode(
-			name, type.getDescriptor(), null, scope.start(), scope.end(), index
+			name, type.getDescriptor(), null, scope.start, scope.end, index
 		));
 		return new VarInfo(name, index, type);
 	}
@@ -46,7 +46,7 @@ public class MethodCompileContext {
 		int index = this.nextLocalVariableIndex();
 		Scope scope = this.scopes.globalScope();
 		this.node.localVariables.add(new LocalVariableNode(
-			name, type.getDescriptor(), null, scope.start(), scope.end(), index
+			name, type.getDescriptor(), null, scope.start, scope.end, index
 		));
 		this.node.visitParameter(name, 0);
 		VarInfo info = new VarInfo(name, index, type);

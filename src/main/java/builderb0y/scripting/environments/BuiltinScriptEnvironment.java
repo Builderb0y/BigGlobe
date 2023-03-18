@@ -16,6 +16,9 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.BlockInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.NoopInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -143,13 +146,13 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 					? ifElse(
 						parser,
 						ifStatement.condition(),
-						ifStatement.maybeWrap(ifStatement.body()),
+						ifStatement.body(),
 						elseStatement
 					)
 					: ifThen(
 						parser,
 						ifStatement.condition(),
-						ifStatement.maybeWrap(ifStatement.body())
+						ifStatement.body()
 					)
 				);
 			}
@@ -161,48 +164,38 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 					? ifElse(
 						parser,
 						not(ifStatement.condition()),
-						ifStatement.maybeWrap(ifStatement.body()),
+						ifStatement.body(),
 						elseStatement
 					)
 					: ifThen(
 						parser,
 						not(ifStatement.condition()),
-						ifStatement.maybeWrap(ifStatement.body())
+						ifStatement.body()
 					)
 				);
 			}
 			case "while" -> {
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield whileStatement.maybeWrap(
-					while_(parser, whileStatement.condition(), whileStatement.body())
-				);
+				yield while_(parser, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield whileStatement.maybeWrap(
-					while_(parser, not(whileStatement.condition()), whileStatement.body())
-				);
+				yield while_(parser, not(whileStatement.condition()), whileStatement.body());
 			}
 			case "do" -> switch (parser.input.readIdentifierAfterWhitespace()) {
 				case "while" -> {
 					ConditionBody whileStatement = ConditionBody.parse(parser);
-					yield whileStatement.maybeWrap(
-						doWhile(parser, whileStatement.condition(), whileStatement.body())
-					);
+					yield doWhile(parser, whileStatement.condition(), whileStatement.body());
 				}
 				case "until" -> {
 					ConditionBody whileStatement = ConditionBody.parse(parser);
-					yield whileStatement.maybeWrap(
-						doWhile(parser, not(whileStatement.condition()), whileStatement.body())
-					);
+					yield doWhile(parser, not(whileStatement.condition()), whileStatement.body());
 				}
 				default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 			};
 			case "repeat" -> {
 				ScriptBody repeatStatement = ScriptBody.parse(parser, (count, parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
-				yield repeatStatement.maybeWrap(
-					WhileInsnTree.createRepeat(parser, repeatStatement.expression(), repeatStatement.body())
-				);
+				yield WhileInsnTree.createRepeat(parser, repeatStatement.expression(), repeatStatement.body());
 			}
 			case "for" -> {
 				ForEachLoop enhancedLoop = ForEachLoop.tryParse(parser);
@@ -211,12 +204,26 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 				}
 				else {
 					ForLoop loop = ForLoop.parse(parser);
-					yield loop.maybeWrap(for_(parser, loop.initializer(), loop.condition(), loop.incrementer(), loop.body()));
+					yield for_(parser, loop.initializer(), loop.condition(), loop.incrementer(), loop.body());
 				}
 			}
 			case "switch" -> {
 				SwitchBody switchBody = SwitchBody.parse(parser);
 				yield switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
+			}
+			case "block" -> {
+				ParenthesizedScript script = ParenthesizedScript.parse(parser);
+				yield new BlockInsnTree(script.contents());
+			}
+			case "break" -> {
+				parser.input.expectAfterWhitespace('(');
+				parser.input.expectAfterWhitespace(')');
+				yield BreakInsnTree.INSTANCE;
+			}
+			case "continue" -> {
+				parser.input.expectAfterWhitespace('(');
+				parser.input.expectAfterWhitespace(')');
+				yield ContinueInsnTree.INSTANCE;
 			}
 			default -> null;
 		};

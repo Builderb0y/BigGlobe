@@ -16,7 +16,7 @@ public class ThrowInsnTree implements InsnTree {
 	}
 
 	public static InsnTree create(InsnTree value) {
-		if (value.returnsUnconditionally()) return value;
+		if (value.jumpsUnconditionally()) return value;
 		if (!value.getTypeInfo().extendsOrImplements(TypeInfos.THROWABLE)) {
 			throw new InvalidOperandException(value.getTypeInfo() + " does not extend java/lang/Throwable");
 		}
@@ -45,7 +45,7 @@ public class ThrowInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
+	public boolean jumpsUnconditionally() {
 		return true;
 	}
 }

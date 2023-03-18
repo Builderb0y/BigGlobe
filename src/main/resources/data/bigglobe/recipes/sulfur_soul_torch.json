@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"a",
+		"b",
+		"c"
+	],
+	"key": {
+		"a": { "item": "bigglobe:sulfur" },
+		"b": { "item": "minecraft:stick" },
+		"c": { "tag": "minecraft:soul_fire_base_blocks" }
+	},
+	"result": {
+		"item": "minecraft:torch",
+		"count": 4
+	}
+}

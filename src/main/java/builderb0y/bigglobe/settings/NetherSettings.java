@@ -32,6 +32,7 @@ public record NetherSettings(
 		NetherCaveSettings caves,
 		BlockState fluid_state,
 		RandomSource fluid_level,
+		SortedFeatureTag fluid_decorator,
 		@VerifyNormal BlockState filler
 	)
 	implements IWeightedListElement {

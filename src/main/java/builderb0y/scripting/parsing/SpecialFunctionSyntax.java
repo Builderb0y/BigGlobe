@@ -15,7 +15,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.instructions.ScopedInsnTree;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -28,7 +27,7 @@ public class SpecialFunctionSyntax {
 		public abstract boolean hasNewVariables();
 
 		public default InsnTree maybeWrap(InsnTree tree) {
-			return this.hasNewVariables() ? new ScopedInsnTree(tree) : tree;
+			return this.hasNewVariables() ? scoped(tree) : tree;
 		}
 	}
 
@@ -71,10 +70,6 @@ public class SpecialFunctionSyntax {
 	}
 
 	public static record ConditionBody(ConditionTree condition, InsnTree body, boolean hasNewVariables) implements CodeBlock {
-
-		public InsnTree maybeWrapBody() {
-			return this.maybeWrap(this.body);
-		}
 
 		public static ConditionBody parse(ExpressionParser parser) throws ScriptParsingException {
 			parser.input.expectAfterWhitespace('(');
@@ -129,7 +124,7 @@ public class SpecialFunctionSyntax {
 					InsnTree body = parser.nextScript();
 					parser.input.expectAfterWhitespace(')');
 					if (parser.environment.user().hasNewVariables()) {
-						body = new ScopedInsnTree(body);
+						body = scoped(body);
 					}
 					parser.environment.user().pop();;
 
@@ -151,7 +146,7 @@ public class SpecialFunctionSyntax {
 					InsnTree body = parser.nextScript();
 					parser.input.expectAfterWhitespace(')');
 					if (parser.environment.user().hasNewVariables()) {
-						body = new ScopedInsnTree(body);
+						body = scoped(body);
 					}
 					parser.environment.user().pop();;
 					cases.defaultReturnValue(body);

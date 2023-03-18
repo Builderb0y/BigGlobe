@@ -8,6 +8,7 @@
 		"AzaleaBlock_GrowIntoBigGlobeTree",
 		"BigGlobeConfig_ImplementConfigData",
 		"BlockEntityType_AddBlockHook",
+		"BubbleColumnBlock_WorkWithSoulMagma",
 		"CactusBlock_AllowPlacementOnOvergrownSand",
 		"ChunkGenerator_getStructurePlacementAccess",
 		"ChunkSection_CountsAccess",

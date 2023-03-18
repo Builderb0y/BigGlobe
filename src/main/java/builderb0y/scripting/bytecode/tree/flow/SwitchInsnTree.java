@@ -64,7 +64,7 @@ public class SwitchInsnTree implements InsnTree {
 		else {
 			return TypeMerger.computeMostSpecificType(
 				Stream.concat(Stream.of(defaultCase), cases.values().stream())
-				.filter(tree -> !tree.returnsUnconditionally())
+				.filter(tree -> !tree.jumpsUnconditionally())
 				.map(InsnTree::getTypeInfo)
 				.toArray(TypeInfo.ARRAY_FACTORY)
 			);
@@ -86,14 +86,14 @@ public class SwitchInsnTree implements InsnTree {
 		int occupancy = this.runtimeCases.size();
 		//step 1: emit the TABLESWITCH or LOOKUPSWITCH instruction.
 		this.value.emitBytecode(method);
-		if (occupancy < range >> 2) { //sparse, use lookup switch
+		if (occupancy < range >> 2) { //sparse, use lookup switch.
 			method.node.visitLookupSwitchInsn(
 				starts.getOrDefault(defaultCase, end),
 				this.runtimeCases.keySet().toIntArray(),
 				this.runtimeCases.values().stream().map(starts::get).toArray(Label[]::new)
 			);
 		}
-		else { //dense, use table switch
+		else { //dense, use table switch.
 			Label[] labels = new Label[range];
 			for (Int2ObjectMap.Entry<InsnTree> entry : this.runtimeCases.int2ObjectEntrySet()) {
 				labels[entry.getIntKey() - minKey] = starts.get(entry.getValue());
@@ -115,12 +115,12 @@ public class SwitchInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
+	public boolean jumpsUnconditionally() {
 		InsnTree defaultCase = this.compileCases.defaultReturnValue();
 		return (
 			defaultCase != null &&
-			defaultCase.returnsUnconditionally() &&
-			this.compileCases.values().stream().allMatch(InsnTree::returnsUnconditionally)
+			defaultCase.jumpsUnconditionally() &&
+			this.compileCases.values().stream().allMatch(InsnTree::jumpsUnconditionally)
 		);
 	}
 

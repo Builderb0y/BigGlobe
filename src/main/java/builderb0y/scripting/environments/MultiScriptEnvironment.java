@@ -94,6 +94,6 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 
 	@Override
 	public String toString() {
-		return "MultiScriptEnvironment: " + this.environments;
+		return this.getClass().getSimpleName() + ": " + this.environments;
 	}
 }

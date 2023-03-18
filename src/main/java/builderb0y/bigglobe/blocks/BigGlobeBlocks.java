@@ -250,6 +250,18 @@ public class BigGlobeBlocks {
 			.dropsNothing()
 		)
 	);
+	public static final MagmaBlock SOUl_MAGMA = register(
+		"soul_magma",
+		new MagmaBlock(
+			AbstractBlock.Settings.copy(Blocks.MAGMA_BLOCK).mapColor(MapColor.LAPIS_BLUE)
+		)
+	);
+	public static final SoulCauldronBlock SOUL_CAULDRON = register(
+		"soul_cauldron",
+		new SoulCauldronBlock(
+			AbstractBlock.Settings.copy(Blocks.LAVA_CAULDRON)
+		)
+	);
 	public static final Block CHARRED_PLANKS = register(
 		"charred_planks",
 		new Block(
@@ -453,7 +465,8 @@ public class BigGlobeBlocks {
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::canTillFarmland, Blocks.FARMLAND.getDefaultState());
 		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
 		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
-		LandPathNodeTypesRegistry.register(BLAZING_BLOSSOM, PathNodeType.DAMAGE_FIRE, null);
+		LandPathNodeTypesRegistry.register(BLAZING_BLOSSOM, PathNodeType.DAMAGE_FIRE, PathNodeType.DANGER_FIRE);
+		LandPathNodeTypesRegistry.register(SOUl_MAGMA, PathNodeType.DAMAGE_FIRE, PathNodeType.DANGER_FIRE);
 		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_SIGN);
 		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_WALL_SIGN);
 	}

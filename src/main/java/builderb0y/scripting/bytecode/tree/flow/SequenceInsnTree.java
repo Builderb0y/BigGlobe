@@ -47,8 +47,8 @@ public class SequenceInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
-		return Arrays.stream(this.statements).anyMatch(InsnTree::returnsUnconditionally);
+	public boolean jumpsUnconditionally() {
+		return Arrays.stream(this.statements).anyMatch(InsnTree::jumpsUnconditionally);
 	}
 
 	@Override

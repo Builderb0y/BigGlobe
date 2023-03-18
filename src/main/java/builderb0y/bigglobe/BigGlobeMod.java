@@ -22,6 +22,7 @@ import net.minecraft.world.level.storage.LevelStorage;
 
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blocks.SoulCauldronBlock;
 import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
@@ -59,6 +60,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeFluids.init();
 		BigGlobeBlocks.init();
 		BigGlobeItems.init();
+		SoulCauldronBlock.init();
 		BigGlobeBlockEntityTypes.init();
 		BigGlobeBrewing.init();
 		//normally I would initialize TreeRegistry here,

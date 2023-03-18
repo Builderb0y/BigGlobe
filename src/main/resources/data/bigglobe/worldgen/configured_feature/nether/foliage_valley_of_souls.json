@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (random.nextBoolean(0.125) && getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:soul_sand'):",
+			"if (random.nextBoolean(0.125) && getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
 				"random.if(0.25:",
 					"random.if(0.125:",
 						"random.if(0.25:",

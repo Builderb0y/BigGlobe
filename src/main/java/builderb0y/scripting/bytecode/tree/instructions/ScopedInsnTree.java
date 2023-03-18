@@ -21,7 +21,9 @@ public class ScopedInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.scopes.withScope(this.body::emitBytecode);
+		method.scopes.pushScope();
+		this.body.emitBytecode(method.scopes.method);
+		method.scopes.popScope();
 	}
 
 	@Override
@@ -35,8 +37,8 @@ public class ScopedInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
-		return this.body.returnsUnconditionally();
+	public boolean jumpsUnconditionally() {
+		return this.body.jumpsUnconditionally();
 	}
 
 	@Override

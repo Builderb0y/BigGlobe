@@ -1,5 +1,6 @@
 package builderb0y.scripting.parsing;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.HashCommon;
@@ -7,13 +8,15 @@ import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.util.TypeInfos;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
 for anyone wondering, the reason why all the successful tests have
 unnecessary spaces in them is to verify that spaces are ignored properly.
-I don't code like that in practice.
+please do not use these tests as a style guide.
 */
 public class ExpressionParserTest {
 
@@ -87,7 +90,6 @@ public class ExpressionParserTest {
 	public void testFlow() throws ScriptParsingException {
 		assertFail("Unreachable statement", "if (yes: return(0)) else (return(1)) return(2)");
 		assertSuccess(0, "return ( if ( yes : return ( 0 ) ) else ( return ( 1 ) ) )");
-		assertFail("Unreachable statement", "while (yes: noop) 1");
 		assertSuccess(1, "if ( yes : noop ) ,, 1");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, 2");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, return ( 2 )");
@@ -146,7 +148,8 @@ public class ExpressionParserTest {
 			while ( yes :
 				if ( counter == 10 : return ( 1 ) )
 				counter = counter + 1
-			)
+			) ,,
+			-1
 			"""
 		);
 		assertSuccess(10,
@@ -159,7 +162,8 @@ public class ExpressionParserTest {
 				if ( square > 100 : high = mid )
 				else if ( square < 100 : low = mid )
 				else return ( mid )
-			)
+			) ,,
+			-1
 			"""
 		);
 		assertSuccess(1,
@@ -293,6 +297,26 @@ public class ExpressionParserTest {
 			int result = 0
 			if ( false : result = 1 )
 			else result = 2 ,, result = 3
+			result
+			"""
+		);
+		assertSuccess(5,
+			"""
+			int result = 0
+			block (
+				++ result
+				if ( result < 5 : continue ( ) )
+			)
+			result
+			"""
+		);
+		assertSuccess(5,
+			"""
+			int result = 0
+			while ( true :
+				++ result
+				if ( result >= 5 : break ( ) )
+			)
 			result
 			"""
 		);
@@ -558,7 +582,7 @@ public class ExpressionParserTest {
 				int z
 			)
 			
-			XYZ xyz = XYZ . new( 1 , 2 , 3 )
+			XYZ xyz = XYZ . new ( 1 , 2 , 3 )
 			xyz . y
 			"""
 		);
@@ -630,6 +654,63 @@ public class ExpressionParserTest {
 			"""
 			class Two ( int x ,, int y )
 			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
+			"""
+		);
+	}
+
+	@Test
+	void testVariablesInFunctions() throws ScriptParsingException {
+		assertSuccess(1,
+			"""
+			int a(:
+				int x = 1
+				return(x)
+			)
+			return(a())
+			"""
+		);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testNestedFunctions() throws ScriptParsingException {
+		Object expected = new Object();
+		Object actual = (
+			new ScriptParser<>(
+				Function.class,
+				"""
+				Object a ( :
+					Object b ( :
+						return ( object )
+					)
+					return ( b ( ) )
+				)
+				return ( a ( ) )
+				"""
+			)
+			.addEnvironment(
+				new MutableScriptEnvironment()
+				.addVariableLoad("object", 1, TypeInfos.OBJECT)
+			)
+			.parse()
+			.apply(expected)
+		);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testFunctionsWithSameParameterNames() throws ScriptParsingException {
+		assertSuccess(1,
+			"""
+			int a ( int x :
+				return ( x )
+			)
+			
+			int b ( int x :
+				return ( x )
+			)
+			
+			return ( b ( a ( 1 ) ) )
 			"""
 		);
 	}

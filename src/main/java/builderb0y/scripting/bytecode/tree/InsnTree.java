@@ -45,7 +45,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		if (this.getTypeInfo().simpleEquals(type)) {
 			return this;
 		}
-		if (this.returnsUnconditionally()) {
+		if (this.jumpsUnconditionally()) {
 			return new CastInsnTree(this, type, CasterData.ARRAY_FACTORY.empty());
 		}
 		if (this.getTypeInfo().isGeneric || type.isGeneric) {
@@ -99,7 +99,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		return new SequenceInsnTree(parser, this, nextStatement);
 	}
 
-	public default boolean returnsUnconditionally() {
+	public default boolean jumpsUnconditionally() {
 		return false;
 	}
 

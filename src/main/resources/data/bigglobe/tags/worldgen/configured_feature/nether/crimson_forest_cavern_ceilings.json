@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:nether/weeping_vines_ceiling"
+		"bigglobe:nether/weeping_vines_ceiling",
+		"bigglobe:nether/occasional_glowstone_extra"
 	]
 }

@@ -6,6 +6,8 @@ import java.util.function.BinaryOperator;
 
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -398,6 +400,18 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static InsnTree getFromStack(TypeInfo type) {
 		return new GetFromStackInsnTree(type);
+	}
+
+	public static Label label() {
+		Label label = new Label();
+		label.info = new LabelNode(label);
+		return label;
+	}
+
+	public static LabelNode labelNode() {
+		LabelNode node = new LabelNode();
+		node.getLabel().info = node;
+		return node;
 	}
 
 	@SuppressWarnings("unchecked")

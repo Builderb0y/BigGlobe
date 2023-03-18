@@ -21,6 +21,17 @@ public class ScriptParsingException extends Exception {
 		this.at = appendContext(input);
 	}
 
+	public ScriptParsingException(ScriptParsingException cause) {
+		super(cause.getLocalizedMessage(), cause);
+		this.at = null;
+		//for some dumb reason, the following code does not work:
+		//	super(cause.getMessage(), cause);
+		//	this.at = cause.at;
+		//the effect of that code is that when the stack trace is printed,
+		//it does not contain our at information.
+		//I don't know why this is the case.
+	}
+
 	@Override
 	public String getLocalizedMessage() {
 		return this.at == null ? this.getMessage() : this.getMessage() + ' ' + this.at;

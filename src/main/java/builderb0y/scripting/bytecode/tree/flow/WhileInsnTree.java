@@ -1,15 +1,14 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
-import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
+import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -60,23 +59,16 @@ public class WhileInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Label start = new Label(), end = new Label();
-		method.node.visitLabel(start);
-		this.condition.emitBytecode(method, null, end);
+		Scope scope = method.scopes.pushLoop();
+		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.body.emitBytecode(method);
-		method.node.visitJumpInsn(Opcodes.GOTO, start);
-		method.node.visitLabel(end);
+		method.node.visitJumpInsn(Opcodes.GOTO, scope.start.getLabel());
+		method.scopes.popLoop();
 	}
 
 	@Override
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.VOID;
-	}
-
-	@Override
-	public boolean returnsUnconditionally() {
-		//while (true) doesn't need a return after it.
-		return this.condition instanceof ConstantConditionTree constant && constant.value;
 	}
 
 	@Override

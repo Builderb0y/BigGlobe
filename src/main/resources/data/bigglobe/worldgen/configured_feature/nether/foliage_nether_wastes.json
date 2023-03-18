@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (",
+				"random.nextBoolean(0.125) &&",
+				"getBlockState(originX, originY, originZ).isAir() &&",
+				"getBlockState(originX, originY - 1, originZ).hasFullCubeOutline()",
+			":",
+				"setBlockState(originX, originY, originZ, random.switch('bigglobe:charred_grass', 'bigglobe:wart_weed'))",
+				"return(true)",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

@@ -16,8 +16,8 @@ import it.unimi.dsi.fastutil.HashCommon;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
-import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -146,7 +146,7 @@ public class ExpressionParser {
 			if (this.environment.user().getStackSize() != expectedUserStackSize) {
 				throw new IllegalStateException("User defined variable scope out of sync!");
 			}
-			if (!tree.returnsUnconditionally()) {
+			if (!tree.jumpsUnconditionally()) {
 				tree = this.createReturn(tree);
 			}
 			return tree;
@@ -192,7 +192,7 @@ public class ExpressionParser {
 					throw new ScriptParsingException("Not a statement", this.input);
 				}
 				InsnTree next = this.nextCompoundExpression();
-				if (left.returnsUnconditionally()) {
+				if (left.jumpsUnconditionally()) {
 					throw new ScriptParsingException("Unreachable statement", this.input);
 				}
 				left = left.then(this, next);
@@ -214,7 +214,7 @@ public class ExpressionParser {
 					throw new ScriptParsingException("Not a statement", this.input);
 				}
 				InsnTree next = this.nextSingleExpression();
-				if (left.returnsUnconditionally()) {
+				if (left.jumpsUnconditionally()) {
 					throw new ScriptParsingException("Unreachable statement", this.input);
 				}
 				left = left.then(this, next);
@@ -783,19 +783,25 @@ public class ExpressionParser {
 			newParameters.add(builtin);
 			currentOffset += builtin.type.getSize();
 		}
-		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment();
+		//System.out.println(methodName + " builtin: " + newParameters);
+		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment().addAll(this.environment.mutable());
 		for (VarInfo captured : this.environment.user().getVariables()) {
 			VarInfo added = new VarInfo(captured.name, currentOffset, captured.type);
 			newParameters.add(added);
-			userParametersEnvironment.addVariableLoad(added);
+			InsnTree loader = load(added);
+			//must force put in backing map directly,
+			//as normally this variable is "already defined".
+			userParametersEnvironment.variables.put(added.name, (parser, name1) -> loader);
 			currentOffset += added.type.getSize();
 		}
+		//System.out.println(methodName + " builtin + captured: " + newParameters);
 		for (UserParameter userParameter : userParameters.parameters()) {
 			VarInfo variable = new VarInfo(userParameter.name(), currentOffset, userParameter.type());
 			newParameters.add(variable);
 			userParametersEnvironment.addVariableLoad(variable);
 			currentOffset += variable.type.getSize();
 		}
+		//System.out.println(methodName + " builtin + captured + user: " + newParameters);
 		MethodCompileContext newMethod = this.clazz.newMethod(
 			this.method.info.access(),
 			methodName + '_' + this.functionUniquifier++,
@@ -805,10 +811,20 @@ public class ExpressionParser {
 			.map(var -> var.type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
+		newMethod.scopes.pushScope();
+		if (!newMethod.info.isStatic()) {
+			newMethod.addThis();
+		}
+		for (VarInfo parameter : newParameters) {
+			VarInfo added = newMethod.newParameter(parameter.name, parameter.type);
+			if (added.index != parameter.index) {
+				throw new IllegalStateException("Parameter index mismatch: " + parameter + " -> " + added);
+			}
+		}
+
 		ExpressionParser newParser = new ExpressionParser(this, newMethod);
-		newParser.environment.environments.add(1, userParametersEnvironment);
+		newParser.environment.mutable(userParametersEnvironment);
 		InsnTree result = newParser.parseRemainingInput(true);
-		//newMethod.scopes.popScope();
 
 		MethodInfo newMethodInfo = newMethod.info;
 		InsnTree[] implicitParameters = (
@@ -835,7 +851,7 @@ public class ExpressionParser {
 				return new CastResult(invokeVirtual(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
 		});
-		return new MethodDeclarationInsnTree(newMethod, result, newParameters.toArray(VarInfo.ARRAY_FACTORY));
+		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 
 	public static final MethodInfo OBJECT_CONSTRUCTOR = method(ACC_PUBLIC, TypeInfos.OBJECT, "<init>", TypeInfos.VOID);

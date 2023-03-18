@@ -1,8 +1,7 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
-import org.objectweb.asm.Label;
-
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -31,20 +30,20 @@ public class IfElseInsnTree implements InsnTree {
 		InsnTree runtimeFalseBody,
 		TypeInfo type
 	) {
-		this.condition = condition;
-		this.compileTrueBody = compileTrueBody;
+		this.condition        = condition;
+		this.compileTrueBody  = compileTrueBody;
 		this.compileFalseBody = compileFalseBody;
-		this.runtimeTrueBody = runtimeTrueBody;
+		this.runtimeTrueBody  = runtimeTrueBody;
 		this.runtimeFalseBody = runtimeFalseBody;
-		this.type = type;
+		this.type             = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, ConditionTree condition, InsnTree trueBody, InsnTree falseBody) throws ScriptParsingException {
 		InsnTree runtimeTrueBody = trueBody;
 		InsnTree runtimeFalseBody = falseBody;
 		TypeInfo type;
-		if (trueBody.returnsUnconditionally()) {
-			if (falseBody.returnsUnconditionally()) {
+		if (trueBody.jumpsUnconditionally()) {
+			if (falseBody.jumpsUnconditionally()) {
 				type = TypeInfos.VOID;
 			}
 			else {
@@ -52,7 +51,7 @@ public class IfElseInsnTree implements InsnTree {
 			}
 		}
 		else {
-			if (falseBody.returnsUnconditionally()) {
+			if (falseBody.jumpsUnconditionally()) {
 				type = trueBody.getTypeInfo();
 			}
 			else {
@@ -66,15 +65,14 @@ public class IfElseInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Label falseLabel = new Label(), end = new Label();
-		method.scopes.withScope(method1 -> {
-			this.condition.emitBytecode(method1, null, falseLabel);
-			this.runtimeTrueBody.emitBytecode(method1);
-		});
-		method.node.visitJumpInsn(GOTO, end);
-		method.node.visitLabel(falseLabel);
+		Scope scope = method.scopes.pushScope();
+		this.condition.emitBytecode(method, null, scope.end.getLabel());
+		this.runtimeTrueBody.emitBytecode(method);
+		scope.cycle();
+		method.node.visitJumpInsn(GOTO, scope.end.getLabel());
+		method.node.instructions.add(scope.start);
 		this.runtimeFalseBody.emitBytecode(method);
-		method.node.visitLabel(end);
+		method.scopes.popLoop();
 	}
 
 	@Override
@@ -83,12 +81,12 @@ public class IfElseInsnTree implements InsnTree {
 	}
 
 	@Override
-	public boolean returnsUnconditionally() {
+	public boolean jumpsUnconditionally() {
 		if (this.condition instanceof ConstantConditionTree constant) {
-			return (constant.value ? this.compileTrueBody : this.compileFalseBody).returnsUnconditionally();
+			return (constant.value ? this.compileTrueBody : this.compileFalseBody).jumpsUnconditionally();
 		}
 		else {
-			return this.compileTrueBody.returnsUnconditionally() && this.compileFalseBody.returnsUnconditionally();
+			return this.compileTrueBody.jumpsUnconditionally() && this.compileFalseBody.jumpsUnconditionally();
 		}
 	}
 
