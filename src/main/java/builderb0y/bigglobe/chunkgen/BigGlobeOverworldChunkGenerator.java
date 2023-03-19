@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -65,7 +64,6 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.DummyFeature.DummyConfig;
 import builderb0y.bigglobe.features.SingleBlockFeature;
-import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
@@ -842,15 +840,16 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
+			this.profiler.run("Structures", () -> {
+				for (GenerationStep.Feature step : FEATURE_STEPS) {
+					this.generateStructuresInStage(world, chunk, structureAccessor, step);
+				}
+			});
+		}
+
 		this.profiler.run("Features", () -> {
-			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
-				this.profiler.run("Structure placement", () -> {
-					for (GenerationStep.Feature step : FEATURE_STEPS) {
-						this.generateStructuresInStage(world, chunk, structureAccessor, step);
-					}
-				});
-			}
 			ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 			OverworldPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof OverworldPositionCache overworld ? overworld : null;
 			ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
@@ -899,22 +898,22 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 								double center = column.getCavernCenter();
 								double thickness = column.getCavernThickness();
 								if (!Double.isNaN(center) && thickness > 0.0D) {
-									this.runDecorator(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
-									this.runDecorator(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
+									this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
+									this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
 								}
 							}
 							CaveCell caveCell = column.getCaveCell();
 							if (caveCell != null) {
-								this.runDecorator(world, pos, mojang, caveCell.settings.floor_decorator(), cache_.getCaveFloors(columnIndex));
-								this.runDecorator(world, pos, mojang, caveCell.settings.ceiling_decorator(), cache_.getCaveCeilings(columnIndex));
+								this.runDecorators(world, pos, mojang, caveCell.settings.floor_decorator(), cache_.getCaveFloors(columnIndex));
+								this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator(), cache_.getCaveCeilings(columnIndex));
 							}
 						}
-						this.runDecorator(world, pos, mojang, this.settings.surface().decorator(), column.getFinalTopHeightI());
+						this.runDecorators(world, pos, mojang, this.settings.surface().decorator(), column.getFinalTopHeightI());
 
 						SkylandCell skylandCell = column.getSkylandCell();
 						if (skylandCell != null && column.hasSkyland()) {
-							this.runDecorator(world, pos, mojang, skylandCell.settings.floor_decorator(), BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
-							this.runDecorator(world, pos, mojang, skylandCell.settings.ceiling_decorator(), BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
+							this.runDecorators(world, pos, mojang, skylandCell.settings.floor_decorator(), BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
+							this.runDecorators(world, pos, mojang, skylandCell.settings.ceiling_decorator(), BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
 						}
 					}
 				});
@@ -924,56 +923,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				this.chunkColumnCache.reclaim(columns);
 			}
 		});
-	}
-
-	public void runDecorator(
-		StructureWorldAccess world,
-		BlockPos.Mutable pos,
-		MojangPermuter permuter,
-		SortedFeatureTag decorator,
-		IntList yLevels
-	) {
-		if (decorator != null && yLevels != null) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
-			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
-					long columnSeed = permuter.getSeed();
-					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
-						pos.setY(yLevels.getInt(yIndex));
-						long blockSeed = Permuter.permute(columnSeed, pos.getY());
-						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-							features[featureIndex].generate(world, this, permuter, pos);
-						}
-					}
-					permuter.setSeed(columnSeed);
-				});
-			}
-		}
-	}
-
-	public void runDecorator(
-		StructureWorldAccess world,
-		BlockPos.Mutable pos,
-		MojangPermuter permuter,
-		SortedFeatureTag decorator,
-		int yLevel
-	) {
-		if (decorator != null && yLevel != Integer.MIN_VALUE) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
-			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
-					long columnSeed = permuter.getSeed();
-					pos.setY(yLevel);
-					long blockSeed = Permuter.permute(columnSeed, pos.getY());
-					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-						features[featureIndex].generate(world, this, permuter, pos);
-					}
-					permuter.setSeed(columnSeed);
-				});
-			}
-		}
 	}
 
 	public void generateFlowers(StructureWorldAccess world, ChunkOfColumns<OverworldColumn> columns, BlockPos.Mutable pos, Permuter permuter) {

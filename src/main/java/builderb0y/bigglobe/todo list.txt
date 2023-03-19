@@ -117,6 +117,9 @@ features:
 		magma blocks for variation.
 		lava falls multiple blocks wide.
 			integrate with hidden lava.
+		limit area where floating magma can spawn.
+			currently occasionally places magma more than 16 blocks from feature origin position.
+		make obsidian spires check for lava under them before spawning.
 	end:
 		jessie wants worley noise for the end.
 			convex.

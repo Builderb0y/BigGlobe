@@ -11,6 +11,7 @@ import com.google.common.base.Predicates;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -50,6 +51,7 @@ import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -71,6 +73,7 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -262,6 +265,57 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	@Override
 	public abstract void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor);
 
+	public void runDecorators(
+		StructureWorldAccess world,
+		BlockPos.Mutable pos,
+		MojangPermuter permuter,
+		SortedFeatureTag decorator,
+		IntList yLevels
+	) {
+		if (decorator != null && yLevels != null && !yLevels.isEmpty()) {
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			if (features.length != 0) {
+				this.profiler.run(decorator.key.id(), () -> {
+					long columnSeed = permuter.getSeed();
+					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
+						int y = yLevels.getInt(yIndex);
+						pos.setY(y);
+						long blockSeed = Permuter.permute(columnSeed, y);
+						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
+							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
+							features[featureIndex].generate(world, this, permuter, pos);
+						}
+					}
+					permuter.setSeed(columnSeed);
+				});
+			}
+		}
+	}
+
+	public void runDecorators(
+		StructureWorldAccess world,
+		BlockPos.Mutable pos,
+		MojangPermuter permuter,
+		SortedFeatureTag decorator,
+		int yLevel
+	) {
+		if (decorator != null && yLevel != Integer.MIN_VALUE) {
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			if (features.length != 0) {
+				this.profiler.run(decorator.key.id(), () -> {
+					long columnSeed = permuter.getSeed();
+					pos.setY(yLevel);
+					long blockSeed = Permuter.permute(columnSeed, yLevel);
+					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
+						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
+						features[featureIndex].generate(world, this, permuter, pos);
+					}
+					permuter.setSeed(columnSeed);
+				});
+			}
+		}
+	}
+
 	@Override
 	public void setStructureStarts(DynamicRegistryManager registryManager, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager, long seed) {
 		if (
@@ -403,6 +457,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		) {
 			//important: make sure this seed does NOT use chunkPos as part of the hash!
 			//the same StructureStart should use the same seed for every chunk that it intersects with.
+			//this fixes shipwrecks spawning at different heights or with
+			//different wood types when they spawn intersecting a chunk border.
 			long seed = Permuter.permute(world.getSeed() ^ 0x5E4FE744EECE1D5BL, structure.getKey().orElseThrow().getValue());
 			this.generateStructure(world, chunk, structureAccessor, seed, structure.value());
 		}

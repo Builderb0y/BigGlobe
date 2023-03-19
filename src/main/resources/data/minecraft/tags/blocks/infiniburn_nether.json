@@ -3,6 +3,7 @@
 	"values": [
 		"#bigglobe:charred_logs",
 		"bigglobe:charred_planks",
-		"bigglobe:charred_leaves"
+		"bigglobe:charred_leaves",
+		"minecraft:obsidian"
 	]
 }

@@ -18,10 +18,10 @@ import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -37,7 +37,8 @@ import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
-import builderb0y.bigglobe.features.SortedFeatureTag;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -359,6 +360,15 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
+			this.profiler.run("Structures", () -> {
+				for (GenerationStep.Feature step : FEATURE_STEPS) {
+					this.generateStructuresInStage(world, chunk, structureAccessor, step);
+				}
+			});
+		}
+
 		this.profiler.run("Features", () -> {
 			NetherPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof NetherPositionCache nether ? nether : null;
 			ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
@@ -398,57 +408,6 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				this.chunkColumnCache.reclaim(columns);
 			}
 		});
-	}
-
-	public void runDecorators(
-		StructureWorldAccess world,
-		BlockPos.Mutable pos,
-		MojangPermuter permuter,
-		SortedFeatureTag decorator,
-		IntList yLevels
-	) {
-		if (decorator != null && !yLevels.isEmpty()) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
-			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
-					long columnSeed = permuter.getSeed();
-					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
-						int y = yLevels.getInt(yIndex);
-						pos.setY(y);
-						long blockSeed = Permuter.permute(columnSeed, y);
-						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-							features[featureIndex].generate(world, this, permuter, pos);
-						}
-					}
-					permuter.setSeed(columnSeed);
-				});
-			}
-		}
-	}
-
-	public void runDecorators(
-		StructureWorldAccess world,
-		BlockPos.Mutable pos,
-		MojangPermuter permuter,
-		SortedFeatureTag decorator,
-		int yLevel
-	) {
-		if (decorator != null) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
-			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
-					long columnSeed = permuter.getSeed();
-					pos.setY(yLevel);
-					long blockSeed = Permuter.permute(columnSeed, yLevel);
-					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-						features[featureIndex].generate(world, this, permuter, pos);
-					}
-					permuter.setSeed(columnSeed);
-				});
-			}
-		}
 	}
 
 	@Override
