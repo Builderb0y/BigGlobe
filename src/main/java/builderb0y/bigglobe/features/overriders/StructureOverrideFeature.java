@@ -4,8 +4,7 @@ import com.mojang.serialization.Codec;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.DummyFeature;
-import builderb0y.bigglobe.overriders.overworld.OverworldStructureOverrider;
-import builderb0y.bigglobe.overriders.overworld.OverworldStructureOverrider.Holder;
+import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 
 public class StructureOverrideFeature extends DummyFeature<StructureOverrideFeature.Config> {
 
@@ -19,9 +18,9 @@ public class StructureOverrideFeature extends DummyFeature<StructureOverrideFeat
 
 	public static class Config extends DummyConfig {
 
-		public final OverworldStructureOverrider.Holder script;
+		public final ScriptStructureOverrider.Holder script;
 
-		public Config(Holder script) {
+		public Config(ScriptStructureOverrider.Holder script) {
 			this.script = script;
 		}
 	}

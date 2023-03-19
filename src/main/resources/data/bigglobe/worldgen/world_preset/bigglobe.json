@@ -1139,7 +1139,7 @@
 										},
 										{
 											"weight": 0.75,
-											"biome": "minecraft:crimson_forest",
+											"biome": "bigglobe:crimson_forest",
 											"caverns": {
 												"floor_surface": {
 													"top_state": "minecraft:crimson_nylium",
@@ -1156,7 +1156,7 @@
 										},
 										{
 											"weight": 0.25,
-											"biome": "minecraft:warped_forest",
+											"biome": "bigglobe:warped_forest",
 											"caverns": {
 												"floor_surface": {
 													"top_state": "minecraft:warped_nylium",
@@ -1170,12 +1170,32 @@
 												"ceiling_decorator": "bigglobe:nether/warped_forest_cave_ceilings"
 											},
 											"fluid_decorator": "bigglobe:nether/warped_forest_fluid"
+										},
+										{
+											"weight": 0.75,
+											"biome": "bigglobe:valley_of_souls",
+											"filler": "minecraft:soul_soil",
+											"caverns": {
+												"floor_surface": {
+													"top_state": "minecraft:soul_sand",
+													"under_state": "minecraft:soul_sand",
+													"depth": "random.nextDouble(1.0, 5.0)"
+												},
+												"floor_decorator": "bigglobe:nether/soul_sand_valley_cavern_floors",
+												"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cavern_ceilings"
+											},
+											"caves": {
+												"floor_decorator": "bigglobe:nether/soul_sand_valley_cave_floors",
+												"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cave_ceilings"
+											},
+											"fluid_decorator": "bigglobe:nether/soul_sand_valley_fluid",
+											"fluid_state": "bigglobe:soul_lava[level=0]"
 										}
 									]
 								},
 								{
 									"weight": 1.0,
-									"biome": "minecraft:nether_wastes",
+									"biome": "bigglobe:nether_wastes",
 									"caverns": {
 										"noise": {
 											"type": "sum",
@@ -1200,7 +1220,7 @@
 								},
 								{
 									"weight": 0.5,
-									"biome": "minecraft:basalt_deltas",
+									"biome": "bigglobe:inferno",
 									"filler": "minecraft:basalt[axis=y]",
 									"caverns": {
 										"noise": {
@@ -1226,35 +1246,6 @@
 										"ceiling_decorator": "bigglobe:nether/basalt_deltas_cave_ceilings"
 									},
 									"fluid_decorator": "bigglobe:nether/basalt_deltas_fluid"
-								},
-								{
-									"weight": 0.75,
-									"biome": "minecraft:soul_sand_valley",
-									"filler": "minecraft:soul_soil",
-									"caverns": {
-										"noise": {
-											"type": "sum",
-											"layers": [
-												{ "type": "smooth", "scaleX": 128.0, "scaleY": 64.0, "scaleZ": 128.0, "amplitude": 128.0 },
-												{ "type": "smooth", "scaleX":  64.0, "scaleY": 32.0, "scaleZ":  64.0, "amplitude":  51.2 },
-												{ "type": "smooth", "scaleX":  32.0, "scaleY": 24.0, "scaleZ":  32.0, "amplitude":  20.48 },
-												{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 }
-											]
-										},
-										"floor_surface": {
-											"top_state": "minecraft:soul_sand",
-											"under_state": "minecraft:soul_sand",
-											"depth": "random.nextDouble(1.0, 5.0)"
-										},
-										"floor_decorator": "bigglobe:nether/soul_sand_valley_cavern_floors",
-										"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cavern_ceilings"
-									},
-									"caves": {
-										"floor_decorator": "bigglobe:nether/soul_sand_valley_cave_floors",
-										"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cave_ceilings"
-									},
-									"fluid_decorator": "bigglobe:nether/soul_sand_valley_fluid",
-									"fluid_state": "bigglobe:soul_lava[level=0]"
 								}
 							]
 						}

@@ -51,6 +51,7 @@ features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
+		config file to disable non-essential mixins.
 	overworld:
 		script for cave width.
 		column values for cliff frac and cliff bias.
@@ -108,7 +109,6 @@ features:
 			nether wart in nether wastes, crimson forest, and valley of souls.
 			glowing goldenrod in nether wastes, crimson forest, and warped forest.
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
-		glowstone in nether wastes, ashen wastes, and basalt deltas, extra glowstone in crimson forest and warped forest.
 		custom biomes for custom mob spawning.
 		soul campfire in valley of souls.
 		worley noise for nether wastes?
@@ -119,7 +119,8 @@ features:
 			integrate with hidden lava.
 		limit area where floating magma can spawn.
 			currently occasionally places magma more than 16 blocks from feature origin position.
-		make obsidian spires check for lava under them before spawning.
+		make obsidian spires check spawning conditions more efficiently.
+			only check actual spire area instead of potential spire area.
 	end:
 		jessie wants worley noise for the end.
 			convex.

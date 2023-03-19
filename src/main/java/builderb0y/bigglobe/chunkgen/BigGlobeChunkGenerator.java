@@ -52,6 +52,8 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -73,7 +75,9 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
+import builderb0y.bigglobe.features.UseScriptTemplateFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -82,6 +86,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.registration.BigGlobeBuiltinRegistries;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 @AddPseudoField(name = "structureSetRegistry", getter = "getStructureSetRegistry")
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
@@ -98,15 +103,51 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	}
 	public static final GenerationStep.Feature[] FEATURE_STEPS = GenerationStep.Feature.values();
 	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
+
+	@EncodeInline
+	public final Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry;
 	public transient ColumnValue<?>[] displayedColumnValues;
 
 	public transient long seed;
 	//no idea if this needs to be synchronized or not, but it can't hurt.
-	public transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
+	public final transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
 
-	public BigGlobeChunkGenerator(Registry<StructureSet> structureSetRegistry, Optional<RegistryEntryList<StructureSet>> structureOverrides, BiomeSource biomeSource) {
+	public BigGlobeChunkGenerator(
+		Registry<StructureSet> structureSetRegistry,
+		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry,
+		Optional<RegistryEntryList<StructureSet>> structureOverrides,
+		BiomeSource biomeSource
+	) {
 		super(structureSetRegistry, structureOverrides, biomeSource);
+		this.configuredFeatureRegistry = configuredFeatureRegistry;
+		for (UseScriptTemplateFeature.Config config : extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.USE_SCRIPT_TEMPLATE)) {
+			try {
+				config.getCompiledScript();
+			}
+			catch (ScriptParsingException exception) {
+				throw new RuntimeException(exception.getLocalizedMessage(), exception);
+			}
+		}
+	}
+
+	public static Map<Feature<?>, List<FeatureConfig>> sortFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
+		Map<Feature<?>, List<FeatureConfig>> map = new HashMap<>(Registry.FEATURE.size());
+		for (ConfiguredFeature<?, ?> configuredFeature : registry) {
+			map.computeIfAbsent(configuredFeature.feature(), $ -> new ArrayList<>(4)).add(configuredFeature.config());
+		}
+		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <C extends FeatureConfig> List<C> extractOneFeature(Registry<ConfiguredFeature<?, ?>> registry, Feature<C> feature) {
+		List<C> list = new ArrayList<>(8);
+		for (ConfiguredFeature<?, ?> configuredFeature : registry) {
+			if (configuredFeature.feature() == feature) {
+				list.add((C)(configuredFeature.config()));
+			}
+		}
+		return list;
 	}
 
 	@EncodeInline
@@ -418,14 +459,30 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 			chunk,
 			predicate
 		);
-		if (newStart.hasChildren() && this.canStructureSpawn(weightedEntry.structure(), newStart)) {
+		if (
+			newStart.hasChildren() &&
+			this.canStructureSpawn(
+				weightedEntry.structure(),
+				newStart,
+				new Permuter(
+					Permuter.permute(
+						Permuter.permute(
+							this.seed ^ 0xD59E69D9AB0D41BAL,
+							//String.hashCode() will be cached, which means faster permutation times.
+							weightedEntry.structure().getKey().orElseThrow().getValue().hashCode()
+						),
+						chunk.getPos()
+					)
+				)
+			)
+		) {
 			structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
 			return true;
 		}
 		return false;
 	}
 
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
 		return true;
 	}
 

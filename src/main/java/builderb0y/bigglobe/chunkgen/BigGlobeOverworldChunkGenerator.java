@@ -5,8 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
 
@@ -27,7 +27,10 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
-import net.minecraft.util.registry.*;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -40,6 +43,8 @@ import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
@@ -62,12 +67,11 @@ import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.DummyFeature.DummyConfig;
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
-import builderb0y.bigglobe.features.overriders.*;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -76,8 +80,12 @@ import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.overriders.overworld.*;
+import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider;
+import builderb0y.bigglobe.overriders.overworld.OverworldCavernOverrider;
+import builderb0y.bigglobe.overriders.overworld.OverworldFoliageOverrider;
+import builderb0y.bigglobe.overriders.overworld.OverworldHeightOverrider;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -110,8 +118,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final OverworldSettings settings;
 	@EncodeInline
 	public final Registry<Biome> biomeRegistry;
-	@EncodeInline
-	public final Registry<ConfiguredFeature<?, ?>> configuredFeatures;
 
 	public final transient ColumnValue<OverworldColumn>[] biomeValues;
 	public final transient OverworldOreFeature.Config[] oreConfigs;
@@ -121,16 +127,17 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient OverworldFoliageOverrider.Holder[] foliageOverriders;
 	public final transient OverworldCaveOverrider.Holder[] caveOverriders;
 	public final transient OverworldCavernOverrider.Holder[] cavernOverriders;
-	public final transient OverworldStructureOverrider.Holder[] structureOverriders;
+	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
 		Registry<StructureSet> structureSetRegistry,
 		Registry<Biome> biomeRegistry,
-		Registry<ConfiguredFeature<?, ?>> configuredFeatures
+		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry
 	) {
 		super(
 			structureSetRegistry,
+			configuredFeatureRegistry,
 			Optional.empty(),
 			new ColumnBiomeSource(
 				settings
@@ -142,7 +149,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		);
 		this.settings = settings;
 		this.biomeRegistry = biomeRegistry;
-		this.configuredFeatures = configuredFeatures;
 		this.biomeValues = (
 			settings
 			.surface()
@@ -154,38 +160,32 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			.distinct()
 			.toArray(ColumnValue.ARRAY_FACTORY.generic())
 		);
-		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatures);
-		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
-		Map<Class<?>, List<DummyConfig>> sortedFeatures = (
-			configuredFeatures
-			.getEntrySet()
-			.stream()
-			.sorted(Map.Entry.comparingByKey(Comparator.comparing(RegistryKey::getValue)))
-			.map(Map.Entry::getValue)
-			.map(ConfiguredFeature::config)
-			.filter(DummyConfig.class::isInstance)
-			.map(DummyConfig.class::cast)
-			.collect(Collectors.groupingBy(Object::getClass))
-		);
-		this.         oreConfigs = sortedFeatures.getOrDefault(                   OverworldOreFeature.Config.class, Collections.emptyList()).toArray(new OverworldOreFeature.Config[0]);
-		this.   heightOverriders = filterFeatures(sortedFeatures,    HeightOverrideFeature.Config.class, config -> config.script,    OverworldHeightOverrider.Holder[]::new);
-		this.  foliageOverriders = filterFeatures(sortedFeatures,   FoliageOverrideFeature.Config.class, config -> config.script,   OverworldFoliageOverrider.Holder[]::new);
-		this.     caveOverriders = filterFeatures(sortedFeatures,      CaveOverrideFeature.Config.class, config -> config.script,      OverworldCaveOverrider.Holder[]::new);
-		this.   cavernOverriders = filterFeatures(sortedFeatures,    CavernOverrideFeature.Config.class, config -> config.script,    OverworldCavernOverrider.Holder[]::new);
-		this.structureOverriders = filterFeatures(sortedFeatures, StructureOverrideFeature.Config.class, config -> config.script, OverworldStructureOverrider.Holder[]::new);
+		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatureRegistry);
+		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatureRegistry);
+		Map<Feature<?>, List<FeatureConfig>> sortedFeatures = sortFeatures(configuredFeatureRegistry);
+		this.         oreConfigs = sortedFeatures.getOrDefault(BigGlobeFeatures.OVERWORLD_ORE, Collections.emptyList()).toArray(new OverworldOreFeature.Config[0]);
+		this.   heightOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
+		this.  foliageOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER, config -> config.script, OverworldFoliageOverrider.Holder[]::new);
+		this.     caveOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.     OVERWORLD_CAVE_OVERRIDER, config -> config.script,    OverworldCaveOverrider.Holder[]::new);
+		this.   cavernOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.   OVERWORLD_CAVERN_OVERRIDER, config -> config.script,  OverworldCavernOverrider.Holder[]::new);
+		this.structureOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER, config -> config.script,  ScriptStructureOverrider.Holder[]::new);
 	}
 
-	public static <C extends DummyConfig, H extends ScriptHolder<?>> H[] filterFeatures(
-		Map<Class<?>, List<DummyConfig>> map,
-		Class<C> configClass,
+	@SuppressWarnings("unchecked")
+	public static <C extends FeatureConfig, H extends ScriptHolder<?>> H[] filterFeatures(
+		Map<Feature<?>, List<FeatureConfig>> map,
+		Feature<C> feature,
 		Function<C, H> getter,
 		IntFunction<H[]> arrayFactory
 	) {
 		return (
-			map
-			.getOrDefault(configClass, Collections.emptyList())
-			.stream()
-			.map(configClass::cast)
+			(
+				(Stream<C>)(
+					map
+					.getOrDefault(feature, Collections.emptyList())
+					.stream()
+				)
+			)
 			.map(getter)
 			.toArray(arrayFactory)
 		);
@@ -840,16 +840,16 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
-			this.profiler.run("Structures", () -> {
-				for (GenerationStep.Feature step : FEATURE_STEPS) {
-					this.generateStructuresInStage(world, chunk, structureAccessor, step);
-				}
-			});
-		}
-
 		this.profiler.run("Features", () -> {
+			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
+				this.profiler.run("Structures", () -> {
+					for (GenerationStep.Feature step : FEATURE_STEPS) {
+						this.generateStructuresInStage(world, chunk, structureAccessor, step);
+					}
+				});
+			}
+
 			ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 			OverworldPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof OverworldPositionCache overworld ? overworld : null;
 			ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
@@ -1098,7 +1098,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
 		OverworldColumn column = this.column(0, 0);
 		if (
 			//given the size of mega trees, it is *overwhelmingly* likely
@@ -1122,8 +1122,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 		}
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
-		for (OverworldStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column)) {
+		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
+			if (!overrider.override(wrapper, column, permuter)) {
 				return false;
 			}
 		}

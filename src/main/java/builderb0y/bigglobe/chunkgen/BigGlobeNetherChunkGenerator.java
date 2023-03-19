@@ -9,10 +9,12 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -22,7 +24,9 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MemberUsage;
@@ -39,12 +43,15 @@ import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
@@ -62,21 +69,25 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	@EncodeInline
 	public final NetherSettings settings;
-
 	public transient SemiThreadLocal<ChunkOfColumns<NetherColumn>> chunkColumnCache;
+
+	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
 	public BigGlobeNetherChunkGenerator(
 		NetherSettings settings,
-		Registry<StructureSet> structureSetRegistry
+		Registry<StructureSet> structureSetRegistry,
+		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry
 	) {
 		super(
 			structureSetRegistry,
+			configuredFeatureRegistry,
 			Optional.empty(),
 			new ColumnBiomeSource(
 				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
 			)
 		);
 		this.settings = settings;
+		this.structureOverriders = extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).stream().map(c -> c.script).toArray(ScriptStructureOverrider.Holder[]::new);
 	}
 
 	public static void init() {
@@ -360,16 +371,16 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
-			this.profiler.run("Structures", () -> {
-				for (GenerationStep.Feature step : FEATURE_STEPS) {
-					this.generateStructuresInStage(world, chunk, structureAccessor, step);
-				}
-			});
-		}
-
 		this.profiler.run("Features", () -> {
+			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
+				this.profiler.run("Structures", () -> {
+					for (GenerationStep.Feature step : FEATURE_STEPS) {
+						this.generateStructuresInStage(world, chunk, structureAccessor, step);
+					}
+				});
+			}
+
 			NetherPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof NetherPositionCache nether ? nether : null;
 			ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
 			try {
@@ -408,6 +419,16 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				this.chunkColumnCache.reclaim(columns);
 			}
 		});
+	}
+
+	@Override
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
+		NetherColumn column = this.column(0, 0);
+		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
+			if (!overrider.override(wrapper, column, permuter)) return false;
+		}
+		return true;
 	}
 
 	@Override

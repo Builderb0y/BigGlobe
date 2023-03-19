@@ -90,7 +90,8 @@ public class BigGlobeBuiltinRegistries {
 			"hot_forest", "hot_plains", "hot_wasteland",
 			"temperate_forest", "temperate_plains", "temperate_wasteland",
 			"beach", "shallow_ocean", "ocean", "deep_ocean",
-			"ashen_wastes"
+			"ashen_wastes", "crimson_forest", "warped_forest",
+			"inferno", "nether_wastes", "valley_of_souls"
 		}) {
 			BuiltinRegistries.add(
 				BuiltinRegistries.BIOME,

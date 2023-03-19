@@ -114,12 +114,40 @@ public class NetherColumn extends WorldColumn {
 		);
 	}
 
+	public double getLavaLevel() {
+		return this.getLocalCell().lavaLevel;
+	}
+
 	public double[] getCaveNoise() {
 		return (
 			this.setFlag(CAVE_NOISE)
 			? this.computeCaveNoise()
 			: this.caveNoise
 		);
+	}
+
+	public double getCaveNoise(int y, boolean cache) {
+		double[] noise = cache ? this.computeCaveNoise() : this.caveNoise;
+		if (noise != null) {
+			int index = y - this.settings.min_y();
+			if (index >= 0 && index < noise.length) {
+				return noise[index];
+			}
+		}
+		LocalCell cell = this.getLocalCell();
+		return cell.settings.caves().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z);
+	}
+
+	public double getCaveNoise(double y) {
+		return this.getCaveNoise(BigGlobeMath.floorI(y), false);
+	}
+
+	public double getCaveWidth(double y) {
+		return this.getLocalCell().settings.caves().width().evaluate(this, y);
+	}
+
+	public double getCaveWidthSquared(double y) {
+		return BigGlobeMath.squareD(this.getCaveWidth(y));
 	}
 
 	public double[] computeCaveNoise() {
@@ -146,6 +174,22 @@ public class NetherColumn extends WorldColumn {
 			? this.computeCavernNoise()
 			: this.cavernNoise
 		);
+	}
+
+	public double getCavernNoise(int y, boolean cache) {
+		double[] noise = cache ? this.getCavernNoise() : this.cavernNoise;
+		if (noise != null) {
+			int index = y - this.getLocalCell().settings.caverns().min_y();
+			if (index >= 0 && index < noise.length) {
+				return noise[index];
+			}
+		}
+		LocalCell cell = this.getLocalCell();
+		return cell.settings.caverns().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z);
+	}
+
+	public double getCavernNoise(double y) {
+		return this.getCavernNoise(BigGlobeMath.floorI(y), false);
 	}
 
 	public double[] computeCavernNoise() {

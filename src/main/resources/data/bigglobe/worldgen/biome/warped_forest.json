@@ -1,0 +1,52 @@
+{
+	"carvers": {},
+	"downfall": 0.0,
+	"effects": {
+		"additions_sound": {
+			"sound": "minecraft:ambient.warped_forest.additions",
+			"tick_chance": 0.0111
+		},
+		"ambient_sound": "minecraft:ambient.warped_forest.loop",
+		"fog_color": 1705242,
+		"mood_sound": {
+			"block_search_extent": 8,
+			"offset": 2.0,
+			"sound": "minecraft:ambient.warped_forest.mood",
+			"tick_delay": 6000
+		},
+		"music": {
+			"max_delay": 24000,
+			"min_delay": 12000,
+			"replace_current_music": false,
+			"sound": "minecraft:music.nether.warped_forest"
+		},
+		"particle": {
+			"options": {
+				"type": "minecraft:warped_spore"
+			},
+			"probability": 0.01428
+		},
+		"sky_color": 7254527,
+		"water_color": 4159204,
+		"water_fog_color": 329011
+	},
+	"features": [ [], [], [], [], [], [], [], [], [], [] ],
+	"precipitation": "none",
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [],
+		"axolotls": [],
+		"creature": [
+			{ "type": "minecraft:strider", "weight": 100, "minCount": 1, "maxCount": 2 }
+		],
+		"misc": [],
+		"monster": [
+			{ "type": "minecraft:enderman",  "weight": 100, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:endermite", "weight": 10,  "minCount": 1, "maxCount": 1 }
+		],
+		"underground_water_creature": [],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 2.0
+}

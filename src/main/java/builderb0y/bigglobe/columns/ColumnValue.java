@@ -125,10 +125,15 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SKYLAND_EDGINESS_SQUARED      = registerOverworld("skyland_edginess_squared",      withoutY(OverworldColumn::getSkylandEdginessSquared    ), null);
 
 	public static final ColumnValue<NetherColumn>
-		BIOME_CENTER_X                          = registerNether   ("biome_center_x",                withoutY(   NetherColumn::getBiomeCenterX              ), NetherColumn::debugBiomeCenterX),
-		BIOME_CENTER_Z                          = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ              ), NetherColumn::debugBiomeCenterZ),
-		BIOME_EDGINESS                          = registerNether   ("biome_edginess",                withoutY(   NetherColumn::getEdginess                  ), null),
-		BIOME_EDGINESS_SQUARED                  = registerNether   ("biome_edginess_squared",        withoutY(   NetherColumn::getEdginessSquared           ), null);
+		NETHER_BIOME_CENTER_X                   = registerNether   ("biome_center_x",                withoutY(   NetherColumn::getBiomeCenterX              ), NetherColumn::debugBiomeCenterX),
+		NETHER_BIOME_CENTER_Z                   = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ              ), NetherColumn::debugBiomeCenterZ),
+		NETHER_BIOME_EDGINESS                   = registerNether   ("biome_edginess",                withoutY(   NetherColumn::getEdginess                  ), null),
+		NETHER_BIOME_EDGINESS_SQUARED           = registerNether   ("biome_edginess_squared",        withoutY(   NetherColumn::getEdginessSquared           ), null),
+		NETHER_LAVA_LEVEL                       = registerNether   ("lava_level",                    withoutY(   NetherColumn::getLavaLevel                 ), null),
+		NETHER_CAVE_NOISE                       = registerNether   ("cave_noise",                       withY(   NetherColumn::getCaveNoise                 ), null),
+		NETHER_CAVE_WIDTH                       = registerNether   ("cave_width",                       withY(   NetherColumn::getCaveWidth                 ), null),
+		NETHER_CAVE_WIDTH_SQUARED               = registerNether   ("cave_width_squared",               withY(   NetherColumn::getCaveWidthSquared          ), null),
+		NETHER_CAVERN_NOISE                     = registerNether   ("cavern_noise",                     withY(   NetherColumn::getCavernNoise               ), null);
 
 	public final Class<T_Column> columnClass;
 	public final Getter<T_Column> getter;

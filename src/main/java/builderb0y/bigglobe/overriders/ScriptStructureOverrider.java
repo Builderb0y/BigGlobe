@@ -1,10 +1,13 @@
-package builderb0y.bigglobe.overriders.overworld;
+package builderb0y.bigglobe.overriders;
+
+import java.util.random.RandomGenerator;
 
 import net.minecraft.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnPositionScriptEnvironment;
+import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -17,9 +20,9 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface OverworldStructureOverrider extends Script {
+public interface ScriptStructureOverrider extends Script {
 
-	public abstract boolean override(StructureStartWrapper start, OverworldColumn column);
+	public abstract boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random);
 
 	@SuppressWarnings("deprecation")
 	public static void move(StructureStartWrapper start, int yOffset) {
@@ -31,11 +34,11 @@ public interface OverworldStructureOverrider extends Script {
 	}
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<OverworldStructureOverrider> implements OverworldStructureOverrider {
+	public static class Holder extends ScriptHolder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldStructureOverrider.class, script)
+				new ScriptParser<>(ScriptStructureOverrider.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
@@ -43,17 +46,18 @@ public interface OverworldStructureOverrider extends Script {
 				.addEnvironment(
 					new MutableScriptEnvironment()
 					.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
-					.addMethodInvokeStatic(OverworldStructureOverrider.class, "move")
+					.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
 				)
-				.addEnvironment(new ColumnPositionScriptEnvironment(load("column", 2, type(OverworldColumn.class))))
+				.addEnvironment(new ColumnPositionScriptEnvironment(load("column", 2, type(WorldColumn.class))))
+				.addEnvironment(new RandomScriptEnvironment(load("random", 3, type(RandomGenerator.class))))
 				.parse()
 			);
 		}
 
 		@Override
-		public boolean override(StructureStartWrapper start, OverworldColumn column) {
+		public boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random) {
 			try {
-				return this.script.override(start, column);
+				return this.script.override(start, column, random);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
