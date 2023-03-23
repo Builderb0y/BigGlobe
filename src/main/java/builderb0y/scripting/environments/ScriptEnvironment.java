@@ -107,6 +107,15 @@ public interface ScriptEnvironment {
 		return null;
 	}
 
+	/**
+	returns an InsnTree which will cast the provided value to the specified type,
+	or null if this ScriptEnvironment does not know how to perform such a cast.
+	@param implicit if true, this ScriptEnvironment is required to perform the cast implicitly.
+	*/
+	public default @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+		return null;
+	}
+
 	public static InsnTree[] castArguments(ExpressionParser parser, MethodInfo method, CastMode mode, InsnTree... arguments) {
 		return castArguments(parser, method.name, method.paramTypes, mode, arguments);
 	}

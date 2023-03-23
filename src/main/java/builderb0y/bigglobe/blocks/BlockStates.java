@@ -45,6 +45,14 @@ public class BlockStates {
 		ICE                    = Blocks.ICE.getDefaultState(),
 
 		NETHERRACK             = Blocks.NETHERRACK.getDefaultState(),
+		NETHER_BRICKS          = Blocks.NETHER_BRICKS.getDefaultState(),
+		CRACKED_NETHER_BRICKS  = Blocks.CRACKED_NETHER_BRICKS.getDefaultState(),
+		CHISELED_NETHER_BRICKS = Blocks.CHISELED_NETHER_BRICKS.getDefaultState(),
+		RED_NETHER_BRICKS      = Blocks.RED_NETHER_BRICKS.getDefaultState(),
+		OBSIDIAN               = Blocks.OBSIDIAN.getDefaultState(),
+		CRYING_OBSIDIAN        = Blocks.CRYING_OBSIDIAN.getDefaultState(),
+		SOUL_SAND              = Blocks.SOUL_SAND.getDefaultState(),
+		SOUL_SOIL              = Blocks.SOUL_SOIL.getDefaultState(),
 
 		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
 

@@ -7,7 +7,6 @@ import java.lang.reflect.Parameter;
 import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.util.TypeFormatter;
-import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.ClassType;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -100,12 +99,6 @@ public class ScriptParser<I> extends ExpressionParser {
 	@SuppressWarnings("unchecked")
 	public ScriptParser<I> addEnvironment(ScriptEnvironment environment) {
 		return (ScriptParser<I>)(super.addEnvironment(environment));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addCastProvider(CastProvider castProvider) {
-		return (ScriptParser<I>)(super.addCastProvider(castProvider));
 	}
 
 	public static Method findImplementingMethod(Class<?> implementingClass) {

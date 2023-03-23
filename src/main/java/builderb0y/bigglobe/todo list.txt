@@ -33,7 +33,7 @@ AutoCodec:
 
 scripting:
 	better syntax for specifying variable block states.
-		blockState('minecraft:stairs', 'facing': 'north', 'shape': 'straight', 'half': 'bottom')
+		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
 	expose arrays.
 	break statements.
 	scriptable RandomSource?
@@ -44,16 +44,21 @@ scripting:
 	compareTo operator <=>
 	ensure doubles cannot be implicitly cast to ints.
 		this seemed to be the case for /bigglobe:evaluate.
-	scrap multi-step casts.
-		allow ScriptEnvironment's to provide casters, but only for one step.
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		config file to disable non-essential mixins.
+		try to yeet BigGlobeBuiltinRegistries.
+			my assumption is that the world preset needs to be in BuiltinRegistries in order to show up in-game,
+			and the world preset depends on the chunk generator, which depends on biomes,
+			so the biomes need to be in BuiltinRegistries too. but this assumption might be false.
+			it may be the case that world presets are auto-registered for me,
+			along with their prerequisites.
 	overworld:
 		script for cave width.
+		desert well feature.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
@@ -101,7 +106,6 @@ features:
 			ancient debris.
 				extra below lava oceans.
 		nether quartz geodes?
-		structures.
 		rock layers.
 		flowers:
 			fire in nether wastes and ashen wastes.
@@ -109,7 +113,6 @@ features:
 			nether wart in nether wastes, crimson forest, and valley of souls.
 			glowing goldenrod in nether wastes, crimson forest, and warped forest.
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
-		custom biomes for custom mob spawning.
 		soul campfire in valley of souls.
 		worley noise for nether wastes?
 			concave.
@@ -117,10 +120,8 @@ features:
 		magma blocks for variation.
 		lava falls multiple blocks wide.
 			integrate with hidden lava.
-		limit area where floating magma can spawn.
-			currently occasionally places magma more than 16 blocks from feature origin position.
-		make obsidian spires check spawning conditions more efficiently.
-			only check actual spire area instead of potential spire area.
+		pillar structure.
+		cave and cavern overrides for portal temple structure.
 	end:
 		jessie wants worley noise for the end.
 			convex.

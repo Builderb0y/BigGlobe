@@ -15,7 +15,6 @@ import org.objectweb.asm.tree.InsnNode;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -359,7 +358,7 @@ public class FastPow {
 
 	/** returns an InsnTree which represents Math.pow(operand, power). */
 	public static InsnTree fallback(VarInfo operand, int power) {
-		return CastingSupport.primitiveCast(
+		return CastingSupport2.primitiveCast(
 			invokeStatic(
 				method(
 					ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
@@ -369,15 +368,13 @@ public class FastPow {
 					TypeInfos.DOUBLE,
 					TypeInfos.DOUBLE
 				),
-				CastingSupport.primitiveCast(
+				CastingSupport2.primitiveCast(
 					load(operand),
-					TypeInfos.DOUBLE,
-					CastMode.EXPLICIT_THROW
+					TypeInfos.DOUBLE
 				),
 				ldc(power, TypeInfos.DOUBLE)
 			),
-			operand.type,
-			CastMode.EXPLICIT_THROW
+			operand.type
 		);
 	}
 

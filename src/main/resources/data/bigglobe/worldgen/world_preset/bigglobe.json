@@ -1096,7 +1096,7 @@
 									}
 								},
 								"fluid_state": "minecraft:lava[level=0]",
-								"fluid_level": 64,
+								"fluid_level": { "type": "uniform", "min": 48, "max": 64 },
 								"filler": "minecraft:netherrack"
 							},
 							"variations": [
@@ -1222,6 +1222,7 @@
 									"weight": 0.5,
 									"biome": "bigglobe:inferno",
 									"filler": "minecraft:basalt[axis=y]",
+									"fluid_level": { "type": "uniform", "min": 64, "max": 80 },
 									"caverns": {
 										"noise": {
 											"type": "sum",

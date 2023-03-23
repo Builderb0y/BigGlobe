@@ -1,25 +1,19 @@
 package builderb0y.scripting.environments;
 
 import java.io.PrintStream;
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.util.Arrays;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.BlockInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.NoopInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
@@ -27,239 +21,260 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class BuiltinScriptEnvironment implements ScriptEnvironment {
+public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 
 	public static final MethodInfo
-		STRING_CONCAT_FACTORY = method(
-			ACC_PUBLIC | ACC_STATIC,
-			StringConcatFactory.class,
-			"makeConcat",
-			CallSite.class,
-			MethodHandles.Lookup.class,
-			String.class,
-			MethodType.class
-		),
-		PRINTLN = method(
-			ACC_PUBLIC,
-			PrintStream.class,
-			"println",
-			void.class,
-			String.class
-		);
+		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
+		PRINTLN = MethodInfo.findMethod(PrintStream.class, "println", void.class, String.class);
 	public static final FieldInfo
-		SYSTEM_OUT = field(
-			ACC_PUBLIC | ACC_STATIC | ACC_FINAL,
-			System.class,
-			"out",
-			PrintStream.class
-		);
+		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
+
 	public static final BuiltinScriptEnvironment
 		INSTANCE = new BuiltinScriptEnvironment();
 
-	@Override
-	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
-		return switch (name) {
-			case "yes", "true" -> ldc(true);
-			case "no", "false" -> ldc(false);
-			case "noop"        -> NoopInsnTree.INSTANCE;
-			case "null"        -> ldc(null, TypeInfos.OBJECT);
-			default            -> null;
-		};
-	}
+	public BuiltinScriptEnvironment() {
+		this
 
-	@Override
-	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
-		return switch (name) {
-			case "return" -> parser.createReturn(
-				switch (arguments.length) {
-					case 0 -> noop;
-					case 1 -> arguments[0];
-					default -> throw new ScriptParsingException("Returning multiple values is not supported", parser.input);
-				}
+		//////////////// variables ////////////////
+
+		.addVariable("true",  ldc(true))
+		.addVariable("yes",   ldc(true))
+		.addVariable("false", ldc(false))
+		.addVariable("no",    ldc(false))
+		.addVariable("noop",  noop)
+		.addVariable("null",  ldc(null, TypeInfos.OBJECT))
+
+		//////////////// types ////////////////
+
+		.addType("boolean",    TypeInfos.BOOLEAN)
+		.addType("byte",       TypeInfos.   BYTE)
+		.addType("short",      TypeInfos.  SHORT)
+		.addType("int",        TypeInfos.    INT)
+		.addType("long",       TypeInfos.   LONG)
+		.addType("float",      TypeInfos.  FLOAT)
+		.addType("double",     TypeInfos. DOUBLE)
+		.addType("char",       TypeInfos.   CHAR)
+		.addType("void",       TypeInfos.   VOID)
+
+		.addType("Boolean",    TypeInfos.BOOLEAN_WRAPPER)
+		.addType("Byte",       TypeInfos.   BYTE_WRAPPER)
+		.addType("Short",      TypeInfos.  SHORT_WRAPPER)
+		.addType("Integer",    TypeInfos.    INT_WRAPPER)
+		.addType("Long",       TypeInfos.   LONG_WRAPPER)
+		.addType("Float",      TypeInfos.  FLOAT_WRAPPER)
+		.addType("Double",     TypeInfos. DOUBLE_WRAPPER)
+		.addType("Character",  TypeInfos.   CHAR_WRAPPER)
+		.addType("Void",       TypeInfos.   VOID_WRAPPER)
+		.addType("Number",     TypeInfos.NUMBER)
+
+		.addType("Object",     TypeInfos.OBJECT)
+		.addType("Comparable", TypeInfos.COMPARABLE)
+		.addType("String",     TypeInfos.STRING)
+		.addType("Throwable",  TypeInfos.THROWABLE)
+		.addType("Class",      TypeInfos.CLASS) //todo: casting from String to Class. make sure this uses ScriptEnvironment.getType(), NOT Class.forName()!
+
+		//////////////// functions ////////////////
+
+		.addFunction("return", (parser, name, arguments) -> {
+			return new CastResult(
+				parser.createReturn(
+					switch (arguments.length) {
+						case 0 -> noop;
+						case 1 -> arguments[0];
+						default -> throw new ScriptParsingException("Returning multiple values is not supported", parser.input);
+					}
+				),
+				false
 			);
-			case "throw" -> throw_(ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments));
-			case "print" -> {
-				InsnTree loadOut = getStatic(SYSTEM_OUT);
-				InsnTree concat = invokeDynamic(
-					STRING_CONCAT_FACTORY,
-					method(
-						ACC_PUBLIC | ACC_STATIC,
-						TypeInfos.OBJECT, //ignored
-						"concat",
-						TypeInfos.STRING,
-						Arrays
+		})
+		.addFunction("throw", (parser, name, arguments) -> {
+			InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
+			return new CastResult(throw_(toThrow), toThrow != arguments[0]);
+		})
+		.addFunction("print", (parser, name, arguments) -> {
+			InsnTree loadOut = getStatic(SYSTEM_OUT);
+			InsnTree concat = invokeDynamic(
+				STRING_CONCAT_FACTORY,
+				method(
+					ACC_PUBLIC | ACC_STATIC,
+					TypeInfos.OBJECT, //ignored
+					"concat",
+					TypeInfos.STRING,
+					Arrays
 						.stream(arguments)
 						.map(InsnTree::getTypeInfo)
 						.toArray(TypeInfo.ARRAY_FACTORY)
-					),
-					ConstantValue.ARRAY_FACTORY.empty(),
-					arguments
-				);
-				yield invokeVirtual(loadOut, PRINTLN, concat);
-			}
-			default -> null;
-		};
-	}
+				),
+				ConstantValue.ARRAY_FACTORY.empty(),
+				arguments
+			);
+			return new CastResult(invokeVirtual(loadOut, PRINTLN, concat), false);
+		})
 
-	@Override
-	public @Nullable TypeInfo getType(ExpressionParser parser, String name) throws ScriptParsingException {
-		return switch (name) {
-			case "boolean"    -> TypeInfos.BOOLEAN;
-			case "byte"       -> TypeInfos.   BYTE;
-			case "short"      -> TypeInfos.  SHORT;
-			case "int"        -> TypeInfos.    INT;
-			case "long"       -> TypeInfos.   LONG;
-			case "float"      -> TypeInfos.  FLOAT;
-			case "double"     -> TypeInfos. DOUBLE;
-			case "char"       -> TypeInfos.   CHAR;
-			case "void"       -> TypeInfos.   VOID;
+		//////////////// keywords ////////////////
 
-			case "Boolean"    -> TypeInfos.BOOLEAN_WRAPPER;
-			case "Byte"       -> TypeInfos.   BYTE_WRAPPER;
-			case "Short"      -> TypeInfos.  SHORT_WRAPPER;
-			case "Integer"    -> TypeInfos.    INT_WRAPPER;
-			case "Long"       -> TypeInfos.   LONG_WRAPPER;
-			case "Float"      -> TypeInfos.  FLOAT_WRAPPER;
-			case "Double"     -> TypeInfos. DOUBLE_WRAPPER;
-			case "Character"  -> TypeInfos.   CHAR_WRAPPER;
-			case "Void"       -> TypeInfos.   VOID_WRAPPER;
-			case "Number"     -> TypeInfos.NUMBER;
-
-			case "Object"     -> TypeInfos.OBJECT;
-			case "Comparable" -> TypeInfos.COMPARABLE;
-			case "String"     -> TypeInfos.STRING;
-			case "Throwable"  -> TypeInfos.THROWABLE;
-			case "Class"      -> TypeInfos.CLASS; //todo: casting from String to Class. make sure this uses ScriptEnvironment.getType(), NOT Class.forName()!
-
-			default           -> null;
-		};
-	}
-
-	@Override
-	public @Nullable InsnTree parseKeyword(ExpressionParser parser, String name) throws ScriptParsingException {
-		return switch (name) {
-			case "if" -> {
-				ConditionBody ifStatement = ConditionBody.parse(parser);
-				InsnTree elseStatement = this.nextElse(parser);
-				yield (
-					elseStatement != null
-					? ifElse(
-						parser,
-						ifStatement.condition(),
-						ifStatement.body(),
-						elseStatement
-					)
-					: ifThen(
-						parser,
-						ifStatement.condition(),
-						ifStatement.body()
-					)
-				);
-			}
-			case "unless" -> {
-				ConditionBody ifStatement = ConditionBody.parse(parser);
-				InsnTree elseStatement = this.nextElse(parser);
-				yield (
-					elseStatement != null
-					? ifElse(
-						parser,
-						not(ifStatement.condition()),
-						ifStatement.body(),
-						elseStatement
-					)
-					: ifThen(
-						parser,
-						not(ifStatement.condition()),
-						ifStatement.body()
-					)
-				);
-			}
+		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
+		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
+		.addKeyword("while", (parser, name) -> {
+			ConditionBody whileStatement = ConditionBody.parse(parser);
+			return while_(whileStatement.condition(), whileStatement.body());
+		})
+		.addKeyword("until", (parser, name) -> {
+			ConditionBody whileStatement = ConditionBody.parse(parser);
+			return while_(not(whileStatement.condition()), whileStatement.body());
+		})
+		.addKeyword("do", (parser, name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 			case "while" -> {
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield while_(parser, whileStatement.condition(), whileStatement.body());
+				yield doWhile(parser, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield while_(parser, not(whileStatement.condition()), whileStatement.body());
+				yield doWhile(parser, not(whileStatement.condition()), whileStatement.body());
 			}
-			case "do" -> switch (parser.input.readIdentifierAfterWhitespace()) {
-				case "while" -> {
-					ConditionBody whileStatement = ConditionBody.parse(parser);
-					yield doWhile(parser, whileStatement.condition(), whileStatement.body());
-				}
-				case "until" -> {
-					ConditionBody whileStatement = ConditionBody.parse(parser);
-					yield doWhile(parser, not(whileStatement.condition()), whileStatement.body());
-				}
-				default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
-			};
-			case "repeat" -> {
-				ScriptBody repeatStatement = ScriptBody.parse(parser, (count, parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
-				yield WhileInsnTree.createRepeat(parser, repeatStatement.expression(), repeatStatement.body());
+			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
+		})
+		.addKeyword("repeat", (parser, name) -> {
+			ScriptBody repeatStatement = ScriptBody.parse(parser, (count, parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+			return WhileInsnTree.createRepeat(parser, repeatStatement.expression(), repeatStatement.body());
+		})
+		.addKeyword("for", (parser, name) -> {
+			ForEachLoop enhancedLoop = ForEachLoop.tryParse(parser);
+			if (enhancedLoop != null) {
+				return enhancedLoop.toLoop(parser);
 			}
-			case "for" -> {
-				ForEachLoop enhancedLoop = ForEachLoop.tryParse(parser);
-				if (enhancedLoop != null) {
-					yield enhancedLoop.toLoop(parser);
-				}
-				else {
-					ForLoop loop = ForLoop.parse(parser);
-					yield for_(parser, loop.initializer(), loop.condition(), loop.incrementer(), loop.body());
-				}
+			else {
+				ForLoop loop = ForLoop.parse(parser);
+				return for_(loop.initializer(), loop.condition(), loop.incrementer(), loop.body());
 			}
-			case "switch" -> {
-				SwitchBody switchBody = SwitchBody.parse(parser);
-				yield switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
+		})
+		.addKeyword("switch", (parser, name) -> {
+			SwitchBody switchBody = SwitchBody.parse(parser);
+			return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
+		})
+		.addKeyword("block", (parser, name) -> {
+			return block(ParenthesizedScript.parse(parser).contents());
+		})
+		.addKeyword("break", (parser, name) -> {
+			parser.input.expectAfterWhitespace('(');
+			parser.input.expectAfterWhitespace(')');
+			return BreakInsnTree.INSTANCE;
+		})
+		.addKeyword("continue", (parser, name) -> {
+			parser.input.expectAfterWhitespace('(');
+			parser.input.expectAfterWhitespace(')');
+			return ContinueInsnTree.INSTANCE;
+		})
+
+		//////////////// member keywords ////////////////
+
+		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name) -> {
+			TypeInfo type = nextParenthesizedType(parser);
+			if (type.isPrimitive()) {
+				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 			}
-			case "block" -> {
-				ParenthesizedScript script = ParenthesizedScript.parse(parser);
-				yield new BlockInsnTree(script.contents());
+			return instanceOf(receiver, type);
+		})
+		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name) -> {
+			TypeInfo type = nextParenthesizedType(parser);
+			if (type.isPrimitive()) {
+				throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 			}
-			case "break" -> {
-				parser.input.expectAfterWhitespace('(');
-				parser.input.expectAfterWhitespace(')');
-				yield BreakInsnTree.INSTANCE;
-			}
-			case "continue" -> {
-				parser.input.expectAfterWhitespace('(');
-				parser.input.expectAfterWhitespace(')');
-				yield ContinueInsnTree.INSTANCE;
-			}
-			default -> null;
-		};
+			return not(parser, instanceOf(receiver, type));
+		})
+		.addMemberKeyword(null, "as", (parser, receiver, name) -> {
+			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
+		})
+
+		//////////////// casting ////////////////
+
+		//boolean
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.BYTE, false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.CHAR, false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.SHORT, false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.INT, false)
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.LONG, false, CastingSupport2.I2L.changeInput(TypeInfos.BOOLEAN))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.FLOAT, false, CastingSupport2.I2F.changeInput(TypeInfos.BOOLEAN))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.DOUBLE, false, CastingSupport2.I2D.changeInput(TypeInfos.BOOLEAN))
+		//byte
+		.addCast(TypeInfos.BYTE, TypeInfos.BOOLEAN, false, CastingSupport2.I2Z)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.CHAR, true)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.SHORT, true)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.INT, true)
+		.addCast(TypeInfos.BYTE, TypeInfos.LONG, true, CastingSupport2.I2L)
+		.addCast(TypeInfos.BYTE, TypeInfos.FLOAT, true, CastingSupport2.I2F)
+		.addCast(TypeInfos.BYTE, TypeInfos.DOUBLE, true, CastingSupport2.I2D)
+		//char
+		.addCast(TypeInfos.CHAR, TypeInfos.BOOLEAN, false, CastingSupport2.I2Z)
+		.addCast(TypeInfos.CHAR, TypeInfos.BYTE, false, CastingSupport2.I2B)
+		.addCast(TypeInfos.CHAR, TypeInfos.SHORT, true, CastingSupport2.I2S)
+		.addCastIdentity(TypeInfos.CHAR, TypeInfos.INT, true)
+		.addCast(TypeInfos.CHAR, TypeInfos.LONG, true, CastingSupport2.I2L)
+		.addCast(TypeInfos.CHAR, TypeInfos.FLOAT, true, CastingSupport2.I2F)
+		.addCast(TypeInfos.CHAR, TypeInfos.DOUBLE, true, CastingSupport2.I2D)
+		//short
+		.addCast(TypeInfos.SHORT, TypeInfos.BOOLEAN, false, CastingSupport2.I2Z)
+		.addCast(TypeInfos.SHORT, TypeInfos.BYTE, false, CastingSupport2.I2B)
+		.addCast(TypeInfos.SHORT, TypeInfos.CHAR, false, CastingSupport2.I2C)
+		.addCastIdentity(TypeInfos.SHORT, TypeInfos.INT, true)
+		.addCast(TypeInfos.SHORT, TypeInfos.LONG, true, CastingSupport2.I2L)
+		.addCast(TypeInfos.SHORT, TypeInfos.FLOAT, true, CastingSupport2.I2F)
+		.addCast(TypeInfos.SHORT, TypeInfos.DOUBLE, true, CastingSupport2.I2D)
+		//int
+		.addCast(CastingSupport2.I2Z)
+		.addCast(CastingSupport2.I2B)
+		.addCast(CastingSupport2.I2C)
+		.addCast(CastingSupport2.I2S)
+		.addCast(CastingSupport2.I2L)
+		.addCast(CastingSupport2.I2F)
+		.addCast(CastingSupport2.I2D)
+		//long
+		.addCast(CastingSupport2.L2Z)
+		.addCasts(CastingSupport2.L2I, CastingSupport2.I2B)
+		.addCasts(CastingSupport2.L2I, CastingSupport2.I2C)
+		.addCasts(CastingSupport2.L2I, CastingSupport2.I2S)
+		.addCast(CastingSupport2.L2I)
+		.addCast(CastingSupport2.L2F)
+		.addCast(CastingSupport2.L2D)
+		//float
+		.addCast(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, CastingSupport2.F2Z)
+		.addCasts(CastingSupport2.F2I, CastingSupport2.I2B)
+		.addCasts(CastingSupport2.F2I, CastingSupport2.I2C)
+		.addCasts(CastingSupport2.F2I, CastingSupport2.I2S)
+		.addCast(CastingSupport2.F2I)
+		.addCast(CastingSupport2.F2L)
+		.addCast(CastingSupport2.F2D)
+		//double
+		.addCast(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, CastingSupport2.D2Z)
+		.addCasts(CastingSupport2.D2I, CastingSupport2.I2B)
+		.addCasts(CastingSupport2.D2I, CastingSupport2.I2C)
+		.addCasts(CastingSupport2.D2I, CastingSupport2.I2S)
+		.addCast(CastingSupport2.D2I)
+		.addCast(CastingSupport2.D2L)
+		.addCast(CastingSupport2.D2F)
+		//boxing
+		.addCastInvokeStatic(Byte     .class, "valueOf", true, Byte     .class, byte     .class)
+		.addCastInvokeStatic(Short    .class, "valueOf", true, Short    .class, short    .class)
+		.addCastInvokeStatic(Integer  .class, "valueOf", true, Integer  .class, int      .class)
+		.addCastInvokeStatic(Long     .class, "valueOf", true, Long     .class, long     .class)
+		.addCastInvokeStatic(Float    .class, "valueOf", true, Float    .class, float    .class)
+		.addCastInvokeStatic(Double   .class, "valueOf", true, Double   .class, double   .class)
+		.addCastInvokeStatic(Character.class, "valueOf", true, Character.class, char     .class)
+		.addCastInvokeStatic(Boolean  .class, "valueOf", true, Boolean  .class, boolean  .class)
+		//unboxing
+		.addCast(TypeInfos.BYTE_WRAPPER,    TypeInfos.BYTE,            true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   BYTE_WRAPPER, "byteValue",    TypeInfos.BYTE)))
+		.addCast(TypeInfos.SHORT_WRAPPER,   TypeInfos.SHORT,           true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.  SHORT_WRAPPER, "shortValue",   TypeInfos.SHORT)))
+		.addCast(TypeInfos.INT_WRAPPER,     TypeInfos.INT,             true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.    INT_WRAPPER, "intValue",     TypeInfos.INT)))
+		.addCast(TypeInfos.LONG_WRAPPER,    TypeInfos.LONG,            true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   LONG_WRAPPER, "longValue",    TypeInfos.LONG)))
+		.addCast(TypeInfos.FLOAT_WRAPPER,   TypeInfos.FLOAT,           true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.  FLOAT_WRAPPER, "floatValue",   TypeInfos.FLOAT)))
+		.addCast(TypeInfos.DOUBLE_WRAPPER,  TypeInfos.DOUBLE,          true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos. DOUBLE_WRAPPER, "doubleValue",  TypeInfos.DOUBLE)))
+		.addCast(TypeInfos.CHAR_WRAPPER,    TypeInfos.CHAR,            true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   CHAR_WRAPPER, "charValue",    TypeInfos.CHAR)))
+		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN,         true, CastingSupport2.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.BOOLEAN_WRAPPER, "booleanValue", TypeInfos.BOOLEAN)))
+
+		;
 	}
 
-	@Override
-	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-		return switch (name) {
-			case "is" -> {
-				if (!receiver.getTypeInfo().isObject()) {
-					throw new ScriptParsingException("Can't check primitive.is()", parser.input);
-				}
-				TypeInfo type = this.nextParenthesizedType(parser);
-				if (!type.isObject()) {
-					throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
-				}
-				yield instanceOf(receiver, type);
-			}
-			case "isnt" -> {
-				if (!receiver.getTypeInfo().isObject()) {
-					throw new ScriptParsingException("Can't check primitive.isnt()", parser.input);
-				}
-				TypeInfo type = this.nextParenthesizedType(parser);
-				if (!type.isObject()) {
-					throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
-				}
-				yield not(parser, instanceOf(receiver, type));
-			}
-			case "as" -> {
-				yield receiver.cast(parser, this.nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
-			}
-			default -> null;
-		};
-	}
-
-	public TypeInfo nextParenthesizedType(ExpressionParser parser) throws ScriptParsingException {
+	public static TypeInfo nextParenthesizedType(ExpressionParser parser) throws ScriptParsingException {
 		parser.input.expectAfterWhitespace('(');
 		String typeName = parser.input.expectIdentifierAfterWhitespace();
 		TypeInfo type = parser.environment.getType(parser, typeName);
@@ -268,7 +283,27 @@ public class BuiltinScriptEnvironment implements ScriptEnvironment {
 		return type;
 	}
 
-	public @Nullable InsnTree nextElse(ExpressionParser parser) throws ScriptParsingException {
-		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextCompoundExpression() : null;
+	public static InsnTree nextIfElse(ExpressionParser parser, boolean negate) throws ScriptParsingException {
+		ConditionBody ifStatement = ConditionBody.parse(parser);
+		InsnTree elseStatement = nextElse(parser);
+		ConditionTree condition = ifStatement.condition();
+		if (negate) condition = not(condition);
+		return (
+			elseStatement != null
+			? ifElse(
+				parser,
+				condition,
+				ifStatement.body(),
+				elseStatement
+			)
+			: ifThen(
+				condition,
+				ifStatement.body()
+			)
+		);
+	}
+
+	public static @Nullable InsnTree nextElse(ExpressionParser parser) throws ScriptParsingException {
+		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextSingleExpression() : null;
 	}
 }

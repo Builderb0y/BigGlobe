@@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.HashCommon;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
-import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -82,11 +81,6 @@ public class ExpressionParser {
 
 	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
 		this.environment.environments.add(environment);
-		return this;
-	}
-
-	public ExpressionParser addCastProvider(CastProvider castProvider) {
-		this.environment.castProviders.providers.add(0, castProvider);
 		return this;
 	}
 
@@ -210,7 +204,7 @@ public class ExpressionParser {
 				if (left.jumpsUnconditionally()) {
 					throw new ScriptParsingException("Unreachable statement", this.input);
 				}
-				left = left.then(this, next);
+				left = seq(left, next);
 			}
 		}
 		catch (RuntimeException exception) {
@@ -232,7 +226,7 @@ public class ExpressionParser {
 				if (left.jumpsUnconditionally()) {
 					throw new ScriptParsingException("Unreachable statement", this.input);
 				}
-				left = left.then(this, next);
+				left = seq(left, next);
 			}
 			return left;
 		}
@@ -666,17 +660,6 @@ public class ExpressionParser {
 			if (negated) number = number.negate();
 			char suffix = this.input.peek();
 			return switch (suffix) {
-				case 's', 'S' -> {
-					this.input.onCharRead(suffix);
-					if (number.scale() > 0) {
-						float value = number.floatValue();
-						if (negated && value == 0.0F) value = -0.0F;
-						yield ldc(value);
-					}
-					else {
-						yield ldc(number.intValueExact());
-					}
-				}
 				case 'l', 'L' -> {
 					this.input.onCharRead(suffix);
 					if (number.scale() > 0) {
@@ -687,6 +670,24 @@ public class ExpressionParser {
 					else {
 						yield ldc(number.longValueExact());
 					}
+				}
+				case 'i', 'I' -> {
+					this.input.onCharRead(suffix);
+					if (number.scale() > 0) {
+						float value = number.floatValue();
+						if (negated && value == 0.0F) value = -0.0F;
+						yield ldc(value);
+					}
+					else {
+						yield ldc(number.intValueExact());
+					}
+				}
+				case 's', 'S' -> {
+					this.input.onCharRead(suffix);
+					if (number.scale() > 0) {
+						throw new ScriptParsingException("Short suffix on non-short literal", this.input);
+					}
+					yield ldc(number.shortValueExact());
 				}
 				default -> {
 					if (number.scale() > 0) {
@@ -730,7 +731,7 @@ public class ExpressionParser {
 				this.input.expectOperatorAfterWhitespace("=");
 				InsnTree initializer = this.nextSingleExpression();
 				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return declaration.then(this, new StoreInsnTree(declaration.loader.variable, initializer));
+				return seq(declaration, new StoreInsnTree(declaration.loader.variable, initializer));
 			}
 			else if (name.equals("class")) {
 				String className = this.input.expectIdentifierAfterWhitespace();
@@ -748,7 +749,7 @@ public class ExpressionParser {
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return declaration.then(this, store(declaration.loader.variable, initializer));
+								return seq(declaration, store(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								return this.nextUserDefinedFunction(type, varName);
@@ -1015,7 +1016,6 @@ public class ExpressionParser {
 			else {
 				VarInfo that = method.newVariable("that", innerClass.info);
 				ifThen(
-					this,
 					not(condition(this, instanceOf(load(object), innerClass.info))),
 					return_(ldc(false))
 				)
@@ -1023,7 +1023,6 @@ public class ExpressionParser {
 				store(that, load(object).cast(this, innerClass.info, CastMode.EXPLICIT_THROW)).emitBytecode(method);
 				for (FieldCompileContext field : fields) {
 					ifThen(
-						this,
 						not(
 							condition(
 								this,

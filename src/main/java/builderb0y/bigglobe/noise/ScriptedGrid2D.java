@@ -4,8 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.objectweb.asm.Label;
-
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -95,7 +93,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 				//if (sampleCount <= 0) return;
 				ifThen(
-					this,
 					le(
 						this,
 						load(sampleCount),
@@ -128,12 +125,11 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					load(sampleCount)
 				)
 				.emitBytecode(getBulk);
-				getBulk.node.visitLabel(new Label());
+				getBulk.node.visitLabel(label());
 				//replace samples with evaluation results.
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
-						this,
 						store(index, ldc(0)),
 						lt(
 							this,
@@ -193,7 +189,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				}
 				//if (sampleCount <= 0) return;
 				ifThen(
-					this,
 					le(this, load(sampleCount), ldc(0)),
 					return_(noop)
 				)
@@ -214,7 +209,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						)
 					)
 					.emitBytecode(getBulk);
-					getBulk.node.visitLabel(new Label());
+					getBulk.node.visitLabel(label());
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
@@ -241,13 +236,12 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						load(sampleCount)
 					)
 					.emitBytecode(getBulk);
-					getBulk.node.visitLabel(new Label());
+					getBulk.node.visitLabel(label());
 				}
 				//fill samples.
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
-						this,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
@@ -290,7 +284,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						load(scratches[input.index])
 					)
 					.emitBytecode(getBulk);
-					getBulk.node.visitLabel(new Label());
+					getBulk.node.visitLabel(label());
 				}
 				//return.
 				return_(noop).emitBytecode(getBulk);

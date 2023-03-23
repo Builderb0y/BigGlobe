@@ -6,9 +6,6 @@ import net.minecraft.block.Block;
 
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.*;
-import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
-import builderb0y.scripting.bytecode.CastingSupport.ConstantCaster;
-import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -20,18 +17,6 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
-
-	public static final CastProvider CAST_PROVIDER = (
-		new LookupCastProvider()
-
-		.append(TypeInfos.STRING, BlockTagKey.TYPE, true, new ConstantCaster(BlockTagKey            .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockWrapper.TYPE, true, new ConstantCaster(BlockWrapper           .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BlockStateWrapper.TYPE, true, new ConstantCaster(BlockStateWrapper      .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeEntry.TYPE, true, new ConstantCaster(BiomeEntry             .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, BiomeTagKey.TYPE, true, new ConstantCaster(BiomeTagKey            .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, ConfiguredFeatureEntry .TYPE, true, new ConstantCaster(ConfiguredFeatureEntry .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, ConfiguredFeatureTagKey.TYPE, true, new ConstantCaster(ConfiguredFeatureTagKey.CONSTANT_FACTORY))
-	);
 
 	public MinecraftScriptEnvironment(InsnTree loadWorld) {
 		InsnTree loadRandom = InsnTrees.getField(loadWorld, field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "permuter", Permuter.class));
@@ -68,6 +53,16 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addMethodInvoke(ConfiguredFeatureEntry.class, "isIn")
 		.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
 		.addMethod(ConfiguredFeatureTagKey.TYPE, "random", randomFromWorld(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
+
+		//casting
+
+		.addCastConstant(BlockWrapper           .CONSTANT_FACTORY, "Block",                true)
+		.addCastConstant(BlockStateWrapper      .CONSTANT_FACTORY, "BlockState",           true)
+		.addCastConstant(BlockTagKey            .CONSTANT_FACTORY, "BlockTag",             true)
+		.addCastConstant(BiomeEntry             .CONSTANT_FACTORY, "Biome",                true)
+		.addCastConstant(BiomeTagKey            .CONSTANT_FACTORY, "BiomeTag",             true)
+		.addCastConstant(ConfiguredFeatureEntry .CONSTANT_FACTORY, "ConfiguredFeature",    true)
+		.addCastConstant(ConfiguredFeatureTagKey.CONSTANT_FACTORY, "ConfiguredFeatureTag", true)
 		;
 	}
 

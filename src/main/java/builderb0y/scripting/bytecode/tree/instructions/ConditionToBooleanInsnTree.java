@@ -11,6 +11,8 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public class ConditionToBooleanInsnTree implements InsnTree {
 
 	public ConditionTree condition;
@@ -33,7 +35,7 @@ public class ConditionToBooleanInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Label one = new Label(), end = new Label();
+		Label one = label(), end = label();
 		this.condition.emitBytecode(method, one, null);
 		method.node.visitInsn(ICONST_0);
 		method.node.visitJumpInsn(GOTO, end);

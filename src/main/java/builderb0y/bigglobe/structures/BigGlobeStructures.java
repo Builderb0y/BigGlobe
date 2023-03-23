@@ -104,10 +104,23 @@ public class BigGlobeStructures {
 	//////////////// campfire ////////////////
 
 	public static final StructureType<CampfireStructure>
-		CAMPFIRE_TYPE       = registerType("campfire", CampfireStructure.CODEC);
+		CAMPFIRE_TYPE            = registerType("campfire", CampfireStructure.CODEC);
 	public static final BigGlobeStructurePieceType
-		CAMPFIRE_PIECE_TYPE = registerPiece("campfire_piece", CampfireStructure.CampfirePiece::new),
-		TENT_PIECE_TYPE     = registerPiece("tent_piece",     CampfireStructure.    TentPiece::new);
+		CAMPFIRE_PIECE_TYPE      = registerPiece("campfire_piece", CampfireStructure.CampfirePiece::new),
+		CAMPFIRE_TENT_PIECE_TYPE = registerPiece("tent_piece",     CampfireStructure.    TentPiece::new);
+
+	//////////////// portal temple ////////////////
+
+	public static final StructureType<PortalTempleStructure>
+		PORTAL_TEMPLE = registerType("portal_temple", PortalTempleStructure.CODEC);
+	public static final BigGlobeStructurePieceType
+		PORTAL_TEMPLE_MAIN_BUILDING = registerPiece("portal_temple_main_building", PortalTempleStructure.MainBuildingPiece::new),
+		PORTAL_TEMPLE_PORTAL        = registerPiece("portal_temple_portal",        PortalTempleStructure.      PortalPiece::new),
+		PORTAL_TEMPLE_WELL          = registerPiece("portal_temple_well",          PortalTempleStructure.        WellPiece::new),
+		PORTAL_TEMPLE_FARM          = registerPiece("portal_temple_farm",          PortalTempleStructure.        FarmPiece::new),
+		PORTAL_TEMPLE_TABLE         = registerPiece("portal_temple_table",         PortalTempleStructure.       TablePiece::new),
+		PORTAL_TEMPLE_FURNACE       = registerPiece("portal_temple_furnace",       PortalTempleStructure.     FurnacePiece::new),
+		PORTAL_TEMPLE_SPAWNER       = registerPiece("portal_temple_spawner",       PortalTempleStructure.     SpawnerPiece::new);
 
 	//////////////// end ////////////////
 

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
+import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.CollectionTransformer;
@@ -354,7 +355,7 @@ public class TypeInfo {
 			this.type == that.type &&
 			this.name.equals(that.name) &&
 			Objects.equals(this.superClass, that.superClass) &&
-			Arrays.equals(this.superInterfaces, that.superInterfaces) &&
+			HashStrategies.unorderedArrayEqualsAuto(HashStrategies.defaultStrategy(), this.superInterfaces, that.superInterfaces) &&
 			Objects.equals(this.componentType, that.componentType)
 		);
 	}

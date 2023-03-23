@@ -362,32 +362,32 @@ public class InsnTrees implements ExtendedOpcodes {
 		return bool(not(condition(parser, bool)));
 	}
 
-	public static InsnTree ifThen(ExpressionParser parser, ConditionTree condition, InsnTree body) {
-		return IfInsnTree.create(parser, condition, body);
+	public static InsnTree ifThen(ConditionTree condition, InsnTree body) {
+		return IfInsnTree.create(condition, body);
 	}
 
 	public static InsnTree ifElse(ExpressionParser parser, ConditionTree conditionTree, InsnTree trueBody, InsnTree falseBody) throws ScriptParsingException {
 		return IfElseInsnTree.create(parser, conditionTree, trueBody, falseBody);
 	}
 
-	public static InsnTree while_(ExpressionParser parser, ConditionTree condition, InsnTree body) {
-		return new WhileInsnTree(parser, condition, body);
+	public static InsnTree while_(ConditionTree condition, InsnTree body) {
+		return new WhileInsnTree(condition, body);
 	}
 
 	public static InsnTree doWhile(ExpressionParser parser, ConditionTree condition, InsnTree body) {
 		return new DoWhileInsnTree(parser, condition, body);
 	}
 
-	public static InsnTree for_(ExpressionParser parser, InsnTree initializer, ConditionTree condition, InsnTree incrementer, InsnTree body) {
-		return seq(parser, initializer, while_(parser, condition, seq(parser, body, incrementer)));
+	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree incrementer, InsnTree body) {
+		return seq(initializer, while_(condition, seq(body, incrementer)));
 	}
 
-	public static InsnTree seq(ExpressionParser parser, InsnTree first, InsnTree second) {
-		return first.then(parser, second);
+	public static InsnTree seq(InsnTree first, InsnTree second) {
+		return new SequenceInsnTree(first, second);
 	}
 
-	public static InsnTree seq(ExpressionParser parser, InsnTree... statements) {
-		return reduceWithParser(parser, InsnTrees::seq, statements);
+	public static InsnTree seq(InsnTree... statements) {
+		return reduce(InsnTrees::seq, statements);
 	}
 
 	public static InsnTree switch_(ExpressionParser parser, InsnTree value, Int2ObjectSortedMap<InsnTree> cases) {
@@ -396,6 +396,10 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static InsnTree scoped(InsnTree body) {
 		return ScopedInsnTree.create(body);
+	}
+
+	public static InsnTree block(InsnTree body) {
+		return new BlockInsnTree(body);
 	}
 
 	public static InsnTree getFromStack(TypeInfo type) {

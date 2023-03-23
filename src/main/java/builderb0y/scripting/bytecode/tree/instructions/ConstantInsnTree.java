@@ -36,18 +36,12 @@ public class ConstantInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return nextStatement;
-	}
-
-	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
 		if (this.value.isConstant() && this.value.asJavaObject() == null && type.isObject()) {
 			return ldc(null, type);
 		}
 		TypeInfo from = this.getTypeInfo();
-		if (from.isPrimitiveValue() && type.isPrimitive()) {
-			if (type.isVoid()) return noop;
+		if (from.isPrimitiveValue() && type.isPrimitiveValue()) {
 			if (mode.implicit) {
 				if (type.getSort() == Sort.BOOLEAN) {
 					if (from.getSort() != Sort.BOOLEAN) {

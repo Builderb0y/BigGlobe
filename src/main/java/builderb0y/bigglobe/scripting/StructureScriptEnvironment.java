@@ -3,16 +3,15 @@ package builderb0y.bigglobe.scripting;
 import java.util.random.RandomGenerator;
 
 import builderb0y.bigglobe.scripting.wrappers.*;
-import builderb0y.scripting.bytecode.CastingSupport.CastProvider;
-import builderb0y.scripting.bytecode.CastingSupport.ConstantCaster;
-import builderb0y.scripting.bytecode.CastingSupport.LookupCastProvider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.util.TypeInfos;
 
-public class StructureScriptEnvironment {
+public class StructureScriptEnvironment extends MutableScriptEnvironment {
 
-	public static final MutableScriptEnvironment INSTANCE = (
-		new MutableScriptEnvironment()
+	public static final StructureScriptEnvironment INSTANCE = new StructureScriptEnvironment();
+
+	public StructureScriptEnvironment() {
+		this
+
 		.addType("StructureStart",     StructureStartWrapper    .TYPE)
 		.addType("StructurePiece",     StructurePieceWrapper    .TYPE)
 		.addType("Structure",          StructureEntry           .TYPE)
@@ -27,14 +26,13 @@ public class StructureScriptEnvironment {
 		.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, RandomGenerator.class)
 		.addMethodInvoke(StructureTypeEntry.class, "isIn")
 		.addMethodInvokeSpecific(StructureTypeTagKey.class, "random", StructureTypeEntry.class, RandomGenerator.class)
-	);
 
-	public static final CastProvider CAST_PROVIDER = (
-		new LookupCastProvider()
-		.append(TypeInfos.STRING, StructureEntry           .TYPE, true, new ConstantCaster(StructureEntry           .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructureTagKey          .TYPE, true, new ConstantCaster(StructureTagKey          .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructureTypeEntry       .TYPE, true, new ConstantCaster(StructureTypeEntry       .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructureTypeTagKey      .TYPE, true, new ConstantCaster(StructureTypeTagKey      .CONSTANT_FACTORY))
-		.append(TypeInfos.STRING, StructurePieceTypeWrapper.TYPE, true, new ConstantCaster(StructurePieceTypeWrapper.CONSTANT_FACTORY))
-	);
+		.addCastConstant(StructureEntry           .CONSTANT_FACTORY, "Structure",          true)
+		.addCastConstant(StructureTagKey          .CONSTANT_FACTORY, "StructureTag",       true)
+		.addCastConstant(StructureTypeEntry       .CONSTANT_FACTORY, "StructureType",      true)
+		.addCastConstant(StructureTypeTagKey      .CONSTANT_FACTORY, "StructureTypeTag",   true)
+		.addCastConstant(StructurePieceTypeWrapper.CONSTANT_FACTORY, "StructurePieceType", true)
+
+		;
+	}
 }

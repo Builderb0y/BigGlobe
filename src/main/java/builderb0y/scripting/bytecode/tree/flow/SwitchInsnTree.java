@@ -1,6 +1,7 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
@@ -17,6 +18,8 @@ import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
 import builderb0y.scripting.parsing.ExpressionParser;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class SwitchInsnTree implements InsnTree {
 
@@ -77,9 +80,9 @@ public class SwitchInsnTree implements InsnTree {
 		this.runtimeCases.values().forEach(body -> starts.computeIfAbsent(body, $ -> new Label()));
 		InsnTree defaultCase = this.runtimeCases.defaultReturnValue();
 		if (defaultCase != null) {
-			starts.computeIfAbsent(defaultCase, $ -> new Label());
+			starts.computeIfAbsent(defaultCase, $ -> label());
 		}
-		Label end = new Label();
+		Label end = label();
 		int minKey = this.runtimeCases.firstIntKey();
 		int maxKey = this.runtimeCases.lastIntKey();
 		int range = maxKey - minKey + 1;
@@ -124,6 +127,26 @@ public class SwitchInsnTree implements InsnTree {
 		);
 	}
 
+	public SwitchInsnTree mapCases(UnaryOperator<InsnTree> mapper, TypeInfo type) {
+		Int2ObjectSortedMap<InsnTree> newCases = new Int2ObjectAVLTreeMap<>();
+		for (Int2ObjectMap.Entry<InsnTree> entry : this.compileCases.int2ObjectEntrySet()) {
+			InsnTree mapped = mapper.apply(entry.getValue());
+			if (mapped == null) return null;
+			newCases.put(entry.getIntKey(), mapped);
+		}
+		if (this.compileCases.defaultReturnValue() != null) {
+			InsnTree mapped = mapper.apply(this.compileCases.defaultReturnValue());
+			if (mapped == null) return null;
+			newCases.defaultReturnValue(mapped);
+		}
+		return new SwitchInsnTree(this.value, this.compileCases, newCases, type);
+	}
+
+	@Override
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+		return this.mapCases(branch -> branch.cast(parser, type, mode), type);
+	}
+
 	@Override
 	public boolean canBeStatement() {
 		InsnTree defaultCase = this.compileCases.defaultReturnValue();
@@ -134,18 +157,7 @@ public class SwitchInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		Int2ObjectSortedMap<InsnTree> newCases = new Int2ObjectAVLTreeMap<>();
-		for (Int2ObjectMap.Entry<InsnTree> entry : this.compileCases.int2ObjectEntrySet()) {
-			InsnTree cast = entry.getValue().cast(parser, type, mode);
-			if (cast == null) return null;
-			newCases.put(entry.getIntKey(), cast);
-		}
-		if (this.compileCases.defaultReturnValue() != null) {
-			InsnTree cast = this.compileCases.defaultReturnValue().cast(parser, type, mode);
-			if (cast == null) return null;
-			newCases.defaultReturnValue(cast);
-		}
-		return new SwitchInsnTree(this.value, newCases, newCases, type);
+	public InsnTree asStatement() {
+		return this.mapCases(InsnTree::asStatement, TypeInfos.VOID);
 	}
 }

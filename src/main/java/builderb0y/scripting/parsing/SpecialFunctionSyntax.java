@@ -258,15 +258,12 @@ public class SpecialFunctionSyntax {
 			);
 			return scoped(
 				seq(
-					parser,
 					this.iterator,
 					this.userVar,
 					storeIterator,
 					while_(
-						parser,
 						condition(parser, hasNext),
 						seq(
-							parser,
 							storeUserVar,
 							this.body
 						)

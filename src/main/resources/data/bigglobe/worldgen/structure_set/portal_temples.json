@@ -1,0 +1,14 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "portal_temples",
+			"variation": 8,
+			"spacing": 16
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:portal_temple" },
+		{ "weight": 1, "structure": "bigglobe:portal_temple_cracked" }
+	]
+}

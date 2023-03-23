@@ -42,7 +42,6 @@ public interface ScriptStructureOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addCastProvider(StructureScriptEnvironment.CAST_PROVIDER)
 				.addEnvironment(
 					new MutableScriptEnvironment()
 					.addVariableLoad("start", 1, StructureStartWrapper.TYPE)

@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.features;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
 import org.objectweb.asm.Opcodes;
@@ -23,11 +21,10 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
-import builderb0y.scripting.bytecode.CastingSupport;
+import builderb0y.scripting.bytecode.CastingSupport2;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -125,7 +122,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
 	public static class ScriptParserWithInputs<I> extends ScriptParser<I> {
 
-		public final Map<String, InsnTree> initializers = new TreeMap<>();
+		public final Map<String, InsnTree> initializers = new LinkedHashMap<>(4);
 
 		public ScriptParserWithInputs(Class<I> implementingClass, String input) {
 			super(implementingClass, input);
@@ -133,11 +130,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
 		@Override
 		public InsnTree parseEntireInput() throws ScriptParsingException {
-			InsnTree result = noop;
-			for (InsnTree initializer : this.initializers.values()) {
-				result = result.then(this, initializer);
-			}
-			return result.then(this, super.parseEntireInput());
+			return seq(
+				Stream.concat(
+					this.initializers.values().stream(),
+					Stream.of(super.parseEntireInput())
+				)
+				.toArray(InsnTree.ARRAY_FACTORY)
+			);
 		}
 	}
 
@@ -148,12 +147,10 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		parser
 		.addEnvironment(JavaUtilScriptEnvironment.ALL)
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
 		.addEnvironment(new MinecraftScriptEnvironment(
 			load("world", 1, WorldWrapper.TYPE)
 		))
-		.addEnvironment(NBTScriptEnvironment.INSTANCE)
-		.addCastProvider(NBTScriptEnvironment.NBT_CASTS)
+		.addEnvironment(NbtScriptEnvironment.INSTANCE)
 		.addEnvironment(
 			new MutableScriptEnvironment()
 			.addVariableLoad("originX", 2, TypeInfos.INT)
@@ -173,7 +170,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		))
 		.addEnvironment(new ColumnYScriptEnvironment(
 			load("column", 5, ColumnYScriptEnvironment.WORLD_COLUMN_TYPE),
-			CastingSupport.primitiveCast(load("originY", 3, TypeInfos.INT), TypeInfos.DOUBLE, CastMode.EXPLICIT_THROW),
+			CastingSupport2.primitiveCast(load("originY", 3, TypeInfos.INT), TypeInfos.DOUBLE),
 			false
 		));
 		if (!inputs.isEmpty()) {
@@ -186,7 +183,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				ExpressionParser parserCopy = setupParser(new ExpressionParser(inputSource, classCopy, methodCopy), Collections.emptyMap(), NO_INPUTS);
 				InsnTree inputTree = parserCopy.nextScript();
 				VariableDeclarationInsnTree declaration = parser.environment.user().newVariable(inputName, inputTree.getTypeInfo());
-				InsnTree initializer = declaration.then(parser, store(declaration.loader.variable, inputTree));
+				InsnTree initializer = seq(declaration, store(declaration.loader.variable, inputTree));
 				environment
 				.addVariable(inputName, load(declaration.loader.variable))
 				.addVariable('$' + inputName, inputTree);

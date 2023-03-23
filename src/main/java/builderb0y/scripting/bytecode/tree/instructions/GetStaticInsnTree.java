@@ -43,9 +43,4 @@ public class GetStaticInsnTree implements InsnTree {
 		}
 		return new StaticFieldUpdateInsnTree(this.field, op.createUpdater(parser, this.getTypeInfo(), rightValue));
 	}
-
-	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return nextStatement;
-	}
 }

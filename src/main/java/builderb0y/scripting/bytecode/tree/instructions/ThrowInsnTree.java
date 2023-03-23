@@ -4,7 +4,6 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
 public class ThrowInsnTree implements InsnTree {
@@ -32,11 +31,6 @@ public class ThrowInsnTree implements InsnTree {
 	@Override
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.VOID;
-	}
-
-	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return this;
 	}
 
 	@Override

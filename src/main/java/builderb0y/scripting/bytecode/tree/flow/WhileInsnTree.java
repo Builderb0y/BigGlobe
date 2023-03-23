@@ -19,12 +19,9 @@ public class WhileInsnTree implements InsnTree {
 	public final ConditionTree condition;
 	public final InsnTree body;
 
-	public WhileInsnTree(ExpressionParser parser, ConditionTree condition, InsnTree body) {
+	public WhileInsnTree(ConditionTree condition, InsnTree body) {
 		this.condition = condition;
-		if (!body.canBeStatement()) {
-			throw new IllegalArgumentException("Body is not a statement");
-		}
-		this.body = body.cast(parser, TypeInfos.VOID, CastMode.IMPLICIT_THROW);
+		this.body = body.asStatement();
 	}
 
 	public static InsnTree createRepeat(ExpressionParser parser, InsnTree times, InsnTree body) {
@@ -39,7 +36,7 @@ public class WhileInsnTree implements InsnTree {
 			//	body
 			//	++counter
 			//)
-			init = counter.then(parser, store(counter.loader.variable, ldc(0)));
+			init = seq(counter, store(counter.loader.variable, ldc(0)));
 			loadLimit = times;
 		}
 		else {
@@ -50,11 +47,11 @@ public class WhileInsnTree implements InsnTree {
 			//	++counter
 			//)
 			VariableDeclarationInsnTree limit = new VariableDeclarationInsnTree("limit", TypeInfos.INT);
-			init = seq(parser, limit, store(limit.loader.variable, times), counter, store(counter.loader.variable, ldc(0)));
+			init = seq(limit, store(limit.loader.variable, times), counter, store(counter.loader.variable, ldc(0)));
 			//init = limit.then(store(limit.loader.variable, times)).then(counter).then(store(counter.loader.variable, ldc(0)));
 			loadLimit = limit.loader;
 		}
-		return for_(parser, init, lt(parser, counter.loader, loadLimit), inc(counter.loader.variable, 1), body);
+		return for_(init, lt(parser, counter.loader, loadLimit), inc(counter.loader.variable, 1), body);
 	}
 
 	@Override

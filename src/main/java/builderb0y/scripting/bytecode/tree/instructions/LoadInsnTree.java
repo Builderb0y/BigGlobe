@@ -55,9 +55,4 @@ public class LoadInsnTree implements InsnTree {
 	public TypeInfo getTypeInfo() {
 		return this.variable.type;
 	}
-
-	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return nextStatement;
-	}
 }

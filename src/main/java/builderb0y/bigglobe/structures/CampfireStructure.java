@@ -86,7 +86,7 @@ public class CampfireStructure extends BigGlobeStructure {
 						double radius = Permuter.nextBoundedDouble(seed += Permuter.PHI64, 8.0D, 16.0D);
 						int tentX = BigGlobeMath.roundI(campfirePos.getX() + Math.cos(angle) * radius);
 						int tentZ = BigGlobeMath.roundI(campfirePos.getZ() + Math.sin(angle) * radius);
-						collector.addPiece(new TentPiece(BigGlobeStructures.TENT_PIECE_TYPE, tentX, campfirePos.getY(), tentZ, this.data));
+						collector.addPiece(new TentPiece(BigGlobeStructures.CAMPFIRE_TENT_PIECE_TYPE, tentX, campfirePos.getY(), tentZ, this.data));
 					}
 				}
 			)

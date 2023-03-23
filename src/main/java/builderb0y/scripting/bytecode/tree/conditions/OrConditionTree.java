@@ -6,6 +6,8 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public class OrConditionTree implements ConditionTree {
 
 	public final ConditionTree left, right;
@@ -23,7 +25,7 @@ public class OrConditionTree implements ConditionTree {
 	public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {
 		ConditionTree.checkLabels(ifTrue, ifFalse);
 		boolean madeTrue = ifTrue == null;
-		if (madeTrue) ifTrue = new Label();
+		if (madeTrue) ifTrue = label();
 		this.left.emitBytecode(method, ifTrue, null);
 		//context.node.visitLabel(new Label());
 		this.right.emitBytecode(method, ifTrue, null);

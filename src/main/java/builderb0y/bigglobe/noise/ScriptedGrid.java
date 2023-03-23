@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
 
@@ -248,7 +247,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					constructor(ACC_PUBLIC, Object.class)
 				)
 				.emitBytecode(constructor);
-				constructor.node.visitLabel(new Label());
+				constructor.node.visitLabel(label());
 				for (Input input : this.inputs.values()) {
 					VarInfo parameter = input.newGridParameter(constructor);
 					assert parameter.index == input.index + 1 : "Parameters out of order!";
@@ -257,7 +256,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 						input.fieldInfo(constructor), new LoadInsnTree(parameter)
 					)
 					.emitBytecode(constructor);
-					constructor.node.visitLabel(new Label());
+					constructor.node.visitLabel(label());
 				}
 				constructor.node.visitInsn(RETURN);
 			});

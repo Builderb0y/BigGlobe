@@ -46,11 +46,6 @@ public class ArrayLoadInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return this.array.then(parser, this.index).then(parser, nextStatement);
-	}
-
-	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
 			return arrayStore(this.array, this.index, rightValue);

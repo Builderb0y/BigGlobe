@@ -96,6 +96,11 @@ public class IfElseInsnTree implements InsnTree {
 	}
 
 	@Override
+	public InsnTree asStatement() {
+		return new IfElseInsnTree(this.condition, this.compileTrueBody, this.compileFalseBody, this.runtimeTrueBody.asStatement(), this.runtimeFalseBody.asStatement(), TypeInfos.VOID);
+	}
+
+	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
 		InsnTree trueBody = this.compileTrueBody.cast(parser, type, mode);
 		if (trueBody == null) return null;

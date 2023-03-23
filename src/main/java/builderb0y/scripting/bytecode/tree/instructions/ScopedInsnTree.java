@@ -57,4 +57,9 @@ public class ScopedInsnTree implements InsnTree {
 	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
 		return new ScopedInsnTree(this.body.update(parser, op, rightValue));
 	}
+
+	@Override
+	public InsnTree asStatement() {
+		return new ScopedInsnTree(this.body.asStatement());
+	}
 }

@@ -35,12 +35,10 @@ public interface CommandScript extends Script {
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addCastProvider(MinecraftScriptEnvironment.CAST_PROVIDER)
 			.addEnvironment(new MinecraftScriptEnvironment(
 				load("world", 1, WorldWrapper.TYPE)
 			))
-			.addEnvironment(NBTScriptEnvironment.INSTANCE)
-			.addCastProvider(NBTScriptEnvironment.NBT_CASTS)
+			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(new ColumnYScriptEnvironment(
 				load("column", 2, type(WorldColumn.class)),
 				load("y", 5, TypeInfos.DOUBLE),

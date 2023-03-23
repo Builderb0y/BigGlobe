@@ -5,9 +5,8 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
-import builderb0y.scripting.bytecode.CastingSupport.CasterData;
-import builderb0y.scripting.bytecode.tree.flow.SequenceInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.unary.CastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -45,8 +44,11 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		if (this.getTypeInfo().simpleEquals(type)) {
 			return this;
 		}
+		if (type.isVoid()) {
+			return this.asStatement();
+		}
 		if (this.jumpsUnconditionally()) {
-			return new CastInsnTree(this, type, CasterData.ARRAY_FACTORY.empty());
+			return new IdentityCastInsnTree(this, type);
 		}
 		if (this.getTypeInfo().isGeneric || type.isGeneric) {
 			mode = mode.toExplicit();
@@ -55,9 +57,8 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	}
 
 	public default InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		CasterData[] steps = parser.environment.castProviders.search(this.getTypeInfo(), type, mode);
-		if (steps == null) return null;
-		return new CastInsnTree(this, type, steps);
+		InsnTree tree = parser.environment.cast(parser, this, type, mode.implicit);
+		return tree != null ? tree : mode.handleFailure(this.getTypeInfo(), type);
 	}
 
 	public static enum CastMode {
@@ -91,12 +92,8 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 
 		public <T> @Nullable T handleFailure(TypeInfo from, TypeInfo to) {
 			if (this.nullable) return null;
-			else throw new ClassCastException("Can't " + (this.implicit ? "implicitly " : "") + "cast " + from + " to " + to);
+			else throw new ClassCastException("Can't " + (this.implicit ? "implicitly" : "explicitly") + " cast " + from + " to " + to);
 		}
-	}
-
-	public default InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return new SequenceInsnTree(parser, this, nextStatement);
 	}
 
 	public default boolean jumpsUnconditionally() {
@@ -107,12 +104,26 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		return false;
 	}
 
+	public default InsnTree asStatement() {
+		if (this.canBeStatement()) {
+			if (this.getTypeInfo().isVoid()) {
+				return this;
+			}
+			else {
+				return new OpcodeCastInsnTree(this, this.getTypeInfo().isDoubleWidth() ? POP2 : POP, TypeInfos.VOID);
+			}
+		}
+		else {
+			throw new IllegalArgumentException("Not a statement");
+		}
+	}
+
 	public default InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
 		throw new ScriptParsingException("Attempt to update non-assignable value", parser.input);
 	}
 
 	public static enum UpdateOp {
-		ASSIGN              (InsnTrees::seq ),
+		ASSIGN              ((parser, oldValue, newValue) -> newValue),
 		ADD                 (InsnTrees::add ),
 		SUBTRACT            (InsnTrees::sub ),
 		MULTIPLY            (InsnTrees::mul ),
@@ -136,14 +147,14 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			this.constructor = constructor;
 		}
 
-		public InsnTree createUpdater(ExpressionParser parser, TypeInfo leftType, InsnTree rightValue) throws ScriptParsingException {
+		public InsnTree createUpdater(ExpressionParser parser, TypeInfo leftType, InsnTree rightValue) {
 			return this.constructor.construct(parser, getFromStack(leftType), rightValue).cast(parser, leftType, CastMode.IMPLICIT_THROW);
 		}
 
 		@FunctionalInterface
 		public static interface UpdateConstructor {
 
-			public abstract InsnTree construct(ExpressionParser parser, InsnTree left, InsnTree right);
+			public abstract InsnTree construct(ExpressionParser parser, InsnTree oldValue, InsnTree newValue);
 		}
 	}
 }

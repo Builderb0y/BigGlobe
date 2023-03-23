@@ -24,4 +24,9 @@ public class VariableDeclarationInsnTree implements InsnTree {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.VOID;
 	}
+
+	@Override
+	public boolean canBeStatement() {
+		return true;
+	}
 }

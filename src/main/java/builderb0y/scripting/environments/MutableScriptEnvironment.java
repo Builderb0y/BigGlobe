@@ -7,10 +7,13 @@ import java.util.*;
 import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.ReflectionData;
@@ -18,16 +21,18 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-@SuppressWarnings({ "unused", "UnusedReturnValue" })
+@SuppressWarnings({ "unused", "UnusedReturnValue", "SameParameterValue" })
 public class MutableScriptEnvironment implements ScriptEnvironment {
 
-	public Map<String,    VariableHandler      > variables      = new HashMap<>(16);
-	public Map<NamedType, FieldHandler         > fields         = new HashMap<>(16);
-	public Map<String,    List<FunctionHandler>> functions      = new HashMap<>(16);
-	public Map<NamedType, List<  MethodHandler>> methods        = new HashMap<>(16);
-	public Map<String,    TypeInfo             > types          = new HashMap<>( 8);
-	public Map<String,    KeywordHandler       > keywords       = new HashMap<>( 8);
-	public Map<NamedType, MemberKeywordHandler > memberKeywords = new HashMap<>( 8);
+	public Map<String,                   VariableHandler > variables      = new HashMap<>(16);
+	public Map<NamedType,                   FieldHandler > fields         = new HashMap<>(16);
+	public Map<String,              List<FunctionHandler>> functions      = new HashMap<>(16);
+	public Map<NamedType,           List<  MethodHandler>> methods        = new HashMap<>(16);
+	public Map<String,                          TypeInfo > types          = new HashMap<>( 8);
+	public Map<String,                    KeywordHandler > keywords       = new HashMap<>( 8);
+	public Map<NamedType,           MemberKeywordHandler > memberKeywords = new HashMap<>( 8);
+	//         from          to
+	public Map<TypeInfo, Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
 		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
@@ -92,16 +97,35 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addAllCasters(MutableScriptEnvironment that) {
+		for (Map.Entry<TypeInfo, Map<TypeInfo, CastHandlerHolder>> entry : that.casters.entrySet()) {
+			Map<TypeInfo, CastHandlerHolder> from = this.casters.get(entry.getKey());
+			Map<TypeInfo, CastHandlerHolder> to = entry.getValue();
+			if (from == null) {
+				this.casters.put(entry.getKey(), new HashMap<>(to));
+			}
+			else {
+				for (Map.Entry<TypeInfo, CastHandlerHolder> entry2 : to.entrySet()) {
+					if (from.putIfAbsent(entry2.getKey(), entry2.getValue()) != null) {
+						throw new IllegalArgumentException("Caster " + entry.getKey() + " -> " + entry2.getKey() + " (" + entry2.getValue() + ") is already present in this environment");
+					}
+				}
+			}
+		}
+		return this;
+	}
+
 	public MutableScriptEnvironment addAll(MutableScriptEnvironment that) {
 		return (
 			this
-			.addAllVariables(that)
-			.addAllFields   (that)
-			.addAllFunctions(that)
-			.addAllMethods  (that)
-			.addAllTypes    (that)
-			.addAllKeywords(that)
+			.addAllVariables     (that)
+			.addAllFields        (that)
+			.addAllFunctions     (that)
+			.addAllMethods       (that)
+			.addAllTypes         (that)
+			.addAllKeywords      (that)
 			.addAllMemberKeywords(that)
+			.addAllCasters       (that)
 		);
 	}
 
@@ -774,71 +798,161 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	//////////////////////////////// casting ////////////////////////////////
+
+	public MutableScriptEnvironment addCast(TypeInfo from, TypeInfo to, boolean implicit, CastHandler castHandler) {
+		while (castHandler instanceof CastHandlerHolder holder) {
+			castHandler = holder.caster;
+		}
+		CastHandlerHolder holder = new CastHandlerHolder(implicit, castHandler);
+		if (this.casters.computeIfAbsent(from, $ -> new HashMap<>(8)).putIfAbsent(to, holder) != null) {
+			throw new IllegalArgumentException("Caster " + from + " -> " + to + " is already present in this environment");
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addCast(CastHandlerData caster) {
+		return this.addCast(caster.from, caster.to, caster.implicit, caster);
+	}
+
+	public MutableScriptEnvironment addCasts(CastHandlerData... casters) {
+		return this.addCast(casters[0].from, casters[casters.length - 1].to, Arrays.stream(casters).allMatch(caster -> caster.implicit), CastingSupport2.allOf(casters));
+	}
+
+	public MutableScriptEnvironment addCastInvoke(MethodInfo method, boolean implicit) {
+		return this.addCast(method.owner, method.returnType, implicit, CastingSupport2.invokeVirtual(method));
+	}
+
+	public MutableScriptEnvironment addCastInvoke(Class<?> in, String name, boolean implicit) {
+		return this.addCastInvoke(MethodInfo.getMethod(in, name), implicit);
+	}
+
+	public MutableScriptEnvironment addCastInvokeStatic(MethodInfo method, boolean implicit) {
+		return this.addCast(method.paramTypes[0], method.returnType, implicit, CastingSupport2.invokeStatic(method));
+	}
+
+	public MutableScriptEnvironment addCastInvokeStatic(Class<?> in, String name, boolean implicit) {
+		return this.addCastInvokeStatic(MethodInfo.getMethod(in, name), implicit);
+	}
+
+	public MutableScriptEnvironment addCastInvokeStatic(Class<?> in, String name, boolean implicit, Class<?> returnType, Class<?>... paramTypes) {
+		return this.addCastInvokeStatic(MethodInfo.findMethod(in, name, returnType, paramTypes), implicit);
+	}
+
+	public MutableScriptEnvironment addCastOpcode(TypeInfo from, TypeInfo to, boolean implicit, int opcode) {
+		return this.addCast(from, to, implicit, (parser, value, to_) -> new OpcodeCastInsnTree(value, opcode, to_));
+	}
+
+	public MutableScriptEnvironment addCastIdentity(TypeInfo from, TypeInfo to, boolean implicit) {
+		return this.addCast(from, to, implicit, (parser, value, to_) -> new IdentityCastInsnTree(value, to_));
+	}
+
+	public MutableScriptEnvironment addCastConstant(ConstantFactory factory, String typeName, boolean implicit) {
+		return this.addCast(factory.variableMethod.paramTypes[0], factory.variableMethod.returnType, implicit, (parser, value, to) -> factory.create(parser, typeName, value).tree);
+	}
+
 	//////////////////////////////// getters ////////////////////////////////
 
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
-		VariableHandler handler = this.variables.get(name);
-		return handler == null ? null : handler.create(parser, name);
+		VariableHandler handler;
+		InsnTree result;
+		if ((handler = this.variables.get(name)) != null && (result = handler.create(parser, name)) != null) return result;
+		if ((handler = this.variables.get(null)) != null && (result = handler.create(parser, name)) != null) return result;
+		return null;
 	}
 
 	@Override
 	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-		NamedType query = new NamedType();
-		query.name = name;
-		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
-			query.owner = owner;
-			FieldHandler handler = this.fields.get(query);
-			if (handler != null) return handler.create(parser, receiver, name);
+		class Accumulator {
+
+			public final NamedType query = new NamedType();
+			public InsnTree result;
+
+			public boolean update(String n, TypeInfo type) throws ScriptParsingException {
+				this.query.name = n;
+				this.query.owner = type;
+				FieldHandler handler = MutableScriptEnvironment.this.fields.get(this.query);
+				return handler != null && (this.result = handler.create(parser, receiver, name)) != null;
+			}
 		}
-		return null;
+		Accumulator accumulator = new Accumulator();
+		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
+			if (accumulator.update(name, owner)) return accumulator.result;
+			if (accumulator.update(null, owner)) return accumulator.result;
+		}
+		if (accumulator.update(name, null)) return accumulator.result;
+		if (accumulator.update(null, null)) return accumulator.result;
+		return accumulator.result;
 	}
 
 	@Override
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
-		List<FunctionHandler> handlers = this.functions.get(name);
-		if (handlers != null) {
-			InsnTree result = null;
-			for (int index = 0, size = handlers.size(); index < size; index++) {
-				CastResult casted = handlers.get(index).create(parser, name, arguments);
-				if (casted != null) {
-					if (!casted.requiredCasting) {
-						return casted.tree;
-					}
-					else if (result == null) {
-						result = casted.tree;
+		class Accumulator {
+
+			public InsnTree result;
+
+			public boolean update(String n) throws ScriptParsingException {
+				List<FunctionHandler> handlers = MutableScriptEnvironment.this.functions.get(n);
+				if (handlers != null) {
+					for (int index = 0, size = handlers.size(); index < size; index++) {
+						CastResult casted = handlers.get(index).create(parser, name, arguments);
+						if (casted != null) {
+							if (!casted.requiredCasting) {
+								this.result = casted.tree;
+								return true;
+							}
+							else if (this.result == null) {
+								this.result = casted.tree;
+							}
+						}
 					}
 				}
+				return false;
 			}
-			return result;
 		}
-		return null;
+		Accumulator accumulator = new Accumulator();
+		if (accumulator.update(name)) return accumulator.result;
+		if (accumulator.update(null)) return accumulator.result;
+		return accumulator.result;
 	}
 
 	@Override
 	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
-		NamedType query = new NamedType();
-		query.name = name;
-		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
-			query.owner = owner;
-			List<MethodHandler> handlers = this.methods.get(query);
-			if (handlers != null) {
-				InsnTree result = null;
-				for (int index = 0, size = handlers.size(); index < size; index++) {
-					CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
-					if (casted != null) {
-						if (!casted.requiredCasting) {
-							return casted.tree;
-						}
-						else if (result == null) {
-							result = casted.tree;
+		class Accumulator {
+
+			public final NamedType query = new NamedType();
+			public InsnTree result;
+
+			public boolean update(String n, TypeInfo type) throws ScriptParsingException {
+				this.query.name = n;
+				this.query.owner = type;
+				List<MethodHandler> handlers = MutableScriptEnvironment.this.methods.get(this.query);
+				if (handlers != null) {
+					for (int index = 0, size = handlers.size(); index < size; index++) {
+						CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
+						if (casted != null) {
+							if (!casted.requiredCasting) {
+								this.result = casted.tree;
+								return true;
+							}
+							else if (this.result == null) {
+								this.result = casted.tree;
+							}
 						}
 					}
 				}
-				return result;
+				return false;
 			}
 		}
-		return null;
+		Accumulator accumulator = new Accumulator();
+		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
+			if (accumulator.update(name, owner)) return accumulator.result;
+			if (accumulator.update(null, owner)) return accumulator.result;
+		}
+		if (accumulator.update(name, null)) return accumulator.result;
+		if (accumulator.update(null, null)) return accumulator.result;
+		return accumulator.result;
 	}
 
 	@Override
@@ -860,6 +974,21 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			query.owner = owner;
 			MemberKeywordHandler handler = this.memberKeywords.get(query);
 			if (handler != null) return handler.create(parser, receiver, name);
+		}
+		query.owner = null;
+		MemberKeywordHandler handler = this.memberKeywords.get(query);
+		if (handler != null) return handler.create(parser, receiver, name);
+		return null;
+	}
+
+	@Override
+	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+		for (TypeInfo from : value.getTypeInfo().getAllAssignableTypes()) {
+			for (Map.Entry<TypeInfo, CastHandlerHolder> entry : this.casters.getOrDefault(from, Collections.emptyMap()).entrySet()) {
+				if ((!implicit || entry.getValue().implicit) && entry.getKey().extendsOrImplements(to)) {
+					return entry.getValue().cast(parser, value, to);
+				}
+			}
 		}
 		return null;
 	}
@@ -904,14 +1033,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException;
 	}
 
+	@FunctionalInterface
+	public static interface CastHandler {
+
+		public abstract InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to);
+	}
+
 	public static class NamedType {
 
-		public TypeInfo owner;
+		public @Nullable TypeInfo owner;
 		public String name;
 
 		public NamedType() {}
 
-		public NamedType(TypeInfo owner, String name) {
+		public NamedType(@Nullable TypeInfo owner, String name) {
 			this.owner = owner;
 			this.name = name;
 		}
@@ -933,6 +1068,117 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		@Override
 		public String toString() {
 			return this.owner + "." + this.name;
+		}
+	}
+
+	public static class CastHandlerHolder implements CastHandler {
+
+		public CastHandler caster;
+		public boolean implicit;
+
+		public CastHandlerHolder(boolean implicit, CastHandler caster) {
+			this.caster = caster;
+			this.implicit = implicit;
+		}
+
+		@Override
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
+			return this.caster.cast(parser, value, to);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.caster.hashCode() + Boolean.hashCode(this.implicit);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof CastHandlerHolder that &&
+				this.caster.equals(that.caster) &&
+				this.implicit == that.implicit
+			);
+		}
+
+		@Override
+		public String toString() {
+			return this.caster + (this.implicit ? " (implicit)" : " (explicit)");
+		}
+	}
+
+	public static class CastHandlerData extends CastHandlerHolder {
+
+		public TypeInfo from, to;
+
+		public CastHandlerData(TypeInfo from, TypeInfo to, boolean implicit, CastHandler caster) {
+			super(implicit, caster);
+			this.from = from;
+			this.to = to;
+		}
+
+		public CastHandlerData changeInput(TypeInfo from) {
+			return new CastHandlerData(from, this.to, this.implicit, this.caster);
+		}
+
+		public CastHandlerData changeOutput(TypeInfo to) {
+			return new CastHandlerData(this.from, to, this.implicit, this.caster);
+		}
+
+		@Override
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
+			if (!value.getTypeInfo().equals(this.from)) {
+				throw new IllegalArgumentException(this + " attempting to cast value of type " + value.getTypeInfo());
+			}
+			if (!to.equals(this.to)) {
+				throw new IllegalArgumentException(this + " attempting to cast value to type " + to);
+			}
+			value = this.caster.cast(parser, value, to);
+			if (!value.getTypeInfo().equals(this.to)) {
+				throw new IllegalArgumentException(this + " cast value to incorrect type " + value.getTypeInfo());
+			}
+			return value;
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = this.caster.hashCode();
+			hash = hash * 31 + Boolean.hashCode(this.implicit);
+			hash = hash * 31 + this.from.hashCode();
+			hash = hash * 31 + this.to.hashCode();
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof CastHandlerData that &&
+				this.caster.equals(that.caster) &&
+				this.implicit == that.implicit &&
+				this.from.equals(that.from) &&
+				this.to.equals(that.to)
+			);
+		}
+
+		@Override
+		public String toString() {
+			return this.caster + ": " + this.from + " -> " + this.to + (this.implicit ? " (implicit)" : " (explicit)");
+		}
+	}
+
+	public static class MultiCastHandler implements CastHandler {
+
+		public CastHandlerData[] casters;
+
+		public MultiCastHandler(CastHandlerData... casters) {
+			this.casters = casters;
+		}
+
+		@Override
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
+			for (CastHandlerData caster : this.casters) {
+				value = caster.cast(parser, value, caster.to);
+			}
+			return value;
 		}
 	}
 }

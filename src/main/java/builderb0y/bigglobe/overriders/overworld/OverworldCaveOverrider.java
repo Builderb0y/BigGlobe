@@ -14,7 +14,6 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -39,7 +38,6 @@ public interface OverworldCaveOverrider extends Script {
 			super(
 				new ScriptParser<>(OverworldCaveOverrider.class, script)
 				.addEnvironment(OverworldCaveOverrider.Environment.INSTANCE)
-				.addCastProvider(StructureScriptEnvironment.CAST_PROVIDER)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(

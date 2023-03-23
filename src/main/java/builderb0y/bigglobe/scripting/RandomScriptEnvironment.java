@@ -118,10 +118,10 @@ public class RandomScriptEnvironment extends MutableScriptEnvironment {
 		if (negate) conditionTree = not(conditionTree);
 
 		if (parser.input.hasIdentifierAfterWhitespace("else")) {
-			return ifElse(parser, conditionTree, body, parser.nextCompoundExpression());
+			return ifElse(parser, conditionTree, body, parser.nextSingleExpression());
 		}
 		else {
-			return ifThen(parser, conditionTree, body);
+			return ifThen(conditionTree, body);
 		}
 	}
 }

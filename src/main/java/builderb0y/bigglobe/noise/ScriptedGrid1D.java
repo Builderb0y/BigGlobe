@@ -4,8 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.objectweb.asm.Label;
-
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -76,7 +74,6 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 				//if (sampleCount <= 0) return;
 				ifThen(
-					this,
 					le(
 						this,
 						load(sampleCount),
@@ -104,12 +101,11 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					load(sampleCount)
 				)
 				.emitBytecode(getBulkX);
-				getBulkX.node.visitLabel(new Label());
+				getBulkX.node.visitLabel(label());
 				//replace samples with evaluation results.
 				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
 					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
 					for_(
-						this,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
@@ -152,7 +148,6 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				}
 				//if (sampleCount <= 0) return;
 				ifThen(
-					this,
 					le(
 						this,
 						load(sampleCount),
@@ -177,7 +172,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						)
 					)
 					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(new Label());
+					getBulkX.node.visitLabel(label());
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
@@ -196,13 +191,12 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						load(sampleCount)
 					)
 					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(new Label());
+					getBulkX.node.visitLabel(label());
 				}
 				//fill samples.
 				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
 					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
 					for_(
-						this,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
@@ -244,7 +238,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						load(scratches[input.index])
 					)
 					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(new Label());
+					getBulkX.node.visitLabel(label());
 				}
 				//return.
 				return_(noop).emitBytecode(getBulkX);

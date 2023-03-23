@@ -36,7 +36,7 @@ public abstract class MobSpawnerLogic_SpawnLightning {
 
 	@Inject(method = "serverTick", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
 	private void bigglobe_spawnLightning(ServerWorld world, BlockPos pos, CallbackInfo callback, boolean spawned) {
-		if (spawned) {
+		if (spawned && this.bigglobe_spawnLightning) {
 			LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
 			lightning.setPosition(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
 			lightning.setCosmetic(true);

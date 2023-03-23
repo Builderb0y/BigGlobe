@@ -10,6 +10,8 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public class LineNumberInsnTree implements InsnTree {
 
 	public final InsnTree content;
@@ -28,7 +30,7 @@ public class LineNumberInsnTree implements InsnTree {
 			label.info = labelNode; //ensure it gets "visited".
 		}
 		else {
-			method.node.visitLabel(label = new Label());
+			method.node.visitLabel(label = label());
 		}
 		method.node.visitLineNumber(this.lineNumber, label);
 		this.content.emitBytecode(method);
@@ -64,5 +66,10 @@ public class LineNumberInsnTree implements InsnTree {
 	@Override
 	public boolean canBeStatement() {
 		return this.content.canBeStatement();
+	}
+
+	@Override
+	public InsnTree asStatement() {
+		return new LineNumberInsnTree(this.content.asStatement(), this.lineNumber);
 	}
 }

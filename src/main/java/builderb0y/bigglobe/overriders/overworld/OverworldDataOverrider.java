@@ -94,7 +94,6 @@ public interface OverworldDataOverrider extends Script {
 		public Holder(ScriptParser<OverworldDataOverrider> parser) throws ScriptParsingException {
 			super(
 				parser
-				.addCastProvider(StructureScriptEnvironment.CAST_PROVIDER)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(new ColumnYScriptEnvironment(load("column", 2, type(OverworldColumn.class)), null, true))

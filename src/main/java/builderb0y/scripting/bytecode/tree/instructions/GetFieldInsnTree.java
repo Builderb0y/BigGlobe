@@ -49,9 +49,4 @@ public class GetFieldInsnTree implements InsnTree {
 		}
 		return new InstanceFieldUpdateInsnTree(this.object, this.field, op.createUpdater(parser, this.getTypeInfo(), rightValue));
 	}
-
-	@Override
-	public InsnTree then(ExpressionParser parser, InsnTree nextStatement) {
-		return this.object.then(parser, nextStatement);
-	}
 }

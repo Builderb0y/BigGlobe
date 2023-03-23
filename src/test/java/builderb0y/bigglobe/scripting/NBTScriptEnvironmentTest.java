@@ -75,8 +75,6 @@ public class NBTScriptEnvironmentTest {
 
 	@Test
 	public void testCasting() throws ScriptParsingException {
-		assertSuccess(false, "nbtByte ( 0 ) . asBoolean ( )");
-		assertSuccess(true, "nbtByte ( 1 ) . asBoolean ( )");
 		assertSuccess((byte)(42), "nbtByte ( 42 ) . asByte ( )");
 		assertSuccess((short)(42), "nbtShort ( 42 ) . asShort ( )");
 		assertSuccess((int)(42), "nbtInt ( 42 ) . asInt ( )");
@@ -96,9 +94,27 @@ public class NBTScriptEnvironmentTest {
 		assertSuccess((byte)(1), "nbtByteArray ( 1 , 2 ) . ( 0 ) . asByte ( )");
 		assertSuccess((byte)(2), "nbtByteArray ( 1 , 2 ) . ( 1 ) . asByte ( )");
 		assertSuccess(null, "nbtByteArray ( 1 , 2 ) . ( 2 )");
+	}
+
+	@Test
+	public void testMemberAssignment() throws ScriptParsingException {
 		assertSuccess(
 			compound(c -> c.putByte("a", (byte)(1))),
 			"var c = nbtCompound ( ) ,, c . a = nbtByte ( 1 ) ,, c"
+		);
+		assertSuccess(NbtByte.of((byte)(1)),
+			"""
+			Nbt nbt = nbtCompound()
+			nbt.a = 1
+			nbt.a
+			"""
+		);
+		assertSuccess(NbtByte.of((byte)(1)),
+			"""
+			Nbt nbt = nbtCompound()
+			nbt.('a') = 1
+			nbt.a
+			"""
 		);
 	}
 
@@ -126,6 +142,6 @@ public class NBTScriptEnvironmentTest {
 	}
 
 	public static Object evaluate(String script) throws ScriptParsingException {
-		return new ScriptParser<>(Supplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NBTScriptEnvironment.INSTANCE).parse().get();
+		return new ScriptParser<>(Supplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.INSTANCE).parse().get();
 	}
 }

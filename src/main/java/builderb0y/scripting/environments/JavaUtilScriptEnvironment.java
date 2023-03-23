@@ -18,7 +18,6 @@ public class JavaUtilScriptEnvironment {
 
 	public static final MutableScriptEnvironment ALL = (
 		new MutableScriptEnvironment()
-		.addType("Object", Object.class)
 		.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
 		.addType("Iterator", Iterator.class)
 		.addMethodInvokes(Iterator.class, "hasNext", "next", "remove")
