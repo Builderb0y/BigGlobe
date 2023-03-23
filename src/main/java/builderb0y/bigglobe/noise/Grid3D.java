@@ -15,6 +15,7 @@ public interface Grid3D extends Grid {
 		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid3D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid3D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid3D.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid3D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid3D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid3D.class);

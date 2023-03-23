@@ -15,6 +15,7 @@ public interface Grid1D extends Grid {
 		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid1D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid1D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid1D.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid1D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid1D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid1D.class);

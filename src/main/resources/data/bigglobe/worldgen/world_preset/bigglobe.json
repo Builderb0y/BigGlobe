@@ -1200,13 +1200,13 @@
 										"noise": {
 											"type": "sum",
 											"layers": [
-												{ "type": "smooth", "scaleX": 64.0, "scaleY": 64.0, "scaleZ": 64.0, "amplitude": 64.0 },
-												{ "type": "smooth", "scaleX": 32.0, "scaleY": 32.0, "scaleZ": 32.0, "amplitude": 32.0 },
-												{ "type": "smooth", "scaleX": 16.0, "scaleY": 16.0, "scaleZ": 16.0, "amplitude": 16.0 },
-												{ "type": "smooth", "scaleX":  8.0, "scaleY":  8.0, "scaleZ":  8.0, "amplitude":  8.0 },
-												{ "type": "smooth", "scaleX":  4.0, "scaleY":  4.0, "scaleZ":  4.0, "amplitude":  4.0 },
-												{ "type": "linear", "scaleX":  2.0, "scaleY":  2.0, "scaleZ":  2.0, "amplitude":  2.0 },
-												{ "type": "white_noise", "amplitude": 1.0 }
+												{ "type": "smooth", "scaleX": 128.0, "scaleY": 64.0, "scaleZ": 128.0, "amplitude": 128.0 },
+												{ "type": "smooth", "scaleX":  64.0, "scaleY": 32.0, "scaleZ":  64.0, "amplitude":  51.2 },
+												{ "type": "smooth", "scaleX":  32.0, "scaleY": 24.0, "scaleZ":  32.0, "amplitude":  20.48 },
+												{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 },
+												{ "type": "smooth", "scaleX":   8.0, "scaleY":  8.0, "scaleZ":   8.0, "amplitude":   3.2768 },
+												{ "type": "worley", "scale": 32.0, "amplitude": 128.0 },
+												{ "type": "worley", "scale": 16.0, "amplitude": 128.0 }
 											]
 										},
 										"floor_decorator": "bigglobe:nether/nether_wastes_cavern_floors",

@@ -15,6 +15,7 @@ public interface Grid2D extends Grid {
 		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid2D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid2D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid2D.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid2D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid2D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid2D.class);
