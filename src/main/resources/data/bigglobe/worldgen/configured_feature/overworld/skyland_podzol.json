@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"random.if(0.25:",
-				"if (getBlockState(originX, originY - 1, originZ) == blockState('minecraft:grass_block[snowy=false]'):",
+				"if (getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:grass_block[snowy=false]'):",
 					"setBlockState(originX, originY - 1, originZ,",
 						"random.if(0.25: 'minecraft:podzol')",
 						"else ('bigglobe:overgrown_podzol')",

@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"return(",
-				"getBlockState(originX, originY - 1, originZ).getBlock() == block('minecraft:water') &&",
+				"getBlockState(originX, originY - 1, originZ).getBlock() == Block('minecraft:water') &&",
 				"random.nextBoolean(0.015625) &&",
 				"placeBlockState(originX, originY, originZ, 'minecraft:lily_pad')",
 			")"

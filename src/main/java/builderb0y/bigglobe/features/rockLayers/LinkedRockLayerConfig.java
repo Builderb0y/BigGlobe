@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.LinkedConfig;
 import builderb0y.bigglobe.noise.Permuter;
 
@@ -21,8 +22,8 @@ public class LinkedRockLayerConfig extends LinkedConfig<
 	>
 	FACTORY = new Factory<>(
 		LinkedRockLayerConfig.class,
-		RockLayerGroupFeature.Config.class,
-		RockLayerEntryFeature.Config.class
+		BigGlobeFeatures.ROCK_LAYER_GROUP,
+		BigGlobeFeatures.ROCK_LAYER_ENTRY
 	) {
 
 		@Override

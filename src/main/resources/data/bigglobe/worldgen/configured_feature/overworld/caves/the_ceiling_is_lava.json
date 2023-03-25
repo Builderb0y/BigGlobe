@@ -5,7 +5,7 @@
 			"boolean flatBasaltAt(int x, int z:",
 				"return(",
 					"getBlockState(x, originY, z).isAir() &&",
-					"getBlockState(x, originY + 1, z) == blockState('minecraft:basalt[axis=y]')",
+					"getBlockState(x, originY + 1, z) == BlockState('minecraft:basalt[axis=y]')",
 				")",
 			")",
 
@@ -20,7 +20,7 @@
 				"flatBasaltAt(originX + 1, originZ) &&",
 				"flatBasaltAt(originX, originZ - 1) &&",
 				"flatBasaltAt(originX, originZ + 1) &&",
-				"getBlockState(originX, originY + 2, originZ) == blockState('minecraft:basalt[axis=y]')",
+				"getBlockState(originX, originY + 2, originZ) == BlockState('minecraft:basalt[axis=y]')",
 			":",
 				"placeMagma(originX - 1, originZ)",
 				"placeMagma(originX + 1, originZ)",

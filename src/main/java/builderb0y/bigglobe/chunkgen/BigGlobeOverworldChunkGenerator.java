@@ -42,7 +42,6 @@ import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -133,11 +132,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		OverworldSettings settings,
 		Registry<StructureSet> structureSetRegistry,
 		Registry<Biome> biomeRegistry,
-		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry
+		SortedFeatures configuredFeatures
 	) {
 		super(
 			structureSetRegistry,
-			configuredFeatureRegistry,
+			configuredFeatures,
 			Optional.empty(),
 			new ColumnBiomeSource(
 				settings
@@ -160,15 +159,14 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			.distinct()
 			.toArray(ColumnValue.ARRAY_FACTORY.generic())
 		);
-		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatureRegistry);
-		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatureRegistry);
-		SortedFeatures sortedFeatures = new SortedFeatures(configuredFeatureRegistry);
-		this.         oreConfigs = sortedFeatures.get(BigGlobeFeatures.OVERWORLD_ORE).toArray(new OverworldOreFeature.Config[0]);
-		this.   heightOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
-		this.  foliageOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER, config -> config.script, OverworldFoliageOverrider.Holder[]::new);
-		this.     caveOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.     OVERWORLD_CAVE_OVERRIDER, config -> config.script,    OverworldCaveOverrider.Holder[]::new);
-		this.   cavernOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.   OVERWORLD_CAVERN_OVERRIDER, config -> config.script,  OverworldCavernOverrider.Holder[]::new);
-		this.structureOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER, config -> config.script,  ScriptStructureOverrider.Holder[]::new);
+		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatures);
+		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
+		this.         oreConfigs = configuredFeatures.streamConfigs(BigGlobeFeatures.OVERWORLD_ORE).toArray(OverworldOreFeature.Config[]::new);
+		this.   heightOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
+		this.  foliageOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER, config -> config.script, OverworldFoliageOverrider.Holder[]::new);
+		this.     caveOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.     OVERWORLD_CAVE_OVERRIDER, config -> config.script,    OverworldCaveOverrider.Holder[]::new);
+		this.   cavernOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.   OVERWORLD_CAVERN_OVERRIDER, config -> config.script,  OverworldCavernOverrider.Holder[]::new);
+		this.structureOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER, config -> config.script,  ScriptStructureOverrider.Holder[]::new);
 	}
 
 	public static <C extends FeatureConfig, H extends ScriptHolder<?>> H[] filterFeatures(
@@ -177,13 +175,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		Function<C, H> getter,
 		IntFunction<H[]> arrayFactory
 	) {
-		return (
-			sortedFeatures
-			.get(feature)
-			.stream()
-			.map(getter)
-			.toArray(arrayFactory)
-		);
+		return sortedFeatures.streamConfigs(feature).map(getter).toArray(arrayFactory);
 	}
 
 	@Override

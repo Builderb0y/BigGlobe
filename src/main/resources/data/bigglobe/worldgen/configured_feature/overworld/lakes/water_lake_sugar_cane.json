@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"return(",
-				"getBlockState(originX, originY - 1, originZ).getBlock() == block('minecraft:mud') &&",
+				"getBlockState(originX, originY - 1, originZ).getBlock() == Block('minecraft:mud') &&",
 				"random.nextBoolean(0.0625) &&",
 				"placeFeature(originX, originY, originZ, 'bigglobe:overworld/sugar_cane')",
 			")"

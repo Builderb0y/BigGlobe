@@ -24,7 +24,6 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -78,20 +77,19 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public BigGlobeNetherChunkGenerator(
 		NetherSettings settings,
 		Registry<StructureSet> structureSetRegistry,
-		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry
+		SortedFeatures configuredFeatures
 	) {
 		super(
 			structureSetRegistry,
-			configuredFeatureRegistry,
+			configuredFeatures,
 			Optional.empty(),
 			new ColumnBiomeSource(
 				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
 			)
 		);
 		this.settings = settings;
-		SortedFeatures sortedFeatures = new SortedFeatures(configuredFeatureRegistry);
-		this.structureOverriders = sortedFeatures.get(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).stream().map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
-		this.ores = sortedFeatures.get(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
+		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
+		this.ores = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 	}
 
 	public static void init() {

@@ -9,7 +9,7 @@
 			")",
 			"if (height <= 0: return(false))",
 			"boolean connect = false",
-			"if (getBlockState(originX, originY + height, originZ) == blockState('minecraft:pointed_dripstone[vertical_direction=down,thickness=tip,waterlogged=false]'):",
+			"if (getBlockState(originX, originY + height, originZ) == BlockState('minecraft:pointed_dripstone[vertical_direction=down,thickness=tip,waterlogged=false]'):",
 				"connect = true",
 			")",
 			"for (int offsetY = 0, offsetY < height, ++offsetY:",

@@ -2,11 +2,11 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"--originY",
 			"boolean lavaAt(int x, int z:",
-				"return(getBlockState(x, originY, z).getBlock() == block('minecraft:lava'))",
+				"return(getBlockState(x, originY, z).getBlock() == Block('minecraft:lava'))",
 			")",
 
-			"--originY",
 			"if (random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ):",
 				"setBlockState(originX, originY, originZ, 'minecraft:magma_block')",
 				"repeat (20:",

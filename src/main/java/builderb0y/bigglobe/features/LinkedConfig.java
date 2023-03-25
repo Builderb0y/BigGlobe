@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.FeatureConfig;
+import net.minecraft.world.gen.feature.Feature;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator.SortedFeatures;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.features.DummyFeature.DummyConfig;
 import builderb0y.bigglobe.features.LinkedConfig.EntryConfig;
@@ -82,13 +80,13 @@ public class LinkedConfig<
 	> {
 
 		public final Class<T_LinkedConfig> linkedConfigClass;
-		public final Class<T_GroupConfig> groupConfigClass;
-		public final Class<T_EntryConfig> entryConfigClass;
+		public final Feature<T_GroupConfig> groupFeature;
+		public final Feature<T_EntryConfig> entryFeature;
 
-		public Factory(Class<T_LinkedConfig> aClass, Class<T_GroupConfig> groupConfigClass, Class<T_EntryConfig> entryConfigClass) {
+		public Factory(Class<T_LinkedConfig> aClass, Feature<T_GroupConfig> groupFeature, Feature<T_EntryConfig> entryFeature) {
 			this.linkedConfigClass = aClass;
-			this.groupConfigClass = groupConfigClass;
-			this.entryConfigClass = entryConfigClass;
+			this.groupFeature = groupFeature;
+			this.entryFeature = entryFeature;
 		}
 
 		public abstract T_LinkedConfig newConfig(Identifier name, T_GroupConfig groupConfig, List<T_Entry> entries);
@@ -98,23 +96,37 @@ public class LinkedConfig<
 			return (T_LinkedConfig[])(Array.newInstance(this.linkedConfigClass, length));
 		}
 
-		public T_LinkedConfig[] link(Registry<ConfiguredFeature<?, ?>> registry) {
+		public T_LinkedConfig[] link(SortedFeatures sortedFeatures) {
 			Map<Identifier, Mutable> map = new HashMap<>(8);
+			sortedFeatures.streamRegistryEntries(this.groupFeature).forEach(registryEntry -> {
+				T_GroupConfig groupConfig = registryEntry.value().config();
+				Identifier group = registryEntry.getKey().orElseThrow().getValue();
+				Mutable mutable = map.computeIfAbsent(group, $ -> new Mutable());
+				if (mutable.group == null) mutable.group = groupConfig;
+				else throw new IllegalStateException("Multiple flower groups with the same ID: " + group);
+
+			});
+			sortedFeatures.streamConfigs(this.entryFeature).forEach(entryConfig -> {
+				Mutable mutable = map.computeIfAbsent(entryConfig.group, $ -> new Mutable());
+				mutable.entries.addAll(entryConfig.entries.elements);
+			});
+			/*
 			for (Map.Entry<RegistryKey<ConfiguredFeature<?, ?>>, ConfiguredFeature<?, ?>> entry : registry.getEntrySet()) {
 				FeatureConfig config = entry.getValue().config();
-				if (this.groupConfigClass.isInstance(config)) {
-					T_GroupConfig groupConfig = this.groupConfigClass.cast(config);
+				if (this.groupFeature.isInstance(config)) {
+					T_GroupConfig groupConfig = this.groupFeature.cast(config);
 					Identifier group = entry.getKey().getValue();
 					Mutable mutable = map.computeIfAbsent(group, $ -> new Mutable());
 					if (mutable.group == null) mutable.group = groupConfig;
 					else throw new IllegalStateException("Multiple flower groups with the same ID: " + group);
 				}
-				else if (this.entryConfigClass.isInstance(config)) {
-					T_EntryConfig entryConfig = this.entryConfigClass.cast(config);
+				else if (this.entryFeature.isInstance(config)) {
+					T_EntryConfig entryConfig = this.entryFeature.cast(config);
 					Mutable mutable = map.computeIfAbsent(entryConfig.group, $ -> new Mutable());
 					mutable.entries.addAll(entryConfig.entries.elements);
 				}
 			}
+			*/
 
 			return (
 				map

@@ -5,7 +5,7 @@
 			"boolean flatBlackstoneAt(int x, int z:",
 				"return(",
 					"getBlockState(x, originY, z).isAir() &&",
-					"getBlockState(x, originY - 1, z) == blockState('minecraft:blackstone')",
+					"getBlockState(x, originY - 1, z) == BlockState('minecraft:blackstone')",
 				")",
 			")",
 
@@ -20,7 +20,7 @@
 					"flatBlackstoneAt(originX + 1, originZ) &&",
 					"flatBlackstoneAt(originX, originZ - 1) &&",
 					"flatBlackstoneAt(originX, originZ + 1) &&",
-					"getBlockState(originX, originY - 2, originZ) == blockState('minecraft:blackstone')",
+					"getBlockState(originX, originY - 2, originZ) == BlockState('minecraft:blackstone')",
 				":",
 					"placeMagma(originX - 1, originZ)",
 					"placeMagma(originX + 1, originZ)",

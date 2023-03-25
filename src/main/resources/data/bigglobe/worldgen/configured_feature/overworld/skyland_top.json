@@ -11,7 +11,7 @@
 			"perIsland.if(",
 				"success |= placeFeature(originX, originY, originZ, 'bigglobe:overworld/skyland_podzol')",
 				"random.if(1.0 / 128.0:",
-					"success |= placeFeature(originX, originY, originZ, configuredFeatureTag('bigglobe:overworld/skyland_trees').random(perIsland))",
+					"success |= placeFeature(originX, originY, originZ, ConfiguredFeatureTag('bigglobe:overworld/skyland_trees').random(perIsland))",
 				")",
 			")",
 			"success |= placeFeature(originX, originY, originZ, 'bigglobe:overworld/skyland_small_foliage')",

@@ -14,7 +14,7 @@
 						"random.if(chance:",
 							"random.if(chance:",
 								"random.if(chance:",
-									"blockState('minecraft:small_dripleaf[facing=north,half=lower,waterlogged=false]')",
+									"BlockState('minecraft:small_dripleaf[facing=north,half=lower,waterlogged=false]')",
 									".with('facing', random.switch('north', 'east', 'south', 'west'))",
 								")",
 								"else (",

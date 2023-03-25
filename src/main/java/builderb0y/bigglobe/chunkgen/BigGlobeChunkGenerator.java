@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
 import com.google.gson.JsonElement;
@@ -59,6 +60,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.decoders.DecodeContext;
@@ -77,7 +79,6 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
-import builderb0y.bigglobe.features.UseScriptTemplateFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -105,7 +106,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 
 	@EncodeInline
-	public final Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry;
+	public final SortedFeatures configuredFeatures;
 	public transient ColumnValue<?>[] displayedColumnValues;
 
 	public transient long seed;
@@ -115,48 +116,48 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	public BigGlobeChunkGenerator(
 		Registry<StructureSet> structureSetRegistry,
-		Registry<ConfiguredFeature<?, ?>> configuredFeatureRegistry,
+		SortedFeatures configuredFeatures,
 		Optional<RegistryEntryList<StructureSet>> structureOverrides,
 		BiomeSource biomeSource
 	) {
 		super(structureSetRegistry, structureOverrides, biomeSource);
-		this.configuredFeatureRegistry = configuredFeatureRegistry;
-		for (UseScriptTemplateFeature.Config config : SortedFeatures.extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.USE_SCRIPT_TEMPLATE)) {
+		this.configuredFeatures = configuredFeatures;
+		configuredFeatures.streamConfigs(BigGlobeFeatures.USE_SCRIPT_TEMPLATE).forEach(config -> {
 			try {
 				config.getCompiledScript();
 			}
 			catch (ScriptParsingException exception) {
 				throw new RuntimeException(exception.getLocalizedMessage(), exception);
 			}
-		}
+		});
 	}
 
+	@Wrapper
 	public static class SortedFeatures {
 
-		public final Map<Feature<?>, List<FeatureConfig>> map;
+		public final Registry<ConfiguredFeature<?, ?>> registry;
+		public final Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
 		public SortedFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
-			Map<Feature<?>, List<FeatureConfig>> map = new HashMap<>(Registry.FEATURE.size());
-			for (ConfiguredFeature<?, ?> configuredFeature : registry) {
-				map.computeIfAbsent(configuredFeature.feature(), $ -> new ArrayList<>(4)).add(configuredFeature.config());
-			}
+			this.registry = registry;
+			Map<Feature<? >, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(Registry.FEATURE.size());
+			registry.streamEntries().forEach(registryEntry -> {
+				map.computeIfAbsent(registryEntry.value().feature(), $ -> new ArrayList<>(4)).add(registryEntry);
+			});
 			this.map = map;
 		}
 
-		@SuppressWarnings("unchecked")
-		public <C extends FeatureConfig> List<C> get(Feature<C> feature) {
-			return (List<C>)(this.map.getOrDefault(feature, Collections.emptyList()));
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public <C extends FeatureConfig> Stream<RegistryEntry<ConfiguredFeature<C, Feature<C>>>> streamRegistryEntries(Feature<C> feature) {
+			return (Stream)(this.map.getOrDefault(feature, Collections.emptyList()).stream());
 		}
 
-		@SuppressWarnings("unchecked")
-		public static <C extends FeatureConfig> List<C> extractOneFeature(Registry<ConfiguredFeature<?, ?>> registry, Feature<C> feature) {
-			List<C> list = new ArrayList<>(8);
-			for (ConfiguredFeature<?, ?> configuredFeature : registry) {
-				if (configuredFeature.feature() == feature) {
-					list.add((C)(configuredFeature.config()));
-				}
-			}
-			return list;
+		public <C extends FeatureConfig> Stream<ConfiguredFeature<C, Feature<C>>> streamConfiguredFeatures(Feature<C> feature) {
+			return this.streamRegistryEntries(feature).map(RegistryEntry::value);
+		}
+
+		public <C extends FeatureConfig> Stream<C> streamConfigs(Feature<C> feature) {
+			return this.streamConfiguredFeatures(feature).map(ConfiguredFeature::config);
 		}
 	}
 

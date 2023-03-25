@@ -23,13 +23,6 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 
 		this
 		.addVariableRenamedInvoke(loadWorld, "worldSeed", method(ACC_PUBLIC | ACC_PURE, WorldWrapper.TYPE, "getSeed", TypeInfos.LONG))
-		.addFunction("block",                BlockWrapper           .CONSTANT_FACTORY)
-		.addFunction("blockState",           BlockStateWrapper      .CONSTANT_FACTORY)
-		.addFunction("blockTag",             BlockTagKey            .CONSTANT_FACTORY)
-		.addFunction("biome",                BiomeEntry             .CONSTANT_FACTORY)
-		.addFunction("biomeTag",             BiomeTagKey            .CONSTANT_FACTORY)
-		.addFunction("configuredFeature",    ConfiguredFeatureEntry .CONSTANT_FACTORY)
-		.addFunction("configuredFeatureTag", ConfiguredFeatureTagKey.CONSTANT_FACTORY)
 		.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "placeBlockState", "fillBlockState", "placeFeature", "getBiome", "isYLevelValid", "getBlockData", "setBlockData", "mergeBlockData")
 		.addType("Block",                BlockWrapper           .TYPE)
 		.addType("BlockTag",             BlockTagKey            .TYPE)

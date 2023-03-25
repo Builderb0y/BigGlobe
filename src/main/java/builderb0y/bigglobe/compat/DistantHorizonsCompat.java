@@ -16,11 +16,11 @@ public class DistantHorizonsCompat {
 			try {
 				Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment");
 				handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
-				BigGlobeMod.LOGGER.info("Distant horizon compatibility enabled.");
+				BigGlobeMod.LOGGER.debug("Distant horizon compatibility enabled.");
 				break got;
 			}
 			catch (Exception ignored) {
-				BigGlobeMod.LOGGER.info("Distant horizon compatibility disabled.");
+				BigGlobeMod.LOGGER.debug("Distant horizon compatibility disabled.");
 			}
 			handle = MethodHandles.constant(boolean.class, Boolean.FALSE);
 		}

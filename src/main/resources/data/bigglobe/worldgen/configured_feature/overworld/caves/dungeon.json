@@ -63,7 +63,7 @@
 					"getBlockState(originX + x, originY, originZ + z).isAir() &&",
 					"getBlockState(originX + x, floorY,  originZ + z).hasFullCubeCollision()",
 				":",
-					"setBlockState (originX + x, originY, originZ + z, blockState('chest[facing=north,type=single,waterlogged=false]').with('facing', direction))",
+					"setBlockState (originX + x, originY, originZ + z, BlockState('chest[facing=north,type=single,waterlogged=false]').with('facing', direction))",
 					"mergeBlockData(originX + x, originY, originZ + z, nbtCompound(",
 						"LootTable: 'minecraft:chests/simple_dungeon',",
 						"LootTableSeed: random.nextLong()",
