@@ -13,7 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
-import builderb0y.bigglobe.registration.BigGlobeGameRules;
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
 public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler {
 

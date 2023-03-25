@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.registration;
+package builderb0y.bigglobe.gamerules;
 
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;

@@ -10,6 +10,7 @@ import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -51,19 +52,19 @@ public record BiomeEntry(RegistryEntry<Biome> biome) {
 
 	@Override
 	public int hashCode() {
-		return this.biome.getKey().orElseThrow().hashCode();
+		return UnregisteredObjectException.getKey(this.biome).hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof BiomeEntry that &&
-			this.biome.getKey().orElseThrow().equals(that.biome.getKey().orElseThrow())
+			UnregisteredObjectException.getKey(this.biome).equals(UnregisteredObjectException.getKey(that.biome))
 		);
 	}
 
 	@Override
 	public String toString() {
-		return "Biome: { " + this.biome.getKey().orElseThrow().getValue() + " }";
+		return "Biome: { " + UnregisteredObjectException.getID(this.biome) + " }";
 	}
 }

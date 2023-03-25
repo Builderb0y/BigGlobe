@@ -4,7 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
@@ -18,9 +20,10 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.registration.BigGlobeBiomeTags;
 
 public class BigGlobeSpawnLocator {
+
+	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(Registry.BIOME_KEY, BigGlobeMod.modID("player_spawn_friendly"));
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
@@ -82,7 +85,7 @@ public class BigGlobeSpawnLocator {
 	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
 		RegistryEntry<Biome> biome = column.getSurfaceBiome();
 		if (
-			!biome.isIn(BigGlobeBiomeTags.PLAYER_SPAWN_FRIENDLY) ||
+			!biome.isIn(PLAYER_SPAWN_FRIENDLY) ||
 			column.getSurfaceFoliage() > 0.0D ||
 			column.getHilliness() > 0.5D
 		) {
@@ -98,7 +101,7 @@ public class BigGlobeSpawnLocator {
 			) {
 				column.setPos(spiral.floorX(), spiral.floorY());
 				biome = column.getSurfaceBiome();
-				if (!biome.isIn(BigGlobeBiomeTags.PLAYER_SPAWN_FRIENDLY)) {
+				if (!biome.isIn(PLAYER_SPAWN_FRIENDLY)) {
 					return false;
 				}
 				if (!haveForest && column.getSurfaceFoliage() > 0.0D) {

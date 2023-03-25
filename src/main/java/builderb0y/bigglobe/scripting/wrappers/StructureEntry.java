@@ -10,12 +10,20 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public record StructureEntry(RegistryEntry<Structure> entry) {
+public class StructureEntry {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureEntry.class, "of", String.class, StructureEntry.class);
+
+	public final RegistryEntry<Structure> entry;
+	public StructureTypeEntry type;
+
+	public StructureEntry(RegistryEntry<Structure> entry) {
+		this.entry = entry;
+	}
 
 	public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);
@@ -36,14 +44,17 @@ public record StructureEntry(RegistryEntry<Structure> entry) {
 	}
 
 	public StructureTypeEntry type() {
-		return new StructureTypeEntry(
-			Registry.STRUCTURE_TYPE.entryOf(
-				Registry.STRUCTURE_TYPE.getKey(
-					this.entry.value().getType()
+		if (this.type == null) {
+			this.type = new StructureTypeEntry(
+				Registry.STRUCTURE_TYPE.entryOf(
+					UnregisteredObjectException.getKey(
+						Registry.STRUCTURE_TYPE,
+						this.entry.value().getType()
+					)
 				)
-				.orElseThrow()
-			)
-		);
+			);
+		}
+		return this.type;
 	}
 
 	public String generationStep() {
@@ -54,17 +65,17 @@ public record StructureEntry(RegistryEntry<Structure> entry) {
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof StructureEntry that &&
-			this.entry.getKey().orElseThrow().equals(that.entry.getKey().orElseThrow())
+			UnregisteredObjectException.getKey(this.entry).equals(UnregisteredObjectException.getKey(that.entry))
 		);
 	}
 
 	@Override
 	public int hashCode() {
-		return this.entry.getKey().orElseThrow().hashCode();
+		return UnregisteredObjectException.getKey(this.entry).hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "Structure: { " + this.entry.getKey().orElseThrow().getValue() + " }";
+		return "Structure: { " + UnregisteredObjectException.getID(this.entry) + " }";
 	}
 }

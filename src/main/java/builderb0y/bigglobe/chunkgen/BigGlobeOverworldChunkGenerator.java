@@ -101,6 +101,7 @@ import builderb0y.bigglobe.structures.RawOverworldGenerationStructure;
 import builderb0y.bigglobe.structures.RawOverworldGenerationStructure.RawOverworldGenerationStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.util.SemiThreadLocal;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -797,7 +798,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.profiler.run("Raw structure generation", () -> {
 				RawOverworldGenerationStructurePiece.Context rawGenerationContext = null;
 				for (StructureStartWrapper start : structures.starts) {
-					if (start.structure().entry().value() instanceof RawOverworldGenerationStructure) {
+					if (start.structure().entry.value() instanceof RawOverworldGenerationStructure) {
 						for (StructurePiece piece : start.pieces()) {
 							if (piece instanceof RawOverworldGenerationStructurePiece raw) {
 								if (rawGenerationContext == null) {
@@ -1014,7 +1015,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 		@Override
 		public boolean canPossiblyGenerate(int chunkX, int chunkZ, RegistryEntry<Structure> structure) {
-			if (structure.getKey().orElseThrow() == StructureKeys.ANCIENT_CITY) {
+			if (UnregisteredObjectException.getKey(structure) == StructureKeys.ANCIENT_CITY) {
 				OverworldCavernSettings cavernSettings = BigGlobeOverworldChunkGenerator.this.settings.underground().deep_caverns();
 				if (cavernSettings != null) {
 					VoronoiDiagram2D placement = cavernSettings.placement();

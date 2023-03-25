@@ -17,6 +17,7 @@ import builderb0y.bigglobe.features.LinkedConfig.EntryConfig;
 import builderb0y.bigglobe.features.LinkedConfig.GroupConfig;
 import builderb0y.bigglobe.randomLists.IRestrictedListElement;
 import builderb0y.bigglobe.settings.VariationsList;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class LinkedConfig<
 	T_GroupConfig extends GroupConfig,
@@ -100,7 +101,7 @@ public class LinkedConfig<
 			Map<Identifier, Mutable> map = new HashMap<>(8);
 			sortedFeatures.streamRegistryEntries(this.groupFeature).forEach(registryEntry -> {
 				T_GroupConfig groupConfig = registryEntry.value().config();
-				Identifier group = registryEntry.getKey().orElseThrow().getValue();
+				Identifier group = UnregisteredObjectException.getID(registryEntry);
 				Mutable mutable = map.computeIfAbsent(group, $ -> new Mutable());
 				if (mutable.group == null) mutable.group = groupConfig;
 				else throw new IllegalStateException("Multiple flower groups with the same ID: " + group);
@@ -110,23 +111,6 @@ public class LinkedConfig<
 				Mutable mutable = map.computeIfAbsent(entryConfig.group, $ -> new Mutable());
 				mutable.entries.addAll(entryConfig.entries.elements);
 			});
-			/*
-			for (Map.Entry<RegistryKey<ConfiguredFeature<?, ?>>, ConfiguredFeature<?, ?>> entry : registry.getEntrySet()) {
-				FeatureConfig config = entry.getValue().config();
-				if (this.groupFeature.isInstance(config)) {
-					T_GroupConfig groupConfig = this.groupFeature.cast(config);
-					Identifier group = entry.getKey().getValue();
-					Mutable mutable = map.computeIfAbsent(group, $ -> new Mutable());
-					if (mutable.group == null) mutable.group = groupConfig;
-					else throw new IllegalStateException("Multiple flower groups with the same ID: " + group);
-				}
-				else if (this.entryFeature.isInstance(config)) {
-					T_EntryConfig entryConfig = this.entryFeature.cast(config);
-					Mutable mutable = map.computeIfAbsent(entryConfig.group, $ -> new Mutable());
-					mutable.entries.addAll(entryConfig.entries.elements);
-				}
-			}
-			*/
 
 			return (
 				map

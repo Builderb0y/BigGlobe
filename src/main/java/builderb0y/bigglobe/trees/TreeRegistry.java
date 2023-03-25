@@ -38,7 +38,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.registration.UnregisteredObjectException;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class TreeRegistry {
 

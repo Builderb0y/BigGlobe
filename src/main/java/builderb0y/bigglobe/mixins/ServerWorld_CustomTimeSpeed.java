@@ -17,7 +17,7 @@ import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
-import builderb0y.bigglobe.registration.BigGlobeGameRules;
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
 @Mixin(ServerWorld.class)
 public abstract class ServerWorld_CustomTimeSpeed extends World {

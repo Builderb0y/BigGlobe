@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.chunkgen;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -10,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -68,6 +72,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.decoders.RecordDecoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -84,7 +89,7 @@ import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.registration.BigGlobeBuiltinRegistries;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -166,21 +171,51 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		return this.structureSetRegistry;
 	}
 
-	public static <G extends BigGlobeChunkGenerator> AutoCoder<G> createCoder(FactoryContext<G> context, String preset, String dimensionName) {
-		AutoCoder<G> coder = (AutoCoder<G>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
+	public static <T_Generator extends BigGlobeChunkGenerator> AutoCoder<T_Generator> createCoder(FactoryContext<T_Generator> context, String preset, String dimensionName) {
+		AutoCoder<T_Generator> coder = (AutoCoder<T_Generator>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
 		if (!RELOAD_GENERATORS) return coder;
-		return new AutoCoder<>() {
+		return new AutoCoder<T_Generator>() {
 
 			@Override
-			public <T_Encoded> @Nullable G decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				JsonElement json = BigGlobeBuiltinRegistries.getDimension(preset, dimensionName);
+			public <T_Encoded> @Nullable T_Generator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				JsonElement json = this.getDimension(preset, dimensionName);
 				T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
 				return context.autoCodec.decode(coder, encoded, context.ops);
 			}
 
 			@Override
-			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, G> context) throws EncodeException {
+			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T_Generator> context) throws EncodeException {
 				return context.encodeWith(coder);
+			}
+
+			public JsonElement getDimension(String preset, String dimension) {
+				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
+				return (
+					this
+					.getJson("/data/bigglobe/worldgen/world_preset/" + preset + ".json")
+					.getAsJsonObject()
+					.getAsJsonObject("dimensions")
+					.getAsJsonObject("minecraft:" + dimension)
+					.getAsJsonObject("generator")
+					.getAsJsonObject("value")
+				);
+			}
+
+			public JsonElement getJson(String path) {
+				try (
+					Reader reader = new InputStreamReader(
+						Objects.requireNonNull(
+							BigGlobeMod.class.getResourceAsStream(path),
+							path
+						),
+						StandardCharsets.UTF_8
+					)
+				) {
+					return JsonParser.parseReader(reader);
+				}
+				catch (Exception exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
 			}
 		};
 	}
@@ -480,7 +515,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 						Permuter.permute(
 							this.seed ^ 0xD59E69D9AB0D41BAL,
 							//String.hashCode() will be cached, which means faster permutation times.
-							weightedEntry.structure().getKey().orElseThrow().getValue().hashCode()
+							UnregisteredObjectException.getID(weightedEntry.structure()).hashCode()
 						),
 						chunk.getPos()
 					)
@@ -527,7 +562,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 			//the same StructureStart should use the same seed for every chunk that it intersects with.
 			//this fixes shipwrecks spawning at different heights or with
 			//different wood types when they spawn intersecting a chunk border.
-			long seed = Permuter.permute(world.getSeed() ^ 0x5E4FE744EECE1D5BL, structure.getKey().orElseThrow().getValue());
+			long seed = Permuter.permute(world.getSeed() ^ 0x5E4FE744EECE1D5BL, UnregisteredObjectException.getID(structure));
 			this.generateStructure(world, chunk, structureAccessor, seed, structure.value());
 		}
 	}

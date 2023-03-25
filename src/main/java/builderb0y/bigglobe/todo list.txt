@@ -42,7 +42,6 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
-	throw compile-time exception when comparing objects of incompatible types.
 
 features:
 	general:

@@ -15,6 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.LakeStructure;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 
@@ -43,10 +44,10 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 			.stream()
 			.map(start -> StructureStartWrapper.of(
 				structureRegistry.entryOf(
-					structureRegistry.getKey(
+					UnregisteredObjectException.getKey(
+						structureRegistry,
 						start.getStructure()
 					)
-					.orElseThrow()
 				),
 				start
 			))
@@ -66,7 +67,7 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 
 	public LakeStructure.Piece findLake() {
 		for (StructureStartWrapper start : this.starts) {
-			if (start.structure().entry().value() instanceof LakeStructure) {
+			if (start.structure().entry.value() instanceof LakeStructure) {
 				return ((LakeStructure.Piece)(start.pieces().get(0)));
 			}
 		}

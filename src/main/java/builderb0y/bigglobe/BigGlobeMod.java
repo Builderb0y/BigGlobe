@@ -40,8 +40,7 @@ import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
-import builderb0y.bigglobe.registration.BigGlobeBuiltinRegistries;
-import builderb0y.bigglobe.registration.BigGlobeGameRules;
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 
 public class BigGlobeMod implements ModInitializer {
@@ -78,7 +77,6 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
 		BigGlobeNetherChunkGenerator.init();
-		BigGlobeBuiltinRegistries.init();
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();

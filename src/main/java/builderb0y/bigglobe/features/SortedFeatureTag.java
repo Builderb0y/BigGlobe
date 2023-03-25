@@ -13,6 +13,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @Wrapper
 public class SortedFeatureTag {
@@ -30,7 +31,7 @@ public class SortedFeatureTag {
 		if (this.sortedFeatures == null) {
 			this.sortedFeatures = registries.get(this.key.registry()).getEntryList(this.key).map(list -> {
 				return list.stream().sorted(Comparator.comparing(
-					(RegistryEntry<ConfiguredFeature<?, ?>> entry) -> entry.getKey().orElseThrow().getValue(),
+					UnregisteredObjectException::getID,
 					Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)
 				))
 				.map(RegistryEntry::value)
