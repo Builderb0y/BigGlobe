@@ -6,6 +6,7 @@ import net.minecraft.world.gen.feature.Feature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.FlowerGroupFeature;
+import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
 import builderb0y.bigglobe.features.overriders.*;
 import builderb0y.bigglobe.features.rockLayers.RockLayerEntryFeature;
@@ -21,6 +22,7 @@ public class BigGlobeFeatures {
 	public static final ArtificialTreeFeature       ARTIFICIAL_TREE               = register("artificial_tree",               new       ArtificialTreeFeature());
 	public static final BushFeature                 BUSH                          = register("bush",                          new                 BushFeature());
 	public static final OverworldOreFeature         OVERWORLD_ORE                 = register("overworld_ore",                 new         OverworldOreFeature());
+	public static final NetherOreFeature            NETHER_ORE                    = register("nether_ore",                    new            NetherOreFeature());
 	public static final FlowerGroupFeature          FLOWER_GROUP                  = register("overworld_flower_group",        new          FlowerGroupFeature());
 	public static final FlowerEntryFeature          FLOWER_ENTRY                  = register("overworld_flower_entry",        new          FlowerEntryFeature());
 	public static final RockLayerGroupFeature       ROCK_LAYER_GROUP              = register("overworld_rock_layer_group",    new       RockLayerGroupFeature());

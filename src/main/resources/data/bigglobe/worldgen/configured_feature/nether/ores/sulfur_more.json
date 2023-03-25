@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:nether_ore",
+	"config": {
+		"chance": "0.5",
+		"radius": { "type": "bigglobe:average", "min": 3.0, "max": 12.0, "average": 4.0 },
+		"place": "bigglobe:sulfur_ore",
+		"replace": "minecraft:netherrack",
+		"biomes": "bigglobe:nether_ores/sulfur_more"
+	}
+}

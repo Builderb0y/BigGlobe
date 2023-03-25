@@ -121,7 +121,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	) {
 		super(structureSetRegistry, structureOverrides, biomeSource);
 		this.configuredFeatureRegistry = configuredFeatureRegistry;
-		for (UseScriptTemplateFeature.Config config : extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.USE_SCRIPT_TEMPLATE)) {
+		for (UseScriptTemplateFeature.Config config : SortedFeatures.extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.USE_SCRIPT_TEMPLATE)) {
 			try {
 				config.getCompiledScript();
 			}
@@ -131,23 +131,33 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		}
 	}
 
-	public static Map<Feature<?>, List<FeatureConfig>> sortFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
-		Map<Feature<?>, List<FeatureConfig>> map = new HashMap<>(Registry.FEATURE.size());
-		for (ConfiguredFeature<?, ?> configuredFeature : registry) {
-			map.computeIfAbsent(configuredFeature.feature(), $ -> new ArrayList<>(4)).add(configuredFeature.config());
-		}
-		return map;
-	}
+	public static class SortedFeatures {
 
-	@SuppressWarnings("unchecked")
-	public static <C extends FeatureConfig> List<C> extractOneFeature(Registry<ConfiguredFeature<?, ?>> registry, Feature<C> feature) {
-		List<C> list = new ArrayList<>(8);
-		for (ConfiguredFeature<?, ?> configuredFeature : registry) {
-			if (configuredFeature.feature() == feature) {
-				list.add((C)(configuredFeature.config()));
+		public final Map<Feature<?>, List<FeatureConfig>> map;
+
+		public SortedFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
+			Map<Feature<?>, List<FeatureConfig>> map = new HashMap<>(Registry.FEATURE.size());
+			for (ConfiguredFeature<?, ?> configuredFeature : registry) {
+				map.computeIfAbsent(configuredFeature.feature(), $ -> new ArrayList<>(4)).add(configuredFeature.config());
 			}
+			this.map = map;
 		}
-		return list;
+
+		@SuppressWarnings("unchecked")
+		public <C extends FeatureConfig> List<C> get(Feature<C> feature) {
+			return (List<C>)(this.map.getOrDefault(feature, Collections.emptyList()));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <C extends FeatureConfig> List<C> extractOneFeature(Registry<ConfiguredFeature<?, ?>> registry, Feature<C> feature) {
+			List<C> list = new ArrayList<>(8);
+			for (ConfiguredFeature<?, ?> configuredFeature : registry) {
+				if (configuredFeature.feature() == feature) {
+					list.add((C)(configuredFeature.config()));
+				}
+			}
+			return list;
+		}
 	}
 
 	@EncodeInline

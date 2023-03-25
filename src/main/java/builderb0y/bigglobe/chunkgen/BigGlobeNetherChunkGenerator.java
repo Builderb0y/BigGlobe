@@ -38,14 +38,15 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.PositionCache.NetherPositionCache;
 import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
+import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
+import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
@@ -72,6 +73,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public transient SemiThreadLocal<ChunkOfColumns<NetherColumn>> chunkColumnCache;
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
+	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
 		NetherSettings settings,
@@ -87,7 +89,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			)
 		);
 		this.settings = settings;
-		this.structureOverriders = extractOneFeature(configuredFeatureRegistry, BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).stream().map(c -> c.script).toArray(ScriptStructureOverrider.Holder[]::new);
+		SortedFeatures sortedFeatures = new SortedFeatures(configuredFeatureRegistry);
+		this.structureOverriders = sortedFeatures.get(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).stream().map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
+		this.ores = sortedFeatures.get(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 	}
 
 	public static void init() {
@@ -111,69 +115,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		return new NetherColumn(this.settings, this.seed, x, z);
 	}
 
-	public void runCaveOverriders(NetherColumn column) {
-		LocalNetherSettings settings = column.getLocalCell().settings;
-		int minY = this.settings.min_y();
-		int maxY = this.settings.max_y();
-		int effectiveMinY = minY + LOWER_BEDROCK_AMOUNT;
-		int effectiveMaxY = maxY - UPPER_BEDROCK_AMOUNT;
-		Integer lowerPadding = settings.caves().lower_padding();
-		int actualLowerPadding = minY + (lowerPadding != null ? lowerPadding : column.getLocalCell().lavaLevel);
-		double[] caveNoise = column.getCaveNoise();
-		ColumnYToDoubleScript.Holder widthScript = settings.caves().width();
-		for (int y = minY; y < actualLowerPadding; y++) {
-			caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(column, y) * Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
-		}
-		double topWidth = widthScript.evaluate(column, effectiveMaxY);
-		int actualUpperPadding = BigGlobeMath.ceilI(effectiveMaxY - topWidth);
-		for (int y = actualUpperPadding; y < maxY; y++) {
-			caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(column, y) * Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
-		}
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
-		double edginess = column.getEdginess() * distanceBetweenBiomes;
-		for (int y = minY; y < maxY; y++) {
-			double width = widthScript.evaluate(column, y);
-			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - width, distanceBetweenBiomes, edginess);
-			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
-			//this results in very thin borders between cells.
-			//occasionally, you can even see gaps between cells when the noise lines up just right.
-			//solution: make the exclusion start farther back. that's what the + 0.75D is for.
-			//problem #2: the width alone is not large enough to produce nice walls.
-			//the walls are a bit too flat.
-			//solution #2: make the exclusion have a more gradual slope to it.
-			//that's what the * 0.5D is for.
-			sidePadding = sidePadding * 0.5D + 0.75D;
-			if (sidePadding > 0.0D) {
-				caveNoise[y - minY] += BigGlobeMath.squareD(width * sidePadding);
-			}
-		}
-	}
-
-	public void runCavernOverriders(NetherColumn column) {
-		LocalNetherSettings settings = column.getLocalCell().settings;
-		int minY = settings.caverns().min_y();
-		int maxY = settings.caverns().max_y();
-		int lowerPaddingMaxY = minY + settings.caverns().lower_padding();
-		int upperPaddingMinY = maxY - settings.caverns().upper_padding();
-		double[] noise = column.getCavernNoise();
-		double maxNoise = -settings.caverns().noise().minValue();
-		for (int y = minY; y <= lowerPaddingMaxY; y++) {
-			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(lowerPaddingMaxY), (double)(minY), (double)(y)));
-		}
-		for (int y = maxY; --y >= upperPaddingMinY;) {
-			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
-		}
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
-		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().side_padding(), distanceBetweenBiomes, column.getEdginess() * distanceBetweenBiomes);
-		if (sidePadding > 0.0D) {
-			sidePadding = sidePadding * sidePadding * maxNoise;
-			for (int y = minY; y < maxY; y++) {
-				noise[y - minY] += sidePadding;
-			}
-		}
-	}
-
-	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, StructureAccessor structures) {
+	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, StructureAccessor structures, boolean distantHorizons) {
 		this.generateSectionsParallel(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
 			BlockState previousFiller = null;
 			BlockState previousFluid  = null;
@@ -226,6 +168,15 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		});
+		if (!distantHorizons) {
+			//todo: early rock layers
+			this.profiler.run("ores", () -> {
+				this.generateSectionsParallelSimple(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
+					OreReplacer.generate(context, columns, this.ores);
+				});
+			});
+			//todo: late rock layers
+		}
 	}
 
 	public void generateSurface(Chunk chunk, ChunkOfColumns<NetherColumn> columns) {
@@ -237,7 +188,6 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			pos.setX(horizontalIndex & 15).setZ(horizontalIndex >>> 4);
 			NetherColumn column = columns.getColumn(horizontalIndex);
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
-			BlockState expect = localSettings.filler();
 			this.generateSurface(
 				chunk,
 				column,
@@ -246,8 +196,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				columnSeed,
 				localSettings.caverns().floor_surface(),
 				-1,
-				column.cavernFloors,
-				expect
+				column.cavernFloors
 			);
 			this.generateSurface(
 				chunk,
@@ -257,8 +206,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				columnSeed,
 				localSettings.caverns().ceiling_surface(),
 				1,
-				column.cavernCeilings,
-				expect
+				column.cavernCeilings
 			);
 			this.generateSurface(
 				chunk,
@@ -268,8 +216,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				columnSeed,
 				localSettings.caves().floor_surface(),
 				-1,
-				column.caveFloors,
-				expect
+				column.caveFloors
 			);
 			this.generateSurface(
 				chunk,
@@ -279,8 +226,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				columnSeed,
 				localSettings.caves().ceiling_surface(),
 				1,
-				column.caveCeilings,
-				expect
+				column.caveCeilings
 			);
 		}
 	}
@@ -293,8 +239,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		long columnSeed,
 		NetherSurfaceSettings surface,
 		int delta,
-		IntList yLevels,
-		BlockState expect
+		IntList yLevels
 	) {
 		if (surface == null) return;
 		Holder depthScript = surface.depth();
@@ -306,12 +251,12 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			for (int i = 0; i < depth; i++) {
 				pos.setY(y + i * delta);
 				BlockState existingState = chunk.getBlockState(pos);
-				if (existingState == expect) {
+				if (existingState.isAir()) {
+					top = true;
+				}
+				else {
 					chunk.setBlockState(pos, top ? surface.top_state() : surface.under_state(), false);
 					top = false;
-				}
-				else if (existingState.isAir()) {
-					top = true;
 				}
 			}
 		}
@@ -327,9 +272,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					column.getLocalCell();
 					column.getEdginess();
 					column.getCaveNoise();
-					this.runCaveOverriders(column);
 					column.getCavernNoise();
-					this.runCavernOverriders(column);
 					column.populateCaveAndCavernFloors();
 				});
 			});
@@ -337,7 +280,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				holder.bigglobe_setPositionCache(new NetherPositionCache(columns));
 			}
 			this.profiler.run("set raw terrain blocks", () -> {
-				this.generateRawSections(chunk, columns, structureAccessor);
+				this.generateRawSections(chunk, columns, structureAccessor, distantHorizons);
 			});
 			this.profiler.run("Bedrock", () -> {
 				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y()     )), this.seed, columns)));
@@ -390,9 +333,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 						column.getEdginess();
 						if (cache == null) {
 							column.getCaveNoise();
-							this.runCaveOverriders(column);
 							column.getCavernNoise();
-							this.runCavernOverriders(column);
 							column.populateCaveAndCavernFloors();
 						}
 					});

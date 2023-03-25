@@ -1,12 +1,12 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
 
@@ -162,8 +162,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		);
 		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatureRegistry);
 		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatureRegistry);
-		Map<Feature<?>, List<FeatureConfig>> sortedFeatures = sortFeatures(configuredFeatureRegistry);
-		this.         oreConfigs = sortedFeatures.getOrDefault(BigGlobeFeatures.OVERWORLD_ORE, Collections.emptyList()).toArray(new OverworldOreFeature.Config[0]);
+		SortedFeatures sortedFeatures = new SortedFeatures(configuredFeatureRegistry);
+		this.         oreConfigs = sortedFeatures.get(BigGlobeFeatures.OVERWORLD_ORE).toArray(new OverworldOreFeature.Config[0]);
 		this.   heightOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
 		this.  foliageOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER, config -> config.script, OverworldFoliageOverrider.Holder[]::new);
 		this.     caveOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.     OVERWORLD_CAVE_OVERRIDER, config -> config.script,    OverworldCaveOverrider.Holder[]::new);
@@ -171,21 +171,16 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.structureOverriders = filterFeatures(sortedFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER, config -> config.script,  ScriptStructureOverrider.Holder[]::new);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <C extends FeatureConfig, H extends ScriptHolder<?>> H[] filterFeatures(
-		Map<Feature<?>, List<FeatureConfig>> map,
+		SortedFeatures sortedFeatures,
 		Feature<C> feature,
 		Function<C, H> getter,
 		IntFunction<H[]> arrayFactory
 	) {
 		return (
-			(
-				(Stream<C>)(
-					map
-					.getOrDefault(feature, Collections.emptyList())
-					.stream()
-				)
-			)
+			sortedFeatures
+			.get(feature)
+			.stream()
 			.map(getter)
 			.toArray(arrayFactory)
 		);
@@ -400,7 +395,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.generateRockLayers(chunk, minHeight, maxSurface, columns, true);
 			this.profiler.run("ores", () -> {
 				this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, context -> {
-					OreReplacer.generate(context, columns, this.settings, this.oreConfigs);
+					OreReplacer.generate(context, columns, this.oreConfigs);
 				});
 			});
 			this.generateRockLayers(chunk, minHeight, maxSurface, columns, false);

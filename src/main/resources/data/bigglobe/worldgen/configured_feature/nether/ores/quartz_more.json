@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:nether_ore",
+	"config": {
+		"chance": "0.25",
+		"radius": { "type": "bigglobe:average", "min": 2.5, "max": 8.0, "average": 3.5 },
+		"place": "minecraft:nether_quartz_ore",
+		"replace": "minecraft:netherrack",
+		"biomes": "bigglobe:nether_ores/quartz_more"
+	}
+}

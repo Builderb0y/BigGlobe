@@ -78,7 +78,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 								double crackedChance = this.cracked_chance.get(permuter);
 								pieces.add(new MainBuildingPiece(BigGlobeStructures.PORTAL_TEMPLE_MAIN_BUILDING, x, y_,      z, crackedChance, permuter));
 								pieces.add(new       PortalPiece(BigGlobeStructures.PORTAL_TEMPLE_PORTAL,        x, y_ + 10, z,                permuter));
-								for (int decorationAttempt = 0; decorationAttempt < 4;) {
+								for (int failure = 0; failure < 4;) {
 									DecorationPiece piece = switch (permuter.nextInt() & 3) {
 										case 0 -> new    WellPiece(BigGlobeStructures.PORTAL_TEMPLE_WELL,    x, y_, z, permuter);
 										case 1 -> new    FarmPiece(BigGlobeStructures.PORTAL_TEMPLE_FARM,    x, y_, z, permuter);
@@ -86,7 +86,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 										case 3 -> new FurnacePiece(BigGlobeStructures.PORTAL_TEMPLE_FURNACE, x, y_, z, permuter);
 										default -> throw new AssertionError();
 									};
-									if (!addDecoration(pieces, piece)) decorationAttempt++;
+									//allow up to 4 failures.
+									if (!addDecoration(pieces, piece)) failure++;
 								}
 								addDecoration(pieces, new SpawnerPiece(BigGlobeStructures.PORTAL_TEMPLE_SPAWNER, x, y_, z, permuter));
 								for (StructurePiece piece : pieces) collector.addPiece(piece);

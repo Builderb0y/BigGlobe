@@ -8,7 +8,6 @@ import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> {
 
@@ -25,8 +24,7 @@ public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> 
 			BlockState deepslate_state,
 			ColumnYToDoubleScript.Holder chance,
 			RandomSource radius
-		)
-		throws ScriptParsingException {
+		) {
 			super(chance, radius);
 			this.stone_state = stone_state;
 			this.deepslate_state = deepslate_state;
@@ -49,7 +47,7 @@ public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> 
 			return new TwoBlockReplacer(stoneID, deepslateID, stoneOreID, deepslateOreID);
 		}
 
-		public static final class TwoBlockReplacer implements PaletteIdReplacer {
+		public static class TwoBlockReplacer implements PaletteIdReplacer {
 
 			public int from1, from2, to1, to2;
 

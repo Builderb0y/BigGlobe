@@ -2,6 +2,7 @@ package builderb0y.bigglobe;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.Lifecycle;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.entity.EntityType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -36,6 +38,7 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
+import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.registration.BigGlobeBuiltinRegistries;
 import builderb0y.bigglobe.registration.BigGlobeGameRules;
@@ -80,6 +83,8 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
 		BigGlobeNetwork.init();
+		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
+		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STOPPED .register(server -> currentServer = null  );
 		if (REGEN_WORLDS) {

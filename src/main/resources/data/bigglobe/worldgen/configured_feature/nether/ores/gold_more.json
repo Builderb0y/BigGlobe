@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:nether_ore",
+	"config": {
+		"chance": "0.25",
+		"radius": { "type": "bigglobe:average", "min": 2.0, "max": 6.0, "average": 3.0 },
+		"place": "minecraft:nether_gold_ore",
+		"replace": "minecraft:netherrack",
+		"biomes": "bigglobe:nether_ores/gold_more"
+	}
+}

@@ -6,8 +6,10 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
+import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
@@ -127,15 +129,16 @@ public class NetherColumn extends WorldColumn {
 	}
 
 	public double getCaveNoise(int y, boolean cache) {
-		double[] noise = cache ? this.computeCaveNoise() : this.caveNoise;
-		if (noise != null) {
+		double[] array = cache ? this.computeCaveNoise() : this.caveNoise;
+		if (array != null) {
 			int index = y - this.settings.min_y();
-			if (index >= 0 && index < noise.length) {
-				return noise[index];
+			if (index >= 0 && index < array.length) {
+				return array[index];
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		return cell.settings.caves().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z);
+		double noise = cell.settings.caves().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z);
+		return this.runCaveOverriders(noise, y);
 	}
 
 	public double getCaveNoise(double y) {
@@ -165,7 +168,83 @@ public class NetherColumn extends WorldColumn {
 			noise,
 			range
 		);
+		this.runCaveOverriders(noise);
 		return noise;
+	}
+
+	public double runCaveOverriders(double caveNoise, int y) {
+		LocalNetherSettings settings = this.getLocalCell().settings;
+		int minY = this.settings.min_y();
+		int maxY = this.settings.max_y();
+		int effectiveMinY = minY + BigGlobeNetherChunkGenerator.LOWER_BEDROCK_AMOUNT;
+		int effectiveMaxY = maxY - BigGlobeNetherChunkGenerator.UPPER_BEDROCK_AMOUNT;
+		Integer lowerPadding = settings.caves().lower_padding();
+		int actualLowerPadding = minY + (lowerPadding != null ? lowerPadding.intValue() : this.getLocalCell().lavaLevel);
+		ColumnYToDoubleScript.Holder widthScript = settings.caves().width();
+		double topWidth = widthScript.evaluate(this, effectiveMaxY);
+		int actualUpperPadding = BigGlobeMath.ceilI(effectiveMaxY - topWidth);
+		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		double edginess = this.getEdginess() * distanceBetweenBiomes;
+		{
+			double width = widthScript.evaluate(this, y);
+			if (y < actualLowerPadding) {
+				caveNoise += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
+			}
+			if (y >= actualUpperPadding) {
+				caveNoise += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
+			}
+			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - width, distanceBetweenBiomes, edginess);
+			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
+			//this results in very thin borders between cells.
+			//occasionally, you can even see gaps between cells when the noise lines up just right.
+			//solution: make the exclusion start farther back. that's what the + 0.75D is for.
+			//problem #2: the width alone is not large enough to produce nice walls.
+			//the walls are a bit too flat.
+			//solution #2: make the exclusion have a more gradual slope to it.
+			//that's what the * 0.5D is for.
+			sidePadding = sidePadding * 0.5D + 0.75D;
+			if (sidePadding > 0.0D) {
+				caveNoise += BigGlobeMath.squareD(width * sidePadding);
+			}
+		}
+		return caveNoise;
+	}
+
+	public void runCaveOverriders(double[] caveNoise) {
+		LocalNetherSettings settings = this.getLocalCell().settings;
+		int minY = this.settings.min_y();
+		int maxY = this.settings.max_y();
+		int effectiveMinY = minY + BigGlobeNetherChunkGenerator.LOWER_BEDROCK_AMOUNT;
+		int effectiveMaxY = maxY - BigGlobeNetherChunkGenerator.UPPER_BEDROCK_AMOUNT;
+		Integer lowerPadding = settings.caves().lower_padding();
+		int actualLowerPadding = minY + (lowerPadding != null ? lowerPadding.intValue() : this.getLocalCell().lavaLevel);
+		ColumnYToDoubleScript.Holder widthScript = settings.caves().width();
+		double topWidth = widthScript.evaluate(this, effectiveMaxY);
+		int actualUpperPadding = BigGlobeMath.ceilI(effectiveMaxY - topWidth);
+		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		double edginess = this.getEdginess() * distanceBetweenBiomes;
+		for (int y = minY; y < maxY; y++) {
+			double width = widthScript.evaluate(this, y);
+			if (y < actualLowerPadding) {
+				caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
+			}
+			if (y >= actualUpperPadding) {
+				caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
+			}
+			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - width, distanceBetweenBiomes, edginess);
+			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
+			//this results in very thin borders between cells.
+			//occasionally, you can even see gaps between cells when the noise lines up just right.
+			//solution: make the exclusion start farther back. that's what the + 0.75D is for.
+			//problem #2: the width alone is not large enough to produce nice walls.
+			//the walls are a bit too flat.
+			//solution #2: make the exclusion have a more gradual slope to it.
+			//that's what the * 0.5D is for.
+			sidePadding = sidePadding * 0.5D + 0.75D;
+			if (sidePadding > 0.0D) {
+				caveNoise[y - minY] += BigGlobeMath.squareD(width * sidePadding);
+			}
+		}
 	}
 
 	public double[] getCavernNoise() {
@@ -177,15 +256,16 @@ public class NetherColumn extends WorldColumn {
 	}
 
 	public double getCavernNoise(int y, boolean cache) {
-		double[] noise = cache ? this.getCavernNoise() : this.cavernNoise;
-		if (noise != null) {
+		double[] array = cache ? this.getCavernNoise() : this.cavernNoise;
+		if (array != null) {
 			int index = y - this.getLocalCell().settings.caverns().min_y();
-			if (index >= 0 && index < noise.length) {
-				return noise[index];
+			if (index >= 0 && index < array.length) {
+				return array[index];
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		return cell.settings.caverns().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z);
+		double noise = cell.settings.caverns().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z);
+		return this.runCavernOverriders(noise, y);
 	}
 
 	public double getCavernNoise(double y) {
@@ -207,7 +287,55 @@ public class NetherColumn extends WorldColumn {
 			noise,
 			range
 		);
+		this.runCavernOverriders(noise);
 		return noise;
+	}
+
+	public double runCavernOverriders(double noise, int y) {
+		LocalNetherSettings settings = this.getLocalCell().settings;
+		int minY = settings.caverns().min_y();
+		int maxY = settings.caverns().max_y();
+		int lowerPaddingMaxY = minY + settings.caverns().lower_padding();
+		int upperPaddingMinY = maxY - settings.caverns().upper_padding();
+		double maxNoise = -settings.caverns().noise().minValue();
+		if (y >= minY && y <= lowerPaddingMaxY) {
+			noise += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(lowerPaddingMaxY), (double)(minY), (double)(y)));
+		}
+		if (y >= upperPaddingMinY && y < maxY) {
+			noise += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
+		}
+		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().side_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
+		if (sidePadding > 0.0D) {
+			sidePadding = sidePadding * sidePadding * maxNoise;
+			{
+				noise += sidePadding;
+			}
+		}
+		return noise;
+	}
+
+	public void runCavernOverriders(double[] noise) {
+		LocalNetherSettings settings = this.getLocalCell().settings;
+		int minY = settings.caverns().min_y();
+		int maxY = settings.caverns().max_y();
+		int lowerPaddingMaxY = minY + settings.caverns().lower_padding();
+		int upperPaddingMinY = maxY - settings.caverns().upper_padding();
+		double maxNoise = -settings.caverns().noise().minValue();
+		for (int y = minY; y <= lowerPaddingMaxY; y++) {
+			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(lowerPaddingMaxY), (double)(minY), (double)(y)));
+		}
+		for (int y = maxY; --y >= upperPaddingMinY;) {
+			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
+		}
+		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().side_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
+		if (sidePadding > 0.0D) {
+			sidePadding = sidePadding * sidePadding * maxNoise;
+			for (int y = minY; y < maxY; y++) {
+				noise[y - minY] += sidePadding;
+			}
+		}
 	}
 
 	public LocalCell getLocalCell() {
@@ -255,6 +383,11 @@ public class NetherColumn extends WorldColumn {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
+		return this.getLocalCell().settings.biome();
+	}
+
+	@Override
+	public RegistryEntry<Biome> getSurfaceBiome() {
 		return this.getLocalCell().settings.biome();
 	}
 

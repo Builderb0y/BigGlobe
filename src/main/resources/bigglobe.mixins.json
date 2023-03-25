@@ -33,6 +33,7 @@
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
 		"SingularPalette_EntryAccess",
 		"SpawnHelper_AllowSlimeSpawningInLakes",
+		"SpawnRestriction_BackingMapAccess",
 		"StairsBlock_MirrorProperly",
 		"StructurePiece_DirectRotationSetter",
 		"StructureStart_BoundingBoxSetter",

@@ -100,9 +100,6 @@ features:
 		make lilypads renewable?
 	nether:
 		ores.
-			nether quartz.
-			sulfur.
-			nether gold (vanilla block).
 			ancient debris.
 				extra below lava oceans.
 		nether quartz geodes?
@@ -114,8 +111,6 @@ features:
 			glowing goldenrod in nether wastes, crimson forest, and warped forest.
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
 		soul campfire in valley of souls.
-		worley noise for nether wastes?
-			concave.
 		hidden lava.
 		magma blocks for variation.
 		lava falls multiple blocks wide.
