@@ -39,8 +39,8 @@ public class CompareConditionTree {
 			case LONG   ->   LongCompareConditionTree.equal(operands.left, operands.right);
 			case FLOAT  ->  FloatCompareConditionTree.equal(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.equal(operands.left, operands.right);
-			case OBJECT -> ObjectCompareConditionTree.equal(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			case OBJECT -> ObjectCompareConditionTree.equal(parser, left, right);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 
@@ -51,8 +51,8 @@ public class CompareConditionTree {
 			case LONG   ->   LongCompareConditionTree.notEqual(operands.left, operands.right);
 			case FLOAT  ->  FloatCompareConditionTree.notEqual(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.notEqual(operands.left, operands.right);
-			case OBJECT -> ObjectCompareConditionTree.notEqual(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			case OBJECT -> ObjectCompareConditionTree.notEqual(parser, left, right);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 
@@ -64,7 +64,7 @@ public class CompareConditionTree {
 			case FLOAT  ->  FloatCompareConditionTree.lessThan(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.lessThan(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.lessThan(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 
@@ -76,7 +76,7 @@ public class CompareConditionTree {
 			case FLOAT  ->  FloatCompareConditionTree.greaterThan(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.greaterThan(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.greaterThan(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 
@@ -88,7 +88,7 @@ public class CompareConditionTree {
 			case FLOAT  ->  FloatCompareConditionTree.lessThanOrEqual(left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.lessThanOrEqual(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 
@@ -100,7 +100,7 @@ public class CompareConditionTree {
 			case FLOAT  ->  FloatCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.greaterThanOrEqual(parser, operands.left, operands.right);
-			default -> throw new InvalidOperandException("Can't compare " + operands.type);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
 }

@@ -40,9 +40,6 @@ public class SortedFeatureTag {
 				BigGlobeMod.LOGGER.error("Unknown configured_feature tag: " + this.key);
 				return CONFIGURED_FEATURE_ARRAY_FACTORY.empty();
 			});
-			if (this.sortedFeatures.length == 0) {
-				BigGlobeMod.LOGGER.warn(this.key + " is empty.");
-			}
 		}
 		return this.sortedFeatures;
 	}

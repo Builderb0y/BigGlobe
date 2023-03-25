@@ -42,8 +42,7 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
-	ensure doubles cannot be implicitly cast to ints.
-		this seemed to be the case for /bigglobe:evaluate.
+	throw compile-time exception when comparing objects of incompatible types.
 
 features:
 	general:

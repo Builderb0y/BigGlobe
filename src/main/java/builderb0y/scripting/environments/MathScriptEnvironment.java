@@ -68,7 +68,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
 			return new CastResult(
 				new ReduceInsnTree(
-					method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(Math.class), name, type, type, type),
+					method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
 					Arrays.stream(arguments).map(argument -> {
 						return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
 					})
@@ -100,6 +100,38 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 	public static double atanh(double x) {
 		//alternate form: log(2 / (1 - x) - 1) * 0.5
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
+	}
+
+	public static float max(float a, float b) {
+		if (a > b) return a;
+		if (b > a) return b;
+		if (Float.isNaN(a)) return b;
+		if (Float.isNaN(b)) return a;
+		return Float.floatToRawIntBits(a) > Float.floatToRawIntBits(b) ? a : b;
+	}
+
+	public static double max(double a, double b) {
+		if (a > b) return a;
+		if (b > a) return b;
+		if (Double.isNaN(a)) return b;
+		if (Double.isNaN(b)) return a;
+		return Double.doubleToRawLongBits(a) > Double.doubleToRawLongBits(b) ? a : b;
+	}
+
+	public static float min(float a, float b) {
+		if (a < b) return a;
+		if (b < a) return b;
+		if (Float.isNaN(a)) return b;
+		if (Float.isNaN(b)) return a;
+		return Float.floatToRawIntBits(a) < Float.floatToRawIntBits(b) ? a : b;
+	}
+
+	public static double min(double a, double b) {
+		if (a < b) return a;
+		if (b < a) return b;
+		if (Double.isNaN(a)) return b;
+		if (Double.isNaN(b)) return a;
+		return Double.doubleToRawLongBits(a) < Double.doubleToRawLongBits(b) ? a : b;
 	}
 
 	public static class NaNConditionTree implements ConditionTree {

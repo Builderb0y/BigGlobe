@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.math;
 
+import builderb0y.scripting.environments.MathScriptEnvironment;
+
 public class Interpolator {
 
 	/**
@@ -16,38 +18,38 @@ public class Interpolator {
 	}
 
 	public static float mixClamp(float low, float high, float value) {
-		if (value <= 0.0F) return low;
-		if (value >= 1.0F) return high;
+		if (!(value > 0.0F)) return low;
+		if (!(value < 1.0F)) return high;
 		return mixLinear(low, high, value);
 	}
 
 	public static double mixClamp(double low, double high, double value) {
-		if (value <= 0.0D) return low;
-		if (value >= 1.0D) return high;
+		if (!(value > 0.0D)) return low;
+		if (!(value < 1.0D)) return high;
 		return mixLinear(low, high, value);
 	}
 
 	public static float mixSmooth(float low, float high, float value) {
-		if (value <= 0.0F) return low;
-		if (value >= 1.0F) return high;
+		if (!(value > 0.0F)) return low;
+		if (!(value < 1.0F)) return high;
 		return mixLinear(low, high, smooth(value));
 	}
 
 	public static double mixSmooth(double low, double high, double value) {
-		if (value <= 0.0D) return low;
-		if (value >= 1.0D) return high;
+		if (!(value > 0.0D)) return low;
+		if (!(value < 1.0D)) return high;
 		return mixLinear(low, high, smooth(value));
 	}
 
 	public static float mixSmoother(float low, float high, float value) {
-		if (value <= 0.0F) return low;
-		if (value >= 1.0F) return high;
+		if (!(value > 0.0F)) return low;
+		if (!(value < 1.0F)) return high;
 		return mixLinear(low, high, smoother(value));
 	}
 
 	public static double mixSmoother(double low, double high, double value) {
-		if (value <= 0.0D) return low;
-		if (value >= 1.0D) return high;
+		if (!(value > 0.0D)) return low;
+		if (!(value < 1.0D)) return high;
 		return mixLinear(low, high, smoother(value));
 	}
 
@@ -92,31 +94,19 @@ public class Interpolator {
 	}
 
 	public static int clamp(int low, int high, int value) {
-		if (high < low) throw new ArithmeticException("high (" + high + ") < low (" + low + ')');
-		if (value <= low) return low;
-		if (value >= high) return high;
-		return value;
+		return Math.max(Math.min(value, high), low);
 	}
 
 	public static long clamp(long low, long high, long value) {
-		if (high < low) throw new ArithmeticException("high (" + high + ") < low (" + low + ')');
-		if (value <= low) return low;
-		if (value >= high) return high;
-		return value;
+		return Math.max(Math.min(value, high), low);
 	}
 
 	public static float clamp(float low, float high, float value) {
-		if (high < low) return Float.NaN;
-		if (value <= low) return low;
-		if (value >= high) return high;
-		return value;
+		return MathScriptEnvironment.max(MathScriptEnvironment.min(value, high), low);
 	}
 
 	public static double clamp(double low, double high, double value) {
-		if (high < low) return Double.NaN;
-		if (value <= low) return low;
-		if (value >= high) return high;
-		return value;
+		return MathScriptEnvironment.max(MathScriptEnvironment.min(value, high), low);
 	}
 
 	/**
@@ -154,7 +144,8 @@ public class Interpolator {
 	//two of these methods do not make use of all their parameters.
 	//this is intentional for readability.
 	//hopefully JIT inlines this so it doesn't matter.
-	//yes, I know I'm breaking my usual "optimize everything at the source code level without relying on JIT" rule.
+	//yes, I know I'm breaking my usual "optimize everything
+	//at the source code level without relying on JIT" rule.
 	public static double cubicTerm1(double a, double b, double c, double d) {
 		return b;
 	}
