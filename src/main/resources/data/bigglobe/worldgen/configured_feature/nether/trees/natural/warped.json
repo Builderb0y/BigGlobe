@@ -23,7 +23,7 @@
 		],
 		"decorations": {
 			"leaves": [
-				{ "type": "bigglobe:feature", "feature": "bigglobe:nether/twisting_vines_leaves" }
+				{ "type": "bigglobe:feature", "feature": "bigglobe:nether/foliage/twisting_vines_leaves" }
 			],
 			"ball_leaves": {
 				"inner_state": "minecraft:shroomlight"

@@ -48,12 +48,6 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		config file to disable non-essential mixins.
-		try to yeet BigGlobeBuiltinRegistries.
-			my assumption is that the world preset needs to be in BuiltinRegistries in order to show up in-game,
-			and the world preset depends on the chunk generator, which depends on biomes,
-			so the biomes need to be in BuiltinRegistries too. but this assumption might be false.
-			it may be the case that world presets are auto-registered for me,
-			along with their prerequisites.
 	overworld:
 		script for cave width.
 		desert well feature.
