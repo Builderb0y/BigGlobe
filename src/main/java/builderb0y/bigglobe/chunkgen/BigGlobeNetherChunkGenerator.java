@@ -22,6 +22,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -46,9 +47,14 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.nether.NoiseOverrider;
+import builderb0y.bigglobe.overriders.nether.NoiseOverrider.CaveContext;
+import builderb0y.bigglobe.overriders.nether.NoiseOverrider.CavernContext;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -72,6 +78,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public transient SemiThreadLocal<ChunkOfColumns<NetherColumn>> chunkColumnCache;
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
+	public final transient NoiseOverrider.Holder[] caveOverriders, cavernOverriders;
 	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
@@ -89,6 +96,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		);
 		this.settings = settings;
 		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
+		this.caveOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
+		this.cavernOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
 		this.ores = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 	}
 
@@ -258,7 +267,20 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		}
+	}
 
+	public void runCaveOverriders(ScriptStructures structures, NetherColumn column, boolean rawTerrain) {
+		CaveContext context = new CaveContext(column, structures, rawTerrain);
+		for (NoiseOverrider.Holder overrider : this.caveOverriders) {
+			overrider.override(context);
+		}
+	}
+
+	public void runCavernOverriders(ScriptStructures structures, NetherColumn column, boolean rawTerrain) {
+		CavernContext context = new CavernContext(column, structures, rawTerrain);
+		for (NoiseOverrider.Holder overrider : this.cavernOverriders) {
+			overrider.override(context);
+		}
 	}
 
 	@Override
@@ -266,11 +288,14 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
 		try {
 			this.profiler.run("initial terrain column values", () -> {
+				ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getLocalCell();
 					column.getEdginess();
 					column.getCaveNoise();
+					this.runCaveOverriders(structures, column, true);
 					column.getCavernNoise();
+					this.runCavernOverriders(structures, column, true);
 					column.populateCaveAndCavernFloors();
 				});
 			});
@@ -326,12 +351,15 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
 			try {
 				this.profiler.run("Initial feature column values", () -> {
+					ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 						column.getLocalCell();
 						column.getEdginess();
 						if (cache == null) {
 							column.getCaveNoise();
+							this.runCaveOverriders(structures, column, true);
 							column.getCavernNoise();
+							this.runCavernOverriders(structures, column, true);
 							column.populateCaveAndCavernFloors();
 						}
 					});
@@ -367,6 +395,17 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
 			if (!overrider.override(wrapper, column, permuter)) return false;
 		}
+
+		//expand structure bounding boxes so that overriders
+		//which depend on them being expanded work properly.
+		((StructureStart_BoundingBoxSetter)(Object)(start)).bigglobe_setBoundingBox(
+			start.getBoundingBox().expand(
+				entry.value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
+					? 16
+					: 4
+			)
+		);
+
 		return true;
 	}
 

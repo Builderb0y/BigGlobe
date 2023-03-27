@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:nether_cave_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure == Structure('minecraft:bastion_remnant'):",
+					"int relativeX = abs(x - clamp(start.minX, start.maxX, x))",
+					"int relativeZ = abs(z - clamp(start.minZ, start.maxZ, z))",
+					"if (relativeX < 16 && relativeZ < 16:",
+						"int startY = start.minY - 16",
+						"double horizontalAmount = smooth(1.0L - relativeX / 16.0L) * smooth(1.0L - relativeZ / 16.0L) * 0.5L",
+						"exclude(startY, horizontalAmount)",
+						"for (int offset = 1, offset < 32, ++offset:",
+							"exclude(startY - offset, horizontalAmount * smooth(1.0L - offset / 32.0L))",
+						")",
+						"for (int offset = 1, offset < 32, ++offset:",
+							"exclude(startY + offset, horizontalAmount * smooth(1.0L - offset / 32.0L))",
+						")",
+					")",
+				")",
+			")"
+		]
+	}
+}

@@ -7,13 +7,13 @@ import builderb0y.bigglobe.features.DummyFeature;
 import builderb0y.bigglobe.overriders.overworld.OverworldCavernOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldCavernOverrider.Holder;
 
-public class CavernOverrideFeature extends DummyFeature<CavernOverrideFeature.Config> {
+public class OverworldCavernOverrideFeature extends DummyFeature<OverworldCavernOverrideFeature.Config> {
 
-	public CavernOverrideFeature(Codec<Config> codec) {
+	public OverworldCavernOverrideFeature(Codec<Config> codec) {
 		super(codec);
 	}
 
-	public CavernOverrideFeature() {
+	public OverworldCavernOverrideFeature() {
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 	}
 

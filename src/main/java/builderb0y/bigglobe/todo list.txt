@@ -90,6 +90,7 @@ features:
 			ore jackpot:
 				lots of ores everywhere.
 		make lilypads renewable?
+		migrate bushes to script template feature.
 	nether:
 		ores.
 			ancient debris.
@@ -108,7 +109,6 @@ features:
 		lava falls multiple blocks wide.
 			integrate with hidden lava.
 		pillar structure.
-		cave and cavern overrides for portal temple structure.
 	end:
 		jessie wants worley noise for the end.
 			convex.

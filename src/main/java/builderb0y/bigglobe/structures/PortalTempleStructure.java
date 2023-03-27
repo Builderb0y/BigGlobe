@@ -361,7 +361,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public Piece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
-			this.variant = nbt.getByte("variant");
+			this.variant = nbt.getByte("var");
 		}
 
 		@Override
@@ -596,7 +596,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			CoordinateSupplier<BlockState> netherBricks = netherBricks(this.crackedChance);
 
 			//empty out existing areas
-			root.setBlockStateCuboid(-16, 2, -16, 16, 12, 16, BlockStates.AIR);
+			//root.setBlockStateCuboid(-16, 2, -16, 16, 12, 16, BlockStates.AIR);
 			//ground level
 			floorFlip.setBlockStateCuboid(-1, 1, -14, 1, 1, -11, BlockStates.AIR);
 			floorFlip.setBlockStateCuboid(-6, 1, -10, 6, 1, -7, BlockStates.AIR);
@@ -777,7 +777,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			Coordinator rotate8 = root.flip2X().rotate4x90();
 
 			//empty out existing areas
-			root.setBlockStateCuboid(-4, 3, -4, 4, 17, 4, BlockStates.AIR);
+			//root.setBlockStateCuboid(-4, 3, -4, 4, 17, 4, BlockStates.AIR);
 			//obsidian
 			Coordinator obsidianStack = rotate4.stack(0, 11, 0, 2);
 			obsidianStack.setBlockStateLine(-2, 0, -2, 1, 0, 0, 4, BlockStates.OBSIDIAN);

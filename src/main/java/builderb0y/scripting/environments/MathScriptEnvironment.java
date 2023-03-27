@@ -30,7 +30,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
 		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow", "atan2")
 		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh")
-		.addFunctionMultiInvokeStatic(Math.class, "abs")
+		.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
