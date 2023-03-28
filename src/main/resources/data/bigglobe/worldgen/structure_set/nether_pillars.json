@@ -1,0 +1,15 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "nether_pillars",
+			"variation": 1,
+			"spacing": 1
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:nether_pillars/normal" },
+		{ "weight": 1, "structure": "bigglobe:nether_pillars/extra"  },
+		{ "weight": 1, "structure": "bigglobe:nether_pillars/broken" }
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:nether_pillar",
+	"value": {
+		"biomes": "#bigglobe:has_structure/nether_pillar/broken",
+		"spawn_overrides": {},
+		"step": "raw_generation",
+		"terrain_adaptation": "none",
+		"per_chunk": 0.5,
+		"height": { "type": "uniform", "min": 0.0, "max": 1024.0 },
+		"spawn_attempts": 16,
+		"broken_chance": 0.625
+	}
+}

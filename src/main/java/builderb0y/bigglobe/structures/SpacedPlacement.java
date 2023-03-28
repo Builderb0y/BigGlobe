@@ -10,7 +10,7 @@ import builderb0y.bigglobe.settings.Seed;
 public class SpacedPlacement {
 
 	public final @VerifyIntRange(min = 0, minInclusive = false) int spacing;
-	public final @VerifySorted(lessThanOrEqual = "spacing") int variation;
+	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifySorted(lessThanOrEqual = "spacing") int variation;
 	public final Seed salt;
 	public final transient int offsetX, offsetZ;
 

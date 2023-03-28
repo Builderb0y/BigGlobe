@@ -1234,7 +1234,7 @@
 												{ "type": "smooth", "scaleX":  4.0, "scaleY":  8.0, "scaleZ":  4.0, "amplitude":  4.0 }
 											]
 										},
-										"surface": {
+										"floor_surface": {
 											"top_state": "minecraft:blackstone",
 											"under_state": "minecraft:blackstone",
 											"depth": "random.nextDouble(1.0, 5.0)"

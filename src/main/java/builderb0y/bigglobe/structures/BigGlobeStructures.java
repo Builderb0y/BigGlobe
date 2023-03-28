@@ -122,6 +122,13 @@ public class BigGlobeStructures {
 		PORTAL_TEMPLE_FURNACE       = registerPiece("portal_temple_furnace",       PortalTempleStructure.     FurnacePiece::new),
 		PORTAL_TEMPLE_SPAWNER       = registerPiece("portal_temple_spawner",       PortalTempleStructure.     SpawnerPiece::new);
 
+	//////////////// pillar ////////////////
+
+	public static final StructureType<NetherPillarStructure>
+		NETHER_PILLAR = registerType("nether_pillar", NetherPillarStructure.CODEC);
+	public static final BigGlobeStructurePieceType
+		NETHER_PILLAR_PIECE = registerPiece("nether_pillar_piece", NetherPillarStructure.Piece::new);
+
 	//////////////// end ////////////////
 
 	static { BigGlobeMod.LOGGER.debug("Done registering structures."); }

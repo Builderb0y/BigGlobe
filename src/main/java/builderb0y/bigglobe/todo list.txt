@@ -108,7 +108,6 @@ features:
 		magma blocks for variation.
 		lava falls multiple blocks wide.
 			integrate with hidden lava.
-		pillar structure.
 	end:
 		jessie wants worley noise for the end.
 			convex.
