@@ -327,7 +327,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							int maxCaves = Math.min(surfaceY - 1, endY);
 							assert maxCaves - minCaves < 16;
 							for (int y = minCaves; y <= maxCaves; y++) {
-								if (column.isCaveAt(y)) {
+								if (column.isCaveAt(y, true)) {
 									storage_.set(horizontalIndex | ((y & 15) << 8), airID_);
 								}
 							}
@@ -431,7 +431,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				return 0;
 			}
 			else {
-				while (column.isCaveAt(height - 1)) height--;
+				while (column.isCaveAt(height - 1, false)) height--;
 				return height;
 			}
 		});

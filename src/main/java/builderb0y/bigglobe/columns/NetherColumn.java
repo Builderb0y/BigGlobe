@@ -338,8 +338,9 @@ public class NetherColumn extends WorldColumn {
 		}
 	}
 
-	public boolean isTerrainAt(int y) {
-		return this.getCavernNoise(y, false) >= 0.0D && this.getCaveNoise(y, false) >= this.getCaveWidthSquared(y);
+	@Override
+	public boolean isTerrainAt(int y, boolean cache) {
+		return this.getCavernNoise(y, cache) >= 0.0D && this.getCaveNoise(y, cache) >= this.getCaveWidthSquared(y);
 	}
 
 	public LocalCell getLocalCell() {

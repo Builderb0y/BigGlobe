@@ -362,8 +362,8 @@ public class OverworldColumn extends WorldColumn {
 		return cell == null ? Double.NaN : cell.settings.getWidthSquared(this.getFinalTopHeightD(), y);
 	}
 
-	public boolean isCaveAt(int y) {
-		double noise = this.getCaveNoise(y, true);
+	public boolean isCaveAt(int y, boolean cache) {
+		double noise = this.getCaveNoise(y, cache);
 		if (Double.isNaN(noise)) return false;
 		return noise < this.getCaveWidthSquared(y);
 	}
@@ -771,6 +771,11 @@ public class OverworldColumn extends WorldColumn {
 			? this.surfaceBiome = super.getSurfaceBiome()
 			: this.surfaceBiome
 		);
+	}
+
+	@Override
+	public boolean isTerrainAt(int y, boolean cache) {
+		return y >= this.getFinalBottomHeightI() && y < this.getFinalTopHeightI() && !this.isCaveAt(y, cache) && !this.isCavernAt(y);
 	}
 
 	@Override

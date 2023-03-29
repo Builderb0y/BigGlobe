@@ -103,7 +103,6 @@ features:
 			nether wart in nether wastes, crimson forest, and valley of souls.
 			glowing goldenrod in nether wastes, crimson forest, and warped forest.
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
-		soul campfire in valley of souls.
 		hidden lava.
 		magma blocks for variation.
 		lava falls multiple blocks wide.

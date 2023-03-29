@@ -7,18 +7,21 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 public class VanillaWorldColumn extends WorldColumn {
 
 	public static final int
-		FINAL_HEIGHT = 1 << 0;
+		FINAL_HEIGHT = 1 << 0,
+		VERTICAL_BLOCK_SAMPLE = 1 << 1;
 
 	public final ChunkGenerator chunkGenerator;
 	public final NoiseConfig noise;
 	/** used only by {@link ChunkGenerator#getHeight(int, int, Heightmap.Type, HeightLimitView, NoiseConfig)}. */
 	public final HeightLimitView world;
 	public int finalHeight;
+	public VerticalBlockSample verticalBlockSample;
 
 	public VanillaWorldColumn(HeightLimitView world, ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
 		super(noise.getLegacyWorldSeed(), x, z);
@@ -52,6 +55,14 @@ public class VanillaWorldColumn extends WorldColumn {
 			((ServerChunkManager)(world.getChunkManager())).getNoiseConfig(),
 			x,
 			z
+		);
+	}
+
+	public VerticalBlockSample getVerticalBlockSample() {
+		return (
+			this.setFlag(VERTICAL_BLOCK_SAMPLE)
+			? this.verticalBlockSample = this.chunkGenerator.getColumnSample(this.x, this.z, this.world, this.noise)
+			: this.verticalBlockSample
 		);
 	}
 
@@ -89,6 +100,11 @@ public class VanillaWorldColumn extends WorldColumn {
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
 		return this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler());
+	}
+
+	@Override
+	public boolean isTerrainAt(int y, boolean cache) {
+		return !this.getVerticalBlockSample().getState(y).isAir();
 	}
 
 	@Override

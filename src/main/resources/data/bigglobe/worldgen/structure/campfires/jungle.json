@@ -6,6 +6,8 @@
 		"step": "surface_structures",
 		"terrain_adaptation": "beard_thin",
 		"palette": "minecraft:jungle",
-		"soul": false
+		"soul": false,
+		"placement": "surface",
+		"tent_chance": 0.5
 	}
 }

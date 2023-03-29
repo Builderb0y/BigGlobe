@@ -1,8 +1,10 @@
 package builderb0y.bigglobe.structures;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityType;
@@ -13,18 +15,21 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.EmptyBlockView;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.structure.StructureType;
 
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -38,55 +43,100 @@ public class CampfireStructure extends BigGlobeStructure {
 
 	public static final Codec<CampfireStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CampfireStructure.class);
 
-	public final @EncodeInline Data data;
+	public final TreeRegistry.Entry palette;
+	public final boolean soul;
+	public final Placement placement;
+	public final double tent_chance;
 
-	public CampfireStructure(Config config, Data data) {
+	public CampfireStructure(
+		Config config,
+		TreeRegistry.Entry palette,
+		boolean soul,
+		Placement placement,
+		double tent_chance
+	) {
 		super(config);
-		this.data = data;
+		this.palette = palette;
+		this.soul = soul;
+		this.placement = placement;
+		this.tent_chance = tent_chance;
 	}
 
-	public static record Data(TreeRegistry.Entry palette, boolean soul) {
+	public static enum Placement implements StringIdentifiable {
 
-		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+		SURFACE {
 
-		public BlockState getCampfireState(BlockPos pos) {
-			long seed = Permuter.permute(0xF880F3296B23861BL, pos);
-			int bits = Permuter.toUniformInt(seed);
-			return (
-				(this.soul ? Blocks.SOUL_CAMPFIRE : Blocks.CAMPFIRE)
-				.getDefaultState()
-				.with(CampfireBlock.LIT, (bits & 1) != 0)
-				.with(CampfireBlock.FACING, Directions.HORIZONTAL[(bits >>> 1) & 3])
-			);
-		}
-
-		public BlockState getCobbleState(BlockPos pos) {
-			if (this.soul) {
-				return Blocks.BLACKSTONE.getDefaultState();
+			@Override
+			public @Nullable BlockPos getRandomPos(Context context) {
+				return randomBlockInSurface(context, 1);
 			}
-			else {
-				return Permuter.toBoolean(Permuter.permute(0xB4E17805BA6FFFDFL, pos)) ? BlockStates.MOSSY_COBBLESTONE : BlockStates.COBBLESTONE;
+		},
+
+		UNDERGROUND {
+
+			@Override
+			public @Nullable BlockPos getRandomPos(Context context) {
+				Permuter permuter = Permuter.from(context.random());
+				int rng = permuter.nextInt() & 255;
+				int x = context.chunkPos().getStartX() | (rng & 15);
+				int z = context.chunkPos().getStartZ() | (rng >>> 4);
+				int minY = context.chunkGenerator().getMinimumY();
+				int maxY = context.chunkGenerator().getHeightOnGround(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
+				if (maxY > minY) {
+					VerticalBlockSample sample = context.chunkGenerator().getColumnSample(x, z, context.world(), context.noiseConfig());
+					for (int attempt = 0; attempt < 16; attempt++) {
+						int y = permuter.nextInt(minY, maxY);
+						if (sample.getState(y).isAir()) {
+							do if (--y < minY) return null;
+							while (sample.getState(y).isAir());
+							if (sample.getState(y).isFullCube(EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+								return new BlockPos(x, y + 1, z);
+							}
+						}
+					}
+				}
+				return null;
 			}
+		};
+
+		public final String name = this.name().toLowerCase(Locale.ROOT);
+
+		public abstract @Nullable BlockPos getRandomPos(Context context);
+
+		@Override
+		public String asString() {
+			return this.name;
 		}
 	}
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		BlockPos campfirePos = randomBlockInSurface(context, 1);
+		BlockPos campfirePos = this.placement.getRandomPos(context);
 		if (campfirePos == null) return Optional.empty();
-		long seed_ = context.random().nextLong();
+		Permuter permuter = Permuter.from(context.random());
 		return Optional.of(
 			new StructurePosition(
 				campfirePos,
 				collector -> {
-					collector.addPiece(new CampfirePiece(BigGlobeStructures.CAMPFIRE_PIECE_TYPE, campfirePos.getX(), campfirePos.getY(), campfirePos.getZ(), this.data));
-					long seed = seed_;
-					if (Permuter.nextBoolean(seed += Permuter.PHI64)) {
-						double angle = Permuter.nextBoundedDouble(seed += Permuter.PHI64, BigGlobeMath.TAU);
-						double radius = Permuter.nextBoundedDouble(seed += Permuter.PHI64, 8.0D, 16.0D);
+					collector.addPiece(new CampfirePiece(
+						BigGlobeStructures.CAMPFIRE_PIECE_TYPE,
+						campfirePos.getX(),
+						campfirePos.getY(),
+						campfirePos.getZ(),
+						new CampfirePiece.Data(this.palette, this.soul)
+					));
+					if (Permuter.nextChancedBoolean(permuter, this.tent_chance)) {
+						double angle = permuter.nextDouble(BigGlobeMath.TAU);
+						double radius = permuter.nextDouble(8.0D, 16.0D);
 						int tentX = BigGlobeMath.roundI(campfirePos.getX() + Math.cos(angle) * radius);
 						int tentZ = BigGlobeMath.roundI(campfirePos.getZ() + Math.sin(angle) * radius);
-						collector.addPiece(new TentPiece(BigGlobeStructures.CAMPFIRE_TENT_PIECE_TYPE, tentX, campfirePos.getY(), tentZ, this.data));
+						collector.addPiece(new TentPiece(
+							BigGlobeStructures.CAMPFIRE_TENT_PIECE_TYPE,
+							tentX,
+							campfirePos.getY(),
+							tentZ,
+							new TentPiece.Data(this.palette)
+						));
 					}
 				}
 			)
@@ -148,19 +198,14 @@ public class CampfireStructure extends BigGlobeStructure {
 		return BigGlobeStructures.CAMPFIRE_TYPE;
 	}
 
-	public static abstract class Piece extends DataStructurePiece<Data> {
+	public static abstract class Piece<D> extends DataStructurePiece<D> {
 
-		public Piece(StructurePieceType type, int length, BlockBox boundingBox, Data data) {
+		public Piece(StructurePieceType type, int length, BlockBox boundingBox, D data) {
 			super(type, length, boundingBox, data);
 		}
 
 		public Piece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
-		}
-
-		@Override
-		public AutoCoder<Data> dataCoder() {
-			return Data.CODER;
 		}
 
 		public int x() {
@@ -183,7 +228,32 @@ public class CampfireStructure extends BigGlobeStructure {
 		}
 	}
 
-	public static class CampfirePiece extends Piece {
+	public static class CampfirePiece extends Piece<CampfirePiece.Data> {
+
+		public static record Data(TreeRegistry.Entry palette, boolean soul) {
+
+			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+
+			public BlockState getCampfireState(BlockPos pos) {
+				long seed = Permuter.permute(0xF880F3296B23861BL, pos);
+				int bits = Permuter.toUniformInt(seed);
+				return (
+					(this.soul ? Blocks.SOUL_CAMPFIRE : Blocks.CAMPFIRE)
+					.getDefaultState()
+					.with(CampfireBlock.LIT, (bits & 1) != 0)
+					.with(CampfireBlock.FACING, Directions.HORIZONTAL[(bits >>> 1) & 3])
+				);
+			}
+
+			public BlockState getCobbleState(BlockPos pos) {
+				if (this.soul) {
+					return Blocks.BLACKSTONE.getDefaultState();
+				}
+				else {
+					return Permuter.toBoolean(Permuter.permute(0xB4E17805BA6FFFDFL, pos)) ? BlockStates.MOSSY_COBBLESTONE : BlockStates.COBBLESTONE;
+				}
+			}
+		}
 
 		public CampfirePiece(StructurePieceType type, int x, int y, int z, Data data) {
 			super(type, 0, new BlockBox(x - 4, y - 1, z - 4, x + 4, y, z + 4), data);
@@ -191,6 +261,11 @@ public class CampfireStructure extends BigGlobeStructure {
 
 		public CampfirePiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
+		}
+
+		@Override
+		public AutoCoder<Data> dataCoder() {
+			return Data.CODER;
 		}
 
 		@Override
@@ -223,7 +298,12 @@ public class CampfireStructure extends BigGlobeStructure {
 		}
 	}
 
-	public static class TentPiece extends Piece {
+	public static class TentPiece extends Piece<TentPiece.Data> {
+
+		public static record Data(TreeRegistry.Entry palette) {
+
+			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+		}
 
 		public TentPiece(StructurePieceType type, int x, int y, int z, Data data) {
 			super(type, 0, new BlockBox(x - 2, y - 1, z - 2, x + 2, y + 3, z + 2), data);
@@ -231,6 +311,11 @@ public class CampfireStructure extends BigGlobeStructure {
 
 		public TentPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
+		}
+
+		@Override
+		public AutoCoder<Data> dataCoder() {
+			return Data.CODER;
 		}
 
 		@Override

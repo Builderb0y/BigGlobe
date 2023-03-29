@@ -59,7 +59,7 @@ public class CaveSurfaceReplacer {
 						surfaceTopY = Math.min(surfaceTopY, sectionEndY);
 						surfaceBottomY = Math.max(surfaceBottomY, sectionStartY);
 						for (int surfaceY = surfaceBottomY; surfaceY <= surfaceTopY; surfaceY++) {
-							if (column.isCaveAt(surfaceY) || surfaceY >= column.getFinalTopHeightI()) break;
+							if (column.isCaveAt(surfaceY, true) || surfaceY >= column.getFinalTopHeightI()) break;
 							storage.set(columnIndex | ((surfaceY & 15) << 8), surfaceY == surfaceBottomY ? ceilingSurfaceID : ceilingSubsurfaceID);
 						}
 					}
@@ -83,7 +83,7 @@ public class CaveSurfaceReplacer {
 						surfaceTopY = Math.min(surfaceTopY, sectionEndY);
 						surfaceBottomY = Math.max(surfaceBottomY, sectionStartY);
 						for (int surfaceY = surfaceBottomY; surfaceY <= surfaceTopY; surfaceY++) {
-							if (column.isCaveAt(surfaceY)) break;
+							if (column.isCaveAt(surfaceY, true)) break;
 							storage.set(columnIndex | ((surfaceY & 15) << 8), surfaceY == surfaceTopY ? floorSurfaceID : floorSubsurfaceID);
 						}
 					}

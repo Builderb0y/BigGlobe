@@ -90,6 +90,8 @@ public abstract class WorldColumn extends Column {
 		return this.getBiome(this.getFinalTopHeightI());
 	}
 
+	public abstract boolean isTerrainAt(int y, boolean cache);
+
 	@Override
 	public abstract WorldColumn blankCopy();
 }

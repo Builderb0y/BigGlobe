@@ -19,9 +19,9 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.NetherColumn;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -54,8 +54,8 @@ public class NetherPillarStructure extends BigGlobeStructure {
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		if (!(context.chunkGenerator() instanceof BigGlobeNetherChunkGenerator generator)) return Optional.empty();
-		NetherColumn column = generator.column(0, 0);
+		if (!(context.chunkGenerator() instanceof BigGlobeChunkGenerator generator)) return Optional.empty();
+		WorldColumn column = generator.column(0, 0);
 		Permuter permuter = Permuter.from(context.random());
 		return Optional.of(
 			new StructurePosition(
@@ -66,7 +66,7 @@ public class NetherPillarStructure extends BigGlobeStructure {
 						double centerY = this.height.get(permuter);
 						double centerZ = context.chunkPos().getStartZ() + permuter.nextDouble(16.0D);
 						column.setPosUnchecked(BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ));
-						if (!column.isTerrainAt(BigGlobeMath.floorI(centerY))) {
+						if (!column.isTerrainAt(BigGlobeMath.floorI(centerY), false)) {
 							extendLoop:
 							for (int spawnAttempt = this.spawn_attempts; --spawnAttempt >= 0;) {
 								Dvec3 pos1 = new Dvec3(centerX, centerY, centerZ);
@@ -78,7 +78,7 @@ public class NetherPillarStructure extends BigGlobeStructure {
 									for (int i = 0; i < 96 / stepSize; i++) {
 										pos2.add(direction);
 										column.setPosUnchecked(BigGlobeMath.floorI(pos2.x), BigGlobeMath.floorI(pos2.z));
-										if (column.isTerrainAt(BigGlobeMath.floorI(pos2.y))) {
+										if (column.isTerrainAt(BigGlobeMath.floorI(pos2.y), false)) {
 											break end1;
 										}
 									}
@@ -88,7 +88,7 @@ public class NetherPillarStructure extends BigGlobeStructure {
 									for (int i = 0; i < 96 / stepSize; i++) {
 										pos1.subtract(direction);
 										column.setPosUnchecked(BigGlobeMath.floorI(pos1.x), BigGlobeMath.floorI(pos1.z));
-										if (column.isTerrainAt(BigGlobeMath.floorI(pos1.y))) {
+										if (column.isTerrainAt(BigGlobeMath.floorI(pos1.y), false)) {
 											break end2;
 										}
 									}

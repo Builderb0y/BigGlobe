@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:nether_cavern_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure == Structure('bigglobe:campfires/charred'):",
+					"double offsetH2 = ((x - start.midX) ^ 2 + (z - start.midZ) ^ 2) / 8.0L ^ 2",
+					"double midY = start.minY + 0.5L",
+					"boolean tryExclude(int y:",
+						"double offsetV = midY - y",
+						"double ellipse = offsetH2 + offsetV ^ 2 / 8.0L ^ 2",
+						"unless (ellipse < 1.0L: return(false))",
+						"ellipse = copySign((1.0 - ellipse) ^ 2, offsetV)",
+						"unless (offsetH2 == 0.0L: ellipse *= 1.0L - exp(-abs(offsetV / (8.0L * offsetH2))))",
+						"exclude(y, ellipse)",
+						"return(true)",
+					")",
+					"for (int y = int(midY),     tryExclude(y), ++y: noop)",
+					"for (int y = int(midY) - 1, tryExclude(y), --y: noop)",
+				")",
+			")"
+		]
+	}
+}

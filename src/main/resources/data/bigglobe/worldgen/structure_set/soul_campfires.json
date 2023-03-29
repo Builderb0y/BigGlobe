@@ -1,0 +1,13 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "soul_campfires",
+			"variation": 4,
+			"spacing": 8
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:campfires/charred" }
+	]
+}
