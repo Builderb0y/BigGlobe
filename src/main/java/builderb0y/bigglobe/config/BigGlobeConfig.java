@@ -30,6 +30,11 @@ public class BigGlobeConfig {
 	}
 
 	@Tooltip(count = 3)
+	@UseName("Reload Big Globe chunk generators from mod jar")
+	@DefaultIgnore
+	public boolean reloadGenerators = false;
+
+	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Big Globe Worlds")
 	@DefaultIgnore
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;

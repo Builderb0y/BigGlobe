@@ -253,7 +253,9 @@ public class BigGlobeBlocks {
 	public static final MagmaBlock SOUl_MAGMA = register(
 		"soul_magma",
 		new MagmaBlock(
-			AbstractBlock.Settings.copy(Blocks.MAGMA_BLOCK).mapColor(MapColor.LAPIS_BLUE)
+			AbstractBlock.Settings.copy(Blocks.MAGMA_BLOCK)
+			.mapColor(MapColor.LAPIS_BLUE)
+			.allowsSpawning((state, world, pos, type) -> type.isFireImmune()) //not copied by copy().
 		)
 	);
 	public static final SoulCauldronBlock SOUL_CAULDRON = register(
@@ -441,7 +443,13 @@ public class BigGlobeBlocks {
 			.sounds(BlockSoundGroup.WOOD)
 		)
 	);
-
+	public static final HiddenLavaBlock HIDDEN_LAVA = register(
+		"hidden_lava",
+		new HiddenLavaBlock(
+			AbstractBlock.Settings.of(Material.LAVA)
+			.dropsNothing()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 

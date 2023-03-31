@@ -9,7 +9,9 @@
 					"type": "minecraft:item",
 					"conditions": [{
 						"condition": "minecraft:match_tool",
-						"predicate": { "item": "minecraft:shears" }
+						"predicate": {
+							"items": [ "minecraft:shears" ]
+						}
 					}],
 					"name": "bigglobe:charred_grass"
 				},

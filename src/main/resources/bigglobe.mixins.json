@@ -37,6 +37,7 @@
 		"StairsBlock_MirrorProperly",
 		"StructurePiece_DirectRotationSetter",
 		"StructureStart_BoundingBoxSetter",
+		"StructureStart_SaveBoundingBox",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel"
 	],
 	"client": [

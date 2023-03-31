@@ -1,0 +1,7 @@
+{
+	"parent": "block/cube_column",
+	"textures": {
+		"end": "minecraft:block/lava_still",
+		"side": "minecraft:block/lava_flow"
+	}
+}

@@ -15,6 +15,9 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
 	public static StructureStartWrapper of(RegistryEntry<Structure> entry, StructureStart start) {
+		//the bounding box of the start might be expanded,
+		//but we don't want to expose that expansion to scripts.
+		//so, re-calculate the size.
 		int
 			minX = Integer.MAX_VALUE,
 			minY = Integer.MAX_VALUE,

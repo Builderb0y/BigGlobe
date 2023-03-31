@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:use_script_template",
+	"config": {
+		"script": "bigglobe:nether/hidden_lava_large",
+		"inputs": {
+			"REPLACE": "BlockTag('bigglobe:hidden_lava_replaceables_netherrack')",
+			"SPILL_CHANCE": "unmixLinear(512.0L, min_y, double(originY)) * 0.0625"
+		}
+	}
+}

@@ -4,7 +4,7 @@
 		"script": [
 			"boolean canReplace(int x, int y, int z:",
 				"BlockState state = getBlockState(x, y, z)",
-				"return(state.isReplaceable() || state.isIn('bigglobe:magma_blocks'))",
+				"return(state.isReplaceable() || (state.isIn('bigglobe:magma_blocks') && y == int(`nether/lava_level`) - 1))",
 			")",
 
 			"double maxHeightD = 1.0L - `nether/biome_edginess`",

@@ -23,6 +23,7 @@
 	"block.bigglobe.floatstone_slab": "Floatstone Slab",
 	"block.bigglobe.floatstone_stairs": "Floatstone Stairs",
 	"block.bigglobe.glowing_goldenrod": "Glowing Goldenrod",
+	"block.bigglobe.hidden_lava": "Hidden Lava",
 	"block.bigglobe.mushroom_spores": "Mushroom Spores",
 	"block.bigglobe.nether_pyrite": "Nether Pyrite",
 	"block.bigglobe.overgrown_podzol": "Overgrown Podzol",
@@ -100,6 +101,11 @@
 	"commands.bigglobe.profiler.notRunning": "The profiler is not running in this world.",
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
+
+	"text.autoconfig.bigglobe.option.reloadGenerators": "Reload Big Globe chunk generators from mod jar",
+	"text.autoconfig.bigglobe.option.reloadGenerators.@Tooltip[0]": "If true, Big Globe chunk generators will be read from the mod jar file.",
+	"text.autoconfig.bigglobe.option.reloadGenerators.@Tooltip[1]": "If false, Big Globe chunk generators will be read from level.dat.",
+	"text.autoconfig.bigglobe.option.reloadGenerators.@Tooltip[2]": "This config option can be useful when migrating a world to a newer version of Big Globe, but it also prevents data packs from modifying Big Globe's chunk generators.",
 
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds": "Big Globe Trees In Big Globe Worlds",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[0]": "If true, saplings will grow into Big Globe trees in Big Globe worlds.",

@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"for (int count = 0, count < 2, ++count:",
+				"int y = random.nextInt(int(min_y), int(max_y))",
+				"double fraction = unmixLinear(min_y, max_y, y)",
+				"double chance = exp2(fraction * -4.0L)",
+				"if (",
+					"random.nextBoolean(chance) &&",
+					"getBlockState(originX, y, originZ) == BlockState('minecraft:basalt[axis=y]') &&",
+					"getBlockState(originX, y - 1, originZ).hasFullCubeOutline() &&",
+					"getBlockState(originX, y + 1, originZ).hasFullCubeOutline() &&",
+					"getBlockState(originX - 1, y, originZ).hasFullCubeOutline() &&",
+					"getBlockState(originX + 1, y, originZ).hasFullCubeOutline() &&",
+					"getBlockState(originX, y, originZ - 1).hasFullCubeOutline() &&",
+					"getBlockState(originX, y, originZ + 1).hasFullCubeOutline()",
+				":",
+					"setBlockState(originX, y, originZ, 'minecraft:ancient_debris')",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

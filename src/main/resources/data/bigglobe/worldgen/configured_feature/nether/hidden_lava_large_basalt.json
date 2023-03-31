@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:use_script_template",
+	"config": {
+		"script": "bigglobe:nether/hidden_lava_large",
+		"inputs": {
+			"REPLACE": "BlockTag('bigglobe:hidden_lava_replaceables_basalt')",
+			"SPILL_CHANCE": "0.0625"
+		}
+	}
+}

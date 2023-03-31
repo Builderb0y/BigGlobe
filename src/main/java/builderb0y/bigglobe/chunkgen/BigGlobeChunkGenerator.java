@@ -98,15 +98,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	public static final boolean WORLD_SLICES = false;
-	public static final boolean RELOAD_GENERATORS = Boolean.getBoolean(BigGlobeMod.MODID + ".reloadGenerators");
-	static {
-		if (RELOAD_GENERATORS) {
-			BigGlobeMod.LOGGER.error("Warning! -D" + BigGlobeMod.MODID + ".reloadGenerators is set to true in your java arguments!");
-			BigGlobeMod.LOGGER.error("This will load chunk generators from the mod jar file instead of from data packs.");
-			BigGlobeMod.LOGGER.error("If you want to tweak " + BigGlobeMod.MODNAME + "'s chunk generators with a data pack,");
-			BigGlobeMod.LOGGER.error("you will need to remove this option from your java arguments first.");
-		}
-	}
+
 	public static final GenerationStep.Feature[] FEATURE_STEPS = GenerationStep.Feature.values();
 	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 
@@ -173,7 +165,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	public static <T_Generator extends BigGlobeChunkGenerator> AutoCoder<T_Generator> createCoder(FactoryContext<T_Generator> context, String preset, String dimensionName) {
 		AutoCoder<T_Generator> coder = (AutoCoder<T_Generator>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
-		if (!RELOAD_GENERATORS) return coder;
+		if (!BigGlobeConfig.INSTANCE.get().reloadGenerators) return coder;
 		return new AutoCoder<T_Generator>() {
 
 			@Override

@@ -4,7 +4,7 @@
 		"rolls": 1,
 		"entries": [{
 			"type": "minecraft:item",
-			"name": "bigglobe:glowing_goldenrod"
+			"name": "bigglobe:blazing_blossom"
 		}],
 		"conditions": [{
 			"condition": "minecraft:survives_explosion"

@@ -7,8 +7,7 @@
 			"boolean isValid(int x, int z:",
 				"return (",
 					"random.nextBoolean(1.0L - ((x - originX) ^ 2 + (z - originZ) ^ 2) * (1.0L / 256.0L)) &&",
-					"getBlockState(x, originY - 1, z) == LAVA_BLOCK &&",
-					"getBlockState(x, originY, z).isAir()",
+					"getBlockState(x, originY - 1, z) == LAVA_BLOCK",
 				")",
 			")",
 

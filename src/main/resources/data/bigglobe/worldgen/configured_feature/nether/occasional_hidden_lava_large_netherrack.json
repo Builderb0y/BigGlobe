@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"for (int base = int(min_y), base < int(max_y), base += 512:",
+				"int y = base + random.nextInt(512)",
+				"double fraction = unmixLinear(min_y, max_y, y)",
+				"double chance = exp2(fraction * -4.0L)",
+				"random.if (chance:",
+					"placeFeature(originX, y, originZ, 'bigglobe:nether/hidden_lava_large_netherrack')",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

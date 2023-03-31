@@ -42,7 +42,7 @@ dependencies() {
 	//mods that I interact with.
 	modImplementation('maven.modrinth:lambdynamiclights:2.2.0+1.19.2')
 	modImplementation('maven.modrinth:modmenu:4.1.2')
-	modCompileOnly('maven.modrinth:cloth-config:8.2.88+fabric')
+	modImplementation('maven.modrinth:cloth-config:8.2.88+fabric')
 
 	//mods I like to use while playing.
 

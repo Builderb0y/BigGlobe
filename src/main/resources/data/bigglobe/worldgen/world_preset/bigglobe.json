@@ -1181,14 +1181,14 @@
 													"under_state": "minecraft:soul_sand",
 													"depth": "random.nextDouble(1.0, 5.0)"
 												},
-												"floor_decorator": "bigglobe:nether/soul_sand_valley_cavern_floors",
-												"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cavern_ceilings"
+												"floor_decorator": "bigglobe:nether/valley_of_souls_cavern_floors",
+												"ceiling_decorator": "bigglobe:nether/valley_of_souls_cavern_ceilings"
 											},
 											"caves": {
-												"floor_decorator": "bigglobe:nether/soul_sand_valley_cave_floors",
-												"ceiling_decorator": "bigglobe:nether/soul_sand_valley_cave_ceilings"
+												"floor_decorator": "bigglobe:nether/valley_of_souls_cave_floors",
+												"ceiling_decorator": "bigglobe:nether/valley_of_souls_cave_ceilings"
 											},
-											"fluid_decorator": "bigglobe:nether/soul_sand_valley_fluid",
+											"fluid_decorator": "bigglobe:nether/valley_of_souls_fluid",
 											"fluid_state": "bigglobe:soul_lava[level=0]"
 										}
 									]
@@ -1239,14 +1239,14 @@
 											"under_state": "minecraft:blackstone",
 											"depth": "random.nextDouble(1.0, 5.0)"
 										},
-										"floor_decorator": "bigglobe:nether/basalt_deltas_cavern_floors",
-										"ceiling_decorator": "bigglobe:nether/basalt_deltas_cavern_ceilings"
+										"floor_decorator": "bigglobe:nether/inferno_cavern_floors",
+										"ceiling_decorator": "bigglobe:nether/inferno_cavern_ceilings"
 									},
 									"caves": {
-										"floor_decorator": "bigglobe:nether/basalt_deltas_cave_floors",
-										"ceiling_decorator": "bigglobe:nether/basalt_deltas_cave_ceilings"
+										"floor_decorator": "bigglobe:nether/inferno_cave_floors",
+										"ceiling_decorator": "bigglobe:nether/inferno_cave_ceilings"
 									},
-									"fluid_decorator": "bigglobe:nether/basalt_deltas_fluid"
+									"fluid_decorator": "bigglobe:nether/inferno_fluid"
 								}
 							]
 						}

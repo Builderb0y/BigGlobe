@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"for (int base = int(min_y), base < int(max_y), base += 8:",
+				"int y = base + random.nextInt(8)",
+				"double fraction = unmixLinear(min_y, max_y, y)",
+				"double chance = exp2(fraction * -4.0L)",
+				"if (random.nextBoolean(chance) && getBlockState(originX, y, originZ).isIn('bigglobe:hidden_lava_replaceables_basalt'):",
+					"setBlockState(originX, y, originZ, 'minecraft:magma_block')",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

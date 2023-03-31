@@ -10,9 +10,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	working on overhauling how scopes work for scripting.
-		flow control InsnTree's should push and pop the scope manually.
-			SwitchInsnTree still needs to do this.
 
 changelog:
 	* Fixed cold biomes not quite lining up with where snow forms in the overworld.
@@ -32,6 +29,7 @@ AutoCodec:
 		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = false).
 
 scripting:
+	SwitchInsnTree needs to manage its case scopes more manually.
 	better syntax for specifying variable block states.
 		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
 	expose arrays.
@@ -92,9 +90,6 @@ features:
 		make lilypads renewable?
 		migrate bushes to script template feature.
 	nether:
-		ores.
-			ancient debris.
-				extra below lava oceans.
 		nether quartz geodes?
 		rock layers.
 		flowers:
@@ -103,10 +98,6 @@ features:
 			nether wart in nether wastes, crimson forest, and valley of souls.
 			glowing goldenrod in nether wastes, crimson forest, and warped forest.
 			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
-		hidden lava.
-		magma blocks for variation.
-		lava falls multiple blocks wide.
-			integrate with hidden lava.
 	end:
 		jessie wants worley noise for the end.
 			convex.
