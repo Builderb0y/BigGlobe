@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:crimson_forest",
+		"bigglobe:warped_forest",
+		"bigglobe:ashen_wastes",
+		"bigglobe:nether_wastes",
+		"bigglobe:inferno"
+	]
+}

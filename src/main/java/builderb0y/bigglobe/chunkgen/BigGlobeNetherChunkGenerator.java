@@ -62,6 +62,7 @@ import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.NetherPillarStructure;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.util.SemiThreadLocal;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -123,7 +124,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		return new NetherColumn(this.settings, this.seed, x, z);
 	}
 
-	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, StructureAccessor structures, boolean distantHorizons) {
+	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, ScriptStructures structures, boolean distantHorizons) {
 		this.generateSectionsParallel(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
 			BlockState previousFiller = null;
 			BlockState previousFluid  = null;
@@ -301,9 +302,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
 		ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
+		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 		try {
 			this.profiler.run("initial terrain column values", () -> {
-				ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getLocalCell();
 					column.getEdginess();
@@ -318,7 +319,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				holder.bigglobe_setPositionCache(new NetherPositionCache(columns));
 			}
 			this.profiler.run("set raw terrain blocks", () -> {
-				this.generateRawSections(chunk, columns, structureAccessor, distantHorizons);
+				this.generateRawSections(chunk, columns, structures, distantHorizons);
 			});
 			this.profiler.run("Bedrock", () -> {
 				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y()     )), this.seed, columns)));
@@ -341,6 +342,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			});
 			this.profiler.run("Surface", () -> {
 				this.generateSurface(chunk, columns);
+			});
+			this.profiler.run("Raw structure generation", () -> {
+				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
 			});
 		}
 		finally {

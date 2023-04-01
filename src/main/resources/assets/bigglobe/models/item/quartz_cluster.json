@@ -1,0 +1,11 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "bigglobe:block/quartz_cluster"
+	},
+	"display": {
+		"head": {
+			"translation": [ 0, 14, -5 ]
+		}
+	}
+}

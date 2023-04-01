@@ -1,0 +1,14 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "quartz_geodes",
+			"variation": 4,
+			"spacing": 8,
+			"restrictions": { "type": "skip_distant_horizons" }
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:geodes/quartz" }
+	]
+}

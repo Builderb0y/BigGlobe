@@ -64,7 +64,13 @@ public class BigGlobeItems {
 		CHARRED_FENCE_GATE       = registerRedstonePlacer(BigGlobeBlocks.CHARRED_FENCE_GATE),
 		CHARRED_FENCE            = registerDecoPlacer    (BigGlobeBlocks.CHARRED_FENCE),
 		CHARRED_DOOR             = register              ("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings().group(ItemGroup.REDSTONE))),
-		SOUL_MAGMA               = registerBlockPlacer   (BigGlobeBlocks.SOUl_MAGMA);
+		SOUL_MAGMA               = registerBlockPlacer   (BigGlobeBlocks.SOUl_MAGMA),
+		ROUGH_QUARTZ             = registerBlockPlacer   (BigGlobeBlocks.ROUGH_QUARTZ),
+		BUDDING_QUARTZ           = registerBlockPlacer   (BigGlobeBlocks.BUDDING_QUARTZ),
+		SMALL_QUARTZ_BUD         = registerDecoPlacer    (BigGlobeBlocks.SMALL_QUARTZ_BUD),
+		MEDIUM_QUARTZ_BUD        = registerDecoPlacer    (BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
+		LARGE_QUARTZ_BUD         = registerDecoPlacer    (BigGlobeBlocks.LARGE_QUARTZ_BUD),
+		QUARTZ_CLUSTER           = registerDecoPlacer    (BigGlobeBlocks.QUARTZ_CLUSTER);
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",

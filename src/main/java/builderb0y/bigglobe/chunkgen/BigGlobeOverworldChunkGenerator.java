@@ -15,7 +15,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
@@ -97,8 +96,7 @@ import builderb0y.bigglobe.settings.OverworldUndergroundSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
-import builderb0y.bigglobe.structures.RawOverworldGenerationStructure;
-import builderb0y.bigglobe.structures.RawOverworldGenerationStructure.RawOverworldGenerationStructurePiece;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.util.SemiThreadLocal;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -796,19 +794,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 
 			this.profiler.run("Raw structure generation", () -> {
-				RawOverworldGenerationStructurePiece.Context rawGenerationContext = null;
-				for (StructureStartWrapper start : structures.starts) {
-					if (start.structure().entry.value() instanceof RawOverworldGenerationStructure) {
-						for (StructurePiece piece : start.pieces()) {
-							if (piece instanceof RawOverworldGenerationStructurePiece raw) {
-								if (rawGenerationContext == null) {
-									rawGenerationContext = new RawOverworldGenerationStructurePiece.Context(this.seed, chunk, structures, columns, distantHorizons);
-								}
-								raw.generateRaw(rawGenerationContext);
-							}
-						}
-					}
-				}
+				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
 			});
 
 			this.profiler.run("Surface", () -> {

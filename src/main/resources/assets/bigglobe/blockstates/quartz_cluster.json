@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"facing=up":    { "model": "bigglobe:block/quartz_cluster" },
+		"facing=down":  { "model": "bigglobe:block/quartz_cluster", "x": 180 },
+		"facing=north": { "model": "bigglobe:block/quartz_cluster", "x": 90 },
+		"facing=east":  { "model": "bigglobe:block/quartz_cluster", "x": 90, "y": 90 },
+		"facing=south": { "model": "bigglobe:block/quartz_cluster", "x": 90, "y": 180 },
+		"facing=west":  { "model": "bigglobe:block/quartz_cluster", "x": 90, "y": 270 }
+	}
+}

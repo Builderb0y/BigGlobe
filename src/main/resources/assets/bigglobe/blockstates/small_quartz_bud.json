@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"facing=up":    { "model": "bigglobe:block/small_quartz_bud" },
+		"facing=down":  { "model": "bigglobe:block/small_quartz_bud", "x": 180 },
+		"facing=north": { "model": "bigglobe:block/small_quartz_bud", "x": 90 },
+		"facing=east":  { "model": "bigglobe:block/small_quartz_bud", "x": 90, "y": 90 },
+		"facing=south": { "model": "bigglobe:block/small_quartz_bud", "x": 90, "y": 180 },
+		"facing=west":  { "model": "bigglobe:block/small_quartz_bud", "x": 90, "y": 270 }
+	}
+}

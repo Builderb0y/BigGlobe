@@ -34,7 +34,7 @@ import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Dvec3;
 
-public class LakeStructure extends BigGlobeStructure implements RawOverworldGenerationStructure {
+public class LakeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
 	public static final int MUD_BLEND_HEIGHT = 4;
 	public static final int OUTER_CIRCLE_SAMPLES = 16;
@@ -118,7 +118,7 @@ public class LakeStructure extends BigGlobeStructure implements RawOverworldGene
 		return BigGlobeStructures.LAKE_TYPE;
 	}
 
-	public static class Piece extends DataStructurePiece<Piece.Data> implements RawOverworldGenerationStructurePiece {
+	public static class Piece extends DataStructurePiece<Piece.Data> implements RawGenerationStructurePiece {
 
 		public static record Data(
 			double x,
@@ -195,7 +195,7 @@ public class LakeStructure extends BigGlobeStructure implements RawOverworldGene
 			BlockState fluid = data.fluid();
 			int maxY = data.waterSurface();
 			for (int index = 0; index < 256; index++) {
-				OverworldColumn column = context.columns.getColumn(index);
+				WorldColumn column = context.columns.getColumn(index);
 				if (this.isInsideCircle(column.x, column.z)) {
 					mutablePos.setX(column.x).setZ(column.z);
 					int minY = column.getFinalTopHeightI();

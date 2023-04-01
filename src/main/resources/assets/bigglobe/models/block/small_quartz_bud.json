@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cross",
+	"textures": {
+		"cross": "bigglobe:block/small_quartz_bud"
+	}
+}

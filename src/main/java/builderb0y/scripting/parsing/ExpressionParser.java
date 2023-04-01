@@ -446,7 +446,7 @@ public class ExpressionParser {
 						if (this.input.peekAfterWhitespace() == '(') {
 							result = this.environment.getMethod(this, left, memberName, CommaSeparatedExpressions.parse(this).arguments());
 							if (result == null) {
-								throw new ScriptParsingException("Unknown method: " + memberName, this.input);
+								throw new ScriptParsingException("Unknown method or incorrect arguments: " + memberName, this.input);
 							}
 						}
 						else {

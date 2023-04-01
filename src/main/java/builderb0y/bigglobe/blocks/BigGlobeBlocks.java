@@ -450,8 +450,60 @@ public class BigGlobeBlocks {
 			.dropsNothing()
 		)
 	);
+	public static final Block ROUGH_QUARTZ = register(
+		"rough_quartz",
+		new AmethystBlock(
+			AbstractBlock.Settings.of(Material.AMETHYST, MapColor.OFF_WHITE)
+			.strength(1.5F)
+			.sounds(BlockSoundGroup.AMETHYST_BLOCK)
+			.requiresTool()
+		)
+	);
+	public static final Block BUDDING_QUARTZ = register(
+		"budding_quartz",
+		new BuddingQuartzBlock(
+			AbstractBlock.Settings.of(Material.AMETHYST, MapColor.OFF_WHITE)
+			.ticksRandomly()
+			.strength(1.5F)
+			.sounds(BlockSoundGroup.AMETHYST_BLOCK)
+			.requiresTool()
+		)
+	);
+	public static final Block QUARTZ_CLUSTER = register(
+		"quartz_cluster",
+		new AmethystClusterBlock(7, 3,
+			AbstractBlock.Settings.of(Material.AMETHYST, MapColor.OFF_WHITE)
+			.nonOpaque()
+			.ticksRandomly()
+			.sounds(BlockSoundGroup.AMETHYST_CLUSTER)
+			.strength(1.5F)
+		)
+	);
+	public static final Block LARGE_QUARTZ_BUD = register(
+		"large_quartz_bud",
+		new AmethystClusterBlock(5, 3,
+			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			.sounds(BlockSoundGroup.MEDIUM_AMETHYST_BUD)
+		)
+	);
+	public static final Block MEDIUM_QUARTZ_BUD = register(
+		"medium_quartz_bud",
+		new AmethystClusterBlock(4, 3,
+			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			.sounds(BlockSoundGroup.LARGE_AMETHYST_BUD)
+		)
+	);
+	public static final Block SMALL_QUARTZ_BUD = register(
+		"small_quartz_bud",
+		new AmethystClusterBlock(3, 4,
+			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			.sounds(BlockSoundGroup.SMALL_AMETHYST_BUD)
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
+
+	//////////////////////////////// end of blocks ////////////////////////////////
 
 	public static FlowerPotBlock newPottedPlant(Block plant) {
 		int lightLevel = plant.getDefaultState().getLuminance();
@@ -499,7 +551,11 @@ public class BigGlobeBlocks {
 			POTTED_GLOWING_GOLDENROD,
 			CHARRED_SAPLING,
 			POTTED_CHARRED_SAPLING,
-			CHARRED_DOOR
+			CHARRED_DOOR,
+			SMALL_QUARTZ_BUD,
+			MEDIUM_QUARTZ_BUD,
+			LARGE_QUARTZ_BUD,
+			QUARTZ_CLUSTER
 		);
 
 		ColorProviderRegistry.BLOCK.register(

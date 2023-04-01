@@ -1,0 +1,11 @@
+{
+	"parent": "minecraft:item/amethyst_bud",
+	"textures": {
+		"layer0": "bigglobe:block/medium_quartz_bud"
+	},
+	"display": {
+		"fixed": {
+			"translation": [ 0, 6, 0 ]
+		}
+	}
+}

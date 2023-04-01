@@ -1,0 +1,36 @@
+{
+	"type": "bigglobe:nether_structure_overrider",
+	"config": {
+		"script": [
+			"boolean isTerrainAt(int x, int y, int z:",
+				"return(`nether/cavern_noise`(x, y, z) >= 0.0L && `nether/cave_noise`(x, y, z) >= `nether/cave_width_squared`(z, y, z))",
+			")",
+
+			"if (start.structure.type == StructureType('bigglobe:geode'):",
+				"int x = int(start.midX)",
+				"int z = int(start.midZ)",
+				"int radius = start.sizeY >> 1",
+				"int minY = int(min_y(x, z)) + radius",
+				"int maxY = int(max_y(x, z)) - radius",
+				"if (maxY > minY:",
+					"repeat (16:",
+						"int y = random.nextInt(minY, maxY)",
+						"if (",
+							"isTerrainAt(x, y - radius, z) &&",
+							"isTerrainAt(x, y + radius, z) &&",
+							"isTerrainAt(x - radius, y, z) &&",
+							"isTerrainAt(x + radius, y, z) &&",
+							"isTerrainAt(x, y, z - radius) &&",
+							"isTerrainAt(x, y, z + radius)",
+						":",
+							"start.move(y - int(start.midY))",
+							"return(true)",
+						")",
+					")",
+				")",
+				"return(false)",
+			")",
+			"return(true)"
+		]
+	}
+}

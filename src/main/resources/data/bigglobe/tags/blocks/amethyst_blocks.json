@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"amethyst_block",
-		"budding_amethyst"
+		"minecraft:amethyst_block",
+		"minecraft:budding_amethyst"
 	]
 }

@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.concurrent.RecursiveAction;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -37,7 +38,7 @@ import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Dvec3;
 
-public class GeodeStructure extends BigGlobeStructure implements RawOverworldGenerationStructure {
+public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
 	public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(GeodeStructure.class);
 
@@ -193,19 +194,41 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 		return BigGlobeStructures.GEODE_TYPE;
 	}
 
-	public static class MainPiece extends DataStructurePiece<MainPiece.Data> implements RawOverworldGenerationStructurePiece {
+	public static class MainPiece extends DataStructurePiece<MainPiece.Data> implements RawGenerationStructurePiece {
 
-		public static record Data(
-			double x,
-			double y,
-			double z,
-			@UseName("r") double radius,
-			Grid3D noise,
-			BlocksConfig[] blocks,
-			@UseName("gbt") @VerifyNullable TagKey<Block> growth_block_tag
-		) {
+		public static class Data {
 
 			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+
+			public double x, y, z;
+			/**
+			spikes may have already been positioned when {@link #translate(int, int, int)}
+			is called. since noise uses absolute coordinates, this is a way of un-translating
+			the noise only, so that the spikes line up with the noise again.
+			*/
+			public @DefaultInt(0) int offsetX, offsetY, offsetZ;
+			public @UseName("r") double radius;
+			public Grid3D noise;
+			public BlocksConfig[] blocks;
+			public @UseName("gbt") @VerifyNullable TagKey<Block> growth_block_tag;
+
+			public Data(
+				double x,
+				double y,
+				double z,
+				double radius,
+				Grid3D noise,
+				BlocksConfig[] blocks,
+				@Nullable TagKey<Block> growth_block_tag
+			) {
+				this.x = x;
+				this.y = y;
+				this.z = z;
+				this.radius = radius;
+				this.noise = noise;
+				this.blocks = blocks;
+				this.growth_block_tag = growth_block_tag;
+			}
 		}
 
 		public MainPiece(StructurePieceType type, double x, double y, double z, double radius, Grid3D noise, BlocksConfig[] blocks, TagKey<Block> growth_block_tag) {
@@ -235,7 +258,12 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 
 		public double getNoise(int x, int y, int z, long seed) {
 			return (
-				this.data.noise.getValue(seed, x, y, z)
+				this.data.noise.getValue(
+					seed,
+					x - this.data.offsetX,
+					y - this.data.offsetY,
+					z - this.data.offsetZ
+				)
 				- (
 					BigGlobeMath.squareD(
 						x - this.data.x,
@@ -249,7 +277,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 		}
 
 		@Override
-		public void generateRaw(RawOverworldGenerationStructurePiece.Context context) {
+		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			ChunkPos chunkPos = context.chunk.getPos();
 			int minX = chunkPos.getStartX();
 			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
@@ -268,7 +296,14 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 				for (int x = minX; x <= maxX; x++) {
 					pos.setX(x);
 					double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
-					this.data.noise.getBulkY(context.seed, x, minY, z, samples, samples.length);
+					this.data.noise.getBulkY(
+						context.seed,
+						x - this.data.offsetX,
+						minY - this.data.offsetY,
+						z - this.data.offsetZ,
+						samples,
+						samples.length
+					);
 					for (int y = minY; y <= maxY; y++) {
 						pos.setY(y);
 						double rxyz = rxz + BigGlobeMath.squareD((y - this.data.y) * rcpRadius);
@@ -337,11 +372,23 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 			}
 		}
 
+		@Override
+		public void translate(int x, int y, int z) {
+			super.translate(x, y, z);
+			this.data.x += x;
+			this.data.y += y;
+			this.data.z += z;
+			this.data.offsetX += x;
+			this.data.offsetY += y;
+			this.data.offsetZ += z;
+		}
+
 		/**
 		allows computing noise values for one column while
 		a different column uses that noise to place blocks.
 		this class is no longer used because of a rare race
 		condition which hangs one of the worldgen threads.
+		@deprecated prone to deadlock, for unknown reasons.
 		*/
 		@Deprecated
 		public static class NoiseSwapGenerateTask extends RecursiveAction {
@@ -447,21 +494,37 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 		}
 	}
 
-	public static class SpikePiece extends DataStructurePiece<SpikePiece.Data> implements RawOverworldGenerationStructurePiece {
+	public static class SpikePiece extends DataStructurePiece<SpikePiece.Data> implements RawGenerationStructurePiece {
 
-		public static record Data(
-			double x1,
-			double y1,
-			double z1,
-			double r1,
-			double x2,
-			double y2,
-			double z2,
-			double r2,
-			IRandomList<@UseName("state") BlockState> states
-		) {
+		public static class Data {
 
 			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+
+			public double x1, y1, z1, r1;
+			public double x2, y2, z2, r2;
+			public IRandomList<@UseName("state") BlockState> states;
+
+			public Data(
+				double x1,
+				double y1,
+				double z1,
+				double r1,
+				double x2,
+				double y2,
+				double z2,
+				double r2,
+				IRandomList<@UseName("state") BlockState> states
+			) {
+				this.x1 = x1;
+				this.y1 = y1;
+				this.z1 = z1;
+				this.r1 = r1;
+				this.x2 = x2;
+				this.y2 = y2;
+				this.z2 = z2;
+				this.r2 = r2;
+				this.states = states;
+			}
 		}
 
 		public SpikePiece(
@@ -501,7 +564,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 		}
 
 		@Override
-		public void generateRaw(RawOverworldGenerationStructurePiece.Context context) {
+		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			Data data = this.data;
 			ChunkPos chunkPos = context.chunk.getPos();
 			Permuter permuter = new Permuter(Permuter.permute(context.seed ^ 0xA895D1EC06824D06L, data.x1, data.y1, data.z1));
@@ -544,5 +607,16 @@ public class GeodeStructure extends BigGlobeStructure implements RawOverworldGen
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {}
+
+		@Override
+		public void translate(int x, int y, int z) {
+			super.translate(x, y, z);
+			this.data.x1 += x;
+			this.data.y1 += y;
+			this.data.z1 += z;
+			this.data.x2 += x;
+			this.data.y2 += y;
+			this.data.z2 += z;
+		}
 	}
 }
