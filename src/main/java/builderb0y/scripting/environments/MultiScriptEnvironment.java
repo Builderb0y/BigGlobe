@@ -2,6 +2,7 @@ package builderb0y.scripting.environments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -100,6 +101,11 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 			if (result != null) return result;
 		}
 		return null;
+	}
+
+	@Override
+	public Stream<String> listCandidates(String name) {
+		return this.environments.stream().flatMap(env -> env.listCandidates(name));
 	}
 
 	@Override

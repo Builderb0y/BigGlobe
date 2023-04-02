@@ -736,6 +736,42 @@ public class ExpressionParserTest {
 	}
 
 	@Test
+	public void testDescriptiveIdentifierErrorMessages() {
+		assertFail(
+			"""
+			Unknown variable: exp
+			Candidates:
+				Function exp: functionInvokeStatic: public static pure java/lang/Math.exp(D)D
+			Actual form: exp""",
+			"exp"
+		);
+		assertFail(
+			"""
+			Unknown function or incorrect arguments: e
+			Candidates:
+				Variable e: ConstantInsnTree of type primitive D (constant: 2.718281828459045 of type primitive D)
+			Actual form: e()""",
+			"e ( )"
+		);
+		assertFail(
+			"""
+			Unknown field: getKey
+			Candidates:
+				Method interface java/util/Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
+			Actual form: interface java/util/Map$Entry extends java/lang/Object.getKey""",
+			"MapEntry entry = null ,, entry . getKey"
+		);
+		assertFail(
+			"""
+			Unknown method or incorrect arguments: key
+			Candidates:
+				Field interface java/util/Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
+			Actual form: interface java/util/Map$Entry extends java/lang/Object.key()""",
+			"MapEntry entry = null ,, entry . key ( )"
+		);
+	}
+
+	@Test
 	public void testPrint() throws ScriptParsingException {
 		evaluate("print ( 'a: ', 1, ', b: ' , 2 ) ,, 0");
 		assertSuccess("a: 1, b: 2", "'a: $(1), b: $(2)'");

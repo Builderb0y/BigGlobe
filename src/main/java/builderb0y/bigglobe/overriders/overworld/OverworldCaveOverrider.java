@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -35,14 +36,16 @@ public interface OverworldCaveOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
-					new ColumnYScriptEnvironment(
+					ColumnScriptEnvironment.createFixedXZVariableY(
+						ColumnValue.REGISTRY,
 						getField(
 							load("context", 1, type(Context.class)),
 							FieldInfo.getField(Context.class, "column")
 						),
-						null,
-						true
+						null
 					)
+					.addXZ("x", "z")
+					.mutable
 				)
 				.parse()
 			);

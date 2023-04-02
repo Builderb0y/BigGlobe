@@ -1,5 +1,7 @@
 package builderb0y.scripting.environments;
 
+import java.util.stream.Stream;
+
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -115,6 +117,8 @@ public interface ScriptEnvironment {
 	public default @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
 		return null;
 	}
+
+	public abstract Stream<String> listCandidates(String name);
 
 	public static InsnTree[] castArguments(ExpressionParser parser, MethodInfo method, CastMode mode, InsnTree... arguments) {
 		return castArguments(parser, method.name, method.paramTypes, mode, arguments);

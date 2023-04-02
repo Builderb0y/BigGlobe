@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -47,5 +48,9 @@ public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler
 		else {
 			throw new InvalidOperandException("Must be a " + this.variableMethod.paramTypes[0] + " or a " + this.type + "; was " + argument.getTypeInfo());
 		}
+	}
+
+	public InsnTree create(ConstantValue constant) {
+		return ldc(this.constantMethod, constant);
 	}
 }

@@ -37,7 +37,7 @@ public class EvaluateCommand {
 							BigGlobeMath.floorI(position.x),
 							BigGlobeMath.floorI(position.z)
 						);
-						Object result = script.evaluate(world, column, position.x, position.y, position.z);
+						Object result = script.evaluate(world, column, column.x, BigGlobeMath.floorI(position.y), column.z);
 						context.getSource().sendFeedback(Text.literal(" = " + result), false);
 						return result instanceof Number number ? number.intValue() : 1;
 					}

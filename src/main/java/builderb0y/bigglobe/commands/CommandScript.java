@@ -3,12 +3,12 @@ package builderb0y.bigglobe.commands;
 import java.lang.reflect.Method;
 
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Opcodes;
 
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -24,7 +24,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface CommandScript extends Script {
 
-	public abstract Object evaluate(WorldWrapper world, WorldColumn column, double x, double y, double z);
+	public abstract Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z);
 
 	public static class Parser extends ScriptParser<CommandScript> {
 
@@ -39,26 +39,23 @@ public interface CommandScript extends Script {
 				load("world", 1, WorldWrapper.TYPE)
 			))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
-			.addEnvironment(new ColumnYScriptEnvironment(
-				load("column", 2, type(WorldColumn.class)),
-				load("y", 5, TypeInfos.DOUBLE),
-				false
-			))
+			.addEnvironment(
+				ColumnScriptEnvironment.createVariableXYZ(
+					ColumnValue.REGISTRY,
+					load("column", 2, type(WorldColumn.class))
+				)
+				.mutable
+			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 3, TypeInfos.DOUBLE)
-				.addVariableLoad("y", 5, TypeInfos.DOUBLE)
-				.addVariableLoad("z", 7, TypeInfos.DOUBLE)
+				.addVariableLoad("originX", 3, TypeInfos.INT)
+				.addVariableLoad("originY", 4, TypeInfos.INT)
+				.addVariableLoad("originZ", 5, TypeInfos.INT)
 			)
 			.addEnvironment(new RandomScriptEnvironment(
 				getField(
 					load("world", 1, WorldWrapper.TYPE),
-					field(
-						Opcodes.ACC_PUBLIC,
-						WorldWrapper.TYPE,
-						"permuter",
-						type(Permuter.class)
-					)
+					FieldInfo.getField(WorldWrapper.class, "permuter")
 				)
 			));
 		}
@@ -91,7 +88,7 @@ public interface CommandScript extends Script {
 		}
 
 		@Override
-		public Object evaluate(WorldWrapper world, WorldColumn column, double x, double y, double z) {
+		public Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z) {
 			try {
 				return this.getScript().evaluate(world, column, x, y, z);
 			}

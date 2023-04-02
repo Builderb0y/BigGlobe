@@ -144,6 +144,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		public boolean isConstant() {
 			return false;
 		}
+
+		@Override
+		public String toString() {
+			return "NonConstantValue";
+		}
 	}
 
 	public static class IntConstantValue implements ConstantValue {
@@ -192,6 +197,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 				method.node.visitLdcInsn(intValue);
 			}
 		}
+
+		@Override
+		public String toString() {
+			return this.value + " of type " + this.getTypeInfo();
+		}
 	}
 
 	public static class LongConstantValue implements ConstantValue {
@@ -228,6 +238,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			else {
 				method.node.visitLdcInsn(longValue);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return this.value + " of type " + this.getTypeInfo();
 		}
 	}
 
@@ -269,6 +284,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 				method.node.visitLdcInsn(floatValue);
 			}
 		}
+
+		@Override
+		public String toString() {
+			return this.value + " of type " + this.getTypeInfo();
+		}
 	}
 
 	public static class DoubleConstantValue implements ConstantValue {
@@ -305,6 +325,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			else {
 				method.node.visitLdcInsn(doubleValue);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return this.value + " of type " + this.getTypeInfo();
 		}
 	}
 
@@ -349,6 +374,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		public void emitBytecode(MethodCompileContext method) {
 			method.node.visitInsn(ACONST_NULL);
 		}
+
+		@Override
+		public String toString() {
+			return "null of type " + this.getTypeInfo();
+		}
 	}
 
 	public static class StringConstantValue implements ConstantValue {
@@ -388,6 +418,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		public void emitBytecode(MethodCompileContext method) {
 			method.node.visitLdcInsn(this.value);
 		}
+
+		@Override
+		public String toString() {
+			return '"' + this.value + "\" of type " + this.getTypeInfo();
+		}
 	}
 
 	public static class ClassConstantValue implements ConstantValue {
@@ -426,6 +461,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override
 		public void emitBytecode(MethodCompileContext method) {
 			method.node.visitLdcInsn(this.asAsmObject());
+		}
+
+		@Override
+		public String toString() {
+			return this.value.toString();
 		}
 	}
 
@@ -472,6 +512,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override
 		public boolean isConstantOrDynamic() {
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return this.dynamic.toString();
 		}
 	}
 

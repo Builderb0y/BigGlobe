@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.overriders.nether;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider;
-import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.settings.NetherSettings.NetherCavernSettings;
@@ -36,14 +37,16 @@ public interface NoiseOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
-					new ColumnYScriptEnvironment(
+					ColumnScriptEnvironment.createFixedXZVariableY(
+						ColumnValue.REGISTRY,
 						getField(
 							load("context", 1, type(Context.class)),
 							FieldInfo.getField(Context.class, "column")
 						),
-						null,
-						true
+						null
 					)
+					.addXZ("x", "z")
+					.mutable
 				)
 				.parse()
 			);

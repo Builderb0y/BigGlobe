@@ -116,6 +116,6 @@ public class MethodInfo {
 
 	@Override
 	public String toString() {
-		return Modifier.toString(this.access()) + ' ' + this.owner.getInternalName() + '.' + this.name + this.getDescriptor() + (this.isInterface() ? " (interface)" : "") + (this.isPure() ? " (pure)" : "");
+		return Modifier.toString(this.access()) + (this.isPure() ? " pure" : "") + ' ' + this.owner.getInternalName() + '.' + this.name + this.getDescriptor() + (this.isInterface() ? " (interface)" : "");
 	}
 }

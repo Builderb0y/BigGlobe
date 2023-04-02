@@ -370,5 +370,10 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			Input input = this.inputs.get(name);
 			return input == null ? null : load(name, (input.index << 1) + this.gridTypeInfo.dimensions, TypeInfos.DOUBLE);
 		}
+
+		@Override
+		public Stream<String> listCandidates(String name) {
+			return Stream.ofNullable(this.inputs.get(name)).map(input -> "Input " + input.name + " @ " + input.index);
+		}
 	}
 }

@@ -21,7 +21,7 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
 		this.parser = new ColumnYToDoubleScript.Parser(script);
 		this.parser.toBytecode();
-		this.usedValues = this.parser.columnYScriptEnvironment.usedValues;
+		this.usedValues = this.parser.columnScriptEnvironment.usedValues;
 	}
 
 	public ColumnYToDoubleScript getScript() {

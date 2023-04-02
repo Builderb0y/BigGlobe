@@ -69,7 +69,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 	}
 
 	public static final ColumnValue<WorldColumn>
-		Y                                       = registerAnyDim   ("y",                                withY(   (column, y) -> y                           ), null),
+		//Y                                       = registerAnyDim   ("y",                                withY(   (column, y) -> y                           ), null),
 		MIN_Y                                   = registerAnyDim   ("min_y",                         withoutY(    WorldColumn::getFinalBottomHeightD        ), null),
 		MAX_Y                                   = registerAnyDim   ("max_y",                         withoutY(    WorldColumn::getFinalTopHeightD           ), null);
 

@@ -7,11 +7,12 @@ import com.google.common.collect.ObjectArrays;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockBox;
 
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -96,7 +97,15 @@ public interface OverworldDataOverrider extends Script {
 				parser
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
-				.addEnvironment(new ColumnYScriptEnvironment(load("column", 2, type(OverworldColumn.class)), null, true))
+				.addEnvironment(
+					ColumnScriptEnvironment.createFixedXZVariableY(
+						ColumnValue.REGISTRY,
+						load("column", 2, type(OverworldColumn.class)),
+						null
+					)
+					.addXZ("x", "z")
+					.mutable
+				)
 				.parse()
 			);
 		}

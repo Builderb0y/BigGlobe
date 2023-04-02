@@ -7,6 +7,7 @@ import org.objectweb.asm.Label;
 
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -48,6 +49,11 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addFunctionInvokeStatics(Float.class, "intBitsToFloat", "floatToIntBits")
 		.addFunctionInvokeStatics(Double.class, "longBitsToDouble", "doubleToLongBits")
 		;
+	}
+
+	@Override
+	public MutableScriptEnvironment addFunctionInvokeStatic(String name, MethodInfo method) {
+		return super.addFunctionInvokeStatic(name, method.pure());
 	}
 
 	public static FunctionHandler createNaN(boolean nan) {

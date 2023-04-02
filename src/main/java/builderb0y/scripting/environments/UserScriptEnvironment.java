@@ -2,6 +2,8 @@ package builderb0y.scripting.environments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +49,31 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		this.functions = new StackMap<>(from.functions);
 		this.methods   = new StackMap<>(from.methods);
 		this.types     = new StackMap<>(from.types);
+	}
+
+	@Override
+	public Stream<String> listCandidates(String name) {
+		return Stream.of(
+			Stream.ofNullable(this.variables.get(name))
+			.map(variable -> "Variable " + name + ": " + variable.variable),
+
+			this.fields.entrySet().stream()
+			.filter(entry -> entry.getKey().name.equals(name))
+			.map(entry -> "Field " + entry.getKey() + ": " + entry.getValue()),
+
+			Stream.ofNullable(this.functions.get(name))
+			.flatMap(List::stream)
+			.map(function -> "Function " + name + ": " + function),
+
+			this.methods.entrySet().stream()
+			.filter(entry -> entry.getKey().name.equals(name))
+			.flatMap(entry -> entry.getValue().stream().map(handler -> Map.entry(entry.getKey(), handler)))
+			.map(entry -> "Method " + entry.getKey() + ": " + entry.getValue()),
+
+			Stream.ofNullable(this.types.get(name))
+			.map(type -> "Type " + name + ": " + type)
+		)
+		.flatMap(Function.identity());
 	}
 
 	public void addFunction(String name, FunctionHandler functionHandler) {

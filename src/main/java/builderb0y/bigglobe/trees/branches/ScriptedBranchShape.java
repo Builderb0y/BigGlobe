@@ -3,8 +3,9 @@ package builderb0y.bigglobe.trees.branches;
 import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnYScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -31,10 +32,16 @@ public interface ScriptedBranchShape extends Script {
 					new MutableScriptEnvironment()
 					.addVariableLoad("fraction", 1, TypeInfos.DOUBLE)
 				)
-				.addEnvironment(new ColumnYScriptEnvironment(
-					variable("column", 3, ColumnYScriptEnvironment.WORLD_COLUMN_TYPE),
-					variable("y", 4, TypeInfos.DOUBLE)
-				))
+				.addEnvironment(
+					ColumnScriptEnvironment.createFixedXYZ(
+						ColumnValue.REGISTRY,
+						load("column", 3, type(WorldColumn.class)),
+						load("y", 4, TypeInfos.DOUBLE)
+					)
+					.addXZ("x", "z")
+					.addY("y")
+					.mutable
+				)
 				.addEnvironment(new RandomScriptEnvironment(
 					load("random", 6, type(RandomGenerator.class))
 				))

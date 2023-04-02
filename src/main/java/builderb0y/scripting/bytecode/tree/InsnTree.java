@@ -157,4 +157,22 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			public abstract InsnTree construct(ExpressionParser parser, InsnTree oldValue, InsnTree newValue);
 		}
 	}
+
+	public default String describe() {
+		String className = this.getClass().getName();
+		StringBuilder builder = (
+			new StringBuilder(64)
+			.append(className, className.lastIndexOf('.') + 1, className.length())
+			.append(" of type ")
+			.append(this.getTypeInfo())
+		);
+		ConstantValue constant = this.getConstantValue();
+		if (constant.isConstantOrDynamic()) {
+			builder.append(" (constant: ").append(constant).append(')');
+		}
+		else {
+			builder.append(" (not constant)");
+		}
+		return builder.toString();
+	}
 }

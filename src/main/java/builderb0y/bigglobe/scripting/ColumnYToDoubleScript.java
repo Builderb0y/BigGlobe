@@ -5,7 +5,6 @@ import java.util.Set;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -20,15 +19,21 @@ public interface ColumnYToDoubleScript extends Script {
 
 	public static class Parser extends ScriptParser<ColumnYToDoubleScript> {
 
-		public final ColumnYScriptEnvironment columnYScriptEnvironment;
+		public final ColumnScriptEnvironment columnScriptEnvironment;
 
 		public Parser(String input) {
 			super(ColumnYToDoubleScript.class, input);
-			this.columnYScriptEnvironment = new ColumnYScriptEnvironment(
-				new VarInfo("column", 1, type(WorldColumn.class)),
-				new VarInfo("y", 2, TypeInfos.DOUBLE)
-			);
-			this.addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(this.columnYScriptEnvironment);
+			this.columnScriptEnvironment = ColumnScriptEnvironment.createFixedXYZ(
+				ColumnValue.REGISTRY,
+				load("column", 1, type(WorldColumn.class)),
+				load("y", 2, TypeInfos.DOUBLE)
+			)
+			.trackUsedValues()
+			.addXZ("x", "z")
+			.addY("y");
+			this
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(this.columnScriptEnvironment.mutable);
 		}
 	}
 
@@ -44,7 +49,7 @@ public interface ColumnYToDoubleScript extends Script {
 
 		public static Holder create(String script) throws ScriptParsingException {
 			Parser parser = new Parser(script);
-			return new Holder(parser.parse(), parser.columnYScriptEnvironment.usedValues);
+			return new Holder(parser.parse(), parser.columnScriptEnvironment.usedValues);
 		}
 
 		@Override

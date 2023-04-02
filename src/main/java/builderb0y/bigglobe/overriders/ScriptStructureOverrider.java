@@ -5,11 +5,9 @@ import java.util.random.RandomGenerator;
 import net.minecraft.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnPositionScriptEnvironment;
-import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -47,7 +45,13 @@ public interface ScriptStructureOverrider extends Script {
 					.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
 					.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
 				)
-				.addEnvironment(new ColumnPositionScriptEnvironment(load("column", 2, type(WorldColumn.class))))
+				.addEnvironment(
+					ColumnScriptEnvironment.createVariableXYZ(
+						ColumnValue.REGISTRY,
+						load("column", 2, type(WorldColumn.class))
+					)
+					.mutable
+				)
 				.addEnvironment(new RandomScriptEnvironment(load("random", 3, type(RandomGenerator.class))))
 				.parse()
 			);

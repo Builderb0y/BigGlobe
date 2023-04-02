@@ -29,14 +29,17 @@ public interface ColumnYRandomToDoubleScript extends Script {
 		}
 
 		public static Holder create(String script) throws ScriptParsingException {
-			ColumnYScriptEnvironment columnYScriptEnvironment = new ColumnYScriptEnvironment(
-				variable("column", 1, type(WorldColumn.class)),
-				variable("y", 2, TypeInfos.DOUBLE)
-			);
+			ColumnScriptEnvironment columnYScriptEnvironment = ColumnScriptEnvironment.createFixedXYZ(
+				ColumnValue.REGISTRY,
+				load("column", 1, type(WorldColumn.class)),
+				load("y", 2, TypeInfos.DOUBLE)
+			)
+			.addXZ("x", "z")
+			.addY("y");
 			ColumnYRandomToDoubleScript actualScript = (
 				new ScriptParser<>(ColumnYRandomToDoubleScript.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(columnYScriptEnvironment)
+				.addEnvironment(columnYScriptEnvironment.mutable)
 				.addEnvironment(new RandomScriptEnvironment(
 					load("random", 4, type(RandomGenerator.class))
 				))
