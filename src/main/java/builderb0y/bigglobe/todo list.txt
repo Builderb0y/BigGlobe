@@ -10,8 +10,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	yeeting ColumnPositionScriptEnvironment and ColumnYScriptEnvironment in favor of ColumnScriptEnvironment.
-	also need to rename CastingSupport2 back to CastingSupport, since apparently I forgot that.
 
 changelog:
 	* Fixed cold biomes not quite lining up with where snow forms in the overworld.

@@ -358,7 +358,7 @@ public class FastPow {
 
 	/** returns an InsnTree which represents Math.pow(operand, power). */
 	public static InsnTree fallback(VarInfo operand, int power) {
-		return CastingSupport2.primitiveCast(
+		return CastingSupport.primitiveCast(
 			invokeStatic(
 				method(
 					ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
@@ -368,7 +368,7 @@ public class FastPow {
 					TypeInfos.DOUBLE,
 					TypeInfos.DOUBLE
 				),
-				CastingSupport2.primitiveCast(
+				CastingSupport.primitiveCast(
 					load(operand),
 					TypeInfos.DOUBLE
 				),

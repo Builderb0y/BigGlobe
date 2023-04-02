@@ -11,7 +11,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandlerDat
 import builderb0y.scripting.environments.MutableScriptEnvironment.MultiCastHandler;
 import builderb0y.scripting.util.TypeInfos;
 
-public class CastingSupport2 {
+public class CastingSupport {
 
 	public static final CastHandlerData
 		I2B = data(TypeInfos.INT, TypeInfos.BYTE, false, opcode(Opcodes.I2B)),
@@ -23,11 +23,11 @@ public class CastingSupport2 {
 		L2I = data(TypeInfos.LONG, TypeInfos.INT, false, opcode(Opcodes.L2I)),
 		L2F = data(TypeInfos.LONG, TypeInfos.FLOAT, true, opcode(Opcodes.L2F)),
 		L2D = data(TypeInfos.LONG, TypeInfos.DOUBLE, true, opcode(Opcodes.L2D)),
-		F2I = data(TypeInfos.FLOAT, TypeInfos.INT, false, invoke(CastingSupport2.class, "F2I")),
-		F2L = data(TypeInfos.FLOAT, TypeInfos.LONG, false, invoke(CastingSupport2.class, "F2L")),
+		F2I = data(TypeInfos.FLOAT, TypeInfos.INT, false, invoke(CastingSupport.class, "F2I")),
+		F2L = data(TypeInfos.FLOAT, TypeInfos.LONG, false, invoke(CastingSupport.class, "F2L")),
 		F2D = data(TypeInfos.FLOAT, TypeInfos.DOUBLE, true, opcode(Opcodes.F2D)),
-		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT, false, invoke(CastingSupport2.class, "D2I")),
-		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG, false, invoke(CastingSupport2.class, "D2L")),
+		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT, false, invoke(CastingSupport.class, "D2I")),
+		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG, false, invoke(CastingSupport.class, "D2L")),
 		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT, false, opcode(Opcodes.D2F)),
 		I2Z = data(TypeInfos.INT, TypeInfos.BOOLEAN, false, (parser, value, to) -> new I2ZInsnTree(value)),
 		L2Z = data(
@@ -39,8 +39,8 @@ public class CastingSupport2 {
 				I2Z
 			)
 		),
-		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, invoke(CastingSupport2.class, "F2Z")),
-		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, invoke(CastingSupport2.class, "D2Z"));
+		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, invoke(CastingSupport.class, "F2Z")),
+		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, invoke(CastingSupport.class, "D2Z"));
 
 	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
 		//passing in a null parser is NOT recommended, but in this case it is safe.

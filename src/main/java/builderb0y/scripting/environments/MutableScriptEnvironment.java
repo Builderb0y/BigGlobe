@@ -856,11 +856,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addCasts(CastHandlerData... casters) {
-		return this.addCast(casters[0].from, casters[casters.length - 1].to, Arrays.stream(casters).allMatch(caster -> caster.implicit), CastingSupport2.allOf(casters));
+		return this.addCast(casters[0].from, casters[casters.length - 1].to, Arrays.stream(casters).allMatch(caster -> caster.implicit), CastingSupport.allOf(casters));
 	}
 
 	public MutableScriptEnvironment addCastInvoke(MethodInfo method, boolean implicit) {
-		return this.addCast(method.owner, method.returnType, implicit, CastingSupport2.invokeVirtual(method));
+		return this.addCast(method.owner, method.returnType, implicit, CastingSupport.invokeVirtual(method));
 	}
 
 	public MutableScriptEnvironment addCastInvoke(Class<?> in, String name, boolean implicit) {
@@ -868,7 +868,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addCastInvokeStatic(MethodInfo method, boolean implicit) {
-		return this.addCast(method.paramTypes[0], method.returnType, implicit, CastingSupport2.invokeStatic(method));
+		return this.addCast(method.paramTypes[0], method.returnType, implicit, CastingSupport.invokeStatic(method));
 	}
 
 	public MutableScriptEnvironment addCastInvokeStatic(Class<?> in, String name, boolean implicit) {

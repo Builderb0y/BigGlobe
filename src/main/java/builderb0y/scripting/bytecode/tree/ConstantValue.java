@@ -261,7 +261,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override public float asFloat() { return this.value; }
 		@Override public double asDouble() { return this.value; }
 		@Override public char asChar() { return toChar(toInt(this.value)); }
-		@Override public boolean asBoolean() { return CastingSupport2.F2Z(this.value); }
+		@Override public boolean asBoolean() { return CastingSupport.F2Z(this.value); }
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -306,7 +306,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override public float asFloat() { return (float)(this.value); }
 		@Override public double asDouble() { return this.value; }
 		@Override public char asChar() { return toChar(toInt(this.value)); }
-		@Override public boolean asBoolean() { return CastingSupport2.D2Z(this.value); }
+		@Override public boolean asBoolean() { return CastingSupport.D2Z(this.value); }
 
 		@Override
 		public TypeInfo getTypeInfo() {
