@@ -1,0 +1,48 @@
+{
+	"type": "bigglobe:nether_rock_layer_entry",
+	"config": {
+		"group": "bigglobe:nether/rock_layers/inferno",
+		"entries": {
+			"defaults": {
+				"center": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 16.0 },
+						{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude":  8.0 },
+						{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude":  4.0 }
+					]
+				},
+				"thickness": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
+						{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
+						{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
+					]
+				},
+				"restrictions": {
+					"type": "biome",
+					"bigglobe:inferno": 1.0,
+					"default": 0.0
+				}
+			},
+			"variations": [
+				{
+					"weight": 1.0,
+					"place": "minecraft:netherrack",
+					"replace": "minecraft:basalt[axis=y]"
+				},
+				{
+					"weight": 1.0,
+					"place": "minecraft:blackstone",
+					"replace": "minecraft:basalt[axis=y]"
+				},
+				{
+					"weight": 0.5,
+					"place": "minecraft:smooth_basalt",
+					"replace": "minecraft:basalt[axis=y]"
+				}
+			]
+		}
+	}
+}

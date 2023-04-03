@@ -45,19 +45,9 @@ public class FlowerEntryFeature extends DummyFeature<FlowerEntryFeature.Config> 
 			SingleBlockFeature.@VerifyNullable Config under
 		) {
 			super(weight, restrictions);
-			this.radius       = radius;
-			this.state        = state;
-			this.under        = under;
-		}
-
-		@Override
-		public double getWeight() {
-			return this.weight;
-		}
-
-		@Override
-		public ColumnRestriction getRestrictions() {
-			return this.restrictions;
+			this.radius = radius;
+			this.state  = state;
+			this.under  = under;
 		}
 	}
 }

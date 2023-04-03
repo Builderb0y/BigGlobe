@@ -6,7 +6,6 @@ import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.ores.OreFeature;
-import builderb0y.bigglobe.features.ores.OreFeature.PaletteIdReplacer;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 

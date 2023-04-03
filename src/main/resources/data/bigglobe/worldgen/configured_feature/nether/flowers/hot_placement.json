@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": "random.nextBoolean(1.0L / 4096.0L) && placeFeature(originX, originY, originZ, 'bigglobe:nether/flowers/hot')"
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.0,
+		"randomize_radius": 8,
+		"entries": {
+			"weight": 1.0,
+			"radius": { "type": "uniform", "min": 8, "max": 16 },
+			"state": "minecraft:nether_wart",
+			"under": {
+				"place": "minecraft:soul_sand",
+				"replace": [
+					"minecraft:soul_sand",
+					"minecraft:soul_soil"
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.25,
+		"randomize_radius": 16,
+		"entries": [
+			{ "weight": 2.0, "radius": 16, "state": "bigglobe:glowing_goldenrod" },
+			{ "weight": 1.5, "radius": 16, "state": "bigglobe:blazing_blossom" },
+			{
+				"weight": 1.0,
+				"radius": { "type": "uniform", "min": 8, "max": 16 },
+				"state": "minecraft:nether_wart",
+				"under": {
+					"place": "minecraft:soul_sand",
+					"replace": [
+						"minecraft:crimson_nylium",
+						"minecraft:warped_nylium"
+					]
+				}
+			}
+		]
+	}
+}

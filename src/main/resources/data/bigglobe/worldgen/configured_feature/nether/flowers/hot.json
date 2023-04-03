@@ -1,0 +1,19 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.25,
+		"randomize_radius": { "type": "uniform", "min": 6, "max": 12 },
+		"entries": [
+			{
+				"weight": 1.0,
+				"radius": { "type": "uniform", "min": 4, "max": 8 },
+				"state": "bigglobe:glowing_goldenrod"
+			},
+			{
+				"weight": 2.0,
+				"radius": { "type": "uniform", "min": 8, "max": 16 },
+				"state": "bigglobe:blazing_blossom"
+			}
+		]
+	}
+}

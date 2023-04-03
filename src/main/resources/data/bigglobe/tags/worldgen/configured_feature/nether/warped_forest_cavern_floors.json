@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:nether/foliage/warped_forest",
-		"bigglobe:nether/foliage/twisting_vines_floor"
+		"bigglobe:nether/foliage/twisting_vines_floor",
+		"bigglobe:nether/flowers/forest_placement"
 	]
 }

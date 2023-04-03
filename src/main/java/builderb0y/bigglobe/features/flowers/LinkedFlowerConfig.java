@@ -8,6 +8,7 @@ import net.minecraft.world.biome.GenerationSettings;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.LinkedConfig;
@@ -56,7 +57,7 @@ public class LinkedFlowerConfig extends LinkedConfig<
 		FlowerEntryFeature.Entry
 	>
 	FACTORY = new Factory<>(
-		LinkedFlowerConfig.class,
+		new ObjectArrayFactory<>(LinkedFlowerConfig.class),
 		BigGlobeFeatures.FLOWER_GROUP,
 		BigGlobeFeatures.FLOWER_ENTRY
 	) {

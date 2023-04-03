@@ -2,15 +2,13 @@ package builderb0y.bigglobe.chunkgen.perSection;
 
 import java.util.stream.IntStream;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.PalettedContainer;
 
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.RockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -20,14 +18,14 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 
 public class RockLayerReplacer {
 
-	public static void generateNew(long worldSeed, Chunk chunk, ChunkOfColumns<OverworldColumn> columns, int minY, int maxY, LinkedRockLayerConfig config) {
+	public static void generateNew(long worldSeed, Chunk chunk, ChunkOfColumns<? extends WorldColumn> columns, int minY, int maxY, LinkedRockLayerConfig<?> config) {
 		int minSection = minY >> 4;
 		int maxSection = (maxY + 15) >> 4;
 		int totalSections = maxSection - minSection;
 		int threads = Math.min(Runtime.getRuntime().availableProcessors(), totalSections);
 		//floorDivide(a + b - 1, b) == ceilDivide(a, b)
 		int sectionsPerThread = (totalSections + threads - 1) / threads;
-		IRandomList<RockLayerEntryFeature.Entry> entries = new RandomAccessDelegatingContainedRandomList<>(config.entries);
+		IRandomList<? extends RockLayerEntryFeature.Entry> entries = new RandomAccessDelegatingContainedRandomList<>(config.entries);
 		IntStream.range(0, threads).parallel().forEach((int thread) -> {
 			long     configSeed       = worldSeed ^ config.nameHash;
 			int      startX           = chunk.getPos().getStartX();
@@ -67,19 +65,9 @@ public class RockLayerReplacer {
 					int layerSectionMaxY = Math.min(layerMaxY >> 4, endSection - 1);
 					for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
 						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(layerSectionY));
-						PalettedContainer<BlockState> container = section.getBlockStateContainer();
-						PaletteStorage storage = SectionUtil.storage(container);
-						int fromStoneID = SectionUtil.id(container, BlockStates.STONE);
-						int fromCobbleID = SectionUtil.id(container, BlockStates.COBBLESTONE);
-						int toStoneID = SectionUtil.id(container, entry.smooth_state);
-						int toCobbleID = SectionUtil.id(container, entry.cobble_state);
-						if (storage != (storage = SectionUtil.storage(container))) { //resize.
-							fromStoneID = SectionUtil.id(container, BlockStates.STONE);
-							fromCobbleID = SectionUtil.id(container, BlockStates.COBBLESTONE);
-							toStoneID = SectionUtil.id(container, entry.smooth_state);
-							toCobbleID = SectionUtil.id(container, entry.cobble_state);
-							assert storage == SectionUtil.storage(container);
-						}
+						SectionGenerationContext context = new SectionGenerationContext(chunk, section, worldSeed, columns);
+						PaletteIdReplacer replacer = entry.getReplacer(context);
+						PaletteStorage storage = context.storage();
 						int sectionMinY = section.getYOffset();
 						int sectionMaxY = sectionMinY | 15;
 
@@ -90,11 +78,9 @@ public class RockLayerReplacer {
 								int relativeY = columnY & 15;
 								int index = (relativeY << 8) | horizontalIndex;
 								int oldID = storage.get(index);
-								if (oldID == fromStoneID) {
-									storage.set(index, toStoneID);
-								}
-								else if (oldID == fromCobbleID) {
-									storage.set(index, toCobbleID);
+								int newID = replacer.getReplacement(oldID);
+								if (oldID != newID) {
+									storage.set(index, newID);
 								}
 							}
 						}

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features.ores;
 
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
+import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.DummyFeature;
@@ -11,11 +12,6 @@ public class OreFeature<T_Config extends OreFeature.Config> extends DummyFeature
 
 	public OreFeature(Class<T_Config> configCodec) {
 		super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(configCodec));
-	}
-
-	public static interface PaletteIdReplacer {
-
-		public abstract int getReplacement(int id);
 	}
 
 	public static abstract class Config extends DummyConfig {

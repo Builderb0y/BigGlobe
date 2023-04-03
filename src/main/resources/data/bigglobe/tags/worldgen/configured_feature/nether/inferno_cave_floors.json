@@ -1,4 +1,6 @@
 {
 	"replace": false,
-	"values": []
+	"values": [
+		"bigglobe:nether/flowers/fire_placement"
+	]
 }

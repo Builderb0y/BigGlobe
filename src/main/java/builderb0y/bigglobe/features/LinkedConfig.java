@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.features;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,21 +79,20 @@ public class LinkedConfig<
 		T_Entry        extends LinkedConfig.Entry
 	> {
 
-		public final Class<T_LinkedConfig> linkedConfigClass;
+		public final ObjectArrayFactory<T_LinkedConfig> linkedConfigArrayFactory;
 		public final Feature<T_GroupConfig> groupFeature;
 		public final Feature<T_EntryConfig> entryFeature;
 
-		public Factory(Class<T_LinkedConfig> aClass, Feature<T_GroupConfig> groupFeature, Feature<T_EntryConfig> entryFeature) {
-			this.linkedConfigClass = aClass;
+		public Factory(ObjectArrayFactory<T_LinkedConfig> linkedConfigArrayFactory, Feature<T_GroupConfig> groupFeature, Feature<T_EntryConfig> entryFeature) {
+			this.linkedConfigArrayFactory = linkedConfigArrayFactory;
 			this.groupFeature = groupFeature;
 			this.entryFeature = entryFeature;
 		}
 
 		public abstract T_LinkedConfig newConfig(Identifier name, T_GroupConfig groupConfig, List<T_Entry> entries);
 
-		@SuppressWarnings("unchecked")
 		public T_LinkedConfig[] newArray(int length) {
-			return (T_LinkedConfig[])(Array.newInstance(this.linkedConfigClass, length));
+			return this.linkedConfigArrayFactory.apply(length);
 		}
 
 		public T_LinkedConfig[] link(SortedFeatures sortedFeatures) {

@@ -159,7 +159,6 @@ public abstract class AbstractCaveExclusionContext {
 			else if (distanceXYZSquared <= outerRadiusSquared) {
 				double distanceXYZ = Math.sqrt(distanceXYZSquared);
 				double exclusion = Interpolator.unmixLinear(outerRadius, radius, distanceXYZ);
-				//float exclusion = (float)((outerRadius - distanceXYZ) / (outerRadius - innerRadius));
 				this.excludeUnchecked(y, exclusion * exclusion);
 			}
 			else {
@@ -174,8 +173,7 @@ public abstract class AbstractCaveExclusionContext {
 			}
 			else if (distanceXYZSquared <= outerRadiusSquared) {
 				double distanceXYZ = Math.sqrt(distanceXYZSquared);
-				float exclusion = (float)(Interpolator.unmixLinear(outerRadius, radius, distanceXYZ));
-				//float exclusion = (outerRadius - distanceXYZ) / (outerRadius - innerRadius);
+				double exclusion = Interpolator.unmixLinear(outerRadius, radius, distanceXYZ);
 				this.excludeUnchecked(y, exclusion * exclusion);
 			}
 			else {

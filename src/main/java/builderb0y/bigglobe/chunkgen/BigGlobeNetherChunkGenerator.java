@@ -47,6 +47,8 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
+import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
+import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -81,6 +83,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 	public final transient NoiseOverrider.Holder[] caveOverriders, cavernOverriders;
+	public final LinkedRockLayerConfig<NetherRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
@@ -100,6 +103,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
 		this.caveOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
 		this.cavernOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
+		this.rockLayers = LinkedRockLayerConfig.NETHER_FACTORY.link(configuredFeatures);
 		this.ores = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 	}
 
@@ -178,13 +182,13 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			}
 		});
 		if (!distantHorizons) {
-			//todo: early rock layers
+			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, true);
 			this.profiler.run("ores", () -> {
 				this.generateSectionsParallelSimple(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
 					OreReplacer.generate(context, columns, this.ores);
 				});
 			});
-			//todo: late rock layers
+			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, false);
 		}
 	}
 

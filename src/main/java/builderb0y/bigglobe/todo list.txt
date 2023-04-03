@@ -27,6 +27,8 @@ AutoCodec:
 	builtin framework for key dispatching.
 	add @VerifyNotEmpty.
 		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = false).
+	ClassValue for ReifiedType anonymous subclasses.
+		use for performance to avoid more than one reflective deserialization of captured type.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -90,14 +92,7 @@ features:
 		make lilypads renewable?
 		migrate bushes to script template feature.
 	nether:
-		nether quartz geodes?
-		rock layers.
-		flowers:
-			fire in nether wastes and ashen wastes.
-			soul fire in valley of souls.
-			nether wart in nether wastes, crimson forest, and valley of souls.
-			glowing goldenrod in nether wastes, crimson forest, and warped forest.
-			blazing blossom in nether wastes, crimson forest, warped forest, and basalt deltas.
+		ensure teleporting from the overworld to the nether places you in the caverns.
 	end:
 		jessie wants worley noise for the end.
 			convex.

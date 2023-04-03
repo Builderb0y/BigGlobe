@@ -188,7 +188,17 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				assert inputSource != null;
 				ClassCompileContext classCopy = new ClassCompileContext(parser.clazz.node.access, parser.clazz.info);
 				MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), parser.method.info);
-				ExpressionParser parserCopy = setupParser(new ExpressionParser(inputSource, classCopy, methodCopy), Collections.emptyMap(), NO_INPUTS);
+				ExpressionParser parserCopy = setupParser(
+					new ExpressionParser(inputSource, classCopy, methodCopy) {
+
+						@Override
+						public InsnTree createReturn(InsnTree value) {
+							throw new UnsupportedOperationException("Script inputs cannot return.");
+						}
+					},
+					Collections.emptyMap(),
+					NO_INPUTS
+				);
 				InsnTree inputTree = parserCopy.nextScript();
 				VariableDeclarationInsnTree declaration = parser.environment.user().newVariable(inputName, inputTree.getTypeInfo());
 				InsnTree initializer = seq(declaration, store(declaration.loader.variable, inputTree));

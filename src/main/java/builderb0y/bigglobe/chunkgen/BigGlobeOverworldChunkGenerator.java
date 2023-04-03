@@ -158,7 +158,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			.distinct()
 			.toArray(ColumnValue.ARRAY_FACTORY.generic())
 		);
-		this.rockLayers = LinkedRockLayerConfig.FACTORY.link(configuredFeatures);
+		this.rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
 		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
 		this.         oreConfigs = configuredFeatures.streamConfigs(BigGlobeFeatures.OVERWORLD_ORE).toArray(OverworldOreFeature.Config[]::new);
 		this.   heightOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
@@ -383,13 +383,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			});
 		}
 		if (!distantHorizons) {
-			this.generateRockLayers(chunk, minHeight, maxSurface, columns, true);
+			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, true);
 			this.profiler.run("ores", () -> {
 				this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, context -> {
 					OreReplacer.generate(context, columns, this.oreConfigs);
 				});
 			});
-			this.generateRockLayers(chunk, minHeight, maxSurface, columns, false);
+			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, false);
 			ChunkSection bottomSection = chunk.getSection(chunk.getSectionIndex(this.getMinimumY()));
 			BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, bottomSection, this.seed, columns));
 		}
@@ -406,18 +406,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		for (int y = minY; y <= maxY; y++) {
 			storage.set(horizontalIndex | ((y & 15) << 8), id);
 		}
-	}
-
-	public void generateRockLayers(Chunk chunk, int minHeight, int maxHeight, ChunkOfColumns<OverworldColumn> columns, boolean early) {
-		this.profiler.run("Rock layers", () -> {
-			for (LinkedRockLayerConfig rock : this.rockLayers) {
-				if (rock.group.generate_before_ores == early) {
-					this.profiler.run(rock.name, () -> {
-						RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
-					});
-				}
-			}
-		});
 	}
 
 	public void updatePostRawGenerationHeightmaps(Chunk chunk, ChunkOfColumns<OverworldColumn> columns) {

@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:nether/foliage/valley_of_souls_caves"
+		"bigglobe:nether/foliage/valley_of_souls_caves",
+		"bigglobe:nether/flowers/soul_fire_placement"
 	]
 }

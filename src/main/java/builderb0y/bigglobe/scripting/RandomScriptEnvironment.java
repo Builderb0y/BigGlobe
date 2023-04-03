@@ -46,7 +46,7 @@ public class RandomScriptEnvironment extends MutableScriptEnvironment {
 		.addMethodInvoke(RandomGenerator.class, "nextBoolean")
 		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
 		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
-		.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble")
+		.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble", "nextGaussian", "nextExponential")
 		.addMethod(type(RandomGenerator.class), "switch", (parser, receiver, name, arguments) -> {
 			if (arguments.length < 2) {
 				throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);

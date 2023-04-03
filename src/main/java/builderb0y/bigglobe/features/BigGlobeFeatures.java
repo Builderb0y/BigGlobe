@@ -6,10 +6,12 @@ import net.minecraft.world.gen.feature.Feature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.FlowerGroupFeature;
+import builderb0y.bigglobe.features.flowers.NetherFlowerFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
 import builderb0y.bigglobe.features.overriders.*;
-import builderb0y.bigglobe.features.rockLayers.RockLayerEntryFeature;
+import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
+import builderb0y.bigglobe.features.rockLayers.OverworldRockLayerEntryFeature;
 import builderb0y.bigglobe.features.rockLayers.RockLayerGroupFeature;
 
 public class BigGlobeFeatures {
@@ -21,12 +23,18 @@ public class BigGlobeFeatures {
 	public static final NaturalTreeFeature             NATURAL_TREE                  = register("natural_tree",                  new             NaturalTreeFeature());
 	public static final ArtificialTreeFeature          ARTIFICIAL_TREE               = register("artificial_tree",               new          ArtificialTreeFeature());
 	public static final BushFeature                    BUSH                          = register("bush",                          new                    BushFeature());
+
 	public static final OverworldOreFeature            OVERWORLD_ORE                 = register("overworld_ore",                 new            OverworldOreFeature());
 	public static final NetherOreFeature               NETHER_ORE                    = register("nether_ore",                    new               NetherOreFeature());
+
 	public static final FlowerGroupFeature             FLOWER_GROUP                  = register("overworld_flower_group",        new             FlowerGroupFeature());
 	public static final FlowerEntryFeature             FLOWER_ENTRY                  = register("overworld_flower_entry",        new             FlowerEntryFeature());
-	public static final RockLayerGroupFeature          ROCK_LAYER_GROUP              = register("overworld_rock_layer_group",    new          RockLayerGroupFeature());
-	public static final RockLayerEntryFeature          ROCK_LAYER_ENTRY              = register("overworld_rock_layer_entry",    new          RockLayerEntryFeature());
+	public static final NetherFlowerFeature            NETHER_FLOWER                 = register("nether_flower",                 new            NetherFlowerFeature());
+
+	public static final RockLayerGroupFeature          OVERWORLD_ROCK_LAYER_GROUP    = register("overworld_rock_layer_group",    new          RockLayerGroupFeature());
+	public static final OverworldRockLayerEntryFeature OVERWORLD_ROCK_LAYER_ENTRY    = register("overworld_rock_layer_entry",    new OverworldRockLayerEntryFeature());
+	public static final RockLayerGroupFeature          NETHER_ROCK_LAYER_GROUP       = register("nether_rock_layer_group",       new          RockLayerGroupFeature());
+	public static final NetherRockLayerEntryFeature    NETHER_ROCK_LAYER_ENTRY       = register("nether_rock_layer_entry",       new    NetherRockLayerEntryFeature());
 
 	public static final HeightOverrideFeature          OVERWORLD_HEIGHT_OVERRIDER    = register("overworld_height_overrider",    new          HeightOverrideFeature());
 	public static final FoliageOverrideFeature         OVERWORLD_FOLIAGE_OVERRIDER   = register("overworld_foliage_overrider",   new         FoliageOverrideFeature());

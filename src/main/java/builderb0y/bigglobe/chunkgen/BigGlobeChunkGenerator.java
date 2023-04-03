@@ -76,6 +76,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
@@ -84,6 +85,7 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
+import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -395,6 +397,18 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		}
 	}
 
+	public void generateRockLayers(LinkedRockLayerConfig<?>[] rockLayers, Chunk chunk, int minHeight, int maxHeight, ChunkOfColumns<? extends WorldColumn> columns, boolean early) {
+		this.profiler.run("Rock layers", () -> {
+			for (LinkedRockLayerConfig<?> rock : rockLayers) {
+				if (rock.group.generate_before_ores == early) {
+					this.profiler.run(rock.name, () -> {
+						RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
+					});
+				}
+			}
+		});
+	}
+
 	@Override
 	public void setStructureStarts(DynamicRegistryManager registryManager, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager, long seed) {
 		if (
@@ -506,6 +520,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 					Permuter.permute(
 						Permuter.permute(
 							this.seed ^ 0xD59E69D9AB0D41BAL,
+							chunk.getPos().x,
+							chunk.getPos().z,
 							//String.hashCode() will be cached, which means faster permutation times.
 							UnregisteredObjectException.getID(weightedEntry.structure()).hashCode()
 						),

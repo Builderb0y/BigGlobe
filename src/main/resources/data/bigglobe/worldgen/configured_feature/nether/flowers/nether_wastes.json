@@ -1,0 +1,20 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.25,
+		"randomize_radius": 16,
+		"entries": [
+			{ "weight": 1.0, "radius": 8, "state": "bigglobe:glowing_goldenrod" },
+			{ "weight": 1.0, "radius": 8, "state": "bigglobe:blazing_blossom" },
+			{
+				"weight": 1.0,
+				"radius": 8,
+				"state": "minecraft:nether_wart",
+				"under": {
+					"place": "minecraft:soul_sand",
+					"replace": "minecraft:netherrack"
+				}
+			}
+		]
+	}
+}
