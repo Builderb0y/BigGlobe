@@ -27,6 +27,7 @@
 		"PlantBlock_CanPlantOnTopAccess",
 		"PlayerManager_InitializeSpawnPoint",
 		"PlayerManager_SyncOverworldSettingsHook",
+		"PortalForcer_PlaceInNetherCaverns",
 		"ProtoChunk_ImplementPositionCacheHolder",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"ServerWorld_CustomTimeSpeed",

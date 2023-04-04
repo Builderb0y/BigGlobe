@@ -92,7 +92,6 @@ features:
 		make lilypads renewable?
 		migrate bushes to script template feature.
 	nether:
-		ensure teleporting from the overworld to the nether places you in the caverns.
 	end:
 		jessie wants worley noise for the end.
 			convex.

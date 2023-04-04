@@ -7,7 +7,10 @@
 			{
 				"weight": 1.0,
 				"radius": { "type": "uniform", "min": 8, "max": 16 },
-				"state": "minecraft:soul_fire"
+				"state": {
+					"place": "minecraft:soul_fire",
+					"replace": "minecraft:air"
+				}
 			}
 		]
 	}
