@@ -10,7 +10,7 @@
 			"double maxHeightD = 1.0L - `nether/biome_edginess`",
 			"maxHeightD *= exp2(random.nextDouble(3.0L, 7.0L))",
 			"int maxHeightI = random.roundInt(maxHeightD) + originY",
-			"double standardDeviation = max(maxHeightD * 0.03125L, 0.5L)",
+			"double standardDeviation = sqrt(maxHeightD * 0.125L)",
 
 			";generate initial heights above lava level.",
 			";the 'heights' map maps Columns to Heights.",
