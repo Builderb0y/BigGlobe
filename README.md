@@ -1,1 +1,1 @@
-Current status: Released on Modrinth, but still in alpha. Only the overworld has custom generation right now. The nether is currently work-in-progress, and the end has not been started yet.
+Current status: Released on Modrinth, but still in alpha. Only the overworld and nether have custom generation right now. The end has not been started yet.
