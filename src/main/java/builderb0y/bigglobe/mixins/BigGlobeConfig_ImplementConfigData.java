@@ -14,7 +14,7 @@ can load normally when cloth config is not installed.
 
 so, this mixin makes BigGlobeConfig implement ConfigData,
 but this mixin will be disabled whenever cloth config is not installed.
-that logic is controlled by {@link ClothConfigCompatibilityPlugin#shouldApplyMixin(String, String)}.
+that logic is controlled by {@link BigGlobeMixinPlugin#shouldApplyMixin(String, String)}.
 */
 @Mixin(BigGlobeConfig.class)
 public class BigGlobeConfig_ImplementConfigData implements ConfigData {}

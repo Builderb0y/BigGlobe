@@ -3,15 +3,17 @@
 	"minVersion": "0.8",
 	"package": "builderb0y.bigglobe.mixins",
 	"compatibilityLevel": "JAVA_17",
-	"plugin": "builderb0y.bigglobe.mixins.ClothConfigCompatibilityPlugin",
+	"plugin": "builderb0y.bigglobe.mixins.BigGlobeMixinPlugin",
 	"mixins": [
 		"AzaleaBlock_GrowIntoBigGlobeTree",
 		"BigGlobeConfig_ImplementConfigData",
 		"BlockEntityType_AddBlockHook",
 		"BubbleColumnBlock_WorkWithSoulMagma",
 		"CactusBlock_AllowPlacementOnOvergrownSand",
+		"CatEntity_PetTheKitty",
 		"ChunkGenerator_getStructurePlacementAccess",
 		"ChunkSection_CountsAccess",
+		"CommandBlockExecutor_Optimize",
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"Heightmap_StorageAccess",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
@@ -46,7 +48,6 @@
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
-		"Dev_InGameHud_DisableVignette",
 		"MinecraftClient_ResetOverworldSettingsHook"
 	],
 	"injectors": {

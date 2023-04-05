@@ -83,7 +83,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 	public final transient NoiseOverrider.Holder[] caveOverriders, cavernOverriders;
-	public final LinkedRockLayerConfig<NetherRockLayerEntryFeature.Entry>[] rockLayers;
+	public final transient LinkedRockLayerConfig<NetherRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
@@ -99,12 +99,12 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
 			)
 		);
-		this.settings = settings;
+		this.settings            = settings;
 		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
-		this.caveOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
-		this.cavernOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER).map(config -> config.script).toArray(NoiseOverrider.Holder[]::new);
-		this.rockLayers = LinkedRockLayerConfig.NETHER_FACTORY.link(configuredFeatures);
-		this.ores = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
+		this.caveOverriders      = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER     ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
+		this.cavernOverriders    = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER   ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
+		this.ores                = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE                ).toArray(NetherOreFeature.Config[]::new);
+		this.rockLayers          = LinkedRockLayerConfig.NETHER_FACTORY.link(configuredFeatures);
 	}
 
 	public static void init() {

@@ -12,8 +12,6 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed cold biomes not quite lining up with where snow forms in the overworld.
-	* Added nether support.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -37,7 +35,6 @@ scripting:
 	expose arrays.
 	break statements.
 	scriptable RandomSource?
-	WorldColumn as object, expose setPos().
 	pre and post update operators.
 	increment and decrement as expression.
 	postfix increment and decrement.
@@ -47,7 +44,6 @@ features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
-		config file to disable non-essential mixins.
 	overworld:
 		script for cave width.
 		desert well feature.
@@ -97,7 +93,6 @@ features:
 			convex.
 
 before release:
-	disable dev mixins.
 	make sure nothing in test package is used.
 	disable BigGlobeItems.TEST_ITEM.
 	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.

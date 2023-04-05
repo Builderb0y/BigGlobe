@@ -21,9 +21,9 @@ if anyone finds this code and wants it in production,
 let me know and I'll make a separate mod for it.
 */
 @Mixin(CatEntity.class)
-public abstract class Dev_CatEntity_PetTheKitty extends TameableEntity {
+public abstract class CatEntity_PetTheKitty extends TameableEntity {
 
-	public Dev_CatEntity_PetTheKitty(EntityType<? extends TameableEntity> entityType, World world) {
+	public CatEntity_PetTheKitty(EntityType<? extends TameableEntity> entityType, World world) {
 		super(entityType, world);
 	}
 
