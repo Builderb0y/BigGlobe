@@ -16,12 +16,8 @@ import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.state.State;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList.Named;
 
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
@@ -33,6 +29,9 @@ import builderb0y.autocodec.imprinters.ImprintContext;
 import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.registry.BetterRegistry;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
+import builderb0y.bigglobe.registry.BetterTag;
 
 public class BlockStateCollectionImprinter extends NamedImprinter<Collection<BlockState>> {
 
@@ -64,7 +63,14 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	public <T_Encoded> void imprintAsString(ImprintContext<T_Encoded, Collection<BlockState>> context, String string) throws ImprintException {
 		try {
 			BlockArgumentParser
-			.blockOrTag(Registry.BLOCK, string, false)
+			.blockOrTag(
+				BlockStateCoder.getBlockRegistry(
+					context.ops,
+					ImprintException::new
+				),
+				string,
+				false
+			)
 			.ifLeft(blockResult -> {
 				if (blockResult.blockState().getProperties().size() == blockResult.properties().size()) {
 					context.object.add(blockResult.blockState());
@@ -77,7 +83,16 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 				}
 			})
 			.ifRight(tagResult -> {
-				this.filterAndAdd(context.object, tagResult.tag(), tagResult.vagueProperties());
+				try {
+					BetterRegistry<Block> registry = BigGlobeAutoCodec.BLOCK_REGISTRY_CODERS.registryCoder.decode(context);
+					this.filterAndAdd(context.object, registry.getTag(tagResult.tag().getTagKey().orElseThrow()), tagResult.vagueProperties());
+				}
+				catch (ImprintException exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
+				catch (DecodeException exception) {
+					throw AutoCodecUtil.rethrow(new ImprintException(exception));
+				}
 			});
 		}
 		catch (CommandSyntaxException exception) {
@@ -112,10 +127,8 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectName(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier id) throws DecodeException {
-		if (!Registry.BLOCK.containsId(id)) {
-			throw new ImprintException("No such block with ID " + id);
-		}
-		Block block = Registry.BLOCK.get(id);
+		BetterRegistry<Block> registry = BigGlobeAutoCodec.BLOCK_REGISTRY_CODERS.registryCoder.decode(context);
+		Block block = registry.getObject(id);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		if (stringProperties.isEmpty()) {
 			context.object.addAll(block.getStateManager().getStates());
@@ -129,23 +142,23 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectTag(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier tagID) throws DecodeException {
-		Named<Block> tagEntries = Registry.BLOCK.getEntryList(TagKey.of(Registry.BLOCK_KEY, tagID)).orElse(null);
-		if (tagEntries == null) throw new ImprintException("Unknown block tag: " + tagID);
+		BetterRegistry<Block> registry = BigGlobeAutoCodec.BLOCK_REGISTRY_CODERS.registryCoder.decode(context);
+		BetterTag<Block> tagEntries = registry.getTag(tagID);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		this.filterAndAdd(context.object, tagEntries, stringProperties);
 	}
 
-	public void filterAndAdd(Collection<BlockState> states, Iterable<RegistryEntry<Block>> entries, Map<String, String> stringProperties) {
+	public void filterAndAdd(Collection<BlockState> states, Iterable<BetterRegistryEntry<Block>> entries, Map<String, String> stringProperties) {
 		if (stringProperties.isEmpty()) {
-			for (RegistryEntry<Block> entry : entries) {
-				states.addAll(entry.value().getStateManager().getStates());
+			for (BetterRegistryEntry<Block> entry : entries) {
+				states.addAll(entry.object().getStateManager().getStates());
 			}
 		}
 		else {
-			for (RegistryEntry<Block> blockEntry : entries) {
-				Map<Property<?>, Comparable<?>> properties = this.convertProperties(blockEntry.value(), stringProperties);
+			for (BetterRegistryEntry<Block> blockEntry : entries) {
+				Map<Property<?>, Comparable<?>> properties = this.convertProperties(blockEntry.object(), stringProperties);
 				if (properties == null) continue;
-				this.filterAndAdd(states, blockEntry.value(), properties);
+				this.filterAndAdd(states, blockEntry.object(), properties);
 			}
 		}
 	}

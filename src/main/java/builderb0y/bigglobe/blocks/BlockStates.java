@@ -9,8 +9,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
 
 /** frequently used BlockState's. */
 public class BlockStates {
@@ -68,7 +68,7 @@ public class BlockStates {
 	*/
 	public static BlockState of(String name) {
 		try {
-			BlockResult result = BlockArgumentParser.block(Registry.BLOCK, name, false);
+			BlockResult result = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), name, false);
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 			remaining.removeAll(result.properties().keySet());
 			if (!remaining.isEmpty()) {

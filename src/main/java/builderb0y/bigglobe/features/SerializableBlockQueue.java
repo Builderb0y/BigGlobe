@@ -5,10 +5,15 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.*;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.RegistryWorldView;
 import net.minecraft.world.WorldAccess;
 
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
@@ -76,7 +81,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		return true;
 	}
 
-	public static SerializableBlockQueue read(NbtCompound nbt) {
+	public static SerializableBlockQueue read(RegistryWorldView world, NbtCompound nbt) {
 		int flags = nbt.getInt("flags");
 		int[] center = nbt.getIntArray("center");
 		int centerX = center[0];
@@ -85,8 +90,9 @@ public class SerializableBlockQueue extends BlockQueue {
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
 		NbtList paletteNBT = nbt.getList("palette", NbtElement.COMPOUND_TYPE);
 		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
+		RegistryWrapper<Block> registry = world == null ? Registries.BLOCK.getReadOnlyWrapper() : world.createCommandRegistryWrapper(RegistryKeys.BLOCK);
 		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
-			palette.add(NbtHelper.toBlockState(paletteNBT.getCompound(index)));
+			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
 		}
 		byte[] blocksNBT = nbt.getByteArray("blocks");
 		if ((blocksNBT.length & 3) != 0) {

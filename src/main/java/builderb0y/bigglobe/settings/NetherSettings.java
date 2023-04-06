@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -11,6 +10,7 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 
@@ -27,7 +27,7 @@ public record NetherSettings(
 
 	public static record LocalNetherSettings(
 		double weight,
-		RegistryEntry<Biome> biome,
+		BetterRegistryEntry<Biome> biome,
 		NetherCavernSettings caverns,
 		NetherCaveSettings caves,
 		BlockState fluid_state,

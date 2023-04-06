@@ -3,13 +3,15 @@ package builderb0y.bigglobe.items;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -26,6 +28,7 @@ public class BigGlobeItems {
 	public static final TestItem
 		TEST_ITEM                = register("test_item", new TestItem());
 	//*/
+	@SuppressWarnings("unused")
 	public static final BlockItem
 		OVERGROWN_SAND           = registerBlockPlacer   (BigGlobeBlocks.OVERGROWN_SAND),
 		OVERGROWN_PODZOL         = registerBlockPlacer   (BigGlobeBlocks.OVERGROWN_PODZOL),
@@ -33,7 +36,7 @@ public class BigGlobeItems {
 		SHORT_GRASS              = registerDecoPlacer    (BigGlobeBlocks.SHORT_GRASS),
 		MUSHROOM_SPORES          = registerDecoPlacer    (BigGlobeBlocks.MUSHROOM_SPORES),
 		ROPE_ANCHOR              = registerDecoPlacer    (BigGlobeBlocks.ROPE_ANCHOR),
-		SPELUNKING_ROPE          = registerPlacer        (BigGlobeBlocks.SPELUNKING_ROPE, ItemGroup.TOOLS),
+		SPELUNKING_ROPE          = registerPlacer        (BigGlobeBlocks.SPELUNKING_ROPE),
 		CRYSTALLINE_PRISMARINE   = registerBlockPlacer   (BigGlobeBlocks.CRYSTALLINE_PRISMARINE),
 		SLATED_PRISMARINE        = registerBlockPlacer   (BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerBlockPlacer   (BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
@@ -55,7 +58,7 @@ public class BigGlobeItems {
 		CHARRED_WOOD             = registerBlockPlacer   (BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerBlockPlacer   (BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
 		CHARRED_LEAVES           = registerDecoPlacer    (BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register              ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16).group(ItemGroup.DECORATIONS), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_SIGN             = register              ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16)/*.group(ItemGroups.FUNCTIONAL)*/, BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
 		CHARRED_PRESSURE_PLATE   = registerRedstonePlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
 		CHARRED_TRAPDOOR         = registerRedstonePlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
 		CHARRED_STAIRS           = registerBlockPlacer   (BigGlobeBlocks.CHARRED_STAIRS),
@@ -63,7 +66,7 @@ public class BigGlobeItems {
 		CHARRED_SLAB             = registerBlockPlacer   (BigGlobeBlocks.CHARRED_SLAB),
 		CHARRED_FENCE_GATE       = registerRedstonePlacer(BigGlobeBlocks.CHARRED_FENCE_GATE),
 		CHARRED_FENCE            = registerDecoPlacer    (BigGlobeBlocks.CHARRED_FENCE),
-		CHARRED_DOOR             = register              ("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings().group(ItemGroup.REDSTONE))),
+		CHARRED_DOOR             = register              ("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings()/*.group(ItemGroups.REDSTONE)*/)),
 		SOUL_MAGMA               = registerBlockPlacer   (BigGlobeBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ             = registerBlockPlacer   (BigGlobeBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ           = registerBlockPlacer   (BigGlobeBlocks.BUDDING_QUARTZ),
@@ -75,7 +78,7 @@ public class BigGlobeItems {
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
 		new TorchArrowItem(
-			new Item.Settings().group(ItemGroup.COMBAT)
+			new Item.Settings()//.group(ItemGroup.COMBAT)
 		)
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
@@ -85,53 +88,53 @@ public class BigGlobeItems {
 			-2.8F,
 			ToolMaterials.IRON,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
-			new Item.Settings().group(ItemGroup.TOOLS)
+			new Item.Settings()//.group(ItemGroup.TOOLS)
 		)
 	);
 	public static final Item ASH = register(
 		"ash",
 		new Item(
-			new Item.Settings().group(ItemGroup.BREWING)
+			new Item.Settings()//.group(ItemGroup.BREWING)
 		)
 	);
 	public static final Item SULFUR = register(
 		"sulfur",
 		new Item(
-			new Item.Settings().group(ItemGroup.MISC)
+			new Item.Settings()//.group(ItemGroup.MISC)
 		)
 	);
 	public static final BucketItem SOUL_LAVA_BUCKET = register(
 		"soul_lava_bucket",
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
-			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1).group(ItemGroup.MISC)
+			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1)//.group(ItemGroup.MISC)
 		)
 	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
 	public static BlockItem registerBlockPlacer(Block block) {
-		return registerPlacer(block, ItemGroup.BUILDING_BLOCKS);
+		return registerPlacer(block);
 	}
 
 	public static BlockItem registerDecoPlacer(Block block) {
-		return registerPlacer(block, ItemGroup.DECORATIONS);
+		return registerPlacer(block);
 	}
 
 	public static BlockItem registerRedstonePlacer(Block block) {
-		return registerPlacer(block, ItemGroup.REDSTONE);
+		return registerPlacer(block);
 	}
 
-	public static BlockItem registerPlacer(Block block, ItemGroup group) {
+	public static BlockItem registerPlacer(Block block) {
 		return Registry.register(
-			Registry.ITEM,
-			Registry.BLOCK.getId(block),
-			new BlockItem(block, new Item.Settings().group(group))
+			Registries.ITEM,
+			Registries.BLOCK.getId(block),
+			new BlockItem(block, new Item.Settings()/*.group(group)*/)
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
-		return Registry.register(Registry.ITEM, BigGlobeMod.modID(name), item);
+		return Registry.register(Registries.ITEM, BigGlobeMod.modID(name), item);
 	}
 
 	public static void init() {
@@ -147,5 +150,6 @@ public class BigGlobeItems {
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
 		);
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {});
 	}
 }

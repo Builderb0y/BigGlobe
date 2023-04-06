@@ -6,11 +6,11 @@ import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
@@ -31,7 +31,7 @@ public class SaplingGrowHandler {
 		) {
 			RegistryKey<ConfiguredFeature<?, ?>> key = SAPLING_FEATURES.get(saplingState.getBlock());
 			if (key != null) {
-				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).get(key);
+				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(key);
 				if (feature != null) {
 					feature.generate(world, world.getChunkManager().getChunkGenerator(), random, origin);
 					return true;

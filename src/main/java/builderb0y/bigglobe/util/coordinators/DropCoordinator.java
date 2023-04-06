@@ -14,11 +14,11 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 @SuppressWarnings("unchecked")
@@ -57,10 +57,10 @@ public class DropCoordinator implements Coordinator {
 	@Override public <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {}
 	@Override public <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {}
 	@Override public <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B>... actions) {}
-	@Override public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<RegistryEntry<Biome>>... actions) {}
+	@Override public void getBiome(int x, int y, int z, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {}
+	@Override public void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {}
+	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {}
+	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<BetterRegistryEntry<Biome>>... actions) {}
 	@Override public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {}
 	@Override public void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<Chunk> action) {}
 	@Override public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<Chunk> action) {}

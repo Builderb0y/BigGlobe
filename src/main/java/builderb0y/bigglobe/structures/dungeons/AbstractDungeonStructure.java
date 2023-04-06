@@ -19,6 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
@@ -30,7 +31,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -77,6 +77,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
 		long seed = chunkSeed(context, 0x9DFB0A6E61391175L);
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			startPos.getX(),
@@ -369,18 +370,20 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
 		public SpawnerDungeonPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
-			this.spawnerType = Registry.ENTITY_TYPE.get(new Identifier(nbt.getString("entityType")));
+			String id = nbt.getString("entityType");
+			if (id.isEmpty()) id = "minecraft:zombie";
+			this.spawnerType = Registries.ENTITY_TYPE.get(new Identifier(id));
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
-			nbt.putString("entityType", Registry.ENTITY_TYPE.getId(this.spawnerType).toString());
+			nbt.putString("entityType", Registries.ENTITY_TYPE.getId(this.spawnerType).toString());
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
-			spawner.getLogic().setEntityId(this.spawnerType);
+			spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
 		}
 	}
 

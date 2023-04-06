@@ -47,6 +47,7 @@ public abstract class BigGlobeStructure extends Structure {
 		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
 		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			BigGlobeMath.floorI(x),
@@ -66,6 +67,7 @@ public abstract class BigGlobeStructure extends Structure {
 		int x = context.chunkPos().getStartX() | (bits & 15);
 		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			x,
@@ -94,6 +96,7 @@ public abstract class BigGlobeStructure extends Structure {
 		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
 		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			BigGlobeMath.floorI(x),

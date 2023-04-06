@@ -46,7 +46,7 @@ public class WorldWrapper {
 	public void setBlockState(int x, int y, int z, BlockState state) {
 		WorldUtil.setBlockState(this.world, this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
 		if (!state.getFluidState().isEmpty()) {
-			this.world.createAndScheduleFluidTick(
+			this.world.scheduleFluidTick(
 				this.pos,
 				state.getFluidState().getFluid(),
 				state.getFluidState().getFluid().getTickRate(this.world)
@@ -95,7 +95,7 @@ public class WorldWrapper {
 
 	public BiomeEntry getBiome(int x, int y, int z) {
 		this.biomeColumn.setPos(x, z);
-		return new BiomeEntry(this.biomeColumn.getBiome(y));
+		return new BiomeEntry(this.biomeColumn.getBiome(y).vanilla());
 	}
 
 	public boolean isYLevelValid(int y) {

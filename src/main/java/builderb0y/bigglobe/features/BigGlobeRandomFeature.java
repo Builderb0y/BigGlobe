@@ -2,7 +2,6 @@ package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
@@ -13,6 +12,7 @@ import builderb0y.autocodec.annotations.VerifySizeRange;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config> {
 
@@ -31,7 +31,7 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 			.getConfig()
 			.choices
 			.getRandomElement(Permuter.from(context.getRandom()))
-			.value()
+			.object()
 			.generate(
 				context.getWorld(),
 				context.getGenerator(),
@@ -43,7 +43,7 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 
 	public static record Config(
 		@VerifySizeRange(min = 1)
-		RandomList<@UseName("feature") RegistryEntry<ConfiguredFeature<?, ?>>> choices
+		RandomList<@UseName("feature") BetterRegistryEntry<ConfiguredFeature<?, ?>>> choices
 	)
 	implements FeatureConfig {}
 }

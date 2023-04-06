@@ -7,11 +7,11 @@
 	"mixins": [
 		"AzaleaBlock_GrowIntoBigGlobeTree",
 		"BigGlobeConfig_ImplementConfigData",
+		"Biome_DownfallAccessor",
 		"BlockEntityType_AddBlockHook",
 		"BubbleColumnBlock_WorkWithSoulMagma",
 		"CactusBlock_AllowPlacementOnOvergrownSand",
 		"CatEntity_PetTheKitty",
-		"ChunkGenerator_getStructurePlacementAccess",
 		"ChunkSection_CountsAccess",
 		"CommandBlockExecutor_Optimize",
 		"FallingBlockEntity_DestroyOnLandingAccess",

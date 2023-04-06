@@ -2,11 +2,11 @@ package builderb0y.bigglobe.features;
 
 import java.util.Comparator;
 
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.RegistryWorldView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 

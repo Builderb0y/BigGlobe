@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.util;
 
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 
 /**
 sometimes thrown when the {@link Identifier} or {@link RegistryKey} is
@@ -39,5 +41,11 @@ public class UnregisteredObjectException extends RuntimeException {
 
 	public static <T> Identifier getID(RegistryEntry<T> entry) {
 		return getKey(entry).getValue();
+	}
+
+	public static <T> TagKey<T> getTagKey(RegistryEntryList<T> list) {
+		TagKey<T> key = list.getTagKey().orElse(null);
+		if (key != null) return key;
+		else throw new UnregisteredObjectException("Unregistered tag key: " + list);
 	}
 }

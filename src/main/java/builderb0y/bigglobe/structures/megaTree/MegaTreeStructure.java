@@ -52,6 +52,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			floorI(x),
@@ -63,7 +64,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double foliage_ = foliage; //lambdas -_-
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(x, y, z),
+				new BlockPos(floorI(x), floorI(y), floorI(z)),
 				(StructurePiecesCollector collector) -> {
 					double size = this.data.size.get(foliage_);
 					MegaTreeContext megaTreeContext = new MegaTreeContext(

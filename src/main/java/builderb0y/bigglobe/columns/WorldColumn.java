@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns;
 
 import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -9,6 +8,7 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public abstract class WorldColumn extends Column {
 
@@ -28,12 +28,12 @@ public abstract class WorldColumn extends Column {
 		}
 	}
 
-	public static WorldColumn forGenerator(ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, int x, int z) {
+	public static WorldColumn forGenerator(long seed, ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, int x, int z) {
 		if (chunkGenerator instanceof BigGlobeChunkGenerator generator) {
 			return generator.column(x, z);
 		}
 		else {
-			return new VanillaWorldColumn(chunkGenerator, noiseConfig, x, z);
+			return new VanillaWorldColumn(seed, chunkGenerator, noiseConfig, x, z);
 		}
 	}
 
@@ -84,9 +84,9 @@ public abstract class WorldColumn extends Column {
 		return true;
 	}
 
-	public abstract RegistryEntry<Biome> getBiome(int y);
+	public abstract BetterRegistryEntry<Biome> getBiome(int y);
 
-	public RegistryEntry<Biome> getSurfaceBiome() {
+	public BetterRegistryEntry<Biome> getSurfaceBiome() {
 		return this.getBiome(this.getFinalTopHeightI());
 	}
 

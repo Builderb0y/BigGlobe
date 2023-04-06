@@ -5,8 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
+import java.util.function.Function;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.DynamicOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,9 +16,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.Mirror;
@@ -52,12 +56,28 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	@Mirror(UseVerifier.class)
 	public static @interface VerifyNormal {}
 
+	@SuppressWarnings("unchecked")
+	public static <X extends Throwable> RegistryWrapper<Block> getBlockRegistry(DynamicOps<?> ops, Function<String, X> exceptionFactory) throws X {
+		if (ops instanceof RegistryOps<?> registryOps) {
+			if (registryOps.getEntryLookup(RegistryKeys.BLOCK).orElse(null) instanceof RegistryWrapper<Block> wrapper) {
+				return wrapper;
+			}
+			if (registryOps.getOwner(RegistryKeys.BLOCK).orElse(null) instanceof RegistryWrapper<?> wrapper) {
+				return (RegistryWrapper<Block>)(wrapper);
+			}
+			throw exceptionFactory.apply("Unable to access registry " + RegistryKeys.BLOCK.getValue() + " in " + registryOps);
+		}
+		else {
+			throw exceptionFactory.apply("Not a RegistryOps: " + ops);
+		}
+	}
+
 	@Override
 	public <T_Encoded> @Nullable BlockState decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
 		String string = context.tryAsString();
 		if (string != null) try {
-			BlockResult result = BlockArgumentParser.block(Registry.BLOCK, string, false);
+			BlockResult result = BlockArgumentParser.block(getBlockRegistry(context.ops, DecodeException::new), string, false);
 			Set<Property<?>> missing = new HashSet<>(result.blockState().getProperties());
 			missing.removeAll(result.properties().keySet());
 			if (!missing.isEmpty()) {

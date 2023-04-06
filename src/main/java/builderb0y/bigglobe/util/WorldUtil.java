@@ -5,11 +5,11 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.WorldAccess;
@@ -82,10 +82,10 @@ public class WorldUtil {
 			return (B)(blockEntity);
 		}
 		else {
-			Identifier id = Registry.BLOCK_ENTITY_TYPE.getId(type);
+			Identifier id = Registries.BLOCK_ENTITY_TYPE.getId(type);
 			//todo: add valid blocks to message if/when I add an access widener for that.
 			String name = id != null ? id.toString() : "(unregistered: " + type + ')';
-			BigGlobeMod.LOGGER.warn("Expected " + name + " at " + pos + " in " + world + ", but got "+ blockEntity + " instead.");
+			BigGlobeMod.LOGGER.warn("Expected " + name + " at " + pos + " in " + world + ", but got " + blockEntity + " instead.");
 			return null;
 		}
 	}

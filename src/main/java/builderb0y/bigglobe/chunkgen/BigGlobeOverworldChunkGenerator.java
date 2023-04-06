@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -14,8 +13,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
@@ -26,10 +30,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -41,6 +41,7 @@ import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -71,6 +72,7 @@ import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
+import builderb0y.bigglobe.features.rockLayers.OverworldRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
@@ -86,6 +88,7 @@ import builderb0y.bigglobe.overriders.overworld.OverworldFoliageOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldHeightOverrider;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
@@ -120,7 +123,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient ColumnValue<OverworldColumn>[] biomeValues;
 	public final transient OverworldOreFeature.Config[] oreConfigs;
 	public final transient LinkedFlowerConfig[] flowerGroups;
-	public final transient LinkedRockLayerConfig[] rockLayers;
+	public final transient LinkedRockLayerConfig<OverworldRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient OverworldHeightOverrider.Holder[] heightOverriders;
 	public final transient OverworldFoliageOverrider.Holder[] foliageOverriders;
 	public final transient OverworldCaveOverrider.Holder[] caveOverriders;
@@ -129,14 +132,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
-		Registry<StructureSet> structureSetRegistry,
 		Registry<Biome> biomeRegistry,
 		SortedFeatures configuredFeatures
 	) {
 		super(
-			structureSetRegistry,
 			configuredFeatures,
-			Optional.empty(),
 			new ColumnBiomeSource(
 				settings
 				.surface()
@@ -186,7 +186,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(Registry.CHUNK_GENERATOR, BigGlobeMod.modID("overworld"), OVERWORLD_CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("overworld"), OVERWORLD_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeOverworldChunkGenerator> createCoder(FactoryContext<BigGlobeOverworldChunkGenerator> context) {
@@ -1020,13 +1020,12 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void actuallySetStructureStarts(
 		DynamicRegistryManager registryManager,
-		NoiseConfig noiseConfig,
+		StructurePlacementCalculator placementCalculator,
 		StructureAccessor structureAccessor,
 		Chunk chunk,
-		StructureTemplateManager structureTemplateManager,
-		long seed
+		StructureTemplateManager structureTemplateManager
 	) {
-		super.actuallySetStructureStarts(registryManager, noiseConfig, structureAccessor, chunk, structureTemplateManager, seed);
+		super.actuallySetStructureStarts(registryManager, placementCalculator, structureAccessor, chunk, structureTemplateManager);
 		if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
 			OverworldCavernSettings cavernSettings = this.settings.underground().deep_caverns();
 			if (cavernSettings != null) {
@@ -1041,15 +1040,15 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				if (centerX >> 4 == chunkX && centerZ >> 4 == chunkZ) {
 					OverworldColumn column = this.column(centerX, centerZ);
 					if (column.getCavernCell().settings.has_ancient_cities()) {
-						Optional<RegistryEntry<Structure>> structure = registryManager.get(Registry.STRUCTURE_KEY).getEntry(StructureKeys.ANCIENT_CITY);
-						if (structure.isPresent()) {
+						RegistryEntry<Structure> structure = registryManager.get(RegistryKeys.STRUCTURE).getEntry(StructureKeys.ANCIENT_CITY).orElse(null);
+						if (structure != null) {
 							this.forceSetStructureStart(
-								new WeightedEntry(structure.get(), 1),
+								new WeightedEntry(structure, 1),
 								structureAccessor,
 								registryManager,
-								noiseConfig,
+								placementCalculator.getNoiseConfig(),
 								structureTemplateManager,
-								seed,
+								placementCalculator.getStructureSeed(),
 								chunk
 							);
 						}
@@ -1107,7 +1106,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static boolean wrongBiome(RegistryEntryList<Biome> validBiomes, OverworldColumn column, int x, int z) {
-		return !validBiomes.contains(pos(column, x, z).getSurfaceBiome());
+		return !validBiomes.contains(pos(column, x, z).getSurfaceBiome().vanilla());
 	}
 
 	public static int y(OverworldColumn column, int x, int z) {
@@ -1126,7 +1125,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		//mostly copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
 		OverworldColumn column = this.column(chunkPos.getOffsetX(8), chunkPos.getOffsetZ(8));
-		RegistryEntry<Biome> registryEntry = column.getSurfaceBiome();
+		RegistryEntry<Biome> registryEntry = column.getSurfaceBiome().vanilla();
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
@@ -1148,11 +1147,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateBiomes(Registry<Biome> biomeRegistry, Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
+	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
 		return CompletableFuture.supplyAsync(
 			() -> this.profiler.get("populateBiomes", () -> {
 				ChunkOfBiomeColumns<OverworldColumn> columns = new ChunkOfBiomeColumns<>(OverworldColumn[]::new, this::column);
-				ColumnZone<RegistryEntry<Biome>> surfaceZones = this.settings.surface().biomes();
+				ColumnZone<BetterRegistryEntry<Biome>> surfaceZones = this.settings.surface().biomes();
 				ColumnValue<OverworldColumn>[] biomeValues = this.biomeValues;
 				this.profiler.run("initial biome column values", () -> {
 					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
@@ -1170,7 +1169,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
 						OverworldColumn column = columns.getColumn(paletteIndex & 15);
 						double y = startY | (paletteIndex >>> 4 << 2);
-						int newID = SectionUtil.id(container, surfaceZones.get(column, y));
+						int newID = SectionUtil.id(container, surfaceZones.get(column, y).vanilla());
 						SectionUtil.storage(container).set(paletteIndex, newID);
 					}
 				});

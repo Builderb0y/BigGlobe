@@ -47,6 +47,7 @@ features:
 	overworld:
 		script for cave width.
 		desert well feature.
+		desert fossils.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
@@ -98,6 +99,10 @@ before release:
 	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
 
 porting:
+	add mixin to ServerWorld.<init>() to set the ChunkGenerator seed.
+	mixin to StructurePlacementCalculator to add a new field for ChunkGenerator.
+	mixin to Biome to re-add getter for downfall for scripts (BiomeEntry).
+	replace my double vector for mega trees with joml.
 	add sniffer_diggable_block tag to include overgrown podzol.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().

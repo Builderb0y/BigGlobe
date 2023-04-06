@@ -5,9 +5,10 @@ import java.util.List;
 
 import com.google.common.base.Predicates;
 
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -38,7 +39,7 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 		if (starts.isEmpty()) {
 			return EMPTY_SCRIPT_STRUCTURES;
 		}
-		Registry<Structure> structureRegistry = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_KEY);
+		Registry<Structure> structureRegistry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE);
 		return new ScriptStructures(
 			starts
 			.stream()

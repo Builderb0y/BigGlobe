@@ -4,9 +4,11 @@ import java.lang.invoke.MethodHandles;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,8 +25,9 @@ public class BlockWrapper {
 
 	public static Block getBlock(String id) {
 		Identifier identifier = new Identifier(id);
-		if (Registry.BLOCK.containsId(identifier)) {
-			return Registry.BLOCK.get(identifier);
+		Registry<Block> registry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK);
+		if (registry.containsId(identifier)) {
+			return registry.get(identifier);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown block: " + id);

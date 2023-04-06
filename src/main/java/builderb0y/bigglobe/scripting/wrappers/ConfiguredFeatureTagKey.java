@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList.Named;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList.Named;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -33,12 +33,12 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 	}
 
 	public static ConfiguredFeatureTagKey of(String id) {
-		return new ConfiguredFeatureTagKey(TagKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)));
+		return new ConfiguredFeatureTagKey(TagKey.of(RegistryKeys.CONFIGURED_FEATURE, new Identifier(id)));
 	}
 
 	@Override
 	public ConfiguredFeatureEntry random(RandomGenerator random) {
-		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.key);
+		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).getEntryList(this.key);
 		if (list.isEmpty()) throw new RuntimeException("Biome tag does not exist: " + this.key.id());
 		Optional<RegistryEntry<ConfiguredFeature<?, ?>>> feature = list.get().getRandom(new MojangPermuter(random.nextLong()));
 		if (feature.isEmpty()) throw new RuntimeException("Biome tag is empty: " + this.key.id());
@@ -47,7 +47,7 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 
 	@Override
 	public Iterator<ConfiguredFeatureEntry> iterator() {
-		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.key);
+		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).getEntryList(this.key);
 		if (list.isEmpty()) throw new RuntimeException("Biome tag does not exist: " + this.key.id());
 		return list.get().stream().map(ConfiguredFeatureEntry::new).iterator();
 	}

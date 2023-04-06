@@ -13,12 +13,12 @@ import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 public abstract class AbstractPermuteCoordinator extends ScratchPosCoordinator {
@@ -167,7 +167,7 @@ public abstract class AbstractPermuteCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
+	public void getBiome(int x, int y, int z, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {
 		for (Permutation permutation : this.permutations()) {
 			this.delegate.getBiome(permutation.x(x, z), y, permutation.z(x, z), action);
 		}

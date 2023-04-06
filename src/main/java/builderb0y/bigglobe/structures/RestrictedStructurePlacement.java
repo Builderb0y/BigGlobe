@@ -5,10 +5,9 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
-import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -33,14 +32,14 @@ public class RestrictedStructurePlacement extends StructurePlacement {
 	}
 
 	@Override
-	public boolean shouldGenerate(ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, long seed, int chunkX, int chunkZ) {
-		if (!this.isStartChunk(chunkGenerator, noiseConfig, seed, chunkX, chunkZ)) return false;
-		int startX = (chunkX << 4) + 8;
-		int startZ = (chunkZ << 4) + 8;
-		WorldColumn column = WorldColumn.forGenerator(chunkGenerator, noiseConfig, startX, startZ);
+	public boolean shouldGenerate(StructurePlacementCalculator calculator, int chunkX, int chunkZ) {
+		if (!this.isStartChunk(calculator, chunkX, chunkZ)) return false;
+		int startX = (chunkX << 4) | 8;
+		int startZ = (chunkZ << 4) | 8;
+		WorldColumn column = WorldColumn.forGenerator(calculator.getStructureSeed(), null, calculator.getNoiseConfig(), startX, startZ);
 		double y = column.getFinalTopHeightD();
 		ColumnRestriction restriction = this.restrictions;
-		if (!restriction.test(column, y, seed)) return false;
+		if (!restriction.test(column, y, calculator.getStructureSeed())) return false;
 		int radius = this.radius;
 		if (radius > 0) {
 			int step = (int)(Math.sqrt(radius));
@@ -55,8 +54,8 @@ public class RestrictedStructurePlacement extends StructurePlacement {
 	}
 
 	@Override
-	public boolean isStartChunk(ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, long seed, int chunkX, int chunkZ) {
-		return this.placement.isStartChunk(chunkX, chunkZ, seed);
+	public boolean isStartChunk(StructurePlacementCalculator calculator, int chunkX, int chunkZ) {
+		return this.placement.isStartChunk(chunkX, chunkZ, calculator.getStructureSeed());
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.items;
 
+import com.google.common.base.Predicates;
 import org.jetbrains.annotations.TestOnly;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePiecesList;
@@ -11,7 +13,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
@@ -35,7 +36,7 @@ public class TestItem extends Item {
 			context.getBlockPos(),
 			world
 			.getRegistryManager()
-			.get(Registry.STRUCTURE_KEY)
+			.get(RegistryKeys.STRUCTURE)
 			.get(BigGlobeMod.modID("dungeons/large"))
 		);
 		return ActionResult.SUCCESS;
@@ -45,7 +46,7 @@ public class TestItem extends Item {
 		System.out.println("spawning structure");
 		ChunkPos chunkPos = new ChunkPos(pos);
 		StructurePosition position = (
-			structure.getStructurePosition(
+			structure.getValidStructurePosition(
 				new Structure.Context(
 					world.getRegistryManager(),
 					world.getChunkManager().getChunkGenerator(),
@@ -55,7 +56,7 @@ public class TestItem extends Item {
 					world.getSeed(),
 					chunkPos,
 					world,
-					structure.getValidBiomes()::contains
+					Predicates.alwaysTrue()
 				)
 			)
 			.orElse(null)

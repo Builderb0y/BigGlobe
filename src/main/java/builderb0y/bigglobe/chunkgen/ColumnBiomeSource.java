@@ -7,12 +7,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil.MultiNoiseSampler;
 
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class ColumnBiomeSource extends BiomeSource {
 
@@ -20,12 +21,12 @@ public class ColumnBiomeSource extends BiomeSource {
 
 		@Override
 		public <T> DataResult<Pair<ColumnBiomeSource, T>> decode(DynamicOps<T> ops, T input) {
-			return DataResult.error("Should not decode ColumnBiomeSource directly.");
+			return DataResult.error(() -> "Should not decode ColumnBiomeSource directly.");
 		}
 
 		@Override
 		public <T> DataResult<T> encode(ColumnBiomeSource input, DynamicOps<T> ops, T prefix) {
-			return DataResult.error("Should not encode ColumnBiomeSource directly.");
+			return DataResult.error(() -> "Should not encode ColumnBiomeSource directly.");
 		}
 
 		@Override
@@ -36,9 +37,10 @@ public class ColumnBiomeSource extends BiomeSource {
 
 	public BigGlobeChunkGenerator generator;
 	public ThreadLocal<WorldColumn> threadLocalColumn;
+	public Stream<BetterRegistryEntry<Biome>> biomeStream;
 
-	public ColumnBiomeSource(Stream<RegistryEntry<Biome>> allBiomes) {
-		super(allBiomes);
+	public ColumnBiomeSource(Stream<BetterRegistryEntry<Biome>> biomeStream) {
+		this.biomeStream = biomeStream;
 	}
 
 	public void setGenerator(BigGlobeChunkGenerator generator) {
@@ -51,10 +53,22 @@ public class ColumnBiomeSource extends BiomeSource {
 		return CODEC;
 	}
 
+	/**
+	this will only be called once,
+	which conveniently is the number
+	of times a Stream can be used.
+	*/
+	@Override
+	protected Stream<RegistryEntry<Biome>> biomeStream() {
+		Stream<BetterRegistryEntry<Biome>> stream = this.biomeStream;
+		this.biomeStream = null;
+		return stream.map(BetterRegistryEntry::vanilla);
+	}
+
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		WorldColumn column = this.threadLocalColumn.get();
 		column.setPos(x << 2, z << 2);
-		return column.getBiome(y << 2);
+		return column.getBiome(y << 2).vanilla();
 	}
 }

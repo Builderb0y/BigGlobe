@@ -2,12 +2,11 @@ package builderb0y.bigglobe.spawning;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -20,10 +19,11 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class BigGlobeSpawnLocator {
 
-	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(Registry.BIOME_KEY, BigGlobeMod.modID("player_spawn_friendly"));
+	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(RegistryKeys.BIOME, BigGlobeMod.modID("player_spawn_friendly"));
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
@@ -83,7 +83,7 @@ public class BigGlobeSpawnLocator {
 	}
 
 	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
-		RegistryEntry<Biome> biome = column.getSurfaceBiome();
+		BetterRegistryEntry<Biome> biome = column.getSurfaceBiome();
 		if (
 			!biome.isIn(PLAYER_SPAWN_FRIENDLY) ||
 			column.getSurfaceFoliage() > 0.0D ||
@@ -130,7 +130,7 @@ public class BigGlobeSpawnLocator {
 		}
 
 		public BlockPos toBlockPos() {
-			return new BlockPos(this.x, this.y, this.z);
+			return new BlockPos(BigGlobeMath.floorI(this.x), BigGlobeMath.floorI(this.y), BigGlobeMath.floorI(this.z));
 		}
 	}
 }

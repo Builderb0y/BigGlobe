@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -8,14 +7,15 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -92,9 +92,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		SortedFeatures configuredFeatures
 	) {
 		super(
-			structureSetRegistry,
 			configuredFeatures,
-			Optional.empty(),
 			new ColumnBiomeSource(
 				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
 			)
@@ -108,7 +106,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(Registry.CHUNK_GENERATOR, BigGlobeMod.modID("nether"), NETHER_CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("nether"), NETHER_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeNetherChunkGenerator> createCoder(FactoryContext<BigGlobeNetherChunkGenerator> context) {

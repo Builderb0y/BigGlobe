@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.features.ores;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;

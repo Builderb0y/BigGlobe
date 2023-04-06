@@ -4,7 +4,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.sign.SignTypeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeRegistry;
 import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
@@ -21,14 +22,13 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.HoeItem;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.SignType;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -40,7 +40,8 @@ public class BigGlobeBlocks {
 
 	static { BigGlobeMod.LOGGER.debug("Registering blocks..."); }
 
-	public static final SignType CHARRED_SIGN_TYPE = SignTypeRegistry.registerSignType(BigGlobeMod.modID("charred"));
+	public static final BlockSetType CHARRED_BLOCK_SET_TYPE = BlockSetTypeRegistry.registerWood(BigGlobeMod.modID("charred"));
+	public static final WoodType CHARRED_WOOD_TYPE = WoodTypeRegistry.register(BigGlobeMod.modID("charred"), CHARRED_BLOCK_SET_TYPE);
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = register(
 		"overgrown_sand",
@@ -69,7 +70,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
-			.offsetType(OffsetType.XZ)
+			.offset(OffsetType.XZ)
 		)
 	);
 	public static final FlowerPotBlock POTTED_ROSE = register("potted_rose", newPottedPlant(ROSE));
@@ -78,7 +79,7 @@ public class BigGlobeBlocks {
 		new ShortGrassBlock(
 			AbstractBlock.Settings
 			.copy(Blocks.GRASS)
-			.offsetType(OffsetType.XZ)
+			.offset(OffsetType.XZ)
 		)
 	);
 	public static final MushroomSporesBlock MUSHROOM_SPORES = register(
@@ -89,7 +90,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
-			.offsetType(OffsetType.XZ)
+			.offset(OffsetType.XZ)
 		)
 	);
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
@@ -173,7 +174,7 @@ public class BigGlobeBlocks {
 	);
 	public static final Block SULFUR_ORE = register(
 		"sulfur_ore",
-		new OreBlock(
+		new ExperienceDroppingBlock(
 			AbstractBlock.Settings.of(Material.STONE, MapColor.DARK_RED)
 			.strength(3.0F)
 			.requiresTool(),
@@ -196,7 +197,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
-			.offsetType(OffsetType.XZ)
+			.offset(OffsetType.XZ)
 		)
 	);
 	public static final NetherGrassBlock CHARRED_GRASS = register(
@@ -207,7 +208,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
-			.offsetType(OffsetType.XZ)
+			.offset(OffsetType.XZ)
 		)
 	);
 	public static final BlazingBlossomBlock BLAZING_BLOSSOM = register(
@@ -277,7 +278,7 @@ public class BigGlobeBlocks {
 		new CharredSaplingBlock(
 			new SaplingGenerator() {
 
-				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, BigGlobeMod.modID("charred_tree_vanilla"));
+				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("charred_tree_vanilla"));
 
 				/**
 				note: the ConfiguredFeature returned by this method will be
@@ -285,9 +286,8 @@ public class BigGlobeBlocks {
 				*/
 				@Nullable
 				@Override
-				public RegistryEntry<? extends ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
-					MinecraftServer server = BigGlobeMod.currentServer;
-					return server == null ? null : server.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).entryOf(KEY);
+				public RegistryKey<ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
+					return KEY;
 				}
 			},
 			AbstractBlock.Settings.of(Material.PLANT)
@@ -351,7 +351,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.strength(1.0F)
 			.sounds(BlockSoundGroup.WOOD),
-			CHARRED_SIGN_TYPE
+			CHARRED_WOOD_TYPE
 		)
 	);
 	public static final WallSignBlock CHARRED_WALL_SIGN = register(
@@ -363,7 +363,7 @@ public class BigGlobeBlocks {
 			.strength(1.0F)
 			.sounds(BlockSoundGroup.WOOD)
 			.dropsLike(CHARRED_SIGN),
-			CHARRED_SIGN_TYPE
+			CHARRED_WOOD_TYPE
 		)
 	);
 	public static final PressurePlateBlock CHARRED_PRESSURE_PLATE = register(
@@ -371,10 +371,11 @@ public class BigGlobeBlocks {
 		new PressurePlateBlock(
 			PressurePlateBlock.ActivationRule.EVERYTHING,
 			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
-				.noCollision()
-				.nonOpaque()
-				.strength(0.5F)
-				.sounds(BlockSoundGroup.WOOD)
+			.noCollision()
+			.nonOpaque()
+			.strength(0.5F)
+			.sounds(BlockSoundGroup.WOOD),
+			CHARRED_BLOCK_SET_TYPE
 		) {
 
 			@Override
@@ -388,7 +389,8 @@ public class BigGlobeBlocks {
 		new TrapdoorBlock(
 			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
 			.strength(3.0F)
-			.sounds(BlockSoundGroup.WOOD)
+			.sounds(BlockSoundGroup.WOOD),
+			CHARRED_BLOCK_SET_TYPE
 		)
 	);
 	public static final StairsBlock CHARRED_STAIRS = register(
@@ -402,20 +404,17 @@ public class BigGlobeBlocks {
 		"potted_charred_sapling",
 		newPottedPlant(CHARRED_SAPLING)
 	);
-	public static final AbstractButtonBlock CHARRED_BUTTON = register(
+	public static final ButtonBlock CHARRED_BUTTON = register(
 		"charred_button",
-		new WoodenButtonBlock(
+		new ButtonBlock(
 			AbstractBlock.Settings.of(Material.WOOD)
 			.noCollision()
 			.strength(0.5F)
-			.sounds(BlockSoundGroup.WOOD)
-		) {
-
-			@Override
-			public int getPressTicks() {
-				return 10;
-			}
-		}
+			.sounds(BlockSoundGroup.WOOD),
+			CHARRED_BLOCK_SET_TYPE,
+			10,
+			true
+		)
 	);
 	public static final SlabBlock CHARRED_SLAB = register(
 		"charred_slab",
@@ -432,7 +431,8 @@ public class BigGlobeBlocks {
 	public static final FenceGateBlock CHARRED_FENCE_GATE = register(
 		"charred_fence_gate",
 		new FenceGateBlock(
-			AbstractBlock.Settings.copy(CHARRED_PLANKS)
+			AbstractBlock.Settings.copy(CHARRED_PLANKS),
+			CHARRED_WOOD_TYPE
 		)
 	);
 	public static final Block CHARRED_DOOR = register(
@@ -440,7 +440,8 @@ public class BigGlobeBlocks {
 		new DoorBlock(
 			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
 			.strength(3.0F)
-			.sounds(BlockSoundGroup.WOOD)
+			.sounds(BlockSoundGroup.WOOD),
+			CHARRED_BLOCK_SET_TYPE
 		)
 	);
 	public static final HiddenLavaBlock HIDDEN_LAVA = register(
@@ -518,7 +519,7 @@ public class BigGlobeBlocks {
 	}
 
 	public static <B extends Block> B register(String name, B block) {
-		return Registry.register(Registry.BLOCK, BigGlobeMod.modID(name), block);
+		return Registry.register(Registries.BLOCK, BigGlobeMod.modID(name), block);
 	}
 
 	public static void init() {

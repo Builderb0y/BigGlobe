@@ -9,14 +9,14 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -114,7 +114,11 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		long seed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(center),
+				new BlockPos(
+					BigGlobeMath.floorI(center.x),
+					BigGlobeMath.floorI(center.y),
+					BigGlobeMath.floorI(center.z)
+				),
 				(StructurePiecesCollector collector) -> {
 					MainPiece mainPiece = new MainPiece(
 						BigGlobeStructures.GEODE_PIECE_TYPE,
@@ -338,7 +342,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			BlocksConfig[] blocks = this.data.blocks;
 			if (blocks.length == 0) return;
 			BlocksConfig blockConfig = blocks[blocks.length - 1];
-			RegistryEntryList<Block> buds = Registry.BLOCK.getEntryList(this.data.growth_block_tag).orElse(null);
+			RegistryEntryList<Block> buds = world.getRegistryManager().get(RegistryKeys.BLOCK).getEntryList(this.data.growth_block_tag).orElse(null);
 			if (buds == null || buds.size() == 0) return;
 			int minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
 			int minY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());

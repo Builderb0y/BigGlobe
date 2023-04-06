@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
@@ -88,7 +88,7 @@ public class UseScriptTemplateFeature extends Feature<UseScriptTemplateFeature.C
 				return c.script();
 			}
 			else {
-				throw new WrongFeatureTypeException("script should point to feature of type bigglobe:define_script_template, but was " + Registry.FEATURE.getId(this.script.value().feature()));
+				throw new WrongFeatureTypeException("script should point to feature of type bigglobe:define_script_template, but was " + Registries.FEATURE.getId(this.script.value().feature()));
 			}
 		}
 
@@ -98,7 +98,7 @@ public class UseScriptTemplateFeature extends Feature<UseScriptTemplateFeature.C
 				return c.inputs();
 			}
 			else {
-				throw new WrongFeatureTypeException("script should point to feature of type bigglobe:define_script_template, but was " + Registry.FEATURE.getId(this.script.value().feature()));
+				throw new WrongFeatureTypeException("script should point to feature of type bigglobe:define_script_template, but was " + Registries.FEATURE.getId(this.script.value().feature()));
 			}
 		}
 

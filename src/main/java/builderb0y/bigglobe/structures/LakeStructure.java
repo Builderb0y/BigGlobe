@@ -84,7 +84,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		double horizontalRadius = this.horizontal_radius.get(permuter);
 		double centerHeight = pos.y;
 		long seed = permuter.nextLong();
-		WorldColumn column = WorldColumn.forGenerator(context.chunkGenerator(), context.noiseConfig(), 0, 0);
+		WorldColumn column = WorldColumn.forGenerator(context.seed(), context.chunkGenerator(), context.noiseConfig(), 0, 0);
 		for (int angleIndex = 0; angleIndex < OUTER_CIRCLE_SAMPLES; angleIndex++) {
 			double x = pos.x + horizontalRadius * SIN16_CACHE[(angleIndex + (OUTER_CIRCLE_SAMPLES >> 2)) & (OUTER_CIRCLE_SAMPLES - 1)];
 			double z = pos.z + horizontalRadius * SIN16_CACHE[angleIndex];
@@ -110,7 +110,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		);
 		StructurePiecesCollector collector = new StructurePiecesCollector();
 		collector.addPiece(piece);
-		return Optional.of(new StructurePosition(new BlockPos(pos.x, pos.y, pos.z), Either.right(collector)));
+		return Optional.of(new StructurePosition(new BlockPos(BigGlobeMath.floorI(pos.x), BigGlobeMath.floorI(pos.y), BigGlobeMath.floorI(pos.z)), Either.right(collector)));
 	}
 
 	@Override

@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -68,11 +68,13 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static final ColumnValue<WorldColumn>
 		//Y                                       = registerAnyDim   ("y",                                withY(   (column, y) -> y                           ), null),
 		MIN_Y                                   = registerAnyDim   ("min_y",                         withoutY(    WorldColumn::getFinalBottomHeightD        ), null),
 		MAX_Y                                   = registerAnyDim   ("max_y",                         withoutY(    WorldColumn::getFinalTopHeightD           ), null);
 
+	@SuppressWarnings("unused")
 	public static final ColumnValue<OverworldColumn>
 		OVERWORLD_SEA_LEVEL                     = registerOverworld("sea_level",                     withoutY(OverworldColumn::getSeaLevel                  ), null),
 
@@ -124,6 +126,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SKYLAND_EDGINESS              = registerOverworld("skyland_edginess",              withoutY(OverworldColumn::getSkylandEdginess           ), null),
 		OVERWORLD_SKYLAND_EDGINESS_SQUARED      = registerOverworld("skyland_edginess_squared",      withoutY(OverworldColumn::getSkylandEdginessSquared    ), null);
 
+	@SuppressWarnings("unused")
 	public static final ColumnValue<NetherColumn>
 		NETHER_BIOME_CENTER_X                   = registerNether   ("biome_center_x",                withoutY(   NetherColumn::getBiomeCenterX              ), NetherColumn::debugBiomeCenterX),
 		NETHER_BIOME_CENTER_Z                   = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ              ), NetherColumn::debugBiomeCenterZ),

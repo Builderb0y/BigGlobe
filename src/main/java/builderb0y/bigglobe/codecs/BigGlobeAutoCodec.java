@@ -3,7 +3,6 @@ package builderb0y.bigglobe.codecs;
 import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
-import it.unimi.dsi.fastutil.Hash;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +14,14 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
@@ -51,48 +50,46 @@ import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.logging.*;
 import builderb0y.autocodec.reflection.ReflectionManager;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.autocodec.util.HashStrategies.NamedHashStrategy;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.registry.BetterRegistry;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class BigGlobeAutoCodec {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Codecs");
 	public static final Printer PRINTER = createPrinter(LOGGER);
 
-	public static final Hash.Strategy<RegistryEntry<?>> REGISTRY_ENTRY_STRATEGY = new NamedHashStrategy<>("BigGlobeAutoCodec.REGISTRY_ENTRY_STRATEGY") {
-
-		@Override
-		public int hashCode(RegistryEntry<?> o) {
-			if (o == null) return 0;
-			return o.getKey().hashCode();
-		}
-
-		@Override
-		public boolean equals(RegistryEntry<?> a, RegistryEntry<?> b) {
-			if (a == b) return true;
-			if (a == null || b == null) return false;
-			return a.getKey().equals(b.getKey());
-		}
-	};
-
 	public static final AutoCoder<Identifier> IDENTIFIER_CODER = PrimitiveCoders.STRING.mapCoder(
 		ReifiedType.from(Identifier.class),
 		"Identifier::toString", HandlerMapper.nullSafe(Identifier::toString),
 		"Identifier::new",      HandlerMapper.nullSafe(Identifier::new)
 	);
-	public static final DynamicRegistryCoders<DimensionType>           DIMENSION_TYPE_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(DimensionType         .class), Registry.DIMENSION_TYPE_KEY);
-	public static final DynamicRegistryCoders<ConfiguredCarver<?>>     CONFIGURED_CARVER_REGISTRY_CODERS        = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), Registry.CONFIGURED_CARVER_KEY);
-	public static final DynamicRegistryCoders<ConfiguredFeature<?, ?>> CONFIGURED_FEATURE_REGISTRY_CODERS       = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), Registry.CONFIGURED_FEATURE_KEY);
-	public static final DynamicRegistryCoders<PlacedFeature>           PLACED_FEATURE_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(PlacedFeature         .class), Registry.PLACED_FEATURE_KEY);
-	public static final DynamicRegistryCoders<Structure>               STRUCTURE_REGISTRY_CODERS                = new DynamicRegistryCoders<>(ReifiedType.from(Structure             .class), Registry.STRUCTURE_KEY);
-	public static final DynamicRegistryCoders<StructureSet>            STRUCTURE_SET_REGISTRY_CODERS            = new DynamicRegistryCoders<>(ReifiedType.from(StructureSet          .class), Registry.STRUCTURE_SET_KEY);
-	public static final DynamicRegistryCoders<StructureProcessorList>  STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS = new DynamicRegistryCoders<>(ReifiedType.from(StructureProcessorList.class), Registry.STRUCTURE_PROCESSOR_LIST_KEY);
-	public static final DynamicRegistryCoders<StructurePool>           STRUCTURE_POOL_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(StructurePool         .class), Registry.STRUCTURE_POOL_KEY);
-	public static final DynamicRegistryCoders<Biome>                   BIOME_REGISTRY_CODERS                    = new DynamicRegistryCoders<>(ReifiedType.from(Biome                 .class), Registry.BIOME_KEY);
-	public static final DynamicRegistryCoders<DensityFunction>         DENSITY_FUNCTION_REGISTRY_CODERS         = new DynamicRegistryCoders<>(ReifiedType.from(DensityFunction       .class), Registry.DENSITY_FUNCTION_KEY);
-	public static final DynamicRegistryCoders<ChunkGeneratorSettings>  CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS = new DynamicRegistryCoders<>(ReifiedType.from(ChunkGeneratorSettings.class), Registry.CHUNK_GENERATOR_SETTINGS_KEY);
-	public static final DynamicRegistryCoders<WorldPreset>             WORLD_PRESET_REGISTRY_CODERS             = new DynamicRegistryCoders<>(ReifiedType.from(WorldPreset           .class), Registry.WORLD_PRESET_KEY);
+
+	public static final DynamicRegistryCoders<Block>                   BLOCK_REGISTRY_CODERS                    = new DynamicRegistryCoders<>(ReifiedType.from( Block.class), RegistryKeys.BLOCK);
+	public static final DynamicRegistryCoders<Item>                    ITEM_REGISTRY_CODERS                     = new DynamicRegistryCoders<>(ReifiedType.from(  Item.class), RegistryKeys.ITEM);
+	public static final DynamicRegistryCoders<Fluid>                   FLUID_REGISTRY_CODERS                    = new DynamicRegistryCoders<>(ReifiedType.from( Fluid.class), RegistryKeys.FLUID);
+	public static final DynamicRegistryCoders<Potion>                  POTION_REGISTRY_CODERS                   = new DynamicRegistryCoders<>(ReifiedType.from(Potion.class), RegistryKeys.POTION);
+	public static final DynamicRegistryCoders<BlockEntityType<?>>      BLOCK_ENTITY_TYPE_REGISTRY_CODERS        = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType.class), RegistryKeys.BLOCK_ENTITY_TYPE);
+	public static final DynamicRegistryCoders<EntityType<?>>           ENTITY_TYPE_REGISTRY_CODERS              = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType.class), RegistryKeys.ENTITY_TYPE);
+	public static final DynamicRegistryCoders<DimensionType>           DIMENSION_TYPE_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(DimensionType         .class), RegistryKeys.DIMENSION_TYPE);
+	public static final DynamicRegistryCoders<ConfiguredCarver<?>>     CONFIGURED_CARVER_REGISTRY_CODERS        = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeys.CONFIGURED_CARVER);
+	public static final DynamicRegistryCoders<ConfiguredFeature<?, ?>> CONFIGURED_FEATURE_REGISTRY_CODERS       = new DynamicRegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeys.CONFIGURED_FEATURE);
+	public static final DynamicRegistryCoders<PlacedFeature>           PLACED_FEATURE_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(PlacedFeature         .class), RegistryKeys.PLACED_FEATURE);
+	public static final DynamicRegistryCoders<Structure>               STRUCTURE_REGISTRY_CODERS                = new DynamicRegistryCoders<>(ReifiedType.from(Structure             .class), RegistryKeys.STRUCTURE);
+	public static final DynamicRegistryCoders<StructureSet>            STRUCTURE_SET_REGISTRY_CODERS            = new DynamicRegistryCoders<>(ReifiedType.from(StructureSet          .class), RegistryKeys.STRUCTURE_SET);
+	public static final DynamicRegistryCoders<StructureProcessorList>  STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS = new DynamicRegistryCoders<>(ReifiedType.from(StructureProcessorList.class), RegistryKeys.PROCESSOR_LIST);
+	public static final DynamicRegistryCoders<StructurePool>           STRUCTURE_POOL_REGISTRY_CODERS           = new DynamicRegistryCoders<>(ReifiedType.from(StructurePool         .class), RegistryKeys.TEMPLATE_POOL);
+	public static final DynamicRegistryCoders<Biome>                   BIOME_REGISTRY_CODERS                    = new DynamicRegistryCoders<>(ReifiedType.from(Biome                 .class), RegistryKeys.BIOME);
+	public static final DynamicRegistryCoders<DensityFunction>         DENSITY_FUNCTION_REGISTRY_CODERS         = new DynamicRegistryCoders<>(ReifiedType.from(DensityFunction       .class), RegistryKeys.DENSITY_FUNCTION);
+	public static final DynamicRegistryCoders<ChunkGeneratorSettings>  CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS = new DynamicRegistryCoders<>(ReifiedType.from(ChunkGeneratorSettings.class), RegistryKeys.CHUNK_GENERATOR_SETTINGS);
+	public static final DynamicRegistryCoders<WorldPreset>             WORLD_PRESET_REGISTRY_CODERS             = new DynamicRegistryCoders<>(ReifiedType.from(WorldPreset           .class), RegistryKeys.WORLD_PRESET);
 	public static final DynamicRegistryCoders<?>[] DYNAMIC_REGISTRY_CODERS = {
+		BLOCK_REGISTRY_CODERS,
+		ITEM_REGISTRY_CODERS,
+		FLUID_REGISTRY_CODERS,
+		POTION_REGISTRY_CODERS,
+		BLOCK_ENTITY_TYPE_REGISTRY_CODERS,
+		ENTITY_TYPE_REGISTRY_CODERS,
 		DIMENSION_TYPE_REGISTRY_CODERS,
 		CONFIGURED_CARVER_REGISTRY_CODERS,
 		CONFIGURED_FEATURE_REGISTRY_CODERS,
@@ -105,21 +102,6 @@ public class BigGlobeAutoCodec {
 		DENSITY_FUNCTION_REGISTRY_CODERS,
 		CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS,
 		WORLD_PRESET_REGISTRY_CODERS
-	};
-
-	public static final HardCodedRegistryCoders<Block> BLOCK_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.from(Block.class), Registry.BLOCK, Registry.BLOCK_KEY);
-	public static final HardCodedRegistryCoders<Item> ITEM_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.from(Item.class), Registry.ITEM, Registry.ITEM_KEY);
-	public static final HardCodedRegistryCoders<Fluid> FLUID_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.from(Fluid.class), Registry.FLUID, Registry.FLUID_KEY);
-	public static final HardCodedRegistryCoders<Potion> POTION_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.from(Potion.class), Registry.POTION, Registry.POTION_KEY);
-	public static final HardCodedRegistryCoders<BlockEntityType<?>> BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType.class), Registry.BLOCK_ENTITY_TYPE, Registry.BLOCK_ENTITY_TYPE_KEY);
-	public static final HardCodedRegistryCoders<EntityType<?>> ENTITY_TYPE_REGISTRY_CODERS = new HardCodedRegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType.class), Registry.ENTITY_TYPE, Registry.ENTITY_TYPE_KEY);
-	public static final HardCodedRegistryCoders<?>[] HARD_CODED_REGISTRY_CODERS = {
-		BLOCK_REGISTRY_CODERS,
-		ITEM_REGISTRY_CODERS,
-		FLUID_REGISTRY_CODERS,
-		POTION_REGISTRY_CODERS,
-		BLOCK_ENTITY_TYPE_REGISTRY_CODERS,
-		ENTITY_TYPE_REGISTRY_CODERS
 	};
 
 	@SuppressWarnings("OverrideOnly") //it should allow super calls. that should be a thing.
@@ -159,9 +141,6 @@ public class BigGlobeAutoCodec {
 						public void setup() {
 							super.setup();
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
-							for (HardCodedRegistryCoders<?> coders : HARD_CODED_REGISTRY_CODERS) {
-								coders.addAllTo(this, autoCodec);
-							}
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							for (DynamicRegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
@@ -192,9 +171,6 @@ public class BigGlobeAutoCodec {
 						public void setup() {
 							super.setup();
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
-							for (HardCodedRegistryCoders<?> coders : HARD_CODED_REGISTRY_CODERS) {
-								coders.addAllTo(this, autoCodec);
-							}
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							for (DynamicRegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
@@ -230,39 +206,14 @@ public class BigGlobeAutoCodec {
 		}
 	};
 
-	public static class HardCodedRegistryCoders<T> {
-
-		public final Registry<T> registry;
-		public final RegistryKey<Registry<T>> registryKey;
-
-		public final ReifiedType<T> objectType;
-		public final ReifiedType<RegistryKey<T>> registryKeyType;
-		public final ReifiedType<TagKey<T>> tagKeyType;
-
-		public HardCodedRegistryCoders(ReifiedType<T> objectType, Registry<T> registry, RegistryKey<Registry<T>> registryKey) {
-			this.registry = registry;
-			this.registryKey = registryKey;
-			this.objectType = objectType;
-			this.registryKeyType = ReifiedType.parameterize(RegistryKey.class, objectType);
-			this.tagKeyType = ReifiedType.parameterize(TagKey.class, objectType);
-		}
-
-		public void addAllTo(LookupFactory<? super AutoCoder<?>> lookupFactory, AutoCodec autoCodec) {
-			lookupFactory.doAddGeneric(this.objectType, autoCodec.wrapDFUCodec(this.registry.getCodec(), false));
-			RegistryKey<Registry<T>> registryKey = this.registryKey;
-			lookupFactory.doAddGeneric(this.tagKeyType, tagKeyCoder(this.tagKeyType, this.registryKey));
-			lookupFactory.doAddGeneric(this.registryKeyType, registryKeyCoder(this.registryKeyType, this.registryKey));
-		}
-	}
-
 	public static class DynamicRegistryCoders<T> {
 
 		public final RegistryKey<Registry<T>> registryKey;
 
 		public final ReifiedType<T> objectType;
-		public final ReifiedType<Registry<T>> registryType;
+		public final ReifiedType<BetterRegistry<T>> registryType;
 		public final ReifiedType<RegistryKey<T>> registryKeyType;
-		public final ReifiedType<RegistryEntry<T>> entryType;
+		public final ReifiedType<BetterRegistryEntry<T>> entryType;
 		public final ReifiedType<TagKey<T>> tagKeyType;
 
 		public final DynamicRegistryCoder<T> registryCoder;
@@ -275,14 +226,14 @@ public class BigGlobeAutoCodec {
 			this.registryKey      = registryKey;
 
 			this.objectType       = objectType;
-			this.registryType     = ReifiedType.parameterize(Registry.class, objectType);
+			this.registryType     = ReifiedType.parameterize(BetterRegistry.class, objectType);
 			this.registryKeyType  = ReifiedType.parameterize(RegistryKey.class, objectType);
-			this.entryType        = ReifiedType.parameterize(RegistryEntry.class, objectType);
+			this.entryType        = ReifiedType.parameterize(BetterRegistryEntry.class, objectType);
 			this.tagKeyType       = ReifiedType.parameterize(TagKey.class, objectType);
 
 			this.registryCoder    = new DynamicRegistryCoder<>(registryKey);
 			this.registryKeyCoder = registryKeyCoder(this.registryKeyType, this.registryKey);
-			this.entryCoder       = new DynamicRegistryEntryCoder<>(this.entryType, this.registryCoder);
+			this.entryCoder       = new DynamicRegistryEntryCoder<>(this.entryType, this.registryCoder, registryKey);
 			this.objectCoder      = new DynamicRegistryObjectCoder<>(objectType, this.registryCoder);
 			this.tagKeyCoder      = tagKeyCoder(this.tagKeyType, this.registryKey);
 		}

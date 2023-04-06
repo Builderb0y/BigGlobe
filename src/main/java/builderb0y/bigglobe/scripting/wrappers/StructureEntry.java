@@ -2,10 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -34,8 +35,8 @@ public class StructureEntry {
 			BigGlobeMod
 			.getCurrentServer()
 			.getRegistryManager()
-			.get(Registry.STRUCTURE_KEY)
-			.entryOf(RegistryKey.of(Registry.STRUCTURE_KEY, new Identifier(id)))
+			.get(RegistryKeys.STRUCTURE)
+			.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE, new Identifier(id)))
 		);
 	}
 
@@ -46,9 +47,9 @@ public class StructureEntry {
 	public StructureTypeEntry type() {
 		if (this.type == null) {
 			this.type = new StructureTypeEntry(
-				Registry.STRUCTURE_TYPE.entryOf(
+				Registries.STRUCTURE_TYPE.entryOf(
 					UnregisteredObjectException.getKey(
-						Registry.STRUCTURE_TYPE,
+						Registries.STRUCTURE_TYPE,
 						this.entry.value().getType()
 					)
 				)

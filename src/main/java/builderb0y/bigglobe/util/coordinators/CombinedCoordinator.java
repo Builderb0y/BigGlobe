@@ -10,11 +10,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 public class CombinedCoordinator extends ScratchPosCoordinator {
@@ -75,7 +75,7 @@ public class CombinedCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
+	public void getBiome(int x, int y, int z, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {
 		for (Coordinator delegate : this.delegates) {
 			delegate.getBiome(x, y, z, action);
 		}

@@ -7,11 +7,11 @@ import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList.Named;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList.Named;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -30,12 +30,12 @@ public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWr
 	}
 
 	public static StructureTypeTagKey of(String id) {
-		return new StructureTypeTagKey(TagKey.of(Registry.STRUCTURE_TYPE_KEY, new Identifier(id)));
+		return new StructureTypeTagKey(TagKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id)));
 	}
 
 	@Override
 	public StructureTypeEntry random(RandomGenerator random) {
-		Optional<Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_TYPE_KEY).getEntryList(this.key);
+		Optional<Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE_TYPE).getEntryList(this.key);
 		if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
 		Optional<RegistryEntry<StructureType<?>>> feature = list.get().getRandom(new MojangPermuter(random.nextLong()));
 		if (feature.isEmpty()) throw new RuntimeException("Structure tag is empty: " + this.key.id());
@@ -45,7 +45,7 @@ public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWr
 	@NotNull
 	@Override
 	public Iterator<StructureTypeEntry> iterator() {
-		Optional<Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.STRUCTURE_TYPE_KEY).getEntryList(this.key);
+		Optional<Named<StructureType<?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE_TYPE).getEntryList(this.key);
 		if (list.isEmpty()) throw new RuntimeException("Structure tag does not exist: " + this.key.id());
 		return list.get().stream().map(StructureTypeEntry::new).iterator();
 	}

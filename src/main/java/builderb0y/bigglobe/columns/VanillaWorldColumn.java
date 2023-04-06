@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns;
 
 import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
@@ -9,6 +8,8 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
+
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class VanillaWorldColumn extends WorldColumn {
 
@@ -20,18 +21,19 @@ public class VanillaWorldColumn extends WorldColumn {
 	public final NoiseConfig noise;
 	/** used only by {@link ChunkGenerator#getHeight(int, int, Heightmap.Type, HeightLimitView, NoiseConfig)}. */
 	public final HeightLimitView world;
+
 	public int finalHeight;
 	public VerticalBlockSample verticalBlockSample;
 
-	public VanillaWorldColumn(HeightLimitView world, ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
-		super(noise.getLegacyWorldSeed(), x, z);
+	public VanillaWorldColumn(long seed, HeightLimitView world, ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
+		super(seed, x, z);
 		this.world = world;
 		this.chunkGenerator = chunkGenerator;
 		this.noise = noise;
 	}
 
-	public VanillaWorldColumn(ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
-		super(noise.getLegacyWorldSeed(), x, z);
+	public VanillaWorldColumn(long seed, ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
+		super(seed, x, z);
 		this.chunkGenerator = chunkGenerator;
 		this.noise = noise;
 		this.world = new HeightLimitView() {
@@ -50,6 +52,7 @@ public class VanillaWorldColumn extends WorldColumn {
 
 	public VanillaWorldColumn(StructureWorldAccess world, int x, int z) {
 		this(
+			world.getSeed(),
 			world,
 			((ServerChunkManager)(world.getChunkManager())).getChunkGenerator(),
 			((ServerChunkManager)(world.getChunkManager())).getNoiseConfig(),
@@ -98,8 +101,8 @@ public class VanillaWorldColumn extends WorldColumn {
 	}
 
 	@Override
-	public RegistryEntry<Biome> getBiome(int y) {
-		return this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler());
+	public BetterRegistryEntry<Biome> getBiome(int y) {
+		return BetterRegistryEntry.from(this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler()));
 	}
 
 	@Override
@@ -109,6 +112,6 @@ public class VanillaWorldColumn extends WorldColumn {
 
 	@Override
 	public VanillaWorldColumn blankCopy() {
-		return new VanillaWorldColumn(this.world, this.chunkGenerator, this.noise, this.x, this.z);
+		return new VanillaWorldColumn(this.seed, this.world, this.chunkGenerator, this.noise, this.x, this.z);
 	}
 }

@@ -2,10 +2,10 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -27,10 +27,10 @@ public record BiomeEntry(RegistryEntry<Biome> biome) {
 	public static BiomeEntry of(String id) {
 		return new BiomeEntry(
 			BigGlobeMod
-				.getCurrentServer()
-				.getRegistryManager()
-				.get(Registry.BIOME_KEY)
-				.entryOf(RegistryKey.of(Registry.BIOME_KEY, new Identifier(id)))
+			.getCurrentServer()
+			.getRegistryManager()
+			.get(RegistryKeys.BIOME)
+			.entryOf(RegistryKey.of(RegistryKeys.BIOME, new Identifier(id)))
 		);
 	}
 
@@ -43,11 +43,7 @@ public record BiomeEntry(RegistryEntry<Biome> biome) {
 	}
 
 	public float downfall() {
-		return this.biome.value().getDownfall();
-	}
-
-	public String precipitation() {
-		return this.biome.value().getPrecipitation().asString();
+		return ((BiomeDownfallAccessor)(Object)(this.biome.value())).bigglobe_getDownfall();
 	}
 
 	@Override
@@ -66,5 +62,11 @@ public record BiomeEntry(RegistryEntry<Biome> biome) {
 	@Override
 	public String toString() {
 		return "Biome: { " + UnregisteredObjectException.getID(this.biome) + " }";
+	}
+
+	/** implemented by {@link Biome}. */
+	public static interface BiomeDownfallAccessor {
+
+		public abstract float bigglobe_getDownfall();
 	}
 }

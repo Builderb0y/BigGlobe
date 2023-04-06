@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
@@ -36,6 +37,8 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -285,8 +288,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public static class PositionState extends BlockPos {
 
-		public BlockState state;
-		public NbtCompound blockEntityData;
+		public final BlockState state;
+		public final NbtCompound blockEntityData;
 
 		public PositionState(Vec3i vector, BlockState state, NbtCompound blockEntityData) {
 			super(vector);
@@ -300,7 +303,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public PositionState(NbtCompound nbt) {
 			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(nbt);
+			this.state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt);
 			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
@@ -316,14 +319,6 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			nbt.putInt("z", this.getZ());
 			nbt.copyFrom(NbtHelper.fromBlockState(this.state));
 			if (this.blockEntityData != null) nbt.put("BlockEntityTag", this.blockEntityData);
-		}
-
-		public void readFromNBT(NbtCompound nbt) {
-			this.setX(nbt.getInt("x"));
-			this.setY(nbt.getInt("y"));
-			this.setZ(nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(nbt);
-			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
 		public boolean place(StructureWorldAccess world, BlockPos origin, BlockBox box) {
@@ -722,7 +717,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				double x = posNBT.getDouble(0) + this.centerPos.getX();
 				double y = posNBT.getDouble(1) + this.centerPos.getY();
 				double z = posNBT.getDouble(2) + this.centerPos.getZ();
-				BlockPos pos = new BlockPos(x, y, z);
+				BlockPos pos = new BlockPos(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z));
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x, y, z));
 					EntityType.getEntityFromNbt(nbt, world.toServerWorld()).ifPresent(entity -> {
@@ -1246,7 +1241,9 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.setBlockState(0, -1, -1, NETHER_BRICK_STAIRS('s'));
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
 			root.setBlockState(0, 0, 0, Blocks.SPAWNER.getDefaultState());
-			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> spawner.getLogic().setEntityId(EntityType.BLAZE));
+			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
+				spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
+			});
 		}
 	}
 }

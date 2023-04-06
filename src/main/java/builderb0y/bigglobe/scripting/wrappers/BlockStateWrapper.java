@@ -11,15 +11,16 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.EmptyBlockView;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -32,7 +33,7 @@ public class BlockStateWrapper {
 	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class);
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
-		BlockResult result = BlockArgumentParser.block(Registry.BLOCK, id, false);
+		BlockResult result = BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false);
 		Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 		remaining.removeAll(result.properties().keySet());
 		if (!remaining.isEmpty()) {
@@ -44,7 +45,7 @@ public class BlockStateWrapper {
 	public static BlockState getState(String id) throws CommandSyntaxException {
 		//this method will be called only if the string is non-constant.
 		//for performance reasons, we will skip properties checking here.
-		return BlockArgumentParser.block(Registry.BLOCK, id, false).blockState();
+		return BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false).blockState();
 	}
 
 	public static boolean isIn(BlockState state, BlockTagKey key) {

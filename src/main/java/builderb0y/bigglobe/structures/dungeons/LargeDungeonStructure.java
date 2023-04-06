@@ -220,13 +220,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Palette palette = this.palette();
 			root.setBlockState(0, 0, 0, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, (pos, spawner) -> {
-				spawner.getLogic().setEntityId(this.spawnerType);
-				MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
-				logic.bigglobe_setRequiredPlayerRange(32);
-				logic.bigglobe_setSpawnCount(1);
-				logic.bigglobe_setMaxNearbyEntities(1);
-			});
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, this::initSpawner);
 			root.setBlockState(0, 2, 0, palette.mainSupplier());
 			root.setBlockState(0, 3, 0, palette.slabSupplier(SlabType.BOTTOM));
 			if (this.hasBars()) {

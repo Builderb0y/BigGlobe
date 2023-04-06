@@ -2,10 +2,10 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.List;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.scripting.bytecode.TypeInfo;

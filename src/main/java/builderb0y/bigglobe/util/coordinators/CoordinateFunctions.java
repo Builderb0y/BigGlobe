@@ -8,10 +8,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class CoordinateFunctions {
 
@@ -135,7 +136,7 @@ public class CoordinateFunctions {
 			return Coordinator::getBlockEntity;
 		}
 
-		public static CuboidBiCallback<CoordinateBiConsumer<RegistryEntry<Biome>>> getBiome() {
+		public static CuboidBiCallback<CoordinateBiConsumer<BetterRegistryEntry<Biome>>> getBiome() {
 			return Coordinator::getBiome;
 		}
 
@@ -197,7 +198,7 @@ public class CoordinateFunctions {
 			return (coordinator, x, y, z, index, action) -> coordinator.getBlockEntity(x, y, z, action);
 		}
 
-		public static LineBiCallback<CoordinateBiConsumer<RegistryEntry<Biome>>> getBiome() {
+		public static LineBiCallback<CoordinateBiConsumer<BetterRegistryEntry<Biome>>> getBiome() {
 			return (coordinator, x, y, z, index, action) -> coordinator.getBiome(x, y, z, action);
 		}
 

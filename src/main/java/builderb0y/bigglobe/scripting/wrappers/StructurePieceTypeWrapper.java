@@ -2,10 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -21,7 +22,7 @@ public class StructurePieceTypeWrapper {
 	}
 
 	public static StructurePieceType of(String id) {
-		StructurePieceType type = Registry.STRUCTURE_PIECE.get(new Identifier(id));
+		StructurePieceType type = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE_PIECE).get(new Identifier(id));
 		if (type != null) return type;
 		else throw new IllegalArgumentException("Unknown structure piece type: " + id);
 	}

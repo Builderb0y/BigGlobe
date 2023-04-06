@@ -45,7 +45,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
 		if (state.get(HAS_ROPE) && newState != state) {
 			Direction direction = state.get(FACING);
-			world.createAndScheduleBlockTick(
+			world.scheduleBlockTick(
 				new BlockPos(
 					pos.getX() + direction.getOffsetX(),
 					pos.getY() - 1,
@@ -189,7 +189,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@Override
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(FACING, context.getPlayerFacing());
+		return this.getDefaultState().with(FACING, context.getHorizontalPlayerFacing());
 	}
 
 	@Override

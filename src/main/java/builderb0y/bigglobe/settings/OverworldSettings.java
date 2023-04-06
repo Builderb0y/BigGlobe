@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -10,6 +9,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.ColumnZone;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public record OverworldSettings(
 	OverworldHeightSettings height,
@@ -36,7 +36,7 @@ public record OverworldSettings(
 
 	public static record OverworldSurfaceSettings(
 		ColumnZone<@EncodeInline OverworldSurfaceBlocks> blocks,
-		ColumnZone<@UseName("biome") RegistryEntry<Biome>> biomes,
+		ColumnZone<@UseName("biome") BetterRegistryEntry<Biome>> biomes,
 		@VerifyNullable SortedFeatureTag decorator
 	) {
 

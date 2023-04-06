@@ -2,10 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
@@ -23,7 +24,7 @@ public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) {
 	}
 
 	public static StructureTypeEntry of(String id) {
-		return new StructureTypeEntry(Registry.STRUCTURE_TYPE.entryOf(RegistryKey.of(Registry.STRUCTURE_TYPE_KEY, new Identifier(id))));
+		return new StructureTypeEntry(Registries.STRUCTURE_TYPE.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id))));
 	}
 
 	public boolean isIn(StructureTypeTagKey key) {
