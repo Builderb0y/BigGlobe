@@ -21,12 +21,12 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.registry.BetterRegistry;
 
-public class DynamicRegistryCoder<T> implements AutoCoder<@NotNull BetterRegistry<T>> {
+public class BetterRegistryCoder<T> implements AutoCoder<@NotNull BetterRegistry<T>> {
 
 	public static final WeakHashMap<RegistryOps<?>, Map<RegistryKey<? extends Registry<?>>, BetterRegistry<?>>> CACHE = new WeakHashMap<>(1);
 	public final RegistryKey<Registry<T>> key;
 
-	public DynamicRegistryCoder(RegistryKey<Registry<T>> key) {
+	public BetterRegistryCoder(RegistryKey<Registry<T>> key) {
 		this.key = key;
 	}
 

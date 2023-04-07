@@ -216,10 +216,10 @@ public class BigGlobeAutoCodec {
 		public final ReifiedType<BetterRegistryEntry<T>> entryType;
 		public final ReifiedType<TagKey<T>> tagKeyType;
 
-		public final DynamicRegistryCoder<T> registryCoder;
+		public final BetterRegistryCoder<T> registryCoder;
 		public final AutoCoder<RegistryKey<T>> registryKeyCoder;
-		public final DynamicRegistryEntryCoder<T> entryCoder;
-		public final DynamicRegistryObjectCoder<T> objectCoder;
+		public final BetterRegistryEntryCoder<T> entryCoder;
+		public final RegistryObjectCoder<T> objectCoder;
 		public final AutoCoder<TagKey<T>> tagKeyCoder;
 
 		public DynamicRegistryCoders(ReifiedType<T> objectType, RegistryKey<Registry<T>> registryKey) {
@@ -231,10 +231,10 @@ public class BigGlobeAutoCodec {
 			this.entryType        = ReifiedType.parameterize(BetterRegistryEntry.class, objectType);
 			this.tagKeyType       = ReifiedType.parameterize(TagKey.class, objectType);
 
-			this.registryCoder    = new DynamicRegistryCoder<>(registryKey);
+			this.registryCoder    = new BetterRegistryCoder<>(registryKey);
 			this.registryKeyCoder = registryKeyCoder(this.registryKeyType, this.registryKey);
-			this.entryCoder       = new DynamicRegistryEntryCoder<>(this.entryType, this.registryCoder, registryKey);
-			this.objectCoder      = new DynamicRegistryObjectCoder<>(objectType, this.registryCoder);
+			this.entryCoder       = new BetterRegistryEntryCoder<>(this.entryType, this.registryCoder, registryKey);
+			this.objectCoder      = new RegistryObjectCoder<>(objectType, this.registryCoder);
 			this.tagKeyCoder      = tagKeyCoder(this.tagKeyType, this.registryKey);
 		}
 

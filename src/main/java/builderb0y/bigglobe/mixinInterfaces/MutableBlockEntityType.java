@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.blockEntities;
+package builderb0y.bigglobe.mixinInterfaces;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;

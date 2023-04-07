@@ -11,7 +11,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
@@ -36,8 +35,8 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.PositionCache.NetherPositionCache;
-import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.NetherPositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -88,14 +87,13 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeNetherChunkGenerator(
 		NetherSettings settings,
-		Registry<StructureSet> structureSetRegistry,
 		SortedFeatures configuredFeatures
 	) {
 		super(
-			configuredFeatures,
 			new ColumnBiomeSource(
 				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
-			)
+			),
+			configuredFeatures
 		);
 		this.settings            = settings;
 		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);

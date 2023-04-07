@@ -16,12 +16,12 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.registry.BetterRegistry;
 import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
-public class DynamicRegistryEntryCoder<T> extends NamedCoder<BetterRegistryEntry<T>> {
+public class BetterRegistryEntryCoder<T> extends NamedCoder<BetterRegistryEntry<T>> {
 
-	public final DynamicRegistryCoder<T> registryCoder;
+	public final BetterRegistryCoder<T> registryCoder;
 	public final RegistryKey<Registry<T>> registryKey;
 
-	public DynamicRegistryEntryCoder(@NotNull ReifiedType<BetterRegistryEntry<T>> handledType, DynamicRegistryCoder<T> registryCoder, RegistryKey<Registry<T>> key) {
+	public BetterRegistryEntryCoder(@NotNull ReifiedType<BetterRegistryEntry<T>> handledType, BetterRegistryCoder<T> registryCoder, RegistryKey<Registry<T>> key) {
 		super(handledType);
 		this.registryCoder = registryCoder;
 		this.registryKey = key;

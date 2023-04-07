@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 
-import builderb0y.bigglobe.blockEntities.MutableBlockEntityType;
+import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 
 @Mixin(BlockEntityType.class)
 public class BlockEntityType_AddBlockHook implements MutableBlockEntityType {

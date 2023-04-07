@@ -22,6 +22,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.block.enums.StairShape;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -47,6 +48,7 @@ public class TreeRegistry {
 	public static final RegistryKey<Registry<Entry>> REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.modID("trees"));
 	public static final Registry<Entry> REGISTRY = BigGlobeMod.newRegistry(REGISTRY_KEY);
 
+	@SuppressWarnings("unused")
 	public static final RegistryKey<Entry>
 		OAK              = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("oak"             )),
 		SPRUCE           = RegistryKey.of(REGISTRY_KEY, BigGlobeMod.mcID("spruce"          )),
@@ -104,6 +106,7 @@ public class TreeRegistry {
 
 	public static void load(Path treeDirectory) {
 		try {
+			RegistryOps<JsonElement> registryOps = BigGlobeMod.defaultRegistryOps(JsonOps.INSTANCE);
 			Files.list(treeDirectory).forEach(namespacePath -> {
 				if (Files.isDirectory(namespacePath)) try {
 					String namespaceName = namespacePath.getFileName().toString();
@@ -114,7 +117,7 @@ public class TreeRegistry {
 							Identifier identifier = new Identifier(namespaceName, pathName);
 							try (Reader reader = Files.newBufferedReader(pathPath)) {
 								JsonElement element = JsonParser.parseReader(reader);
-								Entry entry = BigGlobeAutoCodec.AUTO_CODEC.decode(Entry.LOADER_CODER, element, JsonOps.INSTANCE);
+								Entry entry = BigGlobeAutoCodec.AUTO_CODEC.decode(Entry.LOADER_CODER, element, registryOps);
 								populateMissingStates(identifier, entry);
 								Registry.register(REGISTRY, identifier, entry);
 							}

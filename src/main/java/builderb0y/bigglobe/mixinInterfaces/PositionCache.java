@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.chunkgen;
+package builderb0y.bigglobe.mixinInterfaces;
 
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.Nullable;

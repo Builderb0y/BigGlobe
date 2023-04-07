@@ -28,6 +28,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
@@ -87,10 +88,10 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -99,7 +100,6 @@ import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
@@ -117,20 +117,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	public final transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
 
-	public BigGlobeChunkGenerator(
-		SortedFeatures configuredFeatures,
-		BiomeSource biomeSource
-	) {
+	public BigGlobeChunkGenerator(BiomeSource biomeSource, SortedFeatures configuredFeatures) {
 		super(biomeSource);
 		this.configuredFeatures = configuredFeatures;
-		configuredFeatures.streamConfigs(BigGlobeFeatures.USE_SCRIPT_TEMPLATE).forEach(config -> {
-			try {
-				config.getCompiledScript();
-			}
-			catch (ScriptParsingException exception) {
-				throw new RuntimeException(exception.getLocalizedMessage(), exception);
-			}
-		});
 	}
 
 	@Wrapper
@@ -216,6 +205,14 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		if (this.biomeSource instanceof ColumnBiomeSource columnBiomeSource) {
 			columnBiomeSource.setGenerator(this);
 		}
+	}
+
+	@Override
+	public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
+		this.setSeed(seed);
+		StructurePlacementCalculator calculator = super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
+		((StructurePlacementCalculatorWithChunkGenerator)(calculator)).bigglobe_setChunkGenerator(this);
+		return calculator;
 	}
 
 	public abstract WorldColumn column(int x, int z);

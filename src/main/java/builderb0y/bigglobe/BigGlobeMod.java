@@ -3,8 +3,10 @@ package builderb0y.bigglobe;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -15,10 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.registry.*;
+import net.minecraft.registry.RegistryOps.RegistryInfo;
+import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -113,6 +114,19 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static <T> SimpleRegistry<T> newRegistry(RegistryKey<Registry<T>> key) {
 		return FabricRegistryBuilder.from(new SimpleRegistry<>(key, Lifecycle.experimental())).buildAndRegister();
+	}
+
+	public static <T_Encoded> RegistryOps<T_Encoded> defaultRegistryOps(DynamicOps<T_Encoded> ops) {
+		return RegistryOps.of(ops, new RegistryInfoGetter() {
+
+			@Override
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			public <T> Optional<RegistryInfo<T>> getRegistryInfo(RegistryKey<? extends Registry<? extends T>> key) {
+				return Optional.ofNullable(Registries.REGISTRIES.get((RegistryKey)(key))).map(registry -> {
+					return new RegistryInfo<>(registry.getReadOnlyWrapper(), registry.getReadOnlyWrapper(), registry.getLifecycle());
+				});
+			}
+		});
 	}
 
 	public static void regenWorlds(MinecraftServer server) {

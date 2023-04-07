@@ -13,11 +13,11 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.registry.BetterRegistry;
 
-public class DynamicRegistryObjectCoder<T> extends NamedCoder<T> {
+public class RegistryObjectCoder<T> extends NamedCoder<T> {
 
-	public final DynamicRegistryCoder<T> registryCoder;
+	public final BetterRegistryCoder<T> registryCoder;
 
-	public DynamicRegistryObjectCoder(@NotNull ReifiedType<T> handledType, DynamicRegistryCoder<T> registryCoder) {
+	public RegistryObjectCoder(@NotNull ReifiedType<T> handledType, BetterRegistryCoder<T> registryCoder) {
 		super(handledType);
 		this.registryCoder = registryCoder;
 	}

@@ -55,8 +55,8 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.PositionCache.OverworldPositionCache;
-import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.OverworldPositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.*;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.*;
@@ -117,8 +117,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	@EncodeInline
 	public final OverworldSettings settings;
-	@EncodeInline
-	public final Registry<Biome> biomeRegistry;
 
 	public final transient ColumnValue<OverworldColumn>[] biomeValues;
 	public final transient OverworldOreFeature.Config[] oreConfigs;
@@ -132,21 +130,19 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
-		Registry<Biome> biomeRegistry,
 		SortedFeatures configuredFeatures
 	) {
 		super(
-			configuredFeatures,
 			new ColumnBiomeSource(
 				settings
 				.surface()
 				.biomes()
 				.streamZones()
 				.map(ColumnZone::value)
-			)
+			),
+			configuredFeatures
 		);
 		this.settings = settings;
-		this.biomeRegistry = biomeRegistry;
 		this.biomeValues = (
 			settings
 			.surface()

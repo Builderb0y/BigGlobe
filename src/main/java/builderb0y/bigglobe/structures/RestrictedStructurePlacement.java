@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
@@ -15,6 +16,7 @@ import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 
 public class RestrictedStructurePlacement extends StructurePlacement {
 
@@ -36,7 +38,9 @@ public class RestrictedStructurePlacement extends StructurePlacement {
 		if (!this.isStartChunk(calculator, chunkX, chunkZ)) return false;
 		int startX = (chunkX << 4) | 8;
 		int startZ = (chunkZ << 4) | 8;
-		WorldColumn column = WorldColumn.forGenerator(calculator.getStructureSeed(), null, calculator.getNoiseConfig(), startX, startZ);
+		ChunkGenerator generator = ((StructurePlacementCalculatorWithChunkGenerator)(calculator)).bigglobe_getChunkGenerator();
+		if (generator == null) throw new IllegalStateException("bigglobe:restricted structure placement type cannot be used outside of big globe worlds.");
+		WorldColumn column = WorldColumn.forGenerator(calculator.getStructureSeed(), generator, calculator.getNoiseConfig(), startX, startZ);
 		double y = column.getFinalTopHeightD();
 		ColumnRestriction restriction = this.restrictions;
 		if (!restriction.test(column, y, calculator.getStructureSeed())) return false;

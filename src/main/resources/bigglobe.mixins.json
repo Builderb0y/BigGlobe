@@ -39,6 +39,7 @@
 		"SpawnRestriction_BackingMapAccess",
 		"StairsBlock_MirrorProperly",
 		"StructurePiece_DirectRotationSetter",
+		"StructurePlacementCalculator_AddChunkGenerator",
 		"StructureStart_BoundingBoxSetter",
 		"StructureStart_SaveBoundingBox",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel"

@@ -31,7 +31,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 		.addType("BiomeTag",             BiomeTagKey            .TYPE)
 		.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
 		.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
-		.addFieldInvokes(BiomeEntry.class, "temperature", "downfall", "precipitation")
+		.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
 		.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "isIn")
 		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 		.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))

@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Unique;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ProtoChunk;
 
-import builderb0y.bigglobe.chunkgen.PositionCache;
-import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 
 @Mixin(ProtoChunk.class)
 public abstract class ProtoChunk_ImplementPositionCacheHolder extends Chunk implements PositionCacheHolder {
