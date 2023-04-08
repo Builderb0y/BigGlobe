@@ -99,7 +99,6 @@ before release:
 	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
 
 porting:
-	replace my double vector for mega trees with joml.
 	add sniffer_diggable_block tag to include overgrown podzol.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().

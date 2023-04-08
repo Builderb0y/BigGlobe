@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.MemberUsage;
@@ -25,10 +26,9 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 @UseCoder(name = "INSTANCE", in = BiomeColumnRestriction.Coder.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public class BiomeColumnRestriction extends Object2DoubleOpenHashMap<BetterRegistryEntry<Biome>> implements ColumnRestriction {
+public class BiomeColumnRestriction extends Object2DoubleOpenHashMap<RegistryEntry<Biome>> implements ColumnRestriction {
 
 	@Override
 	public double getRestriction(WorldColumn column, double y) {
@@ -52,13 +52,13 @@ public class BiomeColumnRestriction extends Object2DoubleOpenHashMap<BetterRegis
 
 	public static class Coder extends NamedCoder<BiomeColumnRestriction> {
 
-		public static final AutoCoder<BetterRegistryEntry<Biome>> BIOME_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
+		public static final AutoCoder<RegistryEntry<Biome>> BIOME_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
 			new ReifiedType<>() {}
 		);
 		public static final AutoCoder<Double> CHANCE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
 			new ReifiedType<@VerifyFloatRange(min = 0.0D, max = 1.0D) Double>() {}
 		);
-		public static final AutoEncoder<Map<BetterRegistryEntry<Biome>, Double>> MAP_ENCODER = BigGlobeAutoCodec.AUTO_CODEC.createEncoder(
+		public static final AutoEncoder<Map<RegistryEntry<Biome>, Double>> MAP_ENCODER = BigGlobeAutoCodec.AUTO_CODEC.createEncoder(
 			new ReifiedType<>() {}
 		);
 
@@ -77,7 +77,7 @@ public class BiomeColumnRestriction extends Object2DoubleOpenHashMap<BetterRegis
 					result.defaultReturnValue(entry.getValue().decodeWith(CHANCE_CODER));
 				}
 				else {
-					BetterRegistryEntry<Biome> biome = entry.getKey().decodeWith(BIOME_CODER);
+					RegistryEntry<Biome> biome = entry.getKey().decodeWith(BIOME_CODER);
 					double chance = entry.getValue().decodeWith(CHANCE_CODER);
 					result.put(biome, chance);
 				}

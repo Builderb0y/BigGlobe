@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -8,8 +9,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
-
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class VanillaWorldColumn extends WorldColumn {
 
@@ -101,8 +100,8 @@ public class VanillaWorldColumn extends WorldColumn {
 	}
 
 	@Override
-	public BetterRegistryEntry<Biome> getBiome(int y) {
-		return BetterRegistryEntry.from(this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler()));
+	public RegistryEntry<Biome> getBiome(int y) {
+		return this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler());
 	}
 
 	@Override

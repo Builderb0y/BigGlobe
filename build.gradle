@@ -12,12 +12,16 @@ repositories() {
 	//Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	//See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	//for more information about repositories.
+
+	/*
 	mavenLocal() {
 		url('file:///home/builderb0y/Documents/Projects/AutoCodec/releases')
 		content() {
 			includeGroup('builderb0y')
 		}
 	}
+	*/
+
 	maven() {
 		name('Modrinth')
 		url('https://api.modrinth.com/maven')
@@ -33,31 +37,28 @@ dependencies() {
 	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
 
-	String autoCodecVersion = '4.9.6'
-	implementation("builderb0y:autocodec:$autoCodecVersion")
-	include("builderb0y:autocodec:$autoCodecVersion")
 	testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.0-M1')
 	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
 
 	//mods that I interact with.
-	modImplementation('maven.modrinth:lambdynamiclights:2.3.0+1.19.4')
+	//modImplementation('maven.modrinth:lambdynamiclights:2.3.0+1.19.4')
 	modImplementation('maven.modrinth:modmenu:6.1.0-rc.4')
 	modImplementation('maven.modrinth:cloth-config:10.0.96+fabric')
 
 	//mods I like to use while playing.
 
 	//optimizations.
-	//runtimeOnly('org.joml:joml:1.10.4') //now included by default in 1.19.4.
 	modRuntimeOnly('maven.modrinth:lazydfu:0.1.3')
 	modRuntimeOnly('maven.modrinth:sodium:mc1.19.4-0.4.10')
 	modRuntimeOnly('maven.modrinth:lithium:mc1.19.4-0.11.1')
 	modRuntimeOnly('maven.modrinth:starlight:1.1.1+1.19')
 	modRuntimeOnly('maven.modrinth:ferrite-core:5.2.0-fabric')
-	modRuntimeOnly('maven.modrinth:fastload:3.2.0')
 
 	//content
+	modCompileOnly(fileTree(file('dependencies/compileOnly')))
 	modImplementation(fileTree(file('dependencies/implementation')))
 	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
+	include(implementation(fileTree(file('dependencies/include')))) //this is where I put AutoCodec.
 
 	//tweaks
 	modRuntimeOnly('maven.modrinth:logical-zoom:0.0.19')

@@ -13,7 +13,6 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil.MultiNoiseSampler;
 
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class ColumnBiomeSource extends BiomeSource {
 
@@ -37,9 +36,9 @@ public class ColumnBiomeSource extends BiomeSource {
 
 	public BigGlobeChunkGenerator generator;
 	public ThreadLocal<WorldColumn> threadLocalColumn;
-	public Stream<BetterRegistryEntry<Biome>> biomeStream;
+	public Stream<RegistryEntry<Biome>> biomeStream;
 
-	public ColumnBiomeSource(Stream<BetterRegistryEntry<Biome>> biomeStream) {
+	public ColumnBiomeSource(Stream<RegistryEntry<Biome>> biomeStream) {
 		this.biomeStream = biomeStream;
 	}
 
@@ -54,21 +53,20 @@ public class ColumnBiomeSource extends BiomeSource {
 	}
 
 	/**
-	this will only be called once,
-	which conveniently is the number
-	of times a Stream can be used.
+	this will only be called once, which conveniently
+	is the number of times a Stream can be used.
 	*/
 	@Override
 	protected Stream<RegistryEntry<Biome>> biomeStream() {
-		Stream<BetterRegistryEntry<Biome>> stream = this.biomeStream;
+		Stream<RegistryEntry<Biome>> stream = this.biomeStream;
 		this.biomeStream = null;
-		return stream.map(BetterRegistryEntry::vanilla);
+		return stream;
 	}
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		WorldColumn column = this.threadLocalColumn.get();
 		column.setPos(x << 2, z << 2);
-		return column.getBiome(y << 2).vanilla();
+		return column.getBiome(y << 2);
 	}
 }

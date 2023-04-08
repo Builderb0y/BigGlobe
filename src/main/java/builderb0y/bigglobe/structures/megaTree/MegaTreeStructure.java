@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import org.joml.Vector3d;
 
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +19,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.trees.TreeRegistry;
-import builderb0y.bigglobe.util.Dvec3;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -140,8 +140,8 @@ public class MegaTreeStructure extends BigGlobeStructure {
 				this.foliageFactor(this.data.trunk_radius),
 				totalSteps,
 				32,
-				new Dvec3(0.0D, 1.0D, 0.0D),
-				new Dvec3(0.0D, 1.0D, 0.0D)
+				new Vector3d(0.0D, 1.0D, 0.0D),
+				new Vector3d(0.0D, 1.0D, 0.0D)
 			);
 			this.branches.addLast(branch);
 		}

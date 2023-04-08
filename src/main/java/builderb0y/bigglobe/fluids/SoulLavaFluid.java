@@ -17,6 +17,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.*;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 public abstract class SoulLavaFluid extends FlowableFluid {
@@ -33,7 +34,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 
 	@Override
 	public boolean isInfinite(World world) {
-		return false;
+		return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
 	}
 
 	@Override

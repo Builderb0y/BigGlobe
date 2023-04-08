@@ -95,7 +95,7 @@ public class WorldWrapper {
 
 	public BiomeEntry getBiome(int x, int y, int z) {
 		this.biomeColumn.setPos(x, z);
-		return new BiomeEntry(this.biomeColumn.getBiome(y).vanilla());
+		return new BiomeEntry(this.biomeColumn.getBiome(y));
 	}
 
 	public boolean isYLevelValid(int y) {

@@ -6,14 +6,12 @@ import java.util.stream.Collectors;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.ScriptedFeature.FeatureScript;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -73,27 +71,24 @@ public class UseScriptTemplateFeature extends Feature<UseScriptTemplateFeature.C
 
 	public static class Config implements FeatureConfig {
 
-		public final RegistryKey<ConfiguredFeature<?, ?>> script;
+		public final RegistryEntry<ConfiguredFeature<?, ?>> script;
 		public final Map<String, String> inputs;
 		public transient FeatureScript.Holder compiledScript;
 		public transient long nextWarning = Long.MIN_VALUE;
 		public transient ScriptParsingException compileError;
 
-		public Config(RegistryKey<ConfiguredFeature<?, ?>> script, Map<String, String> inputs) {
+		public Config(RegistryEntry<ConfiguredFeature<?, ?>> script, Map<String, String> inputs) {
 			this.script = script;
 			this.inputs = inputs;
 		}
 
 		public DefineScriptTemplateFeature.Config acquireScript() {
-			ConfiguredFeature<?, ?> actualScript = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(this.script);
-			if (actualScript == null) {
-				throw new IllegalStateException("script not found: " + this.script.getValue());
-			}
-			else if (actualScript.feature() != BigGlobeFeatures.DEFINE_SCRIPT_TEMPLATE) {
-				throw new IllegalStateException("script should point to feature of type bigglobe:define_script_template, but was " + Registries.FEATURE.getId(actualScript.feature()));
+			ConfiguredFeature<?, ?> actualScript = this.script.value();
+			if (actualScript.feature() == BigGlobeFeatures.DEFINE_SCRIPT_TEMPLATE) {
+				return ((DefineScriptTemplateFeature.Config)(actualScript.config()));
 			}
 			else {
-				return ((DefineScriptTemplateFeature.Config)(actualScript.config()));
+				throw new IllegalStateException("script should point to feature of type bigglobe:define_script_template, but was " + Registries.FEATURE.getId(actualScript.feature()));
 			}
 		}
 

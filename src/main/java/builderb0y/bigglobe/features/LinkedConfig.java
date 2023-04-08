@@ -16,6 +16,7 @@ import builderb0y.bigglobe.features.LinkedConfig.EntryConfig;
 import builderb0y.bigglobe.features.LinkedConfig.GroupConfig;
 import builderb0y.bigglobe.randomLists.IRestrictedListElement;
 import builderb0y.bigglobe.settings.VariationsList;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class LinkedConfig<
 	T_GroupConfig extends GroupConfig,
@@ -97,8 +98,8 @@ public class LinkedConfig<
 		public T_LinkedConfig[] link(SortedFeatures sortedFeatures) {
 			Map<Identifier, Mutable> map = new HashMap<>(8);
 			sortedFeatures.streamRegistryEntries(this.groupFeature).forEach(registryEntry -> {
-				T_GroupConfig groupConfig = registryEntry.object().config();
-				Identifier group = registryEntry.id();
+				T_GroupConfig groupConfig = registryEntry.value().config();
+				Identifier group = UnregisteredObjectException.getID(registryEntry);
 				Mutable mutable = map.computeIfAbsent(group, $ -> new Mutable());
 				if (mutable.group == null) mutable.group = groupConfig;
 				else throw new IllegalStateException("Multiple flower groups with the same ID: " + group);

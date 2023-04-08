@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import org.joml.Vector3d;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
@@ -32,7 +33,6 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.util.Dvec3;
 
 public class LakeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -77,7 +77,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		Dvec3 pos = randomPosAtSurface(context, 0.0D);
+		Vector3d pos = randomPosAtSurface(context, 0.0D);
 		if (pos == null) return Optional.empty();
 
 		Permuter permuter = Permuter.from(context.random());

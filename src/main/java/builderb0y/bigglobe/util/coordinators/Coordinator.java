@@ -14,6 +14,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -27,7 +28,6 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LimitArea;
@@ -299,17 +299,17 @@ public interface Coordinator {
 	due to the fact that chunks only store on biome for every 4x4x4 volume,
 	but columns can compute the biome for every block.
 	*/
-	public abstract void getBiome(int x, int y, int z, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action);
+	public abstract void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action);
 
-	public default void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {
+	public default void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
 		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getBiome());
 	}
 
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {
+	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
 		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getBiome());
 	}
 
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<BetterRegistryEntry<Biome>>... actions) {
+	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<RegistryEntry<Biome>>... actions) {
 		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getBiome(), actions);
 	}
 

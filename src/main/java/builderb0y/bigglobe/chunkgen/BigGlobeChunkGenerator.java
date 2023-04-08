@@ -88,6 +88,7 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -95,11 +96,10 @@ import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunk
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.registry.BetterRegistry;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
@@ -120,30 +120,38 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	public BigGlobeChunkGenerator(BiomeSource biomeSource, SortedFeatures configuredFeatures) {
 		super(biomeSource);
 		this.configuredFeatures = configuredFeatures;
+		configuredFeatures.streamConfigs(BigGlobeFeatures.USE_SCRIPT_TEMPLATE).forEach(config -> {
+			try {
+				config.getCompiledScript();
+			}
+			catch (ScriptParsingException exception) {
+				throw new RuntimeException(exception);
+			}
+		});
 	}
 
 	@Wrapper
 	public static class SortedFeatures {
 
-		public final BetterRegistry<ConfiguredFeature<?, ?>> registry;
-		public final Map<Feature<?>, List<BetterRegistryEntry<ConfiguredFeature<?, ?>>>> map;
+		public final RegistryWrapper<ConfiguredFeature<?, ?>> registry;
+		public final Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
-		public SortedFeatures(BetterRegistry<ConfiguredFeature<?, ?>> registry) {
+		public SortedFeatures(RegistryWrapper<ConfiguredFeature<?, ?>> registry) {
 			this.registry = registry;
-			Map<Feature<?>, List<BetterRegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(128);
-			for (BetterRegistryEntry<ConfiguredFeature<?, ?>> entry : registry.keyToEntry.values()) {
-				map.computeIfAbsent(entry.object().feature(), $ -> new ArrayList<>(4)).add(entry);
-			}
+			Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(128);
+			registry.streamEntries().forEach(entry -> {
+				map.computeIfAbsent(entry.value().feature(), $ -> new ArrayList<>(4)).add(entry);
+			});
 			this.map = map;
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public <C extends FeatureConfig> Stream<BetterRegistryEntry<ConfiguredFeature<C, Feature<C>>>> streamRegistryEntries(Feature<C> feature) {
+		public <C extends FeatureConfig> Stream<RegistryEntry<ConfiguredFeature<C, Feature<C>>>> streamRegistryEntries(Feature<C> feature) {
 			return (Stream)(this.map.getOrDefault(feature, Collections.emptyList()).stream());
 		}
 
 		public <C extends FeatureConfig> Stream<ConfiguredFeature<C, Feature<C>>> streamConfiguredFeatures(Feature<C> feature) {
-			return this.streamRegistryEntries(feature).map(BetterRegistryEntry::object);
+			return this.streamRegistryEntries(feature).map(RegistryEntry::value);
 		}
 
 		public <C extends FeatureConfig> Stream<C> streamConfigs(Feature<C> feature) {

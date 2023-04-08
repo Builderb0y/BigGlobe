@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
@@ -10,7 +11,6 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -387,12 +387,12 @@ public class NetherColumn extends WorldColumn {
 	}
 
 	@Override
-	public BetterRegistryEntry<Biome> getBiome(int y) {
+	public RegistryEntry<Biome> getBiome(int y) {
 		return this.getLocalCell().settings.biome();
 	}
 
 	@Override
-	public BetterRegistryEntry<Biome> getSurfaceBiome() {
+	public RegistryEntry<Biome> getSurfaceBiome() {
 		return this.getLocalCell().settings.biome();
 	}
 

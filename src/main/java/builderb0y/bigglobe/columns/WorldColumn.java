@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
@@ -8,7 +9,6 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public abstract class WorldColumn extends Column {
 
@@ -84,9 +84,9 @@ public abstract class WorldColumn extends Column {
 		return true;
 	}
 
-	public abstract BetterRegistryEntry<Biome> getBiome(int y);
+	public abstract RegistryEntry<Biome> getBiome(int y);
 
-	public BetterRegistryEntry<Biome> getSurfaceBiome() {
+	public RegistryEntry<Biome> getSurfaceBiome() {
 		return this.getBiome(this.getFinalTopHeightI());
 	}
 

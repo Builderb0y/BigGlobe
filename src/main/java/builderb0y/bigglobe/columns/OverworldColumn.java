@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
@@ -11,7 +12,6 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
@@ -77,7 +77,7 @@ public class OverworldColumn extends WorldColumn {
 		cavernThicknessSquared,
 		cavernEdginess,
 		cavernEdginessSquared;
-	public BetterRegistryEntry<Biome> surfaceBiome;
+	public RegistryEntry<Biome> surfaceBiome;
 	public double inLake = Double.NaN;
 	public @Nullable SkylandCell skylandCell;
 	public double
@@ -760,12 +760,12 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	@Override
-	public BetterRegistryEntry<Biome> getBiome(int y) {
+	public RegistryEntry<Biome> getBiome(int y) {
 		return this.settings.surface().biomes().get(this, y);
 	}
 
 	@Override
-	public BetterRegistryEntry<Biome> getSurfaceBiome() {
+	public RegistryEntry<Biome> getSurfaceBiome() {
 		return (
 			this.setFlag(SURFACE_BIOME)
 			? this.surfaceBiome = super.getSurfaceBiome()

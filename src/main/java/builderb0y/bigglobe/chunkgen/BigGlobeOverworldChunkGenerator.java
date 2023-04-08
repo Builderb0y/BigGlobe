@@ -55,8 +55,6 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.OverworldPositionCache;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.*;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.*;
@@ -75,6 +73,8 @@ import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.OverworldRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.OverworldPositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -88,7 +88,6 @@ import builderb0y.bigglobe.overriders.overworld.OverworldFoliageOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldHeightOverrider;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
@@ -1102,7 +1101,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static boolean wrongBiome(RegistryEntryList<Biome> validBiomes, OverworldColumn column, int x, int z) {
-		return !validBiomes.contains(pos(column, x, z).getSurfaceBiome().vanilla());
+		return !validBiomes.contains(pos(column, x, z).getSurfaceBiome());
 	}
 
 	public static int y(OverworldColumn column, int x, int z) {
@@ -1121,7 +1120,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		//mostly copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
 		OverworldColumn column = this.column(chunkPos.getOffsetX(8), chunkPos.getOffsetZ(8));
-		RegistryEntry<Biome> registryEntry = column.getSurfaceBiome().vanilla();
+		RegistryEntry<Biome> registryEntry = column.getSurfaceBiome();
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
@@ -1147,7 +1146,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		return CompletableFuture.supplyAsync(
 			() -> this.profiler.get("populateBiomes", () -> {
 				ChunkOfBiomeColumns<OverworldColumn> columns = new ChunkOfBiomeColumns<>(OverworldColumn[]::new, this::column);
-				ColumnZone<BetterRegistryEntry<Biome>> surfaceZones = this.settings.surface().biomes();
+				ColumnZone<RegistryEntry<Biome>> surfaceZones = this.settings.surface().biomes();
 				ColumnValue<OverworldColumn>[] biomeValues = this.biomeValues;
 				this.profiler.run("initial biome column values", () -> {
 					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
@@ -1165,7 +1164,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
 						OverworldColumn column = columns.getColumn(paletteIndex & 15);
 						double y = startY | (paletteIndex >>> 4 << 2);
-						int newID = SectionUtil.id(container, surfaceZones.get(column, y).vanilla());
+						int newID = SectionUtil.id(container, surfaceZones.get(column, y));
 						SectionUtil.storage(container).set(paletteIndex, newID);
 					}
 				});

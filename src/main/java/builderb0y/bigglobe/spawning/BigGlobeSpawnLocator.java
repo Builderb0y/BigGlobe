@@ -3,6 +3,7 @@ package builderb0y.bigglobe.spawning;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -19,7 +20,6 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 
 public class BigGlobeSpawnLocator {
 
@@ -83,7 +83,7 @@ public class BigGlobeSpawnLocator {
 	}
 
 	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
-		BetterRegistryEntry<Biome> biome = column.getSurfaceBiome();
+		RegistryEntry<Biome> biome = column.getSurfaceBiome();
 		if (
 			!biome.isIn(PLAYER_SPAWN_FRIENDLY) ||
 			column.getSurfaceFoliage() > 0.0D ||

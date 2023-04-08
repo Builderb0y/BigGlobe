@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.gamerule.v1.rule.DoubleRule;
 
 import net.minecraft.world.GameRules;
+import net.minecraft.world.GameRules.BooleanRule;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
@@ -22,6 +23,13 @@ public class BigGlobeGameRules {
 					TimeSpeedS2CPacketHandler.INSTANCE::send
 				);
 			})
+		)
+	);
+	public static final GameRules.Key<BooleanRule> SOUL_LAVA_SOURCE_CONVERSION = (
+		GameRuleRegistry.register(
+			"bigglobe:soulLavaSourceConversion",
+			GameRules.Category.UPDATES,
+			GameRuleFactory.createBooleanRule(false)
 		)
 	);
 

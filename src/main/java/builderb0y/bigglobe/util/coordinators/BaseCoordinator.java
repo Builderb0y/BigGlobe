@@ -7,6 +7,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.StructureWorldAccess;
@@ -14,7 +15,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.registry.BetterRegistryEntry;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
@@ -68,7 +68,7 @@ public class BaseCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<BetterRegistryEntry<Biome>> action) {
+	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
 		WorldColumn column = this.column;
 		if (column == null) {
 			column = this.column = WorldColumn.forWorld(this.world, 0, 0);

@@ -16,7 +16,6 @@ import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.randomLists.IRandomList;
 
@@ -59,7 +58,7 @@ public class ChoosePotionLootFunction extends ConditionalLootFunction {
 			JsonArray potionsJson = JsonHelper.getArray(json, "potions");
 			IRandomList<Potion> potions;
 			try {
-				potions = BigGlobeAutoCodec.AUTO_CODEC.decode(POTION_LIST, potionsJson, BigGlobeMod.defaultRegistryOps(JsonOps.INSTANCE));
+				potions = BigGlobeAutoCodec.AUTO_CODEC.decode(POTION_LIST, potionsJson, JsonOps.INSTANCE);
 			}
 			catch (DecodeException exception) {
 				throw new JsonSyntaxException(exception);

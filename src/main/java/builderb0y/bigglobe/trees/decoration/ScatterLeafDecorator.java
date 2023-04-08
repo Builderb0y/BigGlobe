@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.trees.decoration;
 
+import org.joml.Vector3d;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 
@@ -7,7 +9,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 
 public class ScatterLeafDecorator extends ConfiguredLeafDecorator {
 
@@ -21,9 +23,14 @@ public class ScatterLeafDecorator extends ConfiguredLeafDecorator {
 		double radius = generator.trunk.currentRadius * 0.5D + 2.0D;
 		int blocks = Permuter.roundRandomlyI(generator.random, radius * radius * radius * 2.0D);
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-		Dvec3 vec = new Dvec3();
+		Vector3d vec = new Vector3d();
 		for (int block = 1; block <= blocks; block++) {
-			vec.setOnSphere(generator.random, generator.random.nextDouble(1.0D, radius)).add(pos.getX(), pos.getY(), pos.getZ());
+			Vectors.setOnSphere(
+				vec,
+				generator.random,
+				generator.random.nextDouble(1.0D, radius)
+			)
+			.add(pos.getX(), pos.getY(), pos.getZ());
 			this.placeAt(
 				generator,
 				mutablePos.set(vec.x, vec.y, vec.z),

@@ -3,6 +3,7 @@ package builderb0y.bigglobe.structures;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import org.joml.Vector3d;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePieceType;
@@ -27,7 +28,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.nether.NoiseOverrider;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 
 public class NetherPillarStructure extends BigGlobeStructure {
 
@@ -69,10 +70,10 @@ public class NetherPillarStructure extends BigGlobeStructure {
 						if (!column.isTerrainAt(BigGlobeMath.floorI(centerY), false)) {
 							extendLoop:
 							for (int spawnAttempt = this.spawn_attempts; --spawnAttempt >= 0;) {
-								Dvec3 pos1 = new Dvec3(centerX, centerY, centerZ);
-								Dvec3 pos2 = new Dvec3(centerX, centerY, centerZ);
+								Vector3d pos1 = new Vector3d(centerX, centerY, centerZ);
+								Vector3d pos2 = new Vector3d(centerX, centerY, centerZ);
 								final int stepSize = 8;
-								Dvec3 direction = new Dvec3().setOnSphere(permuter, stepSize);
+								Vector3d direction = Vectors.setOnSphere(new Vector3d(), permuter, stepSize);
 								direction.y *= 2.0D;
 								end1: {
 									for (int i = 0; i < 96 / stepSize; i++) {
@@ -86,7 +87,7 @@ public class NetherPillarStructure extends BigGlobeStructure {
 								}
 								end2: {
 									for (int i = 0; i < 96 / stepSize; i++) {
-										pos1.subtract(direction);
+										pos1.sub(direction);
 										column.setPosUnchecked(BigGlobeMath.floorI(pos1.x), BigGlobeMath.floorI(pos1.z));
 										if (column.isTerrainAt(BigGlobeMath.floorI(pos1.y), false)) {
 											break end2;

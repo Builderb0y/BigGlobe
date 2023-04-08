@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.structures.megaTree;
 
+import org.joml.Vector3d;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
@@ -23,7 +25,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.trees.TreeRegistry;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
@@ -34,8 +36,8 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 
-		public Dvec3 position() {
-			return new Dvec3(this.x, this.y, this.z);
+		public Vector3d position() {
+			return new Vector3d(this.x, this.y, this.z);
 		}
 
 		public double extraLeafRadius() {
@@ -74,7 +76,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeBranch branch,
-		Dvec3 position,
+		Vector3d position,
 		double radius
 	) {
 		this(
@@ -174,10 +176,13 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		double extraLeafRadius = this.data.extraLeafRadius();
 		int leafCount = Permuter.roundRandomlyI(permuter.nextLong(), squareD(extraLeafRadius * 2.0));
 		if (leafCount > 0) {
-			Dvec3 unitGenerator = new Dvec3();
+			Vector3d unitGenerator = new Vector3d();
 			for (int i = 0; i < leafCount; i++) {
-				unitGenerator
-				.setOnSphere(permuter, permuter.nextDouble() * extraLeafRadius + this.data.radius)
+				Vectors.setInSphere(
+					unitGenerator,
+					permuter,
+					permuter.nextDouble() * extraLeafRadius + this.data.radius
+				)
 				.add(centerX, centerY, centerZ);
 				setToRound(pos, unitGenerator.x, unitGenerator.y, unitGenerator.z);
 				if (pos.getX() >= minX && pos.getX() <= maxX && pos.getZ() >= minZ && pos.getZ() <= maxZ) {
