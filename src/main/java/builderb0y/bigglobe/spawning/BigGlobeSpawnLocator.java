@@ -130,7 +130,7 @@ public class BigGlobeSpawnLocator {
 		}
 
 		public BlockPos toBlockPos() {
-			return new BlockPos(BigGlobeMath.floorI(this.x), BigGlobeMath.floorI(this.y), BigGlobeMath.floorI(this.z));
+			return BlockPos.ofFloored(this.x, this.y, this.z);
 		}
 	}
 }

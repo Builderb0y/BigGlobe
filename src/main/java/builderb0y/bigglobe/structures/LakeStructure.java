@@ -110,7 +110,12 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		);
 		StructurePiecesCollector collector = new StructurePiecesCollector();
 		collector.addPiece(piece);
-		return Optional.of(new StructurePosition(new BlockPos(BigGlobeMath.floorI(pos.x), BigGlobeMath.floorI(pos.y), BigGlobeMath.floorI(pos.z)), Either.right(collector)));
+		return Optional.of(
+			new StructurePosition(
+				BlockPos.ofFloored(pos.x, pos.y, pos.z),
+				Either.right(collector)
+			)
+		);
 	}
 
 	@Override

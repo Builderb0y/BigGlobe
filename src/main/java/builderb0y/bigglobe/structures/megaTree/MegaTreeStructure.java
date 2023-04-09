@@ -64,7 +64,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double foliage_ = foliage; //lambdas -_-
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(floorI(x), floorI(y), floorI(z)),
+				BlockPos.ofFloored(x, y, z),
 				(StructurePiecesCollector collector) -> {
 					double size = this.data.size.get(foliage_);
 					MegaTreeContext megaTreeContext = new MegaTreeContext(

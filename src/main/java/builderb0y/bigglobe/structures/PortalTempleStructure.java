@@ -37,7 +37,6 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -717,7 +716,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				double x = posNBT.getDouble(0) + this.centerPos.getX();
 				double y = posNBT.getDouble(1) + this.centerPos.getY();
 				double z = posNBT.getDouble(2) + this.centerPos.getZ();
-				BlockPos pos = new BlockPos(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z));
+				BlockPos pos = BlockPos.ofFloored(x, y, z);
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x, y, z));
 					EntityType.getEntityFromNbt(nbt, world.toServerWorld()).ifPresent(entity -> {
