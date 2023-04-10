@@ -37,7 +37,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.VerifySizeRange;
+import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -59,8 +59,8 @@ import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
-	public final @VerifySizeRange(min = 0, minInclusive = false) IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
-	public final @VerifySizeRange(min = 0, minInclusive = false) List<Palette> palettes;
+	public final @VerifyNotEmpty IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
+	public final @VerifyNotEmpty List<Palette> palettes;
 
 	public AbstractDungeonStructure(Config config, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config);

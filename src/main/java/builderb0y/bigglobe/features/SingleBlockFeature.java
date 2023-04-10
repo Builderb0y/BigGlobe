@@ -173,8 +173,8 @@ public class SingleBlockFeature extends Feature<Config> {
 
 	@UseCoder(name = "new", in = ConfigCoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 	public static record Config(
-		@VerifySizeRange(min = 1) List<BlockState> place,
-		@VerifySizeRange(min = 1) @VerifyNullable Set<BlockState> replace
+		@VerifyNotEmpty List<BlockState> place,
+		@VerifyNotEmpty @VerifyNullable Set<BlockState> replace
 	)
 	implements FeatureConfig, Predicate<BlockState> {
 

@@ -23,10 +23,6 @@ AutoCodec:
 			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
 			this could also target a constructor.
 	builtin framework for key dispatching.
-	add @VerifyNotEmpty.
-		just a @Mirror for @VerifySizeRange(min = 0, minInclusive = false).
-	ClassValue for ReifiedType anonymous subclasses.
-		use for performance to avoid more than one reflective deserialization of captured type.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.

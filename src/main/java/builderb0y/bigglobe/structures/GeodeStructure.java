@@ -45,7 +45,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 	public final Grid3D noise;
 	public final RandomSource radius;
-	public final BlocksConfig @VerifySizeRange(min = 1) @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
+	public final BlocksConfig @VerifyNotEmpty @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
 	public final SpikesConfig spikes;
 	public final @VerifyNullable TagKey<Block> growth_block_tag;
 
