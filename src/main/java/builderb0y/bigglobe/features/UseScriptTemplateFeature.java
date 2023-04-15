@@ -12,6 +12,7 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.ScriptedFeature.FeatureScript;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -66,20 +67,22 @@ public class UseScriptTemplateFeature extends Feature<UseScriptTemplateFeature.C
 			}
 			return false;
 		}
-		return ScriptedFeature.generate(context, script);
+		return ScriptedFeature.generate(context, script, config.rotate_randomly);
 	}
 
 	public static class Config implements FeatureConfig {
 
 		public final RegistryEntry<ConfiguredFeature<?, ?>> script;
 		public final Map<String, String> inputs;
+		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public transient FeatureScript.Holder compiledScript;
 		public transient long nextWarning = Long.MIN_VALUE;
 		public transient ScriptParsingException compileError;
 
-		public Config(RegistryEntry<ConfiguredFeature<?, ?>> script, Map<String, String> inputs) {
+		public Config(RegistryEntry<ConfiguredFeature<?, ?>> script, Map<String, String> inputs, boolean rotate_randomly) {
 			this.script = script;
 			this.inputs = inputs;
+			this.rotate_randomly = rotate_randomly;
 		}
 
 		public DefineScriptTemplateFeature.Config acquireScript() {

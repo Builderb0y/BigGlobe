@@ -10,11 +10,13 @@ import com.mojang.serialization.Codec;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.FeatureColumns;
@@ -24,7 +26,9 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.wrappers.RotatingWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -55,17 +59,29 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
 	@Override
 	public boolean generate(FeatureContext<Config> context) {
-		return generate(context, context.getConfig().script);
+		return generate(
+			context,
+			context.getConfig().script,
+			context.getConfig().rotate_randomly
+		);
 	}
 
-	public static boolean generate(FeatureContext<?> context, FeatureScript.Holder script) {
+	public static boolean generate(FeatureContext<?> context, FeatureScript.Holder script, boolean rotateRandomly) {
 		BlockPos origin = context.getOrigin();
 		ColumnSupplier oldSupplier = FeatureColumns.FEATURE_COLUMNS.get();
 		WorldColumn column = FeatureColumns.get(context.getWorld(), origin.getX(), origin.getZ(), oldSupplier);
+		Permuter permuter = Permuter.from(context.getRandom());
+		BlockRotation rotation = (
+			rotateRandomly
+			? Permuter.choose(permuter, Directions.ROTATIONS)
+			: BlockRotation.NONE
+		);
 		try {
 			FeatureColumns.FEATURE_COLUMNS.set(ColumnSupplier.fixedPosition(column));
 			return script.generate(
-				new WorldWrapper(context.getWorld(), Permuter.from(context.getRandom())),
+				rotation == BlockRotation.NONE
+				? new WorldWrapper(context.getWorld(), permuter)
+				: new RotatingWorldWrapper(context.getWorld(), permuter, origin, rotation),
 				origin.getX(),
 				origin.getY(),
 				origin.getZ(),
@@ -77,7 +93,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		}
 	}
 
-	public static record Config(FeatureScript.Holder script) implements FeatureConfig {}
+	public static record Config(
+		FeatureScript.Holder script,
+		@DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly
+	)
+	implements FeatureConfig {}
 
 	public static interface FeatureScript extends Script {
 

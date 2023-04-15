@@ -35,19 +35,24 @@ public class WorldWrapper {
 		this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
 	}
 
+	public BlockPos.Mutable pos(int x, int y, int z) {
+		return this.pos.set(x, y, z);
+	}
+
 	public long getSeed() {
 		return this.world.getSeed();
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
-		return this.world.getBlockState(this.pos.set(x, y, z));
+		return this.world.getBlockState(this.pos(x, y, z));
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
-		WorldUtil.setBlockState(this.world, this.pos.set(x, y, z), state, Block.NOTIFY_ALL);
+		BlockPos.Mutable pos = this.pos(x, y, z);
+		WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
 		if (!state.getFluidState().isEmpty()) {
 			this.world.scheduleFluidTick(
-				this.pos,
+				pos,
 				state.getFluidState().getFluid(),
 				state.getFluidState().getFluid().getTickRate(this.world)
 			);
@@ -55,7 +60,7 @@ public class WorldWrapper {
 	}
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
-		return SingleBlockFeature.place(this.world, this.pos.set(x, y, z), state, SingleBlockFeature.IS_REPLACEABLE);
+		return SingleBlockFeature.place(this.world, this.pos(x, y, z), state, SingleBlockFeature.IS_REPLACEABLE);
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
@@ -89,7 +94,7 @@ public class WorldWrapper {
 			this.world,
 			((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
 			this.permuter.mojang(),
-			this.pos.set(x, y, z)
+			this.pos(x, y, z)
 		);
 	}
 
@@ -103,34 +108,36 @@ public class WorldWrapper {
 	}
 
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {
-		BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
+		BlockEntity blockEntity = this.world.getBlockEntity(this.pos(x, y, z));
 		return blockEntity == null ? null : blockEntity.createNbtWithIdentifyingData();
 	}
 
 	public void setBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
+		BlockPos.Mutable pos = this.pos(x, y, z);
+		BlockEntity blockEntity = this.world.getBlockEntity(pos);
 		if (blockEntity != null) {
-			this.doSetBlockData(blockEntity, nbt);
+			this.doSetBlockData(pos, blockEntity, nbt);
 		}
 	}
 
 	public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockEntity blockEntity = this.world.getBlockEntity(this.pos.set(x, y, z));
+		BlockPos.Mutable pos = this.pos(x, y, z);
+		BlockEntity blockEntity = this.world.getBlockEntity(pos);
 		if (blockEntity != null) {
 			NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
 			NbtCompound newData = oldData.copy().copyFrom(nbt);
 			if (!oldData.equals(newData)) {
-				this.doSetBlockData(blockEntity, newData);
+				this.doSetBlockData(pos, blockEntity, newData);
 			}
 		}
 	}
 
-	public void doSetBlockData(BlockEntity blockEntity, NbtCompound nbt) {
+	public void doSetBlockData(BlockPos pos, BlockEntity blockEntity, NbtCompound nbt) {
 		blockEntity.readNbt(nbt);
 		blockEntity.markDirty();
 		if (this.world instanceof World world) {
-			BlockState state = this.world.getBlockState(this.pos);
-			world.updateListeners(this.pos, state, state, Block.NOTIFY_ALL);
+			BlockState state = this.world.getBlockState(pos);
+			world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
 		}
 	}
 

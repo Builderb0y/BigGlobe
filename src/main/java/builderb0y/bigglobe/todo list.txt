@@ -41,8 +41,9 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 	overworld:
+		configurable bedrock amount.
 		script for cave width.
-		desert well feature.
+		well feature.
 		desert fossils.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
@@ -61,6 +62,7 @@ features:
 				glowing mushrooms?
 					that hang from the ceiling?
 		make geode placement faster by only computing noise in a sphere instead of a cube.
+		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		fallen logs.
 		dungeons:
 			cobwebs on ceiling corners.

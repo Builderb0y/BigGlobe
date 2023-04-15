@@ -132,6 +132,7 @@ public class BigGlobeItems {
 	}
 
 	@Environment(EnvType.CLIENT)
+	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
 		ColorProviderRegistry.ITEM.register(
 			(stack, tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
@@ -163,6 +164,7 @@ public class BigGlobeItems {
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
+			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
