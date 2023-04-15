@@ -42,7 +42,7 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 			&& (
 				world
 				.getStructureAccessor()
-				.getStructureContaining(pos, BigGlobeStructures.SLIME_SPAWNING_LAKES_TAG_KEY)
+				.getStructureContaining(pos, BigGlobeStructures.SLIMES_SPAWN_ON_WATER_TAG_KEY)
 				.hasChildren()
 			)
 			//vanilla logic.

@@ -76,6 +76,13 @@ public class BigGlobeStructures {
 		GEODE_PIECE_TYPE        = registerPiece("geode_piece", GeodeStructure. MainPiece::new),
 		GEODE_SPIKE_PIECE_TYPE  = registerPiece("geode_spike", GeodeStructure.SpikePiece::new);
 
+	//////////////// underground pocket ////////////////
+
+	public static final StructureType<UndergroundPocketStructure>
+		UNDERGROUND_POCKET = registerType("underground_pocket", UndergroundPocketStructure.CODEC);
+	public static final BigGlobeStructurePieceType
+		UNDERGROUND_POCKET_PIECE = registerPiece("underground_pocket_piece", UndergroundPocketStructure.Piece::new);
+
 	//////////////// bigger desert pyramid ////////////////
 
 	public static final StructureType<BiggerDesertPyramidStructure>
@@ -101,7 +108,7 @@ public class BigGlobeStructures {
 	public static final BigGlobeStructurePieceType
 		LAKE_PIECE_TYPE = registerPiece("lake_piece", LakeStructure.Piece::new);
 	public static final TagKey<Structure>
-		SLIME_SPAWNING_LAKES_TAG_KEY = TagKey.of(RegistryKeys.STRUCTURE, BigGlobeMod.modID("slime_spawning_lakes"));
+		SLIMES_SPAWN_ON_WATER_TAG_KEY = TagKey.of(RegistryKeys.STRUCTURE, BigGlobeMod.modID("slimes_spawn_on_water"));
 
 	//////////////// campfire ////////////////
 

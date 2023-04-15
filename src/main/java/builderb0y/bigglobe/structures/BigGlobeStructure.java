@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.structures;
 
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -29,6 +31,9 @@ public abstract class BigGlobeStructure extends Structure {
 	public static long chunkSeed(Context context, long salt) {
 		return Permuter.permute(context.seed() ^ salt, context.chunkPos());
 	}
+
+	@Override
+	public abstract Optional<StructurePosition> getStructurePosition(Context context);
 
 	public static @Nullable BlockPos randomBlockInSurface(Context context, int offset) {
 		int bits = context.random().nextInt();

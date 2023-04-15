@@ -7,7 +7,7 @@
 				"getBlockState(originX, originY, originZ).isAir() &&",
 				"getBlockState(originX, originY - 1, originZ).hasFullCubeOutline()",
 			":",
-				"random.if(0.25:",
+				"random.if (0.25:",
 					"placeBlockState(originX, originY, originZ, 'bigglobe:wart_weed')",
 				")",
 				"else (",

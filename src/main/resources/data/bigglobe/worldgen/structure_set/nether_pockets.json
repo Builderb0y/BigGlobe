@@ -1,0 +1,15 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "nether_pockets",
+			"variation": 3,
+			"spacing": 6,
+			"restrictions": { "type": "skip_distant_horizons" }
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:underground_pockets/nether_lava" },
+		{ "weight": 1, "structure": "bigglobe:underground_pockets/nether_soul_lava" }
+	]
+}

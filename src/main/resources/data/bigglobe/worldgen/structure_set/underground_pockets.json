@@ -1,0 +1,19 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "underground_pockets",
+			"variation": 3,
+			"spacing": 6,
+			"restrictions": { "type": "skip_distant_horizons" }
+		}
+	},
+	"structures": [
+		{ "weight": 100, "structure": "bigglobe:underground_pockets/water" },
+		{ "weight":  75, "structure": "bigglobe:underground_pockets/empty" },
+		{ "weight":  50, "structure": "bigglobe:underground_pockets/lava" },
+		{ "weight":  25, "structure": "bigglobe:underground_pockets/natural" },
+		{ "weight":  25, "structure": "bigglobe:underground_pockets/mushroom" },
+		{ "weight":  15, "structure": "bigglobe:underground_pockets/deep" }
+	]
+}

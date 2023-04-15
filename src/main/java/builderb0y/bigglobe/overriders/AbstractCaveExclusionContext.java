@@ -55,7 +55,7 @@ public abstract class AbstractCaveExclusionContext {
 			double distanceSquared = horizontalDistanceSquared + clampedRelativeY * clampedRelativeY;
 			if (distanceSquared < paddingSquared) {
 				double fraction = 1.0D - Math.sqrt(distanceSquared) / padding;
-				this.excludeUnchecked(y, fraction * fraction);
+				this.excludeUnchecked(y, Interpolator.smooth(fraction));
 			}
 		}
 	}
@@ -95,7 +95,7 @@ public abstract class AbstractCaveExclusionContext {
 			double distanceSquared = horizontalDistanceSquared + verticalDistance * verticalDistance;
 			if (distanceSquared < paddingSquared) {
 				double fraction = 1.0D - Math.sqrt(distanceSquared) / padding;
-				this.excludeUnchecked(y, fraction * fraction);
+				this.excludeUnchecked(y, Interpolator.smooth(fraction));
 			}
 		}
 	}
@@ -159,7 +159,7 @@ public abstract class AbstractCaveExclusionContext {
 			else if (distanceXYZSquared <= outerRadiusSquared) {
 				double distanceXYZ = Math.sqrt(distanceXYZSquared);
 				double exclusion = Interpolator.unmixLinear(outerRadius, radius, distanceXYZ);
-				this.excludeUnchecked(y, exclusion * exclusion);
+				this.excludeUnchecked(y, Interpolator.smooth(exclusion));
 			}
 			else {
 				break;
@@ -174,7 +174,7 @@ public abstract class AbstractCaveExclusionContext {
 			else if (distanceXYZSquared <= outerRadiusSquared) {
 				double distanceXYZ = Math.sqrt(distanceXYZSquared);
 				double exclusion = Interpolator.unmixLinear(outerRadius, radius, distanceXYZ);
-				this.excludeUnchecked(y, exclusion * exclusion);
+				this.excludeUnchecked(y, Interpolator.smooth(exclusion));
 			}
 			else {
 				break;

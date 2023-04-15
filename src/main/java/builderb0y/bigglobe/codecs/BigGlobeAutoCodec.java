@@ -54,6 +54,7 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
 import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.TagOrObjectKey;
 
 public class BigGlobeAutoCodec {
 
@@ -221,6 +222,7 @@ public class BigGlobeAutoCodec {
 		public final @NotNull ReifiedType<TagKey<T>> tagKeyType;
 		public final @NotNull ReifiedType<RegistryEntryList<T>> tagType;
 		public final @NotNull ReifiedType<TagOrObject<T>> tagOrObjectType;
+		public final @NotNull ReifiedType<TagOrObjectKey<T>> tagOrObjectKeyType;
 
 		public final @Nullable DynamicRegistryCoder<T> dynamicRegistryCoder;
 		public final @Nullable DynamicRegistryEntryCoder<T> dynamicRegistryEntryCoder;
@@ -232,6 +234,7 @@ public class BigGlobeAutoCodec {
 		public final @NotNull RegistryKeyCoder<T> registryKeyCoder;
 		public final @NotNull TagKeyCoder<T> tagKeyCoder;
 		public final @NotNull TagOrObjectCoder<T> tagOrObjectCoder;
+		public final @NotNull TagOrObjectKeyCoder<T> tagOrObjectKeyCoder;
 
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull RegistryKey<Registry<T>> registryKey) {
 			this.registryKey                 = registryKey;
@@ -246,6 +249,7 @@ public class BigGlobeAutoCodec {
 			this.                 tagKeyType = ReifiedType.parameterize(             TagKey.class, objectType);
 			this.                    tagType = ReifiedType.parameterize(  RegistryEntryList.class, objectType);
 			this.            tagOrObjectType = ReifiedType.parameterize(        TagOrObject.class, objectType);
+			this.         tagOrObjectKeyType = ReifiedType.parameterize(     TagOrObjectKey.class, objectType);
 
 			this.       dynamicRegistryCoder = new DynamicRegistryCoder<>(registryKey);
 			this.  dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.dynamicRegistryCoder);
@@ -257,6 +261,7 @@ public class BigGlobeAutoCodec {
 			this.           registryKeyCoder = new RegistryKeyCoder<>(registryKey);
 			this.                tagKeyCoder = new TagKeyCoder<>(registryKey);
 			this.           tagOrObjectCoder = new TagOrObjectCoder<>(registryKey, this.dynamicTagCoder, this.dynamicRegistryEntryCoder);
+			this.        tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -273,6 +278,7 @@ public class BigGlobeAutoCodec {
 			this.                 tagKeyType = ReifiedType.parameterize(             TagKey.class, objectType);
 			this.                    tagType = ReifiedType.parameterize(  RegistryEntryList.class, objectType);
 			this.            tagOrObjectType = ReifiedType.parameterize(        TagOrObject.class, objectType);
+			this.         tagOrObjectKeyType = ReifiedType.parameterize(     TagOrObjectKey.class, objectType);
 
 			this.       dynamicRegistryCoder = null;
 			this.  dynamicRegistryEntryCoder = null;
@@ -284,19 +290,25 @@ public class BigGlobeAutoCodec {
 			this.           registryKeyCoder = new RegistryKeyCoder<>(this.registryKey);
 			this.                tagKeyCoder = new TagKeyCoder<>(this.registryKey);
 			this.           tagOrObjectCoder = new TagOrObjectCoder<>(this.registryKey, this.hardCodedTagCoder, this.hardCodedRegistryEntryCoder);
+			this.        tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(this.registryKey);
 		}
 
 		public void addAllTo(LookupFactory<? super AutoCoder<?>> factory) {
-			if (this.       dynamicRegistryCoder != null) factory.doAddGeneric(this.registryEntryLookupType, this.       dynamicRegistryCoder);
-			if (this.  dynamicRegistryEntryCoder != null) factory.doAddGeneric(this.      registryEntryType, this.  dynamicRegistryEntryCoder);
-			if (this.dynamicRegistryWrapperCoder != null) factory.doAddGeneric(this.    registryWrapperType, this.dynamicRegistryWrapperCoder);
-			if (this.            dynamicTagCoder != null) factory.doAddGeneric(this.                tagType, this.            dynamicTagCoder);
-			if (this.       hardCodedObjectCoder != null) factory.doAddGeneric(this.             objectType, this.       hardCodedObjectCoder);
-			if (this.hardCodedRegistryEntryCoder != null) factory.doAddGeneric(this.      registryEntryType, this.hardCodedRegistryEntryCoder);
-			if (this.          hardCodedTagCoder != null) factory.doAddGeneric(this.                tagType, this.          hardCodedTagCoder);
-			if (this.           registryKeyCoder != null) factory.doAddGeneric(this.        registryKeyType, this.           registryKeyCoder);
-			if (this.                tagKeyCoder != null) factory.doAddGeneric(this.             tagKeyType, this.                tagKeyCoder);
-			if (this.           tagOrObjectCoder != null) factory.doAddGeneric(this.        tagOrObjectType, this.           tagOrObjectCoder);
+			addTo(factory, this.registryEntryLookupType, this.       dynamicRegistryCoder);
+			addTo(factory, this.      registryEntryType, this.  dynamicRegistryEntryCoder);
+			addTo(factory, this.    registryWrapperType, this.dynamicRegistryWrapperCoder);
+			addTo(factory, this.                tagType, this.            dynamicTagCoder);
+			addTo(factory, this.             objectType, this.       hardCodedObjectCoder);
+			addTo(factory, this.      registryEntryType, this.hardCodedRegistryEntryCoder);
+			addTo(factory, this.                tagType, this.          hardCodedTagCoder);
+			addTo(factory, this.        registryKeyType, this.           registryKeyCoder);
+			addTo(factory, this.             tagKeyType, this.                tagKeyCoder);
+			addTo(factory, this.        tagOrObjectType, this.           tagOrObjectCoder);
+			addTo(factory, this.     tagOrObjectKeyType, this.        tagOrObjectKeyCoder);
+		}
+
+		public static <T> void addTo(LookupFactory<? super AutoCoder<?>> factory, ReifiedType<T> type, AutoCoder<T> coder) {
+			if (coder != null) factory.doAddGeneric(type, coder);
 		}
 	}
 

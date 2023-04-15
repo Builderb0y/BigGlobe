@@ -29,7 +29,7 @@ scripting:
 	better syntax for specifying variable block states.
 		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
 	expose arrays.
-	break statements.
+	ability to break or continue nested loops.
 	scriptable RandomSource?
 	pre and post update operators.
 	increment and decrement as expression.
@@ -47,6 +47,7 @@ features:
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
+		glaciers.
 		log cabin structure?
 		trees:
 			roots.
@@ -73,15 +74,7 @@ features:
 			Feature that spawns in every room.
 				or possibly tag of features.
 		underground bubbles:
-			slime pit.
-			lava lake.
-			natural bubble:
-				water, grass, foliage, etc.
-				some kind of light source.
-			deep dark bubble:
-				can spawn higher than normal deep dark areas.
-			ore jackpot:
-				lots of ores everywhere.
+			molten? (match molten caves)
 		make lilypads renewable?
 		migrate bushes to script template feature.
 	nether:

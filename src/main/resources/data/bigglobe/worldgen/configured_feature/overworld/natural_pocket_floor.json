@@ -2,8 +2,10 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"double chance = `overworld/normalized_cave_surface_depth`",
-			"random.nextBoolean(chance) && (",
+			"random.if (1.0 / 64.0:",
+				"placeFeature(originX, originY, originZ, 'bigglobe:overworld/caves/big_dripleaf')",
+			")",
+			"else random.if (0.25:",
 				"placeBlockState(originX, originY, originZ,",
 					"random.if (0.125:",
 						"random.nextBoolean(0.25)",
@@ -11,9 +13,9 @@
 						": 'minecraft:azalea'",
 					")",
 					"else (",
-						"random.if (chance:",
-							"random.if (chance:",
-								"random.if (chance:",
+						"random.if (0.25:",
+							"random.if (0.25:",
+								"random.if (0.25:",
 									"BlockState('minecraft:small_dripleaf[facing=north,half=lower,waterlogged=false]')",
 									".with('facing', random.switch('north', 'east', 'south', 'west'))",
 								")",
@@ -34,7 +36,8 @@
 						")",
 					")",
 				")",
-			")"
+			")",
+			"return(true)"
 		]
 	}
 }

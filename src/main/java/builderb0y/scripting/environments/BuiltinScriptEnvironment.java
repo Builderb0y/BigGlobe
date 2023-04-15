@@ -71,7 +71,7 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		.addType("Comparable", TypeInfos.COMPARABLE)
 		.addType("String",     TypeInfos.STRING)
 		.addType("Throwable",  TypeInfos.THROWABLE)
-		.addType("Class",      TypeInfos.CLASS) //todo: casting from String to Class. make sure this uses ScriptEnvironment.getType(), NOT Class.forName()!
+		.addType("Class",      TypeInfos.CLASS)
 
 		//////////////// functions ////////////////
 

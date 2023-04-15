@@ -3,10 +3,10 @@
 	"config": {
 		"script": [
 			"if (random.nextBoolean(0.125) && getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
-				"random.if(0.25:",
-					"random.if(0.125:",
-						"random.if(0.25:",
-							"random.if(0.125:",
+				"random.if (0.25:",
+					"random.if (0.125:",
+						"random.if (0.25:",
+							"random.if (0.125:",
 								"placeBlockState(originX, originY, originZ, BlockState('minecraft:wither_skeleton_skull[rotation=0]').with('rotation', random.nextInt(16)))",
 							")",
 							"else (",

@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:underground_pocket",
+	"value": {
+		"biomes": "#bigglobe:has_structure/underground_pocket/nether_lava",
+		"spawn_overrides": {},
+		"step": "underground_structures",
+		"radius":      { "type": "uniform", "min": 32.0,   "max": 96.0   },
+		"noise_decay": { "type": "uniform", "min":  0.375, "max":  0.625 },
+		"fluid": {
+			"level": { "type": "uniform", "min": 0.25, "max":  0.5 },
+			"state": "minecraft:lava[level=0]",
+			"decorator": "bigglobe:overworld/lakes/lava_lake_magma"
+		}
+	}
+}

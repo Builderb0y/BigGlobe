@@ -59,7 +59,7 @@
 				")",
 			")",
 
-			"random.if(foliage * 0.0625:",
+			"random.if (foliage * 0.0625:",
 				"return(placeFeature(originX, originY, originZ, feature1))",
 			")",
 			"if (feature2 != null && random.nextBoolean(foliage * 0.0625):",
