@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting;
 
+import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandles;
 
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -17,13 +18,25 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler {
 
+	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+
 	public final MethodInfo constantMethod, variableMethod;
 	public final TypeInfo type;
 
 	public ConstantFactory(Class<?> owner, String name, Class<?> inType, Class<?> outType) {
-		this.constantMethod = method(ACC_PUBLIC | ACC_STATIC, owner, name, outType, MethodHandles.Lookup.class, String.class, Class.class, String.class);
-		this.variableMethod = method(ACC_PUBLIC | ACC_STATIC, owner, name, outType, inType);
-		this.type           = this.variableMethod.returnType;
+		this.constantMethod = MethodInfo.findMethod(owner, name, outType, MethodHandles.Lookup.class, String.class, Class.class, inType);
+		this.variableMethod = MethodInfo.findMethod(owner, name, outType, inType);
+		this.type           = type(outType);
+	}
+
+	/**
+	factory method for the most common case,
+	where the owner is the caller class, the name is "of",
+	inType is String.class, and outType is also the caller class.
+	*/
+	public static ConstantFactory autoOfString() {
+		Class<?> caller = STACK_WALKER.getCallerClass();
+		return new ConstantFactory(caller, "of", String.class, caller);
 	}
 
 	@Override

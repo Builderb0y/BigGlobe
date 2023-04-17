@@ -121,7 +121,8 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
-		return world.getBlockState(x, y, z).getMaterial().isReplaceable() && state.canPlaceAt(world.world, world.pos.set(x, y, z));
+		BlockPos pos = world.pos(x, y, z);
+		return pos != null && world.world.getBlockState(pos).getMaterial().isReplaceable() && state.canPlaceAt(world.world, pos);
 	}
 
 	public static boolean hasWater(BlockState state) {

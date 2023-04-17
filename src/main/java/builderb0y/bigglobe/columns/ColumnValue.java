@@ -75,6 +75,30 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		MAX_Y                                   = registerAnyDim   ("max_y",                         withoutY(    WorldColumn::getFinalTopHeightD           ), null);
 
 	@SuppressWarnings("unused")
+	public static final ColumnValue<VanillaWorldColumn>
+		VANILLA_TEMPERATURE                               = registerVanilla("temperature",                               withY(VanillaWorldColumn::getTemperature                          ), null),
+		VANILLA_HUMIDITY                                  = registerVanilla("humidity",                                  withY(VanillaWorldColumn::getHumidity                             ), null),
+		VANILLA_CONTINENTALNESS                           = registerVanilla("continentalness",                           withY(VanillaWorldColumn::getContinentalness                      ), null),
+		VANILLA_EROSION                                   = registerVanilla("erosion",                                   withY(VanillaWorldColumn::getErosion                              ), null),
+		VANILLA_DEPTH                                     = registerVanilla("depth",                                     withY(VanillaWorldColumn::getDepth                                ), null),
+		VANILLA_WEIRDNESS                                 = registerVanilla("weirdness",                                 withY(VanillaWorldColumn::getWeirdness                            ), null),
+		VANILLA_ROUTER_BARRIER                            = registerVanilla("router/barrier",                            withY(VanillaWorldColumn::getRouterBarrier                        ), null),
+		VANILLA_ROUTER_FLUID_LEVEL_FLOODEDNESS            = registerVanilla("router/fluid_level_floodedness",            withY(VanillaWorldColumn::getRouterFluidLevelFloodedness          ), null),
+		VANILLA_ROUTER_FLUID_LEVEL_SPREAD                 = registerVanilla("router/fluid_level_spread",                 withY(VanillaWorldColumn::getRouterFluidLevelSpread               ), null),
+		VANILLA_ROUTER_LAVA                               = registerVanilla("router/lava",                               withY(VanillaWorldColumn::getRouterLava                           ), null),
+		VANILLA_ROUTER_TEMPERATURE                        = registerVanilla("router/temperature",                        withY(VanillaWorldColumn::getRouterTemperature                    ), null),
+		VANILLA_ROUTER_VEGETATION                         = registerVanilla("router/vegetation",                         withY(VanillaWorldColumn::getRouterVegetation                     ), null),
+		VANILLA_ROUTER_CONTINENTS                         = registerVanilla("router/continents",                         withY(VanillaWorldColumn::getRouterContinents                     ), null),
+		VANILLA_ROUTER_EROSION                            = registerVanilla("router/erosion",                            withY(VanillaWorldColumn::getRouterErosion                        ), null),
+		VANILLA_ROUTER_DEPTH                              = registerVanilla("router/depth",                              withY(VanillaWorldColumn::getRouterDepth                          ), null),
+		VANILLA_ROUTER_RIDGES                             = registerVanilla("router/ridges",                             withY(VanillaWorldColumn::getRouterRidges                         ), null),
+		VANILLA_ROUTER_INITIAL_DENSITY_WITHOUT_JAGGEDNESS = registerVanilla("router/initial_density_without_jaggedness", withY(VanillaWorldColumn::getRouterInitialDensityWithoutJaggedness), null),
+		VANILLA_ROUTER_FINAL_DENSITY                      = registerVanilla("router/final_density",                      withY(VanillaWorldColumn::getRouterFinalDensity                   ), null),
+		VANILLA_ROUTER_VEIN_TOGGLE                        = registerVanilla("router/vein_toggle",                        withY(VanillaWorldColumn::getRouterVeinToggle                     ), null),
+		VANILLA_ROUTER_VEIN_RIDGED                        = registerVanilla("router/vein_ridged",                        withY(VanillaWorldColumn::getRouterVeinRidged                     ), null),
+		VANILLA_ROUTER_VEIN_GAP                           = registerVanilla("router/vein_gap",                           withY(VanillaWorldColumn::getRouterVeinGap                        ), null);
+
+	@SuppressWarnings("unused")
 	public static final ColumnValue<OverworldColumn>
 		OVERWORLD_SEA_LEVEL                     = registerOverworld("sea_level",                     withoutY(OverworldColumn::getSeaLevel                  ), null),
 
@@ -167,6 +191,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	public static ColumnValue<WorldColumn> registerAnyDim(String name, Getter<WorldColumn> getter, @Nullable CustomDisplay customDisplay) {
 		return register(name, WorldColumn.class, getter, customDisplay);
+	}
+
+	public static ColumnValue<VanillaWorldColumn> registerVanilla(String name, Getter<VanillaWorldColumn> getter, @Nullable CustomDisplay customDisplay) {
+		return Registry.register(REGISTRY, BigGlobeMod.mcID(name), new ColumnValue<>(VanillaWorldColumn.class, getter, customDisplay));
 	}
 
 	public static ColumnValue<OverworldColumn> registerOverworld(String name, Getter<OverworldColumn> getter, @Nullable CustomDisplay customDisplay) {

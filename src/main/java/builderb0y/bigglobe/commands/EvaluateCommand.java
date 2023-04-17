@@ -2,6 +2,7 @@ package builderb0y.bigglobe.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 
+import net.minecraft.block.Block;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -13,6 +14,7 @@ import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class EvaluateCommand {
 
@@ -29,6 +31,7 @@ public class EvaluateCommand {
 					try {
 						WorldWrapper world = new WorldWrapper(
 							context.getSource().getWorld(),
+							Coordinator.forWorld(context.getSource().getWorld(), Block.NOTIFY_ALL),
 							Permuter.from(context.getSource().getWorld().random)
 						);
 						Vec3d position = context.getSource().getPosition();

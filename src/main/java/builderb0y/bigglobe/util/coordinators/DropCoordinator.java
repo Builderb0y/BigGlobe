@@ -3,6 +3,8 @@ package builderb0y.bigglobe.util.coordinators;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -26,6 +28,8 @@ public class DropCoordinator implements Coordinator {
 
 	public static final DropCoordinator INSTANCE = new DropCoordinator();
 
+	@Override public @Nullable BlockPos getCoordinate(int x, int y, int z) { return null; }
+	@Override public StructureWorldAccess getWorld() { return null; }
 	@Override public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {}
 	@Override public void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer action) {}
 	@Override public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer action) {}

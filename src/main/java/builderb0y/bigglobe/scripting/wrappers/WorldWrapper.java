@@ -6,15 +6,20 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeKeys;
 
+import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,19 +29,19 @@ public class WorldWrapper {
 	public static final TypeInfo TYPE = type(WorldWrapper.class);
 
 	public final StructureWorldAccess world;
-	public final BlockPos.Mutable pos;
+	public final Coordinator coordinator;
 	public final Permuter permuter;
 	public final WorldColumn biomeColumn;
 
-	public WorldWrapper(StructureWorldAccess world, Permuter permuter) {
+	public WorldWrapper(StructureWorldAccess world, Coordinator coordinator, Permuter permuter) {
 		this.world = world;
-		this.pos = new BlockPos.Mutable();
+		this.coordinator = coordinator;
 		this.permuter = permuter;
-		this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
+		this.biomeColumn = WorldColumn.forWorld(coordinator.getWorld(), 0, 0);
 	}
 
-	public BlockPos.Mutable pos(int x, int y, int z) {
-		return this.pos.set(x, y, z);
+	public @Nullable BlockPos pos(int x, int y, int z) {
+		return this.coordinator.getCoordinate(x, y, z);
 	}
 
 	public long getSeed() {
@@ -44,39 +49,43 @@ public class WorldWrapper {
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
-		return this.world.getBlockState(this.pos(x, y, z));
+		BlockPos pos = this.pos(x, y, z);
+		return pos != null ? this.world.getBlockState(pos) : BlockStates.AIR;
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
-		BlockPos.Mutable pos = this.pos(x, y, z);
-		WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
-		if (!state.getFluidState().isEmpty()) {
-			this.world.scheduleFluidTick(
-				pos,
-				state.getFluidState().getFluid(),
-				state.getFluidState().getFluid().getTickRate(this.world)
-			);
+		BlockPos pos = this.pos(x, y, z);
+		if (pos != null) {
+			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
+			if (!state.getFluidState().isEmpty()) {
+				this.world.scheduleFluidTick(
+					pos,
+					state.getFluidState().getFluid(),
+					state.getFluidState().getFluid().getTickRate(this.world)
+				);
+			}
 		}
 	}
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
-		return SingleBlockFeature.place(this.world, this.pos(x, y, z), state, SingleBlockFeature.IS_REPLACEABLE);
+		BlockPos pos = this.pos(x, y, z);
+		return pos != null && SingleBlockFeature.place(this.world, pos, state, SingleBlockFeature.IS_REPLACEABLE);
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
 		int tmp;
 		if (maxX < minX) {
-			tmp = minX;
+			tmp  = minX;
 			minX = maxX;
 			maxX = tmp;
 		}
 		if (maxY < minY) {
-			tmp = minY;
+			tmp  = minY;
 			minY = maxY;
 			maxY = tmp;
 		}
 		if (maxZ < minZ) {
-			tmp = minZ;
+			tmp  = minZ;
 			minZ = maxZ;
 			maxZ = tmp;
 		}
@@ -90,44 +99,72 @@ public class WorldWrapper {
 	}
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
-		return feature.entry().value().generate(
+		BlockPos pos = this.pos(x, y, z);
+		return pos != null && feature.entry().value().generate(
 			this.world,
 			((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
 			this.permuter.mojang(),
-			this.pos(x, y, z)
+			pos
 		);
 	}
 
 	public BiomeEntry getBiome(int x, int y, int z) {
-		this.biomeColumn.setPos(x, z);
-		return new BiomeEntry(this.biomeColumn.getBiome(y));
+		BlockPos pos = this.pos(x, y, z);
+		if (pos != null) {
+			this.biomeColumn.setPos(x, z);
+			return new BiomeEntry(this.biomeColumn.getBiome(y));
+		}
+		else {
+			return new BiomeEntry(
+				this
+				.world
+				.getRegistryManager()
+				.get(RegistryKeys.BIOME)
+				.getEntry(BiomeKeys.PLAINS)
+				.orElseThrow(() -> new UnregisteredObjectException("Missing default plains biome"))
+			);
+		}
 	}
 
 	public boolean isYLevelValid(int y) {
 		return !this.world.isOutOfHeightLimit(y);
 	}
 
+	public boolean isPositionValid(int x, int y, int z) {
+		return this.isYLevelValid(y) && this.pos(x, y, z) != null;
+	}
+
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {
-		BlockEntity blockEntity = this.world.getBlockEntity(this.pos(x, y, z));
-		return blockEntity == null ? null : blockEntity.createNbtWithIdentifyingData();
+		BlockPos pos = this.pos(x, y, z);
+		if (pos != null) {
+			BlockEntity blockEntity = this.world.getBlockEntity(pos);
+			if (blockEntity != null) {
+				return blockEntity.createNbtWithIdentifyingData();
+			}
+		}
+		return null;
 	}
 
 	public void setBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockPos.Mutable pos = this.pos(x, y, z);
-		BlockEntity blockEntity = this.world.getBlockEntity(pos);
-		if (blockEntity != null) {
-			this.doSetBlockData(pos, blockEntity, nbt);
+		BlockPos pos = this.pos(x, y, z);
+		if (pos != null) {
+			BlockEntity blockEntity = this.world.getBlockEntity(pos);
+			if (blockEntity != null) {
+				this.doSetBlockData(pos, blockEntity, nbt);
+			}
 		}
 	}
 
 	public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockPos.Mutable pos = this.pos(x, y, z);
-		BlockEntity blockEntity = this.world.getBlockEntity(pos);
-		if (blockEntity != null) {
-			NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
-			NbtCompound newData = oldData.copy().copyFrom(nbt);
-			if (!oldData.equals(newData)) {
-				this.doSetBlockData(pos, blockEntity, newData);
+		BlockPos pos = this.pos(x, y, z);
+		if (pos != null) {
+			BlockEntity blockEntity = this.world.getBlockEntity(pos);
+			if (blockEntity != null) {
+				NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
+				NbtCompound newData = oldData.copy().copyFrom(nbt);
+				if (!oldData.equals(newData)) {
+					this.doSetBlockData(pos, blockEntity, newData);
+				}
 			}
 		}
 	}

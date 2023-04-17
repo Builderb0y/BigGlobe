@@ -1,10 +1,10 @@
 {
-	"type": "bigglobe:use_script_template",
+	"type": "bigglobe:script",
 	"config": {
-		"script": "bigglobe:nether/magma_on_lava_template",
+		"template": "bigglobe:magma_on_lava",
 		"inputs": {
-			"LAVA_BLOCK": "BlockState('minecraft:lava[level=0]')",
-			"MAGMA_BLOCK": "BlockState('minecraft:magma_block')"
+			"LAVA_BLOCK": "'minecraft:lava[level=0]'",
+			"MAGMA_BLOCK": "'minecraft:magma_block'"
 		}
 	}
 }

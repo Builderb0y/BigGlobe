@@ -3,6 +3,8 @@ package builderb0y.bigglobe.util.coordinators;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -116,6 +118,23 @@ public abstract class AbstractPermuteCoordinator extends ScratchPosCoordinator {
 	}
 
 	public abstract Permutation[] permutations();
+
+	@Override
+	public @Nullable BlockPos getCoordinate(int x, int y, int z) {
+		Permutation[] permutations = this.permutations();
+		if (permutations.length == 1) {
+			Permutation permutation = permutations[0];
+			return this.delegate.getCoordinate(permutation.x(x, z), y, permutation.z(x, z));
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public StructureWorldAccess getWorld() {
+		return this.delegate.getWorld();
+	}
 
 	@Override
 	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {

@@ -10,8 +10,13 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	test to see if vanilla world column values work as expected.
+	adding script-driven structures.
 
 changelog:
+	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
+	* Script features now have a flag to randomly rotate the feature when placing it.
+	* Added column values for vanilla worlds.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -23,6 +28,9 @@ AutoCodec:
 			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
 			this could also target a constructor.
 	builtin framework for key dispatching.
+	VerifyNullable.INSTANCE should override toString().
+	investigate imprinters.
+		SerializableScriptInputs failed to have a coder created for the imprinter path.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -40,10 +48,14 @@ features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
+		dynamic registries for all the things!
 	overworld:
 		configurable bedrock amount.
 		script for cave width.
-		well feature.
+		scripted structures:
+			well.
+			small house.
+			campfire.
 		desert fossils.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.

@@ -19,11 +19,13 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWrapper<StructureTypeEntry> {
 
-	public static final TypeInfo TYPE = TypeInfo.of(StructureTypeTagKey.class);
+	public static final TypeInfo TYPE = type(StructureTypeTagKey.class);
 
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTypeTagKey.class, "of", String.class, StructureTypeTagKey.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static StructureTypeTagKey of(MethodHandles.Lookup lookup, String name, Class<?> type, String id) {
 		return of(id);

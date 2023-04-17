@@ -2,6 +2,8 @@ package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -27,6 +29,16 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 	}
 
 	public abstract boolean test(int x, int y, int z);
+
+	@Override
+	public @Nullable BlockPos getCoordinate(int x, int y, int z) {
+		return this.test(x, y, z) ? this.delegate.getCoordinate(x, y, z) : null;
+	}
+
+	@Override
+	public StructureWorldAccess getWorld() {
+		return this.delegate.getWorld();
+	}
 
 	@Override
 	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {

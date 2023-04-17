@@ -17,7 +17,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 public class StructureEntry {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureEntry.class, "of", String.class, StructureEntry.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public final RegistryEntry<Structure> entry;
 	public StructureTypeEntry type;

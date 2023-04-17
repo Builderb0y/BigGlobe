@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -96,7 +97,15 @@ public interface Coordinator {
 
 	//////////////////////////////// actions ////////////////////////////////
 
-	//invokes the action at the (possibly pre-processed) coordinates.
+	/**
+	if this Coordinator's processing results in exactly one coordinate,
+	returns that coordinate. otherwise returns null.
+	*/
+	public abstract @Nullable BlockPos getCoordinate(int x, int y, int z);
+
+	public abstract StructureWorldAccess getWorld();
+
+	/** invokes the action at the (possibly pre-processed) coordinates. */
 	public abstract void getCoordinates(int x, int y, int z, CoordinateConsumer action);
 
 	public default void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer action) {

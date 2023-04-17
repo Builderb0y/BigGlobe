@@ -31,6 +31,7 @@
 		"PlayerManager_SyncOverworldSettingsHook",
 		"PortalForcer_PlaceInNetherCaverns",
 		"ProtoChunk_ImplementPositionCacheHolder",
+		"RegistryLoader_MakeDynamicRegistriesMutable",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"ServerWorld_CustomTimeSpeed",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",

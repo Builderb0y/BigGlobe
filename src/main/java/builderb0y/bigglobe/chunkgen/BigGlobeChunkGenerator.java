@@ -88,7 +88,6 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -99,7 +98,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
@@ -120,14 +118,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	public BigGlobeChunkGenerator(BiomeSource biomeSource, SortedFeatures configuredFeatures) {
 		super(biomeSource);
 		this.configuredFeatures = configuredFeatures;
-		configuredFeatures.streamConfigs(BigGlobeFeatures.USE_SCRIPT_TEMPLATE).forEach(config -> {
-			try {
-				config.getCompiledScript();
-			}
-			catch (ScriptParsingException exception) {
-				throw new RuntimeException(exception);
-			}
-		});
 	}
 
 	@Wrapper

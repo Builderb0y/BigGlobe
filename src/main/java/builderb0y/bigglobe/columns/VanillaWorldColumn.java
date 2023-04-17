@@ -8,13 +8,16 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.densityfunction.DensityFunction.NoisePos;
 import net.minecraft.world.gen.noise.NoiseConfig;
+
+import builderb0y.bigglobe.math.BigGlobeMath;
 
 public class VanillaWorldColumn extends WorldColumn {
 
 	public static final int
-		FINAL_HEIGHT = 1 << 0,
-		VERTICAL_BLOCK_SAMPLE = 1 << 1;
+		FINAL_HEIGHT                              = 1 << 0,
+		VERTICAL_BLOCK_SAMPLE                     = 1 << 1;
 
 	public final ChunkGenerator chunkGenerator;
 	public final NoiseConfig noise;
@@ -23,6 +26,8 @@ public class VanillaWorldColumn extends WorldColumn {
 
 	public int finalHeight;
 	public VerticalBlockSample verticalBlockSample;
+
+	public final MutableNoisePos noisePos = this.new MutableNoisePos();
 
 	public VanillaWorldColumn(long seed, HeightLimitView world, ChunkGenerator chunkGenerator, NoiseConfig noise, int x, int z) {
 		super(seed, x, z);
@@ -59,6 +64,34 @@ public class VanillaWorldColumn extends WorldColumn {
 			z
 		);
 	}
+
+	public NoisePos noisePos(double y) {
+		this.noisePos.y = BigGlobeMath.floorI(y);
+		return this.noisePos;
+	}
+
+	public double getTemperature                          (double y) { return this.noise.getMultiNoiseSampler().temperature                    ().sample(this.noisePos(y)); }
+	public double getHumidity                             (double y) { return this.noise.getMultiNoiseSampler().humidity                       ().sample(this.noisePos(y)); }
+	public double getContinentalness                      (double y) { return this.noise.getMultiNoiseSampler().continentalness                ().sample(this.noisePos(y)); }
+	public double getErosion                              (double y) { return this.noise.getMultiNoiseSampler().erosion                        ().sample(this.noisePos(y)); }
+	public double getDepth                                (double y) { return this.noise.getMultiNoiseSampler().depth                          ().sample(this.noisePos(y)); }
+	public double getWeirdness                            (double y) { return this.noise.getMultiNoiseSampler().weirdness                      ().sample(this.noisePos(y)); }
+
+	public double getRouterBarrier                        (double y) { return this.noise.getNoiseRouter      ().barrierNoise                   ().sample(this.noisePos(y)); }
+	public double getRouterFluidLevelFloodedness          (double y) { return this.noise.getNoiseRouter      ().fluidLevelFloodednessNoise     ().sample(this.noisePos(y)); }
+	public double getRouterFluidLevelSpread               (double y) { return this.noise.getNoiseRouter      ().fluidLevelSpreadNoise          ().sample(this.noisePos(y)); }
+	public double getRouterLava                           (double y) { return this.noise.getNoiseRouter      ().lavaNoise                      ().sample(this.noisePos(y)); }
+	public double getRouterTemperature                    (double y) { return this.noise.getNoiseRouter      ().temperature                    ().sample(this.noisePos(y)); }
+	public double getRouterVegetation                     (double y) { return this.noise.getNoiseRouter      ().vegetation                     ().sample(this.noisePos(y)); }
+	public double getRouterContinents                     (double y) { return this.noise.getNoiseRouter      ().continents                     ().sample(this.noisePos(y)); }
+	public double getRouterErosion                        (double y) { return this.noise.getNoiseRouter      ().erosion                        ().sample(this.noisePos(y)); }
+	public double getRouterDepth                          (double y) { return this.noise.getNoiseRouter      ().depth                          ().sample(this.noisePos(y)); }
+	public double getRouterRidges                         (double y) { return this.noise.getNoiseRouter      ().ridges                         ().sample(this.noisePos(y)); }
+	public double getRouterInitialDensityWithoutJaggedness(double y) { return this.noise.getNoiseRouter      ().initialDensityWithoutJaggedness().sample(this.noisePos(y)); }
+	public double getRouterFinalDensity                   (double y) { return this.noise.getNoiseRouter      ().finalDensity                   ().sample(this.noisePos(y)); }
+	public double getRouterVeinToggle                     (double y) { return this.noise.getNoiseRouter      ().veinToggle                     ().sample(this.noisePos(y)); }
+	public double getRouterVeinRidged                     (double y) { return this.noise.getNoiseRouter      ().veinRidged                     ().sample(this.noisePos(y)); }
+	public double getRouterVeinGap                        (double y) { return this.noise.getNoiseRouter      ().veinGap                        ().sample(this.noisePos(y)); }
 
 	public VerticalBlockSample getVerticalBlockSample() {
 		return (
@@ -112,5 +145,14 @@ public class VanillaWorldColumn extends WorldColumn {
 	@Override
 	public VanillaWorldColumn blankCopy() {
 		return new VanillaWorldColumn(this.seed, this.world, this.chunkGenerator, this.noise, this.x, this.z);
+	}
+
+	public class MutableNoisePos implements NoisePos {
+
+		public int y;
+
+		@Override public int blockX() { return VanillaWorldColumn.this.x; }
+		@Override public int blockY() { return this.y; }
+		@Override public int blockZ() { return VanillaWorldColumn.this.z; }
 	}
 }

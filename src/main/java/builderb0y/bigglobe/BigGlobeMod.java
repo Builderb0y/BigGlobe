@@ -33,6 +33,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
@@ -59,6 +60,7 @@ public class BigGlobeMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing...");
+		BigGlobeDynamicRegistries.init();
 		BigGlobeConfig.init();
 		BigGlobeLoot.init();
 		BigGlobeFluids.init();

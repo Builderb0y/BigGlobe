@@ -18,7 +18,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public record BiomeEntry(RegistryEntry<Biome> biome) {
 
 	public static final TypeInfo TYPE = type(BiomeEntry.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BiomeEntry.class, "of", String.class, BiomeEntry.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static BiomeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);

@@ -20,7 +20,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<StructureEntry> {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureTagKey.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTagKey.class, "of", String.class, StructureTagKey.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static StructureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);

@@ -18,6 +18,7 @@ import builderb0y.bigglobe.structures.dungeons.MediumDungeonStructure;
 import builderb0y.bigglobe.structures.dungeons.SmallDungeonStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 
 public class BigGlobeStructures {
 
@@ -137,6 +138,13 @@ public class BigGlobeStructures {
 		NETHER_PILLAR = registerType("nether_pillar", NetherPillarStructure.CODEC);
 	public static final BigGlobeStructurePieceType
 		NETHER_PILLAR_PIECE = registerPiece("nether_pillar_piece", NetherPillarStructure.Piece::new);
+
+	//////////////// scripted ////////////////
+
+	public static final StructureType<ScriptedStructure>
+		SCRIPTED = registerType("script", ScriptedStructure.CODEC);
+	public static final BigGlobeStructurePieceType
+		SCRIPTED_PIECE = registerPiece("script_piece", ScriptedStructure.Piece::new);
 
 	//////////////// end ////////////////
 

@@ -53,6 +53,7 @@
 
 			";process each column.",
 			"void updateHeight(int x, int startY, int z:",
+				"unless (isPositionValid(x, startY, z): return())",
 				"if (heights.containsKey(column.x = x,, column.z = z,, column): return())",
 				"--startY",
 				"int endY = startY",

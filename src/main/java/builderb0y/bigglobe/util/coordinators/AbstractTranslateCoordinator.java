@@ -2,6 +2,8 @@ package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -9,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.StructureWorldAccess;
@@ -30,6 +33,16 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 	public abstract int offsetY();
 
 	public abstract int offsetZ();
+
+	@Override
+	public @Nullable BlockPos getCoordinate(int x, int y, int z) {
+		return this.delegate.getCoordinate(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ());
+	}
+
+	@Override
+	public StructureWorldAccess getWorld() {
+		return this.delegate.getWorld();
+	}
 
 	@Override
 	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {

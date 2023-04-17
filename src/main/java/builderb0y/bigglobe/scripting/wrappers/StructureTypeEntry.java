@@ -17,7 +17,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) {
 
 	public static final TypeInfo TYPE = type(StructureTypeEntry.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(StructureTypeEntry.class, "of", String.class, StructureTypeEntry.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static StructureTypeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);

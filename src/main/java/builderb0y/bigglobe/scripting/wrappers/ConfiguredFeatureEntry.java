@@ -17,7 +17,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entry) {
 
 	public static final TypeInfo TYPE = type(ConfiguredFeatureEntry.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureEntry.class, "of", String.class, ConfiguredFeatureEntry.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static ConfiguredFeatureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);
