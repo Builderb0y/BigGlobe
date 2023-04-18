@@ -48,10 +48,8 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		GET_ELEMENT = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "getElement", NBT_ELEMENT_TYPE, NBT_ELEMENT_TYPE, TypeInfos.INT),
 		SET_ELEMENT = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "setElement", TypeInfos.VOID, NBT_ELEMENT_TYPE, TypeInfos.INT, NBT_ELEMENT_TYPE);
 
-	public static final NbtScriptEnvironment INSTANCE = new NbtScriptEnvironment();
-
-	public NbtScriptEnvironment() {
-		this
+	public static final MutableScriptEnvironment INSTANCE = (
+		new MutableScriptEnvironment()
 		.addType("Nbt",           NBT_ELEMENT_TYPE)
 		.addType("NbtByte",       NBT_BYTE_TYPE)
 		.addType("NbtShort",      NBT_SHORT_TYPE)
@@ -119,9 +117,7 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name) -> {
 			return new GetMemberInsnTree(receiver, ldc(name), GET_MEMBER, SET_MEMBER);
 		})
-
-		;
-	}
+	);
 
 	public static NbtByte      nbtBoolean  (boolean value) { return NbtByte  .of(value); }
 	public static NbtByte      nbtByte     (byte    value) { return NbtByte  .of(value); }

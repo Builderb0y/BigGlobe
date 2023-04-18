@@ -34,8 +34,6 @@ AutoCodec:
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
-	better syntax for specifying variable block states.
-		blockState('minecraft:stairs', facing: 'north', shape: 'straight', half: 'bottom')
 	expose arrays.
 	ability to break or continue nested loops.
 	scriptable RandomSource?
@@ -103,6 +101,7 @@ before release:
 
 porting:
 	add sniffer_diggable_block tag to include overgrown podzol.
+	add hanging signs to WoodBlockSet.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().

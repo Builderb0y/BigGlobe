@@ -65,6 +65,7 @@ public interface StructurePlacementScript extends Script {
 					load("world", 1, WorldWrapper.TYPE)
 				))
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
+				.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()
 					.addVariableLoad("minX",  3, TypeInfos.INT)

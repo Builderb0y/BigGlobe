@@ -28,8 +28,8 @@ public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScri
 			BigGlobeMod
 			.getCurrentServer()
 			.getRegistryManager()
-			.get(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_KEY)
-			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_KEY, new Identifier(id)))
+			.get(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY)
+			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, new Identifier(id)))
 		);
 	}
 

@@ -12,6 +12,7 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.DyeColor;
@@ -33,9 +34,9 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
@@ -43,14 +44,14 @@ public class CampfireStructure extends BigGlobeStructure {
 
 	public static final Codec<CampfireStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CampfireStructure.class);
 
-	public final TreeRegistry.Entry palette;
+	public final RegistryEntry<WoodPalette> palette;
 	public final boolean soul;
 	public final Placement placement;
 	public final double tent_chance;
 
 	public CampfireStructure(
 		Config config,
-		TreeRegistry.Entry palette,
+		RegistryEntry<WoodPalette> palette,
 		boolean soul,
 		Placement placement,
 		double tent_chance
@@ -230,7 +231,7 @@ public class CampfireStructure extends BigGlobeStructure {
 
 	public static class CampfirePiece extends Piece<CampfirePiece.Data> {
 
-		public static record Data(TreeRegistry.Entry palette, boolean soul) {
+		public static record Data(RegistryEntry<WoodPalette> palette, boolean soul) {
 
 			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 
@@ -278,8 +279,7 @@ public class CampfireStructure extends BigGlobeStructure {
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			TreeRegistry.Entry palette = this.data.palette;
-			if (palette == null) return;
+			WoodPalette palette = this.data.palette.value();
 			Coordinator coordinator = this.coordinator(world, chunkBox);
 			coordinator.setBlockState(0, -1, 0, this.data::getCobbleState);
 			coordinator.rotate4x90().setBlockState(1, -1, 0, this.data::getCobbleState);
@@ -288,7 +288,7 @@ public class CampfireStructure extends BigGlobeStructure {
 			for (BlockRotation rotation : Directions.ROTATIONS) {
 				long rotationSeed = Permuter.permute(positionSeed, rotation.ordinal());
 				int bits = Permuter.nextBoundedInt(rotationSeed, 6);
-				if (bits > 1) coordinator.rotate1x(rotation).setBlockStateLine((bits & 1) + 3, 0, -1, 0, 0, 1, 3, palette.getLog(Axis.Z));
+				if (bits > 1) coordinator.rotate1x(rotation).setBlockStateLine((bits & 1) + 3, 0, -1, 0, 0, 1, 3, palette.logState(Axis.Z));
 			}
 		}
 
@@ -300,7 +300,7 @@ public class CampfireStructure extends BigGlobeStructure {
 
 	public static class TentPiece extends Piece<TentPiece.Data> {
 
-		public static record Data(TreeRegistry.Entry palette) {
+		public static record Data(RegistryEntry<WoodPalette> palette) {
 
 			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 		}
@@ -328,15 +328,14 @@ public class CampfireStructure extends BigGlobeStructure {
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			TreeRegistry.Entry palette = this.data.palette;
-			if (palette == null) return;
+			WoodPalette palette = this.data.palette.value();
 			Coordinator root = this.coordinator(world, chunkBox);
 			int bits = random.nextInt();
 			Coordinator outerRotation = root.rotate1x(Directions.ROTATIONS[bits & 3]);
 			Coordinator innerRotation = root.rotate1x(Directions.ROTATIONS[(bits >>> 2) & 3]);
 			//fences
-			root.rotate4x90().setBlockState(-2, 0, -2, palette.getFence(false, false, false, false));
-			outerRotation.flip2Z().setBlockStateLine(0, 0, -2, 0, 1, 0, 3, palette.getFence(false, false, false, false));
+			root.rotate4x90().setBlockState(-2, 0, -2, palette.fenceState(false, false, false, false, false));
+			outerRotation.flip2Z().setBlockStateLine(0, 0, -2, 0, 1, 0, 3, palette.fenceState(false, false, false, false, false));
 			//wool
 			outerRotation.multiTranslate(
 				-2, 1, 0,

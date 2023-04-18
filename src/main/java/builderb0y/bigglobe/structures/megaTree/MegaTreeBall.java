@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -21,10 +22,10 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
-import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 
@@ -32,7 +33,7 @@ import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
-	public static record Data(double x, double y, double z, double radius, int step, int totalSteps, TreeRegistry.Entry wood) {
+	public static record Data(double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 
@@ -53,13 +54,13 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		double radius,
 		int currentStep,
 		int totalSteps,
-		TreeRegistry.Entry woodType
+		RegistryEntry<WoodPalette> woodPalette
 	) {
 		super(
 			type,
 			0,
 			null,
-			new Data(x, y, z, radius, currentStep, totalSteps, woodType)
+			new Data(x, y, z, radius, currentStep, totalSteps, woodPalette)
 		);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		double totalRadius = radius + extraLeafRadius;
@@ -132,7 +133,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX()),
 			maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 
-		BlockState wood = this.data.wood.getWood(Axis.Y);
+		BlockState wood = this.data.wood.value().woodState(Axis.Y);
 		boolean placedAnyLogs = false;
 		for (pos.setX(minX); pos.getX() <= maxX; pos.setX(pos.getX() + 1)) {
 			double xSquared = squareD(pos.getX() - centerX);
@@ -172,7 +173,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		}
 
 		//*
-		BlockState leaves = this.data.wood.getLeaves(7, true);
+		BlockState leaves = this.data.wood.value().leavesState(7, true, false);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		int leafCount = Permuter.roundRandomlyI(permuter.nextLong(), squareD(extraLeafRadius * 2.0));
 		if (leafCount > 0) {

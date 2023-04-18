@@ -44,6 +44,7 @@ import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.trees.SaplingGrowHandler;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class BigGlobeMod implements ModInitializer {
@@ -69,13 +70,6 @@ public class BigGlobeMod implements ModInitializer {
 		SoulCauldronBlock.init();
 		BigGlobeBlockEntityTypes.init();
 		BigGlobeBrewing.init();
-		//normally I would initialize TreeRegistry here,
-		//since that needs to be done after blocks,
-		//but it also needs to be done after *other* mods' blocks.
-		//since all blocks are registered in ModInitializer.onInitialize(),
-		//I need a hook that fires later.
-		//I have decided to use the client and dedicated server mod initializers
-		//for this purpose, since they fire directly after the normal mod initializers.
 		BigGlobeEntityTypes.init();
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
@@ -85,6 +79,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
 		BigGlobeNetwork.init();
+		SaplingGrowHandler.init();
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);

@@ -5,8 +5,7 @@
 			"--originY",
 			"if (getBlockState(originX, originY, originZ).isAir():",
 				"setBlockState(originX, originY, originZ,",
-					"BlockState('minecraft:mangrove_propagule[hanging=true,age=0,stage=0,waterlogged=false]')",
-					".with('age', random.nextInt(0, 5))",
+					"BlockState('minecraft:mangrove_propagule', hanging: true, age: random.nextInt(0, 5), stage: 0, waterlogged: false)",
 				")",
 			")",
 			"return(true)"

@@ -10,6 +10,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.WoodPaletteScriptEnvironment;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
@@ -30,6 +31,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
+				.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
 				//todo: add constructor for scripted feature piece.
 				.parse()
 			);

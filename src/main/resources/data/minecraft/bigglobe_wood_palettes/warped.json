@@ -1,0 +1,23 @@
+{
+	"blocks": {
+		"log": "minecraft:warped_stem",
+		"wood": "minecraft:stripped_warped_stem",
+		"stripped_log": "minecraft:warped_hyphae",
+		"stripped_wood": "minecraft:stripped_warped_hyphae",
+		"planks": "minecraft:warped_planks",
+		"stairs": "minecraft:warped_stairs",
+		"slab": "minecraft:warped_slab",
+		"fence": "minecraft:warped_fence",
+		"fence_gate": "minecraft:warped_fence_gate",
+		"door": "minecraft:warped_door",
+		"trapdoor": "minecraft:warped_trapdoor",
+		"pressure_plate": "minecraft:warped_pressure_plate",
+		"button": "minecraft:warped_button",
+		"leaves": "minecraft:nether_wart_block",
+		"sapling": "minecraft:warped_fungus",
+		"potted_sapling": "minecraft:potted_warped_fungus",
+		"standing_sign": "minecraft:warped_sign",
+		"wall_sign": "minecraft:warped_wall_sign"
+	},
+	"sapling_grow_feature": "bigglobe:nether/trees/artificial/warped"
+}

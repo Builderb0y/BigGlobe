@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 import org.joml.Vector3d;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.StructureType;
@@ -14,11 +15,11 @@ import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
-import builderb0y.bigglobe.trees.TreeRegistry;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -36,7 +37,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		FoliageRange size,
 		FoliageRange trunk_radius,
 		FoliageRange branch_sparsity,
-		TreeRegistry.Entry palette
+		RegistryEntry<WoodPalette> palette
 	) {}
 
 	public final @EncodeInline Data data;

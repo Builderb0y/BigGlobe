@@ -37,8 +37,6 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
-	public static final String[] NO_INPUTS = {};
-
 	public ScriptedFeature(Codec<Config> configCodec) {
 		super(configCodec);
 	}
@@ -127,11 +125,12 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						load("world", 1, WorldWrapper.TYPE)
 					))
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
+					.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
 					.addEnvironment(
 						new MutableScriptEnvironment()
-							.addVariableLoad("originX", 2, TypeInfos.INT)
-							.addVariableLoad("originY", 3, TypeInfos.INT)
-							.addVariableLoad("originZ", 4, TypeInfos.INT)
+						.addVariableLoad("originX", 2, TypeInfos.INT)
+						.addVariableLoad("originY", 3, TypeInfos.INT)
+						.addVariableLoad("originZ", 4, TypeInfos.INT)
 					)
 					.addEnvironment(new RandomScriptEnvironment(
 						getField(
@@ -173,93 +172,4 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			}
 		}
 	}
-
-	/*
-	public static class ScriptParserWithInputs<I> extends ScriptParser<I> {
-
-		public final Map<String, InsnTree> initializers = new LinkedHashMap<>(4);
-
-		public ScriptParserWithInputs(Class<I> implementingClass, String input) {
-			super(implementingClass, input);
-		}
-
-		@Override
-		public InsnTree parseEntireInput() throws ScriptParsingException {
-			return seq(
-				Stream.concat(
-					this.initializers.values().stream(),
-					Stream.of(super.parseEntireInput())
-				)
-				.toArray(InsnTree.ARRAY_FACTORY)
-			);
-		}
-	}
-
-	public static <P extends ExpressionParser> P setupParser(P parser, Map<String, String> inputs, String[] expectedInputs) throws ScriptParsingException {
-		if (inputs.size() != expectedInputs.length || !inputs.keySet().containsAll(Arrays.asList(expectedInputs))) {
-			throw new ScriptParsingException("Input mismatch: Expected " + Arrays.toString(expectedInputs) + ", got " + inputs.keySet(), null);
-		}
-		parser
-		.addEnvironment(JavaUtilScriptEnvironment.ALL)
-		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(new MinecraftScriptEnvironment(
-			load("world", 1, WorldWrapper.TYPE)
-		))
-		.addEnvironment(NbtScriptEnvironment.INSTANCE)
-		.addEnvironment(
-			new MutableScriptEnvironment()
-			.addVariableLoad("originX", 2, TypeInfos.INT)
-			.addVariableLoad("originY", 3, TypeInfos.INT)
-			.addVariableLoad("originZ", 4, TypeInfos.INT)
-		)
-		.addEnvironment(new RandomScriptEnvironment(
-			getField(
-				load("world", 1, WorldWrapper.TYPE),
-				field(
-					Opcodes.ACC_PUBLIC,
-					WorldWrapper.TYPE,
-					"permuter",
-					type(Permuter.class)
-				)
-			)
-		))
-		.addEnvironment(
-			ColumnScriptEnvironment.createFixedXYZ(
-				ColumnValue.REGISTRY,
-				load("column", 5, type(WorldColumn.class)),
-				load("originY", 3, TypeInfos.INT)
-				.cast(parser, TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW)
-			)
-			.mutable
-		);
-		if (!inputs.isEmpty()) {
-			MutableScriptEnvironment environment = parser.environment.mutable();
-			for (String inputName : expectedInputs) {
-				String inputSource = inputs.get(inputName);
-				assert inputSource != null;
-				ClassCompileContext classCopy = new ClassCompileContext(parser.clazz.node.access, parser.clazz.info);
-				MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), parser.method.info);
-				ExpressionParser parserCopy = setupParser(
-					new ExpressionParser(inputSource, classCopy, methodCopy) {
-
-						@Override
-						public InsnTree createReturn(InsnTree value) {
-							throw new UnsupportedOperationException("Script inputs cannot return.");
-						}
-					},
-					Collections.emptyMap(),
-					NO_INPUTS
-				);
-				InsnTree inputTree = parserCopy.nextScript();
-				VariableDeclarationInsnTree declaration = parser.environment.user().newVariable(inputName, inputTree.getTypeInfo());
-				InsnTree initializer = seq(declaration, store(declaration.loader.variable, inputTree));
-				environment
-				.addVariable(inputName, load(declaration.loader.variable))
-				.addVariable('$' + inputName, inputTree);
-				((ScriptParserWithInputs<?>)(parser)).initializers.put(inputName, initializer);
-			}
-		}
-		return parser;
-	}
-	*/
 }

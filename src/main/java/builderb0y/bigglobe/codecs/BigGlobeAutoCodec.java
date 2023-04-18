@@ -14,8 +14,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -37,7 +35,6 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
 import builderb0y.autocodec.common.LookupFactory;
@@ -53,6 +50,7 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;
@@ -87,8 +85,9 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<DensityFunction>                 DENSITY_FUNCTION_REGISTRY_CODERS           = new RegistryCoders<>(ReifiedType.from(DensityFunction                .class), RegistryKeys.DENSITY_FUNCTION);
 	public static final RegistryCoders<ChunkGeneratorSettings>          CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS   = new RegistryCoders<>(ReifiedType.from(ChunkGeneratorSettings         .class), RegistryKeys.CHUNK_GENERATOR_SETTINGS);
 	public static final RegistryCoders<WorldPreset>                     WORLD_PRESET_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(WorldPreset                    .class), RegistryKeys.WORLD_PRESET);
-	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS            = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                 .class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE);
-	public static final RegistryCoders<StructurePlacementScript.Holder> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructurePlacementScript.Holder.class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_KEY);
+	public static final RegistryCoders<WoodPalette>                     WOOD_PALETTE_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(WoodPalette                    .class), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY);
+	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS            = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                 .class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY);
+	public static final RegistryCoders<StructurePlacementScript.Holder> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructurePlacementScript.Holder.class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -108,6 +107,7 @@ public class BigGlobeAutoCodec {
 		DENSITY_FUNCTION_REGISTRY_CODERS,
 		CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS,
 		WORLD_PRESET_REGISTRY_CODERS,
+		WOOD_PALETTE_REGISTRY_CODERS,
 		SCRIPT_TEMPLATE_REGISTRY_CODERS,
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS
 	};

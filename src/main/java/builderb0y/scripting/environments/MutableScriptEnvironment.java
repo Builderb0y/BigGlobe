@@ -43,7 +43,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			.map(variable -> "Variable " + name + ": " + variable),
 
 			this.fields.entrySet().stream()
-			.filter(entry -> entry.getKey().name.equals(name))
+			.filter(entry -> Objects.equals(entry.getKey().name, name))
 			.map(entry -> "Field " + entry.getKey() + ": " + entry.getValue()),
 
 			Stream.ofNullable(this.functions.get(name))
@@ -51,7 +51,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			.map(function -> "Function " + name + ": " + function),
 
 			this.methods.entrySet().stream()
-			.filter(entry -> entry.getKey().name.equals(name))
+			.filter(entry -> Objects.equals(entry.getKey().name, name))
 			.flatMap(entry -> entry.getValue().stream().map(handler -> Map.entry(entry.getKey(), handler)))
 			.map(entry -> "Method " + entry.getKey() + ": " + entry.getValue()),
 
@@ -62,7 +62,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			.map(keyword -> "Keyword " + keyword + ": " + keyword),
 
 			this.memberKeywords.entrySet().stream()
-			.filter(entry -> entry.getKey().name.equals(name))
+			.filter(entry -> Objects.equals(entry.getKey().name, name))
 			.map(entry -> "Member keyword " + entry.getKey() + ": " + entry.getValue())
 		)
 		.flatMap(Function.identity());
@@ -1173,7 +1173,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public static class NamedType {
 
 		public @Nullable TypeInfo owner;
-		public String name;
+		public @Nullable String name;
 
 		public NamedType() {}
 

@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction.Axis;
@@ -17,9 +18,9 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.util.WorldUtil;
 
 public class BushFeature extends Feature<BushFeature.Config> {
@@ -43,8 +44,8 @@ public class BushFeature extends Feature<BushFeature.Config> {
 		if (!world.getBlockState(mutable).isIn(BlockTags.DIRT)) return false;
 		if (!WorldUtil.isReplaceableNonFluid(world, mutable.setY(originY))) return false;
 		WorldColumn column = WorldColumn.forWorld(world, originX, originZ);
-		TreeRegistry.Entry palette = context.getConfig().palette();
-		world.setBlockState(mutable, palette.getWood(Axis.Y), Block.NOTIFY_ALL);
+		WoodPalette palette = context.getConfig().palette().value();
+		world.setBlockState(mutable, palette.woodState(Axis.Y), Block.NOTIFY_ALL);
 		Permuter permuter = Permuter.from(context.getRandom());
 		double horizontalRadius = permuter.nextDouble(1.0D, 3.0D);
 		double   verticalRadius = permuter.nextDouble(1.0D, 2.0D);
@@ -67,13 +68,13 @@ public class BushFeature extends Feature<BushFeature.Config> {
 
 				mutable.setY(originY);
 				if (WorldUtil.isReplaceableNonFluid(world, mutable)) {
-					world.setBlockState(mutable, palette.getLeaves(Math.abs(x) + Math.abs(z), false), Block.NOTIFY_ALL);
+					world.setBlockState(mutable, palette.leavesState(Math.abs(x) + Math.abs(z), false, false), Block.NOTIFY_ALL);
 				}
 
 				BlockState existingState = world.getBlockState(mutable.setY(originY + 1));
 				if (WorldUtil.isReplaceableNonFluid(existingState)) {
 					if (z2 + BigGlobeMath.squareD(reciprocalVerticalRadius) <= 1.0D) {
-						world.setBlockState(mutable, palette.getLeaves(Math.abs(x) + Math.abs(z) + 1, false), Block.NOTIFY_ALL);
+						world.setBlockState(mutable, palette.leavesState(Math.abs(x) + Math.abs(z) + 1, false, false), Block.NOTIFY_ALL);
 						existingState = world.getBlockState(mutable.setY(originY + 2));
 						if (
 							WorldUtil.isReplaceableNonFluid(existingState) &&
@@ -95,5 +96,5 @@ public class BushFeature extends Feature<BushFeature.Config> {
 		return true;
 	}
 
-	public static record Config(TreeRegistry.Entry palette) implements FeatureConfig {}
+	public static record Config(RegistryEntry<WoodPalette> palette) implements FeatureConfig {}
 }

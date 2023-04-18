@@ -3,6 +3,7 @@ package builderb0y.scripting.environments;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -58,7 +59,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			.map(variable -> "Variable " + name + ": " + variable.variable),
 
 			this.fields.entrySet().stream()
-			.filter(entry -> entry.getKey().name.equals(name))
+			.filter(entry -> Objects.equals(entry.getKey().name, name))
 			.map(entry -> "Field " + entry.getKey() + ": " + entry.getValue()),
 
 			Stream.ofNullable(this.functions.get(name))
@@ -66,7 +67,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			.map(function -> "Function " + name + ": " + function),
 
 			this.methods.entrySet().stream()
-			.filter(entry -> entry.getKey().name.equals(name))
+			.filter(entry -> Objects.equals(entry.getKey().name, name))
 			.flatMap(entry -> entry.getValue().stream().map(handler -> Map.entry(entry.getKey(), handler)))
 			.map(entry -> "Method " + entry.getKey() + ": " + entry.getValue()),
 

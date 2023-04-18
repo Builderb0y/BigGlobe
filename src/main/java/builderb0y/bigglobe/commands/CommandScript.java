@@ -39,6 +39,7 @@ public interface CommandScript extends Script {
 				load("world", 1, WorldWrapper.TYPE)
 			))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
+			.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
 			.addEnvironment(
 				ColumnScriptEnvironment.createVariableXYZ(
 					ColumnValue.REGISTRY,

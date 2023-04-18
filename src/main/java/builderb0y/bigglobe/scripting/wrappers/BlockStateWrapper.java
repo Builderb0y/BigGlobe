@@ -11,11 +11,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
@@ -23,6 +25,7 @@ import net.minecraft.world.EmptyBlockView;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -30,14 +33,20 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BlockStateWrapper {
 
 	public static final TypeInfo TYPE = type(BlockState.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class);
+	public static final ConstantFactory
+		CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class),
+		DEFAULT_CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getDefaultState", String.class, BlockState.class);
+	public static final MethodInfo
+		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with");
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
 		BlockResult result = BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false);
-		Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
-		remaining.removeAll(result.properties().keySet());
-		if (!remaining.isEmpty()) {
-			ScriptLogger.LOGGER.warn("Missing properties for state " + id + ": " + remaining);
+		if (result.properties().size() != result.blockState().getProperties().size()) {
+			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
+			remaining.removeAll(result.properties().keySet());
+			if (!remaining.isEmpty()) {
+				ScriptLogger.LOGGER.warn("Missing properties for state " + id + ": " + remaining);
+			}
 		}
 		return result.blockState();
 	}
@@ -46,6 +55,20 @@ public class BlockStateWrapper {
 		//this method will be called only if the string is non-constant.
 		//for performance reasons, we will skip properties checking here.
 		return BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false).blockState();
+	}
+
+	public static BlockState getDefaultState(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+		return getDefaultState(id);
+	}
+
+	public static BlockState getDefaultState(String id) {
+		Identifier identifier = new Identifier(id);
+		if (Registries.BLOCK.containsId(identifier)) {
+			return Registries.BLOCK.get(identifier).getDefaultState();
+		}
+		else {
+			throw new RuntimeException("Unknown block: " + id);
+		}
 	}
 
 	public static boolean isIn(BlockState state, BlockTagKey key) {

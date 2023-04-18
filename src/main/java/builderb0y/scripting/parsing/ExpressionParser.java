@@ -737,7 +737,10 @@ public class ExpressionParser {
 				String className = this.input.expectIdentifierAfterWhitespace();
 				return this.nextUserDefinedClass(className);
 			}
-			else { //not var.
+			else { //not var or class.
+				InsnTree result = this.environment.parseKeyword(this, name);
+				if (result != null) return result;
+				//not keyword.
 				TypeInfo type = this.environment.getType(this, name);
 				if (type != null) {
 					if (this.input.peekAfterWhitespace() == '(') { //casting.
@@ -764,8 +767,6 @@ public class ExpressionParser {
 					}
 				}
 				else { //not a type.
-					InsnTree result = this.environment.parseKeyword(this, name);
-					if (result != null) return result;
 					if (this.input.peekAfterWhitespace() == '(') { //function call.
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 						result = this.environment.getFunction(this, name, arguments.arguments());
