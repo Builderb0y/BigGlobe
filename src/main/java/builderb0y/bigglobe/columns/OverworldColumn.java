@@ -304,7 +304,6 @@ public class OverworldColumn extends WorldColumn {
 		if (cell != null) {
 			this.caveFloors = new IntArrayList(8);
 			this.caveCeilings = new IntArrayList(8);
-			double height = this.getFinalTopHeightD();
 			double[] noise = this.caveNoise;
 			assert noise != null;
 			int depth = cell.settings.depth();
@@ -312,7 +311,7 @@ public class OverworldColumn extends WorldColumn {
 			boolean previousCave = false;
 			for (int index = 0; index < depth; index++) {
 				int y = index + minY;
-				boolean currentCave = noise[index] < cell.settings.getWidthSquared(height, y);
+				boolean currentCave = noise[index] < cell.settings.getWidthSquared(this, y);
 				if (currentCave && !previousCave) {
 					this.caveFloors.add(y);
 				}
@@ -362,12 +361,12 @@ public class OverworldColumn extends WorldColumn {
 
 	public double getCaveWidth(double y) {
 		CaveCell cell = this.getCaveCell();
-		return cell == null ? Double.NaN : cell.settings.getWidth(this.getFinalTopHeightD(), y);
+		return cell == null ? Double.NaN : cell.settings.getWidth(this, y);
 	}
 
 	public double getCaveWidthSquared(double y) {
 		CaveCell cell = this.getCaveCell();
-		return cell == null ? Double.NaN : cell.settings.getWidthSquared(this.getFinalTopHeightD(), y);
+		return cell == null ? Double.NaN : cell.settings.getWidthSquared(this, y);
 	}
 
 	public boolean isCaveAt(int y, boolean cache) {

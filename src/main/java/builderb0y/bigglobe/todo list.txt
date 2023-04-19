@@ -16,6 +16,7 @@ changelog:
 	* Script features now have a flag to randomly rotate the feature when placing it.
 	* Added column values for vanilla worlds.
 	* Structures are now scriptable.
+	* Overworld cave width is now a script. This is a world breaking change, but you can get around it for existing worlds by enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

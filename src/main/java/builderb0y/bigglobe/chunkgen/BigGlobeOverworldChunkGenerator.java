@@ -693,8 +693,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			{
 				double minY = Math.max(context.bottomD, context.column.settings.height().minYAboveBedrock());
 				CaveCell cell = context.column.getCaveCell();
-				int topY = Math.min(BigGlobeMath.floorI(minY + cell.settings.lower_width()), context.topI - 1);
-				double rcpLowerWidth = 1.0D / cell.settings.lower_width();
+				double lowerWidth = cell.settings.getWidth(column, minY);
+				int topY = Math.min(BigGlobeMath.floorI(minY + lowerWidth), context.topI - 1);
+				double rcpLowerWidth = 1.0D / lowerWidth;
 				for (int y = topY; y >= context.bottomI; y--) {
 					double above = (y - minY) * rcpLowerWidth;
 					context.excludeUnchecked(y, BigGlobeMath.squareD(1.0D - above));
@@ -706,7 +707,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				double progress = context.caveCell.voronoiCell.progressToEdgeD(context.column.x, context.column.z);
 				for (int y = context.bottomI; y < context.topI; y++) {
 					double
-						width     = context.caveSettings.getWidth(context.topD, y),
+						width     = context.caveSettings.getWidth(column, y),
 						threshold = 1.0D - width / (distance * 0.5D),
 						fraction  = Interpolator.unmixLinear(threshold, 1.0D, progress);
 					if (fraction > 0.0D) {

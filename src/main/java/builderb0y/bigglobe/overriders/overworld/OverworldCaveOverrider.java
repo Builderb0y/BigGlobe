@@ -103,7 +103,7 @@ public interface OverworldCaveOverrider extends Script {
 
 		@Override
 		public double getExclusionMultiplier(int y) {
-			double width = this.caveSettings.getWidthSquared(this.topD, y);
+			double width = this.caveSettings.getWidthSquared(this.column, y);
 			width -= this.ledgeMin * width;
 			return width;
 		}
@@ -113,7 +113,7 @@ public interface OverworldCaveOverrider extends Script {
 		public void excludeSurface(double multiplier) {
 			if (!(multiplier > 0.0D)) return;
 			double baseY = this.topD;
-			double width = this.caveSettings.upper_width();
+			double width = this.caveSettings.getWidth(this.column, baseY);
 			double intersection = baseY - width * 2.0D;
 			multiplier /= width;
 			int minY = Math.max(BigGlobeMath.ceilI(intersection), this.bottomI);

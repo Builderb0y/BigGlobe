@@ -435,8 +435,7 @@
 							},
 							"templates": {
 								"defaults": {
-									"depth": 512,
-									"upper_width": 8.0
+									"depth": 512
 								},
 								"variations": [
 									{
@@ -491,7 +490,7 @@
 															{ "type": "cubic", "scaleX": 16, "scaleY": 4, "scaleZ": 16, "amplitude": 0.25 }
 														]
 													},
-													"lower_width": 64.0
+													"width": "mixLinear(64.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))"
 												},
 												"variations": [
 													{
@@ -511,7 +510,7 @@
 											},
 											{
 												"weight": 2.0,
-												"lower_width": 48.0,
+												"width": "mixLinear(48.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))",
 												"floor_decorator": "bigglobe:overworld/caves/floor_generic",
 												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_generic"
 											}
@@ -567,7 +566,7 @@
 												"ceiling_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" },
 												"floor_decorator": "bigglobe:overworld/caves/floor_dripping",
 												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_dripping",
-												"lower_width": 32.0
+												"width": "mixLinear(32.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))"
 											},
 											{
 												"weight": 0.5,
@@ -606,7 +605,7 @@
 												"ceiling_blocks": { "surface": "minecraft:basalt[axis=y]", "subsurface": "minecraft:basalt[axis=y]" },
 												"floor_decorator": "bigglobe:overworld/caves/floor_molten",
 												"ceiling_decorator": "bigglobe:overworld/caves/ceiling_molten",
-												"lower_width": 48.0
+												"width": "mixLinear(48.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))"
 											}
 										]
 									}
