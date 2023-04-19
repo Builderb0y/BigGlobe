@@ -12,6 +12,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -23,11 +24,13 @@ import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
@@ -55,10 +58,8 @@ public class ScriptedStructure extends BigGlobeStructure {
 				collector -> {
 					List<StructurePiece> pieces = Collections.checkedList(new ArrayList<>(), StructurePiece.class);
 					this.layout.layout(x, z, permuter, column, pieces);
-					if (!pieces.isEmpty()) {
-						for (StructurePiece piece : pieces) {
-							collector.addPiece(piece);
-						}
+					for (StructurePiece piece : pieces) {
+						collector.addPiece(piece);
 					}
 				}
 			)
@@ -98,6 +99,13 @@ public class ScriptedStructure extends BigGlobeStructure {
 			nbt.put("data", this.data);
 		}
 
+		public Piece withRotation(int rotation) {
+			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(
+				Directions.scriptRotation(rotation)
+			);
+			return this;
+		}
+
 		@Override
 		public void generate(
 			StructureWorldAccess world,
@@ -118,13 +126,34 @@ public class ScriptedStructure extends BigGlobeStructure {
 				Coordinator.forWorld(world, Block.NOTIFY_ALL)
 				.inBox(minX, minY, minZ, maxX, maxY, maxZ)
 			);
+
+			minX = this.boundingBox.getMinX();
+			minY = this.boundingBox.getMinY();
+			minZ = this.boundingBox.getMinZ();
+			maxX = this.boundingBox.getMaxX();
+			maxY = this.boundingBox.getMaxY();
+			maxZ = this.boundingBox.getMaxZ();
+			int midX = (minX + maxX) >> 1;
+			int midY = (minY + maxY) >> 1;
+			int midZ = (minZ + maxZ) >> 1;
+
+			if (this.getRotation() != null && this.getRotation() != BlockRotation.NONE) {
+				coordinator = (
+					coordinator
+					.translate(midX, midY, midZ)
+					.rotate1x(this.getRotation())
+					.translate(-midX, -midY, -midZ)
+				);
+			}
 			Permuter permuter = Permuter.from(random);
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
+
 			this.placement.entry().value().place(
 				new WorldWrapper(world, coordinator, permuter),
 				column,
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
+				midX, midY, midZ,
 				this.data
 			);
 		}

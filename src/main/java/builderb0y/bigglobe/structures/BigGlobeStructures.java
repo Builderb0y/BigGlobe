@@ -111,14 +111,6 @@ public class BigGlobeStructures {
 	public static final TagKey<Structure>
 		SLIMES_SPAWN_ON_WATER_TAG_KEY = TagKey.of(RegistryKeys.STRUCTURE, BigGlobeMod.modID("slimes_spawn_on_water"));
 
-	//////////////// campfire ////////////////
-
-	public static final StructureType<CampfireStructure>
-		CAMPFIRE_TYPE            = registerType("campfire", CampfireStructure.CODEC);
-	public static final BigGlobeStructurePieceType
-		CAMPFIRE_PIECE_TYPE      = registerPiece("campfire_piece", CampfireStructure.CampfirePiece::new),
-		CAMPFIRE_TENT_PIECE_TYPE = registerPiece("tent_piece",     CampfireStructure.    TentPiece::new);
-
 	//////////////// portal temple ////////////////
 
 	public static final StructureType<PortalTempleStructure>

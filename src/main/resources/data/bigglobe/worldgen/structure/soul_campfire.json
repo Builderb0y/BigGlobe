@@ -1,0 +1,38 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/soul_campfire",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"boolean isTerrainAt(int y:",
+					"return(`nether/cached_cave_noise`(x, y, z) >= `nether/cave_width_squared`(x, y, z) && `nether/cached_cavern_noise`(x, y, z) >= 0.0L)",
+				")",
+
+				"int getY(:",
+					"repeat (16:",
+						"int y = int(mixLinear(min_y(x, z), max_y(x, z), random.nextDouble()))",
+						"unless (isTerrainAt(y):",
+							"do until (isTerrainAt(y):",
+								"--y",
+								"if (y < `nether/lava_level`(x, z): return(-2147483648))",
+							")",
+							"return(y + 1)",
+						")",
+					")",
+					"return(-2147483648)",
+				")",
+
+				"int y = getY()",
+				"unless (y == -2147483648:",
+					"pieces.add(ScriptStructurePiece.new(",
+						"x - 4, y - 1, z - 4, x + 4, y, z + 4,",
+						"'bigglobe:soul_campfire',",
+						"nbtCompound()",
+					"))",
+				")"
+			]
+		}
+	}
+}

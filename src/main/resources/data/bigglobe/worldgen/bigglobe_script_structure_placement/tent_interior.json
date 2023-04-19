@@ -1,0 +1,16 @@
+{
+	"script": [
+		"Block bedBlock = data.bed.asString()",
+		"setBlockState(minX, minY, midZ, BlockState(bedBlock, facing: 'south', part: 'foot'))",
+		"setBlockState(minX, minY, maxZ, BlockState(bedBlock, facing: 'south', part: 'head'))",
+		"setBlockState(maxX, minY, midZ, BlockState(bedBlock, facing: 'south', part: 'foot'))",
+		"setBlockState(maxX, minY, maxZ, BlockState(bedBlock, facing: 'south', part: 'head'))",
+
+		"setBlockState(midX, minY, maxZ, 'minecraft:crafting_table')",
+		"setBlockState(midX, minY, midZ, 'minecraft:chest[facing=north,type=single,waterlogged=false]')",
+		"mergeBlockData(midX, minY, midZ, nbtCompound(",
+			"LootTable: 'minecraft:chests/spawn_bonus_chest',",
+			"LootTableSeed: random.nextLong()",
+		"))"
+	]
+}

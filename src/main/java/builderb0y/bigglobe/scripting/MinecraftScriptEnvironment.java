@@ -124,7 +124,10 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 				}
 				else {
 					//BlockState(name, b: c)
-					state = BlockStateWrapper.DEFAULT_CONSTANT_FACTORY.create(parser, name, state).tree();
+					state = invokeStatic(
+						BlockWrapper.GET_DEFAULT_STATE,
+						BlockWrapper.CONSTANT_FACTORY.create(parser, name, state).tree()
+					);
 					Set<String> properties = new HashSet<>(8);
 					do {
 						String property = parser.input.expectIdentifierAfterWhitespace();

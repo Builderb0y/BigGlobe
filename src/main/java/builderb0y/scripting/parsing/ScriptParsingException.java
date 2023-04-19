@@ -37,7 +37,7 @@ public class ScriptParsingException extends Exception {
 		return this.at == null ? this.getMessage() : this.getMessage() + ' ' + this.at;
 	}
 
-	public static @Nullable String appendContext(ExpressionReader input) {
+	public static @Nullable String appendContext(@Nullable ExpressionReader input) {
 		return input == null ? null : "at line " + input.line + ", column " + input.column + ":\n" + input.getSourceForError() + " <--- HERE";
 	}
 }

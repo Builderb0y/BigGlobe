@@ -145,6 +145,10 @@ public class NetherColumn extends WorldColumn {
 		return this.getCaveNoise(BigGlobeMath.floorI(y), false);
 	}
 
+	public double getCachedCaveNoise(double y) {
+		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
+	}
+
 	public double getCaveWidth(double y) {
 		return this.getLocalCell().settings.caves().width().evaluate(this, y);
 	}
@@ -270,6 +274,10 @@ public class NetherColumn extends WorldColumn {
 
 	public double getCavernNoise(double y) {
 		return this.getCavernNoise(BigGlobeMath.floorI(y), false);
+	}
+
+	public double getCachedCavernNoise(double y) {
+		return this.getCavernNoise(BigGlobeMath.floorI(y), true);
 	}
 
 	public double[] computeCavernNoise() {

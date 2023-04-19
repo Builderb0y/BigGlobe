@@ -84,13 +84,13 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -99,7 +99,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
 
-public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
+public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
 	public static final boolean WORLD_SLICES = false;
 
@@ -767,29 +767,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos blockPos) {
-		WorldColumn column = this.column(blockPos.getX(), blockPos.getZ());
-		PlayerEntity player = getClientPlayer();
-		CustomDisplayContext context = player == null ? null : new CustomDisplayContext(player, column, blockPos.getY());
-		if (this.displayedColumnValues == null) {
-			this.displayedColumnValues = (
-				ColumnValue
-				.REGISTRY
-				.stream()
-				.filter(value -> value.accepts(column))
-				.sorted(Comparator.comparing(ColumnValue::getName))
-				.toArray(ColumnValue.ARRAY_FACTORY)
-			);
-		}
-		text.add("Tip: use /bigglobe:filterF3 to filter the following information:");
-		for (ColumnValue<?> value : this.displayedColumnValues) {
-			text.add(
-				value == null
-				? ""
-				: context != null
-				? value.getName() + ": " + value.getDisplayText(context)
-				: value.getName() + ": " + CustomDisplayContext.format(value.getValue(column, blockPos.getY()))
-			);
-		}
+		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 
 	public static @Nullable PlayerEntity getClientPlayer() {
@@ -802,5 +780,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	@Environment(EnvType.CLIENT)
 	public static PlayerEntity getClientPlayer0() {
 		return MinecraftClient.getInstance().player;
+	}
+
+	@Override
+	public ColumnValue<?>[] bigglobe_getDisplayedColumnValues() {
+		return this.displayedColumnValues;
+	}
+
+	@Override
+	public void bigglobe_setDisplayedColumnValues(ColumnValue<?>[] displayedColumnValues) {
+		this.displayedColumnValues = displayedColumnValues;
 	}
 }

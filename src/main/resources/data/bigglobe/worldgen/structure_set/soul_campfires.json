@@ -8,6 +8,6 @@
 		}
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:campfires/charred" }
+		{ "weight": 1, "structure": "bigglobe:soul_campfire" }
 	]
 }

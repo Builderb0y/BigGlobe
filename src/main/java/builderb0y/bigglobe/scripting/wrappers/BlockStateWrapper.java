@@ -15,8 +15,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
@@ -25,6 +23,7 @@ import net.minecraft.world.EmptyBlockView;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -104,21 +103,11 @@ public class BlockStateWrapper {
 	}
 
 	public static BlockState rotate(BlockState state, int rotation) {
-		return switch (rotation) {
-			case  90 -> state.rotate(BlockRotation.CLOCKWISE_90);
-			case 180 -> state.rotate(BlockRotation.CLOCKWISE_180);
-			case 270 -> state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
-			default  -> state;
-		};
+		return state.rotate(Directions.scriptRotation(rotation));
 	}
 
 	public static BlockState mirror(BlockState state, String axis) {
-		if (axis.length() == 1) {
-			char c = axis.charAt(0);
-			if (c == 'x') return state.mirror(BlockMirror.FRONT_BACK);
-			if (c == 'z') return state.mirror(BlockMirror.LEFT_RIGHT);
-		}
-		return state;
+		return state.mirror(Directions.scriptMirror(axis));
 	}
 
 	public static @Nullable Comparable<?> getProperty(BlockState state, String name) {

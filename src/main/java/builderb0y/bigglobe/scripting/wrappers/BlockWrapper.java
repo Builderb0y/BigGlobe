@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -17,6 +18,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BlockWrapper {
 
 	public static final TypeInfo TYPE = type(Block.class);
+	public static final MethodInfo GET_DEFAULT_STATE = MethodInfo.getMethod(BlockWrapper.class, "getDefaultState");
 	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockWrapper.class, "getBlock", String.class, Block.class);
 
 	public static Block getBlock(MethodHandles.Lookup caller, String name, Class<?> type, String id) {

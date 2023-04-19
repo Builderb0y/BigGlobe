@@ -352,6 +352,14 @@ public class OverworldColumn extends WorldColumn {
 		}
 	}
 
+	public double getCaveNoise(double y) {
+		return this.getCaveNoise(BigGlobeMath.floorI(y), false);
+	}
+
+	public double getCachedCaveNoise(double y) {
+		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
+	}
+
 	public double getCaveWidth(double y) {
 		CaveCell cell = this.getCaveCell();
 		return cell == null ? Double.NaN : cell.settings.getWidth(this.getFinalTopHeightD(), y);

@@ -16,8 +16,8 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public class VanillaWorldColumn extends WorldColumn {
 
 	public static final int
-		FINAL_HEIGHT                              = 1 << 0,
-		VERTICAL_BLOCK_SAMPLE                     = 1 << 1;
+		FINAL_HEIGHT          = 1 << 0,
+		VERTICAL_BLOCK_SAMPLE = 1 << 1;
 
 	public final ChunkGenerator chunkGenerator;
 	public final NoiseConfig noise;

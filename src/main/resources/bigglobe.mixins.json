@@ -23,6 +23,7 @@
 		"MobSpawnerLogic_SpawnLightning",
 		"NbtIo_ReadElementAccess",
 		"NetherrackBlock_GrowProperly",
+		"NoiseChunkGenerator_DisplayVanillaColumnValues",
 		"OceanMonumentGeneratorBase_VanillaBugFixes",
 		"OceanRuinGeneratorPiece_UseGeneratorHeight",
 		"PalettedContainer_DataAccess",

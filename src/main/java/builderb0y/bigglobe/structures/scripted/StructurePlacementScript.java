@@ -32,25 +32,6 @@ public interface StructurePlacementScript extends Script {
 		NbtCompound data
 	);
 
-	public default void place(
-		WorldWrapper world,
-		WorldColumn column,
-		int minX, int minY, int minZ,
-		int maxX, int maxY, int maxZ,
-		NbtCompound data
-	) {
-		this.place(
-			world,
-			column,
-			minX, minY, minZ,
-			maxX, maxY, maxZ,
-			(minX + maxX) >> 1,
-			(minY + maxY) >> 1,
-			(minZ + maxZ) >> 1,
-			data
-		);
-	}
-
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
 

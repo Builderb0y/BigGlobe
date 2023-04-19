@@ -479,7 +479,12 @@ public class ExpressionReader {
 	}
 
 	public String getSourceForError() {
-		return this.input.substring(0, this.cursor);
+		//grab the last 5 lines leading up to the error.
+		int start = this.cursor;
+		for (int loop = 0; loop < 5 && start > 0; loop++) {
+			start = this.input.lastIndexOf('\n', start - 1);
+		}
+		return this.input.substring(start + 1, this.cursor);
 	}
 
 	public void unread() {

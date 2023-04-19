@@ -91,7 +91,7 @@ public interface Coordinator {
 	this method will print a warning to the log when such an operation happens.
 	*/
 	public static Coordinator warnDrop(String reason) {
-		LOGGER.warn("A Coordinator option resulted in dropping all coordinates: ", new IllegalArgumentException(reason));
+		LOGGER.warn("A Coordinator operation resulted in dropping all coordinates: ", new IllegalArgumentException(reason));
 		return DropCoordinator.INSTANCE;
 	}
 

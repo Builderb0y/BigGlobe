@@ -15,11 +15,6 @@
 		}
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:campfires/oak" },
-		{ "weight": 1, "structure": "bigglobe:campfires/spruce" },
-		{ "weight": 1, "structure": "bigglobe:campfires/birch" },
-		{ "weight": 1, "structure": "bigglobe:campfires/jungle" },
-		{ "weight": 1, "structure": "bigglobe:campfires/acacia" },
-		{ "weight": 1, "structure": "bigglobe:campfires/dark_oak" }
+		{ "weight": 1, "structure": "bigglobe:campfire" }
 	]
 }

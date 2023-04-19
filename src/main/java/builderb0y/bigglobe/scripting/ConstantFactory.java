@@ -51,7 +51,8 @@ public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler
 				return new CastResult(ldc(this.constantMethod, argument.getConstantValue()), true);
 			}
 			else {
-				ScriptLogger.LOGGER.warn("", new ScriptParsingException("Non-constant String input for " + name + "(). This will be worse on performance", parser.input));
+				ScriptLogger.LOGGER.warn("Non-constant String input for " + name + "(). This will be worse on performance. " + ScriptParsingException.appendContext(parser.input));
+				//ScriptLogger.LOGGER.warn("", new ScriptParsingException("Non-constant String input for " + name + "(). This will be worse on performance", parser.input));
 				return new CastResult(invokeStatic(this.variableMethod, argument), true);
 			}
 		}
