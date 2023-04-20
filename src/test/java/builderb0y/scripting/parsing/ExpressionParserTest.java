@@ -58,7 +58,14 @@ public class ExpressionParserTest {
 		assertSuccess(-1, "-1 / 4"); //assert rounding towards -∞.
 		assertSuccess(5, "sqrt ( 3 ^ 2 + 4 ^ 2 )");
 		assertSuccess(5, "`sqrt` ( 3 ^ 2 + 4 ^ 2)");
-		assertFail("Unknown variable: sqrt", "sqrt");
+		assertFail(
+			"""
+			Unknown variable: sqrt
+			Candidates:
+				Function sqrt: functionInvokeStatic: public static pure java/lang/Math.sqrt(D)D
+			Actual form: sqrt""",
+			"sqrt"
+		);
 		assertFail("Not a statement", "2 3");
 		assertFail("Unreachable statement", "return(2) return(3)");
 		assertFail("Not a statement", "int x = 2 ,, x ,, x");
@@ -72,6 +79,33 @@ public class ExpressionParserTest {
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483648.0L ,, int ( value )");
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483648.5L ,, int ( value )");
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483649.0L ,, int ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, truncInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, truncInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, truncLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, truncLong ( value )");
+		assertSuccess( 1,  "float  value =  1.5 ,, truncInt  ( value )");
+		assertSuccess( 1,  "double value =  1.5 ,, truncInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.5 ,, truncLong ( value )");
+		assertSuccess( 1L, "double value =  1.5 ,, truncLong ( value )");
+
+		assertSuccess(-2,  "float  value = -1.5 ,, floorInt  ( value )");
+		assertSuccess(-2,  "double value = -1.5 ,, floorInt  ( value )");
+		assertSuccess(-2L, "float  value = -1.5 ,, floorLong ( value )");
+		assertSuccess(-2L, "double value = -1.5 ,, floorLong ( value )");
+		assertSuccess( 1,  "float  value =  1.5 ,, floorInt  ( value )");
+		assertSuccess( 1,  "double value =  1.5 ,, floorInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.5 ,, floorLong ( value )");
+		assertSuccess( 1L, "double value =  1.5 ,, floorLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, ceilInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, ceilInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, ceilLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, ceilLong ( value )");
+		assertSuccess( 2,  "float  value =  1.5 ,, ceilInt  ( value )");
+		assertSuccess( 2,  "double value =  1.5 ,, ceilInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.5 ,, ceilLong ( value )");
+		assertSuccess( 2L, "double value =  1.5 ,, ceilLong ( value )");
 	}
 
 	@Test
@@ -93,7 +127,7 @@ public class ExpressionParserTest {
 		assertSuccess(1, "if ( yes : noop ) ,, 1");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, 2");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, return ( 2 )");
-		assertFail("Body is not a statement", "if (yes: 1) 2");
+		assertFail("Not a statement", "if (yes: 1) 2");
 		assertFail("Not a statement", "if (yes: 1) else (2) 3");
 		assertSuccess(10,
 			"""
