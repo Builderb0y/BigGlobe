@@ -481,8 +481,9 @@ public class ExpressionReader {
 	public String getSourceForError() {
 		//grab the last 5 lines leading up to the error.
 		int start = this.cursor;
-		for (int loop = 0; loop < 5 && start > 0; loop++) {
+		for (int loop = 0; loop < 5; loop++) {
 			start = this.input.lastIndexOf('\n', start - 1);
+			if (start < 0) return this.input.substring(0, this.cursor);
 		}
 		return this.input.substring(start + 1, this.cursor);
 	}

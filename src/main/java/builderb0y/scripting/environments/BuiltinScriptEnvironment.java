@@ -3,6 +3,7 @@ package builderb0y.scripting.environments;
 import java.io.PrintStream;
 import java.lang.invoke.StringConcatFactory;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
@@ -270,8 +272,35 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		.addCast(TypeInfos.DOUBLE_WRAPPER,  TypeInfos.DOUBLE,          true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos. DOUBLE_WRAPPER, "doubleValue",  TypeInfos.DOUBLE)))
 		.addCast(TypeInfos.CHAR_WRAPPER,    TypeInfos.CHAR,            true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   CHAR_WRAPPER, "charValue",    TypeInfos.CHAR)))
 		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN,         true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.BOOLEAN_WRAPPER, "booleanValue", TypeInfos.BOOLEAN)))
+		//toString
+		.addCast(TypeInfos.BYTE,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Byte     .class, "toString", String.class, byte   .class)))
+		.addCast(TypeInfos.SHORT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Short    .class, "toString", String.class, short  .class)))
+		.addCast(TypeInfos.INT,     TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Integer  .class, "toString", String.class, int    .class)))
+		.addCast(TypeInfos.LONG,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Long     .class, "toString", String.class, long   .class)))
+		.addCast(TypeInfos.FLOAT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Float    .class, "toString", String.class, float  .class)))
+		.addCast(TypeInfos.DOUBLE,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Double   .class, "toString", String.class, double .class)))
+		.addCast(TypeInfos.CHAR,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Character.class, "toString", String.class, char   .class)))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Boolean  .class, "toString", String.class, boolean.class)))
+		.addCast(TypeInfos.OBJECT,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Objects  .class, "toString", String.class, Object .class)))
+
+		//////////////// casting with round mode ////////////////
+
+		.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong")
+		.addFunction("truncInt", makeOpcode("truncInt(float value)", TypeInfos.FLOAT, TypeInfos.INT, F2I))
+		.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
+		.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
+		.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
 
 		;
+	}
+
+	public static FunctionHandler makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
+		return new FunctionHandler.Named(name, (parser, name1, arguments) -> {
+			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
+				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
+			}
+			return null;
+		});
 	}
 
 	public static TypeInfo nextParenthesizedType(ExpressionParser parser) throws ScriptParsingException {
