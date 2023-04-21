@@ -22,9 +22,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 
 @Environment(EnvType.CLIENT)
 public class FilterF3ClientCommand {
@@ -35,9 +35,9 @@ public class FilterF3ClientCommand {
 			.literal(BigGlobeMod.MODID + ":filterF3")
 			.requires(source -> getGenerator() != null)
 			.executes(context -> {
-				BigGlobeChunkGenerator generator = getGenerator();
+				ColumnValueDisplayer generator = getGenerator();
 				if (generator != null) {
-					generator.displayedColumnValues = null;
+					generator.bigglobe_setDisplayedColumnValues(null);
 					return 1;
 				}
 				else {
@@ -48,9 +48,9 @@ public class FilterF3ClientCommand {
 				ClientCommandManager
 				.argument("filter", new FilterF3Argument())
 				.executes(context -> {
-					BigGlobeChunkGenerator generator = getGenerator();
+					ColumnValueDisplayer generator = getGenerator();
 					if (generator != null) {
-						generator.displayedColumnValues = context.getArgument("filter", ColumnValue[].class);
+						generator.bigglobe_setDisplayedColumnValues(context.getArgument("filter", ColumnValue[].class));
 						return 1;
 					}
 					else {
@@ -61,12 +61,20 @@ public class FilterF3ClientCommand {
 		);
 	}
 
-	public static @Nullable BigGlobeChunkGenerator getGenerator() {
+	public static @Nullable ColumnValueDisplayer getGenerator() {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.getServer() == null || client.world == null) return null;
 		ServerWorld world = client.getServer().getWorld(client.world.getRegistryKey());
 		if (world == null) return null;
-		return world.getChunkManager().getChunkGenerator() instanceof BigGlobeChunkGenerator generator ? generator : null;
+		return world.getChunkManager().getChunkGenerator() instanceof ColumnValueDisplayer displayer ? displayer : null;
+	}
+
+	public static @Nullable WorldColumn getColumn(int x, int z) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.getServer() == null || client.world == null) return null;
+		ServerWorld world = client.getServer().getWorld(client.world.getRegistryKey());
+		if (world == null) return null;
+		return WorldColumn.forWorld(world, x, z);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -85,11 +93,11 @@ public class FilterF3ClientCommand {
 		}
 
 		public static ColumnValue<?>[] filter(String[] query) {
-			BigGlobeChunkGenerator generator = getGenerator();
-			if (generator == null) {
+			ColumnValueDisplayer displayer = getGenerator();
+			WorldColumn column = getColumn(0, 0);
+			if (displayer == null || column == null) {
 				return ColumnValue.ARRAY_FACTORY.empty();
 			}
-			WorldColumn column = generator.column(0, 0);
 
 			@SuppressWarnings("unchecked")
 			List<ColumnValue<?>>[] matches = new List[query.length];
@@ -155,9 +163,9 @@ public class FilterF3ClientCommand {
 
 		@Override
 		public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-			BigGlobeChunkGenerator generator = getGenerator();
-			if (generator == null) return Suggestions.empty();
-			WorldColumn column = generator.column(0, 0);
+			ColumnValueDisplayer displayer = getGenerator();
+			WorldColumn column = getColumn(0, 0);
+			if (displayer == null || column == null) return Suggestions.empty();
 			String current = builder.getRemaining();
 			int lastSpace = current.length();
 			while (lastSpace-- != 0) {

@@ -2,6 +2,7 @@ package builderb0y.bigglobe.features.flowers;
 
 import com.mojang.serialization.Codec;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
@@ -27,19 +28,25 @@ public class FlowerGroupFeature extends DummyFeature<FlowerGroupFeature.Config> 
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double spawn_chance;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final RandomSource randomize_radius;
+		public final @DefaultBoolean(true) boolean spawn_on_ground;
+		public final @DefaultBoolean(false) boolean spawn_on_skylands;
 
 		public Config(
 			int scale,
 			int variation,
 			double spawn_chance,
 			double randomize_chance,
-			RandomSource randomize_radius
+			RandomSource randomize_radius,
+			boolean spawn_on_ground,
+			boolean spawn_on_skylands
 		) {
-			this.scale            = scale;
-			this.variation        = variation;
-			this.spawn_chance     = spawn_chance;
-			this.randomize_chance = randomize_chance;
-			this.randomize_radius = randomize_radius;
+			this.scale             = scale;
+			this.variation         = variation;
+			this.spawn_chance      = spawn_chance;
+			this.randomize_chance  = randomize_chance;
+			this.randomize_radius  = randomize_radius;
+			this.spawn_on_ground   = spawn_on_ground;
+			this.spawn_on_skylands = spawn_on_skylands;
 		}
 	}
 }

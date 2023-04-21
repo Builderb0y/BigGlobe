@@ -17,7 +17,7 @@
 					")",
 				")",
 
-				"int y = int(ceil(max_y(x, z)))",
+				"int y = ceilInt(max_y(x, z))",
 				"String woodPalette = null",
 				"Biome biome = getBiome(x, y, z)",
 				"if      (biome == Biome('bigglobe:temperate_plains'): woodPalette = 'minecraft:birch'   )",

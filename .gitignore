@@ -4,10 +4,8 @@
 /build/
 /run/
 /gradle/
-/vanilla_worldgen/
 /dependencies/
 /logs/
 /gradlew
 /gradlew.bat
-/vanilla_worldgen.zip
 /releases/

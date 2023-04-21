@@ -3,8 +3,8 @@
 		"type": "bigglobe:restricted",
 		"value": {
 			"salt": "campfires",
-			"variation": 8,
-			"spacing": 16,
+			"variation": 6,
+			"spacing": 12,
 			"restrictions": {
 				"type": "or",
 				"restrictions": [
@@ -15,6 +15,7 @@
 		}
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:campfire" }
+		{ "weight": 1, "structure": "bigglobe:campfire" },
+		{ "weight": 1, "structure": "bigglobe:well" }
 	]
 }

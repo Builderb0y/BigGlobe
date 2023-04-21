@@ -126,10 +126,10 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 	public static NbtLong      nbtLong     (long    value) { return NbtLong  .of(value); }
 	public static NbtFloat     nbtFloat    (float   value) { return NbtFloat .of(value); }
 	public static NbtDouble    nbtDouble   (double  value) { return NbtDouble.of(value); }
-	public static NbtString    nbtString   (String  value) { return NbtString.of(value); }
-	public static NbtByteArray nbtByteArray(byte[]  value) { return new NbtByteArray(value); }
-	public static NbtIntArray  nbtIntArray (int []  value) { return new NbtIntArray (value); }
-	public static NbtLongArray nbtLongArray(long[]  value) { return new NbtLongArray(value); }
+	public static NbtString    nbtString   (String  value) { return value == null ? null : NbtString.of(value); }
+	public static NbtByteArray nbtByteArray(byte[]  value) { return value == null ? null : new NbtByteArray(value); }
+	public static NbtIntArray  nbtIntArray (int []  value) { return value == null ? null : new NbtIntArray (value); }
+	public static NbtLongArray nbtLongArray(long[]  value) { return value == null ? null : new NbtLongArray(value); }
 
 	public static boolean asBoolean(NbtElement element) { return element instanceof AbstractNbtNumber number && number.byteValue  () != 0; }
 	public static byte    asByte   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.byteValue  () :  0; }
@@ -253,7 +253,7 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		}
 
 		public static NbtCompound buildCompound(NbtCompound compound, String name, NbtElement element) {
-			compound.put(name, element);
+			if (element != null) compound.put(name, element);
 			return compound;
 		}
 	}

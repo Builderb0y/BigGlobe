@@ -155,28 +155,17 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double computeSnowHeight() {
-		double height = this.getPostCliffHeight();
-		double seaLevel = this.getSeaLevel();
-		if (height <= seaLevel) {
-			return height;
-		}
-		double snowHeight = (this.getRawSnow() - this.getRawErosion()) * this.getHilliness();
-		if (this.settings.height().hasCliffs()) {
-			snowHeight *= Interpolator.mixLinear(
-				1.0D - this.settings.height().cliffs().flatness(),
-				1.0D,
-				1.0D - this.getCliffiness()
-			);
-		}
-		snowHeight += height * (1.0D + 1.0D / 64.0); //higher Y levels = more snow.
+		double snowHeight = this.applyCliffs(this.getRawSnow() * this.getHilliness());
+		snowHeight += snowHeight * (1.0D / 64.0); //higher Y levels = more snow.
 		snowHeight -= 256.0D / 64.0D; //less snow (manual bias).
 		snowHeight -= this.getTemperature() * this.settings.miscellaneous().snow_temperature_multiplier(); //lower temperature = more snow.
-		if (height - seaLevel < 32.0D) {
+		double finalHeight = this.getFinalTopHeightD();
+		if (finalHeight - this.getSeaLevel() < 32.0D) {
 			return Interpolator.mixLinear(
-				height,
+				finalHeight,
 				snowHeight,
 				Interpolator.smooth(
-					(height - seaLevel) * (1.0D / 32.0D)
+					(finalHeight - this.getSeaLevel()) * (1.0D / 32.0D)
 				)
 			);
 		}
@@ -199,49 +188,46 @@ public class OverworldColumn extends WorldColumn {
 	public double getPostCliffHeight() {
 		return (
 			this.setFlag(POST_CLIFF_HEIGHT)
-			? this.postCliffHeight = this.computePostCliffHeight()
+			? this.postCliffHeight = this.applyCliffs(this.getPreCliffHeight())
 			: this.postCliffHeight
 		);
 	}
 
-	public double computePostCliffHeight() {
-		double height = this.getPreCliffHeight();
-		if (!this.settings.height().hasCliffs()) return height;
+	public static double halfCliffCurve(double height, double coefficient) {
+		double product = coefficient * height;
+		return (product + height) / (product + 1.0D);
+	}
+
+	public static double fullCliffCurve(double height, double coefficient) {
+		return (
+			height <= 0.5D
+			?        halfCliffCurve(       2.0D * height, coefficient) * 0.5D
+			: 1.0D - halfCliffCurve(2.0D - 2.0D * height, coefficient) * 0.5D
+		);
+	}
+
+	public double interpolateCliffs(OverworldCliffSettings cliffs, int floor, int ceil, double frac) {
+		return Interpolator.mixLinear(
+			cliffs.shelf_height().getValue(Permuter.permute(this.seed, floor), this.x, this.z) + floor,
+			cliffs.shelf_height().getValue(Permuter.permute(this.seed,  ceil), this.x, this.z) + ceil,
+			frac
+		);
+	}
+
+	public double applyCliffs(double height) {
 		OverworldCliffSettings cliffs = this.settings.height().cliffs();
+		if (cliffs == null) return height;
 
 		double scale = cliffs.scale() * this.getHilliness();
 		double cliffiness = this.getCliffiness();
 		height /= scale;
 
-		//lots of math here.
-		/*
-		double offset = cliffs.offset().getValue(this.seed, this.x, this.z);
-		double mod = BigGlobeMath.modulus_BP(height + offset, 1.0D) * 2.0D - 1.0D;
-		double pow = Math.pow(Math.abs(mod), 1.0D / (1.0D - cliffiness));
-		double saw = (pow + 1.0D) * (mod * 0.5D) - mod;
-		double add = saw * cliffiness * cliffs.flatness() + height;
-		return add * scale;
-		*/
-
 		int    floor = BigGlobeMath.floorI(height);
 		int    ceil  = floor + 1;
 		double mod   = height - floor;
-		double curve = (
-			mod <= 0.5D
-			?        curve(       2.0D * mod, -cliffiness) * 0.5D
-			: 1.0D - curve(2.0D - 2.0D * mod, -cliffiness) * 0.5D
-		);
-		double newHeight = Interpolator.mixLinear(
-			cliffs.shelf_height().getValue(Permuter.permute(this.seed, floor), this.x, this.z) + floor,
-			cliffs.shelf_height().getValue(Permuter.permute(this.seed,  ceil), this.x, this.z) + ceil,
-			curve
-		);
+		double curve = fullCliffCurve(mod, -cliffiness);
+		double newHeight = Interpolator.mixLinear(height, this.interpolateCliffs(cliffs, floor, ceil, curve), cliffiness);
 		return newHeight * scale;
-	}
-
-	public static double curve(double height, double coefficient) {
-		double product = coefficient * height;
-		return (product + height) / (product + 1.0D);
 	}
 
 	@Override

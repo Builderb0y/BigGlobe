@@ -8,6 +8,7 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -885,38 +886,65 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void generateFlowers(StructureWorldAccess world, ChunkOfColumns<OverworldColumn> columns, BlockPos.Mutable pos, Permuter permuter) {
 		if (this.flowerGroups.length == 0) return;
-		FlowerEntryFeature.Entry[] entries = (
+		FlowerEntry[] entries = (
 			IntStream
 			.range(0, 256)
 			.parallel()
 			.mapToObj(columns::getColumn)
-			.map(this::getFlowerEntry)
-			.toArray(FlowerEntryFeature.Entry[]::new)
+			.map(column -> {
+				FlowerEntryFeature.Entry ground = this.getFlowerEntry(column, false);
+				FlowerEntryFeature.Entry sky = this.getFlowerEntry(column, true);
+				return ground == null && sky == null ? FlowerEntry.EMPTY : new FlowerEntry(ground, sky);
+			})
+			.toArray(FlowerEntry[]::new)
 		);
 		long seed = Permuter.permute(this.seed ^ 0x9A99AA4557D5FE0FL, columns.getColumn(0).x >> 4, columns.getColumn(0).z >> 4);
 		for (int index = 0; index < 256; index++) {
-			if (entries[index] != null) {
+			OverworldColumn column = columns.getColumn(index);
+			if (entries[index].ground != null) {
 				permuter.setSeed(Permuter.permute(seed, index));
-				OverworldColumn column = columns.getColumn(index);
-				this.placeFlower(world, permuter, pos.set(column.x, column.getFinalTopHeightI(), column.z), entries[index]);
+				this.placeFlower(world, permuter, pos.set(column.x, column.getFinalTopHeightI(), column.z), entries[index].ground);
+			}
+			if (entries[index].sky != null) {
+				permuter.setSeed(Permuter.permute(seed, -index));
+				this.placeFlower(world, permuter, pos.set(column.x, BigGlobeMath.ceilI(column.getSkylandMaxY()), column.z), entries[index].sky);
 			}
 		}
 	}
 
-	public FlowerEntryFeature.Entry getFlowerEntry(OverworldColumn column) {
-		long worldSeed = this.seed;
+	public static record FlowerEntry(FlowerEntryFeature.@Nullable Entry ground, FlowerEntryFeature.@Nullable Entry sky) {
+
+		public static final FlowerEntry EMPTY = new FlowerEntry(null, null);
+	}
+
+	public FlowerEntryFeature.@Nullable Entry getFlowerEntry(OverworldColumn column, boolean skylands) {
+		double y;
+		if (skylands) {
+			if (column.hasSkyland()) {
+				y = column.getSkylandMaxY();
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			y = column.getFinalTopHeightD();
+		}
+
+		long worldSeed = this.seed ^ (skylands ? 0x21259C4E934A112CL : 0xAC1A3FE357E78628L);
 		Grid2D flowerNoise = this.settings.flower_noise();
 
 		FlowerEntryFeature.Entry chosen = null;
 		long overlapSeed = Permuter.permute(worldSeed ^ 0x3C8F9545BAE6971FL, column.x, column.z);
 		int overlapChance = 0;
 
-		RestrictedList<FlowerEntryFeature.Entry> validEntries = new RestrictedList<>(null, column, column.getFinalTopHeightI());
-		for (LinkedFlowerConfig group : this.flowerGroups) {
-			validEntries.elements = group.entries;
-			long groupSeed = Permuter.permute(worldSeed ^ 0x4BBA2A41585882E8L, group.name);
-			int scale = group.group.scale;
-			int variation = group.group.variation;
+		RestrictedList<FlowerEntryFeature.Entry> validEntries = new RestrictedList<>(null, column, y);
+		for (LinkedFlowerConfig link : this.flowerGroups) {
+			if (!(skylands ? link.group.spawn_on_skylands : link.group.spawn_on_ground)) continue;
+			validEntries.elements = link.entries;
+			long groupSeed = Permuter.permute(worldSeed ^ 0x4BBA2A41585882E8L, link.name);
+			int scale = link.group.scale;
+			int variation = link.group.variation;
 			int inGridX = BigGlobeMath.modulus_BP(column.x, scale);
 			int inGridZ = BigGlobeMath.modulus_BP(column.z, scale);
 			int gridStartX = column.x - inGridX;
@@ -927,13 +955,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					int otherGridStartX = gridStartX + offsetX;
 					int otherGridStartZ = gridStartZ + offsetZ;
 					long otherGridSeed = Permuter.permute(groupSeed ^ 0xA2BBF085229FA361L, otherGridStartX, otherGridStartZ);
-					if (!Permuter.nextChancedBoolean(otherGridSeed += Permuter.PHI64, group.group.spawn_chance)) continue;
+					if (!Permuter.nextChancedBoolean(otherGridSeed += Permuter.PHI64, link.group.spawn_chance)) continue;
 					FlowerEntryFeature.Entry entry;
 					RandomSource radiusSource;
-					if (Permuter.nextChancedBoolean(otherGridSeed += Permuter.PHI64, group.group.randomize_chance)) {
+					if (Permuter.nextChancedBoolean(otherGridSeed += Permuter.PHI64, link.group.randomize_chance)) {
 						entry = validEntries.getRandomElement(Permuter.permute(otherGridSeed += Permuter.PHI64, column.x, column.z));
 						if (entry == null) continue;
-						radiusSource = group.group.randomize_radius;
+						radiusSource = link.group.randomize_radius;
 					}
 					else {
 						entry = validEntries.getRandomElement(Permuter.stafford(otherGridSeed += Permuter.PHI64));

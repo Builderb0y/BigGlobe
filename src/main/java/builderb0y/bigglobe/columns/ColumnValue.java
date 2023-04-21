@@ -70,9 +70,9 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	@SuppressWarnings("unused")
 	public static final ColumnValue<WorldColumn>
-		//Y                                       = registerAnyDim   ("y",                                withY(   (column, y) -> y                           ), null),
-		MIN_Y                                   = registerAnyDim   ("min_y",                         withoutY(    WorldColumn::getFinalBottomHeightD        ), null),
-		MAX_Y                                   = registerAnyDim   ("max_y",                         withoutY(    WorldColumn::getFinalTopHeightD           ), null);
+		Y                                                 = registerAnyDim ("y",                                         withY(      (column, y) -> y                                      ), null),
+		MIN_Y                                             = registerAnyDim ("min_y",                                  withoutY(       WorldColumn::getFinalBottomHeightD                   ), null),
+		MAX_Y                                             = registerAnyDim ("max_y",                                  withoutY(       WorldColumn::getFinalTopHeightD                      ), null);
 
 	@SuppressWarnings("unused")
 	public static final ColumnValue<VanillaWorldColumn>

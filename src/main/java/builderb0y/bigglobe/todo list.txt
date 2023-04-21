@@ -16,7 +16,11 @@ changelog:
 	* Script features now have a flag to randomly rotate the feature when placing it.
 	* Added column values for vanilla worlds.
 	* Structures are now scriptable.
+		* Campfires are now a scripted structure. Campfires in existing worlds may fail to be read from NBT. Errors in your log file related to this can be mostly ignored, but campfires which were previously on the boundary of generated chunks may be cut off.
 	* Overworld cave width is now a script. This is a world breaking change, but you can get around it for existing worlds by enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file.
+	* Fixed some interactions between snow and cliffs.
+	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
+	* Skylands now have flowers.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -41,7 +45,8 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
-	add floorInt(), ceilInt(), truncInt(), and long equivalents.
+	roundInt(), roundEvenInt().
+	explicit casting a constant should suppress warnings about non-constant performance.
 
 features:
 	general:
@@ -50,11 +55,8 @@ features:
 		dynamic registries for all the things!
 	overworld:
 		configurable bedrock amount.
-		script for cave width.
 		scripted structures:
-			well.
 			small house.
-			campfire.
 		desert fossils.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
@@ -90,6 +92,7 @@ features:
 			molten? (match molten caves)
 		make lilypads renewable?
 		migrate bushes to script template feature.
+		flowers on skylands.
 	nether:
 	end:
 		jessie wants worley noise for the end.

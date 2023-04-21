@@ -133,9 +133,9 @@ public class ScriptedStructure extends BigGlobeStructure {
 			maxX = this.boundingBox.getMaxX();
 			maxY = this.boundingBox.getMaxY();
 			maxZ = this.boundingBox.getMaxZ();
-			int midX = (minX + maxX) >> 1;
-			int midY = (minY + maxY) >> 1;
-			int midZ = (minZ + maxZ) >> 1;
+			int midX = (minX + maxX + 1) >> 1;
+			int midY = (minY + maxY + 1) >> 1;
+			int midZ = (minZ + maxZ + 1) >> 1;
 
 			if (this.getRotation() != null && this.getRotation() != BlockRotation.NONE) {
 				coordinator = (
