@@ -21,7 +21,7 @@
 		"))",
 
 		";benches",
-		"WoodPalette palette = data.palette.asString()",
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"void placeBench(String axis, int frontX, int frontZ, int sideX, int sideZ:",
 			"random.if (2.0L / 3.0L:",
 				"BlockState state = palette.log(axis: axis)",

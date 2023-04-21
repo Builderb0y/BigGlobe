@@ -45,8 +45,6 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
-	roundInt(), roundEvenInt().
-	explicit casting a constant should suppress warnings about non-constant performance.
 
 features:
 	general:

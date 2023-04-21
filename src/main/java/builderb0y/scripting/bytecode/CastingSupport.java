@@ -29,7 +29,7 @@ public class CastingSupport {
 		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, double.class))),
 		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, double.class))),
 		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT, false, opcode(Opcodes.D2F)),
-		I2Z = data(TypeInfos.INT, TypeInfos.BOOLEAN, false, (parser, value, to) -> new I2ZInsnTree(value)),
+		I2Z = data(TypeInfos.INT, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new I2ZInsnTree(value)),
 		L2Z = data(
 			TypeInfos.LONG,
 			TypeInfos.BOOLEAN,
@@ -48,17 +48,17 @@ public class CastingSupport {
 	}
 
 	public static CastHandler opcode(int opcode) {
-		return (parser, value, to) -> new OpcodeCastInsnTree(value, opcode, to);
+		return (parser, value, to, implicit) -> new OpcodeCastInsnTree(value, opcode, to);
 	}
 
 	public static CastHandler invokeVirtual(MethodInfo method) {
 		if (method.isStatic()) throw new IllegalArgumentException("Static method: " + method);
-		return (parser, value, to) -> InsnTrees.invokeVirtualOrInterface(value, method);
+		return (parser, value, to, implicit) -> InsnTrees.invokeVirtualOrInterface(value, method);
 	}
 
 	public static CastHandler invokeStatic(MethodInfo method) {
 		if (!method.isStatic()) throw new IllegalArgumentException("Non-static method: " + method);
-		return (parser, value, to) -> InsnTrees.invokeStatic(method, value);
+		return (parser, value, to, implicit) -> InsnTrees.invokeStatic(method, value);
 	}
 
 	public static CastHandler invoke(Class<?> in, String name) {
@@ -120,5 +120,21 @@ public class CastingSupport {
 	public static long ceilLong(double value) {
 		long i = (long)(value);
 		return i != Long.MAX_VALUE && ((double)(i)) < value ? i + 1 : i;
+	}
+
+	public static int roundInt(float value) {
+		return floorInt(value + 0.5F);
+	}
+
+	public static int roundInt(double value) {
+		return floorInt(value + 0.5D);
+	}
+
+	public static long roundLong(float value) {
+		return floorLong(value + 0.5F);
+	}
+
+	public static long roundLong(double value) {
+		return floorLong(value + 0.5D);
 	}
 }

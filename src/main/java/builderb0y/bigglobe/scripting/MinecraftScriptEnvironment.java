@@ -112,7 +112,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 							state = ldc(BOOTSTRAP_CONSTANT_STATE, constantProperties.toArray(ConstantValue.ARRAY_FACTORY));
 						}
 						else {
-							state = BlockStateWrapper.DEFAULT_CONSTANT_FACTORY.create(parser, name, state).tree();
+							state = BlockStateWrapper.DEFAULT_CONSTANT_FACTORY.create(parser, state, true).tree();
 						}
 						for (NonConstantProperty nonConstantProperty : nonConstantProperties) {
 							state = invokeStatic(BlockStateWrapper.WITH, state, ldc(nonConstantProperty.name), nonConstantProperty.value);
@@ -126,7 +126,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 					//BlockState(name, b: c)
 					state = invokeStatic(
 						BlockWrapper.GET_DEFAULT_STATE,
-						BlockWrapper.CONSTANT_FACTORY.create(parser, name, state).tree()
+						BlockWrapper.CONSTANT_FACTORY.create(parser, state, true).tree()
 					);
 					Set<String> properties = new HashSet<>(8);
 					do {
@@ -143,7 +143,7 @@ public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
 			}
 			else {
 				//BlockState('a[b=c]')
-				state = BlockStateWrapper.CONSTANT_FACTORY.create(parser, name, state).tree();
+				state = BlockStateWrapper.CONSTANT_FACTORY.create(parser, state, false).tree();
 			}
 			parser.endCodeBlock();
 			return state;

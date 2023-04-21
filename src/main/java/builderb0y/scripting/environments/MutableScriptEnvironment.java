@@ -880,15 +880,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addCastOpcode(TypeInfo from, TypeInfo to, boolean implicit, int opcode) {
-		return this.addCast(from, to, implicit, (parser, value, to_) -> new OpcodeCastInsnTree(value, opcode, to_));
+		return this.addCast(from, to, implicit, (parser, value, to_, implicit_) -> new OpcodeCastInsnTree(value, opcode, to_));
 	}
 
 	public MutableScriptEnvironment addCastIdentity(TypeInfo from, TypeInfo to, boolean implicit) {
-		return this.addCast(from, to, implicit, (parser, value, to_) -> new IdentityCastInsnTree(value, to_));
+		return this.addCast(from, to, implicit, (parser, value, to_, implicit_) -> new IdentityCastInsnTree(value, to_));
 	}
 
 	public MutableScriptEnvironment addCastConstant(ConstantFactory factory, String typeName, boolean implicit) {
-		return this.addCast(factory.variableMethod.paramTypes[0], factory.variableMethod.returnType, implicit, (parser, value, to) -> factory.create(parser, typeName, value).tree);
+		return this.addCast(factory.variableMethod.paramTypes[0], factory.variableMethod.returnType, implicit, (parser, value, to, implicit_) -> factory.create(parser, value, implicit_).tree);
 	}
 
 	//////////////////////////////// getters ////////////////////////////////
@@ -1026,7 +1026,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		for (TypeInfo from : value.getTypeInfo().getAllAssignableTypes()) {
 			for (Map.Entry<TypeInfo, CastHandlerHolder> entry : this.casters.getOrDefault(from, Collections.emptyMap()).entrySet()) {
 				if ((!implicit || entry.getValue().implicit) && entry.getKey().extendsOrImplements(to)) {
-					return entry.getValue().cast(parser, value, to);
+					return entry.getValue().cast(parser, value, to, implicit);
 				}
 			}
 		}
@@ -1154,13 +1154,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface CastHandler {
 
-		public abstract InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to);
+		public abstract InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit);
 
 		public static record Named(String name, CastHandler handler) implements CastHandler {
 
 			@Override
-			public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
-				return this.handler.cast(parser, value, to);
+			public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+				return this.handler.cast(parser, value, to, implicit);
 			}
 
 			@Override
@@ -1213,8 +1213,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
-			return this.caster.cast(parser, value, to);
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+			return this.caster.cast(parser, value, to, implicit);
 		}
 
 		@Override
@@ -1256,14 +1256,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
 			if (!value.getTypeInfo().equals(this.from)) {
 				throw new IllegalArgumentException(this + " attempting to cast value of type " + value.getTypeInfo());
 			}
 			if (!to.equals(this.to)) {
 				throw new IllegalArgumentException(this + " attempting to cast value to type " + to);
 			}
-			value = this.caster.cast(parser, value, to);
+			value = this.caster.cast(parser, value, to, implicit);
 			if (!value.getTypeInfo().equals(this.to)) {
 				throw new IllegalArgumentException(this + " cast value to incorrect type " + value.getTypeInfo());
 			}
@@ -1305,9 +1305,9 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to) {
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
 			for (CastHandlerData caster : this.casters) {
-				value = caster.cast(parser, value, caster.to);
+				value = caster.cast(parser, value, caster.to, implicit);
 			}
 			return value;
 		}

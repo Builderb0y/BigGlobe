@@ -1,6 +1,6 @@
 {
 	"script": [
-		"Block bedBlock = data.bed.asString()",
+		"Block bedBlock = Block(data.bed.asString())",
 		"setBlockState(minX, minY, midZ, BlockState(bedBlock, facing: 'south', part: 'foot'))",
 		"setBlockState(minX, minY, maxZ, BlockState(bedBlock, facing: 'south', part: 'head'))",
 		"setBlockState(maxX, minY, midZ, BlockState(bedBlock, facing: 'south', part: 'foot'))",

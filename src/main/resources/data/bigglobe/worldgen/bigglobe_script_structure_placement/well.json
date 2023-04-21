@@ -10,7 +10,7 @@
 		")",
 
 		"Nbt rawPalette = data.palette",
-		"WoodPalette woodPalette = rawPalette == null ? null : rawPalette.asString()",
+		"WoodPalette woodPalette = rawPalette == null ? null : WoodPalette(rawPalette.asString())",
 		"int roofShape = random.switch(0, 0, 1, 1, 2, 3)",
 		"int surface = maxY - 4",
 		"int roofStart = maxY - 1",

@@ -1,6 +1,6 @@
 {
 	"script": [
-		"WoodPalette palette = data.palette.asString()",
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
 
 		";fences",
 		"BlockState fence = palette.fence()",
@@ -14,7 +14,7 @@
 		")",
 
 		";wool",
-		"BlockState wool = data.wool.asString()",
+		"BlockState wool = BlockState(data.wool.asString())",
 		"for (int z = minZ, z <= maxZ, ++z:",
 			"int y = maxY - abs(z - midZ)",
 			"for (int x = minX, x <= maxX, ++x:",

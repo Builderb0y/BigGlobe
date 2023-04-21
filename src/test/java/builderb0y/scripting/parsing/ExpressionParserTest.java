@@ -106,6 +106,33 @@ public class ExpressionParserTest {
 		assertSuccess( 2,  "double value =  1.5 ,, ceilInt  ( value )");
 		assertSuccess( 2L, "float  value =  1.5 ,, ceilLong ( value )");
 		assertSuccess( 2L, "double value =  1.5 ,, ceilLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.25 ,, roundInt  ( value )");
+		assertSuccess(-1,  "double value = -1.25 ,, roundInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.25 ,, roundLong ( value )");
+		assertSuccess(-1L, "double value = -1.25 ,, roundLong ( value )");
+		assertSuccess( 1,  "float  value =  1.25 ,, roundInt  ( value )");
+		assertSuccess( 1,  "double value =  1.25 ,, roundInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.25 ,, roundLong ( value )");
+		assertSuccess( 1L, "double value =  1.25 ,, roundLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, roundInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, roundInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, roundLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, roundLong ( value )");
+		assertSuccess( 2,  "float  value =  1.5 ,, roundInt  ( value )");
+		assertSuccess( 2,  "double value =  1.5 ,, roundInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.5 ,, roundLong ( value )");
+		assertSuccess( 2L, "double value =  1.5 ,, roundLong ( value )");
+
+		assertSuccess(-2,  "float  value = -1.75 ,, roundInt  ( value )");
+		assertSuccess(-2,  "double value = -1.75 ,, roundInt  ( value )");
+		assertSuccess(-2L, "float  value = -1.75 ,, roundLong ( value )");
+		assertSuccess(-2L, "double value = -1.75 ,, roundLong ( value )");
+		assertSuccess( 2,  "float  value =  1.75 ,, roundInt  ( value )");
+		assertSuccess( 2,  "double value =  1.75 ,, roundInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.75 ,, roundLong ( value )");
+		assertSuccess( 2L, "double value =  1.75 ,, roundLong ( value )");
 	}
 
 	@Test
