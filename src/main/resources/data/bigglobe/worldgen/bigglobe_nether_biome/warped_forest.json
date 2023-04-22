@@ -1,0 +1,68 @@
+{
+	"weight": 0.25,
+	"biome": "bigglobe:warped_forest",
+	"filler": "minecraft:netherrack",
+	"fluid_state": "minecraft:lava[level=0]",
+	"fluid_level": { "type": "uniform", "min": 48, "max": 64 },
+	"fluid_decorator": "bigglobe:nether/warped_forest_fluid",
+	"caverns": {
+		"noise": {
+			"type": "sum",
+			"layers": [
+				{ "type": "smooth", "scaleX": 128.0, "scaleY": 64.0, "scaleZ": 128.0, "amplitude": 128.0 },
+				{ "type": "smooth", "scaleX":  64.0, "scaleY": 32.0, "scaleZ":  64.0, "amplitude":  51.2 },
+				{ "type": "smooth", "scaleX":  32.0, "scaleY": 24.0, "scaleZ":  32.0, "amplitude":  20.48 },
+				{ "type": "smooth", "scaleX":  16.0, "scaleY": 16.0, "scaleZ":  16.0, "amplitude":   8.192 },
+				{ "type": "smooth", "scaleX":   8.0, "scaleY":  8.0, "scaleZ":   8.0, "amplitude":   3.2768 }
+			]
+		},
+		"min_y": 512,
+		"max_y": 1008,
+		"lower_padding": 128,
+		"upper_padding": 128,
+		"edge_padding": 128,
+		"floor_surface": {
+			"top_state": "minecraft:warped_nylium",
+			"under_state": "minecraft:netherrack",
+			"depth": "1.0"
+		},
+		"floor_decorator": "bigglobe:nether/warped_forest_cavern_floors",
+		"ceiling_decorator": "bigglobe:nether/warped_forest_cavern_ceilings"
+	},
+	"caves": {
+		"noise": {
+			"type": "script",
+			"script": "layer1^2 + layer2^2",
+			"min": 0.0,
+			"max": 312520.0,
+			"inputs": {
+				"layer1": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 256, "scaleY": 128, "scaleZ": 256, "amplitude": 256.0 },
+						{ "type": "smooth", "scaleX": 128, "scaleY":  64, "scaleZ": 128, "amplitude": 128.0 },
+						{ "type": "smooth", "scaleX":  64, "scaleY":  32, "scaleZ":  64, "amplitude":  64.0 },
+						{ "type": "smooth", "scaleX":  32, "scaleY":  24, "scaleZ":  32, "amplitude":  32.0 },
+						{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+						{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+						{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+					]
+				},
+				"layer2": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 128, "scaleY": 64, "scaleZ": 128, "amplitude": 128.0 },
+						{ "type": "smooth", "scaleX":  64, "scaleY": 32, "scaleZ":  64, "amplitude":  64.0 },
+						{ "type": "smooth", "scaleX":  32, "scaleY": 24, "scaleZ":  32, "amplitude":  32.0 },
+						{ "type": "smooth", "scaleX":  16, "scaleY": 16, "scaleZ":  16, "amplitude":  14.0 },
+						{ "type": "smooth", "scaleX":   8, "scaleY":  8, "scaleZ":   8, "amplitude":   6.0 },
+						{ "type": "smooth", "scaleX":   4, "scaleY":  4, "scaleZ":   4, "amplitude":   2.0 }
+					]
+				}
+			}
+		},
+		"width": "2 ^ (y / -128.0L) * 512.0L + 8.0L",
+		"floor_decorator": "bigglobe:nether/warped_forest_cave_floors",
+		"ceiling_decorator": "bigglobe:nether/warped_forest_cave_ceilings"
+	}
+}

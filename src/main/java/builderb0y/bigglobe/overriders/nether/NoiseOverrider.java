@@ -4,11 +4,13 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.settings.NetherSettings.NetherCavernSettings;
@@ -76,33 +78,31 @@ public interface NoiseOverrider extends Script {
 		}
 	}
 
-	public static class Context extends AbstractCaveExclusionContext {
+	public static abstract class Context extends AbstractCaveExclusionContext {
 
 		public final NetherColumn column;
-		public final double maxNoise;
 
-		public Context(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise, double maxNoise) {
+		public Context(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise) {
 			super(structureStarts, rawGeneration, topI, bottomI, noise);
 			this.column = column;
-			this.maxNoise = maxNoise;
 		}
 
 		public static Context caves(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration) {
-			return new Context(
+			return new CaveContext(
 				column,
 				structureStarts,
 				rawGeneration,
 				column.getFinalTopHeightI(),
 				column.getFinalBottomHeightI(),
 				column.caveNoise,
-				column.getLocalCell().settings.caves().noise().maxValue()
+				column.getLocalCell().settings.caves().width()
 			);
 		}
 
 		public static Context caverns(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration) {
 			NetherCavernSettings caverns = column.getLocalCell().settings.caverns();
 			Grid3D noise = caverns.noise();
-			return new Context(
+			return new CavernContext(
 				column,
 				structureStarts,
 				rawGeneration,
@@ -116,6 +116,31 @@ public interface NoiseOverrider extends Script {
 		@Override
 		public WorldColumn getColumn() {
 			return this.column;
+		}
+	}
+
+	public static class CaveContext extends Context {
+
+		public final ColumnYToDoubleScript.Holder width;
+
+		public CaveContext(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise, ColumnYToDoubleScript.Holder width) {
+			super(column, structureStarts, rawGeneration, topI, bottomI, noise);
+			this.width = width;
+		}
+
+		@Override
+		public double getExclusionMultiplier(int y) {
+			return BigGlobeMath.squareD(this.width.evaluate(this.column, y));
+		}
+	}
+
+	public static class CavernContext extends Context {
+
+		public final double maxNoise;
+
+		public CavernContext(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise, double maxNoise) {
+			super(column, structureStarts, rawGeneration, topI, bottomI, noise);
+			this.maxNoise = maxNoise;
 		}
 
 		@Override

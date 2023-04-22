@@ -91,7 +91,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	) {
 		super(
 			new ColumnBiomeSource(
-				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
+				settings.local_settings.stream().map(LocalNetherSettings::biome)
 			),
 			configuredFeatures
 		);
@@ -125,7 +125,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, ScriptStructures structures, boolean distantHorizons) {
-		this.generateSectionsParallel(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
+		this.generateSectionsParallel(chunk, this.settings.min_y, this.settings.max_y, columns, context -> {
 			BlockState previousFiller = null;
 			BlockState previousFluid  = null;
 			int fillerID = -1;
@@ -136,7 +136,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 				NetherColumn column = columns.getColumn(horizontalIndex);
 				double[] caveNoise = column.getCaveNoise();
-				int caveLowerY = column.settings.min_y();
+				int caveLowerY = column.settings.min_y;
 				double[] cavernNoise = column.getCavernNoise();
 				LocalNetherSettings localSettings = column.getLocalCell().settings;
 				int cavernLowerY = localSettings.caverns().min_y();
@@ -180,7 +180,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		if (!distantHorizons) {
 			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, true);
 			this.profiler.run("ores", () -> {
-				this.generateSectionsParallelSimple(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
+				this.generateSectionsParallelSimple(chunk, this.settings.min_y, this.settings.max_y, columns, context -> {
 					OreReplacer.generate(context, columns, this.ores);
 				});
 			});
@@ -322,8 +322,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				this.generateRawSections(chunk, columns, structures, distantHorizons);
 			});
 			this.profiler.run("Bedrock", () -> {
-				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y()     )), this.seed, columns)));
-				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y() - 16)), this.seed, columns)));
+				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.seed, columns)));
+				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.seed, columns)));
 				lower.join();
 				upper.join();
 			});
@@ -337,7 +337,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				);
 			});
 			this.profiler.run("Init heightmaps", () -> {
-				int maxY = this.settings.max_y();
+				int maxY = this.settings.max_y;
 				this.setHeightmaps(chunk, (index, includeWater) -> maxY);
 			});
 			this.profiler.run("Surface", () -> {
@@ -445,24 +445,24 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public int getSeaLevel() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
 	public int getMinimumY() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		return this.settings.max_y();
+		return this.settings.max_y;
 	}
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		NetherColumn column = this.column(x, z);
-		int worldMinY = this.settings.min_y();
-		int worldMaxY = this.settings.max_y();
+		int worldMinY = this.settings.min_y;
+		int worldMaxY = this.settings.max_y;
 		return new VerticalBlockSample(worldMinY, Util.make(new BlockState[worldMaxY - worldMinY], states -> {
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
 			int lavaLevel = column.getLocalCell().lavaLevel;

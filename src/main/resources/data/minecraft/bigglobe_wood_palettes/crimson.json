@@ -1,8 +1,8 @@
 {
 	"blocks": {
 		"log": "minecraft:crimson_stem",
-		"wood": "minecraft:stripped_crimson_stem",
-		"stripped_log": "minecraft:crimson_hyphae",
+		"wood": "minecraft:crimson_hyphae",
+		"stripped_log": "minecraft:stripped_crimson_stem",
 		"stripped_wood": "minecraft:stripped_crimson_hyphae",
 		"planks": "minecraft:crimson_planks",
 		"stairs": "minecraft:crimson_stairs",

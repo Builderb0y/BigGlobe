@@ -9,7 +9,7 @@
 						"int relativeZ = abs(z - clamp(piece.minZ, piece.maxZ, z))",
 						"if (relativeX < 16 && relativeZ < 16:",
 							"int startY = piece.minY - 64",
-							"double horizontalAmount = smooth(1.0L - relativeX / 16.0L) * smooth(1.0L - relativeZ / 16.0L) * 0.5L",
+							"double horizontalAmount = smooth(1.0L - relativeX / 16.0L) * smooth(1.0L - relativeZ / 16.0L)",
 							"exclude(startY, horizontalAmount)",
 							"for (int offset = 1, offset < 32, ++offset:",
 								"exclude(startY - offset, horizontalAmount * smooth(1.0L - offset / 32.0L))",

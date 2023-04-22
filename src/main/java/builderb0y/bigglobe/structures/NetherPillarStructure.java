@@ -388,7 +388,8 @@ public class NetherPillarStructure extends BigGlobeStructure {
 			for (int y = minY; y <= maxY; y++) {
 				double fraction = projector.setY(y).project(true).getRadiusFractionSquared();
 				if (fraction > 0.0D && fraction < 4.0D) {
-					context.exclude(y, BigGlobeMath.squareD(BigGlobeMath.squareD(fraction * 0.25D - 1.0D)));
+					fraction = Math.abs(fraction * (1.0D / 3.0D) - (4.0D / 3.0D));
+					context.exclude(y, fraction * fraction * fraction);
 				}
 			}
 		}

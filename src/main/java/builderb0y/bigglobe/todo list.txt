@@ -21,6 +21,7 @@ changelog:
 	* Fixed some interactions between snow and cliffs.
 	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
 	* Skylands now have flowers.
+	* Nether biomes are now a dynamic registry. This makes it easier to add new biomes to the nether, but also means existing worlds will break at the boundary of generated chunks.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
