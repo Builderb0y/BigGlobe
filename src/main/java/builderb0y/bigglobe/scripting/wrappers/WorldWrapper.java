@@ -100,7 +100,7 @@ public class WorldWrapper {
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.pos(x, y, z);
-		return pos != null && feature.entry().value().generate(
+		return pos != null && feature.object().generate(
 			this.world,
 			((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
 			this.permuter.mojang(),

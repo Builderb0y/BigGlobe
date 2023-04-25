@@ -378,8 +378,8 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new DoWhileInsnTree(parser, condition, body);
 	}
 
-	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree incrementer, InsnTree body) {
-		return seq(initializer, while_(condition, seq(body, incrementer)));
+	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+		return new ForInsnTree(initializer, condition, step, body);
 	}
 
 	public static InsnTree seq(InsnTree first, InsnTree second) {

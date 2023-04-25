@@ -1,15 +1,14 @@
 package builderb0y.bigglobe.structures.scripted;
 
-import org.objectweb.asm.Opcodes;
-
 import net.minecraft.nbt.NbtCompound;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -35,6 +34,11 @@ public interface StructurePlacementScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
 
+		public static final InsnTree LOAD_RANDOM = getField(
+			load("world", 1, WorldWrapper.TYPE),
+			FieldInfo.getField(WorldWrapper.class, "permuter")
+		);
+
 		public final SerializableScriptInputs inputs;
 
 		public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
@@ -42,11 +46,11 @@ public interface StructurePlacementScript extends Script {
 				new TemplateScriptParser<>(StructurePlacementScript.class, inputs.buildScriptInputs())
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(new MinecraftScriptEnvironment(
+				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
 					load("world", 1, WorldWrapper.TYPE)
 				))
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
-				.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
+				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
 					new MutableScriptEnvironment()
 					.addVariableLoad("minX",  3, TypeInfos.INT)
@@ -60,17 +64,7 @@ public interface StructurePlacementScript extends Script {
 					.addVariableLoad("midZ", 11, TypeInfos.INT)
 					.addVariableLoad("data", 12, NbtScriptEnvironment.NBT_COMPOUND_TYPE)
 				)
-				.addEnvironment(new RandomScriptEnvironment(
-					getField(
-						load("world", 1, WorldWrapper.TYPE),
-						field(
-							Opcodes.ACC_PUBLIC,
-							WorldWrapper.TYPE,
-							"permuter",
-							type(Permuter.class)
-						)
-					)
-				))
+				.addEnvironment(new RandomScriptEnvironment(LOAD_RANDOM))
 				.addEnvironment(
 					ColumnScriptEnvironment.createVariableXYZ(
 						ColumnValue.REGISTRY,

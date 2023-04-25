@@ -14,7 +14,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) {
+public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) implements EntryWrapper<StructureType<?>, StructureTypeTagKey> {
 
 	public static final TypeInfo TYPE = type(StructureTypeEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
@@ -27,7 +27,8 @@ public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) {
 		return new StructureTypeEntry(Registries.STRUCTURE_TYPE.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id))));
 	}
 
+	@Override
 	public boolean isIn(StructureTypeTagKey key) {
-		return this.entry.isIn(key.key());
+		return this.isInImpl(key);
 	}
 }

@@ -44,6 +44,12 @@ public class ScopeContext {
 		return scope;
 	}
 
+	public Scope pushLoop(LabelNode continuePoint) {
+		Scope scope = this.pushLoop();
+		scope.continuePoint = continuePoint;
+		return scope;
+	}
+
 	public void popScope() {
 		Scope scope = this.stack.remove(this.stack.size() - 1);
 		this.method.node.instructions.add(scope.end);
@@ -74,6 +80,7 @@ public class ScopeContext {
 
 		public LabelNode start = labelNode();
 		public LabelNode end = labelNode();
+		public LabelNode continuePoint;
 		public boolean isLoop;
 
 		public Scope(boolean isLoop) {
@@ -83,6 +90,11 @@ public class ScopeContext {
 		public void cycle() {
 			this.start = this.end;
 			this.end = labelNode();
+			this.continuePoint = null;
+		}
+
+		public LabelNode getContinuePoint() {
+			return this.continuePoint != null ? this.continuePoint : this.start;
 		}
 	}
 }

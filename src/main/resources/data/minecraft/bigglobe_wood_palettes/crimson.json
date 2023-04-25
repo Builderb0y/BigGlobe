@@ -19,5 +19,6 @@
 		"standing_sign": "minecraft:crimson_sign",
 		"wall_sign": "minecraft:crimson_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:nether/trees/artificial/crimson"
+	"sapling_grow_feature": "bigglobe:nether/trees/artificial/crimson",
+	"biomes": "minecraft:bigglobe_wood_palette/crimson"
 }

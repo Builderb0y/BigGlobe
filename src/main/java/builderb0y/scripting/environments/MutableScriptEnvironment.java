@@ -597,6 +597,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addMethodInvokeStaticSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
+		return this.addMethodInvokeStatic(MethodInfo.findMethod(in, name, returnType, paramTypes));
+	}
+
 	public MutableScriptEnvironment addMethodRenamedMultiInvokeStatic(String exposedName, Class<?> in, String actualName) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(actualName)) {
 			this.addMethodInvokeStatic(exposedName, MethodInfo.forMethod(method));
@@ -772,6 +776,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addQualifiedFunctionInvokeStatic(TypeInfo.of(in), MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatics(TypeInfo owner, Class<?> in, String... names) {
+		for (String name : names) {
+			this.addQualifiedFunctionInvokeStatic(owner, in, name);
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addQualifiedFunctionInvokeStatics(Class<?> in, String... names) {
+		for (String name : names) {
+			this.addQualifiedFunctionInvokeStatic(in, name);
+		}
+		return this;
+	}
+
 	public MutableScriptEnvironment addQualifiedFunctionMultiInvokeStatic(TypeInfo owner, Class<?> in, String name) {
 		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(name)) {
 			this.addQualifiedFunctionInvokeStatic(owner, name, MethodInfo.forMethod(method));
@@ -887,7 +905,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addCast(from, to, implicit, (parser, value, to_, implicit_) -> new IdentityCastInsnTree(value, to_));
 	}
 
-	public MutableScriptEnvironment addCastConstant(ConstantFactory factory, String typeName, boolean implicit) {
+	public MutableScriptEnvironment addCastConstant(ConstantFactory factory, boolean implicit) {
 		return this.addCast(factory.variableMethod.paramTypes[0], factory.variableMethod.returnType, implicit, (parser, value, to, implicit_) -> factory.create(parser, value, implicit_).tree);
 	}
 

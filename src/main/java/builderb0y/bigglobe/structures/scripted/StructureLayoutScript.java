@@ -11,7 +11,6 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
-import builderb0y.bigglobe.scripting.wrappers.BiomeTagKey;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -44,19 +43,23 @@ public interface StructureLayoutScript extends Script {
 				new TemplateScriptParser<>(StructureLayoutScript.class, inputs.buildScriptInputs())
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(new RandomScriptEnvironment(load("random", 3, type(RandomGenerator.class))))
+				.addEnvironment(new RandomScriptEnvironment(
+					load("random", 3, type(RandomGenerator.class))
+				))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
-				.addEnvironment(WoodPaletteScriptEnvironment.INSTANCE)
+				.addEnvironment(WoodPaletteScriptEnvironment.create(
+					load("random", 3, type(RandomGenerator.class))
+				))
+				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(
+					load("random", 3, type(RandomGenerator.class))
+				))
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
 					.addVariableLoad("x", 1, TypeInfos.INT)
 					.addVariableLoad("z", 2, TypeInfos.INT)
 
-					.addType("Biome",                BiomeEntry.TYPE)
-					.addType("BiomeTag",             BiomeTagKey.TYPE)
-					.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
 					.addFunction(
 						"getBiome",
 						new FunctionHandler.Named(
@@ -77,13 +80,11 @@ public interface StructureLayoutScript extends Script {
 							}
 						)
 					)
-					.addCastConstant(BiomeEntry .CONSTANT_FACTORY, "Biome",    true)
-					.addCastConstant(BiomeTagKey.CONSTANT_FACTORY, "BiomeTag", true)
 
 					.addType("ScriptStructurePiece", ScriptedStructure.Piece.class)
 					.addQualifiedSpecificConstructor(ScriptedStructure.Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
 					.addMethodInvoke(ScriptedStructure.Piece.class, "withRotation")
-					.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, "StructurePlacementScript", true)
+					.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
 
 					.addVariableLoad("pieces", 5, type(List.class))
 				)

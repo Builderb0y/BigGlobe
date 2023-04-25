@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -448,14 +447,14 @@ public class ExpressionParser {
 							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 							result = this.environment.getMethod(this, left, memberName, arguments.arguments());
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::getTypeInfo).map(Objects::toString).collect(Collectors.joining(", ", "Actual form: " + left.getTypeInfo() + '.' + memberName + "(", ")"))), this.input);
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 							}
 							result = arguments.maybeWrap(result);
 						}
 						else {
 							result = this.environment.getField(this, left, memberName);
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.getTypeInfo() + '.' + memberName), this.input);
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 							}
 						}
 					}
@@ -771,7 +770,7 @@ public class ExpressionParser {
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 						result = this.environment.getFunction(this, name, arguments.arguments());
 						if (result != null) return arguments.maybeWrap(result);
-						throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::getTypeInfo).map(Objects::toString).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
+						throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
 					}
 					else { //variable.
 						InsnTree variable = this.environment.getVariable(this, name);

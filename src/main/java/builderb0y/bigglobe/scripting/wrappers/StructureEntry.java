@@ -14,7 +14,7 @@ import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public class StructureEntry {
+public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
@@ -40,8 +40,14 @@ public class StructureEntry {
 		);
 	}
 
+	@Override
+	public RegistryEntry<Structure> entry() {
+		return this.entry;
+	}
+
+	@Override
 	public boolean isIn(StructureTagKey tag) {
-		return this.entry.isIn(tag.key());
+		return this.isInImpl(tag);
 	}
 
 	public StructureTypeEntry type() {

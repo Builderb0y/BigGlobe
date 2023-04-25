@@ -19,5 +19,6 @@
 		"standing_sign": "minecraft:jungle_sign",
 		"wall_sign": "minecraft:jungle_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/jungle"
+	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/jungle",
+	"biomes": "minecraft:bigglobe_wood_palette/jungle"
 }

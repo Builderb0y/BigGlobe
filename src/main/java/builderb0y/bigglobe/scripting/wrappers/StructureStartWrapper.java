@@ -10,7 +10,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureStart start, BlockBox box) {
+public record StructureStartWrapper(StructureEntry entry, StructureStart start, BlockBox box) {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
@@ -34,7 +34,7 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 			maxY = Math.max(maxY, box.getMaxY());
 			maxZ = Math.max(maxZ, box.getMaxZ());
 		}
-		return new StructureStartWrapper(entry, start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
+		return new StructureStartWrapper(new StructureEntry(entry), start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
 	}
 
 	public int minX() { return this.box.getMinX(); }
@@ -51,7 +51,7 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 	public int sizeZ() { return this.box.getMaxZ() - this.box.getMinZ(); }
 
 	public StructureEntry structure() {
-		return new StructureEntry(this.entry);
+		return this.entry;
 	}
 
 	public List<StructurePiece> pieces() {

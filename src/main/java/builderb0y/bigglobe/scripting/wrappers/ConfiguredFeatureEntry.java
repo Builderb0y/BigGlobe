@@ -14,7 +14,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entry) {
+public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entry) implements EntryWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureTagKey> {
 
 	public static final TypeInfo TYPE = type(ConfiguredFeatureEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
@@ -33,8 +33,9 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 		);
 	}
 
+	@Override
 	public boolean isIn(ConfiguredFeatureTagKey tag) {
-		return this.entry.isIn(tag.key());
+		return this.isInImpl(tag);
 	}
 
 	@Override

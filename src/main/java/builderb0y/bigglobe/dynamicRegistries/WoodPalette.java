@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -13,16 +10,24 @@ import org.jetbrains.annotations.Range;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.*;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Direction.Axis;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.util.ServerValue;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @SuppressWarnings("unused")
 public class WoodPalette {
@@ -30,15 +35,57 @@ public class WoodPalette {
 	public static final AutoCoder<WoodPalette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(WoodPalette.class);
 	public static final Codec<WoodPalette> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CODER);
 
+	public static final ServerValue<Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>>>
+		BIOME_CACHE = new ServerValue<>(WoodPalette::computeBiomeCache);
+
 	public final EnumMap<WoodPaletteType, Block> blocks;
 	public final @VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> sapling_grow_feature;
+	/** a tag containing biomes whose trees are made of this wood palette. */
+	public final @VerifyNullable TagKey<Biome> biomes;
+	public transient Set<RegistryKey<Biome>> biomeSet;
 
 	public WoodPalette(
 		EnumMap<WoodPaletteType, Block> blocks,
-		@VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> sapling_grow_feature
+		@VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> sapling_grow_feature,
+		@VerifyNullable TagKey<Biome> biomes
 	) {
 		this.blocks = blocks;
 		this.sapling_grow_feature = sapling_grow_feature;
+		this.biomes = biomes;
+	}
+
+	public Set<RegistryKey<Biome>> getBiomeSet() {
+		if (this.biomeSet == null) {
+			if (this.biomes != null) {
+				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BIOME).getEntryList(this.biomes);
+				if (list.isPresent()) {
+					this.biomeSet = list.get().stream().map(UnregisteredObjectException::getKey).collect(Collectors.toSet());
+				}
+				else {
+					this.biomeSet = Collections.emptySet();
+				}
+			}
+			else {
+				this.biomeSet = Collections.emptySet();
+			}
+		}
+		return this.biomeSet;
+	}
+
+	public static Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>> computeBiomeCache() {
+		Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>> map = new HashMap<>();
+		BigGlobeMod
+		.getCurrentServer()
+		.getRegistryManager()
+		.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+		.streamEntries()
+		.sequential()
+		.forEach((RegistryEntry<WoodPalette> entry) -> {
+			entry.value().getBiomeSet().forEach((RegistryKey<Biome> key) -> {
+				map.computeIfAbsent(key, $ -> new ArrayList<>(8)).add(entry);
+			});
+		});
+		return map;
 	}
 
 	//////////////////////////////// blocks ////////////////////////////////

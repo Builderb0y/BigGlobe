@@ -31,7 +31,6 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class ScriptedStructure extends BigGlobeStructure {
@@ -95,7 +94,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 		@Override
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			nbt.putString("script", UnregisteredObjectException.getKey(this.placement.entry()).getValue().toString());
+			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
 		}
 
@@ -148,7 +147,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 			Permuter permuter = Permuter.from(random);
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
 
-			this.placement.entry().value().place(
+			this.placement.object().place(
 				new WorldWrapper(world, coordinator, permuter),
 				column,
 				minX, minY, minZ,

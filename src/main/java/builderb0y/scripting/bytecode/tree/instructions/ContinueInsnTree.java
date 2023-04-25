@@ -11,7 +11,7 @@ public class ContinueInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.node.visitJumpInsn(GOTO, method.scopes.findLoop().start.getLabel());
+		method.node.visitJumpInsn(GOTO, method.scopes.findLoop().getContinuePoint().getLabel());
 	}
 
 	@Override

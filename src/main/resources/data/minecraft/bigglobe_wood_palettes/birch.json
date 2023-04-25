@@ -19,5 +19,6 @@
 		"standing_sign": "minecraft:birch_sign",
 		"wall_sign": "minecraft:birch_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/birch"
+	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/birch",
+	"biomes": "minecraft:bigglobe_wood_palette/birch"
 }

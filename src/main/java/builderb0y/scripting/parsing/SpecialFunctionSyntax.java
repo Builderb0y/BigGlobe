@@ -171,7 +171,7 @@ public class SpecialFunctionSyntax {
 		}
 	}
 
-	public static record ForLoop(InsnTree initializer, ConditionTree condition, InsnTree incrementer, InsnTree body, boolean hasNewVariables) implements CodeBlock {
+	public static record ForLoop(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body, boolean hasNewVariables) implements CodeBlock {
 
 		public static ForLoop parse(ExpressionParser parser) throws ScriptParsingException {
 			parser.input.expectAfterWhitespace('(');

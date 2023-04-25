@@ -245,6 +245,15 @@ public class ExpressionParserTest {
 			counter
 			"""
 		);
+		assertSuccess(5,
+			"""
+			int sum = 0
+			repeat ( 5 :
+				++ sum
+			)
+			sum
+			"""
+		);
 		assertSuccess(125,
 			"""
 			int sum = 0
@@ -377,6 +386,16 @@ public class ExpressionParserTest {
 				if ( result >= 5 : break ( ) )
 			)
 			result
+			"""
+		);
+		assertSuccess(2 + 4 + 6 + 8 + 10,
+			"""
+			int sum = 0
+			for ( int x = 0 , x <= 10 , ++ x :
+				if ( x & 1 != 0 : continue ( ) )
+				sum += x
+			)
+			sum
 			"""
 		);
 	}

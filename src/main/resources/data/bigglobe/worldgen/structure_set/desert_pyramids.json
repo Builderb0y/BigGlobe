@@ -3,8 +3,8 @@
 		"type": "bigglobe:restricted",
 		"value": {
 			"salt": "desert_pyramids",
-			"variation": 8,
-			"spacing": 16,
+			"variation": 16,
+			"spacing": 32,
 			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 }
 		}
 	},

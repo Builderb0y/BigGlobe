@@ -19,5 +19,6 @@
 		"standing_sign": "minecraft:spruce_sign",
 		"wall_sign": "minecraft:spruce_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/spruce"
+	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/spruce",
+	"biomes": "minecraft:bigglobe_wood_palette/spruce"
 }

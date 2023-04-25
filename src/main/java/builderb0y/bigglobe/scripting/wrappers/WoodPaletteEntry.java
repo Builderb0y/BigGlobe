@@ -1,6 +1,13 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.random.RandomGenerator;
+
+import com.google.common.collect.Collections2;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -18,7 +25,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) {
+public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements EntryWrapper<WoodPalette, WoodPaletteTagKey> {
 
 	public static final TypeInfo TYPE = type(WoodPaletteEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
@@ -37,6 +44,20 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) {
 		);
 	}
 
+	public static @Nullable WoodPaletteEntry randomForBiome(BiomeEntry biome, RandomGenerator random) {
+		List<RegistryEntry<WoodPalette>> cache = WoodPalette.BIOME_CACHE.get().getOrDefault(biome.key(), Collections.emptyList());
+		return switch (cache.size()) {
+			case 0 -> null;
+			case 1 -> new WoodPaletteEntry(cache.get(0));
+			default -> new WoodPaletteEntry(cache.get(random.nextInt(cache.size())));
+		};
+	}
+
+	public static Collection<WoodPaletteEntry> allForBiome(BiomeEntry biome) {
+		List<RegistryEntry<WoodPalette>> cache = WoodPalette.BIOME_CACHE.get().get(biome.key());
+		return cache == null ? Collections.emptyList() : Collections2.transform(cache, WoodPaletteEntry::new);
+	}
+
 	public WoodPalette palette() {
 		return this.entry.value();
 	}
@@ -51,7 +72,26 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) {
 		return this.getBlock(type).getDefaultState();
 	}
 
+	@Override
 	public boolean isIn(WoodPaletteTagKey key) {
-		return this.entry.isIn(key.key());
+		return this.isInImpl(key);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || (
+			obj instanceof WoodPaletteEntry that &&
+			UnregisteredObjectException.getKey(this.entry) == UnregisteredObjectException.getKey(that.entry)
+		);
+	}
+
+	@Override
+	public int hashCode() {
+		return UnregisteredObjectException.getKey(this.entry).hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "WoodPalette: { " + UnregisteredObjectException.getID(this.entry) + " }";
 	}
 }

@@ -23,7 +23,6 @@ public class BigGlobeFeatures {
 	public static final SingleBlockFeature             SINGLE_BLOCK                  = register("single_block",                  new             SingleBlockFeature());
 	public static final NaturalTreeFeature             NATURAL_TREE                  = register("natural_tree",                  new             NaturalTreeFeature());
 	public static final ArtificialTreeFeature          ARTIFICIAL_TREE               = register("artificial_tree",               new          ArtificialTreeFeature());
-	public static final BushFeature                    BUSH                          = register("bush",                          new                    BushFeature());
 
 	public static final OverworldOreFeature            OVERWORLD_ORE                 = register("overworld_ore",                 new            OverworldOreFeature());
 	public static final NetherOreFeature               NETHER_ORE                    = register("nether_ore",                    new               NetherOreFeature());
@@ -47,8 +46,6 @@ public class BigGlobeFeatures {
 	public static final NetherNoiseOverrideFeature     NETHER_CAVERN_OVERRIDER       = register("nether_cavern_overrider",       new     NetherNoiseOverrideFeature());
 
 	public static final ScriptedFeature                SCRIPT                        = register("script",                        new                ScriptedFeature());
-	//public static final DefineScriptTemplateFeature    DEFINE_SCRIPT_TEMPLATE        = register("define_script_template",        new    DefineScriptTemplateFeature());
-	//public static final UseScriptTemplateFeature       USE_SCRIPT_TEMPLATE           = register("use_script_template",           new       UseScriptTemplateFeature());
 
 	static { BigGlobeMod.LOGGER.debug("Done registering features."); }
 

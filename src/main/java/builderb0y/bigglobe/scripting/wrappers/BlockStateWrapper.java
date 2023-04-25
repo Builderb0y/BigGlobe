@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.Directions;
@@ -143,5 +144,13 @@ public class BlockStateWrapper {
 
 	public static boolean hasLava(BlockState state) {
 		return state.getFluidState().isIn(FluidTags.LAVA);
+	}
+
+	public static boolean hasSoulLava(BlockState state) {
+		return state.getFluidState().isIn(BigGlobeFluidTags.SOUL_LAVA);
+	}
+
+	public static boolean hasFluid(BlockState state) {
+		return !state.getFluidState().isEmpty();
 	}
 }

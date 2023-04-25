@@ -147,7 +147,7 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 			}
 			else {
 				ForLoop loop = ForLoop.parse(parser);
-				return for_(loop.initializer(), loop.condition(), loop.incrementer(), loop.body());
+				return for_(loop.initializer(), loop.condition(), loop.step(), loop.body());
 			}
 		})
 		.addKeyword("switch", (parser, name) -> {

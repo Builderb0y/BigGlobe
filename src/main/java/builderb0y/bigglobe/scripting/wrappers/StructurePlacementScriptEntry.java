@@ -14,7 +14,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScript.Holder> entry) {
+public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScript.Holder> entry) implements EntryWrapper<StructurePlacementScript.Holder, StructurePlacementScriptTagKey> {
 
 	public static final TypeInfo TYPE = type(StructurePlacementScriptEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
@@ -33,7 +33,8 @@ public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScri
 		);
 	}
 
+	@Override
 	public boolean isIn(StructurePlacementScriptTagKey key) {
-		return this.entry.isIn(key.key());
+		return this.isInImpl(key);
 	}
 }

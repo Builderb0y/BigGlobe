@@ -22,6 +22,9 @@ changelog:
 	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
 	* Skylands now have flowers.
 	* Nether biomes are now a dynamic registry. This makes it easier to add new biomes to the nether, but also means existing worlds will break at the boundary of generated chunks.
+	* Wood palettes are now a dynamic registry. The old files in Big Globe's config folder are no longer used.
+	* Wood palettes are now available to some scripts.
+		* Bushes are now a scripted feature. This will not affect existing worlds.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -56,7 +59,10 @@ features:
 		configurable bedrock amount.
 		scripted structures:
 			small house.
+				with optional nearby farm.
 		desert fossils.
+		fallen logs.
+		better configurability of biomes.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
@@ -75,7 +81,6 @@ features:
 					that hang from the ceiling?
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
-		fallen logs.
 		dungeons:
 			cobwebs on ceiling corners.
 			skulls on floor.
@@ -90,8 +95,6 @@ features:
 		underground bubbles:
 			molten? (match molten caves)
 		make lilypads renewable?
-		migrate bushes to script template feature.
-		flowers on skylands.
 	nether:
 	end:
 		jessie wants worley noise for the end.
