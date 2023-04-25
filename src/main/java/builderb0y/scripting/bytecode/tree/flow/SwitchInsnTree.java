@@ -77,7 +77,7 @@ public class SwitchInsnTree implements InsnTree {
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Reference2ObjectMap<InsnTree, Label> starts = new Reference2ObjectOpenHashMap<>(this.runtimeCases.size());
-		this.runtimeCases.values().forEach(body -> starts.computeIfAbsent(body, $ -> new Label()));
+		this.runtimeCases.values().forEach(body -> starts.computeIfAbsent(body, $ -> label()));
 		InsnTree defaultCase = this.runtimeCases.defaultReturnValue();
 		if (defaultCase != null) {
 			starts.computeIfAbsent(defaultCase, $ -> label());
@@ -101,7 +101,13 @@ public class SwitchInsnTree implements InsnTree {
 			for (Int2ObjectMap.Entry<InsnTree> entry : this.runtimeCases.int2ObjectEntrySet()) {
 				labels[entry.getIntKey() - minKey] = starts.get(entry.getValue());
 			}
-			method.node.visitTableSwitchInsn(minKey, maxKey, starts.getOrDefault(defaultCase, end), labels);
+			Label defaultLabel = starts.getOrDefault(defaultCase, end);
+			for (int index = 0; index < range; index++) {
+				if (labels[index] == null) {
+					labels[index] = defaultLabel;
+				}
+			}
+			method.node.visitTableSwitchInsn(minKey, maxKey, defaultLabel, labels);
 		}
 		//step 2: emit the cases.
 		for (Map.Entry<InsnTree, Label> entry : starts.entrySet()) {

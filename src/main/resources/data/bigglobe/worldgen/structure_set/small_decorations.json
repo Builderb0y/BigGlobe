@@ -16,6 +16,7 @@
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:campfire" },
-		{ "weight": 1, "structure": "bigglobe:well" }
+		{ "weight": 1, "structure": "bigglobe:well" },
+		{ "weight": 1, "structure": "bigglobe:small_house" }
 	]
 }

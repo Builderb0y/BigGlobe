@@ -815,6 +815,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.profiler.run("Initial feature column values", () -> {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getFinalTopHeightD();
+					column.getSnowHeight();
 					this.runHeightOverrides(column, scriptStructures, false);
 					if (cache == null && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 						column.getCaveCell();

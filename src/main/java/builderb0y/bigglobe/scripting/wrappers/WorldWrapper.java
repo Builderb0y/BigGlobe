@@ -8,6 +8,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
@@ -19,7 +21,6 @@ import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -29,19 +30,21 @@ public class WorldWrapper {
 	public static final TypeInfo TYPE = type(WorldWrapper.class);
 
 	public final StructureWorldAccess world;
-	public final Coordinator coordinator;
+	public final Coordination coordination;
+	public final BlockPos.Mutable pos;
 	public final Permuter permuter;
 	public final WorldColumn biomeColumn;
 
-	public WorldWrapper(StructureWorldAccess world, Coordinator coordinator, Permuter permuter) {
+	public WorldWrapper(StructureWorldAccess world, Permuter permuter, Coordination coordination) {
 		this.world = world;
-		this.coordinator = coordinator;
+		this.coordination = coordination;
+		this.pos = new BlockPos.Mutable();
 		this.permuter = permuter;
-		this.biomeColumn = WorldColumn.forWorld(coordinator.getWorld(), 0, 0);
+		this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
 	}
 
 	public @Nullable BlockPos pos(int x, int y, int z) {
-		return this.coordinator.getCoordinate(x, y, z);
+		return this.coordination.modifyPos(this.pos.set(x, y, z));
 	}
 
 	public long getSeed() {
@@ -50,12 +53,13 @@ public class WorldWrapper {
 
 	public BlockState getBlockState(int x, int y, int z) {
 		BlockPos pos = this.pos(x, y, z);
-		return pos != null ? this.world.getBlockState(pos) : BlockStates.AIR;
+		return pos == null ? BlockStates.AIR : this.coordination.unmodifyState(this.world.getBlockState(pos));
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
 		BlockPos pos = this.pos(x, y, z);
 		if (pos != null) {
+			state = this.coordination.modifyState(state);
 			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
 			if (!state.getFluidState().isEmpty()) {
 				this.world.scheduleFluidTick(
@@ -69,7 +73,7 @@ public class WorldWrapper {
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
 		BlockPos pos = this.pos(x, y, z);
-		return pos != null && SingleBlockFeature.place(this.world, pos, state, SingleBlockFeature.IS_REPLACEABLE);
+		return pos != null && SingleBlockFeature.place(this.world, pos, this.coordination.modifyState(state), SingleBlockFeature.IS_REPLACEABLE);
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
@@ -181,5 +185,37 @@ public class WorldWrapper {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": { " + this.world + " }";
+	}
+
+	public static record Coordination(int x, int z, BlockRotation rotation, BlockBox area) {
+
+		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
+			int x1 = pos.getX() - this.x;
+			int z1 = pos.getZ() - this.z;
+			int x2, z2;
+			switch (this.rotation) {
+				case NONE -> { x2 = x1; z2 = z1; }
+				case CLOCKWISE_90 -> { x2 = -z1; z2 = x1; }
+				case CLOCKWISE_180 -> { x2 = -x1; z2 = -z1; }
+				case COUNTERCLOCKWISE_90 -> { x2 = z1; z2 = -x1; }
+				default -> throw new AssertionError(this.rotation);
+			}
+			int x3 = x2 + this.x;
+			int z3 = z2 + this.z;
+			return this.area.contains(pos.setX(x3).setZ(z3)) ? pos : null;
+		}
+
+		public BlockState modifyState(BlockState state) {
+			return state.rotate(this.rotation);
+		}
+
+		public BlockState unmodifyState(BlockState state) {
+			return state.rotate(switch (this.rotation) {
+				case NONE -> BlockRotation.NONE;
+				case CLOCKWISE_90 -> BlockRotation.COUNTERCLOCKWISE_90;
+				case CLOCKWISE_180 -> BlockRotation.CLOCKWISE_180;
+				case COUNTERCLOCKWISE_90 -> BlockRotation.CLOCKWISE_90;
+			});
+		}
 	}
 }

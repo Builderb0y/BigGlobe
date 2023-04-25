@@ -10,6 +10,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	small farms next to small houses.
 
 changelog:
 	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).

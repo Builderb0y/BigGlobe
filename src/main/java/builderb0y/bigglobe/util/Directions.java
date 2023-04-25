@@ -53,7 +53,7 @@ public class Directions {
 	}
 
 	public static BlockRotation scriptRotation(int rotation) {
-		rotation = BigGlobeMath.modulus_BP(rotation, 90);
+		rotation = BigGlobeMath.modulus_BP(rotation, 360);
 		return switch (rotation) {
 			default  -> BlockRotation.NONE;
 			case  90 -> BlockRotation.CLOCKWISE_90;

@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
@@ -28,10 +27,10 @@ import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class ScriptedStructure extends BigGlobeStructure {
 
@@ -90,12 +89,14 @@ public class ScriptedStructure extends BigGlobeStructure {
 			super(type, nbt);
 			this.placement = StructurePlacementScriptEntry.of(nbt.getString("script"));
 			this.data = nbt.getCompound("data");
+			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
 		}
 
 		@Override
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
+			nbt.putByte("rot", (byte)(this.getRotation().ordinal()));
 		}
 
 		public Piece withRotation(int rotation) {
@@ -115,46 +116,55 @@ public class ScriptedStructure extends BigGlobeStructure {
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			int minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
-			int minY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
-			int minZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
-			int maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
-			int maxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
-			int maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
-			Coordinator coordinator = (
-				Coordinator.forWorld(world, Block.NOTIFY_ALL)
-				.inBox(minX, minY, minZ, maxX, maxY, maxZ)
-			);
-
-			minX = this.boundingBox.getMinX();
-			minY = this.boundingBox.getMinY();
-			minZ = this.boundingBox.getMinZ();
-			maxX = this.boundingBox.getMaxX();
-			maxY = this.boundingBox.getMaxY();
-			maxZ = this.boundingBox.getMaxZ();
+			int minX = this.boundingBox.getMinX();
+			int minY = this.boundingBox.getMinY();
+			int minZ = this.boundingBox.getMinZ();
+			int maxX = this.boundingBox.getMaxX();
+			int maxY = this.boundingBox.getMaxY();
+			int maxZ = this.boundingBox.getMaxZ();
 			int midX = (minX + maxX + 1) >> 1;
 			int midY = (minY + maxY + 1) >> 1;
 			int midZ = (minZ + maxZ + 1) >> 1;
+			int effectiveMinX = Math.max(minX, chunkBox.getMinX());
+			int effectiveMinY = Math.max(minY, chunkBox.getMinY());
+			int effectiveMinZ = Math.max(minZ, chunkBox.getMinZ());
+			int effectiveMaxX = Math.min(maxX, chunkBox.getMaxX());
+			int effectiveMaxY = Math.min(maxY, chunkBox.getMaxY());
+			int effectiveMaxZ = Math.min(maxZ, chunkBox.getMaxZ());
 
-			if (this.getRotation() != null && this.getRotation() != BlockRotation.NONE) {
-				coordinator = (
-					coordinator
-					.translate(midX, midY, midZ)
-					.rotate1x(this.getRotation())
-					.translate(-midX, -midY, -midZ)
-				);
-			}
 			Permuter permuter = Permuter.from(random);
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
 
 			this.placement.object().place(
-				new WorldWrapper(world, coordinator, permuter),
+				new WorldWrapper(
+					world,
+					permuter,
+					new Coordination(
+						midX,
+						midZ,
+						this.getRotation(),
+						new BlockBox(
+							effectiveMinX,
+							effectiveMinY,
+							effectiveMinZ,
+							effectiveMaxX,
+							effectiveMaxY,
+							effectiveMaxZ
+						)
+					)
+				),
 				column,
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
 				this.data
 			);
+		}
+
+		@Override
+		public BlockRotation getRotation() {
+			BlockRotation rotation = super.getRotation();
+			return rotation != null ? rotation : BlockRotation.NONE;
 		}
 	}
 }

@@ -2,8 +2,8 @@ package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.block.Block;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
@@ -20,8 +20,8 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
@@ -57,29 +57,28 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			? Permuter.choose(permuter, Directions.ROTATIONS)
 			: BlockRotation.NONE
 		);
-		Coordinator coordinator = Coordinator.forWorld(context.getWorld(), Block.NOTIFY_ALL);
 		int chunkX = origin.getX() >> 4;
 		int chunkZ = origin.getZ() >> 4;
-		coordinator = coordinator.inBox(
-			(chunkX - 1) << 4,
-			context.getWorld().getBottomY(),
-			(chunkZ - 1) << 4,
-			((chunkX + 1) << 4) | 15,
-			context.getWorld().getTopY(),
-			((chunkZ + 1) << 4) | 15
-		);
-		if (rotation != BlockRotation.NONE) {
-			coordinator = (
-				coordinator
-				.translate(origin.getX(), origin.getY(), origin.getZ())
-				.rotate1x(rotation)
-				.translate(-origin.getX(), -origin.getY(), -origin.getZ())
-			);
-		}
 		try {
 			FeatureColumns.FEATURE_COLUMNS.set(ColumnSupplier.fixedPosition(column));
 			return context.getConfig().script.generate(
-				new WorldWrapper(context.getWorld(), coordinator, permuter),
+				new WorldWrapper(
+					context.getWorld(),
+					permuter,
+					new Coordination(
+						origin.getX(),
+						origin.getZ(),
+						rotation,
+						new BlockBox(
+							(chunkX - 1) << 4,
+							context.getWorld().getBottomY(),
+							(chunkZ - 1) << 4,
+							((chunkX + 1) << 4) | 15,
+							context.getWorld().getTopY(),
+							((chunkZ + 1) << 4) | 15
+						)
+					)
+				),
 				origin.getX(),
 				origin.getY(),
 				origin.getZ(),
