@@ -7,6 +7,11 @@
 					"StructurePiece piece = start.pieces.(0)",
 					"double distance = distanceToCircle(piece, 8.0L)",
 					"foliage *= smooth(distance * 0.125)",
+					"if (start.pieces.size > 1:",
+						"piece = start.pieces.(1)",
+						"distance = distanceToSquare(piece)",
+						"foliage *= smooth(distance * 0.125L)",
+					")",
 				")",
 			")"
 		]

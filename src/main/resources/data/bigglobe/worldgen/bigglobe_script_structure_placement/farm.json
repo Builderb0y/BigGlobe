@@ -1,0 +1,37 @@
+{
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+
+		";fences",
+		"for (int x = minX, x <= maxX, ++x:",
+			"setBlockState(x, midY, minZ, palette.fence(north: false, south: x == minX || x == maxX, east: x != maxX, west: x != minX))",
+			"setBlockState(x, midY, maxZ, palette.fence(north: x == minX || x == maxX, south: false, east: x != maxX, west: x != minX))",
+		")",
+		"for (int z = minZ + 1, z < maxZ, ++z:",
+			"setBlockState(minX, midY, z, palette.fence(north: true, south: true, east: false, west: false))",
+			"setBlockState(maxX, midY, z, palette.fence(north: true, south: true, east: false, west: false))",
+		")",
+
+		";fence gate",
+		"setBlockState(random.nextInt(minX + 1, maxX), midY, minZ, palette.fence_gate(facing: 'south', in_wll: false, open: false, powered: false))",
+		"setBlockState(random.nextInt(minX + 1, maxX), midY, maxZ, palette.fence_gate(facing: 'north', in_wll: false, open: false, powered: false))",
+
+		";torches",
+		"setBlockState(minX, maxY, minZ, 'minecraft:torch')",
+		"setBlockState(minX, maxY, maxZ, 'minecraft:torch')",
+		"setBlockState(maxX, maxY, minZ, 'minecraft:torch')",
+		"setBlockState(maxX, maxY, maxZ, 'minecraft:torch')",
+
+		";farmland",
+		"for (int z = minZ + 1, z < maxZ, ++z:",
+			"for (int x = minX + 1, x < maxX, ++x:",
+				"setBlockState(x, minY, z, 'minecraft:farmland[moisture=7]')",
+				"setBlockState(x, midY, z, BlockTag('bigglobe:farm_structure_crops').random().getRandomState())",
+			")",
+		")",
+
+		";water",
+		"setBlockState(midX, minY, midZ, 'minecraft:water[level=0]')",
+		"setBlockState(midX, midY, midZ, 'minecraft:lily_pad')"
+	]
+}

@@ -189,20 +189,24 @@ public class WorldWrapper {
 
 	public static record Coordination(int x, int z, BlockRotation rotation, BlockBox area) {
 
-		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
-			int x1 = pos.getX() - this.x;
-			int z1 = pos.getZ() - this.z;
+		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, int centerX, int centerZ, BlockRotation rotation) {
+			int x1 = pos.getX() - centerX;
+			int z1 = pos.getZ() - centerZ;
 			int x2, z2;
-			switch (this.rotation) {
+			switch (rotation) {
 				case NONE -> { x2 = x1; z2 = z1; }
 				case CLOCKWISE_90 -> { x2 = -z1; z2 = x1; }
 				case CLOCKWISE_180 -> { x2 = -x1; z2 = -z1; }
 				case COUNTERCLOCKWISE_90 -> { x2 = z1; z2 = -x1; }
-				default -> throw new AssertionError(this.rotation);
+				default -> throw new AssertionError(rotation);
 			}
-			int x3 = x2 + this.x;
-			int z3 = z2 + this.z;
-			return this.area.contains(pos.setX(x3).setZ(z3)) ? pos : null;
+			int x3 = x2 + centerX;
+			int z3 = z2 + centerZ;
+			return pos.setX(x3).setZ(z3);
+		}
+
+		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
+			return this.area.contains(rotate(pos, this.x, this.z, this.rotation)) ? pos : null;
 		}
 
 		public BlockState modifyState(BlockState state) {

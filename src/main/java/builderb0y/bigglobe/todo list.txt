@@ -10,7 +10,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	small farms next to small houses.
 
 changelog:
 	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
@@ -18,6 +17,9 @@ changelog:
 	* Added column values for vanilla worlds.
 	* Structures are now scriptable.
 		* Campfires are now a scripted structure. Campfires in existing worlds may fail to be read from NBT. Errors in your log file related to this can be mostly ignored, but campfires which were previously on the boundary of generated chunks may be cut off.
+	* Added wells, as a scripted structure.
+	* Added small houses, also as a scripted structure.
+		* Some houses have farms next to them.
 	* Overworld cave width is now a script. This is a world breaking change, but you can get around it for existing worlds by enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file.
 	* Fixed some interactions between snow and cliffs.
 	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
@@ -58,9 +60,6 @@ features:
 		dynamic registries for all the things!
 	overworld:
 		configurable bedrock amount.
-		scripted structures:
-			small house.
-				with optional nearby farm.
 		desert fossils.
 		fallen logs.
 		better configurability of biomes.

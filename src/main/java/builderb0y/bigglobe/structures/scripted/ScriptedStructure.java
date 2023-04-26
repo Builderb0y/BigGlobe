@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
@@ -21,6 +22,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
@@ -31,6 +33,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.WorldUtil;
 
 public class ScriptedStructure extends BigGlobeStructure {
 
@@ -71,11 +74,13 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 	public static class Piece extends StructurePiece {
 
+		public final BlockBox originalBoundingBox;
 		public final StructurePlacementScriptEntry placement;
 		public final NbtCompound data;
 
 		public Piece(StructurePieceType type, BlockBox boundingBox, StructurePlacementScriptEntry placement, NbtCompound data) {
 			super(type, 0, boundingBox);
+			this.originalBoundingBox = boundingBox;
 			this.placement = placement;
 			this.data = data;
 		}
@@ -87,6 +92,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 		public Piece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
+			this.originalBoundingBox = BlockBox.CODEC.parse(NbtOps.INSTANCE, nbt.get("OBB")).getOrThrow(true, BigGlobeMod.LOGGER::error);
 			this.placement = StructurePlacementScriptEntry.of(nbt.getString("script"));
 			this.data = nbt.getCompound("data");
 			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
@@ -97,12 +103,35 @@ public class ScriptedStructure extends BigGlobeStructure {
 			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
 			nbt.putByte("rot", (byte)(this.getRotation().ordinal()));
+			nbt.put("OBB", BlockBox.CODEC.encodeStart(NbtOps.INSTANCE, this.originalBoundingBox).getOrThrow(true, BigGlobeMod.LOGGER::error));
 		}
 
 		public Piece withRotation(int rotation) {
-			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(
-				Directions.scriptRotation(rotation)
+			BlockRotation blockRotation = Directions.scriptRotation(rotation);
+			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(blockRotation);
+			int midX = (this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1;
+			int midZ = (this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1;
+			BlockPos.Mutable pos1 = Coordination.rotate(
+				new BlockPos.Mutable(
+					this.originalBoundingBox.getMinX(),
+					this.originalBoundingBox.getMinY(),
+					this.originalBoundingBox.getMinZ()
+				),
+				midX,
+				midZ,
+				blockRotation
 			);
+			BlockPos.Mutable pos2 = Coordination.rotate(
+				new BlockPos.Mutable(
+					this.originalBoundingBox.getMaxX(),
+					this.originalBoundingBox.getMaxY(),
+					this.originalBoundingBox.getMaxZ()
+				),
+				midX,
+				midZ,
+				blockRotation
+			);
+			this.boundingBox = WorldUtil.createBlockBox(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX(), pos2.getY(), pos2.getZ());
 			return this;
 		}
 
@@ -116,21 +145,21 @@ public class ScriptedStructure extends BigGlobeStructure {
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			int minX = this.boundingBox.getMinX();
-			int minY = this.boundingBox.getMinY();
-			int minZ = this.boundingBox.getMinZ();
-			int maxX = this.boundingBox.getMaxX();
-			int maxY = this.boundingBox.getMaxY();
-			int maxZ = this.boundingBox.getMaxZ();
+			int minX = this.originalBoundingBox.getMinX();
+			int minY = this.originalBoundingBox.getMinY();
+			int minZ = this.originalBoundingBox.getMinZ();
+			int maxX = this.originalBoundingBox.getMaxX();
+			int maxY = this.originalBoundingBox.getMaxY();
+			int maxZ = this.originalBoundingBox.getMaxZ();
 			int midX = (minX + maxX + 1) >> 1;
 			int midY = (minY + maxY + 1) >> 1;
 			int midZ = (minZ + maxZ + 1) >> 1;
-			int effectiveMinX = Math.max(minX, chunkBox.getMinX());
-			int effectiveMinY = Math.max(minY, chunkBox.getMinY());
-			int effectiveMinZ = Math.max(minZ, chunkBox.getMinZ());
-			int effectiveMaxX = Math.min(maxX, chunkBox.getMaxX());
-			int effectiveMaxY = Math.min(maxY, chunkBox.getMaxY());
-			int effectiveMaxZ = Math.min(maxZ, chunkBox.getMaxZ());
+			int effectiveMinX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
+			int effectiveMinY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
+			int effectiveMinZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
+			int effectiveMaxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
+			int effectiveMaxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
+			int effectiveMaxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 
 			Permuter permuter = Permuter.from(random);
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);

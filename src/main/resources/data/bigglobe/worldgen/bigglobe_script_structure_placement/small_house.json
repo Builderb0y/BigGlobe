@@ -2,7 +2,7 @@
 	"script": [
 		"void placeFlower(int x, int y, int z:",
 			"setBlockState(x, y, z, 'minecraft:grass_block[snowy=false]')",
-			"placeBlockState(x, y + 1, z, BlockTag('bigglobe:overworld_flowers').random().getRandomState())",
+			"placeBlockState(x, y + 1, z, BlockTag('bigglobe:small_house_structure_flowers').random().getRandomState())",
 		")",
 
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
