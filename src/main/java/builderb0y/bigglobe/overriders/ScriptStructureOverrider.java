@@ -52,7 +52,9 @@ public interface ScriptStructureOverrider extends Script {
 					)
 					.mutable
 				)
-				.addEnvironment(new RandomScriptEnvironment(load("random", 3, type(RandomGenerator.class))))
+				.addEnvironment(RandomScriptEnvironment.create(
+					load("random", 3, type(RandomGenerator.class))
+				))
 				.parse()
 			);
 		}

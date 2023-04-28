@@ -40,7 +40,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				new ScriptParser<>(ColumnYRandomToDoubleScript.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment.mutable)
-				.addEnvironment(new RandomScriptEnvironment(
+				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 4, type(RandomGenerator.class))
 				))
 				.parse()

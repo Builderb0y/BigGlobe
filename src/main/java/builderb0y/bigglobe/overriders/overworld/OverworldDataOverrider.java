@@ -128,11 +128,11 @@ public interface OverworldDataOverrider extends Script {
 		}
 
 		public void addColumnFunction(InsnTree column, MethodInfo method) {
-			this.addFunction(method.name, (parser, name, arguments) -> {
+			this.addFunction(method.name, new FunctionHandler.Named(method + " (column argument implicit and automatic)", (parser, name, arguments) -> {
 				InsnTree[] prefixedArguments = ObjectArrays.concat(column, arguments);
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, prefixedArguments);
 				return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != prefixedArguments);
-			});
+			}));
 		}
 
 		public void addColumnFunction(InsnTree column, Class<?> in, String name) {

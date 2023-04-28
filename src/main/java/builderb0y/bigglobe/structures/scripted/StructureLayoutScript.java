@@ -43,7 +43,7 @@ public interface StructureLayoutScript extends Script {
 				new TemplateScriptParser<>(StructureLayoutScript.class, inputs.buildScriptInputs())
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(new RandomScriptEnvironment(
+				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 3, type(RandomGenerator.class))
 				))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)

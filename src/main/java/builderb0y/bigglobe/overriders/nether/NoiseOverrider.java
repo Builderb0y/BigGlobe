@@ -65,16 +65,18 @@ public interface NoiseOverrider extends Script {
 		}
 	}
 
-	public static class Environment extends MutableScriptEnvironment {
+	public static class Environment {
 
-		public static final Environment INSTANCE = new Environment();
+		public static final MutableScriptEnvironment INSTANCE = new MutableScriptEnvironment();
 
-		public Environment() {
-			this.addAll(StructureScriptEnvironment.INSTANCE);
+		static {
 			InsnTree loadContext = load("context", 1, type(Context.class));
-			this.addVariableGetFields(loadContext, AbstractCaveExclusionContext.class, "structureStarts", "rawGeneration");
-			this.addFunctionMultiInvokes(loadContext, OverworldCaveOverrider.Context.class, "excludeSurface");
-			this.addFunctionMultiInvokes(loadContext, AbstractCaveExclusionContext.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere");
+			INSTANCE
+			.addAll(StructureScriptEnvironment.INSTANCE)
+			.addVariableGetFields(loadContext, AbstractCaveExclusionContext.class, "structureStarts", "rawGeneration")
+			.addFunctionMultiInvokes(loadContext, OverworldCaveOverrider.Context.class, "excludeSurface")
+			.addFunctionMultiInvokes(loadContext, AbstractCaveExclusionContext.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
+			;
 		}
 	}
 

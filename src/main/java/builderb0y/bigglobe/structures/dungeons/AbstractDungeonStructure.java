@@ -188,6 +188,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putByte("var", this.variant);
+			nbt.put("palette", BigGlobeAutoCodec.AUTO_CODEC.encode(Palette.CODER, this.palette, NbtOps.INSTANCE));
 		}
 
 		@Override

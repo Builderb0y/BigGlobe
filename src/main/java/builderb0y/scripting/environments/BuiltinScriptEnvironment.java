@@ -16,6 +16,8 @@ import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
@@ -23,7 +25,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
+public class BuiltinScriptEnvironment {
 
 	public static final MethodInfo
 		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
@@ -31,11 +33,8 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 	public static final FieldInfo
 		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
 
-	public static final BuiltinScriptEnvironment
-		INSTANCE = new BuiltinScriptEnvironment();
-
-	public BuiltinScriptEnvironment() {
-		this
+	public static final MutableScriptEnvironment INSTANCE = (
+		new MutableScriptEnvironment()
 
 		//////////////// variables ////////////////
 
@@ -290,9 +289,7 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
 		.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
 		.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
-
-		;
-	}
+	);
 
 	public static FunctionHandler makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
 		return new FunctionHandler.Named(name, (parser, name1, arguments) -> {

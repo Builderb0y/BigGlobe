@@ -137,7 +137,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						.addVariableLoad("originY", 3, TypeInfos.INT)
 						.addVariableLoad("originZ", 4, TypeInfos.INT)
 					)
-					.addEnvironment(new RandomScriptEnvironment(LOAD_RANDOM))
+					.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 					.addEnvironment(
 						ColumnScriptEnvironment.createFixedXYZ(
 							ColumnValue.REGISTRY,

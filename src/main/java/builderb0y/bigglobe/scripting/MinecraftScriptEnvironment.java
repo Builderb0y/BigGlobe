@@ -23,13 +23,16 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class MinecraftScriptEnvironment extends MutableScriptEnvironment {
+public class MinecraftScriptEnvironment {
 
 	public static final MethodInfo BLOCK_GET_RANDOM_STATE = MethodInfo.getMethod(BlockWrapper.class, "getRandomState");
 

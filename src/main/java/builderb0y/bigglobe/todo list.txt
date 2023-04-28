@@ -10,6 +10,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	make sure game still loads and I can get into worlds before pushing.
 
 changelog:
 	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).

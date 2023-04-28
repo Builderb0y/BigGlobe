@@ -5,7 +5,7 @@ import java.util.random.RandomGenerator;
 import builderb0y.bigglobe.scripting.wrappers.*;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 
-public class StructureScriptEnvironment extends MutableScriptEnvironment {
+public class StructureScriptEnvironment {
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()

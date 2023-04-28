@@ -64,7 +64,7 @@ public interface StructurePlacementScript extends Script {
 					.addVariableLoad("midZ", 11, TypeInfos.INT)
 					.addVariableLoad("data", 12, NbtScriptEnvironment.NBT_COMPOUND_TYPE)
 				)
-				.addEnvironment(new RandomScriptEnvironment(LOAD_RANDOM))
+				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
 					ColumnScriptEnvironment.createVariableXYZ(
 						ColumnValue.REGISTRY,
