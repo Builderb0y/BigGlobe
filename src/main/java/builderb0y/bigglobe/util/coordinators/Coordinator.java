@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -28,6 +27,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;
@@ -54,7 +54,15 @@ public interface Coordinator {
 	when calling {@link #setBlockState(int, int, int, BlockState)} and similar methods.
 	*/
 	public static Coordinator forWorld(StructureWorldAccess world, int setBlockFlags) {
-		return new BaseCoordinator(world, setBlockFlags);
+		return new WorldCoordinator(world, setBlockFlags);
+	}
+
+	/**
+	creates a Coordinator which delegates all calls to the provided chunk,
+	without performing any pre-processing on the coordinates.
+	*/
+	public static Coordinator forChunk(Chunk chunk, ColumnSupplier biomeColumn) {
+		return new ChunkCoordinator(chunk, biomeColumn);
 	}
 
 	/**
@@ -97,14 +105,6 @@ public interface Coordinator {
 
 	//////////////////////////////// actions ////////////////////////////////
 
-	/**
-	if this Coordinator's processing results in exactly one coordinate,
-	returns that coordinate. otherwise returns null.
-	*/
-	public abstract @Nullable BlockPos getCoordinate(int x, int y, int z);
-
-	public abstract StructureWorldAccess getWorld();
-
 	/** invokes the action at the (possibly pre-processed) coordinates. */
 	public abstract void getCoordinates(int x, int y, int z, CoordinateConsumer action);
 
@@ -118,25 +118,6 @@ public interface Coordinator {
 
 	public default void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer... actions) {
 		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getCoordinates(), actions);
-	}
-
-	/**
-	invokes the action at the (possibly pre-processed)
-	coordinates, using the StructureWorldAccess associated
-	with this Coordinator as the extra argument for the action.
-	*/
-	public abstract void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action);
-
-	public default void getWorldCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<StructureWorldAccess> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getWorld());
-	}
-
-	public default void getWorldLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<StructureWorldAccess> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getWorld());
-	}
-
-	public default void getWorldLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<StructureWorldAccess>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getWorld(), actions);
 	}
 
 	/**

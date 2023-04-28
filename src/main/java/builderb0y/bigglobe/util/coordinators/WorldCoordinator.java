@@ -2,8 +2,6 @@ package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -11,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
@@ -21,30 +18,15 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
-public class BaseCoordinator extends ScratchPosCoordinator {
+public class WorldCoordinator extends ScratchPosCoordinator {
 
 	public final StructureWorldAccess world;
 	public final int setBlockFlags;
 	public WorldColumn column;
 
-	public BaseCoordinator(StructureWorldAccess world, int setBlockFlags) {
+	public WorldCoordinator(StructureWorldAccess world, int setBlockFlags) {
 		this.world = world;
 		this.setBlockFlags = setBlockFlags;
-	}
-
-	@Override
-	public @Nullable BlockPos getCoordinate(int x, int y, int z) {
-		return this.scratchPos.set(x, y, z);
-	}
-
-	@Override
-	public StructureWorldAccess getWorld() {
-		return this.world;
-	}
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		action.accept(this.scratchPos.set(x, y, z), this.world);
 	}
 
 	@Override
@@ -64,20 +46,20 @@ public class BaseCoordinator extends ScratchPosCoordinator {
 
 	@Override
 	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
-		BlockEntity tileEntity = this.world.getBlockEntity(this.scratchPos.set(x, y, z));
-		if (tileEntity != null) action.accept(this.scratchPos, tileEntity);
+		BlockEntity blockEntity = this.world.getBlockEntity(this.scratchPos.set(x, y, z));
+		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		B tileEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos.set(x, y, z), tileEntityType);
-		if (tileEntity != null) action.accept(this.scratchPos, tileEntity);
+	public <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateBiConsumer<B> action) {
+		B blockEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos.set(x, y, z), blockEntityType);
+		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		B tileEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos.set(x, y, z), tileEntityType);
-		if (tileEntity != null) action.accept(this.scratchPos, tileEntity);
+	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
+		B blockEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos.set(x, y, z), blockEntityType);
+		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
@@ -103,8 +85,10 @@ public class BaseCoordinator extends ScratchPosCoordinator {
 
 	@Override
 	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
+		if (supplier == null) return;
 		BlockState state = supplier.get(this.scratchPos.set(x, y, z));
-		if (state != null) this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
+		if (state == null) return;
+		this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
 	}
 
 	@Override
@@ -150,12 +134,15 @@ public class BaseCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public boolean equals(Object that) {
-		return that instanceof BaseCoordinator && this.world.equals(((BaseCoordinator)(that)).world);
+	public boolean equals(Object obj) {
+		return this == obj || (
+			obj instanceof WorldCoordinator that &&
+			this.world.equals(that.world)
+		);
 	}
 
 	@Override
 	public String toString() {
-		return "BaseCoordinator: { " + this.world + " }";
+		return "WorldCoordinator: { " + this.world + " }";
 	}
 }

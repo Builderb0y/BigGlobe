@@ -3,6 +3,7 @@ package builderb0y.scripting.bytecode;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.function.Predicate;
 
 import org.objectweb.asm.Handle;
 
@@ -80,6 +81,10 @@ public class MethodInfo {
 		return forMethod(ReflectionData.forClass(in).getDeclaredMethod(name));
 	}
 
+	public static MethodInfo getMethod(Class<?> in, String name, Predicate<Method> predicate) {
+		return forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, predicate));
+	}
+
 	public static MethodInfo findMethod(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return forMethod(ReflectionData.forClass(in).findDeclaredMethod(name, returnType, paramTypes));
 	}
@@ -98,6 +103,10 @@ public class MethodInfo {
 
 	public static MethodInfo getConstructor(Class<?> in) {
 		return forConstructor(ReflectionData.forClass(in).getConstructor());
+	}
+
+	public static MethodInfo getConstructor(Class<?> in, Predicate<Constructor<?>> predicate) {
+		return forConstructor(ReflectionData.forClass(in).findConstructor(predicate));
 	}
 
 	public static MethodInfo findConstructor(Class<?> in, Class<?>... paramTypes) {

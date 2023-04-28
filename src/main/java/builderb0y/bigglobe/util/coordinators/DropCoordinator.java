@@ -3,8 +3,6 @@ package builderb0y.bigglobe.util.coordinators;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -17,7 +15,6 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -28,16 +25,10 @@ public class DropCoordinator implements Coordinator {
 
 	public static final DropCoordinator INSTANCE = new DropCoordinator();
 
-	@Override public @Nullable BlockPos getCoordinate(int x, int y, int z) { return null; }
-	@Override public StructureWorldAccess getWorld() { return null; }
 	@Override public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {}
 	@Override public void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer action) {}
 	@Override public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer action) {}
 	@Override public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer... actions) {}
-	@Override public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<StructureWorldAccess>... actions) {}
 	@Override public Stream<BlockPos> streamCoordinates(int x, int y, int z) { return Stream.empty(); }
 	@Override public Stream<BlockPos> streamCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) { return Stream.empty(); }
 	@Override public Stream<BlockPos> streamCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length) { return Stream.empty(); }

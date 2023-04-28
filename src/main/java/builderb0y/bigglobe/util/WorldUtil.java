@@ -110,6 +110,31 @@ public class WorldUtil {
 		return new BlockBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
+	public static BlockBox union(BlockBox box1, BlockBox box2) {
+		return new BlockBox(
+			Math.min(box1.getMinX(), box2.getMinX()),
+			Math.min(box1.getMinY(), box2.getMinY()),
+			Math.min(box1.getMinZ(), box2.getMinZ()),
+			Math.max(box1.getMaxX(), box2.getMaxX()),
+			Math.max(box1.getMaxY(), box2.getMaxY()),
+			Math.max(box1.getMaxZ(), box2.getMaxZ())
+		);
+	}
+
+	public static @Nullable BlockBox intersection(BlockBox box1, BlockBox box2) {
+		int minX = Math.max(box1.getMinX(), box2.getMinX());
+		int minY = Math.max(box1.getMinY(), box2.getMinY());
+		int minZ = Math.max(box1.getMinZ(), box2.getMinZ());
+		int maxX = Math.min(box1.getMaxX(), box2.getMaxX());
+		int maxY = Math.min(box1.getMaxY(), box2.getMaxY());
+		int maxZ = Math.min(box1.getMaxZ(), box2.getMaxZ());
+		return (
+			maxX >= minX && maxY >= minY && maxZ >= minZ
+			? new BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
+			: null
+		);
+	}
+
 	public static boolean isReplaceableNonFluid(BlockState state) {
 		return state.getMaterial().isReplaceable() && state.getFluidState().isEmpty();
 	}

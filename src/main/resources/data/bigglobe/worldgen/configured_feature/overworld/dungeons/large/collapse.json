@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"repeat (40:",
+				"int x = originX + bitCount(random.nextInt() & 2x111111) - 3",
+				"int z = originZ + bitCount(random.nextInt() & 2x111111) - 3",
+				"int y1 = originY + 1",
+				"BlockState state1 = null",
+				"for (int up = 0, up < 5 && (state1 = getBlockState(x, y1, z),, state1).hasFullCubeCollision(), ++up:",
+					"++y1",
+				")",
+				"if (state1.isAir():",
+					"int y2 = y1 + 5",
+					"BlockState state2 = getBlockState(x, y2, z)",
+					"if (state2.hasFullCubeCollision():",
+						"setBlockState(x, y1, z, getBlockState(x, y2, z))",
+						"setBlockState(x, y2, z, 'minecraft:air')",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

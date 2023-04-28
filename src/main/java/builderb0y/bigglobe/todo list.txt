@@ -59,10 +59,10 @@ features:
 		all the todos scattered throughout my code.
 		dynamic registries for all the things!
 	overworld:
+		better configurability of biomes.
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.
-		better configurability of biomes.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
@@ -82,16 +82,8 @@ features:
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
-			cobwebs on ceiling corners.
-			skulls on floor.
-			redstone torches on walls.
-			chains on ceiling.
 			piles of gold?
 			occasional "big rooms".
-			collapsed rooms?
-				blocks in the ceiling (and possibly slightly above it) fall onto the floor.
-			Feature that spawns in every room.
-				or possibly tag of features.
 		underground bubbles:
 			molten? (match molten caves)
 		make lilypads renewable?

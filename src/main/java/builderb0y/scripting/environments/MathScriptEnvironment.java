@@ -41,6 +41,8 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		})
 		.addFunction("isNaN", createNaN(true))
 		.addFunction("isNotNaN", createNaN(false))
+		.addFunctionInvokeStatics(Float.class, "isInfinite", "isFinite")
+		.addFunctionInvokeStatics(Double.class, "isInfinite", "isFinite")
 		.addFunction("min", createReducer())
 		.addFunction("max", createReducer())
 		.addFunctionMultiInvokeStatics(Interpolator.class, "mixLinear", "mixClamp", "mixSmooth", "mixSmoother", "unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother", "clamp")
@@ -48,6 +50,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addFunctionRenamedMultiInvokeStatic("smoother", Interpolator.class, "smootherClamp")
 		.addFunctionInvokeStatics(Float.class, "intBitsToFloat", "floatToIntBits")
 		.addFunctionInvokeStatics(Double.class, "longBitsToDouble", "doubleToLongBits")
+		.addFunctionInvokeStatics(Integer.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
+		.addFunctionInvokeStatics(Long.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
+		.addFunctionRenamedInvokeStatic("reverseBits", Integer.class, "reverse")
+		.addFunctionRenamedInvokeStatic("reverseBits", Long.class, "reverse")
 		;
 	}
 

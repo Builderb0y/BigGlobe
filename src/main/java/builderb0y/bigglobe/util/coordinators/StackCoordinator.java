@@ -2,8 +2,6 @@ package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -11,9 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -32,25 +28,6 @@ public class StackCoordinator extends ScratchPosCoordinator {
 		this.dy = dy;
 		this.dz = dz;
 		this.count = count;
-	}
-
-	@Override
-	public @Nullable BlockPos getCoordinate(int x, int y, int z) {
-		return this.count == 1 ? this.delegate.getCoordinate(x, y, z) : null;
-	}
-
-	@Override
-	public StructureWorldAccess getWorld() {
-		return this.delegate.getWorld();
-	}
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		this.delegate.getWorld(x, y, z, action);
-		this.delegate.getWorld(x + this.dx, y + this.dy, z + this.dz, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getWorld(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
-		}
 	}
 
 	@Override
