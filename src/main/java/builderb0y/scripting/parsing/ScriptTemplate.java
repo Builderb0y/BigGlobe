@@ -4,17 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.mojang.serialization.Codec;
-
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class ScriptTemplate {
-
-	public static final AutoCoder<ScriptTemplate> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(ScriptTemplate.class);
-	public static final     Codec<ScriptTemplate> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CODER);
 
 	public final @UseName("script") @MultiLine String source;
 	public final List<RequiredInput> inputs;

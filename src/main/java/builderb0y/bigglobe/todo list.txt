@@ -10,7 +10,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	make sure game still loads and I can get into worlds before pushing.
 
 changelog:
 	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
@@ -29,6 +28,7 @@ changelog:
 	* Wood palettes are now a dynamic registry. The old files in Big Globe's config folder are no longer used.
 	* Wood palettes are now available to some scripts.
 		* Bushes are now a scripted feature. This will not affect existing worlds.
+	* Fixed dungeons not saving their palette, causing them to revert to cobblestone if they are unloaded and reloaded before getting a chance to place blocks.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -61,6 +61,8 @@ features:
 		dynamic registries for all the things!
 	overworld:
 		better configurability of biomes.
+		better configurability of surfaces.
+		better configurability of skylands.
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.

@@ -1,0 +1,5 @@
+{
+	"parent": "bigglobe:root",
+	"restrictions": { "type": "range", "property": "max_y", "mid": 4.0, "max": 8.0 },
+	"biome": "bigglobe:beach"
+}

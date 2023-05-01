@@ -194,7 +194,7 @@ public class RespawnCommand {
 					return null;
 				}
 				else {
-					return Text.translatable(PREFIX + "new.no_new_spawn");
+					return Text.translatable(PREFIX + "new.no_good_location");
 				}
 			}
 			else {

@@ -1,0 +1,5 @@
+{
+	"parent": "bigglobe:cold_plains",
+	"restrictions": { "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 },
+	"biome": "bigglobe:cold_forest"
+}

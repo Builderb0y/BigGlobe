@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Range;
 
 import net.minecraft.block.Block;
@@ -23,17 +22,12 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.util.ServerValue;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @SuppressWarnings("unused")
 public class WoodPalette {
-
-	public static final AutoCoder<WoodPalette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(WoodPalette.class);
-	public static final Codec<WoodPalette> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CODER);
 
 	public static final ServerValue<Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>>>
 		BIOME_CACHE = new ServerValue<>(WoodPalette::computeBiomeCache);

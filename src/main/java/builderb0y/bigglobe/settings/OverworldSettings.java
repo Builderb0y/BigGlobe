@@ -1,26 +1,47 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.EncodeInline;
-import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.ColumnZone;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 
-public record OverworldSettings(
-	OverworldHeightSettings height,
-	OverworldTemperatureSettings temperature,
-	OverworldFoliageSettings foliage,
-	OverworldSurfaceSettings surface,
-	Grid2D flower_noise,
-	OverworldUndergroundSettings underground,
-	@VerifyNullable OverworldSkylandSettings skylands,
-	OverworldMiscellaneousSettings miscellaneous
-) {
+public class OverworldSettings {
+	public final OverworldHeightSettings height;
+	public final OverworldTemperatureSettings temperature;
+	public final OverworldFoliageSettings foliage;
+	public final OverworldSurfaceSettings surface;
+	public final Grid2D flower_noise;
+	public final OverworldUndergroundSettings underground;
+	public final @VerifyNullable OverworldSkylandSettings skylands;
+	public final OverworldMiscellaneousSettings miscellaneous;
+
+	public final OverworldBiomeLayout.@EncodeInline Holder biomes;
+
+	public OverworldSettings(
+		OverworldHeightSettings height,
+		OverworldTemperatureSettings temperature,
+		OverworldFoliageSettings foliage,
+		OverworldSurfaceSettings surface,
+		Grid2D flower_noise,
+		OverworldUndergroundSettings underground,
+		@VerifyNullable OverworldSkylandSettings skylands,
+		OverworldMiscellaneousSettings miscellaneous,
+		OverworldBiomeLayout.Holder biomes
+	) {
+		this.height = height;
+		this.temperature = temperature;
+		this.foliage = foliage;
+		this.surface = surface;
+		this.flower_noise = flower_noise;
+		this.underground = underground;
+		this.skylands = skylands;
+		this.miscellaneous = miscellaneous;
+		this.biomes = biomes;
+	}
 
 	public boolean hasSkylands() {
 		return this.skylands != null;
@@ -36,7 +57,6 @@ public record OverworldSettings(
 
 	public static record OverworldSurfaceSettings(
 		ColumnZone<@EncodeInline OverworldSurfaceBlocks> blocks,
-		ColumnZone<@UseName("biome") RegistryEntry<Biome>> biomes,
 		@VerifyNullable SortedFeatureTag decorator
 	) {
 

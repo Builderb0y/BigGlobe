@@ -97,13 +97,13 @@ public class OverworldColumn extends WorldColumn {
 	//////////////////////////////// height ////////////////////////////////
 
 	public double getSeaLevel() {
-		return this.settings.height().sea_level();
+		return this.settings.height.sea_level();
 	}
 
 	public double getHilliness() {
 		return (
 			this.setFlag(HILLINESS)
-			? this.hilliness = this.settings.height().hilliness().getValue(this.seed, this.x, this.z)
+			? this.hilliness = this.settings.height.hilliness().getValue(this.seed, this.x, this.z)
 			: this.hilliness
 		);
 	}
@@ -117,13 +117,13 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double computeCliffiness() {
-		OverworldCliffSettings cliffs = this.settings.height().cliffs();
+		OverworldCliffSettings cliffs = this.settings.height.cliffs();
 		return cliffs == null ? Double.NaN : cliffs.cliffiness().getValue(this.seed, this.x, this.z);
 	}
 
 	public double[] getRawErosionAndSnow() {
 		if (this.setFlag(RAW_EROSION_AND_SNOW)) {
-			this.settings.height().getErosionAndSnow(
+			this.settings.height.getErosionAndSnow(
 				this.seed,
 				this.x,
 				this.z,
@@ -158,7 +158,7 @@ public class OverworldColumn extends WorldColumn {
 		double snowHeight = this.applyCliffs(this.getRawSnow() * this.getHilliness());
 		snowHeight += snowHeight * (1.0D / 64.0); //higher Y levels = more snow.
 		snowHeight -= 256.0D / 64.0D; //less snow (manual bias).
-		snowHeight -= this.getTemperature() * this.settings.miscellaneous().snow_temperature_multiplier(); //lower temperature = more snow.
+		snowHeight -= this.getTemperature() * this.settings.miscellaneous.snow_temperature_multiplier(); //lower temperature = more snow.
 		double finalHeight = this.getFinalTopHeightD();
 		if (finalHeight - this.getSeaLevel() < 32.0D) {
 			return Interpolator.mixLinear(
@@ -177,7 +177,7 @@ public class OverworldColumn extends WorldColumn {
 			(this.getRawSnow() - this.getRawErosion()) * this.getHilliness()
 			+ this.getPreCliffHeight() * (1.0D / 64.0D)
 			- (256.0D / 64.0D)
-			- this.getTemperature() * this.settings.miscellaneous().snow_temperature_multiplier()
+			- this.getTemperature() * this.settings.miscellaneous.snow_temperature_multiplier()
 		);
 	}
 
@@ -215,7 +215,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double applyCliffs(double height) {
-		OverworldCliffSettings cliffs = this.settings.height().cliffs();
+		OverworldCliffSettings cliffs = this.settings.height.cliffs();
 		if (cliffs == null) return height;
 
 		double scale = cliffs.scale() * this.getHilliness();
@@ -241,12 +241,12 @@ public class OverworldColumn extends WorldColumn {
 
 	@Override
 	public double getFinalBottomHeightD() {
-		return this.settings.height().min_y();
+		return this.settings.height.min_y();
 	}
 
 	@Override
 	public int getFinalBottomHeightI() {
-		return this.settings.height().min_y();
+		return this.settings.height.min_y();
 	}
 
 	//////////////////////////////// other noise ////////////////////////////////
@@ -254,13 +254,13 @@ public class OverworldColumn extends WorldColumn {
 	public double getTemperature() {
 		return (
 			this.setFlag(TEMPERATURE)
-			? this.temperature = this.settings.temperature().noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
+			? this.temperature = this.settings.temperature.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
 			: this.temperature
 		);
 	}
 
 	public double getHeightAdjustedTemperature(double y) {
-		return this.getTemperature() - (y - this.getSeaLevel()) / this.settings.miscellaneous().temperature_height_falloff();
+		return this.getTemperature() - (y - this.getSeaLevel()) / this.settings.miscellaneous.temperature_height_falloff();
 	}
 
 	public double getSurfaceTemperature() {
@@ -270,13 +270,13 @@ public class OverworldColumn extends WorldColumn {
 	public double getFoliage() {
 		return (
 			this.setFlag(FOLIAGE)
-			? this.foliage = this.settings.foliage().noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
+			? this.foliage = this.settings.foliage.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
 			: this.foliage
 		);
 	}
 
 	public double getHeightAdjustedFoliage(double y) {
-		return this.getFoliage() - Math.abs(y - this.getSeaLevel()) / this.settings.miscellaneous().foliage_height_falloff();
+		return this.getFoliage() - Math.abs(y - this.getSeaLevel()) / this.settings.miscellaneous.foliage_height_falloff();
 	}
 
 	public double getSurfaceFoliage() {
@@ -388,7 +388,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public @Nullable CaveCell computeCaveCell() {
-		OverworldCaveSettings globalCaves = this.settings.underground().caves();
+		OverworldCaveSettings globalCaves = this.settings.underground.caves();
 		if (globalCaves == null) return null;
 		CaveCell caveCell = this.caveCell;
 		VoronoiDiagram2D.Cell voronoiCell = globalCaves.placement().getNearestCell(this.x, this.z, caveCell != null ? caveCell.voronoiCell : null);
@@ -455,7 +455,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public @Nullable CavernCell computeCavernCell() {
-		OverworldCavernSettings globalCaverns = this.settings.underground().deep_caverns();
+		OverworldCavernSettings globalCaverns = this.settings.underground.deep_caverns();
 		if (globalCaverns == null) return null;
 		CavernCell cavernCell = this.cavernCell;
 		VoronoiDiagram2D.Cell voronoiCell = globalCaverns.placement().getNearestCell(this.x, this.z, cavernCell != null ? cavernCell.voronoiCell : null);
@@ -548,7 +548,7 @@ public class OverworldColumn extends WorldColumn {
 		CavernCell cell = this.getCavernCell();
 		if (cell == null) return Double.NaN;
 		double thickness = cell.settings.thickness().getValue(this.seed, this.x, this.z);
-		OverworldCavernSettings settings = this.settings.underground().deep_caverns();
+		OverworldCavernSettings settings = this.settings.underground.deep_caverns();
 		assert settings != null : "Have cell, but no settings?";
 
 		double progress = cell.voronoiCell.progressToEdgeD(this.x, this.z);
@@ -558,7 +558,7 @@ public class OverworldColumn extends WorldColumn {
 			thickness -= BigGlobeMath.squareD(fraction) * cell.settings.thickness().maxValue();
 		}
 
-		OverworldCaveSettings caves = this.settings.underground().caves();
+		OverworldCaveSettings caves = this.settings.underground.caves();
 		if (caves != null) {
 			double maxY = this.getCavernCenter() + cell.settings.sqrtMaxThickness();
 			double space = this.getFinalTopHeightD() - caves.maxDepth();
@@ -584,7 +584,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public @Nullable SkylandCell computeSkylandCell() {
-		OverworldSkylandSettings globalSkylands = this.settings.skylands();
+		OverworldSkylandSettings globalSkylands = this.settings.skylands;
 		if (globalSkylands == null) return null;
 		SkylandCell skylandCell = this.skylandCell;
 		VoronoiDiagram2D.Cell voronoiCell = globalSkylands.placement().getNearestCell(this.x, this.z, skylandCell != null ? skylandCell.voronoiCell : null);
@@ -749,12 +749,13 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double getBeachChance() {
-		return Interpolator.unmixSmooth(this.settings.miscellaneous().beach_y(), this.getSeaLevel(), this.getFinalTopHeightD());
+		return Interpolator.unmixSmooth(this.settings.miscellaneous.beach_y(), this.getSeaLevel(), this.getFinalTopHeightD());
 	}
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
-		return this.settings.surface().biomes().get(this, y);
+		return this.settings.biomes.root.getBiome(this, y, this.seed);
+		//return this.settings.surface.biomes().get(this, y);
 	}
 
 	@Override

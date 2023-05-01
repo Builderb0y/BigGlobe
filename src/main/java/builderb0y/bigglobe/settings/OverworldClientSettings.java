@@ -40,13 +40,13 @@ public record OverworldClientSettings(
 	public static OverworldClientSettings of(long worldSeed, OverworldSettings settings) {
 		return new OverworldClientSettings(
 			Permuter.stafford(worldSeed),
-			new ClientTemperatureSettings(settings.temperature().noise()),
-			new ClientFoliageSettings(settings.foliage().noise()),
+			new ClientTemperatureSettings(settings.temperature.noise()),
+			new ClientFoliageSettings(settings.foliage.noise()),
 			new ClientMiscellaneousSettings(
-				settings.miscellaneous().temperature_height_falloff(),
-				settings.miscellaneous().foliage_height_falloff()
+				settings.miscellaneous.temperature_height_falloff(),
+				settings.miscellaneous.foliage_height_falloff()
 			),
-			settings.height().sea_level()
+			settings.height.sea_level()
 		);
 	}
 
