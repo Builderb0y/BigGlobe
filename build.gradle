@@ -44,9 +44,6 @@ dependencies() {
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 
 	//mods that I interact with.
-	//modImplementation('maven.modrinth:lambdynamiclights:2.3.0+1.19.4')
-	modImplementation('maven.modrinth:modmenu:6.1.0-rc.4')
-	modImplementation('maven.modrinth:cloth-config:10.0.96+fabric')
 
 	//mods I like to use while playing.
 

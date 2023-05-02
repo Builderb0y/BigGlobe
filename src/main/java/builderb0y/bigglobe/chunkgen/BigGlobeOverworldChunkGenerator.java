@@ -64,6 +64,8 @@ import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
@@ -92,7 +94,6 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSettings;
-import builderb0y.bigglobe.settings.OverworldSettings.OverworldSurfaceSettings.OverworldSurfaceBlocks;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
 import builderb0y.bigglobe.settings.OverworldUndergroundSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -444,9 +445,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		ChunkPos chunkPos = chunk.getPos();
 		int startX = chunkPos.getStartX();
 		int startZ = chunkPos.getStartZ();
-		ColumnZone<OverworldSurfaceBlocks> blockPalette = this.settings.surface.blocks();
-		double surfaceDepthFalloff = 1.0D / this.settings.miscellaneous.surface_depth_falloff();
-		double seaLevel = this.getSeaLevel();
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		Permuter permuter = new Permuter(0L);
 		OverworldColumn fallback = this.column(0, 0);
@@ -467,79 +465,80 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			);
 			int x = startX + (index &  15);
 			int z = startZ + (index >>> 4);
-			int surfaceDepth = BigGlobeMath.floorI(
-				5.0D
-				+ Permuter.nextUniformDouble(permuter)
-					* 4.0D / (derivativeMagnitudeSquared + 2.0D)
-				- derivativeMagnitudeSquared * 3.0D
-				- (currentHeight - seaLevel) * surfaceDepthFalloff
-				+ column.getFoliage() * 2.0D
-			);
-			double rawSubsurfaceDepth = (
-				5.0D
-				+ Permuter.nextUniformDouble(permuter)
-					* 2.0D
-			);
 			pos.set(x, BigGlobeMath.ceilI(currentHeight), z);
-			BlockState top, under, subsurface;
-			int subsurfaceDepth;
+			PrimarySurface primarySurface;
+			SecondarySurface[] secondarySurfaces;
 			double lakeChance = column.getInLake();
 			if (Permuter.toChancedBoolean(Permuter.permute(this.seed ^ 0x99D9DE3ED6D24D11L, x, z), lakeChance)) {
 				Data data = structures.lake.data;
-				top = data.top_state();
-				under = data.under_state();
-				subsurface = data.subsurface_state();
-				subsurfaceDepth = BigGlobeMath.floorI(rawSubsurfaceDepth * lakeChance);
+				primarySurface = data.primary_surface();
+				if (primarySurface == null) primarySurface = this.settings.biomes.root.getPrimarySurface(column, currentHeight, this.seed);
+				secondarySurfaces = data.secondary_surfaces();
 			}
 			else {
-				OverworldSurfaceBlocks palette = blockPalette.get(column, column.getFinalTopHeightD());
-				top = palette.top();
-				under = palette.under();
-				subsurface = this.settings.miscellaneous.subsurface_state();
-				subsurfaceDepth = BigGlobeMath.floorI(rawSubsurfaceDepth * column.getBeachChance());
+				primarySurface = this.settings.biomes.root.getPrimarySurface(column, currentHeight, this.seed);
+				secondarySurfaces = this.settings.biomes.root.getSecondarySurfaces(column, currentHeight, this.seed);
 			}
 
 			int depth = 0;
-			boolean isTop = true;
-			for (; depth < surfaceDepth; depth++) {
-				pos.setY(pos.getY() - 1);
-				if (chunk.getBlockState(pos).isOpaque()) {
-					chunk.setBlockState(pos, isTop ? top : under, false);
-					isTop = false;
-				}
-				else {
-					isTop = true;
+			{
+				boolean isTop = true;
+				int primaryDepth = BigGlobeMath.floorI(this.settings.surface.primary_surface_depth().evaluate(column, currentHeight, derivativeMagnitudeSquared, permuter));
+				for (; depth < primaryDepth; depth++) {
+					pos.setY(pos.getY() - 1);
+					if (chunk.getBlockState(pos).isOpaque()) {
+						chunk.setBlockState(pos, isTop ? primarySurface.top() : primarySurface.under(), false);
+						isTop = false;
+					}
+					else {
+						isTop = true;
+					}
 				}
 			}
-			for (; depth < subsurfaceDepth; depth++) {
-				pos.setY(pos.getY() - 1);
-				if (chunk.getBlockState(pos).isOpaque()) {
-					chunk.setBlockState(pos, subsurface, false);
+			if (secondarySurfaces != null) {
+				for (SecondarySurface surface : secondarySurfaces) {
+					int secondaryDepth = BigGlobeMath.floorI(surface.depth().evaluate(column, currentHeight, derivativeMagnitudeSquared, permuter));
+					for (; depth < secondaryDepth; depth++) {
+						pos.setY(pos.getY() - 1);
+						if (chunk.getBlockState(pos).isOpaque()) {
+							chunk.setBlockState(pos, surface.under(), false);
+						}
+					}
 				}
 			}
 
 			//skyland
+			doneWithSkyland:
 			if (column.hasSkyland()) {
 				SkylandSurfaceSettings surfaceSettings = column.getSkylandCell().settings.surface();
-				top = surfaceSettings.top_state();
-				under = surfaceSettings.under_state();
 				double maxY = column.getSkylandMaxY();
 				derivativeMagnitudeSquared = BigGlobeMath.squareD(
 					estimateSkylandDelta(columns, fallback, index, 1, maxY),
 					estimateSkylandDelta(columns, fallback, index, 16, maxY)
 				);
-				surfaceDepth = BigGlobeMath.floorI(
-					surfaceSettings.depth().evaluate(column, maxY, permuter)
-					- derivativeMagnitudeSquared
-				);
+				int primaryDepth = BigGlobeMath.floorI(surfaceSettings.primary_depth().evaluate(column, maxY, derivativeMagnitudeSquared, permuter));
 				pos.setY(BigGlobeMath.ceilI(maxY));
-				for (depth = 0; depth < surfaceDepth; depth++) {
+				for (depth = 0; depth < primaryDepth; depth++) {
 					pos.setY(pos.getY() - 1);
 					if (chunk.getBlockState(pos).isOpaque()) {
-						chunk.setBlockState(pos, depth == 0 ? top : under, false);
+						chunk.setBlockState(pos, depth == 0 ? surfaceSettings.primary().top() : surfaceSettings.primary().under(), false);
 					}
 					else {
-						break;
+						break doneWithSkyland;
+					}
+				}
+				if (surfaceSettings.secondary() != null) {
+					for (SecondarySurface surface : surfaceSettings.secondary()) {
+						int secondaryDepth = BigGlobeMath.floorI(surface.depth().evaluate(column, maxY, derivativeMagnitudeSquared, permuter));
+						for (; depth < secondaryDepth; depth++) {
+							pos.setY(pos.getY() - 1);
+							if (chunk.getBlockState(pos).isOpaque()) {
+								chunk.setBlockState(pos, surface.under(), false);
+							}
+							else {
+								break doneWithSkyland;
+							}
+						}
 					}
 				}
 			}
@@ -686,7 +685,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					column.z - lakePiece.data.z()
 				)
 			);
-			double radius = lakePiece.data.horizontalRadius();
+			double radius = lakePiece.data.horizontal_radius();
 			double y = lakePiece.data.y();
 			if (distance < radius + 16.0D && column.finalHeight < y) {
 				double mixLevel = Interpolator.unmixSmooth(radius + 16.0D, radius, distance);

@@ -11,6 +11,7 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Excluded;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
+import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -43,6 +44,11 @@ public class BigGlobeConfig {
 	@UseName("Big Globe Trees In Other Worlds")
 	@DefaultIgnore
 	public boolean bigGlobeTreesInOtherWorlds = false;
+
+	@Tooltip(count = 3)
+	@UseName("Print overworld biome layout tree")
+	@DefaultIgnore
+	public boolean printOverworldBiomeLayoutTree = false;
 
 	@Tooltip(count = 2)
 	@UseName("Distant Horizons Integration")
@@ -102,6 +108,7 @@ public class BigGlobeConfig {
 	*not* complaining that the object can be null.
 	*/
 	@VerifyNullable
+	@Mirror(VerifyNullable.class)
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface DefaultIgnore {}

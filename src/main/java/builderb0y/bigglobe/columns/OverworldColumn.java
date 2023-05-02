@@ -732,7 +732,7 @@ public class OverworldColumn extends WorldColumn {
 				this.x - piece.data.x(),
 				this.z - piece.data.z()
 			)
-			< BigGlobeMath.squareD(piece.data.horizontalRadius())
+			< BigGlobeMath.squareD(piece.data.horizontal_radius())
 		) {
 			this.inLake = Interpolator.unmixSmooth(piece.data.y(), piece.data.y() - 4.0D, this.finalHeight);
 			this.snowHeight = Interpolator.mixLinear(this.snowHeight, this.finalHeight, this.inLake);

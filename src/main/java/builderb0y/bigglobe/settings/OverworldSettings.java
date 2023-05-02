@@ -4,10 +4,10 @@ import net.minecraft.block.BlockState;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.ColumnZone;
 import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 
 public class OverworldSettings {
 	public final OverworldHeightSettings height;
@@ -56,19 +56,15 @@ public class OverworldSettings {
 	) {}
 
 	public static record OverworldSurfaceSettings(
-		ColumnZone<@EncodeInline OverworldSurfaceBlocks> blocks,
+		SurfaceDepthWithSlopeScript.Holder primary_surface_depth,
 		@VerifyNullable SortedFeatureTag decorator
-	) {
-
-		public static record OverworldSurfaceBlocks(BlockState top, BlockState under) {}
-	}
+	) {}
 
 	public static record OverworldMiscellaneousSettings(
 		BlockState subsurface_state,
 		double beach_y,
 		double snow_temperature_multiplier,
 		double temperature_height_falloff,
-		double foliage_height_falloff,
-		double surface_depth_falloff
+		double foliage_height_falloff
 	) {}
 }

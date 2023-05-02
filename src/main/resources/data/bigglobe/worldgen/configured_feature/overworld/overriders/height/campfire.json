@@ -12,9 +12,7 @@
 						"double mixLevel = smooth(1.0 - distance * 0.125)",
 						"int minY = index == 0 ? piece.maxY : piece.minY",
 						"terrainY = mixLinear(terrainY, minY - 0.5L, mixLevel)",
-						"if (snowY > terrainY:",
-							"snowY = mixLinear(snowY, minY - 0.5L, mixLevel)",
-						")",
+						"snowY = mixLinear(snowY, minY - 1.5L, mixLevel)",
 					")",
 				")",
 			")"

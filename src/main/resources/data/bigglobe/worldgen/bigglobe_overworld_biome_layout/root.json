@@ -1,3 +1,7 @@
 {
-	"biome": "bigglobe:temperate_plains"
+	"biome": "bigglobe:temperate_plains",
+	"primary_surface": {
+		"top": "minecraft:grass_block[snowy=false]",
+		"under": "minecraft:dirt"
+	}
 }

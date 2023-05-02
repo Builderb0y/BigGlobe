@@ -1,0 +1,9 @@
+{
+	"parent": "bigglobe:cold_light_forest",
+	"restrictions": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.375, "mid": 0.625 },
+	"biome": "bigglobe:cold_forest",
+	"primary_surface": {
+		"top": "minecraft:podzol[snowy=false]",
+		"under": "minecraft:dirt"
+	}
+}

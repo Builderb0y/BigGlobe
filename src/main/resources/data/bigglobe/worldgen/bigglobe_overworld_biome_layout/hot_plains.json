@@ -1,5 +1,13 @@
 {
 	"parent": "!bigglobe:cold_plains",
 	"restrictions": { "type": "range", "property": "overworld/height_adjusted_temperature", "min": 0.375, "mid": 0.625 },
-	"biome": "bigglobe:hot_plains"
+	"biome": "bigglobe:hot_plains",
+	"primary_surface": {
+		"top": "minecraft:sand",
+		"under": "minecraft:sand"
+	},
+	"secondary_surfaces": {
+		"under": "minecraft:sandstone",
+		"depth": "random.nextDouble(16.0L, 33.0L)"
+	}
 }

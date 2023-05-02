@@ -1,16 +1,17 @@
 package builderb0y.bigglobe.settings;
 
-import net.minecraft.block.BlockState;
-
 import builderb0y.autocodec.annotations.DefaultDouble;
+import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 
 public record OverworldSkylandSettings(
 	VoronoiDiagram2D placement,
@@ -39,8 +40,8 @@ public record OverworldSkylandSettings(
 	}
 
 	public static record SkylandSurfaceSettings(
-		BlockState top_state,
-		BlockState under_state,
-		ColumnYRandomToDoubleScript.Holder depth
+		PrimarySurface primary,
+		SurfaceDepthWithSlopeScript.Holder primary_depth,
+		SecondarySurface @VerifyNullable @SingletonArray [] secondary
 	) {}
 }

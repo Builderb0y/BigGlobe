@@ -21,9 +21,14 @@
 		"horizontal_radius": { "type": "uniform", "min": 32.0, "max": 96.0 },
 		"vertical_depth": { "type": "uniform", "min": 0.125, "max": 0.25 },
 		"fluid": "minecraft:water[level=0]",
-		"top_state": "minecraft:mud",
-		"under_state": "minecraft:mud",
-		"subsurface_state": "minecraft:clay",
+		"primary_surface": {
+			"top": "minecraft:mud",
+			"under": "minecraft:mud"
+		},
+		"secondary_surfaces": {
+			"under": "minecraft:clay",
+			"depth": "random.nextDouble(3.0L, 7.0L)"
+		},
 		"fluid_surface_feature": "bigglobe:overworld/lakes/water_lake_surface"
 	}
 }

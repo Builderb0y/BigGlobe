@@ -258,73 +258,16 @@
 
 
 					"surface": {
-						"blocks": {
-							"top": "minecraft:grass_block[snowy=false]",
-							"under": "minecraft:dirt",
-							"children": [
-								{
-									"restriction": { "type": "range", "property": "max_y", "mid": 4.0, "max": 8.0 },
-									"top": "minecraft:sand",
-									"under": "minecraft:sand",
-									"children": {
-										"restriction": {
-											"type": "and",
-											"restrictions": [
-												{ "type": "range", "property": "max_y", "min": 2.0, "mid": 6.0 },
-												{
-													"type": "not",
-													"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 }
-												},
-												{
-													"type": "or",
-													"restrictions": [
-														{
-															"type": "not",
-															"restriction": { "type": "range", "property": "overworld/temperature", "min": 0.375, "mid": 0.625 }
-														},
-														{ "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 }
-													]
-												}
-											]
-										},
-										"top": "bigglobe:overgrown_sand",
-										"under": "minecraft:sand"
-									}
-								},
-								{
-									"restriction": { "type": "range", "property": "overworld/height_adjusted_temperature", "min": 0.375, "mid": 0.625 },
-									"top": "minecraft:sand",
-									"under": "minecraft:sand",
-									"children": [
-										{
-											"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.375, "mid": 0.625 },
-											"top": "bigglobe:overgrown_sand",
-											"under": "minecraft:sand"
-										},
-										{
-											"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
-											"top": "minecraft:red_sand",
-											"under": "minecraft:red_sand"
-										}
-									]
-								},
-								{
-									"restriction": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
-									"top": "minecraft:coarse_dirt",
-									"under": "minecraft:coarse_dirt"
-								},
-								{
-									"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.125, "mid": 0.375 },
-									"top": "bigglobe:overgrown_podzol[snowy=false]",
-									"under": "minecraft:dirt",
-									"children": {
-										"restriction": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.375, "mid": 0.625 },
-										"top": "minecraft:podzol[snowy=false]",
-										"under": "minecraft:dirt"
-									}
-								}
-							]
-						},
+						"primary_surface_depth": [
+							"return(",
+								"+ 5.0L ;base amount",
+								"+ random.nextDouble(-1.0L, +1.0L) ;randomness",
+									"* 4.0L / (slope_squared + 2.0L) ;less randomness when slope is high",
+								"- slope_squared * 3.0L ;less surface overall when slope is high",
+								"- (max_y - `overworld/sea_level`) / 512.0L ;less surface at higher Y levels",
+								"+ `overworld/foliage` * 2.0L ;more surface when foliage is high",
+							")"
+						],
 						"decorator": "bigglobe:overworld/surface_decorators"
 					},
 
@@ -336,7 +279,6 @@
 						"snow_temperature_multiplier": 8.0,
 						"temperature_height_falloff": 512.0,
 						"foliage_height_falloff": 512.0,
-						"surface_depth_falloff": 512.0,
 						"red_mushroom_shelf_restrictions": {
 							"type": "and_range",
 							"overworld/height_adjusted_foliage":     { "min":  0.0, "mid": 1.0             },
@@ -779,9 +721,11 @@
 											"center"
 										],
 										"surface": {
-											"top_state": "minecraft:grass_block[snowy=false]",
-											"under_state": "minecraft:dirt",
-											"depth": "random.nextDouble(3.0, 6.0)"
+											"primary": {
+												"top": "minecraft:grass_block[snowy=false]",
+												"under": "minecraft:dirt"
+											},
+											"primary_depth": "random.nextDouble(3.0, 6.0)"
 										}
 									},
 									"variations": [
@@ -878,9 +822,11 @@
 										"return(center + sqrt(mountain * holes) * 128.0)"
 									],
 									"surface": {
-										"top_state": "minecraft:grass_block[snowy=false]",
-										"under_state": "minecraft:dirt",
-										"depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
+										"primary": {
+											"top": "minecraft:grass_block[snowy=false]",
+											"under": "minecraft:dirt"
+										},
+										"primary_depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0 - slope_squared"
 									}
 								},
 								{
@@ -935,9 +881,11 @@
 											"return(center + mountain * `overworld/skyland_auxiliary_noise`)"
 										],
 										"surface": {
-											"top_state": "minecraft:grass_block[snowy=false]",
-											"under_state": "minecraft:dirt",
-											"depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
+											"primary": {
+												"top": "minecraft:grass_block[snowy=false]",
+												"under": "minecraft:dirt"
+											},
+											"primary_depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
 										}
 									},
 									"variations": [

@@ -20,6 +20,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -27,6 +28,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -52,7 +55,8 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 
 	public final RandomSource horizontal_radius, vertical_depth;
 	public final BlockState fluid;
-	public final BlockState top_state, under_state, subsurface_state;
+	public final @VerifyNullable PrimarySurface primary_surface;
+	public final SecondarySurface @VerifyNullable @SingletonArray [] secondary_surfaces;
 	public final @VerifyNullable SortedFeatureTag fluid_surface_feature;
 
 	public LakeStructure(
@@ -60,18 +64,16 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		RandomSource horizontal_radius,
 		RandomSource vertical_depth,
 		BlockState fluid,
-		BlockState top_state,
-		BlockState under_state,
-		BlockState subsurface_state,
+		@VerifyNullable PrimarySurface primary_surface,
+		SecondarySurface @VerifyNullable [] secondary_surfaces,
 		@VerifyNullable SortedFeatureTag fluid_surface_feature
 	) {
 		super(config);
 		this.horizontal_radius     = horizontal_radius;
 		this.vertical_depth        = vertical_depth;
 		this.fluid                 = fluid;
-		this.top_state             = top_state;
-		this.under_state           = under_state;
-		this.subsurface_state      = subsurface_state;
+		this.primary_surface       = primary_surface;
+		this.secondary_surfaces    = secondary_surfaces;
 		this.fluid_surface_feature = fluid_surface_feature;
 	}
 
@@ -102,9 +104,8 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			horizontalRadius,
 			verticalDepth,
 			this.fluid,
-			this.top_state,
-			this.under_state,
-			this.subsurface_state,
+			this.primary_surface,
+			this.secondary_surfaces,
 			seed,
 			this.fluid_surface_feature
 		);
@@ -129,12 +130,11 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			double x,
 			double y,
 			double z,
-			@UseName("hr") double horizontalRadius,
-			@UseName("vd") double verticalDepth,
+			@UseName("hr") double horizontal_radius,
+			@UseName("vd") double vertical_depth,
 			@UseName("fl") BlockState fluid,
-			@UseName("ts") BlockState top_state,
-			@UseName("us") BlockState under_state,
-			@UseName("ss") BlockState subsurface_state,
+			@UseName("ps") @VerifyNullable PrimarySurface primary_surface,
+			SecondarySurface @UseName("ss") @SingletonArray @VerifyNullable [] secondary_surfaces,
 			long seed,
 			@UseName("fsf") @VerifyNullable SortedFeatureTag fluid_surface_feature
 		) {
@@ -151,12 +151,11 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			double x,
 			double y,
 			double z,
-			double horizontalRadius,
-			double verticalDepth,
+			double horizontal_radius,
+			double vertical_depth,
 			BlockState fluid,
-			BlockState top_state,
-			BlockState under_state,
-			BlockState subsurface_state,
+			@VerifyNullable PrimarySurface primary_surface,
+			SecondarySurface @VerifyNullable [] secondary_surfaces,
 			long seed,
 			SortedFeatureTag fluid_surface_feature
 		) {
@@ -164,14 +163,14 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 				type,
 				0,
 				new BlockBox(
-					BigGlobeMath.floorI(x - horizontalRadius),
-					BigGlobeMath.floorI(y - verticalDepth),
-					BigGlobeMath.floorI(z - horizontalRadius),
-					BigGlobeMath.ceilI(x + horizontalRadius),
+					BigGlobeMath.floorI(x - horizontal_radius),
+					BigGlobeMath.floorI(y - vertical_depth),
+					BigGlobeMath.floorI(z - horizontal_radius),
+					BigGlobeMath.ceilI(x + horizontal_radius),
 					BigGlobeMath.ceilI(y),
-					BigGlobeMath.ceilI(z + horizontalRadius)
+					BigGlobeMath.ceilI(z + horizontal_radius)
 				),
-				new Data(x, y, z, horizontalRadius, verticalDepth, fluid, top_state, under_state, subsurface_state, seed, fluid_surface_feature)
+				new Data(x, y, z, horizontal_radius, vertical_depth, fluid, primary_surface, secondary_surfaces, seed, fluid_surface_feature)
 			);
 		}
 
@@ -189,7 +188,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 				x - this.data.x,
 				z - this.data.z
 			)
-			< BigGlobeMath.squareD(this.data.horizontalRadius);
+			< BigGlobeMath.squareD(this.data.horizontal_radius);
 		}
 
 		@Override
@@ -252,12 +251,12 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 
 		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, boolean)}. */
 		public double getDip(int x, int z, double distance) {
-			double distanceFraction = distance / this.data.horizontalRadius;
+			double distanceFraction = distance / this.data.horizontal_radius;
 			double angle = Math.atan2(z - this.data.z, x - this.data.x) * (1.0D / BigGlobeMath.TAU) + 0.5D;
 			double noiseAmplitude = 16.0D * BigGlobeMath.squareD(distanceFraction - distanceFraction * distanceFraction);
 			double dip = Interpolator.smooth(distanceFraction) - 1.0D;
 			dip += radialMix(this.data.seed, distance, angle) * noiseAmplitude;
-			return dip * this.data.verticalDepth;
+			return dip * this.data.vertical_depth;
 		}
 
 		public static double radialMix(long seed, double radius, double angle) {
