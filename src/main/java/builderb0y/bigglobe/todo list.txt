@@ -31,6 +31,7 @@ changelog:
 	* Fixed dungeons not saving their palette, causing them to revert to cobblestone if they are unloaded and reloaded before getting a chance to place blocks.
 	* Dungeons now have more decorations, including cobwebs, redstone torches, skulls, chains hanging from the ceiling, and collapsed rooms.
 	* Overworld biomes and surfaces are now more configurable without needing to edit the world preset. And to go along with that, sandstone now spawns under sand.
+	* Ice is now a (scripted) configured feature instead of being hard-coded.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -62,9 +63,7 @@ features:
 		all the todos scattered throughout my code.
 		dynamic registries for all the things!
 	overworld:
-		scripts for how temperature and foliage should be adjusted by height.
 		better configurability of skylands.
-		add decorator for ocean surface.
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.

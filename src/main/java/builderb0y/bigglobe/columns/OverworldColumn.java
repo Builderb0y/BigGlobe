@@ -62,7 +62,8 @@ public class OverworldColumn extends WorldColumn {
 		foliage,
 		postCliffHeight,
 		finalHeight,
-		snowHeight;
+		snowHeight,
+		snowChance;
 	public final double[] rawErosionAndSnow = new double[2];
 	public CaveCell caveCell;
 	public double[] caveNoise;
@@ -150,21 +151,18 @@ public class OverworldColumn extends WorldColumn {
 		);
 	}
 
-	public double getSnowChance() {
-		return this.getSnowHeight() - this.getFinalTopHeightD();
-	}
-
 	public double computeSnowHeight() {
 		double snowHeight = this.applyCliffs(this.getRawSnow() * this.getHilliness());
 		snowHeight += snowHeight * (1.0D / 64.0); //higher Y levels = more snow.
 		snowHeight -= 256.0D / 64.0D; //less snow (manual bias).
 		snowHeight -= this.getTemperature() * this.settings.miscellaneous.snow_temperature_multiplier(); //lower temperature = more snow.
 		double finalHeight = this.getFinalTopHeightD();
+		this.snowChance = snowHeight - finalHeight;
 		if (finalHeight - this.getSeaLevel() < 32.0D) {
 			return Interpolator.mixLinear(
 				finalHeight,
 				snowHeight,
-				Interpolator.smooth(
+				Interpolator.smoothClamp(
 					(finalHeight - this.getSeaLevel()) * (1.0D / 32.0D)
 				)
 			);
@@ -172,13 +170,9 @@ public class OverworldColumn extends WorldColumn {
 		return snowHeight;
 	}
 
-	public double computeIceDepth() {
-		return (
-			(this.getRawSnow() - this.getRawErosion()) * this.getHilliness()
-			+ this.getPreCliffHeight() * (1.0D / 64.0D)
-			- (256.0D / 64.0D)
-			- this.getTemperature() * this.settings.miscellaneous.snow_temperature_multiplier()
-		);
+	public double getSnowChance() {
+		this.getSnowHeight();
+		return this.snowChance;
 	}
 
 	public double getPreCliffHeight() {
@@ -746,10 +740,6 @@ public class OverworldColumn extends WorldColumn {
 		double inLake = this.inLake;
 		if (!Double.isNaN(inLake)) return inLake;
 		else throw new IllegalStateException("inLake not yet populated!");
-	}
-
-	public double getBeachChance() {
-		return Interpolator.unmixSmooth(this.settings.miscellaneous.beach_y(), this.getSeaLevel(), this.getFinalTopHeightD());
 	}
 
 	@Override

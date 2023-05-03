@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.settings;
 
-import net.minecraft.block.BlockState;
-
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
@@ -64,8 +62,7 @@ public class OverworldSettings {
 	) {}
 
 	public static record OverworldMiscellaneousSettings(
-		BlockState subsurface_state,
-		double beach_y,
-		double snow_temperature_multiplier
+		double snow_temperature_multiplier,
+		@VerifyNullable SortedFeatureTag sea_level_decorator
 	) {}
 }

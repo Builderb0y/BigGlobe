@@ -632,50 +632,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void generateIce(Chunk chunk, ChunkOfColumns<OverworldColumn> columns, ScriptStructures structures) {
-		BlockPos.Mutable pos = new BlockPos.Mutable();
-		Permuter permuter = new Permuter(0L);
-		for (int index = 0; index < 256; index++) {
-			OverworldColumn column = columns.getColumn(index);
-			double rawIceDepth = column.computeIceDepth();
-			if (rawIceDepth > 0.0D) {
-				permuter.setSeed(Permuter.permute(this.seed ^ 0x4F05BB8A0D652F6FL, column.x, column.z));
-				int iceDepth = (
-					rawIceDepth > 1.0D
-					? Permuter.roundRandomlyI(
-						permuter,
-						permuter.nextDouble(rawIceDepth - 1.0D)
-					) + 1
-					: Permuter.roundRandomlyI(
-						permuter,
-						rawIceDepth
-					)
-				);
-				if (iceDepth > 0) {
-					this.fillIce(chunk, pos, column, column.settings.height.sea_level(), iceDepth);
-					if (structures.lake != null && structures.lake.isInsideCircle(column.x, column.z)) {
-						this.fillIce(chunk, pos, column, structures.lake.data.waterSurface(), iceDepth);
-					}
-				}
-			}
-		}
-	}
-
-	public void fillIce(Chunk chunk, BlockPos.Mutable pos, OverworldColumn column, int maxY, int iceDepth) {
-		pos.set(column.x, maxY, column.z);
-		int minY = column.getFinalTopHeightI();
-		for (int depth = 0; depth < iceDepth; depth++) {
-			pos.setY(pos.getY() - 1);
-			if (pos.getY() < minY) break;
-			if (chunk.getBlockState(pos) == BlockStates.WATER) {
-				chunk.setBlockState(pos, BlockStates.ICE, false);
-			}
-			else {
-				break;
-			}
-		}
-	}
-
 	public void runHeightOverrides(OverworldColumn column, ScriptStructures structures, boolean rawTerrain) {
 		LakeStructure.Piece lakePiece = structures.lake;
 		if (lakePiece != null) {
@@ -812,7 +768,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.profiler.run("Surface", () -> {
 				this.generateSurface(chunk, columns, structures);
 				this.generateSnow(chunk, columns, distantHorizons);
-				this.generateIce(chunk, columns, structures);
 			});
 		}
 		finally {
@@ -896,6 +851,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							}
 						}
 						this.runDecorators(world, pos, mojang, this.settings.surface.decorator(), column.getFinalTopHeightI());
+						if (column.getFinalTopHeightI() < this.getSeaLevel()) {
+							this.runDecorators(world, pos, mojang, this.settings.miscellaneous.sea_level_decorator(), this.getSeaLevel());
+						}
 
 						SkylandCell skylandCell = column.getSkylandCell();
 						if (skylandCell != null && column.hasSkyland()) {

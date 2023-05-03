@@ -11,7 +11,7 @@
 			"top": "minecraft:blackstone",
 			"under": "minecraft:blackstone"
 		},
-		"secondary_surface": {
+		"secondary_surfaces": {
 			"under": "minecraft:basalt[axis=y]",
 			"depth": "random.nextDouble(3.0L, 7.0L)"
 		},
