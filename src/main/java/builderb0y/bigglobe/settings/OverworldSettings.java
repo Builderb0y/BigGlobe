@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 
 public class OverworldSettings {
@@ -48,11 +49,13 @@ public class OverworldSettings {
 	}
 
 	public static record OverworldTemperatureSettings(
-		Grid2D noise
+		Grid2D noise,
+		HeightAdjustmentScript.TemperatureHolder height_adjustment
 	) {}
 
 	public static record OverworldFoliageSettings(
-		Grid2D noise
+		Grid2D noise,
+		HeightAdjustmentScript.FoliageHolder height_adjustment
 	) {}
 
 	public static record OverworldSurfaceSettings(
@@ -63,8 +66,6 @@ public class OverworldSettings {
 	public static record OverworldMiscellaneousSettings(
 		BlockState subsurface_state,
 		double beach_y,
-		double snow_temperature_multiplier,
-		double temperature_height_falloff,
-		double foliage_height_falloff
+		double snow_temperature_multiplier
 	) {}
 }

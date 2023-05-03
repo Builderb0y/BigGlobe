@@ -260,7 +260,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double getHeightAdjustedTemperature(double y) {
-		return this.getTemperature() - (y - this.getSeaLevel()) / this.settings.miscellaneous.temperature_height_falloff();
+		return this.settings.temperature.height_adjustment().evaluate(this.getTemperature(), this.getSeaLevel(), y);
 	}
 
 	public double getSurfaceTemperature() {
@@ -276,7 +276,7 @@ public class OverworldColumn extends WorldColumn {
 	}
 
 	public double getHeightAdjustedFoliage(double y) {
-		return this.getFoliage() - Math.abs(y - this.getSeaLevel()) / this.settings.miscellaneous.foliage_height_falloff();
+		return this.settings.foliage.height_adjustment().evaluate(this.getFoliage(), this.getSeaLevel(), y);
 	}
 
 	public double getSurfaceFoliage() {
