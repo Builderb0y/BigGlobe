@@ -581,7 +581,7 @@ public class OverworldColumn extends WorldColumn {
 		OverworldSkylandSettings globalSkylands = this.settings.skylands;
 		if (globalSkylands == null) return null;
 		SkylandCell skylandCell = this.skylandCell;
-		VoronoiDiagram2D.Cell voronoiCell = globalSkylands.placement().getNearestCell(this.x, this.z, skylandCell != null ? skylandCell.voronoiCell : null);
+		VoronoiDiagram2D.Cell voronoiCell = globalSkylands.placement.getNearestCell(this.x, this.z, skylandCell != null ? skylandCell.voronoiCell : null);
 		if (skylandCell == null) {
 			skylandCell = this.skylandCell = new SkylandCell();
 		}
@@ -589,7 +589,7 @@ public class OverworldColumn extends WorldColumn {
 			return skylandCell;
 		}
 		skylandCell.voronoiCell = voronoiCell;
-		LocalSkylandSettings local = DelegatingContainedRandomList.from(globalSkylands.templates().elements).getRandomElement(voronoiCell.center.getSeed(0x306A01988A92962CL));
+		LocalSkylandSettings local = globalSkylands.templates.getRandomElement(voronoiCell.center.getSeed(0x306A01988A92962CL));
 		skylandCell.settings = local;
 		skylandCell.averageCenter = local.average_center().get(voronoiCell.center.getSeed(0x7DE493A0E9989DA6L));
 		return skylandCell;

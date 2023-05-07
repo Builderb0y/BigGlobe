@@ -10,6 +10,7 @@ import net.minecraft.registry.RegistryLoader;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
+import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.scripting.parsing.ScriptTemplate;
 
@@ -20,6 +21,7 @@ public class BigGlobeDynamicRegistries {
 	public static final RegistryKey<Registry<WoodPalette>>                     WOOD_PALETTE_REGISTRY_KEY               = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 	public static final RegistryKey<Registry<LocalNetherSettings>>             LOCAL_NETHER_SETTINGS_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_nether_biome"));
 	public static final RegistryKey<Registry<OverworldBiomeLayout>>            OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY     = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_overworld_biome_layout"));
+	public static final RegistryKey<Registry<LocalSkylandSettings>>            LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY     = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_skylands"));
 
 	public static void init() {
 		RegistryLoader.DYNAMIC_REGISTRIES.add(0, new RegistryLoader.Entry<>(SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate.class)));
@@ -27,6 +29,7 @@ public class BigGlobeDynamicRegistries {
 		addBefore(RegistryKeys.CONFIGURED_CARVER,        WOOD_PALETTE_REGISTRY_KEY,               BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette                    .class));
 		addBefore(RegistryKeys.CHUNK_GENERATOR_SETTINGS, LOCAL_NETHER_SETTINGS_REGISTRY_KEY,      BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalNetherSettings            .class));
 		addAfter (RegistryKeys.BIOME,                    OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,     BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OverworldBiomeLayout           .class));
+		addBefore(RegistryKeys.CHUNK_GENERATOR_SETTINGS, LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,     BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalSkylandSettings           .class));
 	}
 
 	public static <T> void addBefore(RegistryKey<? extends Registry<?>> after, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {

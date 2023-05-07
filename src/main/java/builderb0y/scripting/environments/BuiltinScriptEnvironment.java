@@ -88,10 +88,12 @@ public class BuiltinScriptEnvironment {
 				false
 			);
 		})
+		/*
 		.addFunction("throw", (parser, name, arguments) -> {
 			InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(throw_(toThrow), toThrow != arguments[0]);
 		})
+		*/
 		.addFunction("print", (parser, name, arguments) -> {
 			InsnTree loadOut = getStatic(SYSTEM_OUT);
 			InsnTree concat = invokeDynamic(

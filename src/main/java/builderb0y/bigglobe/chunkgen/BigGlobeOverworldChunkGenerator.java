@@ -918,7 +918,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 
 		long worldSeed = this.seed ^ (skylands ? 0x21259C4E934A112CL : 0xAC1A3FE357E78628L);
-		Grid2D flowerNoise = this.settings.flower_noise;
 
 		FlowerEntryFeature.Entry chosen = null;
 		long overlapSeed = Permuter.permute(worldSeed ^ 0x3C8F9545BAE6971FL, column.x, column.z);
@@ -935,6 +934,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			int inGridZ = BigGlobeMath.modulus_BP(column.z, scale);
 			int gridStartX = column.x - inGridX;
 			int gridStartZ = column.z - inGridZ;
+			Grid2D flowerNoise = link.group.noise;
 			double noise = flowerNoise.getValue(groupSeed, column.x, column.z);
 			for (int offsetX = -scale; offsetX <= scale; offsetX += scale) {
 				for (int offsetZ = -scale; offsetZ <= scale; offsetZ += scale) {

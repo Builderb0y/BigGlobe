@@ -5,6 +5,18 @@
 		"variation": 64,
 		"spawn_chance": 0.125,
 		"randomize_chance": 0.125,
-		"randomize_radius": { "type": "uniform", "min": 24.0, "max": 48.0 }
+		"randomize_radius": { "type": "uniform", "min": 24.0, "max": 48.0 },
+		"noise": {
+			"type": "abs",
+			"grid": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.25 }
+				]
+			}
+		}
 	}
 }

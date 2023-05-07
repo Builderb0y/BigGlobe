@@ -9,11 +9,11 @@ import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 
 public class OverworldSettings {
+
 	public final OverworldHeightSettings height;
 	public final OverworldTemperatureSettings temperature;
 	public final OverworldFoliageSettings foliage;
 	public final OverworldSurfaceSettings surface;
-	public final Grid2D flower_noise;
 	public final OverworldUndergroundSettings underground;
 	public final @VerifyNullable OverworldSkylandSettings skylands;
 	public final OverworldMiscellaneousSettings miscellaneous;
@@ -25,7 +25,6 @@ public class OverworldSettings {
 		OverworldTemperatureSettings temperature,
 		OverworldFoliageSettings foliage,
 		OverworldSurfaceSettings surface,
-		Grid2D flower_noise,
 		OverworldUndergroundSettings underground,
 		@VerifyNullable OverworldSkylandSettings skylands,
 		OverworldMiscellaneousSettings miscellaneous,
@@ -35,7 +34,6 @@ public class OverworldSettings {
 		this.temperature = temperature;
 		this.foliage = foliage;
 		this.surface = surface;
-		this.flower_noise = flower_noise;
 		this.underground = underground;
 		this.skylands = skylands;
 		this.miscellaneous = miscellaneous;

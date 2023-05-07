@@ -53,6 +53,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
+import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;
@@ -92,6 +93,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<StructurePlacementScript.Holder> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructurePlacementScript.Holder.class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<LocalNetherSettings>             LOCAL_NETHER_SETTINGS_REGISTRY_CODERS      = new RegistryCoders<>(ReifiedType.from(LocalNetherSettings            .class), BigGlobeDynamicRegistries.LOCAL_NETHER_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<OverworldBiomeLayout>            OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS     = new RegistryCoders<>(ReifiedType.from(OverworldBiomeLayout           .class), BigGlobeDynamicRegistries.OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY);
+	public static final RegistryCoders<LocalSkylandSettings>            LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS     = new RegistryCoders<>(ReifiedType.from(LocalSkylandSettings           .class), BigGlobeDynamicRegistries.LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -115,7 +117,8 @@ public class BigGlobeAutoCodec {
 		SCRIPT_TEMPLATE_REGISTRY_CODERS,
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
 		LOCAL_NETHER_SETTINGS_REGISTRY_CODERS,
-		OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS
+		OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS,
+		LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS
 	};
 
 	@SuppressWarnings("OverrideOnly") //it should allow super calls. that should be a thing.

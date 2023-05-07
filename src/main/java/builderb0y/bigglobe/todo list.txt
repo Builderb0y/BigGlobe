@@ -32,6 +32,12 @@ changelog:
 	* Dungeons now have more decorations, including cobwebs, redstone torches, skulls, chains hanging from the ceiling, and collapsed rooms.
 	* Overworld biomes and surfaces are now more configurable without needing to edit the world preset. And to go along with that, sandstone now spawns under sand.
 	* Ice is now a (scripted) configured feature instead of being hard-coded.
+	* There are now scripts to fine-tune the relationship between temperature/foliage and height.
+	* Skylands now have amethyst crystals under them.
+	* Skyland shapes are now a dynamic registry instead of being in the world preset, making it easier to add new shapes in the future. This will however break old worlds at the edge of generated chunks.
+		* Added a new skylands shape: "swiss_cheese_plains".
+	* Fixed birch trees on skylands spawning with snow on them.
+	* Flower noise is now on the flower group instead of in the world preset.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -61,9 +67,14 @@ features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
-		dynamic registries for all the things!
 	overworld:
-		better configurability of skylands.
+		dynamic registry for cave variants.
+		dynamic registry for cavern variants.
+		command to search through caves, caverns, skylands, and nether biomes looking for specific variants.
+		overriders for skylands.
+		random lists for blocks in wood palettes.
+			use in vanilla for flowering azalea leaves.
+		configurable ground replacements for trees.
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.

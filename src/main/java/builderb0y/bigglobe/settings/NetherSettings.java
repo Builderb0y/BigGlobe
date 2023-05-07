@@ -5,7 +5,6 @@ import java.util.Comparator;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntry.Reference;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
@@ -47,7 +46,7 @@ public class NetherSettings {
 		.streamEntries()
 		.sorted(
 			Comparator.comparing(
-				(Reference<LocalNetherSettings> entry) -> (
+				(RegistryEntry<LocalNetherSettings> entry) -> (
 					UnregisteredObjectException.getKey(entry).getValue()
 				),
 				Comparator

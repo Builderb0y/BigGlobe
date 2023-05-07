@@ -1,6 +1,6 @@
 {
 	"script": [
-		"random.unless(1.0 / 256.0: return(false))",
+		"random.unless(1.0L / 256.0L: return(false))",
 
 		"boolean isValid(int x, int z:",
 			"return (",

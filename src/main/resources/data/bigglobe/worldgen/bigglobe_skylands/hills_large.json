@@ -1,0 +1,72 @@
+{
+	"weight": 0.5,
+	"average_center": { "type": "uniform", "min": 256.0, "max": 768.0 },
+	"floor_decorator": "bigglobe:overworld/skylands/barren_top",
+	"ceiling_decorator": "bigglobe:overworld/skylands/barren_bottom",
+	"center": {
+		"type": "sum",
+		"layers": [
+			{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 8.0 },
+			{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 4.0 },
+			{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 3.0 },
+			{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 2.0 }
+		]
+	},
+	"thickness": {
+		"type": "sum",
+		"layers": [
+			{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.5 },
+			{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.25 },
+			{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.125 },
+			{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0625 },
+			{ "type": "cubic", "scaleX":   8, "scaleY":   8, "amplitude": 0.03125 }
+		]
+	},
+	"max_y": [
+		"if (`max_y` >= -64.0: return(nan))",
+
+		"double cellBias   = `overworld/skyland_edginess_squared`",
+		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"double bias2      = cellBias + heightBias",
+		"if (bias2 >= 1.0: return(nan))",
+
+		"double thickness  = `overworld/skyland_thickness`",
+		"double mountain   = unmixSmooth(bias2, 1.0, abs(thickness))",
+		"if (mountain <= 0.0: return(nan))",
+
+		"double center     = `overworld/skyland_center`",
+		";make half of the terrain reversed in Y level from the other half, for variety.",
+		"if (thickness < 0.0:",
+		"center = `overworld/skyland_average_center` * 2 - center",
+		")",
+
+		"return(center + mountain * 128.0)"
+	],
+	"min_y": [
+		"if (`max_y` >= -64.0: return(nan))",
+
+		"double cellBias   = `overworld/skyland_edginess_squared`",
+		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"double bias2      = cellBias + heightBias",
+		"if (bias2 >= 1.0: return(nan))",
+
+		"double thickness  = `overworld/skyland_thickness`",
+		"double dip        = sqrt(unmixLinear(bias2, 1.0, abs(thickness)))",
+		"if (isNaN(dip): return(nan))",
+
+		"double center     = `overworld/skyland_center`",
+		";make half of the terrain reversed in Y level from the other half, for variety.",
+		"if (thickness < 0.0:",
+		"center = `overworld/skyland_average_center` * 2 - center",
+		")",
+
+		"return(center - dip * 32.0)"
+	],
+	"surface": {
+		"primary": {
+			"top": "minecraft:grass_block[snowy=false]",
+			"under": "minecraft:dirt"
+		},
+		"primary_depth": "random.nextDouble(3.0, 5.0) - (`overworld/skyland_max_y` - `overworld/skyland_center`) / 16.0"
+	}
+}

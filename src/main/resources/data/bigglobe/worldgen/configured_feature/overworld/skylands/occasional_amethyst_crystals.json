@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"return(",
+				"random.nextBoolean(1.0L / 1024.0L) &&",
+				"getBlockState(originX, originY + 1, originZ) == BlockState('bigglobe:floatstone') &&",
+				"placeFeature(originX, originY, originZ, 'bigglobe:overworld/skylands/amethyst_crystals')",
+			")"
+		]
+	}
+}

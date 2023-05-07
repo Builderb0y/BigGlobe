@@ -14,7 +14,7 @@
 		")",
 
 		"boolean spill = random.nextBoolean(SPILL_CHANCE)",
-		"int size = random.roundInt(exp(mixLinear(log(4.0), log(256.0), random.nextDouble())))",
+		"int size = random.roundInt(exp(mixLinear(log(4.0L), log(256.0L), random.nextDouble())))",
 		"Set lavaPositions = HashSet.new(size)",
 		"Set magmaPositions = HashSet.new(size)",
 		"List queue = ArrayList.new(size)",

@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/skylands/random_podzol",
+		"bigglobe:overworld/skylands/random_trees",
+		"bigglobe:overworld/skylands/small_foliage"
+	]
+}
