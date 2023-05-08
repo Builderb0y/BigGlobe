@@ -77,7 +77,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			for (int index = 1, length = array.length; index < length; index++) {
 				double newThreshold = array[index].threshold;
 				if (newThreshold > threshold) threshold = newThreshold;
-				else throw new VerifyException(context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
+				else throw new VerifyException(() -> context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
 			}
 		}
 

@@ -44,9 +44,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ColumnValue<?>> context) throws EncodeException {
-			if (context.input == null) return context.empty();
-			Identifier id = REGISTRY.getId(context.input);
-			if (id == null) throw new EncodeException("Unregistered ColumnValue: " + context.input);
+			ColumnValue<?> value = context.input;
+			if (value == null) return context.empty();
+			Identifier id = REGISTRY.getId(value);
+			if (id == null) throw new EncodeException(() -> "Unregistered ColumnValue: " + value);
 			return context.createString(id.getNamespace().equals(BigGlobeMod.MODID) ? id.getPath() : id.toString());
 		}
 	};

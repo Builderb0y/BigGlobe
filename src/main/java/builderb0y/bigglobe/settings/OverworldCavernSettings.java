@@ -25,7 +25,8 @@ public record OverworldCavernSettings(
 			for (int index = 0, size = elements.size(); index < size; index++) {
 				LocalCavernSettings template = elements.get(index);
 				if (template.padding > settings.placement.distance * 0.5D) {
-					throw new VerifyException(context.pathToStringBuilder().append(".templates[").append(index).append("].padding must be at most half of placement.distance.").toString());
+					final int index_ = index;
+					throw new VerifyException(() -> context.pathToStringBuilder().append(".templates[").append(index_).append("].padding must be at most half of placement.distance.").toString());
 				}
 			}
 		}

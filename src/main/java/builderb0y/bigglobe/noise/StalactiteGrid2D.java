@@ -23,7 +23,7 @@ public class StalactiteGrid2D implements Grid2D {
 
 	public static <T_Encoded> void checkNotZero(VerifyContext<T_Encoded, Double> context) throws VerifyException {
 		if (context.object != null && context.object.doubleValue() == 0.0D) {
-			throw new VerifyException(context.pathToStringBuilder().append(" cannot be 0.").toString());
+			throw new VerifyException(() -> context.pathToStringBuilder().append(" cannot be 0.").toString());
 		}
 	}
 

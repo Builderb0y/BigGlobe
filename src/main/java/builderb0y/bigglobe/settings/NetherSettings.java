@@ -5,11 +5,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -21,7 +17,6 @@ import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 
-@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class NetherSettings {
 	public final VoronoiDiagram2D biome_placement;
 	public final RegistryWrapper<LocalNetherSettings> local_settings_registry;
@@ -40,13 +35,6 @@ public class NetherSettings {
 		this.local_settings = BigGlobeDynamicRegistries.sortAndCollect(local_settings_registry);
 		this.min_y = min_y;
 		this.max_y = max_y;
-	}
-
-	public static <T_Encoded> void verify(VerifyContext<T_Encoded, NetherSettings> context) throws VerifyException {
-		NetherSettings settings = context.object;
-		if (settings != null && settings.local_settings.isEmpty()) {
-			throw new VerifyException("worldgen/bigglobe_nether_biome registry is empty!");
-		}
 	}
 
 	public int height() {

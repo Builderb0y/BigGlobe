@@ -61,16 +61,16 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public static <T_Encoded> void verifyInputName(VerifyContext<T_Encoded, String> context) throws VerifyException {
 		String inputName = context.object;
 		if (inputName != null) {
-			if (inputName.isEmpty()) throw new VerifyException(context.pathToStringBuilder().append(" cannot be an empty string.").toString());
-			if (inputName.equals("_")) throw new VerifyException(context.pathToStringBuilder().append(" cannot be _ as it is a reserved name.").toString());
+			if (inputName.isEmpty()) throw new VerifyException(() -> context.pathToStringBuilder().append(" cannot be an empty string.").toString());
+			if (inputName.equals("_")) throw new VerifyException(() -> context.pathToStringBuilder().append(" cannot be _ as it is a reserved name.").toString());
 			char c = inputName.charAt(0);
 			if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')) {
-				throw new VerifyException(context.pathToStringBuilder().append(" must start with an alphabetic character or an underscore.").toString());
+				throw new VerifyException(() -> context.pathToStringBuilder().append(" must start with an alphabetic character or an underscore.").toString());
 			}
 			for (int index = 1, length = inputName.length(); index < length; index++) {
 				c = inputName.charAt(index);
 				if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')) {
-					throw new VerifyException(context.pathToStringBuilder().append(" must contain only alphabetic characters, numeric characters, and underscores.").toString());
+					throw new VerifyException(() -> context.pathToStringBuilder().append(" must contain only alphabetic characters, numeric characters, and underscores.").toString());
 				}
 			}
 		}

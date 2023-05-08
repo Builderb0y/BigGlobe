@@ -33,7 +33,7 @@ public abstract class ChangeRangeGrid implements UnaryGrid {
 				!Double.isFinite(grid.adder)
 			)
 		) {
-			throw new VerifyException(
+			throw new VerifyException(() ->
 				context
 				.pathToStringBuilder()
 				.append(" cannot change range from [")

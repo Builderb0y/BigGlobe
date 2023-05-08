@@ -86,7 +86,7 @@ public class RangeColumnRestriction implements ColumnRestriction {
 
 	public static <T_Encoded> void verify(VerifyContext<T_Encoded, RangeColumnRestriction> context) throws VerifyException {
 		if (context.object != null && context.object.impl == null) {
-			throw new VerifyException(context.pathToStringBuilder().append(" must specify min or max (or both), and optionally, mid.").toString());
+			throw new VerifyException(() -> context.pathToStringBuilder().append(" must specify min or max (or both), and optionally, mid.").toString());
 		}
 	}
 

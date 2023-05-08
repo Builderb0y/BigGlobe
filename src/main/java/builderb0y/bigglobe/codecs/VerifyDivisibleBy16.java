@@ -22,7 +22,7 @@ public @interface VerifyDivisibleBy16 {
 		public static <T_Encoded> void verify(VerifyContext<T_Encoded, Integer> context) throws VerifyException {
 			Integer value = context.object;
 			if (value != null && (value.intValue() & 15) != 0) {
-				throw new VerifyException(context.pathToStringBuilder().append(" must be divisible by 16.").toString());
+				throw new VerifyException(() -> context.pathToStringBuilder().append(" must be divisible by 16.").toString());
 			}
 		}
 	}
