@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting;
 
+import builderb0y.autocodec.common.Case;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.BlockStateWrapper;
@@ -41,18 +42,28 @@ public class WoodPaletteScriptEnvironment {
 			);
 		}));
 		for (WoodPaletteType type : WoodPaletteType.VALUES) {
-			environment.addField(type(WoodPaletteEntry.class), type.lowerCaseName, (parser, receiver, name) -> {
+			String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);
+			environment.addField(type(WoodPaletteEntry.class), baseName + "Blocks", (parser, receiver, name) -> {
 				return invokeVirtual(
 					receiver,
-					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlock"),
+					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlocks"),
 					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
 				);
 			});
-			environment.addMemberKeyword(type(WoodPaletteEntry.class), type.lowerCaseName, (parser, receiver, name) -> {
+			environment.addField(type(WoodPaletteEntry.class), baseName + "Block", (parser, receiver, name) -> {
+				return invokeVirtual(
+					receiver,
+					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlock"),
+					loadRandom,
+					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
+				);
+			});
+			environment.addMemberKeyword(type(WoodPaletteEntry.class), baseName + "State", (parser, receiver, name) -> {
 				parser.beginCodeBlock();
 				InsnTree tree = invokeVirtual(
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getState"),
+					loadRandom,
 					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
 				);
 				if (parser.input.peekAfterWhitespace() != ')') {

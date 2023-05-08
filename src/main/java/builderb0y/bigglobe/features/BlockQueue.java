@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.objects.AbstractObject2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.TestOnly;
@@ -114,14 +114,31 @@ public class BlockQueue {
 	}
 
 	@TestOnly
+	@SuppressWarnings("unused")
 	public Object[] intellij_childrenArray() {
+		record QueuedBlock(int x, int y, int z, BlockState state) {
+
+			public QueuedBlock(long packed, BlockState state) {
+				this(
+					BlockPos.unpackLongX(packed),
+					BlockPos.unpackLongY(packed),
+					BlockPos.unpackLongZ(packed),
+					state
+				);
+			}
+		}
 		Object[] children = new Object[this.queuedBlocks.size() + 2];
 		int index = 0;
-		children[index++] = new AbstractObject2ObjectMap.BasicEntry<>("queuedBlocks", this.queuedBlocks);
-		children[index++] = new AbstractObject2ObjectMap.BasicEntry<>("flags", this.flags);
-		for (ObjectBidirectionalIterator<Long2ObjectMap.Entry<BlockState>> iterator = this.queuedBlocks.long2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
+		children[index++] = Map.entry("queuedBlocks", this.queuedBlocks);
+		children[index++] = Map.entry("flags", this.flags);
+		for (
+			ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = (
+				this.queuedBlocks.long2ObjectEntrySet().fastIterator()
+			);
+			iterator.hasNext();
+		) {
 			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
-			children[index++] = new AbstractObject2ObjectMap.BasicEntry<>(BlockPos.fromLong(entry.getLongKey()), entry.getValue());
+			children[index++] = new QueuedBlock(entry.getLongKey(), entry.getValue());
 		}
 		assert index == children.length;
 		return children;

@@ -64,8 +64,8 @@ import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.PrimarySurface;
-import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout.SecondarySurface;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
@@ -311,11 +311,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					}
 				}
 				if (!skipCaves) {
-					if (undergroundSettings.hasCaves() && endY >= minSurface_ - undergroundSettings.caves().maxDepth() && startY <= maxSurface_) {
+					if (undergroundSettings.hasCaves() && endY >= minSurface_ - undergroundSettings.caves().maxDepth && startY <= maxSurface_) {
 						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 							OverworldColumn column = columns.getColumn(horizontalIndex);
 							int surfaceY = column.getFinalTopHeightI();
-							int minCaves = Math.max(surfaceY - undergroundSettings.caves().maxDepth(), startY);
+							int minCaves = Math.max(surfaceY - undergroundSettings.caves().maxDepth, startY);
 							int maxCaves = Math.min(surfaceY - 1, endY);
 							assert maxCaves - minCaves < 16;
 							for (int y = minCaves; y <= maxCaves; y++) {
@@ -687,7 +687,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 			//edge
 			{
-				int distance = context.column.settings.underground.caves().placement().distance;
+				int distance = context.column.settings.underground.caves().placement.distance;
 				double progress = context.caveCell.voronoiCell.progressToEdgeD(context.column.x, context.column.z);
 				for (int y = context.bottomI; y < context.topI; y++) {
 					double

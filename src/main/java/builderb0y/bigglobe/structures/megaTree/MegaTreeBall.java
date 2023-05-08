@@ -133,7 +133,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX()),
 			maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 
-		BlockState wood = this.data.wood.value().woodState(Axis.Y);
+		WoodPalette palette = this.data.wood.value();
 		boolean placedAnyLogs = false;
 		for (pos.setX(minX); pos.getX() <= maxX; pos.setX(pos.getX() + 1)) {
 			double xSquared = squareD(pos.getX() - centerX);
@@ -145,7 +145,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					int maxY = Math.min(floorI(centerY + chord), chunkBox.getMaxY());
 					for (pos.setY(maxY); pos.getY() >= minY; pos.setY(pos.getY() - 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -154,7 +154,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					}
 					for (pos.setY(minY); pos.getY() <= maxY; pos.setY(pos.getY() + 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -168,12 +168,11 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		if (!placedAnyLogs) {
 			setToRound(pos, centerX, centerY, centerZ);
 			if (chunkBox.contains(pos)) {
-				world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+				world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 			}
 		}
 
 		//*
-		BlockState leaves = this.data.wood.value().leavesState(7, true, false);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		int leafCount = Permuter.roundRandomlyI(permuter.nextLong(), squareD(extraLeafRadius * 2.0));
 		if (leafCount > 0) {
@@ -193,7 +192,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 						(bits & 1) != 0 && this.canLeavesReplace(world.getBlockState(pos));
 						bits >>>= 1, pos.setY(pos.getY() - 1)
 					) {
-						world.setBlockState(pos, leaves, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+						world.setBlockState(pos, palette.leavesState(permuter, 7, true, false), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 					}
 					this.placeSnow(world, pos.setY(topY + 1), overworldColumn, permuter);
 				}

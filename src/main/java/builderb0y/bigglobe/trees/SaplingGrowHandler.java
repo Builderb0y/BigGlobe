@@ -19,6 +19,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.ServerValue;
 
 public class SaplingGrowHandler {
@@ -55,9 +56,11 @@ public class SaplingGrowHandler {
 			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
 		) {
 			if (palette.sapling_grow_feature != null) {
-				Block block = palette.blocks.get(WoodPaletteType.SAPLING);
-				if (block != null) {
-					map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(palette.sapling_grow_feature);
+				IRandomList<Block> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
+				if (blocks != null) {
+					for (Block block : blocks) {
+						map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(palette.sapling_grow_feature);
+					}
 				}
 			}
 		}

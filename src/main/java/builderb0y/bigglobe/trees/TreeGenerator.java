@@ -100,7 +100,6 @@ public class TreeGenerator {
 
 	public boolean generateTrunkLayer(int y) throws NotEnoughSpaceException {
 		Map<BlockState, BlockState> groundReplacements = TreeSpecialCases.getGroundReplacements();
-		BlockState logY = this.palette.logState(Axis.Y);
 		double radius = this.trunk.currentRadius;
 		double radius2 = squareD(radius);
 		double centerX = this.trunk.currentX;
@@ -118,15 +117,15 @@ public class TreeGenerator {
 					mutablePos.setZ(blockZ);
 					BlockState existingState = this.worldQueue.getWorldState(mutablePos);
 					if (this.canTrunkReplace(mutablePos, existingState)) {
-						this.worldQueue.setBlockState(mutablePos, logY);
+						this.worldQueue.setBlockState(mutablePos, this.palette.logState(this.random, Axis.Y));
 						for (BlockDecorator decorator : this.decorators.trunkBlock) {
-							decorator.decorate(this, mutablePos, logY);
+							decorator.decorate(this, mutablePos, this.palette.logState(this.random, Axis.Y));
 						}
 						placedAny = true;
 					}
 					else {
 						mutablePos.setY(y + 1);
-						boolean logAboveToo = this.worldQueue.getBlockState(mutablePos) == logY;
+						boolean logAboveToo = this.worldQueue.getBlockState(mutablePos) == this.palette.logState(this.random, Axis.Y);
 						mutablePos.setY(y);
 						if (logAboveToo) {
 							BlockState replacement = groundReplacements.get(existingState);
@@ -171,7 +170,7 @@ public class TreeGenerator {
 		if (!(branch.length > 0.0D)) return;
 		double absDX = Math.abs(branch.nx);
 		double absDZ = Math.abs(branch.nz);
-		BlockState logState = this.palette.woodState(absDZ > absDX ? Axis.Z : Axis.X);
+		BlockState logState = this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X);
 
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 		for (double offset = this.random.nextDouble(); offset <= branch.length; offset += 1.0D) {
@@ -188,7 +187,6 @@ public class TreeGenerator {
 		if (!(branch.length > 0.0D)) return;
 		double absDX = Math.abs(branch.nx);
 		double absDZ = Math.abs(branch.nz);
-		BlockState logState = this.palette.woodState(absDZ > absDX ? Axis.Z : Axis.X);
 
 		branch.setFracLength(this, 0.0D);
 		double x1 = branch.currentX, z1 = branch.currentZ, r1 = branch.currentRadius;
@@ -209,11 +207,11 @@ public class TreeGenerator {
 				int startY = floorI(branch.currentY);
 				for (int y = startY; xzLengthSquared + squareD(y - branch.currentY) < radiusSquared; y--) {
 					mutablePos.setY(y);
-					this.generateBranchBlock(mutablePos, logState);
+					this.generateBranchBlock(mutablePos, this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X));
 				}
 				for (int y = startY + 1; xzLengthSquared + squareD(y - branch.currentY) < radiusSquared; y++) {
 					mutablePos.setY(y);
-					this.generateBranchBlock(mutablePos, logState);
+					this.generateBranchBlock(mutablePos, this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X));
 				}
 			}
 		}
@@ -240,7 +238,7 @@ public class TreeGenerator {
 		if (this.canLogReplace(existingState)) {
 			return true;
 		}
-		else if (existingState.getBlock() == this.palette.woodBlock()) {
+		else if (this.palette.woodBlocks().contains(existingState.getBlock())) {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);

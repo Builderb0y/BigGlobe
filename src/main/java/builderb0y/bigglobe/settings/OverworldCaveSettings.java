@@ -1,27 +1,34 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.RegistryWrapper;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 
-public record OverworldCaveSettings(
-	VoronoiDiagram2D placement,
-	VariationsList<LocalOverworldCaveSettings> templates,
-	@Hidden int maxDepth
-) {
+public class OverworldCaveSettings {
 
-	public OverworldCaveSettings(VoronoiDiagram2D placement, VariationsList<LocalOverworldCaveSettings> templates) {
-		this(placement, templates, templates.elements.stream().mapToInt(LocalOverworldCaveSettings::depth).max().orElse(0));
+	public final VoronoiDiagram2D placement;
+	public final @EncodeInline RegistryWrapper<LocalOverworldCaveSettings> template_registry;
+	public final transient IRandomList<LocalOverworldCaveSettings> templates;
+	public final transient int maxDepth;
+
+	public OverworldCaveSettings(VoronoiDiagram2D placement, RegistryWrapper<LocalOverworldCaveSettings> template_registry) {
+		this.placement = placement;
+		this.template_registry = template_registry;
+		this.templates = BigGlobeDynamicRegistries.sortAndCollect(template_registry);
+		this.maxDepth = this.templates.stream().mapToInt(LocalOverworldCaveSettings::depth).max().orElse(0);
 	}
 
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
@@ -43,7 +50,7 @@ public record OverworldCaveSettings(
 			LocalOverworldCaveSettings settings = context.object;
 			if (settings != null) {
 				if (settings.surface_depth_noise == null && (settings.floor_blocks != null || settings.ceiling_blocks != null)) {
-					throw new VerifyException("Must specify " + context.pathToString() + " when floor_state or ceiling_state are present.");
+					throw new VerifyException(() -> "Must specify " + context.pathToString() + " when floor_state or ceiling_state are present.");
 				}
 			}
 		}

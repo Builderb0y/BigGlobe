@@ -1,7 +1,10 @@
 package builderb0y.scripting.environments;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 
+import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -93,6 +96,11 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(ArrayDeque.class)
 		.addType("PriorityQueue", PriorityQueue.class)
 		.addQualifiedMultiConstructor(PriorityQueue.class)
+		.addType("RandomList", IRandomList.class)
+		.addMethodMultiInvokes(IRandomList.class, "getWeight", "setWeight", "add", "set", "iterator", "listIterator", "subList")
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, RandomGenerator.class)
+		.addType("RandomArrayList", RandomList.class)
+		.addQualifiedMultiConstructor(RandomList.class)
 	);
 
 	public static class MapGetInsnTree extends InvokeInsnTree {

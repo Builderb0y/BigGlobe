@@ -2,7 +2,6 @@ package builderb0y.bigglobe.trees;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.random.RandomGenerator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -10,20 +9,8 @@ import net.minecraft.block.Blocks;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.randomSources.GaussianRandomSource;
 
 public class TreeSpecialCases {
-
-	public static final GaussianRandomSource NATURAL_CHARRED_SLANT = new GaussianRandomSource(0.0D, 0.5D, 8);
-	public static double naturalCharredSlantAmount(RandomGenerator random) {
-		return NATURAL_CHARRED_SLANT.get(random.nextLong());
-	}
-
-	public static final GaussianRandomSource ARTIFICIAL_CHARRED_SLANT = new GaussianRandomSource(0.0D, 0.25D, 8);
-
-	public static double artificialCharredSlantAmount(RandomGenerator random) {
-		return ARTIFICIAL_CHARRED_SLANT.get(random.nextLong());
-	}
 
 	public static final Map<BlockState, BlockState> GROUND_REPLACEMENTS = new HashMap<>(32);
 	static {

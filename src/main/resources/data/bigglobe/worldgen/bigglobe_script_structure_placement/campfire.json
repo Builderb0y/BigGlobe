@@ -24,7 +24,7 @@
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"void placeBench(String axis, int frontX, int frontZ, int sideX, int sideZ:",
 			"random.if (2.0L / 3.0L:",
-				"BlockState state = palette.log(axis: axis)",
+				"BlockState state = palette.logState(axis: axis)",
 				"int distance = random.nextInt(3, 5)",
 				"for (int offset = -1, offset <= 1, ++offset:",
 					"setBlockState(",

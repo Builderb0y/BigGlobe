@@ -2,7 +2,6 @@ package builderb0y.bigglobe.settings;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.dynamicRegistries.OverworldBiomeLayout;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.scripting.HeightAdjustmentScript;

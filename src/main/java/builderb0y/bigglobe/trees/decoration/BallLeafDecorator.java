@@ -41,7 +41,7 @@ public class BallLeafDecorator implements BranchDecorator, TrunkDecorator {
 		int maxY =  ceilI(centerY + radius) - 1;
 		int maxZ =  ceilI(centerZ + radius) - 1;
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-		BlockState leafState = generator.palette.leavesState(1, false, false);
+		BlockState leafState = generator.palette.leavesState(generator.random, 1, false, false);
 		for (int x = minX; x <= maxX; x++) {
 			mutablePos.setX(x);
 			double offsetX2 = squareD(x - centerX);

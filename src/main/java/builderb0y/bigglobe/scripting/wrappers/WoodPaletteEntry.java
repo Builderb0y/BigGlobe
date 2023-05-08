@@ -19,6 +19,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -62,14 +63,18 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 		return this.entry.value();
 	}
 
-	public Block getBlock(WoodPaletteType type) {
-		Block block = this.palette().blocks.get(type);
+	public IRandomList<Block> getBlocks(WoodPaletteType type) {
+		IRandomList<Block> block = this.palette().blocks.get(type);
 		if (block != null) return block;
 		else throw new IllegalStateException("WoodPaletteType " + type + " not present on WoodPalette " + UnregisteredObjectException.getID(this.entry));
 	}
 
-	public BlockState getState(WoodPaletteType type) {
-		return this.getBlock(type).getDefaultState();
+	public Block getBlock(RandomGenerator random, WoodPaletteType type) {
+		return this.getBlocks(type).getRandomElement(random);
+	}
+
+	public BlockState getState(RandomGenerator random, WoodPaletteType type) {
+		return this.getBlock(random, type).getDefaultState();
 	}
 
 	@Override

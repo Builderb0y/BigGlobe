@@ -13,7 +13,10 @@
 		"trapdoor": "minecraft:oak_trapdoor",
 		"pressure_plate": "minecraft:oak_pressure_plate",
 		"button": "minecraft:oak_button",
-		"leaves": "minecraft:flowering_azalea_leaves",
+		"leaves": [
+			{ "weight": 1.0, "block": "minecraft:flowering_azalea_leaves" },
+			{ "weight": 3.0, "block": "minecraft:azalea_leaves" }
+		],
 		"sapling": "minecraft:flowering_azalea",
 		"potted_sapling": "minecraft:potted_flowering_azalea_bush",
 		"standing_sign": "minecraft:oak_sign",

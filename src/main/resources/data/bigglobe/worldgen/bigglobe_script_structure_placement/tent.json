@@ -3,7 +3,7 @@
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 
 		";fences",
-		"BlockState fence = palette.fence()",
+		"BlockState fence = palette.fenceState()",
 		"setBlockState(minX, minY, minZ, fence)",
 		"setBlockState(minX, minY, maxZ, fence)",
 		"setBlockState(maxX, minY, minZ, fence)",

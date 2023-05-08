@@ -385,7 +385,7 @@ public class OverworldColumn extends WorldColumn {
 		OverworldCaveSettings globalCaves = this.settings.underground.caves();
 		if (globalCaves == null) return null;
 		CaveCell caveCell = this.caveCell;
-		VoronoiDiagram2D.Cell voronoiCell = globalCaves.placement().getNearestCell(this.x, this.z, caveCell != null ? caveCell.voronoiCell : null);
+		VoronoiDiagram2D.Cell voronoiCell = globalCaves.placement.getNearestCell(this.x, this.z, caveCell != null ? caveCell.voronoiCell : null);
 		if (caveCell == null) {
 			caveCell = this.caveCell = new CaveCell();
 		}
@@ -393,7 +393,7 @@ public class OverworldColumn extends WorldColumn {
 			return caveCell;
 		}
 		caveCell.voronoiCell = voronoiCell;
-		caveCell.settings = DelegatingContainedRandomList.from(globalCaves.templates().elements).getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.settings = globalCaves.templates.getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
 		return caveCell;
 	}
 
@@ -555,7 +555,7 @@ public class OverworldColumn extends WorldColumn {
 		OverworldCaveSettings caves = this.settings.underground.caves();
 		if (caves != null) {
 			double maxY = this.getCavernCenter() + cell.settings.sqrtMaxThickness();
-			double space = this.getFinalTopHeightD() - caves.maxDepth();
+			double space = this.getFinalTopHeightD() - caves.maxDepth;
 			double verticalPenalty = BigGlobeMath.squareD(Math.max(Interpolator.unmixLinear(maxY + cell.settings.padding(), maxY, space), 0.0D));
 			thickness -= verticalPenalty * cell.settings.thickness().maxValue();
 		}

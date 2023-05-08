@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.settings;
 
-import java.util.Comparator;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.MemberUsage;
@@ -15,15 +12,14 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid3D;
-import builderb0y.bigglobe.randomLists.ContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class NetherSettings {
@@ -41,21 +37,7 @@ public class NetherSettings {
 	) {
 		this.biome_placement = biome_placement;
 		this.local_settings_registry = local_settings_registry;
-		this.local_settings = new ContainedRandomList<>();
-		local_settings_registry
-		.streamEntries()
-		.sorted(
-			Comparator.comparing(
-				(RegistryEntry<LocalNetherSettings> entry) -> (
-					UnregisteredObjectException.getKey(entry).getValue()
-				),
-				Comparator
-				.comparing(Identifier::getNamespace)
-				.thenComparing(Identifier::getPath)
-			)
-		)
-		.map(RegistryEntry::value)
-		.forEachOrdered(this.local_settings::add);
+		this.local_settings = BigGlobeDynamicRegistries.sortAndCollect(local_settings_registry);
 		this.min_y = min_y;
 		this.max_y = max_y;
 	}

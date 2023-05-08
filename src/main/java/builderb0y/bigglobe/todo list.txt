@@ -24,20 +24,19 @@ changelog:
 	* Fixed some interactions between snow and cliffs.
 	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
 	* Skylands now have flowers.
-	* Nether biomes are now a dynamic registry. This makes it easier to add new biomes to the nether, but also means existing worlds will break at the boundary of generated chunks.
-	* Wood palettes are now a dynamic registry. The old files in Big Globe's config folder are no longer used.
-	* Wood palettes are now available to some scripts.
-		* Bushes are now a scripted feature. This will not affect existing worlds.
 	* Fixed dungeons not saving their palette, causing them to revert to cobblestone if they are unloaded and reloaded before getting a chance to place blocks.
 	* Dungeons now have more decorations, including cobwebs, redstone torches, skulls, chains hanging from the ceiling, and collapsed rooms.
 	* Overworld biomes and surfaces are now more configurable without needing to edit the world preset. And to go along with that, sandstone now spawns under sand.
 	* Ice is now a (scripted) configured feature instead of being hard-coded.
 	* There are now scripts to fine-tune the relationship between temperature/foliage and height.
 	* Skylands now have amethyst crystals under them.
-	* Skyland shapes are now a dynamic registry instead of being in the world preset, making it easier to add new shapes in the future. This will however break old worlds at the edge of generated chunks.
-		* Added a new skylands shape: "swiss_cheese_plains".
 	* Fixed birch trees on skylands spawning with snow on them.
 	* Flower noise is now on the flower group instead of in the world preset.
+	* Wood palettes can now support multiple blocks per block type. This is being used for flowering azalea leaves.
+	* Nether biomes, wood palettes, skyland shapes, and cave templates are now dynamic registries. This makes it easier to add new ones without modifying the world preset, but also means old worlds will break on the edge of generated chunks.
+	* Added a new skylands shape: "swiss_cheese_plains".
+	* Wood palettes are now available to some scripts.
+		* Bushes are now a scripted feature. This will not affect existing worlds.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -62,13 +61,15 @@ scripting:
 	increment and decrement as expression.
 	postfix increment and decrement.
 	compareTo operator <=>
+	finish() and abort() methods for scripted features.
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
+		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
+		add ConstantContainedRandomList implements RandomAccessKnownTotalWeightRandomList.
 	overworld:
-		dynamic registry for cave variants.
 		dynamic registry for cavern variants.
 		command to search through caves, caverns, skylands, and nether biomes looking for specific variants.
 		overriders for skylands.
