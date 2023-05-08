@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.randomLists.ContainedRandomList;
+import builderb0y.bigglobe.randomLists.ConstantContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -62,7 +62,7 @@ public class BigGlobeDynamicRegistries {
 	}
 
 	public static <T extends IWeightedListElement> IRandomList<T> sortAndCollect(RegistryWrapper<T> registry) {
-		ContainedRandomList<T> list = new ContainedRandomList<>();
+		ConstantContainedRandomList<T> list = new ConstantContainedRandomList<>();
 		registry
 		.streamEntries()
 		.sorted(

@@ -37,6 +37,8 @@ changelog:
 	* Added a new skylands shape: "swiss_cheese_plains".
 	* Wood palettes are now available to some scripts.
 		* Bushes are now a scripted feature. This will not affect existing worlds.
+	* Fixed ocean monuments not spawning. Somehow this fix was added and accidentally removed. But now it's back.
+		* Added height overrider for ocean monuments.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -68,7 +70,6 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
-		add ConstantContainedRandomList implements RandomAccessKnownTotalWeightRandomList.
 	overworld:
 		dynamic registry for cavern variants.
 		command to search through caves, caverns, skylands, and nether biomes looking for specific variants.
