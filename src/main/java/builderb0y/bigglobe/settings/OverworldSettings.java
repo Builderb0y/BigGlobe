@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.settings;
 
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -17,7 +16,7 @@ public class OverworldSettings {
 	public final @VerifyNullable OverworldSkylandSettings skylands;
 	public final OverworldMiscellaneousSettings miscellaneous;
 
-	public final OverworldBiomeLayout.@EncodeInline Holder biomes;
+	public final OverworldBiomeLayout.Holder biomes;
 
 	public OverworldSettings(
 		OverworldHeightSettings height,

@@ -92,6 +92,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
 	public static class Config implements FeatureConfig {
 
+		//note to self: the SerializableScriptInputs needs to be encoded inline,
+		//because it itself has another script field.
 		public final FeatureScript.@EncodeInline Holder script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 

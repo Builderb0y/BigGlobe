@@ -68,7 +68,6 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
@@ -106,7 +105,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public static final GenerationStep.Feature[] FEATURE_STEPS = GenerationStep.Feature.values();
 	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 
-	@EncodeInline
 	public final SortedFeatures configuredFeatures;
 	public transient ColumnValue<?>[] displayedColumnValues;
 
@@ -124,7 +122,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public static class SortedFeatures {
 
 		public final RegistryWrapper<ConfiguredFeature<?, ?>> registry;
-		public final Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
+		public final transient Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
 		public SortedFeatures(RegistryWrapper<ConfiguredFeature<?, ?>> registry) {
 			this.registry = registry;

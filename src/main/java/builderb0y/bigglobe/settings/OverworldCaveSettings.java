@@ -20,7 +20,7 @@ import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 public class OverworldCaveSettings {
 
 	public final VoronoiDiagram2D placement;
-	public final @EncodeInline RegistryWrapper<LocalOverworldCaveSettings> template_registry;
+	public final RegistryWrapper<LocalOverworldCaveSettings> template_registry;
 	public final transient IRandomList<LocalOverworldCaveSettings> templates;
 	public final transient int maxDepth;
 

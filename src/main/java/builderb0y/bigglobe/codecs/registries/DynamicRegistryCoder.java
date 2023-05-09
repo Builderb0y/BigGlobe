@@ -41,6 +41,6 @@ public class DynamicRegistryCoder<T> extends NamedCoder<RegistryEntryLookup<T>> 
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntryLookup<T>> context) throws EncodeException {
-		return context.emptyMap();
+		return context.empty();
 	}
 }

@@ -44,6 +44,6 @@ public class DynamicRegistryWrapperCoder<T> extends NamedCoder<RegistryWrapper<T
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryWrapper<T>> context) throws EncodeException {
-		return context.emptyMap();
+		return context.empty();
 	}
 }
