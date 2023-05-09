@@ -39,6 +39,7 @@ changelog:
 		* Bushes are now a scripted feature. This will not affect existing worlds.
 	* Fixed ocean monuments not spawning. Somehow this fix was added and accidentally removed. But now it's back.
 		* Added height overrider for ocean monuments.
+	* Added script overriders for skylands.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -64,6 +65,7 @@ scripting:
 	postfix increment and decrement.
 	compareTo operator <=>
 	finish() and abort() methods for scripted features.
+	scripted structure layouts should be able to construct jigsaw structure pieces.
 
 features:
 	general:
@@ -72,10 +74,8 @@ features:
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 	overworld:
 		dynamic registry for cavern variants.
+		dynamic registry for overriders?
 		command to search through caves, caverns, skylands, and nether biomes looking for specific variants.
-		overriders for skylands.
-		random lists for blocks in wood palettes.
-			use in vanilla for flowering azalea leaves.
 		configurable ground replacements for trees.
 		configurable bedrock amount.
 		desert fossils.
