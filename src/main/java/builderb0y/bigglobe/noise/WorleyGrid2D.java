@@ -57,14 +57,18 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 				double centerX = this.getCenterX(seed, cellX, cellY);
 				double centerY = this.getCenterY(seed, cellX, cellY);
 				double y2      = squareD(centerY - y);
-				double offset  = Math.sqrt(radius2 - y2);
-				if (offset > 0.0D) {
-					int minX = Math.max( ceilI(centerX - offset), startX);
-					int maxX = Math.min(floorI(centerX + offset), startX + sampleCount - 1);
-					for (int x = minX; x <= maxX; x++) {
-						int index = x - startX;
-						samples[index] = Math.min(samples[index], squareD(centerX - x) + y2);
-					}
+				int limit = startX + sampleCount - 1;
+				for (int x = Math.min(floorI(centerX), limit); x >= startX; x--) {
+					double distance = squareD(centerX - x) + y2;
+					if (!(distance < radius2)) break;
+					int index = x - startX;
+					samples[index] = Math.min(samples[index], distance);
+				}
+				for (int x = Math.max(floorI(centerX) + 1, startX); x <= limit; x++) {
+					double distance = squareD(centerX - x) + y2;
+					if (!(distance < radius2)) break;
+					int index = x - startX;
+					samples[index] = Math.min(samples[index], distance);
 				}
 			}
 		}
@@ -87,14 +91,18 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 				double centerX = this.getCenterX(seed, cellX, cellY);
 				double centerY = this.getCenterY(seed, cellX, cellY);
 				double x2      = squareD(centerX - x);
-				double offset  = Math.sqrt(radius2 - x2);
-				if (offset > 0.0D) {
-					int minY = Math.max( ceilI(centerY - offset), startY);
-					int maxY = Math.min(floorI(centerY + offset), startY + sampleCount - 1);
-					for (int y = minY; y <= maxY; y++) {
-						int index = y - startY;
-						samples[index] = Math.min(samples[index], x2 + squareD(centerY - y));
-					}
+				int limit = startY + sampleCount - 1;
+				for (int y = Math.min(floorI(centerY), limit); y >= startY; y--) {
+					double distance = squareD(centerY - y) + x2;
+					if (!(distance < radius2)) break;
+					int index = y - startY;
+					samples[index] = Math.min(samples[index], distance);
+				}
+				for (int y = Math.max(floorI(centerY) + 1, startY); y <= limit; y++) {
+					double distance = squareD(centerY - y) + x2;
+					if (!(distance < radius2)) break;
+					int index = y - startY;
+					samples[index] = Math.min(samples[index], distance);
 				}
 			}
 		}

@@ -65,6 +65,8 @@ scripting:
 	postfix increment and decrement.
 	compareTo operator <=>
 	finish() and abort() methods for scripted features.
+		abort() needs a flag in the config to enable. "abortable": true
+	flag for scripted features to use a SerializableBlockQueue.
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 
 features:
@@ -80,6 +82,7 @@ features:
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.
+		flint, sticks, rocks on the ground?
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
