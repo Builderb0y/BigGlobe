@@ -41,8 +41,6 @@
 			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 1.0 }
 		]
 	},
-	"floor_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
-	"ceiling_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
 	"floor_decorator": "bigglobe:overworld/caves/floor_generic",
 	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_generic"
 }

@@ -1,0 +1,11 @@
+{
+	"variants": {
+		"": [
+			{ "model": "bigglobe:block/flint0" },
+			{ "model": "bigglobe:block/flint1" },
+			{ "model": "bigglobe:block/flint2" },
+			{ "model": "bigglobe:block/flint3" },
+			{ "model": "bigglobe:block/flint4" }
+		]
+	}
+}

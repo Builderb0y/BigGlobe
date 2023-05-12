@@ -29,11 +29,14 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
+import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
 import builderb0y.bigglobe.trees.SaplingGrowHandler;
 
 public class BigGlobeBlocks {
@@ -91,6 +94,46 @@ public class BigGlobeBlocks {
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
 			.offset(OffsetType.XZ)
+		)
+	);
+	/**
+	these blocks are referenced very early during *minecraft's* initialization,
+	before mods are loaded, via mixin.
+	see {@link Items_PlaceableSticks} and {@link Items_PlaceableFlint}.
+	bad things happen when BigGlobeBlocks registers its blocks too early.
+	so instead we have a separate class to hold these blocks
+	which doesn't register them on class initialization.
+	registering the blocks is done in {@link #init()}.
+	*/
+	public static class VanillaBlocks {
+
+		public static final SurfaceMaterialDecorationBlock
+			STICK = new SurfaceMaterialDecorationBlock(
+				AbstractBlock.Settings.of(Material.WOOD)
+				.breakInstantly()
+				.noCollision()
+				.offset(OffsetType.XZ)
+				.sounds(BlockSoundGroup.WOOD),
+				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
+			),
+			FLINT = new SurfaceMaterialDecorationBlock(
+				AbstractBlock.Settings.of(Material.STONE, MapColor.IRON_GRAY)
+				.breakInstantly()
+				.noCollision()
+				.offset(OffsetType.XZ)
+				.sounds(BlockSoundGroup.STONE),
+				VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D)
+			);
+	}
+	public static final SurfaceMaterialDecorationBlock ROCK = register(
+		"rock",
+		new SurfaceMaterialDecorationBlock(
+			AbstractBlock.Settings.of(Material.STONE)
+				.breakInstantly()
+				.noCollision()
+				.offset(OffsetType.XZ)
+				.sounds(BlockSoundGroup.STONE),
+				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
 		)
 	);
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
@@ -162,6 +205,8 @@ public class BigGlobeBlocks {
 			.dropsNothing()
 		)
 	);
+
+	//////////////////////////////// nether ////////////////////////////////
 
 	public static final AshenNetherrackBlock ASHEN_NETHERRACK = register(
 		"ashen_netherrack",
@@ -523,6 +568,8 @@ public class BigGlobeBlocks {
 	}
 
 	public static void init() {
+		register("stick", VanillaBlocks.STICK);
+		register("flint", VanillaBlocks.FLINT);
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::canTillFarmland, Blocks.FARMLAND.getDefaultState());
 		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
 		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);

@@ -10,6 +10,9 @@
 	"contributors": [
 		"Mr Slime - helped with overgrown podzol textures."
 	],
+	"contact": {
+		"issues": "https://github.com/Builderb0y/BigGlobe/issues"
+	},
 	"license": "CC-BY-NC 4.0",
 	"icon": "assets/bigglobe/icon_64x.png",
 	"environment": "*",

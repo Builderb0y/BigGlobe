@@ -44,6 +44,7 @@ public class BigGlobeItems {
 		FLOATSTONE               = registerPlacer(BigGlobeBlocks.FLOATSTONE),
 		FLOATSTONE_SLAB          = registerPlacer(BigGlobeBlocks.FLOATSTONE_SLAB),
 		FLOATSTONE_STAIRS        = registerPlacer(BigGlobeBlocks.FLOATSTONE_STAIRS),
+		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings())),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -161,6 +162,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.DANDELION, ROSE);
 			entries.addAfter(Items.LILY_OF_THE_VALLEY, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
+			entries.addAfter(Items.STONE, ROCK);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
@@ -178,6 +180,7 @@ public class BigGlobeItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
 			entries.addAfter(Items.GUNPOWDER, ASH);
+			entries.addAfter(Items.FLINT, ROCK);
 		});
 	}
 }

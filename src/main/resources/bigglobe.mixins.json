@@ -17,6 +17,8 @@
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"Heightmap_StorageAccess",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
+		"Items_PlaceableFlint",
+		"Items_PlaceableSticks",
 		"MinecraftServer_InitializeSpawnPoint",
 		"MinecraftServer_SessionAccess",
 		"MobSpawnerLogic_GettersAndSettersForEverything",
