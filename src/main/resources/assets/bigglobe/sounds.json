@@ -1,0 +1,8 @@
+{
+	"entity.rock.throw": {
+		"subtitle": "subtitles.bigglobe.entity.rock.throw",
+		"sounds": [
+			"minecraft:random/bow"
+		]
+	}
+}

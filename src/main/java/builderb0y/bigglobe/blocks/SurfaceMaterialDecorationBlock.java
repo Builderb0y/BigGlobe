@@ -22,6 +22,7 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 	public SurfaceMaterialDecorationBlock(AbstractBlock.Settings settings, VoxelShape shape) {
 		super(settings);
 		this.shape = shape;
+		this.setDefaultState(this.getDefaultState().with(Properties.WATERLOGGED, Boolean.FALSE));
 	}
 
 	@Override
@@ -36,7 +37,7 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 	@SuppressWarnings("deprecation")
 	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		BlockPos downPos = pos.down();
-		return Block.isFaceFullSquare(world.getBlockState(downPos).getOutlineShape(world, downPos), Direction.UP);
+		return world.getBlockState(downPos).isSideSolidFullSquare(world, downPos, Direction.UP);
 	}
 
 	@Nullable

@@ -32,6 +32,22 @@ public class BigGlobeEntityTypes {
 			FeatureSet.empty()                     //requiredFeatures
 		)
 	);
+	public static final EntityType<RockEntity> ROCK = register(
+		"rock",
+		new EntityType<>(
+			RockEntity::new,
+			SpawnGroup.MISC,
+			true,
+			true,
+			false,
+			false,
+			ImmutableSet.of(),
+			EntityDimensions.changing(0.5F, 0.5F),
+			4,
+			20,
+			FeatureSet.empty()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }
 

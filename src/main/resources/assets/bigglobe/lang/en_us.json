@@ -111,6 +111,8 @@
 	"commands.bigglobe.profiler.restarted": "Restarted worldgen profiling for %s",
 	"commands.bigglobe.profiler.notRunning": "The profiler is not running in this world.",
 
+	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
+
 	"text.autoconfig.bigglobe.title": "Big Globe",
 
 	"text.autoconfig.bigglobe.option.reloadGenerators": "Reload Big Globe chunk generators from mod jar",

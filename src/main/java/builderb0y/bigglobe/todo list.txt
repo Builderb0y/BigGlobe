@@ -75,8 +75,8 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
-		throwable rocks?
-			slingshot?
+		slingshot?
+			model overrides: ModelPredicateProviderRegistry
 	overworld:
 		dynamic registry for cavern variants.
 		dynamic registry for overriders?
