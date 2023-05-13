@@ -30,30 +30,31 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
 		Map<String, Boolean> defaults = new HashMap<>(64);
-		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CatEntity_PetTheKitty", Boolean.FALSE);
+		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                 Boolean.TRUE);
+		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",              Boolean.TRUE);
+		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",             Boolean.TRUE);
+		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",              Boolean.TRUE);
+		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",        Boolean.TRUE);
+		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                            Boolean.FALSE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize", Boolean.FALSE);
-		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableFlint", Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableSticks", Boolean.TRUE);
-		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning", Boolean.TRUE);
-		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly", Boolean.TRUE);
-		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues", Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes", Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight", Boolean.TRUE);
-		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint", Boolean.TRUE);
-		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns", Boolean.TRUE);
-		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight", Boolean.TRUE);
-		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes", Boolean.TRUE);
-		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly", Boolean.TRUE);
-		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox", Boolean.TRUE);
-		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel", Boolean.TRUE);
+		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                    Boolean.FALSE);
+		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",     Boolean.TRUE);
+		defaults.put(mixinPackage + ".Items_PlaceableFlint",                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".Items_PlaceableSticks",                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",   Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",               Boolean.TRUE);
+		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",            Boolean.TRUE);
+		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",    Boolean.TRUE);
 		return defaults;
 	}
 

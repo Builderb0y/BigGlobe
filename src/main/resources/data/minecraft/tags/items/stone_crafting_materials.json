@@ -1,7 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:floatstone",
-		"bigglobe:rock"
+		"bigglobe:floatstone"
 	]
 }
