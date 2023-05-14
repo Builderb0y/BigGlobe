@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "GROUP",
+	"pattern": [
+		"sts",
+		" s ",
+		" s "
+	],
+	"key": {
+		"s": { "tag": "c:wood_sticks" },
+		"t": { "tag": "c:string" }
+	},
+	"result": {
+		"item": "bigglobe:slingshot"
+	}
+}

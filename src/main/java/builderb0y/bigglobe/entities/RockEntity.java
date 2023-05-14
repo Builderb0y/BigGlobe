@@ -2,13 +2,18 @@ package builderb0y.bigglobe.entities;
 
 import java.util.function.Predicate;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -27,6 +32,7 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.math.BigGlobeMath;
 
 public class RockEntity extends ThrownItemEntity {
 
@@ -52,55 +58,63 @@ public class RockEntity extends ThrownItemEntity {
 		super.onEntityHit(entityHitResult);
 		entityHitResult.getEntity().damage(
 			this.getDamageSources().thrown(this, this.getOwner()),
-			(float)(this.getVelocity().length() * 8.0D)
+			(float)(this.getVelocity().length() * 6.0D)
 		);
 		this.discard();
 	}
 
 	/**
 	mostly a copy-paste of {@link ProjectileUtil#getCollision(Entity, Predicate)},
-	but allowing collisions with fluids.
+	but allowing collisions with fluids when this rock is not in a fluid.
 	*/
 	@SuppressWarnings("unused")
 	public HitResult bigglobe_getCollision() {
-		EntityHitResult hitResult2;
-		Vec3d vec3d3;
-		Vec3d vec3d = this.getVelocity();
+		EntityHitResult entityHitResult;
+		Vec3d nextPosition;
+		Vec3d velocity = this.getVelocity();
 		World world = this.world;
-		Vec3d vec3d2 = this.getPos();
-		HitResult hitResult = world.raycast(
+		Vec3d position = this.getPos();
+		HitResult blockHitResult = world.raycast(
 			new RaycastContext(
-				vec3d2,
-				vec3d3 = vec3d2.add(vec3d),
+				position,
+				nextPosition = position.add(velocity),
 				ShapeType.COLLIDER,
-				this.world.getBlockState(BlockPos.ofFloored(this.getPos())).getBlock() == Blocks.WATER
+				this.world.getBlockState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
 				? FluidHandling.NONE
-				: FluidHandling.SOURCE_ONLY,
+				: FluidHandling.ANY,
 				this
 			)
 		);
-		if (hitResult.getType() != HitResult.Type.MISS) {
-			vec3d3 = hitResult.getPos();
+		if (blockHitResult.getType() != HitResult.Type.MISS) {
+			nextPosition = blockHitResult.getPos();
 		}
-		if ((hitResult2 = ProjectileUtil.getEntityCollision(world, this, vec3d2, vec3d3, this.getBoundingBox().stretch(this.getVelocity()).expand(1.0), this::canHit)) != null) {
-			hitResult = hitResult2;
+		if ((entityHitResult = ProjectileUtil.getEntityCollision(world, this, position, nextPosition, this.getBoundingBox().stretch(this.getVelocity()).expand(1.0), this::canHit)) != null) {
+			blockHitResult = entityHitResult;
 		}
-		return hitResult;
+		return blockHitResult;
 	}
 
 	@Override
 	public void onBlockHit(BlockHitResult blockHitResult) {
 		super.onBlockHit(blockHitResult);
-		if (
-			this.world.getBlockState(blockHitResult.getBlockPos()).getBlock() == Blocks.WATER
-		) {
-			if (
-				blockHitResult.getSide() == Direction.UP &&
-				this.getVelocity().lengthSquared() >= 0.125D * 0.125D
-			) {
-				this.bounce(blockHitResult, true);
+		BlockState hitState = this.world.getBlockState(blockHitResult.getBlockPos());
+		if (!hitState.getFluidState().isEmpty()) {
+			if (hitState.getFluidState().isIn(FluidTags.WATER)) {
+				if (
+					blockHitResult.getSide() == Direction.UP &&
+					this.getVelocity().horizontalLengthSquared() >= BigGlobeMath.squareD(this.getVelocity().y) * 3.0D
+				) {
+					this.bounce(blockHitResult, true);
+				}
+				//else go through surface
 			}
-			//else go through surface
+			else if (hitState.getFluidState().isIn(FluidTags.LAVA)) {
+				if (this.world instanceof ServerWorld world) {
+					world.spawnParticles(ParticleTypes.LAVA, this.getX(), this.getY(), this.getZ(), 16, 0.0D, 0.0D, 0.0D, 0.0D);
+					world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+				}
+				this.discard();
+			}
 		}
 		else if (
 			blockHitResult.getSide() == Direction.UP &&
@@ -109,7 +123,13 @@ public class RockEntity extends ThrownItemEntity {
 			this.placeRock(blockHitResult);
 		}
 		else {
-			this.bounce(blockHitResult, false);
+			if (hitState.getMaterial() == Material.GLASS) {
+				this.world.breakBlock(blockHitResult.getBlockPos(), true, this);
+				this.setVelocity(this.getVelocity().multiply(0.75D));
+			}
+			else {
+				this.bounce(blockHitResult, false);
+			}
 		}
 	}
 

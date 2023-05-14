@@ -75,8 +75,6 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
-		slingshot?
-			model overrides: ModelPredicateProviderRegistry
 	overworld:
 		dynamic registry for cavern variants.
 		dynamic registry for overriders?
@@ -85,7 +83,6 @@ features:
 		configurable bedrock amount.
 		desert fossils.
 		fallen logs.
-		flint, sticks, rocks on the ground?
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.

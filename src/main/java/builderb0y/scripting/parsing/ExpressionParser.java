@@ -1,10 +1,15 @@
 package builderb0y.scripting.parsing;
 
+import java.io.IOException;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +18,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.HashCommon;
+import net.fabricmc.loader.api.FabricLoader;
+import org.apache.commons.io.file.PathUtils;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -44,7 +51,47 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ExpressionParser {
 
-	public static final boolean DUMP_GENERATED_CLASSES  = Boolean.getBoolean("builderb0y.bytecode.dumpGeneratedClasses");
+	public static final Path CLASS_DUMP_DIRECTORY;
+	static {
+		Path classDumpDirectory;
+		if (Boolean.getBoolean("builderb0y.bytecode.dumpGeneratedClasses")) {
+			classDumpDirectory = FabricLoader.getInstance().getGameDir().resolve("builderb0y_bytecode_class_dump");
+			if (Files.isDirectory(classDumpDirectory)) try {
+				PathUtils.cleanDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to clean the previous session's script dump output.
+					Dumping of generated classes has been disabled to prevent ambiguity over which file is from which session.
+					Please empty the class dump directory manually when you get a chance.
+					""",
+					exception
+				);
+				classDumpDirectory = null;
+			}
+			else try {
+				Files.createDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to create the script dump directory.
+					Dumping of generated classes has been disabled as there is nowhere to put them.
+					""",
+					exception
+				);
+				classDumpDirectory = null;
+			}
+		}
+		else {
+			classDumpDirectory = null;
+		}
+		CLASS_DUMP_DIRECTORY = classDumpDirectory;
+		ScriptLogger.LOGGER.info("Class dumping is " + (classDumpDirectory != null ? "enabled" : "disabled") + '.');
+	}
+
+	public static void clinit() {}
 
 	public final ExpressionReader input;
 	public int currentLine;
@@ -96,11 +143,20 @@ public class ExpressionParser {
 		}
 	}
 
-	public Class<?> compile() {
-		if (DUMP_GENERATED_CLASSES) {
-			ScriptLogger.LOGGER.info("Compiling script with source:");
-			ScriptLogger.LOGGER.info(this.input.input);
-			ScriptLogger.LOGGER.info(this.clazz.dump());
+	public static void dump(ClassCompileContext context) throws IOException {
+		String baseName = context.info.getSimpleName();
+		Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+		Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
+	}
+
+	public Class<?> compile() throws Throwable {
+		if (CLASS_DUMP_DIRECTORY != null) try {
+			String baseName = this.clazz.info.getSimpleName();
+			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-src.txt"), this.input.input, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+			dump(this.clazz);
+		}
+		catch (IOException exception) {
+			ScriptLogger.LOGGER.error("", exception);
 		}
 		return new ScriptClassLoader(this.clazz).defineMainClass();
 	}

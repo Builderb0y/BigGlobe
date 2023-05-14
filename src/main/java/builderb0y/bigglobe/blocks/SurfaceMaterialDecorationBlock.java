@@ -53,6 +53,9 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 		if (state.get(Properties.WATERLOGGED)) {
 			world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}
+		if (direction == Direction.DOWN && !this.canPlaceAt(state, world, pos)) {
+			return BlockStates.AIR;
+		}
 		return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
 	}
 

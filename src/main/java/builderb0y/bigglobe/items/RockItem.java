@@ -1,7 +1,9 @@
 package builderb0y.bigglobe.items;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,7 +18,7 @@ import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.RockEntity;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 
-public class RockItem extends BlockItem {
+public class RockItem extends BlockItem implements SlingshotAmmunition {
 
 	public RockItem(Block block, Item.Settings settings) {
 		super(block, settings);
@@ -30,7 +32,7 @@ public class RockItem extends BlockItem {
 		if (!world.isClient) {
 			RockEntity rockEntity = new RockEntity(BigGlobeEntityTypes.ROCK, user, world);
 			rockEntity.setItem(stack);
-			rockEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5F, 8.0F);
+			rockEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.75F, 8.0F);
 			world.spawnEntity(rockEntity);
 		}
 		user.incrementStat(Stats.USED.getOrCreateStat(this));
@@ -38,5 +40,12 @@ public class RockItem extends BlockItem {
 			stack.decrement(1);
 		}
 		return TypedActionResult.success(stack, true);
+	}
+
+	@Override
+	public ProjectileEntity createProjectile(World world, LivingEntity user, ItemStack stack, ItemStack slingshot) {
+		RockEntity rockEntity = new RockEntity(BigGlobeEntityTypes.ROCK, user, world);
+		rockEntity.setItem(stack);
+		return rockEntity;
 	}
 }

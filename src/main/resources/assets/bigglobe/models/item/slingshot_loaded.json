@@ -1,0 +1,18 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "bigglobe:item/slingshot_loaded"
+	},
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [ 0, 180, -5 ],
+			"translation": [ -9, 2, -4 ],
+			"scale": [ 1.0, 1.0, 1.0 ]
+		},
+		"firstperson_lefthand": {
+			"rotation": [ 0, 180, -5 ],
+			"translation": [ -9, 2, -4 ],
+			"scale": [ 1.0, 1.0, 1.0 ]
+		}
+	}
+}

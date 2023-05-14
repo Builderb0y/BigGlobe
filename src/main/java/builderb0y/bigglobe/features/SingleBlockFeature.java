@@ -123,7 +123,7 @@ public class SingleBlockFeature extends Feature<Config> {
 		BlockState[] states = getStates(place);
 		if (!checkFluids(world, pos, states, replace)) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_LISTENERS);
+			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_ALL);
 		}
 		return true;
 	}

@@ -20,13 +20,8 @@ public class ScriptClassLoader extends ClassLoader {
 		this.recursiveAddClasses(clazz);
 	}
 
-	public Class<?> defineMainClass() {
-		try {
-			return this.loadClass(this.clazz.info.getClassName());
-		}
-		catch (ClassNotFoundException exception) {
-			throw new AssertionError("Could not find main script class", exception);
-		}
+	public Class<?> defineMainClass() throws ClassNotFoundException {
+		return this.loadClass(this.clazz.info.getClassName());
 	}
 
 	public void recursiveAddClasses(ClassCompileContext clazz) {

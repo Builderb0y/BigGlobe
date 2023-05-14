@@ -46,6 +46,7 @@ import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 public class BigGlobeMod implements ModInitializer {
 
@@ -80,6 +81,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
 		BigGlobeNetwork.init();
+		ExpressionParser.clinit();
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);

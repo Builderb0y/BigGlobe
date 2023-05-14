@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -92,6 +93,13 @@ public class BigGlobeItems {
 			new Item.Settings()
 		)
 	);
+	public static final SlingshotItem SLINGSHOT = register(
+		"slingshot",
+		new SlingshotItem(
+			new Item.Settings()
+			.maxDamage(192)
+		)
+	);
 	public static final Item ASH = register(
 		"ash",
 		new Item(
@@ -140,6 +148,10 @@ public class BigGlobeItems {
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
 		);
+		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (stack, world, entity, seed) -> {
+			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
+			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
+		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
 			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
 			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB, FLOATSTONE, FLOATSTONE_STAIRS, FLOATSTONE_SLAB);
@@ -181,6 +193,9 @@ public class BigGlobeItems {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
 			entries.addAfter(Items.GUNPOWDER, ASH);
 			entries.addAfter(Items.FLINT, ROCK);
+		});
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
 		});
 	}
 }

@@ -1,0 +1,16 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "bigglobe:item/slingshot"
+	},
+	"overrides": [
+		{
+			"predicate": { "bigglobe:loaded": 0.01 },
+			"model": "bigglobe:item/slingshot_loading"
+		},
+		{
+			"predicate": { "bigglobe:loaded": 0.5 },
+			"model": "bigglobe:item/slingshot_loaded"
+		}
+	]
+}
