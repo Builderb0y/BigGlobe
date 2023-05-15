@@ -27,6 +27,7 @@ public abstract class StairsBlock_MirrorProperly extends Block {
 	this breaks some of my structure placement logic.
 	ironically, the fixed code is actually shorter than the broken code.
 	@author Builderb0y
+	@reason vanilla logic doesn't work correctly.
 	*/
 	@Override
 	@Overwrite

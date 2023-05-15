@@ -43,9 +43,9 @@ dependencies() {
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 
-	//mods that I interact with.
-
-	//mods I like to use while playing.
+	modCompileOnly(fileTree(file('dependencies/compileOnly')))
+	modImplementation(fileTree(file('dependencies/implementation')))
+	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
 
 	//optimizations.
 	modRuntimeOnly('maven.modrinth:lazydfu:0.1.3')
@@ -54,12 +54,7 @@ dependencies() {
 	modRuntimeOnly('maven.modrinth:starlight:1.1.1+1.19')
 	modRuntimeOnly('maven.modrinth:ferrite-core:5.2.0-fabric')
 
-	//content
-	modCompileOnly(fileTree(file('dependencies/compileOnly')))
-	modImplementation(fileTree(file('dependencies/implementation')))
-	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
-
-	//tweaks
+	//tweaks.
 	modRuntimeOnly('maven.modrinth:logical-zoom:0.0.19')
 	modRuntimeOnly('maven.modrinth:screenshot-to-clipboard:1.0.9+fabric')
 	modRuntimeOnly('maven.modrinth:dcwa:4.0')

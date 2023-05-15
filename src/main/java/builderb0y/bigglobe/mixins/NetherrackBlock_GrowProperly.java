@@ -15,13 +15,15 @@ import net.minecraft.util.math.random.Random;
 public class NetherrackBlock_GrowProperly {
 
 	/**
-	the default method has 2 flaws:
+	the vanilla method has 2 flaws:
 	1: it's hard-coded for crimson and warped nylium.
 	as such, ashen netherrack cannot spread by bonemealing regular netherrack,
 	even if it's in BlockTags.NYLIUM (which it is).
 	2: if there is crimson AND warped nylium adjacent, which one you get is 50/50.
 	this chance is not proportional to the *amounts* of each.
 	this overwrite fixes both of these issues.
+	@author Builderb0y
+	@reason vanilla logic is hard-coded for vanilla blocks.
 	*/
 	@Overwrite
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
