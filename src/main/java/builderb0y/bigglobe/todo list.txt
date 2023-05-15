@@ -2,6 +2,8 @@ bug fixes:
 	geode spikes can still spawn outside of geodes.
 	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
 		this is a fabric bug.
+	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
+		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -10,40 +12,42 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	finish locating all the caverns to ensure they decorate correctly.
-	verify that lava lakes have an appropriate amount of lava on them.
 
 changelog:
-	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
-	* Script features now have a flag to randomly rotate the feature when placing it.
-	* Added column values for vanilla worlds.
-	* Structures are now scriptable.
-		* Campfires are now a scripted structure. Campfires in existing worlds may fail to be read from NBT. Errors in your log file related to this can be mostly ignored, but campfires which were previously on the boundary of generated chunks may be cut off.
-	* Added wells, as a scripted structure.
-	* Added small houses, also as a scripted structure.
-		* Some houses have farms next to them.
-	* Overworld cave width is now a script. This is a world breaking change, but you can get around it for existing worlds by enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file.
-	* Fixed some interactions between snow and cliffs.
-	* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
-	* Skylands now have flowers.
-	* Fixed dungeons not saving their palette, causing them to revert to cobblestone if they are unloaded and reloaded before getting a chance to place blocks.
-	* Dungeons now have more decorations, including cobwebs, redstone torches, skulls, chains hanging from the ceiling, and collapsed rooms.
-	* Overworld biomes and surfaces are now more configurable without needing to edit the world preset. And to go along with that, sandstone now spawns under sand.
-	* Ice is now a (scripted) configured feature instead of being hard-coded.
-	* There are now scripts to fine-tune the relationship between temperature/foliage and height.
-	* Skylands now have amethyst crystals under them.
-	* Fixed birch trees on skylands spawning with snow on them.
-	* Flower noise is now on the flower group instead of in the world preset.
-	* Wood palettes can now support multiple blocks per block type. This is being used for flowering azalea leaves.
-	* Nether biomes, wood palettes, skyland shapes, cave templates, and cavern templates are now dynamic registries. This makes it easier to add new ones without modifying the world preset, but also means old worlds will break on the edge of generated chunks.
-	* Added a new skylands shape: "swiss_cheese_plains".
-	* Wood palettes are now available to some scripts.
-		* Bushes are now a scripted feature. This will not affect existing worlds.
-	* Fixed ocean monuments not spawning. Somehow this fix was added and accidentally removed. But now it's back.
-		* Added height overrider for ocean monuments.
-	* Added script overriders for skylands.
-	* Added sticks, flint, and rocks as placeable blocks that spawn on the surface during worldgen.
-	* Added command to search for terrain gen placed by voronoi diagrams.
+	Additions:
+		* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
+		* Script features now have a flag to randomly rotate the feature when placing it.
+		* Added column values for vanilla worlds.
+		* Structures are now scriptable.
+			* Campfires are now a scripted structure. Campfires in existing worlds may fail to be read from NBT. Errors in your log file related to this can be mostly ignored, but campfires which were previously on the boundary of generated chunks may be cut off.
+		* Added wells, as a scripted structure.
+		* Added small houses, also as a scripted structure.
+			* Some houses have farms next to them.
+		* Skylands now have flowers.
+		* Dungeons now have more decorations, including cobwebs, redstone torches, skulls, chains hanging from the ceiling, and collapsed rooms.
+		* Overworld biomes and surfaces are now more configurable without needing to edit the world preset. And to go along with that, sandstone now spawns under sand.
+		* Skylands now have amethyst crystals under them.
+		* Wood palettes can now support multiple blocks per block type. This is being used for flowering azalea leaves.
+		* Added a new skylands shape: "swiss_cheese_plains".
+		* Wood palettes are now available to some scripts.
+			* Bushes are now a scripted feature. This will not affect existing worlds.
+		* Added script overriders for skylands.
+		* Added sticks, flint, and rocks as placeable blocks that spawn on the surface during worldgen.
+		* Added command to search for terrain gen placed by voronoi diagrams.
+	Changes:
+		* Overworld cave width is now a script. Existing worlds will not load correctly with this change, but you can get around it by enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file.
+		* There are now scripts to fine-tune the relationship between temperature/foliage and height. This will also require enabling "Reload Big Globe chunk generators from mod jar" in the mod's config file to load old worlds.
+		* Ice is now a (scripted) configured feature instead of being hard-coded.
+		* Flower noise is now on the flower group instead of in the world preset.
+		* Nether biomes, wood palettes, skyland shapes, cave templates, and cavern templates are now dynamic registries. This makes it easier to add new ones without modifying the world preset, but also means old worlds will break on the edge of generated chunks.
+		* Tweaked cavern excluders. This could break existing worlds on the boundary of generated chunks if there were previously structures there.
+	Fixes:
+		* Fixed some interactions between snow and cliffs.
+		* Maybe fixed cliffs being a bit too eager to show up. I say maybe because I don't remember if this was an issue previously, or if I added it while fixing snow.
+		* Fixed dungeons not saving their palette, causing them to revert to cobblestone if they are unloaded and reloaded before getting a chance to place blocks.
+		* Fixed birch trees on skylands spawning with snow on them.
+		* Fixed ocean monuments not spawning. Somehow this fix was added and accidentally removed. But now it's back.
+			* Added height overrider for ocean monuments.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -120,7 +124,7 @@ before release:
 
 porting:
 	add sniffer_diggable_block tag to include overgrown podzol.
-	add hanging signs to WoodBlockSet.
+	add hanging signs to WoodPalette.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().

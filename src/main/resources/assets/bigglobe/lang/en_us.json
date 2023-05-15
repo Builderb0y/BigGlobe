@@ -83,7 +83,7 @@
 	"commands.bigglobe.locate.searching": "Searching...",
 	"commands.bigglobe.locate.clickToTeleport": "Click to Teleport",
 	"commands.bigglobe.locate.more": "...%d more",
-	"commands.bigglobe.locateVoronoi.success": "The nearest %s %s is at %d, %d (%d block(s) away)",
+	"commands.bigglobe.locateVoronoi.success": "The nearest %s %s is at %s (%d block(s) away)",
 	"commands.bigglobe.locateVoronoi.fail": "Could not locate %s %s nearby.",
 
 	"commands.bigglobe.locate.noise.min.success.single": "Smallest %s value near you:",

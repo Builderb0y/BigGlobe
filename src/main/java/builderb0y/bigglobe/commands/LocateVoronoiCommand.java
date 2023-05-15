@@ -15,6 +15,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
+import net.minecraft.util.Formatting;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.NetherColumn;
@@ -114,7 +116,7 @@ public class LocateVoronoiCommand {
 			@Override
 			public @Nullable LocalSkylandSettings getSettings(WorldColumn column) {
 				OverworldColumn.SkylandCell cell;
-				return column instanceof OverworldColumn overworld && (cell = overworld.getSkylandCell()) != null ? cell.settings : null;
+				return column instanceof OverworldColumn overworld && (cell = overworld.getSkylandCell()) != null && overworld.hasSkyland() ? cell.settings : null;
 			}
 		};
 		public static final VoronoiType<LocalNetherSettings> NETHER_BIOME = new VoronoiType<>("nether_biome", BigGlobeDynamicRegistries.LOCAL_NETHER_SETTINGS_REGISTRY_KEY) {
@@ -192,31 +194,33 @@ public class LocateVoronoiCommand {
 			if (this.getSettings(column) == settings) {
 				source.sendFeedback(
 					Text.translatable(
-							"commands.bigglobe.locateVoronoi.success",
-							settingsKey.getValue().toString(),
-							this.name,
-							column.x,
-							column.z,
-							(int)(
-								Math.sqrt(
-									BigGlobeMath.squareD(
-										column.x - source.getPosition().x,
-										column.z - source.getPosition().z
-									)
+						"commands.bigglobe.locateVoronoi.success",
+						settingsKey.getValue().toString(),
+						this.name,
+						Texts.bracketed(
+							Text.translatable("chat.coordinates", column.x, "~", column.z)
+							.styled(style -> (
+								style
+								.withColor(Formatting.GREEN)
+								.withHoverEvent(new HoverEvent(
+									HoverEvent.Action.SHOW_TEXT,
+									Text.translatable("commands.bigglobe.locate.clickToTeleport")
+								))
+								.withClickEvent(new ClickEvent(
+									ClickEvent.Action.SUGGEST_COMMAND,
+									"/tp @s " + column.x + " ~ " + column.z
+								))
+							))
+						),
+						(int)(
+							Math.sqrt(
+								BigGlobeMath.squareD(
+									column.x - source.getPosition().x,
+									column.z - source.getPosition().z
 								)
 							)
 						)
-						.styled(style -> (
-							style
-							.withHoverEvent(new HoverEvent(
-								HoverEvent.Action.SHOW_TEXT,
-								Text.translatable("commands.bigglobe.locate.clickToTeleport")
-							))
-							.withClickEvent(new ClickEvent(
-								ClickEvent.Action.SUGGEST_COMMAND,
-								"/tp @s " + column.x + " ~ " + column.z
-							))
-						)),
+					),
 					false
 				);
 				return true;

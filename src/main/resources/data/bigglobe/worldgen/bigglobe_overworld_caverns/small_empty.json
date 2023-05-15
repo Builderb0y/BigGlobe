@@ -22,5 +22,5 @@
 	"fluid": "minecraft:air",
 	"floor_decorator": "bigglobe:overworld/caverns/floor_small_empty",
 	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_small_empty",
-	"has_ancient_cities": true
+	"has_ancient_cities": false
 }
