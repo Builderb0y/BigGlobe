@@ -1,11 +1,11 @@
 {
 	"script": [
-		"random.unless(1.0L / 256.0L: return(false))",
+		"random.unless(CHANCE: return(false))",
 
 		"boolean isValid(int x, int z:",
 			"return (",
 				"random.nextBoolean(1.0L - ((x - originX) ^ 2 + (z - originZ) ^ 2) * (1.0L / 256.0L)) &&",
-				"getBlockState(x, originY - 1, z) == LAVA_BLOCK",
+				"getBlockState(x, originY - 1, z) == REPLACE",
 			")",
 		")",
 
@@ -16,9 +16,8 @@
 			"int z",
 		")",
 
-		"int count = int(exp2(random.nextDouble(8.0L)))",
-		"Set positions = HashSet.new(count << 1)",
-		"List growing = ArrayList.new(count << 1)",
+		"Set positions = HashSet.new(COUNT << 1)",
+		"List growing = ArrayList.new(COUNT << 1)",
 
 		"void addIfValid(int x, int z:",
 			"if (isValid(x, z):",
@@ -31,14 +30,14 @@
 		"positions.add(origin)",
 		"growing.add(origin)",
 
-		"until (--count,, count <= 0 || growing.isEmpty():",
+		"until (--COUNT,, COUNT <= 0 || growing.isEmpty():",
 			"int index = random.nextInt(growing.size())",
 			"Pos pos = (",
 				"index == growing.size() - 1",
 				"? growing.removeIndex(index)",
 				": growing.set(index, growing.removeIndex(growing.size() - 1))",
 			")",
-			"setBlockState(pos.x, originY - 1, pos.z, MAGMA_BLOCK)",
+			"setBlockState(pos.x, originY - 1, pos.z, PLACE)",
 			"addIfValid(pos.x, pos.z + 1)",
 			"addIfValid(pos.x, pos.z - 1)",
 			"addIfValid(pos.x + 1, pos.z)",
@@ -47,7 +46,9 @@
 		"return(true)"
 	],
 	"inputs": [
-		{ "name": "LAVA_BLOCK", "type": "BlockState" },
-		{ "name": "MAGMA_BLOCK", "type": "BlockState" }
+		{ "name": "PLACE", "type": "BlockState" },
+		{ "name": "REPLACE", "type": "BlockState" },
+		{ "name": "CHANCE", "type": "double" },
+		{ "name": "COUNT", "type": "int" }
 	]
 }

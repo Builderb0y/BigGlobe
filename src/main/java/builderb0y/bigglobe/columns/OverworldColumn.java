@@ -11,7 +11,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
 import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
@@ -452,7 +451,7 @@ public class OverworldColumn extends WorldColumn {
 		OverworldCavernSettings globalCaverns = this.settings.underground.deep_caverns();
 		if (globalCaverns == null) return null;
 		CavernCell cavernCell = this.cavernCell;
-		VoronoiDiagram2D.Cell voronoiCell = globalCaverns.placement().getNearestCell(this.x, this.z, cavernCell != null ? cavernCell.voronoiCell : null);
+		VoronoiDiagram2D.Cell voronoiCell = globalCaverns.placement.getNearestCell(this.x, this.z, cavernCell != null ? cavernCell.voronoiCell : null);
 		if (cavernCell == null) {
 			cavernCell = this.cavernCell = new CavernCell();
 		}
@@ -460,7 +459,7 @@ public class OverworldColumn extends WorldColumn {
 			return cavernCell;
 		}
 		cavernCell.voronoiCell = voronoiCell;
-		LocalCavernSettings local = DelegatingContainedRandomList.from(globalCaverns.templates().elements).getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
+		LocalCavernSettings local = globalCaverns.templates.getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
 		cavernCell.settings = local;
 		cavernCell.averageCenter = local.average_center().get(voronoiCell.center.getSeed(0x649B8B0255A6DB63L));
 		return cavernCell;
@@ -546,7 +545,7 @@ public class OverworldColumn extends WorldColumn {
 		assert settings != null : "Have cell, but no settings?";
 
 		double progress = cell.voronoiCell.progressToEdgeD(this.x, this.z);
-		double threshold = 1.0D - cell.settings.padding() / (settings.placement().distance * 0.5D);
+		double threshold = 1.0D - cell.settings.padding() / (settings.placement.distance * 0.5D);
 		double fraction = Interpolator.unmixLinear(threshold, 1.0D, progress);
 		if (fraction > 0.0D) {
 			thickness -= BigGlobeMath.squareD(fraction) * cell.settings.thickness().maxValue();

@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:overworld_structure_overrider",
+	"config": {
+		"script": [
+			"StructureType type = start.structure.type",
+			"if (",
+				"type == StructureType('bigglobe:underground_pocket') ||",
+				"type == StructureType('bigglobe:geode')",
+			":",
+				"double cavernCenter = `overworld/cavern_center`(start.midX, start.midZ)",
+				"unless (isNaN(cavernCenter):",
+					"double thickness = 64.0L",
+					"double cavernMinY = cavernCenter - thickness",
+					"double cavernMaxY = cavernCenter + thickness",
+					"double structureMinY = start.minY",
+					"double structureMaxY = start.maxY",
+					"if (structureMinY <= cavernMaxY && structureMaxY >= cavernMinY:",
+						"return(false)",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

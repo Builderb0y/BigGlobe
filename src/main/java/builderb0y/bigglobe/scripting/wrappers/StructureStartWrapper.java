@@ -43,9 +43,9 @@ public record StructureStartWrapper(StructureEntry entry, StructureStart start, 
 	public int maxX() { return this.box.getMaxX(); }
 	public int maxY() { return this.box.getMaxY(); }
 	public int maxZ() { return this.box.getMaxZ(); }
-	public double midX() { return (this.box.getMinX() + this.box.getMaxX()) * 0.5D; }
-	public double midY() { return (this.box.getMinY() + this.box.getMaxY()) * 0.5D; }
-	public double midZ() { return (this.box.getMinZ() + this.box.getMaxZ()) * 0.5D; }
+	public int midX() { return (this.box.getMinX() + this.box.getMaxX() + 1) >> 1; }
+	public int midY() { return (this.box.getMinY() + this.box.getMaxY() + 1) >> 1; }
+	public int midZ() { return (this.box.getMinZ() + this.box.getMaxZ() + 1) >> 1; }
 	public int sizeX() { return this.box.getMaxX() - this.box.getMinX(); }
 	public int sizeY() { return this.box.getMaxY() - this.box.getMinY(); }
 	public int sizeZ() { return this.box.getMaxZ() - this.box.getMinZ(); }

@@ -431,9 +431,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			double averageCenter = column.getCavernAverageCenter();
 			if (!Double.isNaN(center) && thickness > 0.0D && !Double.isNaN(averageCenter)) {
 				int minY = BigGlobeMath.floorI(center - thickness);
-				int maxY = BigGlobeMath.floorI(Math.min(averageCenter, center + thickness));
+				int maxY = BigGlobeMath.ceilI(Math.min(averageCenter, center + thickness));
 				mutablePos.setX(column.x).setZ(column.z);
-				for (int y = minY; y <= maxY; y++) {
+				for (int y = minY; y < maxY; y++) {
 					chunk.setBlockState(mutablePos.setY(y), fluid, false);
 				}
 			}
@@ -851,6 +851,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 								if (!Double.isNaN(center) && thickness > 0.0D) {
 									this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
 									this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
+									this.runDecorators(world, pos, mojang, cavernCell.settings.fluid_decorator(), BigGlobeMath.ceilI(column.getCavernAverageCenter()));
 								}
 							}
 							CaveCell caveCell = column.getCaveCell();
@@ -1011,7 +1012,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			if (UnregisteredObjectException.getKey(structure) == StructureKeys.ANCIENT_CITY) {
 				OverworldCavernSettings cavernSettings = BigGlobeOverworldChunkGenerator.this.settings.underground.deep_caverns();
 				if (cavernSettings != null) {
-					VoronoiDiagram2D placement = cavernSettings.placement();
+					VoronoiDiagram2D placement = cavernSettings.placement;
 					int distance = placement.distance;
 					int cellX = Math.floorDiv(chunkX << 4, distance);
 					int cellZ = Math.floorDiv(chunkZ << 4, distance);
@@ -1048,7 +1049,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
 			OverworldCavernSettings cavernSettings = this.settings.underground.deep_caverns();
 			if (cavernSettings != null) {
-				VoronoiDiagram2D placement = cavernSettings.placement();
+				VoronoiDiagram2D placement = cavernSettings.placement;
 				int distance = placement.distance;
 				int chunkX = chunk.getPos().x;
 				int chunkZ = chunk.getPos().z;

@@ -3,8 +3,10 @@
 	"config": {
 		"template": "bigglobe:magma_on_lava",
 		"inputs": {
-			"LAVA_BLOCK": "'bigglobe:soul_lava[level=0]'",
-			"MAGMA_BLOCK": "'bigglobe:soul_magma'"
+			"PLACE": "'bigglobe:soul_magma'",
+			"REPLACE": "'bigglobe:soul_lava[level=0]'",
+			"CHANCE": "1.0L / 256.0L",
+			"COUNT": "int(exp2(random.nextDouble(8.0L)))"
 		}
 	}
 }

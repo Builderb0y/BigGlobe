@@ -10,6 +10,8 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	finish locating all the caverns to ensure they decorate correctly.
+	verify that lava lakes have an appropriate amount of lava on them.
 
 changelog:
 	* Added underground pockets in the overworld (water, lava, empty, natural, mushroom, and deep variants) and in the nether (lava and soul lava variants).
@@ -33,7 +35,7 @@ changelog:
 	* Fixed birch trees on skylands spawning with snow on them.
 	* Flower noise is now on the flower group instead of in the world preset.
 	* Wood palettes can now support multiple blocks per block type. This is being used for flowering azalea leaves.
-	* Nether biomes, wood palettes, skyland shapes, and cave templates are now dynamic registries. This makes it easier to add new ones without modifying the world preset, but also means old worlds will break on the edge of generated chunks.
+	* Nether biomes, wood palettes, skyland shapes, cave templates, and cavern templates are now dynamic registries. This makes it easier to add new ones without modifying the world preset, but also means old worlds will break on the edge of generated chunks.
 	* Added a new skylands shape: "swiss_cheese_plains".
 	* Wood palettes are now available to some scripts.
 		* Bushes are now a scripted feature. This will not affect existing worlds.
@@ -41,6 +43,7 @@ changelog:
 		* Added height overrider for ocean monuments.
 	* Added script overriders for skylands.
 	* Added sticks, flint, and rocks as placeable blocks that spawn on the surface during worldgen.
+	* Added command to search for terrain gen placed by voronoi diagrams.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -76,9 +79,7 @@ features:
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 	overworld:
-		dynamic registry for cavern variants.
 		dynamic registry for overriders?
-		command to search through caves, caverns, skylands, and nether biomes looking for specific variants.
 		configurable ground replacements for trees.
 		configurable bedrock amount.
 		desert fossils.
