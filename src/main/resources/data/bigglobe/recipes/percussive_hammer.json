@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"isi",
+		" s ",
+		" s "
+	],
+	"key": {
+		"i": { "tag": "c:iron_ingots" },
+		"s": { "tag": "c:wood_sticks" }
+	},
+	"result": {
+		"item": "bigglobe:percussive_hammer"
+	}
+}

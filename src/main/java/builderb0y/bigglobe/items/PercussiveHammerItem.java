@@ -47,6 +47,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 					pos.mutableCopy(),
 					context.getSide().getOpposite()
 				));
+				context.getStack().damage(1, context.getPlayer(), player -> player.sendToolBreakStatus(context.getHand()));
 			}
 			return ActionResult.SUCCESS;
 		}
@@ -56,12 +57,14 @@ public class PercussiveHammerItem extends MiningToolItem {
 	public static void tick(ServerWorld world) {
 		if (!pulses.isEmpty()) {
 			pulses.removeIf(pulse -> {
-				if (++pulse.distance > 32) return true;
-				BlockPos.Mutable pos = pulse.position.move(pulse.direction);
-				BlockState state = world.getBlockState(pos);
-				if (!isSolidOpaqueFullCube(world, pos, state)) {
-					world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 2.0F, 2.0F);
-					return true;
+				if (pulse.world == world.getRegistryKey()) {
+					if (++pulse.distance > 32) return true;
+					BlockPos.Mutable pos = pulse.position.move(pulse.direction);
+					BlockState state = world.getBlockState(pos);
+					if (!isSolidOpaqueFullCube(world, pos, state)) {
+						world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 2.0F, 2.0F);
+						return true;
+					}
 				}
 				return false;
 			});

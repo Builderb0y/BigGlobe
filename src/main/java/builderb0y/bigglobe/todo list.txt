@@ -14,6 +14,9 @@ testing:
 where I left off:
 
 changelog:
+	* Fixed missing recipe for percussive hammer.
+	* Fixed percussive hammer playing sounds in the wrong dimension sometimes.
+	* Fixed percussive hammer not taking damage when used.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

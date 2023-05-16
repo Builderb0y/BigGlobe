@@ -91,6 +91,7 @@ public class BigGlobeItems {
 			ToolMaterials.IRON,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
 			new Item.Settings()
+			.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
 		)
 	);
 	public static final SlingshotItem SLINGSHOT = register(
