@@ -14,8 +14,6 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed bug causing roses to spawn way too often in places where they shouldn't. This bug probably affects other things too, but this is the first manifestation of it that I noticed.
-	* Fixed missing localization for soul lava source conversion gamerule.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
