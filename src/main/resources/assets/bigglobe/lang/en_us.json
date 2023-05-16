@@ -76,7 +76,7 @@
 	"item.minecraft.lingering_potion.effect.strong_wither": "Lingering Potion of Withering",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Daylight Cycle Speed",
-	"gamerule.bigglobe.soulLavaSourceConversion": "Soul Lava converts to source",
+	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",
 
 	"commands.bigglobe.registryDump.success": "All registries have been dumped. You can find them in .minecraft/bigglobe_registry_dump",
 

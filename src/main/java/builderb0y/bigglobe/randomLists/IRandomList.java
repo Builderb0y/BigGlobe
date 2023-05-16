@@ -70,6 +70,7 @@ public interface IRandomList<E> extends List<E> {
 				choice = element;
 			}
 		}
+		if (!(totalWeight > 0.0D)) choice = null;
 		return choice;
 	}
 
@@ -84,6 +85,7 @@ public interface IRandomList<E> extends List<E> {
 				choice = element;
 			}
 		}
+		if (!(totalWeight > 0.0D)) choice = null;
 		return choice;
 	}
 
@@ -208,6 +210,7 @@ public interface IRandomList<E> extends List<E> {
 					choice = this.get(index);
 				}
 			}
+			if (!(totalWeight > 0.0D)) choice = null;
 			return choice;
 		}
 
@@ -224,6 +227,7 @@ public interface IRandomList<E> extends List<E> {
 					choice = this.get(index);
 				}
 			}
+			if (!(totalWeight > 0.0D)) choice = null;
 			return choice;
 		}
 
@@ -303,8 +307,9 @@ public interface IRandomList<E> extends List<E> {
 						return element;
 					}
 				}
+				return this.get(this.size() - 1);
 			}
-			return this.get(this.size() - 1);
+			return null;
 		}
 
 		@Override
@@ -323,8 +328,9 @@ public interface IRandomList<E> extends List<E> {
 						return element;
 					}
 				}
+				return this.get(this.size() - 1);
 			}
-			return this.get(this.size() - 1);
+			return null;
 		}
 
 		@Override
@@ -349,8 +355,9 @@ public interface IRandomList<E> extends List<E> {
 						return this.get(index);
 					}
 				}
+				return this.get(this.size() - 1);
 			}
-			return this.get(this.size() - 1);
+			return null;
 		}
 
 		@Override
@@ -367,8 +374,9 @@ public interface IRandomList<E> extends List<E> {
 						return this.get(index);
 					}
 				}
+				return this.get(this.size() - 1);
 			}
-			return this.get(this.size() - 1);
+			return null;
 		}
 
 		@Override
