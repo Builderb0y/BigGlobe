@@ -4,9 +4,9 @@
 		"script": [
 			"random.if (`overworld/hilliness` / 64.0L:",
 				"if (getBlockState(originX, originY, originZ).isReplaceable():",
-					"while (getBlockState(originX, originY - 1, originZ).isReplaceable():",
-						"--originY",
+					"block (",
 						"unless (isYLevelValid(originY): return(false))",
+						"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 					")",
 					"placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]')",
 					"return(true)",

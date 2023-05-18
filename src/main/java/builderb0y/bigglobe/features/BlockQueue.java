@@ -59,6 +59,14 @@ public class BlockQueue {
 		this.queuedBlocks.put(pos, state);
 	}
 
+	public void queueReplacement(BlockPos pos, BlockState from, BlockState to) {
+		this.queueReplacement(pos.asLong(), from, to);
+	}
+
+	public void queueReplacement(long pos, BlockState from, BlockState to) {
+		this.queueBlock(pos, to);
+	}
+
 	public void placeQueuedBlocks(WorldAccess world) {
 		if (!this.queuedBlocks.isEmpty()) {
 			BlockPos.Mutable pos = new BlockPos.Mutable();

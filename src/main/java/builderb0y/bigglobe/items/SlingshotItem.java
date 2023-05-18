@@ -1,7 +1,14 @@
 package builderb0y.bigglobe.items;
 
+import java.lang.StackWalker.Option;
+import java.lang.StackWalker.StackFrame;
 import java.util.function.Predicate;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -71,9 +78,28 @@ public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 		return 72000;
 	}
 
+	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+	/** this is a client-side class, so we need to be extra careful to not load it on the server. */
+	public static final Class<?> PLAYER_ENTITY_RENDERER = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ? getPlayerEntityRenderer() : null;
+
+	@Environment(EnvType.CLIENT)
+	public static Class<?> getPlayerEntityRenderer() {
+		return PlayerEntityRenderer.class;
+	}
+
 	@Override
 	public UseAction getUseAction(ItemStack stack) {
-		return UseAction.BLOCK;
+		/**
+		welcome to hacky code 101.
+		the first person renderer needs to apply no offsets, rotations,
+		or other transformations, as if we had returned {@link UseAction#NONE}.
+		however, the 3rd person renderer needs to hold their arm out in front of them.
+		the only UseAction which does this is {@link UseAction#TOOT_HORN}.
+		so what do we do? check the caller class.
+		or technically the caller's caller, since the first
+		caller is always {@link ItemStack#getUseAction()}.
+		*/
+		return STACK_WALKER.walk(stream -> stream.map(StackFrame::getDeclaringClass).skip(3).findFirst()).orElse(null) == PLAYER_ENTITY_RENDERER ? UseAction.TOOT_HORN : UseAction.NONE;
 	}
 
 	@Override

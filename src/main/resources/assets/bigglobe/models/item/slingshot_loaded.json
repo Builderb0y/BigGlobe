@@ -5,13 +5,13 @@
 	},
 	"display": {
 		"firstperson_righthand": {
-			"rotation": [ 0, 180, -5 ],
-			"translation": [ -9, 2, -4 ],
+			"rotation": [ 0, 180, 0 ],
+			"translation": [ -9.5, 1.5, -4 ],
 			"scale": [ 1.0, 1.0, 1.0 ]
 		},
 		"firstperson_lefthand": {
-			"rotation": [ 0, 180, -5 ],
-			"translation": [ -9, 2, -4 ],
+			"rotation": [ 0, 180, 0 ],
+			"translation": [ -9.5, 1.5, -4 ],
 			"scale": [ 1.0, 1.0, 1.0 ]
 		}
 	}

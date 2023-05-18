@@ -100,7 +100,7 @@
 	"commands.bigglobe.respawn.new.not_overworld": "/bigglobe:respawn new can only be used in Big Globe overworld dimensions.",
 	"commands.bigglobe.respawn.command.spawn_not_set_by_command": "Your spawn point was not set by a command.",
 	"commands.bigglobe.respawn.bed.spawn_not_set_by_bed": "Your spawn point was not set by a bed or respawn anchor.",
-	"commands.bigglobe.respawn.bed.destroyed": "Your bed or respawn anchor was destroyed.",
+	"commands.bigglobe.respawn.bed.destroyed": "Your bed or respawn anchor was destroyed or obstructed.",
 	"commands.bigglobe.respawn.position_not_set": "Your spawn position is not set.",
 	"commands.bigglobe.respawn.dimension_not_set": "Your spawn dimension is not set.",
 	"commands.bigglobe.respawn.dimension_doesnt_exist": "Your spawn dimension (%s) does not exist.",

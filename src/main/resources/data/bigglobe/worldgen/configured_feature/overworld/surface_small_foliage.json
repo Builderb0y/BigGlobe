@@ -3,9 +3,9 @@
 	"config": {
 		"script": [
 			";handle cave intersecting surface.",
-			"while (getBlockState(originX, originY - 1, originZ).isReplaceable():",
-				"--originY",
+			"block (",
 				"unless (isYLevelValid(originY): return(false))",
+				"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 			")",
 
 			";sigmoid curve",

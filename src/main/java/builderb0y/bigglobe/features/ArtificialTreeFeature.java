@@ -1,15 +1,13 @@
 package builderb0y.bigglobe.features;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -107,6 +105,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			blockQueue,
 			permuter,
 			config.palette.value(),
+			config.ground_replacements,
 			trunkConfig,
 			branchesConfig,
 			decorationsBuilder.build(),
@@ -117,6 +116,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 
 	public static record Config(
 		RegistryEntry<WoodPalette> palette,
+		Map<BlockState, BlockState> ground_replacements,
 		TrunkFactory trunk,
 		Branches branches,
 		@VerifyNullable Decorations decorations

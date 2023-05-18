@@ -35,7 +35,7 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 	public void readNbt(NbtCompound nbt) {
 		super.readNbt(nbt);
 		try {
-			this.blockQueue = SerializableBlockQueue.read(this.world, nbt.getCompound("queue"));
+			this.blockQueue = SerializableBlockQueue.read(nbt.getCompound("queue"));
 		}
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("Error reading NBT data for delayed generation at " + this.pos, exception);

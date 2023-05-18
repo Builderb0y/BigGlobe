@@ -2,6 +2,7 @@ package builderb0y.bigglobe.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
@@ -93,6 +94,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			: new BlockQueue(false),
 			permuter,
 			config.palette.value(),
+			config.ground_replacements,
 			trunkConfig,
 			branchesConfig,
 			decoratorsBuilder.build(),
@@ -104,6 +106,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	public static record Config(
 		@DefaultBoolean(false) boolean delay_generation,
 		RegistryEntry<WoodPalette> palette,
+		Map<BlockState, BlockState> ground_replacements,
 		ColumnYRandomToDoubleScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,

@@ -3,10 +3,11 @@
 	"config": {
 		"script": [
 			"random.if (`overworld/surface_foliage` / 16.0L:",
-				"if (originY >= int(`overworld/sea_level`) && getBlockState(originX, originY, originZ).isReplaceable():",
-					"while (getBlockState(originX, originY - 1, originZ).isReplaceable():",
-						"--originY",
-						"if (originY < int(`overworld/sea_level`): return(false))",
+				"int seaLevel = int(`overworld/sea_level`)",
+				"if (originY >= seaLevel && getBlockState(originX, originY, originZ).isReplaceable():",
+					"block (",
+						"if (originY < seaLevel: return(false))",
+						"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 					")",
 					"placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]')",
 					"return(true)",

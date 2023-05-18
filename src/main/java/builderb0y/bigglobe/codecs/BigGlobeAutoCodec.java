@@ -44,6 +44,7 @@ import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
+import builderb0y.autocodec.imprinters.MapImprinter;
 import builderb0y.autocodec.logging.*;
 import builderb0y.autocodec.reflection.ReflectionManager;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
@@ -213,6 +214,7 @@ public class BigGlobeAutoCodec {
 				public void setup() {
 					super.setup();
 					this.addFactoryBefore(CollectionImprinter.Factory.INSTANCE, BlockStateCollectionImprinter.Factory.INSTANCE);
+					this.addFactoryBefore(MapImprinter.Factory.INSTANCE, BlockStateToObjectMapImprinter.Factory.INSTANCE);
 				}
 			};
 		}

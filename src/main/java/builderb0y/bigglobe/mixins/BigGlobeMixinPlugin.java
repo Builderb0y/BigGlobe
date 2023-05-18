@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -60,6 +61,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	public Properties loadProperties() {
 		Path path = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.properties");
+		Path tmp  = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.tmp");
 		Properties properties = new Properties();
 		if (Files.exists(path)) try {
 			//file exists, so try loading it.
@@ -86,7 +88,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			//if the properties changed as a result of retaining
 			//or adding missing options, save it again.
 			if (changed) {
-				this.saveProperties(path, properties);
+				this.saveProperties(properties, path, tmp);
 			}
 		}
 		catch (IOException exception) {
@@ -110,15 +112,20 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			for (Map.Entry<String, Boolean> entry : this.defaults.entrySet()) {
 				properties.setProperty(entry.getKey(), entry.getValue().toString());
 			}
+
 			//and also save the defaults.
-			this.saveProperties(path, properties);
+			this.saveProperties(properties, path, tmp);
 		}
 		return properties;
 	}
 
-	public void saveProperties(Path path, Properties properties) {
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-			properties.store(writer, null);
+	public void saveProperties(Properties properties, Path path, Path tmp) {
+		try {
+			Files.createDirectories(path.getParent());
+			try (BufferedWriter writer = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) {
+				properties.store(writer, null);
+			}
+			Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch (IOException exception) {
 			exception.printStackTrace();
