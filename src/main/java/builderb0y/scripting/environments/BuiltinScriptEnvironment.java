@@ -20,6 +20,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -167,6 +168,9 @@ public class BuiltinScriptEnvironment {
 			parser.input.expectAfterWhitespace('(');
 			parser.input.expectAfterWhitespace(')');
 			return ContinueInsnTree.INSTANCE;
+		})
+		.addKeyword("compare", (parser, name) -> {
+			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();
 		})
 
 		//////////////// member keywords ////////////////

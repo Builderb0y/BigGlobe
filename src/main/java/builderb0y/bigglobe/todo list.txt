@@ -42,7 +42,6 @@ scripting:
 	pre and post update operators.
 	increment and decrement as expression.
 	postfix increment and decrement.
-	compareTo operator <=>
 	finish() and abort() methods for scripted features.
 		abort() needs a flag in the config to enable. "abortable": true
 	flag for scripted features to use a SerializableBlockQueue.
