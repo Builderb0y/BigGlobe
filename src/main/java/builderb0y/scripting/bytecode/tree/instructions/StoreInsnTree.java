@@ -19,7 +19,7 @@ public class StoreInsnTree implements InsnTree {
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		this.value.emitBytecode(method);
-		this.variable.emitStore(method.node);
+		this.variable.emitStore(method);
 	}
 
 	@Override

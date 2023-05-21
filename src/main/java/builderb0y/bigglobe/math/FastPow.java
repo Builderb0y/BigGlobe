@@ -305,7 +305,7 @@ public class FastPow {
 		emitMethods(
 			clazz,
 			(MethodCompileContext intMethod, VarInfo operand) -> {
-				operand.emitLoad(intMethod.node);
+				operand.emitLoad(intMethod);
 				intMethod.node.visitMethodInsn(
 					INVOKESTATIC,
 					Type.getInternalName(FastPow.class),

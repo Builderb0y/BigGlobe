@@ -29,11 +29,12 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
+import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
 import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.VariableAssignPostUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
@@ -302,29 +303,67 @@ public class ExpressionParser {
 		try {
 			InsnTree left = this.nextTernary();
 			String operator = this.input.peekOperatorAfterWhitespace();
-			UpdateOp op = switch (operator) {
-				case "=" -> UpdateOp.ASSIGN;
-				case "+=" -> UpdateOp.ADD;
-				case "-=" -> UpdateOp.SUBTRACT;
-				case "*=" -> UpdateOp.MULTIPLY;
-				case "/=" -> UpdateOp.DIVIDE;
-				case "%=" -> UpdateOp.MODULO;
-				case "^=" -> UpdateOp.POWER;
-				case "&=" -> UpdateOp.BITWISE_AND;
-				case "|=" -> UpdateOp.BITWISE_OR;
-				case "#=" -> UpdateOp.BITWISE_XOR;
-				case "&&=" -> UpdateOp.AND;
-				case "||=" -> UpdateOp.OR;
-				case "##=" -> UpdateOp.XOR;
-				case "<<=" -> UpdateOp.SIGNED_LEFT_SHIFT;
-				case ">>=" -> UpdateOp.SIGNED_RIGHT_SHIFT;
-				case "<<<=" -> UpdateOp.UNSIGNED_LEFT_SHIFT;
-				case ">>>=" -> UpdateOp.UNSIGNED_RIGHT_SHIFT;
-				default -> null;
-			};
+			UpdateOp op;
+			UpdateOrder order;
+			switch (operator) {
+				case "="    -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.VOID; }
+				case "+="   -> { op = UpdateOp.ADD;                  order = UpdateOrder.VOID; }
+				case "-="   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.VOID; }
+				case "*="   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.VOID; }
+				case "/="   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.VOID; }
+				case "%="   -> { op = UpdateOp.MODULO;               order = UpdateOrder.VOID; }
+				case "^="   -> { op = UpdateOp.POWER;                order = UpdateOrder.VOID; }
+				case "&="   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.VOID; }
+				case "|="   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.VOID; }
+				case "#="   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.VOID; }
+				case "&&="  -> { op = UpdateOp.AND;                  order = UpdateOrder.VOID; }
+				case "||="  -> { op = UpdateOp.OR;                   order = UpdateOrder.VOID; }
+				case "##="  -> { op = UpdateOp.XOR;                  order = UpdateOrder.VOID; }
+				case "<<="  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.VOID; }
+				case ">>="  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.VOID; }
+				case "<<<=" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.VOID; }
+				case ">>>=" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.VOID; }
+
+				case ":="   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.POST; }
+				case ":+"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.POST; }
+				case ":-"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.POST; }
+				case ":*"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.POST; }
+				case ":/"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.POST; }
+				case ":%"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.POST; }
+				case ":^"   -> { op = UpdateOp.POWER;                order = UpdateOrder.POST; }
+				case ":&"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.POST; }
+				case ":|"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.POST; }
+				case ":#"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.POST; }
+				case ":&&"  -> { op = UpdateOp.AND;                  order = UpdateOrder.POST; }
+				case ":||"  -> { op = UpdateOp.OR;                   order = UpdateOrder.POST; }
+				case ":##"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.POST; }
+				case ":<<"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.POST; }
+				case ":>>"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.POST; }
+				case ":<<<" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.POST; }
+				case ":>>>" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.POST; }
+
+				case "=:"   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.PRE; }
+				case "+:"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.PRE; }
+				case "-:"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.PRE; }
+				case "*:"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.PRE; }
+				case "/:"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.PRE; }
+				case "%:"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.PRE; }
+				case "^:"   -> { op = UpdateOp.POWER;                order = UpdateOrder.PRE; }
+				case "&:"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.PRE; }
+				case "|:"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.PRE; }
+				case "#:"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.PRE; }
+				case "&&:"  -> { op = UpdateOp.AND;                  order = UpdateOrder.PRE; }
+				case "||:"  -> { op = UpdateOp.OR;                   order = UpdateOrder.PRE; }
+				case "##:"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.PRE; }
+				case "<<:"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.PRE; }
+				case ">>:"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.PRE; }
+				case "<<<:" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.PRE; }
+				case ">>>:" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.PRE; }
+				default     -> { op = null; order = null; }
+			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, this.nextSingleExpression());
+				left = left.update(this, op, order, this.nextSingleExpression());
 			}
 			return left;
 		}
@@ -566,13 +605,27 @@ public class ExpressionParser {
 				}
 				case "++" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree term = this.nextMember();
-					yield term.update(this, UpdateOp.ADD, ldc(1));
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.VOID, ldc(1));
 				}
 				case "--" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree term = this.nextMember();
-					yield term.update(this, UpdateOp.SUBTRACT, ldc(1));
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.VOID, ldc(1));
+				}
+				case ":++" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.POST, ldc(1));
+				}
+				case ":--" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.POST, ldc(1));
+				}
+				case "++:" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.PRE, ldc(1));
+				}
+				case "--:" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.PRE, ldc(1));
 				}
 				case "" -> {
 					yield this.nextTerm();
@@ -783,10 +836,18 @@ public class ExpressionParser {
 		try {
 			if (name.equals("var")) {
 				String varName = this.input.expectIdentifierAfterWhitespace();
-				this.input.expectOperatorAfterWhitespace("=");
+				boolean reuse;
+				if (this.input.hasOperatorAfterWhitespace("=")) reuse = false;
+				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
+				else throw new ScriptParsingException("Expected '=' or ':='", this.input);
 				InsnTree initializer = this.nextSingleExpression();
 				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return seq(declaration, new StoreInsnTree(declaration.loader.variable, initializer));
+				return seq(
+					declaration,
+					reuse
+					? new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer)
+					: store(declaration.loader.variable, initializer)
+				);
 			}
 			else if (name.equals("class")) {
 				String className = this.input.expectIdentifierAfterWhitespace();
@@ -808,6 +869,11 @@ public class ExpressionParser {
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, store(declaration.loader.variable, initializer));
+							}
+							else if (this.input.hasOperatorAfterWhitespace(":=")) {
+								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
+								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
+								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								return this.nextUserDefinedFunction(type, varName);

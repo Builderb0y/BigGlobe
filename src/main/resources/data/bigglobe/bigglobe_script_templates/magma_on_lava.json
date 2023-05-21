@@ -30,7 +30,7 @@
 		"positions.add(origin)",
 		"growing.add(origin)",
 
-		"until (--COUNT,, COUNT <= 0 || growing.isEmpty():",
+		"until (:--COUNT <= 0 || growing.isEmpty():",
 			"int index = random.nextInt(growing.size())",
 			"Pos pos = (",
 				"index == growing.size() - 1",

@@ -1,14 +1,12 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
-import builderb0y.scripting.bytecode.tree.instructions.update.ArrayUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.ArrayUpdateInsnTree.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ArrayLoadInsnTree implements InsnTree {
 
@@ -46,10 +44,22 @@ public class ArrayLoadInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			return arrayStore(this.array, this.index, rightValue);
+			InsnTree cast = rightValue.cast(parser, this.type, CastMode.IMPLICIT_THROW);
+			return switch (order) {
+				case VOID -> new ArrayAssignVoidUpdateInsnTree(this.array, this.index, cast);
+				case PRE  -> new  ArrayAssignPreUpdateInsnTree(this.array, this.index, cast);
+				case POST -> new ArrayAssignPostUpdateInsnTree(this.array, this.index, cast);
+			};
 		}
-		return new ArrayUpdateInsnTree(this.array, this.index, op.createUpdater(parser, this.getTypeInfo(), rightValue));
+		else {
+			InsnTree updater = op.createUpdater(parser, this.type, rightValue);
+			return switch (order) {
+				case VOID -> new ArrayVoidUpdateInsnTree(this.array, this.index, updater);
+				case PRE  -> new  ArrayPreUpdateInsnTree(this.array, this.index, updater);
+				case POST -> new ArrayPostUpdateInsnTree(this.array, this.index, updater);
+			};
+		}
 	}
 }

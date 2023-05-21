@@ -1,14 +1,12 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.InstanceFieldUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.InstanceFieldUpdateInsnTree.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class GetFieldInsnTree implements InsnTree {
 
@@ -40,13 +38,25 @@ public class GetFieldInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (this.field.isFinal()) {
 			throw new ScriptParsingException("Can't write to final field: " + this.field, parser.input);
 		}
 		if (op == UpdateOp.ASSIGN) {
-			return putField(this.object, this.field, rightValue);
+			InsnTree cast = rightValue.cast(parser, this.field.type, CastMode.IMPLICIT_THROW);
+			return switch (order) {
+				case VOID -> new InstanceFieldAssignVoidUpdateInsnTree(this.object, this.field, cast);
+				case PRE  -> new  InstanceFieldAssignPreUpdateInsnTree(this.object, this.field, cast);
+				case POST -> new InstanceFieldAssignPostUpdateInsnTree(this.object, this.field, cast);
+			};
 		}
-		return new InstanceFieldUpdateInsnTree(this.object, this.field, op.createUpdater(parser, this.getTypeInfo(), rightValue));
+		else {
+			InsnTree updater = op.createUpdater(parser, this.getTypeInfo(), rightValue);
+			return switch (order) {
+				case VOID -> new InstanceFieldVoidUpdateInsnTree(this.object, this.field, updater);
+				case PRE  -> new  InstanceFieldPreUpdateInsnTree(this.object, this.field, updater);
+				case POST -> new InstanceFieldPostUpdateInsnTree(this.object, this.field, updater);
+			};
+		}
 	}
 }

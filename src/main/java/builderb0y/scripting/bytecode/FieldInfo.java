@@ -6,7 +6,7 @@ import builderb0y.scripting.util.ReflectionData;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class FieldInfo {
+public class FieldInfo implements Typeable {
 
 	public int access;
 	public TypeInfo owner;
@@ -44,6 +44,11 @@ public class FieldInfo {
 			field.getName(),
 			TypeInfo.of(field.getGenericType())
 		);
+	}
+
+	@Override
+	public TypeInfo getTypeInfo() {
+		return this.type;
 	}
 
 	public boolean isStatic() {

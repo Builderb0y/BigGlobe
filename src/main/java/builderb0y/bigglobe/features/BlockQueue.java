@@ -4,6 +4,7 @@ import java.util.Map;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.Debug;
@@ -124,31 +125,44 @@ public class BlockQueue {
 	@TestOnly
 	@SuppressWarnings("unused")
 	public Object[] intellij_childrenArray() {
-		record QueuedBlock(int x, int y, int z, BlockState state) {
+		return new Object[] {
+			Map.entry("flags", this.flags),
+			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks))
+		};
+	}
 
-			public QueuedBlock(long packed, BlockState state) {
-				this(
-					BlockPos.unpackLongX(packed),
-					BlockPos.unpackLongY(packed),
-					BlockPos.unpackLongZ(packed),
-					state
-				);
-			}
-		}
-		Object[] children = new Object[this.queuedBlocks.size() + 2];
+	public static Object intellij_decodePositions(Long2ObjectMap<BlockState> map) {
+		if (map == null) return "null";
+		int size = map.size();
+		QueuedBlock[] blocks = new QueuedBlock[size];
 		int index = 0;
-		children[index++] = Map.entry("queuedBlocks", this.queuedBlocks);
-		children[index++] = Map.entry("flags", this.flags);
 		for (
 			ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = (
-				this.queuedBlocks.long2ObjectEntrySet().fastIterator()
+				Long2ObjectMaps.fastIterator(map)
 			);
 			iterator.hasNext();
 		) {
 			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
-			children[index++] = new QueuedBlock(entry.getLongKey(), entry.getValue());
+			blocks[index++] = new QueuedBlock(entry.getLongKey(), entry.getValue());
 		}
-		assert index == children.length;
-		return children;
+		assert index == blocks.length;
+		return blocks;
+	}
+
+	public static record QueuedBlock(int x, int y, int z, long packed, BlockState state) {
+
+		public QueuedBlock(long packed, BlockState state) {
+			this(
+				BlockPos.unpackLongX(packed),
+				BlockPos.unpackLongY(packed),
+				BlockPos.unpackLongZ(packed),
+				packed,
+				state
+			);
+		}
+
+		public QueuedBlock(int x, int y, int z, BlockState state) {
+			this(x, y, z, BlockPos.asLong(x, y, z), state);
+		}
 	}
 }

@@ -6,11 +6,9 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class LoadInsnTree implements InsnTree {
 
@@ -21,34 +19,41 @@ public class LoadInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
-		switch (op) {
-			case ASSIGN -> {
-				return store(this.variable, rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW));
-			}
-			case ADD -> {
-				if (this.getTypeInfo().getSort() == Sort.INT) {
-					ConstantValue constant = rightValue.getConstantValue();
-					if (constant.isConstant() && constant.getTypeInfo().isSingleWidthInt() && constant.asInt() == constant.asShort()) {
-						return inc(this.variable, constant.asInt());
-					}
-				}
-			}
-			case SUBTRACT -> {
-				if (this.getTypeInfo().getSort() == Sort.INT) {
-					ConstantValue constant = rightValue.getConstantValue();
-					if (constant.isConstant() && constant.getTypeInfo().isSingleWidthInt() && -constant.asInt() == -constant.asShort()) {
-						return inc(this.variable, -constant.asInt());
-					}
-				}
+	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
+		if (op == UpdateOp.ASSIGN) {
+			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW);
+			return switch (order) {
+				case VOID -> new VariableAssignVoidUpdateInsnTree(this.variable, cast);
+				case PRE  -> new  VariableAssignPreUpdateInsnTree(this.variable, cast);
+				case POST -> new VariableAssignPostUpdateInsnTree(this.variable, cast);
+			};
+		}
+		if ((op == UpdateOp.ADD || op == UpdateOp.SUBTRACT) && this.getTypeInfo().getSort() == Sort.INT) {
+			ConstantValue constant = rightValue.getConstantValue();
+			int increment;
+			if (
+				constant.isConstant() &&
+				constant.getTypeInfo().isSingleWidthInt() &&
+				(increment = op == UpdateOp.ADD ? constant.asInt() : -constant.asInt()) == (short)(increment)
+			) {
+				return switch (order) {
+					case VOID -> new VariableIncrementVoidUpdateInsnTree(this.variable, increment);
+					case PRE  -> new  VariableIncrementPreUpdateInsnTree(this.variable, increment);
+					case POST -> new VariableIncrementPostUpdateInsnTree(this.variable, increment);
+				};
 			}
 		}
-		return new VariableUpdateInsnTree(this.variable, op.createUpdater(parser, this.getTypeInfo(), rightValue));
+		InsnTree updater = op.createUpdater(parser, this.getTypeInfo(), rightValue);
+		return switch (order) {
+			case VOID -> new VariableVoidUpdateInsnTree(this.variable, updater);
+			case PRE  -> new  VariablePreUpdateInsnTree(this.variable, updater);
+			case POST -> new VariablePostUpdateInsnTree(this.variable, updater);
+		};
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		this.variable.emitLoad(method.node);
+		this.variable.emitLoad(method);
 	}
 
 	@Override

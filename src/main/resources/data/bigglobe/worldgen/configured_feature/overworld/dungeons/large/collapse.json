@@ -8,7 +8,7 @@
 					"int z = originZ + bitCount(random.nextInt() & 2x111111) - 3",
 					"int y1 = originY + 1",
 					"BlockState state1 = null",
-					"for (int up = 0, up < 5 && (state1 = getBlockState(x, y1, z),, state1).hasFullCubeCollision(), ++up:",
+					"for (int up = 0, up < 5 && (state1 := getBlockState(x, y1, z)).hasFullCubeCollision(), ++up:",
 						"++y1",
 					")",
 					"if (state1.isAir():",

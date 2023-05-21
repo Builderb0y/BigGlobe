@@ -1,11 +1,14 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.*;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,13 +22,14 @@ import net.minecraft.world.WorldAccess;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.trees.TreeSpecialCases;
 import builderb0y.bigglobe.util.WorldUtil;
 
 public class SerializableBlockQueue extends BlockQueue {
 
-	public static final boolean DEBUG_ALWAYS_SERIALIZE = true;
+	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
 
-	public Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
+	public @Nullable Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 
 	public int centerX, centerY, centerZ;
 	public int minX, minY, minZ, maxX, maxY, maxZ;
@@ -61,7 +65,9 @@ public class SerializableBlockQueue extends BlockQueue {
 	@Override
 	public void queueReplacement(long pos, BlockState from, BlockState to) {
 		super.queueReplacement(pos, from, to);
-		this.queuedReplacements.put(pos, from);
+		if (this.queuedReplacements != null) {
+			this.queuedReplacements.put(pos, from);
+		}
 	}
 
 	@Override
@@ -81,7 +87,15 @@ public class SerializableBlockQueue extends BlockQueue {
 		for (LongIterator iterator = this.queuedBlocks.keySet().iterator(); iterator.hasNext();) {
 			long longPos = iterator.nextLong();
 			BlockState state = world.getBlockState(pos.set(longPos));
-			if (state.getMaterial().isReplaceable() || state.getMaterial() == Material.PLANT || this.queuedReplacements.get(longPos) == state) {
+			if (
+				state.getMaterial().isReplaceable()
+				|| state.getMaterial() == Material.PLANT
+				|| (
+					this.queuedReplacements != null
+					? this.queuedReplacements.get(longPos) == state
+					: TreeSpecialCases.getGroundReplacements().containsKey(state)
+				)
+			) {
 				continue;
 			}
 			else {
@@ -105,7 +119,12 @@ public class SerializableBlockQueue extends BlockQueue {
 			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
 		}
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
-		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
+		if (nbt.contains("replacements", NbtElement.BYTE_ARRAY_TYPE)) {
+			readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
+		}
+		else {
+			queue.queuedReplacements = null;
+		}
 		return queue;
 	}
 
@@ -136,10 +155,14 @@ public class SerializableBlockQueue extends BlockQueue {
 		Object2ByteMap<BlockState> palette = new Object2ByteOpenHashMap<>(16);
 		NbtList paletteNBT = new NbtList();
 		this.addToPalette(palette, paletteNBT, this.queuedBlocks);
-		this.addToPalette(palette, paletteNBT, this.queuedReplacements);
+		if (this.queuedReplacements != null) {
+			this.addToPalette(palette, paletteNBT, this.queuedReplacements);
+		}
 		nbt.put("palette", paletteNBT);
 		nbt.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
-		nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
+		if (this.queuedReplacements != null) {
+			nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
+		}
 		return nbt;
 	}
 
@@ -167,5 +190,14 @@ public class SerializableBlockQueue extends BlockQueue {
 		}
 		assert blocksNBT.size() == blocksNBT.elements().length;
 		return new NbtByteArray(blocksNBT.elements());
+	}
+
+	@Override
+	public Object[] intellij_childrenArray() {
+		return new Object[] {
+			Map.entry("flags", this.flags),
+			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks)),
+			Map.entry("queuedReplacements", intellij_decodePositions(this.queuedReplacements))
+		};
 	}
 }
