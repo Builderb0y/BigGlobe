@@ -19,7 +19,7 @@ public class ScriptHolder<S extends Script> implements Script {
 		if (time >= this.nextWarning) {
 			this.nextWarning = time + 5000L;
 			ScriptLogger.LOGGER.error("Caught exception from " + this.getClass().getName() + ':', throwable);
-			ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.script.getSource()));
+			ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.getSource()));
 		}
 	}
 

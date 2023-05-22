@@ -12,6 +12,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	test new queue modes for scripted features.
 
 changelog:
 	* Fixed slingshot being usable as a shield.
@@ -19,6 +20,8 @@ changelog:
 	* Fixed server failing to start with no error message when distant horizons is (incorrectly) installed on the server.
 	* Added force argument to /bigglobe:respawn command, to force a teleport even when the area is obstructed or your bed is destroyed.
 	* Ground replacements for trees are now configurable via data packs.
+	* Added a couple of new syntax tricks for scripts.
+	* Scripted features can now queue blocks before placing them.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -39,20 +42,15 @@ scripting:
 	expose arrays.
 	ability to break or continue nested loops.
 	scriptable RandomSource?
-	pre and post update operators.
-	increment and decrement as expression.
-	postfix increment and decrement.
-	finish() and abort() methods for scripted features.
-		abort() needs a flag in the config to enable. "abortable": true
-	flag for scripted features to use a SerializableBlockQueue.
 	scripted structure layouts should be able to construct jigsaw structure pieces.
+	condition.if (body) else (body) returns condition.
+		also condition.unless (body) else (body)
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
-		backwards compatibility for delayed tree ground replacements which have been generated but not placed.
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?

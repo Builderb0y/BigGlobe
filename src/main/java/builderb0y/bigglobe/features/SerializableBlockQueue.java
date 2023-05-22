@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
@@ -53,13 +54,12 @@ public class SerializableBlockQueue extends BlockQueue {
 		int x = BlockPos.unpackLongX(pos);
 		int y = BlockPos.unpackLongY(pos);
 		int z = BlockPos.unpackLongZ(pos);
-		//cursed, but pretty, formatting.
-		if (x < this.minX) this.minX = x; else
-		if (x > this.maxX) this.maxX = x;
-		if (y < this.minY) this.minY = y; else
-		if (y > this.maxY) this.maxY = y;
-		if (z < this.minZ) this.minZ = z; else
-		if (z > this.maxZ) this.maxZ = z;
+		this.minX = Math.min(this.minX, x);
+		this.minY = Math.min(this.minY, y);
+		this.minZ = Math.min(this.minZ, z);
+		this.maxX = Math.max(this.maxX, x);
+		this.maxY = Math.max(this.maxY, y);
+		this.maxZ = Math.max(this.maxZ, z);
 	}
 
 	@Override
@@ -73,9 +73,16 @@ public class SerializableBlockQueue extends BlockQueue {
 	@Override
 	public void placeQueuedBlocks(WorldAccess world) {
 		BlockPos pos = new BlockPos(this.centerX, this.centerY, this.centerZ);
+		BlockState oldState = world.getBlockState(pos);
+		BlockEntity oldBlockEntity = world.getBlockEntity(pos);
+		NbtCompound oldBlockData = oldBlockEntity == null ? null : oldBlockEntity.createNbt();
 		WorldUtil.setBlockState(world, pos, BlockStates.DELAYED_GENERATION, this.flags);
 		DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, DelayedGenerationBlockEntity.class);
-		if (blockEntity != null) blockEntity.blockQueue = DEBUG_ALWAYS_SERIALIZE ? read(this.toNBT()) : this;
+		if (blockEntity != null) {
+			blockEntity.blockQueue = DEBUG_ALWAYS_SERIALIZE ? read(this.toNBT()) : this;
+			blockEntity.oldState = oldState;
+			blockEntity.oldBlockData = oldBlockData;
+		}
 	}
 
 	public void actuallyPlaceQueuedBlocks(WorldAccess world) {
@@ -87,22 +94,24 @@ public class SerializableBlockQueue extends BlockQueue {
 		for (LongIterator iterator = this.queuedBlocks.keySet().iterator(); iterator.hasNext();) {
 			long longPos = iterator.nextLong();
 			BlockState state = world.getBlockState(pos.set(longPos));
-			if (
-				state.getMaterial().isReplaceable()
-				|| state.getMaterial() == Material.PLANT
-				|| (
-					this.queuedReplacements != null
-					? this.queuedReplacements.get(longPos) == state
-					: TreeSpecialCases.getGroundReplacements().containsKey(state)
-				)
-			) {
-				continue;
-			}
-			else {
+			if (!this.canReplace(longPos, state)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public boolean canReplace(long pos, BlockState state) {
+		return canImplicitlyReplace(state) || (
+			this.queuedReplacements != null
+			? this.queuedReplacements.get(pos) == state
+			: TreeSpecialCases.getGroundReplacements().containsKey(state)
+		);
+	}
+
+	public static boolean canImplicitlyReplace(BlockState state) {
+		Material material = state.getMaterial();
+		return material.isReplaceable() || material == Material.PLANT;
 	}
 
 	public static SerializableBlockQueue read(NbtCompound nbt) {
