@@ -7,7 +7,7 @@
 				"return(getBlockState(x, originY, z).getBlock() == Block('bigglobe:soul_lava'))",
 			")",
 
-			"if (random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ):",
+			"(random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ)).if (",
 				"setBlockState(originX, originY, originZ, 'bigglobe:soul_magma')",
 				"repeat (20:",
 					";attempt to place 20 more soul magma blocks in a 7x7 area centered around the feature origin.",
@@ -26,10 +26,6 @@
 						"setBlockState(x, originY, z, 'bigglobe:soul_magma')",
 					")",
 				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

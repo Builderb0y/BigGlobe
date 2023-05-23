@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (",
+			"random.nextBoolean().if (",
 				"repeat (16:",
 					"int x = originX + random.nextInt(-3, 4)",
 					"int y = originY + 5",
@@ -11,10 +11,6 @@
 						"setBlockState(x, y, z, 'minecraft:chain[axis=y,waterlogged=false]')",
 					")",
 				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

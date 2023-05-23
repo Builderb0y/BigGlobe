@@ -119,6 +119,8 @@ public class BuiltinScriptEnvironment {
 
 		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
 		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name) -> nextIfElse(receiver, parser, false))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name) -> nextIfElse(receiver, parser, true))
 		.addKeyword("while", (parser, name) -> {
 			ConditionBody whileStatement = ConditionBody.parse(parser);
 			return while_(whileStatement.condition(), whileStatement.body());
@@ -335,7 +337,20 @@ public class BuiltinScriptEnvironment {
 		);
 	}
 
+	public static InsnTree nextIfElse(InsnTree condition, ExpressionParser parser, boolean negate) throws ScriptParsingException {
+		ConditionTree conditionTree = condition(parser, condition);
+		if (negate) conditionTree = not(conditionTree);
+		InsnTree ifStatement = seq(tryParenthesized(parser), ldc(!negate));
+		InsnTree elseStatement = nextElse(parser);
+		elseStatement = elseStatement != null ? seq(elseStatement, ldc(negate)) : ldc(negate);
+		return ifElse(parser, conditionTree, ifStatement, elseStatement);
+	}
+
 	public static @Nullable InsnTree nextElse(ExpressionParser parser) throws ScriptParsingException {
-		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextSingleExpression() : null;
+		return parser.input.hasIdentifierAfterWhitespace("else") ? tryParenthesized(parser) : null;
+	}
+
+	public static InsnTree tryParenthesized(ExpressionParser parser) throws ScriptParsingException {
+		return parser.input.peekAfterWhitespace() == '(' ? ParenthesizedScript.parse(parser).contents() : parser.nextSingleExpression();
 	}
 }

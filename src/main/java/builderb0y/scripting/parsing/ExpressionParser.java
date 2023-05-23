@@ -177,7 +177,7 @@ public class ExpressionParser {
 				"""
 			)
 			.append('\n')
-			.append("Script source:\n").append(this.input.getSource()).append('\n')
+			.append("Script source:\n").append(ScriptLogger.addLineNumbers(this.input.getSource())).append('\n')
 			.append("Compiled bytecode:\n").append(this.clazz.dump()).append('\n')
 			.append("ASM errors: ").append(this.testForASMErrors()).append('\n')
 			.append("Parser class: ").append(this.getClass().getName()).append('\n')
@@ -247,7 +247,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "--" -> {} //indicates that there's another statement to read.
+					case "", "++", "--", "!" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);

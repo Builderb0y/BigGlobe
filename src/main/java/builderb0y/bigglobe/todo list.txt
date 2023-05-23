@@ -4,6 +4,8 @@ bug fixes:
 		this is a fabric bug.
 	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
+	there are floating trees everywhere.
+		also trees do not have branches.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -20,7 +22,7 @@ changelog:
 	* Fixed server failing to start with no error message when distant horizons is (incorrectly) installed on the server.
 	* Added force argument to /bigglobe:respawn command, to force a teleport even when the area is obstructed or your bed is destroyed.
 	* Ground replacements for trees are now configurable via data packs.
-	* Added a couple of new syntax tricks for scripts.
+	* Added several new syntax tricks for scripts.
 	* Scripted features can now queue blocks before placing them.
 
 AutoCodec:
@@ -43,8 +45,6 @@ scripting:
 	ability to break or continue nested loops.
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
-	condition.if (body) else (body) returns condition.
-		also condition.unless (body) else (body)
 
 features:
 	general:

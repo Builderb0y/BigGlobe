@@ -2,17 +2,13 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (0.125:",
+			"random.nextBoolean(0.125).if (",
 				"int x = originX + random.nextInt(-1, 2)",
 				"int y = originY + 1",
 				"int z = originZ + random.nextInt(-1, 2)",
 				"if (getBlockState(x, y, z).isAir():",
 					"setBlockState(x, y, z, BlockState('minecraft:skeleton_skull', rotation: random.nextInt(16)))",
 				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

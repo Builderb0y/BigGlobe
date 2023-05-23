@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (random.nextBoolean(0.015625) && getBlockState(originX, originY + 1, originZ).hasFullCubeOutline():",
+			"(random.nextBoolean(0.015625) && getBlockState(originX, originY + 1, originZ).hasFullCubeOutline()).if (",
 				"int height = random.nextInt(1, 17)",
 				"for (int offset = 0, offset < height && getBlockState(originX, originY - offset, originZ).isAir(), ++offset:",
 					"setBlockState(originX, originY - offset, originZ, 'minecraft:chain[axis=y,waterlogged=false]')",
@@ -10,10 +10,6 @@
 				"if (random.nextBoolean() && getBlockState(originX, originY - height, originZ).isAir():",
 					"setBlockState(originX, originY - height, originZ, 'minecraft:soul_lantern[hanging=true,waterlogged=false]')",
 				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

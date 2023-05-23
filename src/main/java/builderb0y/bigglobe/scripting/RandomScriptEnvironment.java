@@ -11,6 +11,7 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
+import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -120,7 +121,7 @@ public class RandomScriptEnvironment {
 		if (negate) conditionTree = not(conditionTree);
 
 		if (parser.input.hasIdentifierAfterWhitespace("else")) {
-			return ifElse(parser, conditionTree, body, parser.nextSingleExpression());
+			return ifElse(parser, conditionTree, body, BuiltinScriptEnvironment.tryParenthesized(parser));
 		}
 		else {
 			return ifThen(conditionTree, body);

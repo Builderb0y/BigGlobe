@@ -401,6 +401,70 @@ public class ExpressionParserTest {
 	}
 
 	@Test
+	public void testBoolDotIf() throws ScriptParsingException {
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			return ( a . if ( b = true ) && b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			return ( a . unless ( b = true ) && ! b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			return ( ! a . if ( b = true ) && ! b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			return ( ! a . unless ( b = true ) && b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			boolean c = false
+			return ( a . if ( b = true ) else ( c = true ) && b && ! c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			boolean c = false
+			return ( a . unless ( b = true ) else ( c = true ) && ! b && c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			boolean c = false
+			return ( ! a . if ( b = true ) else ( c = true ) && ! b && c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			boolean c = false
+			return ( ! a . unless ( b = true ) else ( c = true ) && b && ! c )
+			"""
+		);
+	}
+
+	@Test
 	public void testDuplicateVariables() {
 		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, int tmp = 2 ,, 3");
 		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
@@ -838,7 +902,7 @@ public class ExpressionParserTest {
 			Unknown field: getKey
 			Candidates:
 				Method interface java/util/Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: interface java/util/Map$Entry extends java/lang/Object.getKey""",
+			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).getKey""",
 			"MapEntry entry = null ,, entry . getKey"
 		);
 		assertFail(
@@ -846,7 +910,7 @@ public class ExpressionParserTest {
 			Unknown method or incorrect arguments: key
 			Candidates:
 				Field interface java/util/Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: interface java/util/Map$Entry extends java/lang/Object.key()""",
+			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).key()""",
 			"MapEntry entry = null ,, entry . key ( )"
 		);
 	}

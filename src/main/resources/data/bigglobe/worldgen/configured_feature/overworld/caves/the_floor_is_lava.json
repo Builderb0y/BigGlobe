@@ -13,7 +13,7 @@
 				"setBlockState(x, originY - 1, z, 'minecraft:magma_block')",
 			")",
 
-			"if (`overworld/cave_surface_depth` > 0.0 && random.nextBoolean(1.0 / 64.0):",
+			"(`overworld/cave_surface_depth` > 0.0 && random.nextBoolean(1.0 / 64.0)).if (",
 				"if (",
 					"random.nextBoolean() &&",
 					"flatBlackstoneAt(originX - 1, originZ) &&",
@@ -32,10 +32,6 @@
 				"else (",
 					"placeMagma(originX, originZ)",
 				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

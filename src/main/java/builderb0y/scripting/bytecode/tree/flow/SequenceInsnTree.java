@@ -25,7 +25,7 @@ public class SequenceInsnTree implements InsnTree {
 			))
 			.toArray(InsnTree.ARRAY_FACTORY)
 		);
-		for (int index = 0, limit = statements.length - 1; index < limit; index++) {
+		for (int index = 0, limit = this.statements.length - 1; index < limit; index++) {
 			this.statements[index] = this.statements[index].asStatement();
 		}
 	}

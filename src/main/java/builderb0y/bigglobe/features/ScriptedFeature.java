@@ -116,13 +116,23 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		WorldWrapper wrapper = new WorldWrapper(world, permuter, coordination);
 		try {
 			FeatureColumns.FEATURE_COLUMNS.set(ColumnSupplier.fixedPosition(column));
-			return context.getConfig().script.generate(
-				wrapper,
-				origin.getX(),
-				origin.getY(),
-				origin.getZ(),
-				column
-			);
+			if (
+				context.getConfig().script.generate(
+					wrapper,
+					origin.getX(),
+					origin.getY(),
+					origin.getZ(),
+					column
+				)
+			) {
+				if (context.getConfig().queueType != QueueType.NONE) {
+					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.getWorld());
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		finally {
 			FeatureColumns.FEATURE_COLUMNS.set(oldSupplier);
@@ -217,30 +227,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			@Override
 			public boolean generate(WorldWrapper world, int originX, int originY, int originZ, WorldColumn column) {
 				try {
-					if (this.script.generate(world, originX, originY, originZ, column)) {
-						if (world.world instanceof BlockQueueStructureWorldAccess queue) {
-							queue.queue.placeQueuedBlocks(queue.world);
-						}
-						return true;
-					}
-					else {
-						return false;
-					}
+					return this.script.generate(world, originX, originY, originZ, column);
 				}
 				catch (EarlyFeatureExitException exit) {
-					if (world.world instanceof BlockQueueStructureWorldAccess queue) {
-						if (exit.placeBlocks) {
-							queue.queue.placeQueuedBlocks(queue.world);
-						}
-					}
-					else {
-						long time = System.currentTimeMillis();
-						if (time >= this.nextWarning) {
-							this.nextWarning = time + 5000L;
-							ScriptLogger.LOGGER.error((exit.placeBlocks ? "finish" : "abort") + "() called from a configured_feature which has no queue.");
-							ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.getSource()));
-						}
-					}
 					return exit.placeBlocks;
 				}
 				catch (Throwable throwable) {

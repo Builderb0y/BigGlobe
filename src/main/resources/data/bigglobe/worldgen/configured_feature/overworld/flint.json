@@ -2,15 +2,13 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (1.0L / 1024.0L:",
-				"if (getBlockState(originX, originY, originZ).isReplaceable():",
-					"block (",
-						"unless (isYLevelValid(originY): return(false))",
-						"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
-					")",
-					"placeBlockState(originX, originY, originZ, 'bigglobe:flint[waterlogged=false]')",
-					"return(true)",
+			"if (random.nextBoolean(1.0L / 1024.0L) && getBlockState(originX, originY, originZ).isReplaceable():",
+				"block (",
+					"unless (isYLevelValid(originY): return(false))",
+					"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 				")",
+				"placeBlockState(originX, originY, originZ, 'bigglobe:flint[waterlogged=false]')",
+				"return(true)",
 			")",
 			"return(false)"
 		]
