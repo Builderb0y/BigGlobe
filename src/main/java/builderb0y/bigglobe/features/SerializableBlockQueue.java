@@ -28,6 +28,14 @@ import builderb0y.bigglobe.util.WorldUtil;
 
 public class SerializableBlockQueue extends BlockQueue {
 
+	/**
+	used for testing serialization logic;
+	enabling this flag will serialize and deserialize every
+	queue before storing it in a delayed generation block.
+	that way, if there's any issues with it, they will
+	become immediately obvious, and you don't need to wait
+	for the delayed generation block to unload and reload.
+	*/
 	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
 
 	public @Nullable Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
