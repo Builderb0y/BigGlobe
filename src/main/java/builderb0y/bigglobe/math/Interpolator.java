@@ -172,6 +172,10 @@ public class Interpolator {
 		return ((1.5D * (d - a) + 4.5D * (b - c)) * f + (2.0D * a - 5.0D * b + 4.0D * c - d)) * f + 0.5D * (c - a);
 	}
 
+	public static double combineCubicDerivativeTerms(double term1, double term2, double term3, double f) {
+		return (term1 * f + term2) * f + term3;
+	}
+
 	public static double cubicDerivativeTerm1(double a, double b, double c, double d) {
 		return 1.5D * (d - a) + 4.5D * (b - c);
 	}
@@ -182,10 +186,6 @@ public class Interpolator {
 
 	public static double cubicDerivativeTerm3(double a, double b, double c, double d) {
 		return 0.5D * (c - a);
-	}
-
-	public static double combineCubicDerivativeTerms(double term1, double term2, double term3, double f) {
-		return (term1 * f + term2) * f + term3;
 	}
 
 	/**

@@ -117,7 +117,7 @@
 
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
 
-	"tooltip.bigglobe.ball_of_string.remaining": "%d block(s) remaining",
+	"tooltip.bigglobe.ball_of_string.remaining": "%d/%d block(s) remaining",
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
 

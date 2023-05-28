@@ -1,84 +1,84 @@
 package builderb0y.bigglobe.recipes;
 
 import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
-public class BallOfStringRecipe extends SpecialCraftingRecipe {
+public class BallOfStringRemoveRecipe extends SpecialCraftingRecipe {
 
-	public static final TagKey<Item> STRING = TagKey.of(RegistryKeys.ITEM, new Identifier("c", "string"));
-
-	public BallOfStringRecipe(Identifier id, CraftingRecipeCategory category) {
+	public BallOfStringRemoveRecipe(Identifier id, CraftingRecipeCategory category) {
 		super(id, category);
 	}
 
 	@Override
 	public boolean matches(CraftingInventory inventory, World world) {
-		boolean haveBall = false, haveString = false;
+		boolean haveBall = false;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {
 			ItemStack stack = inventory.getStack(slot);
 			if (stack.isEmpty()) {
 				continue;
 			}
-			else if (stack.isIn(STRING)) {
-				haveString = true;
-			}
 			else if (stack.isOf(BigGlobeItems.BALL_OF_STRING)) {
-				if (haveBall) return false;
-				else haveBall = true;
+				haveBall = true;
 			}
 			else {
 				return false;
 			}
 		}
-		return haveBall & haveString;
+		return haveBall;
 	}
 
 	@Override
 	public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager registryManager) {
-		ItemStack ball = ItemStack.EMPTY;
-		int string = 0;
+		int balls = 0;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {
 			ItemStack stack = inventory.getStack(slot);
 			if (stack.isEmpty()) {
 				continue;
 			}
-			else if (stack.isIn(STRING)) {
-				string++;
-			}
 			else if (stack.isOf(BigGlobeItems.BALL_OF_STRING)) {
-				if (ball.isEmpty()) ball = stack;
-				else return ItemStack.EMPTY;
+				if (stack.getDamage() < stack.getMaxDamage()) balls++;
 			}
 			else {
 				return ItemStack.EMPTY;
 			}
 		}
-		ball = ball.copy();
-		if (string > 0) {
-			BallOfStringItem.addString(ball, string);
+		return new ItemStack(Items.STRING, balls);
+	}
+
+	@Override
+	public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory) {
+		int size = inventory.size();
+		DefaultedList<ItemStack> items = DefaultedList.ofSize(size, ItemStack.EMPTY);
+		for (int slot = 0; slot < size; slot++) {
+			ItemStack stack = inventory.getStack(slot);
+			if (stack.isOf(BigGlobeItems.BALL_OF_STRING)) {
+				stack = stack.copy();
+				if (stack.getDamage() < stack.getMaxDamage()) {
+					stack.setDamage(stack.getDamage() + 1);
+				}
+				items.set(slot, stack);
+			}
 		}
-		return ball;
+		return items;
 	}
 
 	@Override
 	public boolean fits(int width, int height) {
-		return width * height > 1;
+		return true;
 	}
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return BigGlobeRecipeSerializers.BALL_OF_STRING;
+		return BigGlobeRecipeSerializers.BALL_OF_STRING_REMOVE;
 	}
 }

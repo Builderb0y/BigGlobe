@@ -14,9 +14,11 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 
 @Environment(EnvType.CLIENT)
@@ -46,8 +48,8 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 			if (a == null) a = b;
 			if (d == null) d = c;
 			BendVector from = new BendVector(a, b, c, d);
-			from.setFrac(0.0D);
 			BendVector to = new BendVector(from);
+			from.setFrac(0.0D);
 			Vector3d scratch = new Vector3d();
 			MatrixStack.Entry matrix = matrices.peek();
 			VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntitySolid(this.getTexture(entity)));
@@ -74,11 +76,11 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 				.add(scratch.set(from.position).add(from.right).add(from.up), 0.125F, 0.5F,   from.forward, -1.0D)
 				;
 			}
-			//todo: dynamic segment count based on bendyness.
-			for (int segment = 0; segment < 8; segment++) {
-				to.setFrac(segment * 0.125D + 0.125D);
-				float u0 = segment * 0.125F;
-				float u1 = u0 + 0.125F;
+			int segmentCount = Math.max(this.calcSegments(a, b, c), this.calcSegments(b, c, d));
+			for (int segment = 0; segment < segmentCount; segment++) {
+				to.setFrac(((double)(segment + 1)) / ((double)(segmentCount)));
+				float u0 = ((float)(segment)) / ((float)(segmentCount));
+				float u1 = ((float)(segment + 1)) / ((float)(segmentCount));
 
 				helper
 				.add(scratch.set(from.position).sub(from.right).add(from.up), u0, 0.0F,   from.up,     8.0D)
@@ -125,6 +127,21 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 		);
 	}
 
+	public int calcSegments(Vec3d a, Vec3d b, Vec3d c) {
+		a = a.subtract(b);
+		c = c.subtract(b);
+		//b = Vec3d.ZERO;
+		double div = a.lengthSquared() * c.lengthSquared();
+		if (div == 0.0D) return 1;
+		double dot = a.dotProduct(c) / Math.sqrt(div);
+		dot = MathHelper.clamp(dot, -1.0D, 1.0D);
+		//approximation:
+		return Math.min(Math.max(BigGlobeMath.ceilI(Math.sqrt(dot + 1.0D) * 8.0D), 1), 8);
+		//exact:
+		//double angle = Math.acos(dot);
+		//return Math.min(Math.max(BigGlobeMath.ceilI(16.0D - angle * (16.0D / Math.PI)), 1), 8);
+	}
+
 	@Override
 	public Identifier getTexture(StringEntity entity) {
 		return TEXTURE;
@@ -132,9 +149,9 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 
 	public static class BendComponent {
 
-		public double term1, term2, term3, term4;
+		public final double term1, term2, term3, term4;
 		public double value;
-		public double derivativeTerm1, derivativeTerm2, derivativeTerm3;
+		public final double derivativeTerm1, derivativeTerm2, derivativeTerm3;
 		public double derivative;
 
 		public BendComponent(double a, double b, double c, double d) {

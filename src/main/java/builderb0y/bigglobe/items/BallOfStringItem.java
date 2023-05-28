@@ -89,7 +89,7 @@ public class BallOfStringItem extends Item implements DynamicMaxDamageItem {
 		NbtCompound nbt = stack.getOrCreateNbt();
 		int damage = nbt.getInt(ItemStack.DAMAGE_KEY);
 		int maxDamage = nbt.getInt(MAX_DAMAGE_KEY);
-		tooltip.add(Text.translatable("tooltip." + BigGlobeMod.MODID + ".ball_of_string.remaining", maxDamage - damage));
+		tooltip.add(Text.translatable("tooltip." + BigGlobeMod.MODID + ".ball_of_string.remaining", maxDamage - damage, maxDamage));
 	}
 
 	public static void addString(ItemStack stack, int string) {

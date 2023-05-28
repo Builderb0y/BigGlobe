@@ -105,6 +105,7 @@ public class BigGlobeItems {
 		"ball_of_string",
 		new BallOfStringItem(
 			new Item.Settings()
+			.maxCount(1)
 		)
 	);
 	public static final Item ASH = register(

@@ -86,7 +86,9 @@ public class StringEntity extends Entity {
 		//System.out.println((this.world.isClient ? "CLIENT: " : "SERVER: ") + (prevEntity != null ? prevEntity.getId() : 0) + " <- " + this.getId() + " -> " + (nextEntity != null ? nextEntity.getId() : 0));
 		super.tick();
 		this.tickMovement(prevEntity, nextEntity);
-		this.maybeSplit(prevEntity, nextEntity);
+		if (!this.world.isClient) {
+			this.maybeSplit(prevEntity, nextEntity);
+		}
 	}
 
 	public void tickMovement(Entity prevEntity, Entity nextEntity) {
