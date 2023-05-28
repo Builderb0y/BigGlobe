@@ -4,8 +4,6 @@ bug fixes:
 		this is a fabric bug.
 	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
-	there are floating trees everywhere.
-		also trees do not have branches.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -14,16 +12,10 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	test new queue modes for scripted features.
 
 changelog:
-	* Fixed slingshot being usable as a shield.
-	* Fixed error in logs/console when bigglobe config folder does not exist.
-	* Fixed server failing to start with no error message when distant horizons is (incorrectly) installed on the server.
-	* Added force argument to /bigglobe:respawn command, to force a teleport even when the area is obstructed or your bed is destroyed.
-	* Ground replacements for trees are now configurable via data packs.
-	* Added several new syntax tricks for scripts.
-	* Scripted features can now queue blocks before placing them.
+	* Added balls of string.
+	* Fixed flint/sticks/rocks spawning under snow.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -51,6 +43,7 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
+		ball of string, useful for navigating dungeons.
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?

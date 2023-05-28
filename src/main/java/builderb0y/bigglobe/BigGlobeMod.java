@@ -43,6 +43,7 @@ import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
+import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -81,6 +82,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
 		BigGlobeNetwork.init();
+		BigGlobeRecipeSerializers.init();
 		ExpressionParser.clinit();
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));

@@ -101,6 +101,12 @@ public class BigGlobeItems {
 			.maxDamage(192)
 		)
 	);
+	public static final BallOfStringItem BALL_OF_STRING = register(
+		"ball_of_string",
+		new BallOfStringItem(
+			new Item.Settings()
+		)
+	);
 	public static final Item ASH = register(
 		"ash",
 		new Item(
@@ -186,6 +192,7 @@ public class BigGlobeItems {
 			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
 			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
 			entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
+			entries.addAfter(Items.LEAD, string(16), string(64), string(256));
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
 			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
@@ -198,5 +205,11 @@ public class BigGlobeItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
 			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
 		});
+	}
+
+	public static ItemStack string(int blocks) {
+		ItemStack stack = new ItemStack(BigGlobeItems.BALL_OF_STRING);
+		stack.getOrCreateNbt().putInt(BallOfStringItem.MAX_DAMAGE_KEY, blocks);
+		return stack;
 	}
 }

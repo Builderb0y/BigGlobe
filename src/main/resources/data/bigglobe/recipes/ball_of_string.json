@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"sss",
+		"s s",
+		"sss"
+	],
+	"key": {
+		"s": { "tag": "c:string" }
+	},
+	"result": {
+		"item": "bigglobe:ball_of_string"
+	}
+}

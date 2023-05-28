@@ -48,6 +48,22 @@ public class BigGlobeEntityTypes {
 			FeatureSet.empty()
 		)
 	);
+	public static final EntityType<StringEntity> STRING = register(
+		"string",
+		new EntityType<>(
+			StringEntity::new,
+			SpawnGroup.MISC,
+			true,
+			true,
+			false,
+			true,
+			ImmutableSet.of(),
+			EntityDimensions.changing(0.5F, 0.5F),
+			4,
+			20,
+			FeatureSet.empty()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }
 

@@ -14,7 +14,8 @@ public class BigGlobeEntityRenderers {
 	public static void init() {
 		BigGlobeMod.LOGGER.debug("Registering entity renderers...");
 		EntityRendererRegistry.register(BigGlobeEntityTypes.TORCH_ARROW, TorchArrowRenderer::new);
-		EntityRendererRegistry.register(BigGlobeEntityTypes.ROCK, FlyingItemEntityRenderer::new);
+		EntityRendererRegistry.register(BigGlobeEntityTypes.ROCK,  FlyingItemEntityRenderer::new);
+		EntityRendererRegistry.register(BigGlobeEntityTypes.STRING,    StringEntityRenderer::new);
 		BigGlobeMod.LOGGER.debug("Done registering entity renderers.");
 	}
 }

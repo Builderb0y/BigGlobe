@@ -9,8 +9,9 @@
 						"if (originY < seaLevel: return(false))",
 						"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 					")",
-					"placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]')",
-					"return(true)",
+					"if (getBlockState(originX, originY, originZ).getBlock() != Block('minecraft:snow'):",
+						"return(placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]'))",
+					")",
 				")",
 			")",
 			"return(false)"

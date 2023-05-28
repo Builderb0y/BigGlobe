@@ -58,6 +58,7 @@
 	"block.bigglobe.wart_weed": "Wart Weed",
 
 	"item.bigglobe.ash": "Ash",
+	"item.bigglobe.ball_of_string": "Ball Of String",
 	"item.bigglobe.percussive_hammer": "Percussive Hammer",
 	"item.bigglobe.slingshot": "Slingshot",
 	"item.bigglobe.soul_lava_bucket": "Soul Lava Bucket",
@@ -115,6 +116,8 @@
 	"commands.bigglobe.profiler.notRunning": "The profiler is not running in this world.",
 
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
+
+	"tooltip.bigglobe.ball_of_string.remaining": "%d block(s) remaining",
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
 
