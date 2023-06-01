@@ -41,6 +41,7 @@
 		"ServerWorld_CustomTimeSpeed",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
 		"SingularPalette_EntryAccess",
+		"SlimeEntity_AllowSpawningFromSpawner",
 		"SpawnHelper_AllowSlimeSpawningInLakes",
 		"SpawnRestriction_BackingMapAccess",
 		"StairsBlock_MirrorProperly",

@@ -51,6 +51,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",             Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",            Boolean.TRUE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                   Boolean.TRUE);
