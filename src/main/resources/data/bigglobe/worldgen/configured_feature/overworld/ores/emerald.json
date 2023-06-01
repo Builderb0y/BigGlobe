@@ -3,7 +3,7 @@
 	"config": {
 		"stone_state": "minecraft:emerald_ore",
 		"deepslate_state": "minecraft:deepslate_emerald_ore",
-		"chance": "(`max_y` - y) / 1024 - 0.375",
+		"chance": "(0.375 - (`max_y` - y) / 512.0L) * `overworld/hilliness`",
 		"radius": {
 			"type": "average",
 			"min": 1.5,
