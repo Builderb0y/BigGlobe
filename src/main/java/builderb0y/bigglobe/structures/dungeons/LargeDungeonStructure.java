@@ -261,8 +261,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super.initSpawner(pos, spawner);
 			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
 			logic.bigglobe_setRequiredPlayerRange(32);
-			logic.bigglobe_setMaxNearbyEntities(2);
-			logic.bigglobe_setSpawnCount(2);
+			logic.bigglobe_setMaxNearbyEntities(6);
+			logic.bigglobe_setSpawnCount(4);
 		}
 	}
 

@@ -125,8 +125,8 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_CACHED_CAVE_NOISE             = registerOverworld("cached_cave_noise",                withY(OverworldColumn::getCachedCaveNoise           ), null),
 		OVERWORLD_CAVE_SURFACE_DEPTH            = registerOverworld("cave_surface_depth",            withoutY(OverworldColumn::getCaveSurfaceDepth          ), null),
 		OVERWORLD_NORMALIZED_CAVE_SURFACE_DEPTH = registerOverworld("normalized_cave_surface_depth", withoutY(OverworldColumn::getNormalizedCaveSurfaceDepth), null),
-		OVERWORLD_CAVE_WIDTH                    = registerOverworld("cave_width",                       withY(OverworldColumn::getCaveWidth                 ), null),
-		OVERWORLD_CAVE_WIDTH_SQUARED            = registerOverworld("cave_width_squared",               withY(OverworldColumn::getCaveWidthSquared          ), null),
+		OVERWORLD_CAVE_NOISE_THRESHOLD          = registerOverworld("cave_noise_threshold",             withY(OverworldColumn::getCaveNoiseThreshold        ), null),
+		OVERWORLD_CAVE_EFFECTIVE_WIDTH          = registerOverworld("cave_effective_width",             withY(OverworldColumn::getCaveEffectiveWidth        ), null),
 		OVERWORLD_CAVE_SYSTEM_CENTER_X          = registerOverworld("cave_system_center_x",          withoutY(OverworldColumn::getCaveSystemCenterX         ), OverworldColumn::debugCaveSystemCenterX),
 		OVERWORLD_CAVE_SYSTEM_CENTER_Z          = registerOverworld("cave_system_center_z",          withoutY(OverworldColumn::getCaveSystemCenterZ         ), OverworldColumn::debugCaveSystemCenterZ),
 		OVERWORLD_CAVE_SYSTEM_EDGINESS          = registerOverworld("cave_system_edginess",          withoutY(OverworldColumn::getCaveSystemEdginess        ), null),
@@ -161,8 +161,8 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		NETHER_LAVA_LEVEL                       = registerNether   ("lava_level",                    withoutY(   NetherColumn::getLavaLevel                 ), null),
 		NETHER_CAVE_NOISE                       = registerNether   ("cave_noise",                       withY(   NetherColumn::getCaveNoise                 ), null),
 		NETHER_CACHED_CAVE_NOISE                = registerNether   ("cached_cave_noise",                withY(   NetherColumn::getCachedCaveNoise           ), null),
-		NETHER_CAVE_WIDTH                       = registerNether   ("cave_width",                       withY(   NetherColumn::getCaveWidth                 ), null),
-		NETHER_CAVE_WIDTH_SQUARED               = registerNether   ("cave_width_squared",               withY(   NetherColumn::getCaveWidthSquared          ), null),
+		NETHER_CAVE_NOISE_THRESHOLD             = registerNether   ("cave_noise_threshold",             withY(   NetherColumn::getCaveNoiseThreshold        ), null),
+		NETHER_CAVE_EFFECTIVE_WIDTH             = registerNether   ("cave_effective_width",             withY(   NetherColumn::getCaveEffectiveWidth        ), null),
 		NETHER_CAVERN_NOISE                     = registerNether   ("cavern_noise",                     withY(   NetherColumn::getCavernNoise               ), null),
 		NETHER_CACHED_CAVERN_NOISE              = registerNether   ("cached_cavern_noise",              withY(   NetherColumn::getCachedCavernNoise         ), null);
 

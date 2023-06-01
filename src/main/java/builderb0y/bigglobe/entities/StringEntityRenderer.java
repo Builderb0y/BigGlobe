@@ -5,10 +5,7 @@ import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
@@ -41,6 +38,7 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 	) {
 		Entity next = entity.getNextEntity();
 		if (next != null) {
+			int nextLight = this.dispatcher.getLight(next, tickDelta);
 			Vec3d a = getPos(entity.getPrevEntity(), tickDelta);
 			Vec3d b = getPos(entity, tickDelta);
 			Vec3d c = getPos(next, tickDelta);
@@ -61,10 +59,27 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 					.color(255, 255, 255, 255)
 					.texture(u, v)
 					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(light)
+					.light(
+						LightmapTextureManager.pack(
+							lerpInt(
+								LightmapTextureManager.getBlockLightCoordinates(light),
+								LightmapTextureManager.getBlockLightCoordinates(nextLight),
+								u
+							),
+							lerpInt(
+								LightmapTextureManager.getSkyLightCoordinates(light),
+								LightmapTextureManager.getSkyLightCoordinates(nextLight),
+								u
+							)
+						)
+					)
 					.normal(matrix.getNormalMatrix(), (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
 					.next();
 					return this;
+				}
+
+				public static int lerpInt(int low, int high, float level) {
+					return Math.min(BigGlobeMath.floorI(Interpolator.mixLinear(low, high + 1, level)), high);
 				}
 			}
 			VertexHelper helper = new VertexHelper();

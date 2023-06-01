@@ -4,7 +4,6 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -97,7 +96,7 @@ public interface NoiseOverrider extends Script {
 				column.getFinalTopHeightI(),
 				column.getFinalBottomHeightI(),
 				column.caveNoise,
-				column.getLocalCell().settings.caves().width()
+				column.getLocalCell().settings.caves().noise_threshold()
 			);
 		}
 
@@ -132,7 +131,7 @@ public interface NoiseOverrider extends Script {
 
 		@Override
 		public double getExclusionMultiplier(int y) {
-			return BigGlobeMath.squareD(this.width.evaluate(this.column, y));
+			return this.width.evaluate(this.column, y);
 		}
 	}
 

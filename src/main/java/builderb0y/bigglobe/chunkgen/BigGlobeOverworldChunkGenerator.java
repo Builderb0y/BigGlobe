@@ -64,9 +64,6 @@ import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.overriders.overworld.*;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
@@ -85,10 +82,13 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.overworld.*;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
@@ -676,7 +676,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			{
 				double minY = Math.max(context.bottomD, context.column.settings.height.minYAboveBedrock());
 				CaveCell cell = context.column.getCaveCell();
-				double lowerWidth = cell.settings.getWidth(column, minY);
+				double lowerWidth = cell.settings.getEffectiveWidth(column, minY);
 				int topY = Math.min(BigGlobeMath.floorI(minY + lowerWidth), context.topI - 1);
 				double rcpLowerWidth = 1.0D / lowerWidth;
 				for (int y = topY; y >= context.bottomI; y--) {
@@ -690,7 +690,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				double progress = context.caveCell.voronoiCell.progressToEdgeD(context.column.x, context.column.z);
 				for (int y = context.bottomI; y < context.topI; y++) {
 					double
-						width     = context.caveSettings.getWidth(column, y),
+						width     = context.caveSettings.getEffectiveWidth(column, y),
 						threshold = 1.0D - width / (distance * 0.5D),
 						fraction  = Interpolator.unmixLinear(threshold, 1.0D, progress);
 					if (fraction > 0.0D) {

@@ -3,14 +3,16 @@ package builderb0y.bigglobe.settings;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryWrapper;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifyIntRange;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
-import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IRandomList;
@@ -34,10 +36,10 @@ public class OverworldCaveSettings {
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 	public static record LocalOverworldCaveSettings(
 		double weight,
-		Grid3D noise,
-		@VerifyNullable Grid3D ledge_noise,
-		ColumnYToDoubleScript.Holder width,
 		@VerifyIntRange(min = 0, minInclusive = false) int depth,
+		Grid3D noise,
+		ColumnYToDoubleScript.Holder noise_threshold,
+		ColumnYToDoubleScript.Holder effective_width,
 		@VerifyNullable Grid2D surface_depth_noise,
 		@VerifyNullable CaveSurfaceBlocks floor_blocks,
 		@VerifyNullable CaveSurfaceBlocks ceiling_blocks,
@@ -50,20 +52,13 @@ public class OverworldCaveSettings {
 			LocalOverworldCaveSettings settings = context.object;
 			if (settings != null) {
 				if (settings.surface_depth_noise == null && (settings.floor_blocks != null || settings.ceiling_blocks != null)) {
-					throw new VerifyException(() -> "Must specify " + context.pathToString() + " when floor_state or ceiling_state are present.");
+					throw new VerifyException(() -> "Must specify " + context.pathToString() + " when floor_blocks or ceiling_blocks are present.");
 				}
 			}
 		}
 
 		public double getValue(OverworldColumn column, int y) {
-			double noise = this.noise.getValue(column.getCaveSeed(), column.x, y, column.z);
-			if (this.ledge_noise != null) {
-				noise += (
-					this.ledge_noise.getValue(column.getCaveSeed(), column.x, y, column.z)
-					* this.getWidthSquared(column, y)
-				);
-			}
-			return noise;
+			return this.noise.getValue(column.getCaveSeed(), column.x, y, column.z);
 		}
 
 		public void getBulkY(OverworldColumn column) {
@@ -72,27 +67,14 @@ public class OverworldCaveSettings {
 			if (samples == null) samples = column.caveNoise = new double[depth];
 			int startY = column.getFinalTopHeightI() - depth;
 			this.noise.getBulkY(column.getCaveSeed(), column.x, startY, column.z, samples, depth);
-			if (this.ledge_noise != null) {
-				double[] scratch = Grid.getScratchArray(depth);
-				try {
-					this.ledge_noise.getBulkY(column.getCaveSeed(), column.x, startY, column.z, scratch, depth);
-					for (int index = 0; index < depth; index++) {
-						samples[index] += scratch[index] * this.getWidthSquared(column, index + startY);
-					}
-				}
-				finally {
-					Grid.reclaimScratchArray(scratch);
-				}
-			}
 		}
 
-		public double getWidth(OverworldColumn column, double y) {
-			return this.width.evaluate(column, y);
+		public double getNoiseThreshold(OverworldColumn column, double y) {
+			return this.noise_threshold.evaluate(column, y);
 		}
 
-		public double getWidthSquared(OverworldColumn column, double y) {
-			double width = this.width.evaluate(column, y);
-			return width > 0.0D ? width * width : 0.0D;
+		public double getEffectiveWidth(OverworldColumn column, double y) {
+			return this.effective_width.evaluate(column, y);
 		}
 
 		@Override

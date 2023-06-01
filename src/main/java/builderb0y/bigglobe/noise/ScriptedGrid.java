@@ -13,6 +13,8 @@ import org.objectweb.asm.tree.FieldNode;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -31,6 +33,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 	public static final TypeInfo DOUBLE_ARRAY = type(double[].class);
+	public static final ScopeLocal<WorldColumn> SECRET_COLUMN = new ScopeLocal<>();
+	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
 
 	public final Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
@@ -40,6 +44,10 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		this.inputs = inputs;
 		this.min = min;
 		this.max = max;
+	}
+
+	public static WorldColumn getSecretColumn() {
+		return SECRET_COLUMN.getCurrent();
 	}
 
 	public abstract Grid getDelegate();
@@ -165,12 +173,13 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					ACC_PUBLIC | ACC_STATIC,
 					"evaluate",
 					TypeInfos.DOUBLE,
-					types("I".repeat(gridTypeInfo.dimensions) + "D".repeat(inputs.size()))
+					types(WorldColumn.class, 'I', gridTypeInfo.dimensions, 'D', inputs.size())
 				)
 			);
 			this.inputs = inputs;
 			this.gridTypeInfo = gridTypeInfo;
 		}
+
 		public Parser(String input, LinkedHashMap<String, Input> inputs, GridTypeInfo gridTypeInfo) {
 			this(
 				input,
@@ -268,16 +277,16 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 				ACC_PUBLIC,
 				"getValue",
 				TypeInfos.DOUBLE,
-				types('J' + "I".repeat(dimensions))
+				types('J', 'I', dimensions)
 			)
-			.scopes
-			.withScope((MethodCompileContext getValue) -> {
+			.scopes.withScope((MethodCompileContext getValue) -> {
 				VarInfo thisVar = getValue.addThis();
 				VarInfo seed = getValue.newParameter("seed", TypeInfos.LONG);
 				VarInfo[] coordinates = new VarInfo[dimensions];
 				for (int dimension = 0; dimension < dimensions; dimension++) {
 					coordinates[dimension] = getValue.newParameter(coordName(dimension), TypeInfos.INT);
 				}
+				GET_SECRET_COLUMN.emitBytecode(getValue);
 				for (int dimension = 0; dimension < dimensions; dimension++) {
 					load(coordinates[dimension]).emitBytecode(getValue);
 				}
@@ -292,7 +301,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 							this.gridTypeInfo.type,
 							"getValue",
 							TypeInfos.DOUBLE,
-							types('J' + "I".repeat(dimensions))
+							types('J', 'I', dimensions)
 						),
 						Stream.concat(
 							Stream.of(load(seed)),
@@ -302,7 +311,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					)
 					.emitBytecode(getValue);
 				}
-				getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + "I".repeat(dimensions) + "D".repeat(this.inputs.size()) + ")D", false);
+				getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.inputs.size()) + ")D", false);
 				getValue.node.visitInsn(DRETURN);
 			});
 		}
@@ -310,6 +319,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		public void addEvaluate() throws ScriptParsingException {
 			int dimensions = this.gridTypeInfo.dimensions;
 			this.method.scopes.pushScope();
+			this.method.newParameter("column", type(WorldColumn.class));
 			for (int dimension = 0; dimension < dimensions; dimension++) {
 				this.method.newParameter(coordName(dimension), TypeInfos.INT);
 			}
@@ -364,11 +374,11 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			if (name.length() == 1) {
 				char c = name.charAt(0);
 				if (c >= 'x' && c < 'x' + this.gridTypeInfo.dimensions) {
-					return load(name, c - 'x', TypeInfos.INT);
+					return load(name, c - 'x' + 1, TypeInfos.INT);
 				}
 			}
 			Input input = this.inputs.get(name);
-			return input == null ? null : load(name, (input.index << 1) + this.gridTypeInfo.dimensions, TypeInfos.DOUBLE);
+			return input == null ? null : load(name, (input.index << 1) + this.gridTypeInfo.dimensions + 1, TypeInfos.DOUBLE);
 		}
 
 		@Override

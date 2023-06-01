@@ -296,8 +296,14 @@ public class StringEntity extends Entity {
 				UUID uuid = this.uuid;
 				entity = uuid == null ? null : ((ServerWorld)(StringEntity.this.world)).getEntity(uuid);
 			}
-			if (entity != null && entity.isRemoved()) {
-				entity = null;
+			if (entity != null) {
+				if (entity.squaredDistanceTo(StringEntity.this) > 256.0D) {
+					this.uuid = null;
+					entity = null;
+				}
+				else if (entity.isRemoved()) {
+					entity = null;
+				}
 			}
 			if (!StringEntity.this.world.isClient) {
 				StringEntity.this.dataTracker.set(this.trackedID, entity != null ? entity.getId() : 0);

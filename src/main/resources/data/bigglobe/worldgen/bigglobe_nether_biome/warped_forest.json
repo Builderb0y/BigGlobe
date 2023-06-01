@@ -61,7 +61,8 @@
 				}
 			}
 		},
-		"width": "2 ^ (y / -128.0L) * 512.0L + 8.0L",
+		"noise_threshold": "(2 ^ (y / -128.0L) * 512.0L + 8.0L) ^ 2",
+		"effective_width": "2 ^ (y / -128.0L) * 512.0L + 8.0L",
 		"floor_decorator": "bigglobe:nether/warped_forest_cave_floors",
 		"ceiling_decorator": "bigglobe:nether/warped_forest_cave_ceilings"
 	}

@@ -7,7 +7,7 @@
 		"layout": {
 			"script": [
 				"boolean isTerrainAt(int y:",
-					"return(`nether/cached_cave_noise`(x, y, z) >= `nether/cave_width_squared`(x, y, z) && `nether/cached_cavern_noise`(x, y, z) >= 0.0L)",
+					"return(`nether/cached_cave_noise`(x, y, z) >= `nether/cave_noise_threshold`(x, y, z) && `nether/cached_cavern_noise`(x, y, z) >= 0.0L)",
 				")",
 
 				"int getY(:",

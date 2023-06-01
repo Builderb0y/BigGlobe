@@ -74,7 +74,8 @@ public class NetherSettings {
 
 	public static record NetherCaveSettings(
 		Grid3D noise,
-		ColumnYToDoubleScript.Holder width,
+		ColumnYToDoubleScript.Holder noise_threshold,
+		ColumnYToDoubleScript.Holder effective_width,
 		@VerifyNullable Integer lower_padding,
 		@VerifyNullable NetherSurfaceSettings floor_surface,
 		@VerifyNullable NetherSurfaceSettings ceiling_surface,

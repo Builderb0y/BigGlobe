@@ -179,8 +179,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			super.initSpawner(pos, spawner);
 			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
 			logic.bigglobe_setRequiredPlayerRange(24);
-			logic.bigglobe_setMaxNearbyEntities(2);
-			logic.bigglobe_setSpawnCount(1);
+			logic.bigglobe_setMaxNearbyEntities(4);
+			logic.bigglobe_setSpawnCount(3);
 		}
 	}
 

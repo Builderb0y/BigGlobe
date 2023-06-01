@@ -11,6 +11,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
@@ -123,13 +124,15 @@ public class OverworldColumn extends WorldColumn {
 
 	public double[] getRawErosionAndSnow() {
 		if (this.setFlag(RAW_EROSION_AND_SNOW)) {
-			this.settings.height.getErosionAndSnow(
-				this.seed,
-				this.x,
-				this.z,
-				this.getHilliness(),
-				this.rawErosionAndSnow
-			);
+			ScriptedGrid.SECRET_COLUMN.accept(this, (OverworldColumn self) -> {
+				self.settings.height.getErosionAndSnow(
+					self.seed,
+					self.x,
+					self.z,
+					self.getHilliness(),
+					self.rawErosionAndSnow
+				);
+			});
 		}
 		return this.rawErosionAndSnow;
 	}
@@ -247,7 +250,7 @@ public class OverworldColumn extends WorldColumn {
 	public double getTemperature() {
 		return (
 			this.setFlag(TEMPERATURE)
-			? this.temperature = this.settings.temperature.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
+			? this.temperature = ScriptedGrid.SECRET_COLUMN.apply(this, (OverworldColumn self) -> this.settings.temperature.noise().getValue(Permuter.stafford(self.seed), self.x, self.z))
 			: this.temperature
 		);
 	}
@@ -263,7 +266,7 @@ public class OverworldColumn extends WorldColumn {
 	public double getFoliage() {
 		return (
 			this.setFlag(FOLIAGE)
-			? this.foliage = this.settings.foliage.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
+			? this.foliage = ScriptedGrid.SECRET_COLUMN.apply(this, (OverworldColumn self) -> self.settings.foliage.noise().getValue(Permuter.stafford(self.seed), self.x, self.z))
 			: this.foliage
 		);
 	}
@@ -290,7 +293,7 @@ public class OverworldColumn extends WorldColumn {
 			boolean previousCave = false;
 			for (int index = 0; index < depth; index++) {
 				int y = index + minY;
-				boolean currentCave = noise[index] < cell.settings.getWidthSquared(this, y);
+				boolean currentCave = noise[index] < cell.settings.getNoiseThreshold(this, y);
 				if (currentCave && !previousCave) {
 					this.caveFloors.add(y);
 				}
@@ -310,7 +313,7 @@ public class OverworldColumn extends WorldColumn {
 	public double @Nullable [] getCaveNoise() {
 		if (this.setFlag(CAVE_NOISE)) {
 			CaveCell cell = this.getCaveCell();
-			if (cell != null) cell.settings.getBulkY(this);
+			if (cell != null) ScriptedGrid.SECRET_COLUMN.run(this, () -> cell.settings.getBulkY(this));
 		}
 		return this.caveNoise;
 	}
@@ -326,7 +329,7 @@ public class OverworldColumn extends WorldColumn {
 		else {
 			CaveCell cell = this.getCaveCell();
 			if (cell == null) return Double.NaN;
-			return cell.settings.getValue(this, y);
+			return ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.getValue(this, y));
 		}
 	}
 
@@ -338,20 +341,20 @@ public class OverworldColumn extends WorldColumn {
 		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
 	}
 
-	public double getCaveWidth(double y) {
+	public double getCaveNoiseThreshold(double y) {
 		CaveCell cell = this.getCaveCell();
-		return cell == null ? Double.NaN : cell.settings.getWidth(this, y);
+		return cell == null ? Double.NaN : cell.settings.getNoiseThreshold(this, y);
 	}
 
-	public double getCaveWidthSquared(double y) {
+	public double getCaveEffectiveWidth(double y) {
 		CaveCell cell = this.getCaveCell();
-		return cell == null ? Double.NaN : cell.settings.getWidthSquared(this, y);
+		return cell == null ? Double.NaN : cell.settings.getEffectiveWidth(this, y);
 	}
 
 	public boolean isCaveAt(int y, boolean cache) {
 		double noise = this.getCaveNoise(y, cache);
 		if (Double.isNaN(noise)) return false;
-		return noise < this.getCaveWidthSquared(y);
+		return noise < this.getCaveNoiseThreshold(y);
 	}
 
 	public double getCaveSurfaceDepth() {

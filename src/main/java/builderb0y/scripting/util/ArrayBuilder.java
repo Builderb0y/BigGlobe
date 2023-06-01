@@ -1,9 +1,21 @@
 package builderb0y.scripting.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.IntFunction;
 
 public class ArrayBuilder<T> extends ArrayList<T> {
+
+	@SafeVarargs
+	public final void add(T... elements) {
+		Collections.addAll(this, elements);
+	}
+
+	@SafeVarargs
+	public final ArrayBuilder<T> append(T... elements) {
+		this.add(elements);
+		return this;
+	}
 
 	public ArrayBuilder<T> append(T element) {
 		this.add(element);

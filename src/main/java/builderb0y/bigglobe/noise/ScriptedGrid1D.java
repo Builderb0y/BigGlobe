@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import builderb0y.bigglobe.columns.ColumnValue;
+import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -25,7 +28,15 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		Parser parser = new Parser(script, processedInputs);
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
-		.addEnvironment(MathScriptEnvironment.INSTANCE);
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(
+			ColumnScriptEnvironment.createFixedXZVariableY(
+				ColumnValue.REGISTRY,
+				load("column", 0, type(WorldColumn.class)),
+				null
+			)
+			.mutable
+		);
 		this.delegate = parser.parse();
 	}
 
@@ -71,6 +82,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
 				VarInfo samples     = getBulkX.newParameter("samples", DOUBLE_ARRAY);
 				VarInfo sampleCount = getBulkX.newParameter("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulkX.newVariable ("column", type(WorldColumn.class));
 
 				//if (sampleCount <= 0) return;
 				ifThen(
@@ -82,6 +94,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					return_(noop)
 				)
 				.emitBytecode(getBulkX);
+				//get column.
+				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
 				//fill samples with input.
 				invokeInterface(
 					getField(
@@ -118,8 +132,9 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 									getBulkX_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types('I' + "D".repeat(this.inputs.size()))
+									types(WorldColumn.class, 'I', 'D')
 								),
+								load(column),
 								add(this, load(startX), load(index)),
 								arrayLoad(load(samples), load(index))
 							)
@@ -140,6 +155,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
 				VarInfo samples     = getBulkX.newParameter("samples", DOUBLE_ARRAY);
 				VarInfo sampleCount = getBulkX.newParameter("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulkX.newVariable("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
 				VarInfo[] scratches = new VarInfo[this.inputs.size()];
@@ -156,6 +172,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					return_(noop)
 				)
 				.emitBytecode(getBulkX);
+				//get column.
+				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
 				//allocate scratch arrays.
 				for (Input input : this.inputs.values()) {
 					store(
@@ -209,10 +227,11 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 									getBulkX_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types('I' + "D".repeat(this.inputs.size()))
+									types(WorldColumn.class, 'I', 'D', this.inputs.size())
 								),
 								Stream.concat(
 									Stream.of(
+										load(column),
 										add(this, load(startX), load(index))
 									),
 									this.inputs.values().stream().map(input -> (

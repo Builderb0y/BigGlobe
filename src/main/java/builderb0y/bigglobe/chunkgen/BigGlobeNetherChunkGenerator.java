@@ -141,7 +141,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				LocalNetherSettings localSettings = column.getLocalCell().settings;
 				int cavernLowerY = localSettings.caverns().min_y();
 				int cavernUpperY = localSettings.caverns().max_y();
-				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().width();
+				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
 				int lavaLevel = column.getLocalCell().lavaLevel;
 				if (localSettings.filler() != previousFiller || localSettings.fluid_state() != previousFluid) {
 					previousFiller = localSettings.filler();
@@ -160,7 +160,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					double caveWidth = widthScript.evaluate(column, y);
 					int index = horizontalIndex | (verticalIndex << 8);
 					if (
-						caveNoise[y - caveLowerY] < caveWidth * caveWidth || (
+						caveNoise[y - caveLowerY] < caveWidth || (
 							y >= cavernLowerY &&
 							y <  cavernUpperY &&
 							cavernNoise[y - cavernLowerY] < 0.0D
@@ -466,7 +466,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		return new VerticalBlockSample(worldMinY, Util.make(new BlockState[worldMaxY - worldMinY], states -> {
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
 			int lavaLevel = column.getLocalCell().lavaLevel;
-			ColumnYToDoubleScript.Holder widthScript = localSettings.caves().width();
+			ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
 			double[] caveNoise = column.getCaveNoise();
 			double[] cavernNoise = column.getCavernNoise();
 			int cavernLowerY = localSettings.caverns().min_y();
@@ -475,7 +475,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				int y = index + worldMinY;
 				double caveWidth = widthScript.evaluate(column, y);
 				if (
-					caveNoise[y - worldMinY] < caveWidth * caveWidth || (
+					caveNoise[y - worldMinY] < caveWidth || (
 						y >= cavernLowerY &&
 						y < cavernUpperY &&
 						cavernNoise[y - cavernLowerY] < 0.0D
