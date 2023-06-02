@@ -20,6 +20,7 @@ changelog:
 	* Fixed rough quartz dropping amethyst blocks.
 	* Increased the amount of caves in the overworld.
 	* Buffed spawners in dungeons.
+	* Marked William Wythers' Overhauled Overworld as incompatible with Big Globe, since it A: prevents you from creating a Big Globe world, and B: corrupts existing Big Globe worlds when opening them.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -41,6 +42,7 @@ scripting:
 	ability to break or continue nested loops.
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
+	general-purpose script bytecode optimization framework.
 
 features:
 	general:
@@ -74,8 +76,9 @@ features:
 		dungeons:
 			piles of gold?
 			occasional "big rooms".
-		underground bubbles:
+		underground pockets:
 			molten? (match molten caves)
+			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 		make lilypads renewable?
 	nether:
 	end:

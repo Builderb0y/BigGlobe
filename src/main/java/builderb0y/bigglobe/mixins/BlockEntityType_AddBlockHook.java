@@ -19,6 +19,11 @@ public class BlockEntityType_AddBlockHook implements MutableBlockEntityType {
 	@Shadow @Final @Mutable private Set<Block> blocks;
 
 	@Override
+	public Set<Block> bigglobe_getBlocks() {
+		return this.blocks;
+	}
+
+	@Override
 	public void bigglobe_addValidBlock(Block block) {
 		try {
 			this.blocks.add(block);

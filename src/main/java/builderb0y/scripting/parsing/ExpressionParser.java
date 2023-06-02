@@ -745,7 +745,7 @@ public class ExpressionParser {
 					//in some cases, input.skipWhitespace() may
 					//be called after the next term has ended.
 					//this is problematic because if the input
-					//is, for example, "var a = 'a',, '$a b'",
+					//is, for example, "String a = 'a',, '$a b'",
 					//then the output would be "ab", without
 					//a space between. so, here we add any
 					//whitespace which got skipped over.

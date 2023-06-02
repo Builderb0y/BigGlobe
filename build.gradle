@@ -102,9 +102,20 @@ java() {
 }
 
 jar() {
+	archiveExtension = "MC$minecraft_version"
 	exclude('assets/bigglobe/icon_1440x.png') //big file that isn't even used.
 	exclude('wip/**')
 }
+
+task copyToReleases(type: Copy) {
+	dependsOn(jar)
+	from("$projectDir/build/libs") {
+		include("$archivesBaseName-${project.version}-MC${minecraft_version}.jar")
+	}
+	into(new File("$projectDir/releases"))
+}
+
+build.dependsOn(copyToReleases)
 
 // configure the maven publication
 /*
