@@ -107,7 +107,7 @@ jar() {
 }
 
 task copyToReleases(type: Copy) {
-	dependsOn(jar)
+	dependsOn(remapJar)
 	from("$projectDir/build/libs") {
 		include("$archivesBaseName-${project.version}.jar")
 		rename() {
