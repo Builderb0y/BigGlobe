@@ -102,7 +102,6 @@ java() {
 }
 
 jar() {
-	archiveExtension = "MC$minecraft_version"
 	exclude('assets/bigglobe/icon_1440x.png') //big file that isn't even used.
 	exclude('wip/**')
 }
@@ -110,7 +109,10 @@ jar() {
 task copyToReleases(type: Copy) {
 	dependsOn(jar)
 	from("$projectDir/build/libs") {
-		include("$archivesBaseName-${project.version}-MC${minecraft_version}.jar")
+		include("$archivesBaseName-${project.version}.jar")
+		rename() {
+			"$archivesBaseName-$project.version-MC${minecraft_version}.jar"
+		}
 	}
 	into(new File("$projectDir/releases"))
 }
