@@ -9,7 +9,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -119,10 +118,6 @@ public class CoordinateFunctions {
 			return Coordinator::getCoordinates;
 		}
 
-		public static CuboidBiCallback<CoordinateBiConsumer<StructureWorldAccess>> getWorld() {
-			return Coordinator::getWorld;
-		}
-
 		public static CuboidBiCallback<CoordinateBiConsumer<BlockState>> getBlockState() {
 			return Coordinator::getBlockState;
 		}
@@ -179,10 +174,6 @@ public class CoordinateFunctions {
 
 		public static LineBiCallback<CoordinateConsumer> getCoordinates() {
 			return (coordinator, x, y, z, index, action) -> coordinator.getCoordinates(x, y, z, action);
-		}
-
-		public static LineBiCallback<CoordinateBiConsumer<StructureWorldAccess>> getWorld() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getWorld(x, y, z, action);
 		}
 
 		public static LineBiCallback<CoordinateBiConsumer<BlockState>> getBlockState() {

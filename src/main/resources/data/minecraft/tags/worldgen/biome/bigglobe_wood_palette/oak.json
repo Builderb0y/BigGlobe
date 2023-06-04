@@ -1,0 +1,18 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:temperate_forest",
+		"minecraft:bamboo_jungle",
+		"minecraft:dark_forest",
+		"minecraft:forest",
+		"minecraft:jungle",
+		"minecraft:sparse_jungle",
+		"minecraft:plains",
+		"minecraft:river",
+		"minecraft:savanna",
+		"minecraft:swamp",
+		"minecraft:wooded_badlands",
+		"minecraft:windswept_forest",
+		"minecraft:meadow"
+	]
+}

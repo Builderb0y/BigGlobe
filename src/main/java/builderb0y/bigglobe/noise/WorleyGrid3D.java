@@ -70,14 +70,18 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
 					double yz2     = squareD(centerY - y, centerZ - z);
-					double offset  = Math.sqrt(radius2 - yz2);
-					if (offset > 0.0D) {
-						int minX = Math.max( ceilI(centerX - offset), startX);
-						int maxX = Math.min(floorI(centerX + offset), startX + sampleCount - 1);
-						for (int x = minX; x <= maxX; x++) {
-							int index = x - startX;
-							samples[index] = Math.min(samples[index], squareD(centerX - x) + yz2);
-						}
+					int limit = startX + sampleCount - 1;
+					for (int x = Math.min(floorI(centerX), limit); x >= startX; x--) {
+						double distance = squareD(centerX - x) + yz2;
+						if (!(distance < radius2)) break;
+						int index = x - startX;
+						samples[index] = Math.min(samples[index], distance);
+					}
+					for (int x = Math.max(floorI(centerX) + 1, startX); x <= limit; x++) {
+						double distance = squareD(centerX - x) + yz2;
+						if (!(distance < radius2)) break;
+						int index = x - startX;
+						samples[index] = Math.min(samples[index], distance);
 					}
 				}
 			}
@@ -105,14 +109,18 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
 					double xz2     = squareD(centerX - x, centerZ - z);
-					double offset  = Math.sqrt(radius2 - xz2);
-					if (offset > 0.0D) {
-						int minY = Math.max( ceilI(centerY - offset), startY);
-						int maxY = Math.min(floorI(centerY + offset), startY + sampleCount - 1);
-						for (int y = minY; y <= maxY; y++) {
-							int index = y - startY;
-							samples[index] = Math.min(samples[index], squareD(centerY - y) + xz2);
-						}
+					int limit = startY + sampleCount - 1;
+					for (int y = Math.min(floorI(centerY), limit); y >= startY; y--) {
+						double distance = squareD(centerY - y) + xz2;
+						if (!(distance < radius2)) break;
+						int index = y - startY;
+						samples[index] = Math.min(samples[index], distance);
+					}
+					for (int y = Math.max(floorI(centerY) + 1, startY); y <= limit; y++) {
+						double distance = squareD(centerY - y) + xz2;
+						if (!(distance < radius2)) break;
+						int index = y - startY;
+						samples[index] = Math.min(samples[index], distance);
 					}
 				}
 			}
@@ -140,14 +148,18 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
 					double xy2     = squareD(centerX - x, centerY - y);
-					double offset  = Math.sqrt(radius2 - xy2);
-					if (offset > 0.0D) {
-						int minZ = Math.max( ceilI(centerZ - offset), startZ);
-						int maxZ = Math.min(floorI(centerZ + offset), startZ + sampleCount - 1);
-						for (int z = minZ; z <= maxZ; z++) {
-							int index = z - startZ;
-							samples[index] = Math.min(samples[index], squareD(centerZ - z) + xy2);
-						}
+					int limit = startZ + sampleCount - 1;
+					for (int z = Math.min(floorI(centerZ), limit); z >= startZ; z--) {
+						double distance = squareD(centerZ - z) + xy2;
+						if (!(distance < radius2)) break;
+						int index = z - startZ;
+						samples[index] = Math.min(samples[index], distance);
+					}
+					for (int z = Math.max(floorI(centerZ) + 1, startZ); z <= limit; z++) {
+						double distance = squareD(centerZ - z) + xy2;
+						if (!(distance < radius2)) break;
+						int index = z - startZ;
+						samples[index] = Math.min(samples[index], distance);
 					}
 				}
 			}

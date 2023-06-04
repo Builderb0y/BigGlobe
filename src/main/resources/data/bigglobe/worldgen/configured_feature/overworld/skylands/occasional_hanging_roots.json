@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"return(random.nextBoolean(1.0 / 128.0) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/skylands/hanging_roots'))"
+		]
+	}
+}

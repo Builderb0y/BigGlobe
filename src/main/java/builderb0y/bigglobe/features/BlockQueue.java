@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.objects.AbstractObject2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.TestOnly;
@@ -57,6 +58,14 @@ public class BlockQueue {
 
 	public void queueBlock(long pos, BlockState state) {
 		this.queuedBlocks.put(pos, state);
+	}
+
+	public void queueReplacement(BlockPos pos, BlockState from, BlockState to) {
+		this.queueReplacement(pos.asLong(), from, to);
+	}
+
+	public void queueReplacement(long pos, BlockState from, BlockState to) {
+		this.queueBlock(pos, to);
 	}
 
 	public void placeQueuedBlocks(WorldAccess world) {
@@ -114,16 +123,46 @@ public class BlockQueue {
 	}
 
 	@TestOnly
+	@SuppressWarnings("unused")
 	public Object[] intellij_childrenArray() {
-		Object[] children = new Object[this.queuedBlocks.size() + 2];
+		return new Object[] {
+			Map.entry("flags", this.flags),
+			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks))
+		};
+	}
+
+	public static Object intellij_decodePositions(Long2ObjectMap<BlockState> map) {
+		if (map == null) return "null";
+		int size = map.size();
+		QueuedBlock[] blocks = new QueuedBlock[size];
 		int index = 0;
-		children[index++] = new AbstractObject2ObjectMap.BasicEntry<>("queuedBlocks", this.queuedBlocks);
-		children[index++] = new AbstractObject2ObjectMap.BasicEntry<>("flags", this.flags);
-		for (ObjectBidirectionalIterator<Long2ObjectMap.Entry<BlockState>> iterator = this.queuedBlocks.long2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
+		for (
+			ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = (
+				Long2ObjectMaps.fastIterator(map)
+			);
+			iterator.hasNext();
+		) {
 			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
-			children[index++] = new AbstractObject2ObjectMap.BasicEntry<>(BlockPos.fromLong(entry.getLongKey()), entry.getValue());
+			blocks[index++] = new QueuedBlock(entry.getLongKey(), entry.getValue());
 		}
-		assert index == children.length;
-		return children;
+		assert index == blocks.length;
+		return blocks;
+	}
+
+	public static record QueuedBlock(int x, int y, int z, long packed, BlockState state) {
+
+		public QueuedBlock(long packed, BlockState state) {
+			this(
+				BlockPos.unpackLongX(packed),
+				BlockPos.unpackLongY(packed),
+				BlockPos.unpackLongZ(packed),
+				packed,
+				state
+			);
+		}
+
+		public QueuedBlock(int x, int y, int z, BlockState state) {
+			this(x, y, z, BlockPos.asLong(x, y, z), state);
+		}
 	}
 }

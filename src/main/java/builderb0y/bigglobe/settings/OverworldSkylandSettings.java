@@ -1,25 +1,35 @@
 package builderb0y.bigglobe.settings;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.util.registry.Registry;
 
 import builderb0y.autocodec.annotations.DefaultDouble;
-import builderb0y.autocodec.annotations.VerifyFloatRange;
+import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
 
-public record OverworldSkylandSettings(
-	VoronoiDiagram2D placement,
-	VariationsList<LocalSkylandSettings> templates
-) {
+public class OverworldSkylandSettings {
+
+	public final VoronoiDiagram2D placement;
+	public final Registry<LocalSkylandSettings> templates_registry;
+	public final transient IRandomList<LocalSkylandSettings> templates;
+
+	public OverworldSkylandSettings(VoronoiDiagram2D placement, Registry<LocalSkylandSettings> templates_registry) {
+		this.placement = placement;
+		this.templates_registry = templates_registry;
+		this.templates = BigGlobeDynamicRegistries.sortAndCollect(templates_registry);
+	}
 
 	public static record LocalSkylandSettings(
 		@DefaultDouble(1.0D) double weight,
-		@VerifyFloatRange(min = 0.0D) double padding,
 		RandomSource average_center,
 		Grid2D center,
 		Grid2D thickness,
@@ -39,8 +49,8 @@ public record OverworldSkylandSettings(
 	}
 
 	public static record SkylandSurfaceSettings(
-		BlockState top_state,
-		BlockState under_state,
-		ColumnYRandomToDoubleScript.Holder depth
+		PrimarySurface primary,
+		SurfaceDepthWithSlopeScript.Holder primary_depth,
+		SecondarySurface @VerifyNullable @SingletonArray [] secondary
 	) {}
 }

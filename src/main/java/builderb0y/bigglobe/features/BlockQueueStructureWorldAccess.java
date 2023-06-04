@@ -85,7 +85,7 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
 	@Override
 	public boolean setBlockState(BlockPos pos, BlockState state, int flags, int maxUpdateDepth) {
-		this.queue.queueBlock(pos, state);
+		this.setBlockState(pos, state);
 		return true;
 	}
 

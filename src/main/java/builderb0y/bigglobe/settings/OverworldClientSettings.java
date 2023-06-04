@@ -17,50 +17,47 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
 
 public record OverworldClientSettings(
 	long seed,
 	ClientTemperatureSettings temperature,
 	ClientFoliageSettings foliage,
-	ClientMiscellaneousSettings miscellaneous,
 	int sea_level
 ) {
 
 	public static final AutoCoder<OverworldClientSettings> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable OverworldClientSettings>() {});
 
-	public static record ClientTemperatureSettings(Grid2D noise) {}
+	public static record ClientTemperatureSettings(Grid2D noise, HeightAdjustmentScript.TemperatureHolder height_adjustment) {}
 
-	public static record ClientFoliageSettings(Grid2D noise) {}
-
-	public static record ClientMiscellaneousSettings(
-		double temperature_height_falloff,
-		double foliage_height_falloff
-	) {}
+	public static record ClientFoliageSettings(Grid2D noise, HeightAdjustmentScript.FoliageHolder height_adjustment) {}
 
 	public static OverworldClientSettings of(long worldSeed, OverworldSettings settings) {
 		return new OverworldClientSettings(
 			Permuter.stafford(worldSeed),
-			new ClientTemperatureSettings(settings.temperature().noise()),
-			new ClientFoliageSettings(settings.foliage().noise()),
-			new ClientMiscellaneousSettings(
-				settings.miscellaneous().temperature_height_falloff(),
-				settings.miscellaneous().foliage_height_falloff()
-			),
-			settings.height().sea_level()
+			new ClientTemperatureSettings(settings.temperature.noise(), settings.temperature.height_adjustment()),
+			new ClientFoliageSettings(settings.foliage.noise(), settings.foliage.height_adjustment()),
+			settings.height.sea_level()
 		);
 	}
 
 	public double getTemperature(int x, int y, int z) {
 		return BigGlobeMath.sigmoid01(
-			this.temperature.noise.getValue(this.seed, x, z)
-			- y / this.miscellaneous.temperature_height_falloff
+			this.temperature.height_adjustment.evaluate(
+				this.temperature.noise.getValue(this.seed, x, z),
+				this.sea_level,
+				y
+			)
 		);
 	}
 
 	public double getFoliage(int x, int y, int z) {
 		return BigGlobeMath.sigmoid01(
-			this.foliage.noise.getValue(this.seed, x, z)
-			- y / this.miscellaneous.foliage_height_falloff
+			this.foliage.height_adjustment.evaluate(
+				this.foliage.noise.getValue(this.seed, x, z),
+				this.sea_level,
+				y
+			)
 		);
 	}
 

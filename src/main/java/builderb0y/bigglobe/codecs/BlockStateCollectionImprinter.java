@@ -21,7 +21,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList.Named;
+import net.minecraft.util.registry.RegistryEntryList;
 
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
@@ -112,9 +112,6 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectName(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier id) throws DecodeException {
-		if (!Registry.BLOCK.containsId(id)) {
-			throw new ImprintException("No such block with ID " + id);
-		}
 		Block block = Registry.BLOCK.get(id);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		if (stringProperties.isEmpty()) {
@@ -129,23 +126,24 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectTag(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier tagID) throws DecodeException {
-		Named<Block> tagEntries = Registry.BLOCK.getEntryList(TagKey.of(Registry.BLOCK_KEY, tagID)).orElse(null);
-		if (tagEntries == null) throw new ImprintException("Unknown block tag: " + tagID);
+		TagKey<Block> tagKey = TagKey.of(Registry.BLOCK_KEY, tagID);
+		RegistryEntryList<Block> tagEntries = Registry.BLOCK.getEntryList(tagKey).orElse(null);
+		if (tagEntries == null) throw new ImprintException("No such tag " + tagID + " in registry " + Registry.BLOCK_KEY.getValue());
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		this.filterAndAdd(context.object, tagEntries, stringProperties);
 	}
 
-	public void filterAndAdd(Collection<BlockState> states, Iterable<RegistryEntry<Block>> entries, Map<String, String> stringProperties) {
+	public void filterAndAdd(Collection<BlockState> states, Iterable<? extends RegistryEntry<Block>> entries, Map<String, String> stringProperties) {
 		if (stringProperties.isEmpty()) {
-			for (RegistryEntry<Block> entry : entries) {
-				states.addAll(entry.value().getStateManager().getStates());
+			for (RegistryEntry<Block> block : entries) {
+				states.addAll(block.value().getStateManager().getStates());
 			}
 		}
 		else {
-			for (RegistryEntry<Block> blockEntry : entries) {
-				Map<Property<?>, Comparable<?>> properties = this.convertProperties(blockEntry.value(), stringProperties);
+			for (RegistryEntry<Block> block : entries) {
+				Map<Property<?>, Comparable<?>> properties = this.convertProperties(block.value(), stringProperties);
 				if (properties == null) continue;
-				this.filterAndAdd(states, blockEntry.value(), properties);
+				this.filterAndAdd(states, block.value(), properties);
 			}
 		}
 	}

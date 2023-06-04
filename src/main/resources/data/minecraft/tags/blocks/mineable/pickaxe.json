@@ -9,6 +9,12 @@
 		"bigglobe:floatstone",
 		"bigglobe:floatstone_slab",
 		"bigglobe:floatstone_stairs",
-		"bigglobe:soul_magma"
+		"bigglobe:soul_magma",
+		"bigglobe:rough_quartz",
+		"bigglobe:small_quartz_bud",
+		"bigglobe:medium_quartz_bud",
+		"bigglobe:large_quartz_bud",
+		"bigglobe:quartz_cluster",
+		"bigglobe:budding_quartz"
 	]
 }

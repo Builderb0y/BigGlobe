@@ -10,7 +10,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureStart start, BlockBox box) {
+public record StructureStartWrapper(StructureEntry entry, StructureStart start, BlockBox box) {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
@@ -34,7 +34,7 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 			maxY = Math.max(maxY, box.getMaxY());
 			maxZ = Math.max(maxZ, box.getMaxZ());
 		}
-		return new StructureStartWrapper(entry, start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
+		return new StructureStartWrapper(new StructureEntry(entry), start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
 	}
 
 	public int minX() { return this.box.getMinX(); }
@@ -43,15 +43,15 @@ public record StructureStartWrapper(RegistryEntry<Structure> entry, StructureSta
 	public int maxX() { return this.box.getMaxX(); }
 	public int maxY() { return this.box.getMaxY(); }
 	public int maxZ() { return this.box.getMaxZ(); }
-	public double midX() { return (this.box.getMinX() + this.box.getMaxX()) * 0.5D; }
-	public double midY() { return (this.box.getMinY() + this.box.getMaxY()) * 0.5D; }
-	public double midZ() { return (this.box.getMinZ() + this.box.getMaxZ()) * 0.5D; }
+	public int midX() { return (this.box.getMinX() + this.box.getMaxX() + 1) >> 1; }
+	public int midY() { return (this.box.getMinY() + this.box.getMaxY() + 1) >> 1; }
+	public int midZ() { return (this.box.getMinZ() + this.box.getMaxZ() + 1) >> 1; }
 	public int sizeX() { return this.box.getMaxX() - this.box.getMinX(); }
 	public int sizeY() { return this.box.getMaxY() - this.box.getMinY(); }
 	public int sizeZ() { return this.box.getMaxZ() - this.box.getMinZ(); }
 
 	public StructureEntry structure() {
-		return new StructureEntry(this.entry);
+		return this.entry;
 	}
 
 	public List<StructurePiece> pieces() {

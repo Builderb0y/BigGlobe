@@ -15,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -30,10 +29,6 @@ public class DropCoordinator implements Coordinator {
 	@Override public void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer action) {}
 	@Override public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer action) {}
 	@Override public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer... actions) {}
-	@Override public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<StructureWorldAccess> action) {}
-	@Override public void getWorldLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<StructureWorldAccess>... actions) {}
 	@Override public Stream<BlockPos> streamCoordinates(int x, int y, int z) { return Stream.empty(); }
 	@Override public Stream<BlockPos> streamCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) { return Stream.empty(); }
 	@Override public Stream<BlockPos> streamCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length) { return Stream.empty(); }

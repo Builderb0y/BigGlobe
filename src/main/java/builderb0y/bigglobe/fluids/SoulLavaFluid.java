@@ -60,6 +60,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation") //this is what vanilla does.
 	public boolean canBeReplacedWith(FluidState state, BlockView world, BlockPos pos, Fluid fluid, Direction direction) {
 		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(FluidTags.WATER);
 	}

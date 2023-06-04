@@ -44,9 +44,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ColumnValue<?>> context) throws EncodeException {
-			if (context.input == null) return context.empty();
-			Identifier id = REGISTRY.getId(context.input);
-			if (id == null) throw new EncodeException("Unregistered ColumnValue: " + context.input);
+			ColumnValue<?> value = context.input;
+			if (value == null) return context.empty();
+			Identifier id = REGISTRY.getId(value);
+			if (id == null) throw new EncodeException("Unregistered ColumnValue: " + value);
 			return context.createString(id.getNamespace().equals(BigGlobeMod.MODID) ? id.getPath() : id.toString());
 		}
 	};
@@ -68,11 +69,37 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static final ColumnValue<WorldColumn>
-		//Y                                       = registerAnyDim   ("y",                                withY(   (column, y) -> y                           ), null),
-		MIN_Y                                   = registerAnyDim   ("min_y",                         withoutY(    WorldColumn::getFinalBottomHeightD        ), null),
-		MAX_Y                                   = registerAnyDim   ("max_y",                         withoutY(    WorldColumn::getFinalTopHeightD           ), null);
+		Y                                                 = registerAnyDim ("y",                                         withY(      (column, y) -> y                                      ), null),
+		MIN_Y                                             = registerAnyDim ("min_y",                                  withoutY(       WorldColumn::getFinalBottomHeightD                   ), null),
+		MAX_Y                                             = registerAnyDim ("max_y",                                  withoutY(       WorldColumn::getFinalTopHeightD                      ), null);
 
+	@SuppressWarnings("unused")
+	public static final ColumnValue<VanillaWorldColumn>
+		VANILLA_TEMPERATURE                               = registerVanilla("temperature",                               withY(VanillaWorldColumn::getTemperature                          ), null),
+		VANILLA_HUMIDITY                                  = registerVanilla("humidity",                                  withY(VanillaWorldColumn::getHumidity                             ), null),
+		VANILLA_CONTINENTALNESS                           = registerVanilla("continentalness",                           withY(VanillaWorldColumn::getContinentalness                      ), null),
+		VANILLA_EROSION                                   = registerVanilla("erosion",                                   withY(VanillaWorldColumn::getErosion                              ), null),
+		VANILLA_DEPTH                                     = registerVanilla("depth",                                     withY(VanillaWorldColumn::getDepth                                ), null),
+		VANILLA_WEIRDNESS                                 = registerVanilla("weirdness",                                 withY(VanillaWorldColumn::getWeirdness                            ), null),
+		VANILLA_ROUTER_BARRIER                            = registerVanilla("router/barrier",                            withY(VanillaWorldColumn::getRouterBarrier                        ), null),
+		VANILLA_ROUTER_FLUID_LEVEL_FLOODEDNESS            = registerVanilla("router/fluid_level_floodedness",            withY(VanillaWorldColumn::getRouterFluidLevelFloodedness          ), null),
+		VANILLA_ROUTER_FLUID_LEVEL_SPREAD                 = registerVanilla("router/fluid_level_spread",                 withY(VanillaWorldColumn::getRouterFluidLevelSpread               ), null),
+		VANILLA_ROUTER_LAVA                               = registerVanilla("router/lava",                               withY(VanillaWorldColumn::getRouterLava                           ), null),
+		VANILLA_ROUTER_TEMPERATURE                        = registerVanilla("router/temperature",                        withY(VanillaWorldColumn::getRouterTemperature                    ), null),
+		VANILLA_ROUTER_VEGETATION                         = registerVanilla("router/vegetation",                         withY(VanillaWorldColumn::getRouterVegetation                     ), null),
+		VANILLA_ROUTER_CONTINENTS                         = registerVanilla("router/continents",                         withY(VanillaWorldColumn::getRouterContinents                     ), null),
+		VANILLA_ROUTER_EROSION                            = registerVanilla("router/erosion",                            withY(VanillaWorldColumn::getRouterErosion                        ), null),
+		VANILLA_ROUTER_DEPTH                              = registerVanilla("router/depth",                              withY(VanillaWorldColumn::getRouterDepth                          ), null),
+		VANILLA_ROUTER_RIDGES                             = registerVanilla("router/ridges",                             withY(VanillaWorldColumn::getRouterRidges                         ), null),
+		VANILLA_ROUTER_INITIAL_DENSITY_WITHOUT_JAGGEDNESS = registerVanilla("router/initial_density_without_jaggedness", withY(VanillaWorldColumn::getRouterInitialDensityWithoutJaggedness), null),
+		VANILLA_ROUTER_FINAL_DENSITY                      = registerVanilla("router/final_density",                      withY(VanillaWorldColumn::getRouterFinalDensity                   ), null),
+		VANILLA_ROUTER_VEIN_TOGGLE                        = registerVanilla("router/vein_toggle",                        withY(VanillaWorldColumn::getRouterVeinToggle                     ), null),
+		VANILLA_ROUTER_VEIN_RIDGED                        = registerVanilla("router/vein_ridged",                        withY(VanillaWorldColumn::getRouterVeinRidged                     ), null),
+		VANILLA_ROUTER_VEIN_GAP                           = registerVanilla("router/vein_gap",                           withY(VanillaWorldColumn::getRouterVeinGap                        ), null);
+
+	@SuppressWarnings("unused")
 	public static final ColumnValue<OverworldColumn>
 		OVERWORLD_SEA_LEVEL                     = registerOverworld("sea_level",                     withoutY(OverworldColumn::getSeaLevel                  ), null),
 
@@ -94,11 +121,12 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SNOW_HEIGHT                   = registerOverworld("snow_height",                   withoutY(OverworldColumn::getSnowHeight                ), null),
 		OVERWORLD_SNOW_CHANCE                   = registerOverworld("snow_chance",                   withoutY(OverworldColumn::getSnowChance                ), null),
 
-		OVERWORLD_CAVE_NOISE                    = registerOverworld("cave_noise",                       withY((column, y) -> column.getCaveNoise(floorI(y), false) ), null),
+		OVERWORLD_CAVE_NOISE                    = registerOverworld("cave_noise",                       withY(OverworldColumn::getCaveNoise                 ), null),
+		OVERWORLD_CACHED_CAVE_NOISE             = registerOverworld("cached_cave_noise",                withY(OverworldColumn::getCachedCaveNoise           ), null),
 		OVERWORLD_CAVE_SURFACE_DEPTH            = registerOverworld("cave_surface_depth",            withoutY(OverworldColumn::getCaveSurfaceDepth          ), null),
 		OVERWORLD_NORMALIZED_CAVE_SURFACE_DEPTH = registerOverworld("normalized_cave_surface_depth", withoutY(OverworldColumn::getNormalizedCaveSurfaceDepth), null),
-		OVERWORLD_CAVE_WIDTH                    = registerOverworld("cave_width",                       withY(OverworldColumn::getCaveWidth                 ), null),
-		OVERWORLD_CAVE_WIDTH_SQUARED            = registerOverworld("cave_width_squared",               withY(OverworldColumn::getCaveWidthSquared          ), null),
+		OVERWORLD_CAVE_NOISE_THRESHOLD          = registerOverworld("cave_noise_threshold",             withY(OverworldColumn::getCaveNoiseThreshold        ), null),
+		OVERWORLD_CAVE_EFFECTIVE_WIDTH          = registerOverworld("cave_effective_width",             withY(OverworldColumn::getCaveEffectiveWidth        ), null),
 		OVERWORLD_CAVE_SYSTEM_CENTER_X          = registerOverworld("cave_system_center_x",          withoutY(OverworldColumn::getCaveSystemCenterX         ), OverworldColumn::debugCaveSystemCenterX),
 		OVERWORLD_CAVE_SYSTEM_CENTER_Z          = registerOverworld("cave_system_center_z",          withoutY(OverworldColumn::getCaveSystemCenterZ         ), OverworldColumn::debugCaveSystemCenterZ),
 		OVERWORLD_CAVE_SYSTEM_EDGINESS          = registerOverworld("cave_system_edginess",          withoutY(OverworldColumn::getCaveSystemEdginess        ), null),
@@ -124,6 +152,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SKYLAND_EDGINESS              = registerOverworld("skyland_edginess",              withoutY(OverworldColumn::getSkylandEdginess           ), null),
 		OVERWORLD_SKYLAND_EDGINESS_SQUARED      = registerOverworld("skyland_edginess_squared",      withoutY(OverworldColumn::getSkylandEdginessSquared    ), null);
 
+	@SuppressWarnings("unused")
 	public static final ColumnValue<NetherColumn>
 		NETHER_BIOME_CENTER_X                   = registerNether   ("biome_center_x",                withoutY(   NetherColumn::getBiomeCenterX              ), NetherColumn::debugBiomeCenterX),
 		NETHER_BIOME_CENTER_Z                   = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ              ), NetherColumn::debugBiomeCenterZ),
@@ -131,9 +160,11 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		NETHER_BIOME_EDGINESS_SQUARED           = registerNether   ("biome_edginess_squared",        withoutY(   NetherColumn::getEdginessSquared           ), null),
 		NETHER_LAVA_LEVEL                       = registerNether   ("lava_level",                    withoutY(   NetherColumn::getLavaLevel                 ), null),
 		NETHER_CAVE_NOISE                       = registerNether   ("cave_noise",                       withY(   NetherColumn::getCaveNoise                 ), null),
-		NETHER_CAVE_WIDTH                       = registerNether   ("cave_width",                       withY(   NetherColumn::getCaveWidth                 ), null),
-		NETHER_CAVE_WIDTH_SQUARED               = registerNether   ("cave_width_squared",               withY(   NetherColumn::getCaveWidthSquared          ), null),
-		NETHER_CAVERN_NOISE                     = registerNether   ("cavern_noise",                     withY(   NetherColumn::getCavernNoise               ), null);
+		NETHER_CACHED_CAVE_NOISE                = registerNether   ("cached_cave_noise",                withY(   NetherColumn::getCachedCaveNoise           ), null),
+		NETHER_CAVE_NOISE_THRESHOLD             = registerNether   ("cave_noise_threshold",             withY(   NetherColumn::getCaveNoiseThreshold        ), null),
+		NETHER_CAVE_EFFECTIVE_WIDTH             = registerNether   ("cave_effective_width",             withY(   NetherColumn::getCaveEffectiveWidth        ), null),
+		NETHER_CAVERN_NOISE                     = registerNether   ("cavern_noise",                     withY(   NetherColumn::getCavernNoise               ), null),
+		NETHER_CACHED_CAVERN_NOISE              = registerNether   ("cached_cavern_noise",              withY(   NetherColumn::getCachedCavernNoise         ), null);
 
 	public final Class<T_Column> columnClass;
 	public final Getter<T_Column> getter;
@@ -164,6 +195,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	public static ColumnValue<WorldColumn> registerAnyDim(String name, Getter<WorldColumn> getter, @Nullable CustomDisplay customDisplay) {
 		return register(name, WorldColumn.class, getter, customDisplay);
+	}
+
+	public static ColumnValue<VanillaWorldColumn> registerVanilla(String name, Getter<VanillaWorldColumn> getter, @Nullable CustomDisplay customDisplay) {
+		return Registry.register(REGISTRY, BigGlobeMod.mcID(name), new ColumnValue<>(VanillaWorldColumn.class, getter, customDisplay));
 	}
 
 	public static ColumnValue<OverworldColumn> registerOverworld(String name, Getter<OverworldColumn> getter, @Nullable CustomDisplay customDisplay) {

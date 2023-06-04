@@ -14,7 +14,6 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -116,13 +115,6 @@ public abstract class AbstractPermuteCoordinator extends ScratchPosCoordinator {
 	}
 
 	public abstract Permutation[] permutations();
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		for (Permutation permutation : this.permutations()) {
-			this.delegate.getWorld(permutation.x(x, z), y, permutation.z(x, z), action);
-		}
-	}
 
 	@Override
 	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {

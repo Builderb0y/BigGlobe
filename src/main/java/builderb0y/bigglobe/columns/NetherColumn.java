@@ -10,7 +10,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
+import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -46,13 +46,13 @@ public class NetherColumn extends WorldColumn {
 		this.cavernCeilings = new IntArrayList( 8);
 		{
 			double[] caveNoise = this.caveNoise;
-			int minY = this.settings.min_y();
-			int maxY = this.settings.max_y();
-			ColumnYToDoubleScript.Holder widthScript = this.getLocalCell().settings.caves().width();
+			int minY = this.settings.min_y;
+			int maxY = this.settings.max_y;
+			ColumnYToDoubleScript.Holder widthScript = this.getLocalCell().settings.caves().noise_threshold();
 			boolean previousCave = false;
 			for (int y = minY; y < maxY; y++) {
 				int index = y - minY;
-				boolean currentCave = caveNoise[index] < BigGlobeMath.squareD(widthScript.evaluate(this, y));
+				boolean currentCave = caveNoise[index] < widthScript.evaluate(this, y);
 				if (currentCave && !previousCave) {
 					this.caveFloors.add(y);
 				}
@@ -129,15 +129,15 @@ public class NetherColumn extends WorldColumn {
 	}
 
 	public double getCaveNoise(int y, boolean cache) {
-		double[] array = cache ? this.computeCaveNoise() : this.caveNoise;
+		double[] array = cache ? this.getCaveNoise() : this.caveNoise;
 		if (array != null) {
-			int index = y - this.settings.min_y();
-			if (index >= 0 && index < array.length) {
+			int index = y - this.settings.min_y;
+			if (index >= 0 && index <= array.length) {
 				return array[index];
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		double noise = cell.settings.caves().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z);
+		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.caves().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z));
 		return this.runCaveOverriders(noise, y);
 	}
 
@@ -145,16 +145,20 @@ public class NetherColumn extends WorldColumn {
 		return this.getCaveNoise(BigGlobeMath.floorI(y), false);
 	}
 
-	public double getCaveWidth(double y) {
-		return this.getLocalCell().settings.caves().width().evaluate(this, y);
+	public double getCachedCaveNoise(double y) {
+		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
 	}
 
-	public double getCaveWidthSquared(double y) {
-		return BigGlobeMath.squareD(this.getCaveWidth(y));
+	public double getCaveNoiseThreshold(double y) {
+		return this.getLocalCell().settings.caves().noise_threshold().evaluate(this, y);
+	}
+
+	public double getCaveEffectiveWidth(double y) {
+		return this.getLocalCell().settings.caves().effective_width().evaluate(this, y);
 	}
 
 	public double[] computeCaveNoise() {
-		int range = this.settings.max_y() - this.settings.min_y();
+		int range = this.settings.height();
 		double[] noise = this.caveNoise;
 		if (noise == null || noise.length < range) {
 			noise = this.caveNoise = new double[range];
@@ -163,7 +167,7 @@ public class NetherColumn extends WorldColumn {
 		cell.settings.caves().noise().getBulkY(
 			cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
 			this.x,
-			this.settings.min_y(),
+			this.settings.min_y,
 			this.z,
 			noise,
 			range
@@ -174,26 +178,28 @@ public class NetherColumn extends WorldColumn {
 
 	public double runCaveOverriders(double caveNoise, int y) {
 		LocalNetherSettings settings = this.getLocalCell().settings;
-		int minY = this.settings.min_y();
-		int maxY = this.settings.max_y();
+		int minY = this.settings.min_y;
+		int maxY = this.settings.max_y;
 		int effectiveMinY = minY + BigGlobeNetherChunkGenerator.LOWER_BEDROCK_AMOUNT;
 		int effectiveMaxY = maxY - BigGlobeNetherChunkGenerator.UPPER_BEDROCK_AMOUNT;
 		Integer lowerPadding = settings.caves().lower_padding();
 		int actualLowerPadding = minY + (lowerPadding != null ? lowerPadding.intValue() : this.getLocalCell().lavaLevel);
-		ColumnYToDoubleScript.Holder widthScript = settings.caves().width();
-		double topWidth = widthScript.evaluate(this, effectiveMaxY);
+		ColumnYToDoubleScript.Holder thresholdScript = settings.caves().noise_threshold();
+		ColumnYToDoubleScript.Holder effectiveWidthScript = settings.caves().effective_width();
+		double topWidth = effectiveWidthScript.evaluate(this, effectiveMaxY);
 		int actualUpperPadding = BigGlobeMath.ceilI(effectiveMaxY - topWidth);
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		int distanceBetweenBiomes = this.settings.biome_placement.distance;
 		double edginess = this.getEdginess() * distanceBetweenBiomes;
 		{
-			double width = widthScript.evaluate(this, y);
+			double threshold = thresholdScript.evaluate(this, y);
+			double effectiveWidth = effectiveWidthScript.evaluate(this, y);
 			if (y < actualLowerPadding) {
-				caveNoise += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
+				caveNoise += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
 			}
 			if (y >= actualUpperPadding) {
-				caveNoise += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
+				caveNoise += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
 			}
-			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - width, distanceBetweenBiomes, edginess);
+			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - effectiveWidth, distanceBetweenBiomes, edginess);
 			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
 			//this results in very thin borders between cells.
 			//occasionally, you can even see gaps between cells when the noise lines up just right.
@@ -204,7 +210,7 @@ public class NetherColumn extends WorldColumn {
 			//that's what the * 0.5D is for.
 			sidePadding = sidePadding * 0.5D + 0.75D;
 			if (sidePadding > 0.0D) {
-				caveNoise += BigGlobeMath.squareD(width * sidePadding);
+				caveNoise += threshold * BigGlobeMath.squareD(sidePadding);
 			}
 		}
 		return caveNoise;
@@ -212,26 +218,28 @@ public class NetherColumn extends WorldColumn {
 
 	public void runCaveOverriders(double[] caveNoise) {
 		LocalNetherSettings settings = this.getLocalCell().settings;
-		int minY = this.settings.min_y();
-		int maxY = this.settings.max_y();
+		int minY = this.settings.min_y;
+		int maxY = this.settings.max_y;
 		int effectiveMinY = minY + BigGlobeNetherChunkGenerator.LOWER_BEDROCK_AMOUNT;
 		int effectiveMaxY = maxY - BigGlobeNetherChunkGenerator.UPPER_BEDROCK_AMOUNT;
 		Integer lowerPadding = settings.caves().lower_padding();
 		int actualLowerPadding = minY + (lowerPadding != null ? lowerPadding.intValue() : this.getLocalCell().lavaLevel);
-		ColumnYToDoubleScript.Holder widthScript = settings.caves().width();
-		double topWidth = widthScript.evaluate(this, effectiveMaxY);
+		ColumnYToDoubleScript.Holder thresholdScript = settings.caves().noise_threshold();
+		ColumnYToDoubleScript.Holder effectiveWidthScript = settings.caves().effective_width();
+		double topWidth = effectiveWidthScript.evaluate(this, effectiveMaxY);
 		int actualUpperPadding = BigGlobeMath.ceilI(effectiveMaxY - topWidth);
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
+		int distanceBetweenBiomes = this.settings.biome_placement.distance;
 		double edginess = this.getEdginess() * distanceBetweenBiomes;
 		for (int y = minY; y < maxY; y++) {
-			double width = widthScript.evaluate(this, y);
+			double threshold = thresholdScript.evaluate(this, y);
+			double effectiveWidth = effectiveWidthScript.evaluate(this, y);
 			if (y < actualLowerPadding) {
-				caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
+				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
 			}
 			if (y >= actualUpperPadding) {
-				caveNoise[y - minY] += BigGlobeMath.squareD(widthScript.evaluate(this, y) * Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
+				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
 			}
-			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - width, distanceBetweenBiomes, edginess);
+			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - effectiveWidth, distanceBetweenBiomes, edginess);
 			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
 			//this results in very thin borders between cells.
 			//occasionally, you can even see gaps between cells when the noise lines up just right.
@@ -242,7 +250,7 @@ public class NetherColumn extends WorldColumn {
 			//that's what the * 0.5D is for.
 			sidePadding = sidePadding * 0.5D + 0.75D;
 			if (sidePadding > 0.0D) {
-				caveNoise[y - minY] += BigGlobeMath.squareD(width * sidePadding);
+				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(sidePadding);
 			}
 		}
 	}
@@ -264,12 +272,16 @@ public class NetherColumn extends WorldColumn {
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		double noise = cell.settings.caverns().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z);
+		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.caverns().noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z));
 		return this.runCavernOverriders(noise, y);
 	}
 
 	public double getCavernNoise(double y) {
 		return this.getCavernNoise(BigGlobeMath.floorI(y), false);
+	}
+
+	public double getCachedCavernNoise(double y) {
+		return this.getCavernNoise(BigGlobeMath.floorI(y), true);
 	}
 
 	public double[] computeCavernNoise() {
@@ -279,14 +291,17 @@ public class NetherColumn extends WorldColumn {
 		if (noise == null) {
 			noise = this.cavernNoise = new double[range];
 		}
-		cell.settings.caverns().noise().getBulkY(
-			cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
-			this.x,
-			cell.settings.caverns().min_y(),
-			this.z,
-			noise,
-			range
-		);
+		double[] noise_ = noise; //lambdas -_-
+		ScriptedGrid.SECRET_COLUMN.run(this, () -> {
+			cell.settings.caverns().noise().getBulkY(
+				cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
+				this.x,
+				cell.settings.caverns().min_y(),
+				this.z,
+				noise_,
+				range
+			);
+		});
 		this.runCavernOverriders(noise);
 		return noise;
 	}
@@ -304,8 +319,8 @@ public class NetherColumn extends WorldColumn {
 		if (y >= upperPaddingMinY && y < maxY) {
 			noise += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
 		}
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
-		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().side_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
+		int distanceBetweenBiomes = this.settings.biome_placement.distance;
+		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().edge_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
 		if (sidePadding > 0.0D) {
 			sidePadding = sidePadding * sidePadding * maxNoise;
 			{
@@ -328,8 +343,8 @@ public class NetherColumn extends WorldColumn {
 		for (int y = maxY; --y >= upperPaddingMinY;) {
 			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
 		}
-		int distanceBetweenBiomes = this.settings.biome_placement().distance;
-		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().side_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
+		int distanceBetweenBiomes = this.settings.biome_placement.distance;
+		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns().edge_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
 		if (sidePadding > 0.0D) {
 			sidePadding = sidePadding * sidePadding * maxNoise;
 			for (int y = minY; y < maxY; y++) {
@@ -340,7 +355,7 @@ public class NetherColumn extends WorldColumn {
 
 	@Override
 	public boolean isTerrainAt(int y, boolean cache) {
-		return this.getCavernNoise(y, cache) >= 0.0D && this.getCaveNoise(y, cache) >= this.getCaveWidthSquared(y);
+		return this.getCavernNoise(y, cache) >= 0.0D && this.getCaveNoise(y, cache) >= this.getCaveNoiseThreshold(y);
 	}
 
 	public LocalCell getLocalCell() {
@@ -353,7 +368,7 @@ public class NetherColumn extends WorldColumn {
 
 	public LocalCell computeLocalCell() {
 		LocalCell localCell = this.localCell;
-		VoronoiDiagram2D.Cell voronoiCell = this.settings.biome_placement().getNearestCell(this.x, this.z, localCell != null ? localCell.voronoiCell : null);
+		VoronoiDiagram2D.Cell voronoiCell = this.settings.biome_placement.getNearestCell(this.x, this.z, localCell != null ? localCell.voronoiCell : null);
 		if (localCell == null) {
 			localCell = this.localCell = new LocalCell();
 		}
@@ -361,29 +376,29 @@ public class NetherColumn extends WorldColumn {
 			return localCell;
 		}
 		localCell.voronoiCell = voronoiCell;
-		localCell.settings = DelegatingContainedRandomList.from(this.settings.local_settings().elements).getRandomElement(voronoiCell.center.getSeed(0x3609EABAE4B4765CL));
+		localCell.settings = this.settings.local_settings.getRandomElement(voronoiCell.center.getSeed(0x3609EABAE4B4765CL));
 		localCell.lavaLevel = BigGlobeMath.ceilI(localCell.settings.fluid_level().get(voronoiCell.center.getSeed(0xEAC12131FA3753DEL)));
 		return localCell;
 	}
 
 	@Override
 	public double getFinalTopHeightD() {
-		return this.settings.max_y();
+		return this.settings.max_y;
 	}
 
 	@Override
 	public int getFinalTopHeightI() {
-		return this.settings.max_y();
+		return this.settings.max_y;
 	}
 
 	@Override
 	public double getFinalBottomHeightD() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
 	public int getFinalBottomHeightI() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override

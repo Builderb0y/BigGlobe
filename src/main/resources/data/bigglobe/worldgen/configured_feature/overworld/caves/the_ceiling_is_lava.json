@@ -13,7 +13,7 @@
 				"setBlockState(x, originY + 1, z, 'minecraft:magma_block')",
 			")",
 
-			"if (",
+			"(",
 				"`overworld/cave_surface_depth` > 0.0 &&",
 				"random.nextBoolean(1.0 / 256.0) &&",
 				"flatBasaltAt(originX - 1, originZ) &&",
@@ -21,18 +21,14 @@
 				"flatBasaltAt(originX, originZ - 1) &&",
 				"flatBasaltAt(originX, originZ + 1) &&",
 				"getBlockState(originX, originY + 2, originZ) == BlockState('minecraft:basalt[axis=y]')",
-			":",
+			")",
+			".if (",
 				"placeMagma(originX - 1, originZ)",
 				"placeMagma(originX + 1, originZ)",
 				"placeMagma(originX, originZ - 1)",
 				"placeMagma(originX, originZ + 1)",
 				"setBlockState(originX, originY + 2, originZ, 'minecraft:magma_block')",
 				"setBlockState(originX, originY + 1, originZ, 'minecraft:lava[level=0]')",
-
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

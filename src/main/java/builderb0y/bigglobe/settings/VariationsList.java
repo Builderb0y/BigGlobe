@@ -31,7 +31,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 @UseEncoder  (name = "new", in = VariationsList.Encoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public class VariationsList<T> {
 
-	public static final Consumer<String> throwDecode = s -> {
+	public static final Consumer<String> THROW_DECODE = (String s) -> {
 		throw AutoCodecUtil.rethrow(new DecodeException(s));
 	};
 
@@ -88,15 +88,15 @@ public class VariationsList<T> {
 						(T_Encoded list /* [ {}, {} ] */) -> ops.createList(
 							ops
 							.getStream(list)
-							.getOrThrow(false, throwDecode)
+							.getOrThrow(false, THROW_DECODE)
 							.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
 						)
 					)
 					.toArray()
 				);
-				Stream<T_Encoded> stream = ops.getStream(layers[0]).getOrThrow(false, throwDecode);
+				Stream<T_Encoded> stream = ops.getStream(layers[0]).getOrThrow(false, THROW_DECODE);
 				for (int index = 1, length = layers.length; index < length; index++) {
-					stream = flatten(stream, (T_Encoded[])(ops.getStream(layers[index]).getOrThrow(false, throwDecode).toArray()), ops, deep);
+					stream = flatten(stream, (T_Encoded[])(ops.getStream(layers[index]).getOrThrow(false, THROW_DECODE).toArray()), ops, deep);
 				}
 				return stream;
 			}

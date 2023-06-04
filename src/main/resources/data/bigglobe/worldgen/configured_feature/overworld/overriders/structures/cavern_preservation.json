@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:overworld_structure_overrider",
+	"config": {
+		"script": [
+			"if (start.structure.type.isIn('bigglobe:cavern_preservation'):",
+				"double center = `overworld/cavern_center`(start.midX, start.midZ)",
+				"double thickness = `overworld/cavern_thickness`(start.midX, start.midZ)",
+				"if (isNotNaN(center) && isNotNaN(thickness):",
+					"thickness += 16.0L",
+					"if (start.minY <= center + thickness && start.maxY >= center - thickness:",
+						"return(false)",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

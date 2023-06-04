@@ -35,9 +35,9 @@ public class RestrictedStructurePlacement extends StructurePlacement {
 	@Override
 	public boolean shouldGenerate(ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, long seed, int chunkX, int chunkZ) {
 		if (!this.isStartChunk(chunkGenerator, noiseConfig, seed, chunkX, chunkZ)) return false;
-		int startX = (chunkX << 4) + 8;
-		int startZ = (chunkZ << 4) + 8;
-		WorldColumn column = WorldColumn.forGenerator(chunkGenerator, noiseConfig, startX, startZ);
+		int startX = (chunkX << 4) | 8;
+		int startZ = (chunkZ << 4) | 8;
+		WorldColumn column = WorldColumn.forGenerator(seed, chunkGenerator, noiseConfig, startX, startZ);
 		double y = column.getFinalTopHeightD();
 		ColumnRestriction restriction = this.restrictions;
 		if (!restriction.test(column, y, seed)) return false;

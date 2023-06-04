@@ -37,8 +37,8 @@ public class ColumnBiomeSource extends BiomeSource {
 	public BigGlobeChunkGenerator generator;
 	public ThreadLocal<WorldColumn> threadLocalColumn;
 
-	public ColumnBiomeSource(Stream<RegistryEntry<Biome>> allBiomes) {
-		super(allBiomes);
+	public ColumnBiomeSource(Stream<RegistryEntry<Biome>> biomeStream) {
+		super(biomeStream);
 	}
 
 	public void setGenerator(BigGlobeChunkGenerator generator) {

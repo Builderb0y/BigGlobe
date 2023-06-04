@@ -5,6 +5,7 @@
 		"spawn_overrides": {},
 		"step": "underground_structures",
 		"terrain_adaptation": "bury",
+		"room_decorators": "bigglobe:overworld/dungeons/small",
 		"spawner_entries": [
 			{ "weight": 16, "entity": "minecraft:zombie" },
 			{ "weight": 12, "entity": "minecraft:skeleton" },

@@ -32,16 +32,20 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
-import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
+import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
+import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 public class BigGlobeMod implements ModInitializer {
 
@@ -57,6 +61,7 @@ public class BigGlobeMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing...");
+		//BigGlobeDynamicRegistries.init(); //1.19.4 only.
 		BigGlobeConfig.init();
 		BigGlobeLoot.init();
 		BigGlobeFluids.init();
@@ -65,22 +70,19 @@ public class BigGlobeMod implements ModInitializer {
 		SoulCauldronBlock.init();
 		BigGlobeBlockEntityTypes.init();
 		BigGlobeBrewing.init();
-		//normally I would initialize TreeRegistry here,
-		//since that needs to be done after blocks,
-		//but it also needs to be done after *other* mods' blocks.
-		//since all blocks are registered in ModInitializer.onInitialize(),
-		//I need a hook that fires later.
-		//I have decided to use the client and dedicated server mod initializers
-		//for this purpose, since they fire directly after the normal mod initializers.
 		BigGlobeEntityTypes.init();
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
 		BigGlobeNetherChunkGenerator.init();
+		BigGlobeSoundEvents.init();
+		BigGlobeDynamicRegistries.addBuiltin();
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
 		BigGlobeNetwork.init();
+		BigGlobeRecipeSerializers.init();
+		ExpressionParser.clinit();
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);

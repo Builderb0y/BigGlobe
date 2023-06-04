@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -27,13 +26,6 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 	}
 
 	public abstract boolean test(int x, int y, int z);
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		if (this.test(x, y, z)) {
-			this.delegate.getWorld(x, y, z, action);
-		}
-	}
 
 	@Override
 	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {

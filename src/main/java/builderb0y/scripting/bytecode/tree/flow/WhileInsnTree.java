@@ -1,7 +1,5 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
-import org.objectweb.asm.Opcodes;
-
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -16,8 +14,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class WhileInsnTree implements InsnTree {
 
-	public final ConditionTree condition;
-	public final InsnTree body;
+	public ConditionTree condition;
+	public InsnTree body;
 
 	public WhileInsnTree(ConditionTree condition, InsnTree body) {
 		this.condition = condition;
@@ -59,7 +57,7 @@ public class WhileInsnTree implements InsnTree {
 		Scope scope = method.scopes.pushLoop();
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.body.emitBytecode(method);
-		method.node.visitJumpInsn(Opcodes.GOTO, scope.start.getLabel());
+		method.node.visitJumpInsn(GOTO, scope.start.getLabel());
 		method.scopes.popLoop();
 	}
 

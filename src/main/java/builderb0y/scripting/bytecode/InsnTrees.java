@@ -1,6 +1,7 @@
 package builderb0y.scripting.bytecode;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.BinaryOperator;
 
@@ -43,6 +44,45 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static TypeInfo[] types(String descs) {
 		return TypeInfo.parseAll(descs);
+	}
+
+	/**
+	returns an array of TypeInfo's representing the provided objects.
+	only specific kinds of objects are allowed, and they are converted
+	to TypeInfo's in a way which depends on the type of the object.
+	the ways in which objects are converted to TypeInfo's are as follows:
+
+	{@link CharSequence} (which also includes {@link String}):
+	the sequence is interpreted as a list of type descriptors,
+	for example, the string "ILjava/lang/String;[J" would be converted into TypeInfo's
+	representing the types int, String, and long[], in that order.
+
+	{@link Character}: the character is interpreted as a single primitive class,
+	and must be one of: BSIJFDCZ (case sensitive).
+
+	{@link Type} (which also includes {@link Class}):
+	the class is converted directly to a TypeInfo as per
+	the rules outlined in {@link TypeInfo#of(Type)}.
+
+	{@link TypeInfo}: the type is interpreted as-is.
+
+	{@link Integer}: the previous argument is repeated (the Integer) times.
+	if the previous argument added more than one TypeInfo,
+	all of them are copied (the Integer) times.
+	for example, types("IF", 3) would result in a TypeInfo[]
+	containing TypeInfo's representing the types
+	[ int, float, int, float, int, float ] in that order.
+	a slightly less obvious use case is that if multiple Integer arguments
+	are provided in a row, the number of times the values are repeated
+	is the product of all the Integer's. for example, types('I', 3, 3)
+	would contain 9 TypeInfo's all representing type int.
+	if an Integer is the first argument, an {@link IndexOutOfBoundsException} is thrown
+	because I was too lazy to check for this and throw a more specific type of exception.
+	in any case, you should not do this, nor should you rely
+	on the exact type of exception thrown to be consistent.
+	*/
+	public static TypeInfo[] types(Object... objects) {
+		return TypeInfo.parseObjects(objects);
 	}
 
 	public static VarInfo variable(String name, int index, TypeInfo type) {
@@ -378,8 +418,8 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new DoWhileInsnTree(parser, condition, body);
 	}
 
-	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree incrementer, InsnTree body) {
-		return seq(initializer, while_(condition, seq(body, incrementer)));
+	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+		return new ForInsnTree(initializer, condition, step, body);
 	}
 
 	public static InsnTree seq(InsnTree first, InsnTree second) {

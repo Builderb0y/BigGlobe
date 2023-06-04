@@ -162,6 +162,32 @@ public class Interpolator {
 		return 1.5D * (b - c) + 0.5D * (d - a);
 	}
 
+	public static double cubicDerivative(double a, double b, double c, double d, double f) {
+		//1.5df^2 - 4.5cf^2 + 4.5bf^2 - 1.5af^2 - df + 4.0cf - 5.0bf + 2.0af + 0.5c - 0.5a
+		//(1.5d - 4.5c + 4.5b - 1.5a) * f^2 - df + 4.0cf - 5.0bf + 2.0af + 0.5c - 0.5a
+		//(1.5 * (d - a) + 4.5 * (b - c)) * f^2 - df + 4.0cf - 5.0bf + 2.0af + 0.5c - 0.5a
+		//(1.5 * (d - a) + 4.5 * (b - c)) * f^2 + (-d + 4.0c - 5.0b + 2.0a) * f + 0.5c - 0.5a
+		//(1.5 * (d - a) + 4.5 * (b - c)) * f^2 + (2.0a - 5.0b + 4.0c - d) * f + 0.5c - 0.5a
+		//((1.5 * (d - a) + 4.5 * (b - c)) * f + (2.0a - 5.0b + 4.0c - d)) * f + 0.5 * (c - a)
+		return ((1.5D * (d - a) + 4.5D * (b - c)) * f + (2.0D * a - 5.0D * b + 4.0D * c - d)) * f + 0.5D * (c - a);
+	}
+
+	public static double combineCubicDerivativeTerms(double term1, double term2, double term3, double f) {
+		return (term1 * f + term2) * f + term3;
+	}
+
+	public static double cubicDerivativeTerm1(double a, double b, double c, double d) {
+		return 1.5D * (d - a) + 4.5D * (b - c);
+	}
+
+	public static double cubicDerivativeTerm2(double a, double b, double c, double d) {
+		return 2.0D * a - 5.0D * b + 4.0D * c - d;
+	}
+
+	public static double cubicDerivativeTerm3(double a, double b, double c, double d) {
+		return 0.5D * (c - a);
+	}
+
 	/**
 	produces a smooth curve in the domain [0, 1].
 	computed using the cubic polynomial -2x^3 + 3x^2.

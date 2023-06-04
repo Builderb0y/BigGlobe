@@ -25,9 +25,6 @@ public interface Grid2D extends Grid {
 		REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid2D.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid2D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("project_x"),      ProjectGrid2D_X.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("project_y"),      ProjectGrid2D_Y.class);
-
 		REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),   StalactiteGrid2D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid2D.class);

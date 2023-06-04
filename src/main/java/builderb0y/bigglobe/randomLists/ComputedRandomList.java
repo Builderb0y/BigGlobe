@@ -12,6 +12,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrays;
 
 import builderb0y.bigglobe.randomLists.IRandomList.RandomAccessRandomList;
 
+/**
+an implementation of {@link RandomAccessRandomList} where the
+weight of each element is stored on the element itself in some way.
+accessing the weight of the element is a task left up to
+the list itself, via {@link #getWeightOfElement(Object)}.
+*/
 public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implements RandomAccessRandomList<E>, Cloneable {
 
 	public Object[] elements;

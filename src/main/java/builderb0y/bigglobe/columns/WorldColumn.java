@@ -28,12 +28,12 @@ public abstract class WorldColumn extends Column {
 		}
 	}
 
-	public static WorldColumn forGenerator(ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, int x, int z) {
+	public static WorldColumn forGenerator(long seed, ChunkGenerator chunkGenerator, NoiseConfig noiseConfig, int x, int z) {
 		if (chunkGenerator instanceof BigGlobeChunkGenerator generator) {
 			return generator.column(x, z);
 		}
 		else {
-			return new VanillaWorldColumn(chunkGenerator, noiseConfig, x, z);
+			return new VanillaWorldColumn(seed, chunkGenerator, noiseConfig, x, z);
 		}
 	}
 

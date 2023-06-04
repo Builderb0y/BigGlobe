@@ -1,56 +1,69 @@
 package builderb0y.bigglobe.trees;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
+import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.util.ServerValue;
 
 public class SaplingGrowHandler {
 
-	public static Map<Block, RegistryKey<ConfiguredFeature<?, ?>>> SAPLING_FEATURES;
+	public static final ServerValue<Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>>>
+		SAPLING_FEATURES = new ServerValue<>(SaplingGrowHandler::computeSaplingFeatures);
 
 	public static boolean replaceSaplingGrowth(ServerWorld world, BlockPos origin, BlockState saplingState, Random random) {
-		if (SAPLING_FEATURES == null) {
-			throw new IllegalStateException("Sapling attempted to grow before game finished loading???");
-		}
 		if (
 			world.getChunkManager().getChunkGenerator() instanceof BigGlobeChunkGenerator
 			? BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds
 			: BigGlobeConfig.INSTANCE.get().bigGlobeTreesInOtherWorlds
 		) {
-			RegistryKey<ConfiguredFeature<?, ?>> key = SAPLING_FEATURES.get(saplingState.getBlock());
-			if (key != null) {
-				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).get(key);
-				if (feature != null) {
-					feature.generate(world, world.getChunkManager().getChunkGenerator(), random, origin);
-					return true;
-				}
+			List<RegistryEntry<ConfiguredFeature<?, ?>>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
+			if (list != null && !list.isEmpty()) {
+				list
+				.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
+				.value()
+				.generate(world, world.getChunkManager().getChunkGenerator(), random, origin);
+				return true;
 			}
 		}
 		return false;
 	}
 
-	public static void init() {
-		Map<Block, RegistryKey<ConfiguredFeature<?, ?>>> saplingFeatures = new HashMap<>(TreeRegistry.REGISTRY.size());
-		for (TreeRegistry.Entry entry : TreeRegistry.REGISTRY) {
-			if (entry.feature != null) {
-				Block saplingBlock = entry.getBlock(TreeRegistry.Type.SAPLING);
-				if (saplingBlock != Blocks.AIR) {
-					saplingFeatures.put(saplingBlock, entry.feature);
+	public static Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>> computeSaplingFeatures() {
+		Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>();
+		for (
+			WoodPalette palette
+		:
+			BigGlobeMod
+			.getCurrentServer()
+			.getRegistryManager()
+			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+		) {
+			if (palette.sapling_grow_feature != null) {
+				IRandomList<Block> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
+				if (blocks != null) {
+					for (Block block : blocks) {
+						map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(palette.sapling_grow_feature);
+					}
 				}
 			}
 		}
-		SAPLING_FEATURES = saplingFeatures;
+		return map;
 	}
 }

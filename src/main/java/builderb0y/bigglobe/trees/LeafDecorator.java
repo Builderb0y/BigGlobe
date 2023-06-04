@@ -33,7 +33,7 @@ public abstract class LeafDecorator implements BlockDecorator {
 				}
 			}
 			else {
-				toPlace = generator.palette.getLeaves(distance, false);
+				toPlace = generator.palette.leavesState(generator.random, distance, false, false);
 			}
 			generator.queueAndDecorateLeaf(pos, toPlace);
 			return true;

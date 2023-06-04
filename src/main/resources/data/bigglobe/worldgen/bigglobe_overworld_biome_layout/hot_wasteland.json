@@ -1,0 +1,13 @@
+{
+	"parent": "!bigglobe:hot_forest",
+	"restrictions": { "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
+	"biome": "bigglobe:hot_wasteland",
+	"primary_surface": {
+		"top": "minecraft:red_sand",
+		"under": "minecraft:red_sand"
+	},
+	"secondary_surfaces": {
+		"under": "minecraft:red_sandstone",
+		"depth": "random.nextDouble(16.0L, 33.0L)"
+	}
+}

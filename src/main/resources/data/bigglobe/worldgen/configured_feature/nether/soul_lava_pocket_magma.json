@@ -1,0 +1,32 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"--originY",
+			"boolean lavaAt(int x, int z:",
+				"return(getBlockState(x, originY, z).getBlock() == Block('bigglobe:soul_lava'))",
+			")",
+
+			"(random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ)).if (",
+				"setBlockState(originX, originY, originZ, 'bigglobe:soul_magma')",
+				"repeat (20:",
+					";attempt to place 20 more soul magma blocks in a 7x7 area centered around the feature origin.",
+					";each attempt will only be successful if there is soul lava at that position,",
+					";and at least one non-soul lava block adjacent to that position.",
+					"int x = originX + random.nextInt(-3, 4)",
+					"int z = originZ + random.nextInt(-3, 4)",
+					"if (",
+						"lavaAt(x, z) && (",
+							"!lavaAt(x, z - 1) ||",
+							"!lavaAt(x, z + 1) ||",
+							"!lavaAt(x - 1, z) ||",
+							"!lavaAt(x + 1, z)",
+						")",
+					":",
+						"setBlockState(x, originY, z, 'bigglobe:soul_magma')",
+					")",
+				")",
+			")"
+		]
+	}
+}

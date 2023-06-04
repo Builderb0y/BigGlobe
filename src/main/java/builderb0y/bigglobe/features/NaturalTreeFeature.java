@@ -2,6 +2,7 @@ package builderb0y.bigglobe.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
@@ -21,13 +23,13 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.trees.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
@@ -91,7 +93,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), Block.NOTIFY_LISTENERS | Block.SKIP_LIGHTING_UPDATES)
 			: new BlockQueue(false),
 			permuter,
-			config.palette,
+			config.palette.value(),
+			config.ground_replacements,
 			trunkConfig,
 			branchesConfig,
 			decoratorsBuilder.build(),
@@ -102,7 +105,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
 	public static record Config(
 		@DefaultBoolean(false) boolean delay_generation,
-		TreeRegistry.Entry palette,
+		RegistryEntry<WoodPalette> palette,
+		Map<BlockState, BlockState> ground_replacements,
 		ColumnYRandomToDoubleScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,

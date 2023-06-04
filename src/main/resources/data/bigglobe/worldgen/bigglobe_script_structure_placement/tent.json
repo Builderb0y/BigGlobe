@@ -1,0 +1,25 @@
+{
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+
+		";fences",
+		"BlockState fence = palette.fenceState()",
+		"setBlockState(minX, minY, minZ, fence)",
+		"setBlockState(minX, minY, maxZ, fence)",
+		"setBlockState(maxX, minY, minZ, fence)",
+		"setBlockState(maxX, minY, maxZ, fence)",
+		"for (int y = minY, y < maxY, ++y:",
+			"setBlockState(minX, y, midZ, fence)",
+			"setBlockState(maxX, y, midZ, fence)",
+		")",
+
+		";wool",
+		"BlockState wool = BlockState(data.wool.asString())",
+		"for (int z = minZ, z <= maxZ, ++z:",
+			"int y = maxY - abs(z - midZ)",
+			"for (int x = minX, x <= maxX, ++x:",
+				"setBlockState(x, y, z, wool)",
+			")",
+		")"
+	]
+}

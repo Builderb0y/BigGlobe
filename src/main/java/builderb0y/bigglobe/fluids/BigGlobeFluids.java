@@ -4,11 +4,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -23,10 +21,12 @@ public class BigGlobeFluids {
 
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
+		/*
 		ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> {
 			registry.register(BigGlobeMod.modID("block/soul_lava_still"));
 			registry.register(BigGlobeMod.modID("block/soul_lava_flowing"));
 		});
+		*/
 		FluidRenderHandlerRegistry.INSTANCE.register(
 			SOUL_LAVA,
 			FLOWING_SOUL_LAVA,

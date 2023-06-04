@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -14,6 +15,7 @@ import net.minecraft.block.enums.StairShape;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -22,8 +24,10 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -39,13 +43,13 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MediumDungeonStructure.class);
 
-	public MediumDungeonStructure(Config config, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
-		super(config, spawner_entries, palettes);
+	public MediumDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
+		super(config, room_decorators, spawner_entries, palettes);
 	}
 
 	@Override
 	public DungeonLayout layout(WorldColumn column, int y, RandomGenerator random) {
-		return new Layout(column, y, random, this.spawner_entries, this.palettes);
+		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, this.palettes);
 	}
 
 	@Override
@@ -55,13 +59,13 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Layout extends DungeonLayout {
 
-		public Layout(WorldColumn column, int y, RandomGenerator random, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
-			super(column, y, random, (random.nextInt() & 255) + 128, spawnerEntries, palettes);
+		public Layout(WorldColumn column, int y, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
+			super(column, y, random, (random.nextInt() & 255) + 128, roomDecorators, spawnerEntries, palettes);
 		}
 
 		@Override
 		public RoomDungeonPiece newRoom() {
-			return new Room(BigGlobeStructures.MEDIUM_DUNGEON_ROOM_TYPE, this.palette, this.random);
+			return new Room(BigGlobeStructures.MEDIUM_DUNGEON_ROOM_TYPE, this.palette, this.random, this.roomDecorators);
 		}
 
 		@Override
@@ -93,8 +97,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Room extends RoomDungeonPiece {
 
-		public Room(StructurePieceType type, Palette palette, RandomGenerator random) {
-			super(type, 0, null, palette);
+		public Room(StructurePieceType type, Palette palette, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
+			super(type, 0, null, palette, decorators);
 			this.setPit((random.nextInt() & 15) == 0);
 			this.setPos(0, 0, 0);
 		}
@@ -113,15 +117,18 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			Direction deadEndDirection;
 			if (this.hasPit()) {
 				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(3), layout.random));
+				this.decorators = null;
 			}
 			else if ((deadEndDirection = this.getDeadEndDirection()) != null) {
 				if (layout.random.nextBoolean()) {
 					layout.decorations.add(new ChestPiece(BigGlobeStructures.MEDIUM_DUNGEON_CHEST_TYPE, this.x(), this.y() + 1, this.z(), this.palette, deadEndDirection, layout.random.nextLong()));
+					this.decorators = null;
 				}
 			}
 			else {
 				if ((layout.random.nextInt() & 15) == 0) {
 					layout.decorations.add(new SpawnerPiece(BigGlobeStructures.MEDIUM_DUNGEON_SPAWNER_TYPE, this.x(), this.y() + 1, this.z(), this.palette, ((Layout)(layout)).spawnerEntries.getRandomElement(layout.random)));
+					this.decorators = null;
 				}
 			}
 		}
@@ -172,8 +179,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			super.initSpawner(pos, spawner);
 			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
 			logic.bigglobe_setRequiredPlayerRange(24);
-			logic.bigglobe_setMaxNearbyEntities(2);
-			logic.bigglobe_setSpawnCount(1);
+			logic.bigglobe_setMaxNearbyEntities(4);
+			logic.bigglobe_setSpawnCount(3);
 		}
 	}
 
@@ -229,16 +236,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
-			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
-			ChunkPos chunkPos,
-			BlockPos pivot
-		) {
-			Coordinator root = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator root = this.coordinator(context);
 			Palette palette = this.palette();
 			int left = this.getLeft(), right = this.getRight();
 			root.setBlockStateLine(0, 0, left - 1, 0, 1, 0, 6, palette.mainSupplier());
@@ -260,16 +259,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
-			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
-			ChunkPos chunkPos,
-			BlockPos pivot
-		) {
-			Coordinator root = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator root = this.coordinator(context);
 			Palette palette = this.palette();
 			int left = this.getLeft(), right = this.getRight();
 			root.setBlockStateLine(0, 0, left - 1, 0, 1, 0, 5, palette.mainSupplier());
@@ -292,16 +283,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
-			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
-			ChunkPos chunkPos,
-			BlockPos pivot
-		) {
-			Coordinator root = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator root = this.coordinator(context);
 			Palette palette = this.palette();
 			int left = this.getLeft(), right = this.getRight();
 			root.setBlockStateLine(0, 0, left - 1, 0, 1, 0, 6, palette.mainSupplier());

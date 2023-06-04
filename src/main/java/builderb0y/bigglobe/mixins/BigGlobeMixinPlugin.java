@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -30,32 +31,38 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
 		Map<String, Boolean> defaults = new HashMap<>(64);
-		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CatEntity_PetTheKitty", Boolean.FALSE);
+		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                 Boolean.TRUE);
+		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",              Boolean.TRUE);
+		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",             Boolean.TRUE);
+		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",              Boolean.TRUE);
+		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",        Boolean.TRUE);
+		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                            Boolean.FALSE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel", Boolean.TRUE);
-		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize", Boolean.FALSE);
-		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning", Boolean.TRUE);
-		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly", Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes", Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight", Boolean.TRUE);
-		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint", Boolean.TRUE);
-		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns", Boolean.TRUE);
-		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight", Boolean.TRUE);
-		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes", Boolean.TRUE);
-		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly", Boolean.TRUE);
-		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox", Boolean.TRUE);
-		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel", Boolean.TRUE);
+		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                    Boolean.FALSE);
+		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",     Boolean.TRUE);
+		defaults.put(mixinPackage + ".Items_PlaceableFlint",                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".Items_PlaceableSticks",                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",   Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",               Boolean.TRUE);
+		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",             Boolean.TRUE);
+		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",            Boolean.TRUE);
+		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",    Boolean.TRUE);
 		return defaults;
 	}
 
 	public Properties loadProperties() {
 		Path path = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.properties");
+		Path tmp  = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.tmp");
 		Properties properties = new Properties();
 		if (Files.exists(path)) try {
 			//file exists, so try loading it.
@@ -82,7 +89,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			//if the properties changed as a result of retaining
 			//or adding missing options, save it again.
 			if (changed) {
-				this.saveProperties(path, properties);
+				this.saveProperties(properties, path, tmp);
 			}
 		}
 		catch (IOException exception) {
@@ -106,15 +113,20 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			for (Map.Entry<String, Boolean> entry : this.defaults.entrySet()) {
 				properties.setProperty(entry.getKey(), entry.getValue().toString());
 			}
+
 			//and also save the defaults.
-			this.saveProperties(path, properties);
+			this.saveProperties(properties, path, tmp);
 		}
 		return properties;
 	}
 
-	public void saveProperties(Path path, Properties properties) {
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-			properties.store(writer, null);
+	public void saveProperties(Properties properties, Path path, Path tmp) {
+		try {
+			Files.createDirectories(path.getParent());
+			try (BufferedWriter writer = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) {
+				properties.store(writer, null);
+			}
+			Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch (IOException exception) {
 			exception.printStackTrace();

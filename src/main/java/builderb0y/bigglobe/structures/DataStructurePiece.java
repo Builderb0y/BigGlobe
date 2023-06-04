@@ -7,10 +7,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.math.BlockBox;
 
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 /**
@@ -27,7 +29,7 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 
 	public final @NotNull D data;
 
-	public DataStructurePiece(StructurePieceType type, int length, BlockBox boundingBox, D data) {
+	public DataStructurePiece(StructurePieceType type, int length, BlockBox boundingBox, @NotNull D data) {
 		super(type, length, boundingBox);
 		this.data = data;
 	}
@@ -35,7 +37,14 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 	public DataStructurePiece(StructurePieceType type, NbtCompound nbt) {
 		super(type, nbt);
 		try {
-			this.data = BigGlobeAutoCodec.AUTO_CODEC.decode(this.dataCoder(), nbt.getCompound("data"), NbtOps.INSTANCE);
+			this.data = BigGlobeAutoCodec.AUTO_CODEC.decode(
+				this.dataCoder(),
+				nbt.getCompound("data"),
+				RegistryOps.of(
+					NbtOps.INSTANCE,
+					BigGlobeMod.getCurrentServer().getRegistryManager()
+				)
+			);
 		}
 		catch (DecodeException exception) {
 			throw new RuntimeException(exception);
@@ -44,7 +53,17 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 
 	@Override
 	public void writeNbt(StructureContext context, NbtCompound nbt) {
-		nbt.put("data", BigGlobeAutoCodec.AUTO_CODEC.encode(this.dataCoder(), this.data, NbtOps.INSTANCE));
+		nbt.put(
+			"data",
+			BigGlobeAutoCodec.AUTO_CODEC.encode(
+				this.dataCoder(),
+				this.data,
+				RegistryOps.of(
+					NbtOps.INSTANCE,
+					context.registryManager()
+				)
+			)
+		);
 	}
 
 	public abstract AutoCoder<D> dataCoder();

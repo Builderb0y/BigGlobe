@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (random.nextBoolean(`overworld/hilliness` / 64.0L) && getBlockState(originX, originY, originZ).isReplaceable():",
+				"block (",
+					"unless (isYLevelValid(originY): return(false))",
+					"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
+				")",
+				"if (getBlockState(originX, originY, originZ).getBlock() != Block('minecraft:snow'):",
+					"return(placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]'))",
+				")",
+			")",
+			"return(false)"
+		]
+	}
+}

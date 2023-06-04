@@ -13,8 +13,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
-import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
-
 public class SoulLavaBlock extends FluidBlock {
 
 	public SoulLavaBlock(FlowableFluid fluid, Settings settings) {
@@ -33,22 +31,22 @@ public class SoulLavaBlock extends FluidBlock {
 	the only difference is that we produce crying obsidian instead of regular obsidian.
 	*/
 	public boolean checkNeighborFluids(World world, BlockPos pos, BlockState state) {
-		if (this.fluid.isIn(BigGlobeFluidTags.SOUL_LAVA)) {
-			boolean bl = world.getBlockState(pos.down()).isOf(Blocks.SOUL_SOIL);
-			for (Direction direction : FLOW_DIRECTIONS) {
-				BlockPos blockPos = pos.offset(direction.getOpposite());
-				if (world.getFluidState(blockPos).isIn(FluidTags.WATER)) {
-					Block block = world.getFluidState(pos).isStill() ? Blocks.CRYING_OBSIDIAN : Blocks.COBBLESTONE;
-					world.setBlockState(pos, block.getDefaultState());
-					world.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
-					return false;
-				}
-				if (!bl || !world.getBlockState(blockPos).isOf(Blocks.BLUE_ICE)) continue;
-				world.setBlockState(pos, Blocks.BASALT.getDefaultState());
+		//if (this.fluid.isIn(BigGlobeFluidTags.SOUL_LAVA)) {
+		boolean bl = world.getBlockState(pos.down()).isOf(Blocks.SOUL_SOIL);
+		for (Direction direction : FLOW_DIRECTIONS) {
+			BlockPos blockPos = pos.offset(direction.getOpposite());
+			if (world.getFluidState(blockPos).isIn(FluidTags.WATER)) {
+				Block block = world.getFluidState(pos).isStill() ? Blocks.CRYING_OBSIDIAN : Blocks.COBBLESTONE;
+				world.setBlockState(pos, block.getDefaultState());
 				world.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
 				return false;
 			}
+			if (!bl || !world.getBlockState(blockPos).isOf(Blocks.BLUE_ICE)) continue;
+			world.setBlockState(pos, Blocks.BASALT.getDefaultState());
+			world.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
+			return false;
 		}
+		//}
 		return true;
 	}
 

@@ -1,0 +1,30 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/well",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"int y = ceilInt(max_y(x, z))",
+
+				"Biome biome = getBiome(x, y, z)",
+				"WoodPalette palette = WoodPalette.randomForBiome(biome)",
+				"int type = 0",
+				"     if (biome == Biome('bigglobe:hot_plains'   ): type = 1)",
+				"else if (biome == Biome('bigglobe:hot_forest'   ): type = 1)",
+				"else if (biome == Biome('bigglobe:hot_wasteland'): type = 2,, palette = 'minecraft:acacia')",
+				"if (palette == null: return())",
+
+				"pieces.add(ScriptStructurePiece.new(",
+					"x - 2, y - random.nextInt(8, 24), z - 2, x + 2, y + 4, z + 2,",
+					"'bigglobe:well',",
+					"nbtCompound(",
+						"palette: palette.id,",
+						"type: type",
+					")",
+				"))"
+			]
+		}
+	}
+}

@@ -11,12 +11,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 
-import builderb0y.bigglobe.blockEntities.MutableBlockEntityType;
+import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 
 @Mixin(BlockEntityType.class)
 public class BlockEntityType_AddBlockHook implements MutableBlockEntityType {
 
 	@Shadow @Final @Mutable private Set<Block> blocks;
+
+	@Override
+	public Set<Block> bigglobe_getBlocks() {
+		return this.blocks;
+	}
 
 	@Override
 	public void bigglobe_addValidBlock(Block block) {

@@ -9,7 +9,8 @@
 					"type": "and_range",
 					"overworld/height_adjusted_foliage":     { "min": -0.5,             "max": 0.5 },
 					"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
-					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 }
+					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 },
+					"max_y":                                 { "min":  0.0                         }
 				},
 				"radius": { "type": "uniform", "min": 32.0, "max": 64.0 },
 				"state": "minecraft:sunflower[half=lower]"
@@ -17,9 +18,19 @@
 			{
 				"defaults": {
 					"restrictions": {
-						"type": "and_range",
-						"overworld/height_adjusted_foliage":     { "min": -0.5, "mid": 0.0             },
-						"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 }
+						"type": "or",
+						"restrictions": [
+							{
+								"type": "and_range",
+								"overworld/height_adjusted_foliage":     { "min": -0.5, "mid": 0.0             },
+								"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 }
+							},
+							{
+								"type": "and_range",
+								"max_y": { "max": 0.0 },
+								"y":     { "min": 0.0 }
+							}
+						]
 					}
 				},
 				"variations": [

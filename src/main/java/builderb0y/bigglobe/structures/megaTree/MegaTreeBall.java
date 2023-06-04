@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.structures.megaTree;
 
+import org.joml.Vector3d;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
@@ -10,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -19,23 +22,23 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
-import builderb0y.bigglobe.trees.TreeRegistry;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
-	public static record Data(double x, double y, double z, double radius, int step, int totalSteps, TreeRegistry.Entry wood) {
+	public static record Data(double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 
-		public Dvec3 position() {
-			return new Dvec3(this.x, this.y, this.z);
+		public Vector3d position() {
+			return new Vector3d(this.x, this.y, this.z);
 		}
 
 		public double extraLeafRadius() {
@@ -51,13 +54,13 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		double radius,
 		int currentStep,
 		int totalSteps,
-		TreeRegistry.Entry woodType
+		RegistryEntry<WoodPalette> woodPalette
 	) {
 		super(
 			type,
 			0,
 			null,
-			new Data(x, y, z, radius, currentStep, totalSteps, woodType)
+			new Data(x, y, z, radius, currentStep, totalSteps, woodPalette)
 		);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		double totalRadius = radius + extraLeafRadius;
@@ -74,7 +77,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeBranch branch,
-		Dvec3 position,
+		Vector3d position,
 		double radius
 	) {
 		this(
@@ -130,7 +133,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX()),
 			maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 
-		BlockState wood = this.data.wood.getWood(Axis.Y);
+		WoodPalette palette = this.data.wood.value();
 		boolean placedAnyLogs = false;
 		for (pos.setX(minX); pos.getX() <= maxX; pos.setX(pos.getX() + 1)) {
 			double xSquared = squareD(pos.getX() - centerX);
@@ -142,7 +145,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					int maxY = Math.min(floorI(centerY + chord), chunkBox.getMaxY());
 					for (pos.setY(maxY); pos.getY() >= minY; pos.setY(pos.getY() - 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -151,7 +154,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					}
 					for (pos.setY(minY); pos.getY() <= maxY; pos.setY(pos.getY() + 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -165,19 +168,21 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		if (!placedAnyLogs) {
 			setToRound(pos, centerX, centerY, centerZ);
 			if (chunkBox.contains(pos)) {
-				world.setBlockState(pos, wood, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+				world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 			}
 		}
 
 		//*
-		BlockState leaves = this.data.wood.getLeaves(7, true);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		int leafCount = Permuter.roundRandomlyI(permuter.nextLong(), squareD(extraLeafRadius * 2.0));
 		if (leafCount > 0) {
-			Dvec3 unitGenerator = new Dvec3();
+			Vector3d unitGenerator = new Vector3d();
 			for (int i = 0; i < leafCount; i++) {
-				unitGenerator
-				.setOnSphere(permuter, permuter.nextDouble() * extraLeafRadius + this.data.radius)
+				Vectors.setInSphere(
+					unitGenerator,
+					permuter,
+					permuter.nextDouble() * extraLeafRadius + this.data.radius
+				)
 				.add(centerX, centerY, centerZ);
 				setToRound(pos, unitGenerator.x, unitGenerator.y, unitGenerator.z);
 				if (pos.getX() >= minX && pos.getX() <= maxX && pos.getZ() >= minZ && pos.getZ() <= maxZ) {
@@ -187,7 +192,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 						(bits & 1) != 0 && this.canLeavesReplace(world.getBlockState(pos));
 						bits >>>= 1, pos.setY(pos.getY() - 1)
 					) {
-						world.setBlockState(pos, leaves, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+						world.setBlockState(pos, palette.leavesState(permuter, 7, true, false), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 					}
 					this.placeSnow(world, pos.setY(topY + 1), overworldColumn, permuter);
 				}

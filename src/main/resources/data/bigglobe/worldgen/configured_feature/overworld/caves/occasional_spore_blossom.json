@@ -2,12 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if(1.0 / 256.0:",
+			"random.nextBoolean(1.0L / 256.0L).if (",
 				"setBlockState(originX, originY, originZ, 'spore_blossom')",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
 			")"
 		]
 	}

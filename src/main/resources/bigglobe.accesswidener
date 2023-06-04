@@ -6,9 +6,15 @@ accessible class net/minecraft/world/chunk/PalettedContainer$Data
 #used to filter where structures can spawn.
 extendable method net/minecraft/world/gen/chunk/ChunkGenerator trySetStructureStart (Lnet/minecraft/structure/StructureSet$WeightedEntry;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/gen/noise/NoiseConfig;Lnet/minecraft/structure/StructureTemplateManager;JLnet/minecraft/world/chunk/Chunk;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/ChunkSectionPos;)Z
 
+#used by efficient structure locating logic.
+accessible method net/minecraft/world/gen/chunk/ChunkGenerator getStructurePlacement (Lnet/minecraft/util/registry/RegistryEntry;Lnet/minecraft/world/gen/noise/NoiseConfig;)Ljava/util/List;
+
 #used to make ocean monuments spawn at the correct Y level,
 #instead of a hard-coded Y level which only works for vanilla worlds.
 accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
 
-#used to make charred buttons press for 10 ticks instead of 20 or 30.
+#used to expose biome downfall to scripts.
+accessible class net/minecraft/world/biome/Biome$Weather
+
+#used to make charred buttons have a delay of 10 ticks instead of 30.
 extendable method net/minecraft/block/AbstractButtonBlock getPressTicks ()I

@@ -4,21 +4,22 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import org.joml.Vector3d;
 
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
-import builderb0y.bigglobe.trees.TreeRegistry;
-import builderb0y.bigglobe.util.Dvec3;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -36,7 +37,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		FoliageRange size,
 		FoliageRange trunk_radius,
 		FoliageRange branch_sparsity,
-		TreeRegistry.Entry palette
+		RegistryEntry<WoodPalette> palette
 	) {}
 
 	public final @EncodeInline Data data;
@@ -52,6 +53,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			floorI(x),
@@ -139,8 +141,8 @@ public class MegaTreeStructure extends BigGlobeStructure {
 				this.foliageFactor(this.data.trunk_radius),
 				totalSteps,
 				32,
-				new Dvec3(0.0D, 1.0D, 0.0D),
-				new Dvec3(0.0D, 1.0D, 0.0D)
+				new Vector3d(0.0D, 1.0D, 0.0D),
+				new Vector3d(0.0D, 1.0D, 0.0D)
 			);
 			this.branches.addLast(branch);
 		}

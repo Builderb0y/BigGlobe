@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.noise;
 
+import java.util.random.RandomGenerator;
+
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -22,6 +24,10 @@ public class MojangPermuter implements Random {
 
 	public MojangPermuter(long seed) {
 		this(new Permuter(seed));
+	}
+
+	public static MojangPermuter from(RandomGenerator random) {
+		return random instanceof Permuter permuter ? new MojangPermuter(permuter) : new MojangPermuter(random.nextLong());
 	}
 
 	@Override

@@ -1,0 +1,69 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/campfire",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"String randomColor(:",
+					"return(",
+						"random.switch (",
+							"'white',      'orange', 'magenta', 'light_blue',",
+							"'yellow',     'lime',   'pink',    'gray',",
+							"'light_gray', 'cyan',   'purple',  'blue',",
+							"'brown',      'green',  'red',     'black'",
+						")",
+					")",
+				")",
+
+				"int y = ceilInt(max_y(x, z))",
+				"WoodPalette palette = WoodPalette.randomForBiome(getBiome(x, y, z))",
+				"if (palette == null: return())",
+				"String paletteID = palette.id",
+
+				";campfire",
+				"pieces.add(ScriptStructurePiece.new(",
+					"x - 4, y - 1, z - 4, x + 4, y, z + 4,",
+					"'bigglobe:campfire',",
+					"nbtCompound(",
+						"palette: paletteID",
+					")",
+				"))",
+
+				";tent",
+				"random.if (",
+					"double angle = random.nextDouble(tau)",
+					"double radius = random.nextDouble(8.0L, 16.0L)",
+					"int tentX = int(cos(angle) * radius + x + 0.5L)",
+					"int tentZ = int(sin(angle) * radius + z + 0.5L)",
+					"pieces.add(",
+						"ScriptStructurePiece.new(",
+							"tentX - 2, y, tentZ - 2, tentX + 2, y + 3, tentZ + 2,",
+							"'bigglobe:tent',",
+							"nbtCompound(",
+								"palette: paletteID,",
+								"wool: 'minecraft:$randomColor()_wool'",
+							")",
+						")",
+						".withRotation(random.nextInt(4) * 90)",
+					")",
+
+					";tent interior",
+					"random.if (",
+						"pieces.add(",
+							"ScriptStructurePiece.new(",
+								"tentX - 1, y, tentZ - 1, tentX + 1, y, tentZ + 1,",
+								"'bigglobe:tent_interior',",
+								"nbtCompound(",
+									"bed: 'minecraft:$randomColor()_bed'",
+								")",
+							")",
+							".withRotation(random.nextInt(4) * 90)",
+						")",
+					")",
+				")"
+			]
+		}
+	}
+}

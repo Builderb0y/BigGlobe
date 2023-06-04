@@ -3,14 +3,14 @@
 	"config": {
 		"script": [
 			"if (start.structure.type == StructureType('minecraft:ocean_monument'):",
-				"double fromY = start.minY",
-				"double toY = max(",
-					"`max_y`(start.minX, start.minZ),",
-					"`max_y`(start.minX, start.maxZ),",
-					"`max_y`(start.maxX, start.minZ),",
-					"`max_y`(start.maxX, start.maxZ)",
+				"int fromY = start.minY",
+				"int toY = max(",
+					"int(`max_y`(start.minX, start.minZ)),",
+					"int(`max_y`(start.minX, start.maxZ)),",
+					"int(`max_y`(start.maxX, start.minZ)),",
+					"int(`max_y`(start.maxX, start.maxZ))",
 				")",
-				"start.move(int(toY - fromY))",
+				"start.move(toY - fromY)",
 			")",
 			"return(true)"
 		]

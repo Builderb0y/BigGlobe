@@ -1,0 +1,22 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if (0.75:",
+				"int x = 0",
+				"int z = 0",
+				"String facing = null",
+				"random.switch (",
+					"(x = originX + 2,, z = originZ + random.nextInt(-2, 3),, facing = 'west'),",
+					"(x = originX - 2,, z = originZ + random.nextInt(-2, 3),, facing = 'east'),",
+					"(x = originX + random.nextInt(-2, 3),, z = originZ + 2,, facing = 'north'),",
+					"(x = originX + random.nextInt(-2, 3),, z = originZ - 2,, facing = 'south')",
+				")",
+				"return(placeBlockState(x, originY + 2, z, BlockState('minecraft:redstone_wall_torch', facing: facing, lit: true)))",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

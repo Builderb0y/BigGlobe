@@ -1,0 +1,29 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double rawIceDepth = `overworld/snow_chance`",
+			"if (rawIceDepth > 0.0L:",
+				"int iceDepth = if (rawIceDepth > 1.0L:",
+					"random.roundInt(random.nextDouble(rawIceDepth - 1.0L)) + 1",
+				")",
+				"else (",
+					"random.roundInt(rawIceDepth)",
+				")",
+				"if (iceDepth > 0:",
+					"int topY = ceilInt(max_y)",
+					"for (int depth = 1, depth <= iceDepth, ++depth:",
+						"if (getBlockState(originX, originY - depth, originZ) == BlockState('minecraft:water[level=0]'):",
+							"setBlockState(originX, originY - depth, originZ, 'minecraft:ice')",
+						")",
+						"else (",
+							"break()",
+						")",
+					")",
+					"return(true)",
+				")",
+			")",
+			"return(false)"
+		]
+	}
+}

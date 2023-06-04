@@ -54,8 +54,8 @@ public class LineNumberInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
-		return new LineNumberInsnTree(this.content.update(parser, op, rightValue), this.lineNumber);
+	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
+		return new LineNumberInsnTree(this.content.update(parser, op, order, rightValue), this.lineNumber);
 	}
 
 	@Override

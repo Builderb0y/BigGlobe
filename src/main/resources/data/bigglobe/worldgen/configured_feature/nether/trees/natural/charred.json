@@ -25,6 +25,14 @@
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:nether/charred_tree_fire" }
 			]
+		},
+		"ground_replacements": {
+			"minecraft:crimson_nylium":  "minecraft:netherrack",
+			"minecraft:warped_nylium":   "minecraft:netherrack",
+			"bigglobe:ashen_netherrack": "minecraft:netherrack",
+			"minecraft:netherrack":      "minecraft:netherrack",
+			"minecraft:soul_sand":       "minecraft:soul_sand",
+			"minecraft:soul_soil":       "minecraft:soul_soil"
 		}
 	}
 }

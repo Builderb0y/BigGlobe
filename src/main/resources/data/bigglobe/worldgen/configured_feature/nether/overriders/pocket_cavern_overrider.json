@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:nether_cavern_overrider",
+	"config": {
+		"script": [
+			"for (StructureStart start in structureStarts:",
+				"if (start.structure.type == StructureType('bigglobe:underground_pocket'):",
+					"excludeCylinder(start, 16.0L)",
+				")",
+			")"
+		]
+	}
+}

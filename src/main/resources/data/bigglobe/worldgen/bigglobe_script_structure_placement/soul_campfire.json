@@ -1,0 +1,39 @@
+{
+	"script": [
+		";cobblestone",
+		"setBlockState(midX, minY, midZ, 'minecraft:blackstone')",
+		"setBlockState(midX - 1, minY, midZ, 'minecraft:blackstone')",
+		"setBlockState(midX + 1, minY, midZ, 'minecraft:blackstone')",
+		"setBlockState(midX, minY, midZ - 1, 'minecraft:blackstone')",
+		"setBlockState(midX, minY, midZ + 1, 'minecraft:blackstone')",
+
+		";campfire",
+		"setBlockState(midX, maxY, midZ, BlockState(",
+			"'minecraft:soul_campfire',",
+			"lit: random.nextBoolean(),",
+			"facing: random.switch ('north', 'east', 'south', 'west'),",
+			"signal_fire: false,",
+			"waterlogged: false",
+		"))",
+
+		";benches",
+		"void placeBench(String axis, int frontX, int frontZ, int sideX, int sideZ:",
+			"random.if (2.0L / 3.0L:",
+				"BlockState state = BlockState('bigglobe:charred_log', axis: axis)",
+				"int distance = random.nextInt(3, 5)",
+				"for (int offset = -1, offset <= 1, ++offset:",
+					"setBlockState(",
+						"distance * frontX + offset * sideX + midX,",
+						"maxY,",
+						"distance * frontZ + offset * sideZ + midZ,",
+						"state",
+					")",
+				")",
+			")",
+		")",
+		"placeBench('x',  0, +1, 1, 0)",
+		"placeBench('x',  0, -1, 1, 0)",
+		"placeBench('z', +1,  0, 0, 1)",
+		"placeBench('z', -1,  0, 0, 1)"
+	]
+}

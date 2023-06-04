@@ -11,7 +11,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -23,13 +22,6 @@ public class CombinedCoordinator extends ScratchPosCoordinator {
 
 	public CombinedCoordinator(Coordinator... delegates) {
 		this.delegates = delegates;
-	}
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getWorld(x, y, z, action);
-		}
 	}
 
 	@Override

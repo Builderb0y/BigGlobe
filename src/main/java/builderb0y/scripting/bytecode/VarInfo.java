@@ -1,11 +1,10 @@
 package builderb0y.scripting.bytecode;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
 
-public class VarInfo {
+public class VarInfo implements Typeable {
 
 	public static final ObjectArrayFactory<VarInfo> ARRAY_FACTORY = new ObjectArrayFactory<>(VarInfo.class);
 
@@ -25,16 +24,21 @@ public class VarInfo {
 	}
 
 	@Override
+	public TypeInfo getTypeInfo() {
+		return this.type;
+	}
+
+	public void emitLoad(MethodCompileContext context) {
+		context.node.visitVarInsn(this.type.getOpcode(Opcodes.ILOAD), this.index);
+	}
+
+	public void emitStore(MethodCompileContext context) {
+		context.node.visitVarInsn(this.type.getOpcode(Opcodes.ISTORE), this.index);
+	}
+
+	@Override
 	public String toString() {
 		return this.name + " : " + this.type + " @ " + this.index;
-	}
-
-	public void emitLoad(MethodVisitor visitor) {
-		visitor.visitVarInsn(this.type.getOpcode(Opcodes.ILOAD), this.index);
-	}
-
-	public void emitStore(MethodVisitor visitor) {
-		visitor.visitVarInsn(this.type.getOpcode(Opcodes.ISTORE), this.index);
 	}
 
 	@Override

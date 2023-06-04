@@ -29,16 +29,21 @@ public interface CommandScript extends Script {
 	public static class Parser extends ScriptParser<CommandScript> {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
+		public static final InsnTree LOAD_RANDOM = getField(
+			load("world", 1, WorldWrapper.TYPE),
+			FieldInfo.getField(WorldWrapper.class, "permuter")
+		);
 
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(new MinecraftScriptEnvironment(
+			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
 				load("world", 1, WorldWrapper.TYPE)
 			))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
+			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(
 				ColumnScriptEnvironment.createVariableXYZ(
 					ColumnValue.REGISTRY,
@@ -52,12 +57,7 @@ public interface CommandScript extends Script {
 				.addVariableLoad("originY", 4, TypeInfos.INT)
 				.addVariableLoad("originZ", 5, TypeInfos.INT)
 			)
-			.addEnvironment(new RandomScriptEnvironment(
-				getField(
-					load("world", 1, WorldWrapper.TYPE),
-					FieldInfo.getField(WorldWrapper.class, "permuter")
-				)
-			));
+			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM));
 		}
 
 		@Override

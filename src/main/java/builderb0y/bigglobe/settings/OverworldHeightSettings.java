@@ -38,14 +38,13 @@ public record OverworldHeightSettings(
 	}
 
 	public boolean hasCliffs() {
-		return this.cliffs != null && this.cliffs.flatness > 0.0D;
+		return this.cliffs != null;
 	}
 
 	public static record OverworldCliffSettings(
 		@VerifyFloatRange(min = 0.0D, minInclusive = false)
 		double scale,
 		Grid2D cliffiness,
-		Grid2D shelf_height,
-		@VerifyFloatRange(min = 0.0D, max = 1.0D) double flatness
+		Grid2D shelf_height
 	) {}
 }

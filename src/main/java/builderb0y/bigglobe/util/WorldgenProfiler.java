@@ -44,16 +44,4 @@ public class WorldgenProfiler {
 			return task.get();
 		}
 	}
-
-	@FunctionalInterface
-	public static interface ThrowingRunnable<X extends Throwable> {
-
-		public abstract void run() throws X;
-	}
-
-	@FunctionalInterface
-	public static interface ThrowingSupplier<T, X extends Throwable> {
-
-		public abstract T get() throws X;
-	}
 }

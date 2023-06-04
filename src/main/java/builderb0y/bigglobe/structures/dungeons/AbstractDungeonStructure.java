@@ -24,6 +24,7 @@ import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -31,12 +32,16 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.VerifySizeRange;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -45,6 +50,7 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.*;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
@@ -53,17 +59,26 @@ import builderb0y.bigglobe.structures.LabyrinthLayout.DecorationPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.HallPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.LabyrinthPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.RoomPiece;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
-public abstract class AbstractDungeonStructure extends BigGlobeStructure {
+public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	public final @VerifySizeRange(min = 0, minInclusive = false) IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
-	public final @VerifySizeRange(min = 0, minInclusive = false) List<Palette> palettes;
+	public final @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators;
+	public final @VerifySizeRange(min = 1) IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
+	public final @VerifySizeRange(min = 1) List<Palette> palettes;
 
-	public AbstractDungeonStructure(Config config, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
+	public AbstractDungeonStructure(
+		Config config,
+		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
+		RandomList<EntityType<?>> spawner_entries,
+		List<Palette> palettes
+	) {
 		super(config);
+		this.room_decorators = room_decorators;
 		this.spawner_entries = spawner_entries;
 		this.palettes = palettes;
 	}
@@ -77,6 +92,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
 		long seed = chunkSeed(context, 0x9DFB0A6E61391175L);
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			startPos.getX(),
@@ -99,6 +115,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
 		public int centerX, centerZ;
 		public Palette palette;
+		public @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators;
 		public IRandomList<EntityType<?>> spawnerEntries;
 
 		public DungeonLayout(
@@ -106,6 +123,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 			int y,
 			RandomGenerator random,
 			int maxRooms,
+			@Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators,
 			IRandomList<EntityType<?>> spawnerEntries,
 			List<Palette> palettes
 		) {
@@ -113,6 +131,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 			this.palette = new RestrictedList<>(palettes, column, y).getRandomElement(random);
 			this.centerX = column.x;
 			this.centerZ = column.z;
+			this.roomDecorators = roomDecorators;
 			this.spawnerEntries = spawnerEntries;
 			RoomDungeonPiece room = this.newRoom();
 			room.setPos(column.x, y, column.z);
@@ -168,6 +187,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putByte("var", this.variant);
+			nbt.put("palette", BigGlobeAutoCodec.AUTO_CODEC.encode(Palette.CODER, this.palette, NbtOps.INSTANCE));
 		}
 
 		@Override
@@ -179,23 +199,38 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 			return Coordinator.forWorld(world, Block.NOTIFY_LISTENERS).inBox(limit, false).translate(this.x(), this.y(), this.z());
 		}
 
+		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
+			return Coordinator.forChunk(context.chunk, context.columns::getColumnChecked).inBox(WorldUtil.chunkBox(context.chunk), false).translate(this.x(), this.y(), this.z());
+		}
+
 		public Palette palette() {
 			return this.palette;
 		}
 	}
 
-	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece {
+	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece, RawGenerationStructurePiece {
 
 		public static final int PIT_BIT = 1 << 1;
 
-		public RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
+		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
+		public @Nullable TagKey<ConfiguredFeature<?, ?>> decorators;
 
-		public RoomDungeonPiece(StructurePieceType type, int chainLength, BlockBox boundingBox, Palette palette) {
+		public RoomDungeonPiece(StructurePieceType type, int chainLength, BlockBox boundingBox, Palette palette, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
 			super(type, chainLength, boundingBox, palette);
+			this.decorators = decorators;
 		}
 
 		public RoomDungeonPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
+			String id = nbt.getString("decorators");
+			this.decorators = id.isEmpty() ? null : TagKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id));
+		}
+
+		@Override
+		@MustBeInvokedByOverriders
+		public void writeNbt(StructureContext context, NbtCompound nbt) {
+			super.writeNbt(context, nbt);
+			if (this.decorators != null) nbt.putString("decorators", this.decorators.id().toString());
 		}
 
 		public boolean hasPit() {
@@ -217,6 +252,34 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 		}
 
 		@Override
+		public void generateRaw(Context context) {
+			BlockBox chunkBox = WorldUtil.chunkBox(context.chunk);
+			BlockBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
+			if (intersection == null) return;
+			BlockPos.Mutable pos = new BlockPos.Mutable();
+			CoordinateSupplier<BlockState> mainBlock = this.palette().mainSupplier();
+			//this code compiles. intellij lies.
+			for (pos.setY(this.y()); pos.getY() <= intersection.getMaxY(); pos.setY(pos.getY() + 1)) {
+				for (pos.setZ(intersection.getMinZ()); pos.getZ() <= intersection.getMaxZ(); pos.setZ(pos.getZ() + 1)) {
+					for (pos.setX(intersection.getMinX()); pos.getX() <= intersection.getMaxX(); pos.setX(pos.getX() + 1)) {
+						context.chunk.setBlockState(
+							pos,
+							pos.getX() == this.boundingBox.getMinX() ||
+							pos.getX() == this.boundingBox.getMaxX() ||
+							pos.getY() == this.y() ||
+							pos.getY() == this.boundingBox.getMaxY() ||
+							pos.getZ() == this.boundingBox.getMinZ() ||
+							pos.getZ() == this.boundingBox.getMaxZ()
+							? mainBlock.get(pos)
+							: BlockStates.AIR,
+							false
+						);
+					}
+				}
+			}
+		}
+
+		@Override
 		public void generate(
 			StructureWorldAccess world,
 			StructureAccessor structureAccessor,
@@ -226,18 +289,26 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			Coordinator root = this.coordinator(world, chunkBox);
-			Palette palette = this.palette();
-			int minX = this.boundingBox.getMinX() - this.x();
-			int minY = 0;
-			int minZ = this.boundingBox.getMinZ() - this.z();
-			int maxX = this.boundingBox.getMaxX() - this.x();
-			int maxY = this.boundingBox.getMaxY() - this.y();
-			int maxZ = this.boundingBox.getMaxZ() - this.z();
-			root.setBlockStateCuboid(minX, minY, minZ, maxX, minY, maxZ, palette.mainSupplier());
-			root.setBlockStateCuboid(minX, maxY, minZ, maxX, maxY, maxZ, palette.mainSupplier());
-			root.rotate4x90().setBlockStateCuboid(minX, minY + 1, minZ, maxX - 1, maxY - 1, minZ, palette.mainSupplier());
-			root.setBlockStateCuboid(minX + 1, minY + 1, minZ + 1, maxX - 1, maxY - 1, maxZ - 1, BlockStates.AIR);
+			int x = this.x();
+			int y = this.y();
+			int z = this.z();
+			if (this.decorators != null && contains(chunkBox, x, y, z)) {
+				RegistryEntryList<ConfiguredFeature<?, ?>> tag = world.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.decorators).orElse(null);
+				if (tag != null) {
+					RegistryEntry<ConfiguredFeature<?, ?>> entry = tag.getRandom(random).orElse(null);
+					if (entry != null) {
+						entry.value().generate(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
+					}
+				}
+			}
+		}
+
+		/**
+		BlockBox.contains(int, int, int) was added in 1.19.4.
+		in 1.19.2, only BlockBox.contains(Vec3i) existed.
+		*/
+		public static boolean contains(BlockBox box, int x, int y, int z) {
+			return x >= box.getMinX() && x <= box.getMaxX() && y >= box.getMinY() && y <= box.getMaxY() && z >= box.getMinZ() && z <= box.getMaxZ();
 		}
 
 		@Override
@@ -356,6 +427,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
 			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getFacing()));
 		}
+
+		@Override
+		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+		}
 	}
 
 	public static abstract class SpawnerDungeonPiece extends DecorationDungeonPiece {
@@ -369,7 +445,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 
 		public SpawnerDungeonPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
-			this.spawnerType = Registry.ENTITY_TYPE.get(new Identifier(nbt.getString("entityType")));
+			String id = nbt.getString("entityType");
+			if (id.isEmpty()) id = "minecraft:zombie";
+			this.spawnerType = Registry.ENTITY_TYPE.get(new Identifier(id));
 		}
 
 		@Override
@@ -384,7 +462,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 		}
 	}
 
-	public static abstract class HallDungeonPiece extends DungeonPiece implements HallPiece {
+	public static abstract class HallDungeonPiece extends DungeonPiece implements HallPiece, RawGenerationStructurePiece {
 
 		public static final int BARS_BIT = 1 << 1;
 
@@ -434,6 +512,22 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure {
 		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
 			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
 		}
+
+		@Override
+		public Coordinator coordinator(Context context) {
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+		}
+
+		@Override
+		public void generate(
+			StructureWorldAccess world,
+			StructureAccessor structureAccessor,
+			ChunkGenerator chunkGenerator,
+			Random random,
+			BlockBox chunkBox,
+			ChunkPos chunkPos,
+			BlockPos pivot
+		) {}
 	}
 
 	public static abstract class DecorationDungeonPiece extends DungeonPiece implements DecorationPiece {

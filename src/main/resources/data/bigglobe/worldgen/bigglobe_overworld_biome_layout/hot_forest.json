@@ -1,0 +1,9 @@
+{
+	"parent": "bigglobe:hot_plains",
+	"restrictions": { "type": "range", "property": "overworld/foliage", "min": 0.375, "mid": 0.625 },
+	"biome": "bigglobe:hot_forest",
+	"primary_surface": {
+		"top": "bigglobe:overgrown_sand",
+		"under": "minecraft:sand"
+	}
+}

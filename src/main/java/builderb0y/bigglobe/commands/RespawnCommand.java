@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Locale;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
@@ -34,35 +36,44 @@ public class RespawnCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":respawn")
-			.requires(source -> source.hasPermissionLevel(2))
-			.executes(context -> {
-				RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrThrow());
+			.requires((ServerCommandSource source) -> source.hasPermissionLevel(2))
+			.executes((CommandContext<ServerCommandSource> context) -> {
+				RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrThrow(), false);
 				return 1;
 			})
 			.then(
 				CommandManager
 				.argument("mode", new EnumArgument<>(RespawnMode.class))
-				.executes(context -> {
-					Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow());
+				.executes((CommandContext<ServerCommandSource> context) -> {
+					Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow(), false);
 					if (failReason == null) return 1;
 					context.getSource().sendError(failReason);
 					return 0;
 				})
 				.then(
-					CommandManager
-					.argument("players", EntityArgumentType.players())
-					.executes(context -> {
-						RespawnMode point = context.getArgument("mode", RespawnMode.class);
-						Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-						int successCount = 0;
-						for (ServerPlayerEntity player : players) {
-							if (point.respawnPlayer(player) == null) successCount++;
-						}
-						if (successCount != players.size()) {
-							context.getSource().sendError(Text.translatable(PREFIX + "multi.fail"));
-						}
-						return successCount;
+					CommandManager.argument("force", BoolArgumentType.bool())
+					.executes((CommandContext<ServerCommandSource> context) -> {
+						Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow(), context.getArgument("force", Boolean.class));
+						if (failReason == null) return 1;
+						context.getSource().sendError(failReason);
+						return 0;
 					})
+					.then(
+						CommandManager
+						.argument("players", EntityArgumentType.players())
+						.executes((CommandContext<ServerCommandSource> context) -> {
+							RespawnMode point = context.getArgument("mode", RespawnMode.class);
+							Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
+							int successCount = 0;
+							for (ServerPlayerEntity player : players) {
+								if (point.respawnPlayer(player, false) == null) successCount++;
+							}
+							if (successCount != players.size()) {
+								context.getSource().sendError(Text.translatable(PREFIX + "multi.fail"));
+							}
+							return successCount;
+						})
+					)
 				)
 			)
 		);
@@ -73,71 +84,81 @@ public class RespawnCommand {
 		AUTO {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
-				if (tryRespawnBed(player) == null) return null;
-				if (tryRespawnCommand(player) == null) return null;
-				return doRespawnWorld(player, player.server.getOverworld());
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+				if (tryRespawnBed(player, force) == null) return null;
+				if (tryRespawnCommand(player, force) == null) return null;
+				return doRespawnWorld(player, player.server.getOverworld(), force);
 			}
 		},
 
 		BED {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
-				return tryRespawnBed(player);
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+				return tryRespawnBed(player, force);
 			}
 		},
 
 		COMMAND {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
-				return tryRespawnCommand(player);
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+				return tryRespawnCommand(player, force);
 			}
 		},
 
 		WORLD {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
-				return doRespawnWorld(player, player.getWorld());
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+				return doRespawnWorld(player, player.getWorld(), force);
 			}
 		},
 
 		OVERWORLD {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
-				return doRespawnWorld(player, player.getServer().getOverworld());
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+				return doRespawnWorld(player, player.getServer().getOverworld(), force);
 			}
 		},
 
 		NEW {
 
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player) {
+			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
 				return tryRespawnNew(player);
 			}
 		}
 
 		;
 
-		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
+		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 
 		@Override
 		public String asString() {
 			return this.lowerCaseName;
 		}
 
-		public abstract @Nullable Text respawnPlayer(ServerPlayerEntity player);
+		public abstract @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force);
 
-		public static @Nullable Text doRespawnWorld(ServerPlayerEntity player, ServerWorld world) {
+		public static @Nullable Text doRespawnWorld(ServerPlayerEntity player, ServerWorld world, boolean force) {
 			WorldProperties properties = world.getLevelProperties();
-			player.teleport(world, properties.getSpawnX() + 0.5D, properties.getSpawnY(), properties.getSpawnZ() + 0.5D, properties.getSpawnAngle(), 0.0F);
-			return null;
+			if (
+				force || (
+					world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ())).getBlock().canMobSpawnInside() &&
+					world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ())).getBlock().canMobSpawnInside()
+				)
+			) {
+				player.teleport(world, properties.getSpawnX() + 0.5D, properties.getSpawnY(), properties.getSpawnZ() + 0.5D, properties.getSpawnAngle(), 0.0F);
+				return null;
+			}
+			else {
+				return Text.translatable(PREFIX + "area_obstructed");
+			}
 		}
 
-		public static @Nullable Text tryRespawnBed(ServerPlayerEntity player) {
+		public static @Nullable Text tryRespawnBed(ServerPlayerEntity player, boolean force) {
 			if (player.isSpawnForced()) return Text.translatable(PREFIX + "bed.spawn_not_set_by_bed");
 
 			BlockPos position = player.getSpawnPointPosition();
@@ -162,14 +183,19 @@ public class RespawnCommand {
 				.orElse(null)
 			);
 			if (actualPosition == null) {
-				return Text.translatable(PREFIX + "bed.destroyed");
+				if (force) {
+					actualPosition = Vec3d.ofBottomCenter(position);
+				}
+				else {
+					return Text.translatable(PREFIX + "bed.destroyed");
+				}
 			}
 			player.teleport(world, actualPosition.x, actualPosition.y, actualPosition.z, 0.0F, 0.0F);
 			player.lookAt(EntityAnchor.EYES, new Vec3d(position.getX() + 0.5D, position.getY() + 0.5D, position.getZ() + 0.5D));
 			return null;
 		}
 
-		public static @Nullable Text tryRespawnCommand(ServerPlayerEntity player) {
+		public static @Nullable Text tryRespawnCommand(ServerPlayerEntity player, boolean force) {
 			if (!player.isSpawnForced()) return Text.translatable(PREFIX + "command.spawn_not_set_by_command");
 
 			BlockPos position = player.getSpawnPointPosition();
@@ -181,9 +207,13 @@ public class RespawnCommand {
 			ServerWorld world = player.server.getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
 
-			float yaw = player.getSpawnAngle();
-			player.teleport(world, position.getX() + 0.5D, position.getY(), position.getZ() + 0.5D, yaw, 0.0F);
-			return null;
+			if (force || (world.getBlockState(position).getBlock().canMobSpawnInside() && world.getBlockState(position.up()).getBlock().canMobSpawnInside())) {
+				float yaw = player.getSpawnAngle();
+				player.teleport(world, position.getX() + 0.5D, position.getY(), position.getZ() + 0.5D, yaw, 0.0F);
+				return null;
+			}
+
+			return Text.translatable(PREFIX + "area_obstructed");
 		}
 
 		public static @Nullable Text tryRespawnNew(ServerPlayerEntity player) {
@@ -194,7 +224,7 @@ public class RespawnCommand {
 					return null;
 				}
 				else {
-					return Text.translatable(PREFIX + "new.no_new_spawn");
+					return Text.translatable(PREFIX + "new.no_good_location");
 				}
 			}
 			else {

@@ -42,7 +42,7 @@ public interface ScriptedBranchShape extends Script {
 					.addY("y")
 					.mutable
 				)
-				.addEnvironment(new RandomScriptEnvironment(
+				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 6, type(RandomGenerator.class))
 				))
 				.parse()

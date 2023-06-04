@@ -84,7 +84,7 @@ public interface OverworldCaveOverrider extends Script {
 		public final CaveCell caveCell;
 		public final LocalOverworldCaveSettings caveSettings;
 		public final double topD, bottomD;
-		public final double ledgeMin;
+		public final double noiseMin;
 
 		public Context(ScriptStructures structureStarts, OverworldColumn column, boolean rawGeneration) {
 			super(structureStarts, rawGeneration, column.getFinalTopHeightI(), column.getFinalTopHeightI() - column.getCaveCell().settings.depth(), column.caveNoise);
@@ -93,7 +93,7 @@ public interface OverworldCaveOverrider extends Script {
 			this.caveSettings    = this.caveCell.settings;
 			this.topD            = column.getFinalTopHeightD();
 			this.bottomD         = this.topD - this.caveSettings.depth();
-			this.ledgeMin        = this.caveSettings.ledge_noise() != null ? this.caveSettings.ledge_noise().minValue() : 0.0D;
+			this.noiseMin        = this.caveSettings.noise().minValue();
 		}
 
 		@Override
@@ -103,9 +103,7 @@ public interface OverworldCaveOverrider extends Script {
 
 		@Override
 		public double getExclusionMultiplier(int y) {
-			double width = this.caveSettings.getWidthSquared(this.topD, y);
-			width -= this.ledgeMin * width;
-			return width;
+			return this.caveSettings.getNoiseThreshold(this.column, y) - this.noiseMin;
 		}
 
 		//////////////////////////////// script methods ////////////////////////////////
@@ -113,7 +111,7 @@ public interface OverworldCaveOverrider extends Script {
 		public void excludeSurface(double multiplier) {
 			if (!(multiplier > 0.0D)) return;
 			double baseY = this.topD;
-			double width = this.caveSettings.upper_width();
+			double width = this.caveSettings.getEffectiveWidth(this.column, baseY);
 			double intersection = baseY - width * 2.0D;
 			multiplier /= width;
 			int minY = Math.max(BigGlobeMath.ceilI(intersection), this.bottomI);

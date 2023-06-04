@@ -20,10 +20,10 @@ public abstract class CompactColumnRestriction implements ColumnRestriction {
 		@DefaultBoolean(true) boolean smooth
 	) {}
 
-	public final @EncodeInline @VerifySizeRange(min = 2) Map<ColumnValue<?>, AndRangeColumnRestriction.Range> ranges;
+	public final @EncodeInline @VerifySizeRange(min = 2) Map<ColumnValue<?>, Range> ranges;
 	public final transient ColumnRestriction delegate;
 
-	public CompactColumnRestriction(Map<ColumnValue<?>, AndRangeColumnRestriction.Range> ranges) {
+	public CompactColumnRestriction(Map<ColumnValue<?>, Range> ranges) {
 		this.ranges = ranges;
 		this.delegate = new AndColumnRestriction(
 			ranges

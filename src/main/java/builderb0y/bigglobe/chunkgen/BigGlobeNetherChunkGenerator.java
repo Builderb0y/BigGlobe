@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -36,8 +35,6 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.PositionCache.NetherPositionCache;
-import builderb0y.bigglobe.chunkgen.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -50,6 +47,8 @@ import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.NetherPositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -87,17 +86,16 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
-		NetherSettings settings,
 		Registry<StructureSet> structureSetRegistry,
+		NetherSettings settings,
 		SortedFeatures configuredFeatures
 	) {
 		super(
 			structureSetRegistry,
-			configuredFeatures,
-			Optional.empty(),
 			new ColumnBiomeSource(
-				settings.local_settings().elements.stream().map(LocalNetherSettings::biome)
-			)
+				settings.local_settings.stream().map(LocalNetherSettings::biome)
+			),
+			configuredFeatures
 		);
 		this.settings            = settings;
 		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
@@ -129,7 +127,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, ScriptStructures structures, boolean distantHorizons) {
-		this.generateSectionsParallel(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
+		this.generateSectionsParallel(chunk, this.settings.min_y, this.settings.max_y, columns, context -> {
 			BlockState previousFiller = null;
 			BlockState previousFluid  = null;
 			int fillerID = -1;
@@ -140,12 +138,12 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 				NetherColumn column = columns.getColumn(horizontalIndex);
 				double[] caveNoise = column.getCaveNoise();
-				int caveLowerY = column.settings.min_y();
+				int caveLowerY = column.settings.min_y;
 				double[] cavernNoise = column.getCavernNoise();
 				LocalNetherSettings localSettings = column.getLocalCell().settings;
 				int cavernLowerY = localSettings.caverns().min_y();
 				int cavernUpperY = localSettings.caverns().max_y();
-				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().width();
+				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
 				int lavaLevel = column.getLocalCell().lavaLevel;
 				if (localSettings.filler() != previousFiller || localSettings.fluid_state() != previousFluid) {
 					previousFiller = localSettings.filler();
@@ -164,7 +162,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					double caveWidth = widthScript.evaluate(column, y);
 					int index = horizontalIndex | (verticalIndex << 8);
 					if (
-						caveNoise[y - caveLowerY] < caveWidth * caveWidth || (
+						caveNoise[y - caveLowerY] < caveWidth || (
 							y >= cavernLowerY &&
 							y <  cavernUpperY &&
 							cavernNoise[y - cavernLowerY] < 0.0D
@@ -184,7 +182,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		if (!distantHorizons) {
 			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, true);
 			this.profiler.run("ores", () -> {
-				this.generateSectionsParallelSimple(chunk, this.settings.min_y(), this.settings.max_y(), columns, context -> {
+				this.generateSectionsParallelSimple(chunk, this.settings.min_y, this.settings.max_y, columns, context -> {
 					OreReplacer.generate(context, columns, this.ores);
 				});
 			});
@@ -326,8 +324,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				this.generateRawSections(chunk, columns, structures, distantHorizons);
 			});
 			this.profiler.run("Bedrock", () -> {
-				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y()     )), this.seed, columns)));
-				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y() - 16)), this.seed, columns)));
+				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.seed, columns)));
+				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.seed, columns)));
 				lower.join();
 				upper.join();
 			});
@@ -341,7 +339,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				);
 			});
 			this.profiler.run("Init heightmaps", () -> {
-				int maxY = this.settings.max_y();
+				int maxY = this.settings.max_y;
 				this.setHeightmaps(chunk, (index, includeWater) -> maxY);
 			});
 			this.profiler.run("Surface", () -> {
@@ -449,28 +447,28 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public int getSeaLevel() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
 	public int getMinimumY() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		return this.settings.max_y();
+		return this.settings.max_y;
 	}
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		NetherColumn column = this.column(x, z);
-		int worldMinY = this.settings.min_y();
-		int worldMaxY = this.settings.max_y();
+		int worldMinY = this.settings.min_y;
+		int worldMaxY = this.settings.max_y;
 		return new VerticalBlockSample(worldMinY, Util.make(new BlockState[worldMaxY - worldMinY], states -> {
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
 			int lavaLevel = column.getLocalCell().lavaLevel;
-			ColumnYToDoubleScript.Holder widthScript = localSettings.caves().width();
+			ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
 			double[] caveNoise = column.getCaveNoise();
 			double[] cavernNoise = column.getCavernNoise();
 			int cavernLowerY = localSettings.caverns().min_y();
@@ -479,7 +477,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				int y = index + worldMinY;
 				double caveWidth = widthScript.evaluate(column, y);
 				if (
-					caveNoise[y - worldMinY] < caveWidth * caveWidth || (
+					caveNoise[y - worldMinY] < caveWidth || (
 						y >= cavernLowerY &&
 						y < cavernUpperY &&
 						cavernNoise[y - cavernLowerY] < 0.0D

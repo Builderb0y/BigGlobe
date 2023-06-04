@@ -4,6 +4,8 @@ import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.Direction;
 
+import builderb0y.bigglobe.math.BigGlobeMath;
+
 public class Directions {
 
 	public static final Direction[]
@@ -48,5 +50,24 @@ public class Directions {
 			if (mirror.apply(from) == to) return mirror;
 		}
 		throw new IllegalArgumentException("Can't mirror from " + from + " to " + to);
+	}
+
+	public static BlockRotation scriptRotation(int rotation) {
+		rotation = BigGlobeMath.modulus_BP(rotation, 360);
+		return switch (rotation) {
+			default  -> BlockRotation.NONE;
+			case  90 -> BlockRotation.CLOCKWISE_90;
+			case 180 -> BlockRotation.CLOCKWISE_180;
+			case 270 -> BlockRotation.COUNTERCLOCKWISE_90;
+		};
+	}
+
+	public static BlockMirror scriptMirror(String axis) {
+		if (axis.length() == 1) {
+			char c = axis.charAt(0);
+			if (c == 'x') return BlockMirror.FRONT_BACK;
+			if (c == 'z') return BlockMirror.LEFT_RIGHT;
+		}
+		return BlockMirror.NONE;
 	}
 }

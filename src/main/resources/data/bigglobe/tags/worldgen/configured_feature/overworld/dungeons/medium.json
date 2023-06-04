@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/dungeons/medium/skull",
+		"bigglobe:overworld/dungeons/medium/cobweb",
+		"bigglobe:overworld/dungeons/medium/chain",
+		"bigglobe:overworld/dungeons/medium/torch"
+	]
+}

@@ -14,10 +14,10 @@ import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entry) {
+public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entry) implements EntryWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureTagKey> {
 
 	public static final TypeInfo TYPE = type(ConfiguredFeatureEntry.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureEntry.class, "of", String.class, ConfiguredFeatureEntry.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static ConfiguredFeatureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);
@@ -26,15 +26,16 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 	public static ConfiguredFeatureEntry of(String id) {
 		return new ConfiguredFeatureEntry(
 			BigGlobeMod
-				.getCurrentServer()
-				.getRegistryManager()
-				.get(Registry.CONFIGURED_FEATURE_KEY)
-				.entryOf(RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)))
+			.getCurrentServer()
+			.getRegistryManager()
+			.get(Registry.CONFIGURED_FEATURE_KEY)
+			.entryOf(RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id)))
 		);
 	}
 
+	@Override
 	public boolean isIn(ConfiguredFeatureTagKey tag) {
-		return this.entry.isIn(tag.key());
+		return this.isInImpl(tag);
 	}
 
 	@Override

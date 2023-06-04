@@ -23,6 +23,14 @@
 			"branches": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false }
 			]
+		},
+		"ground_replacements": {
+			"minecraft:crimson_nylium":  "minecraft:netherrack",
+			"minecraft:warped_nylium":   "minecraft:netherrack",
+			"bigglobe:ashen_netherrack": "minecraft:netherrack",
+			"minecraft:netherrack":      "minecraft:netherrack",
+			"minecraft:soul_sand":       "minecraft:soul_sand",
+			"minecraft:soul_soil":       "minecraft:soul_soil"
 		}
 	}
 }

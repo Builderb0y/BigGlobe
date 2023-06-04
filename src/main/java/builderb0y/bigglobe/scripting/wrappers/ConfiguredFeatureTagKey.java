@@ -1,32 +1,23 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Iterator;
-import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList.Named;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.ConstantFactory;
-import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) implements TagWrapper<ConfiguredFeatureEntry> {
+public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) implements TagWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureEntry> {
 
 	public static final TypeInfo TYPE = type(ConfiguredFeatureTagKey.class);
-	public static final MethodInfo
-		RANDOM = method(ACC_PUBLIC, ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class),
-		ITERATOR = method(ACC_PUBLIC, ConfiguredFeatureTagKey.class, "iterator", Iterator.class);
-	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ConfiguredFeatureTagKey.class, "of", String.class, ConfiguredFeatureTagKey.class);
+	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public static ConfiguredFeatureTagKey of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
 		return of(id);
@@ -37,18 +28,12 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 	}
 
 	@Override
-	public ConfiguredFeatureEntry random(RandomGenerator random) {
-		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.key);
-		if (list.isEmpty()) throw new RuntimeException("Biome tag does not exist: " + this.key.id());
-		Optional<RegistryEntry<ConfiguredFeature<?, ?>>> feature = list.get().getRandom(new MojangPermuter(random.nextLong()));
-		if (feature.isEmpty()) throw new RuntimeException("Biome tag is empty: " + this.key.id());
-		return new ConfiguredFeatureEntry(feature.get());
+	public ConfiguredFeatureEntry wrap(RegistryEntry<ConfiguredFeature<?, ?>> entry) {
+		return new ConfiguredFeatureEntry(entry);
 	}
 
 	@Override
-	public Iterator<ConfiguredFeatureEntry> iterator() {
-		Optional<Named<ConfiguredFeature<?, ?>>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.key);
-		if (list.isEmpty()) throw new RuntimeException("Biome tag does not exist: " + this.key.id());
-		return list.get().stream().map(ConfiguredFeatureEntry::new).iterator();
+	public ConfiguredFeatureEntry random(RandomGenerator random) {
+		return this.randomImpl(random);
 	}
 }

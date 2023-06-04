@@ -10,7 +10,6 @@ import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
-import builderb0y.bigglobe.trees.TreeRegistry;
 
 @Environment(EnvType.CLIENT)
 public class BigGlobeClient implements ClientModInitializer {
@@ -18,7 +17,6 @@ public class BigGlobeClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		BigGlobeMod.LOGGER.info("Initializing client...");
-		TreeRegistry.init();
 		BigGlobeFluids.initClient();
 		BigGlobeBlocks.initClient();
 		BigGlobeItems.initClient();

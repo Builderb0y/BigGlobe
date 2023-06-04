@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"int x = originX",
+			"int y = originY",
+			"int z = originZ",
+			";;place between 1 and 16 root blocks going downwards,",
+			"biased towards smaller numbers,",
+			"where each block along the way has a 25% chance of moving sideways.;;",
+			"repeat (int(exp(log(16.0) * random.nextDouble())):",
+				"unless (getBlockState(x, y, z).isReplaceable(): return(true))",
+				"setBlockState(x, y, z, 'minecraft:mangrove_roots[waterlogged=false]')",
+				"random.if (0.25:",
+					"random.switch(++x, --x, ++z, --z)",
+					"unless (getBlockState(x, y, z).isReplaceable(): return(true))",
+					"setBlockState(x, y, z, 'minecraft:mangrove_roots[waterlogged=false]')",
+				")",
+				"--y",
+			")",
+			"return(true)"
+		]
+	}
+}

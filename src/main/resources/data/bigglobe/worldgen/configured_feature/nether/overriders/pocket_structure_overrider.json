@@ -1,0 +1,37 @@
+{
+	"type": "bigglobe:nether_structure_overrider",
+	"config": {
+		"script": [
+			"boolean isTerrainAt(int x, int y, int z:",
+				"return(`nether/cavern_noise`(x, y, z) >= 0.0L && `nether/cave_noise`(x, y, z) >= `nether/cave_noise_threshold`(z, y, z))",
+			")",
+
+			"if (start.structure.type == StructureType('bigglobe:underground_pocket'):",
+				"int midX = int(start.midX)",
+				"int midZ = int(start.midZ)",
+				"int horizontalRadius = start.sizeX >> 1",
+				"int verticalRadius = start.sizeY >> 1",
+				"int minY = int(min_y(midX, midZ)) + verticalRadius",
+				"int maxY = int(max_y(midX, midZ)) - verticalRadius",
+				"if (maxY > minY:",
+					"repeat (16:",
+						"int y = random.nextInt(minY, maxY)",
+						"if (",
+							"isTerrainAt(midX, y - verticalRadius, midZ) &&",
+							"isTerrainAt(midX, y + verticalRadius, midZ) &&",
+							"isTerrainAt(start.minX, y, midZ) &&",
+							"isTerrainAt(start.maxX, y, midZ) &&",
+							"isTerrainAt(midX, y, start.minZ) &&",
+							"isTerrainAt(midX, y, start.minZ)",
+						":",
+							"start.move(y - int(start.midY))",
+							"return(true)",
+						")",
+					")",
+				")",
+				"return(false)",
+			")",
+			"return(true)"
+		]
+	}
+}

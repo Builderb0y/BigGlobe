@@ -113,6 +113,20 @@ public class TypeInfo {
 		};
 	}
 
+	public static TypeInfo parse(char c) {
+		return switch (c) {
+			case 'B' -> TypeInfos.BYTE;
+			case 'S' -> TypeInfos.SHORT;
+			case 'I' -> TypeInfos.INT;
+			case 'J' -> TypeInfos.LONG;
+			case 'F' -> TypeInfos.FLOAT;
+			case 'D' -> TypeInfos.DOUBLE;
+			case 'C' -> TypeInfos.CHAR;
+			case 'Z' -> TypeInfos.BOOLEAN;
+			default  -> throw new IllegalArgumentException(String.valueOf(c));
+		};
+	}
+
 	public static TypeInfo parse(CharSequence input) {
 		return parseNext(input, 0).type;
 	}
@@ -123,6 +137,39 @@ public class TypeInfo {
 			ParsedTypeInfo next = parseNext(input, index);
 			array.add(next.type);
 			index = next.endIndex;
+		}
+		return array.toArray(TypeInfo.ARRAY_FACTORY);
+	}
+
+	public static TypeInfo[] parseObjects(Object... objects) {
+		ArrayBuilder<TypeInfo> array = new ArrayBuilder<>();
+		int start = -1;
+		for (Object object : objects) {
+			if (object instanceof CharSequence string) {
+				start = array.size();
+				array.add(parseAll(string));
+			}
+			else if (object instanceof Character character) {
+				start = array.size();
+				array.add(parse(character));
+			}
+			else if (object instanceof java.lang.reflect.Type type) {
+				start = array.size();
+				array.add(of(type));
+			}
+			else if (object instanceof TypeInfo type) {
+				start = array.size();
+				array.add(type);
+			}
+			else if (object instanceof Integer count) {
+				List<TypeInfo> last = List.copyOf(array.subList(start, array.size()));
+				for (int loop = 1; loop < count; loop++) {
+					array.addAll(last);
+				}
+			}
+			else {
+				throw new IllegalArgumentException("Unrecognized object: " + object);
+			}
 		}
 		return array.toArray(TypeInfo.ARRAY_FACTORY);
 	}

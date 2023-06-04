@@ -13,8 +13,6 @@ public class ReduceInsnTree extends InvokeStaticInsnTree {
 		}
 	}
 
-	//todo: pure create() method.
-
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		InsnTree[] args = this.args;

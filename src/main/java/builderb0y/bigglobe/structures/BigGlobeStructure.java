@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.structures;
 
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
@@ -11,7 +14,6 @@ import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.util.Dvec3;
 
 //config needs to be encoded inline, but I can't annotate the field on the super class.
 //and also my ReflectionManager can't see the backing field anyway.
@@ -30,6 +32,9 @@ public abstract class BigGlobeStructure extends Structure {
 		return Permuter.permute(context.seed() ^ salt, context.chunkPos());
 	}
 
+	@Override
+	public abstract Optional<StructurePosition> getStructurePosition(Context context);
+
 	public static @Nullable BlockPos randomBlockInSurface(Context context, int offset) {
 		int bits = context.random().nextInt();
 		int x = context.chunkPos().getStartX() | (bits & 15);
@@ -43,10 +48,11 @@ public abstract class BigGlobeStructure extends Structure {
 		}
 	}
 
-	public static @Nullable Dvec3 randomPosAtSurface(Context context, double offset) {
+	public static @Nullable Vector3d randomPosAtSurface(Context context, double offset) {
 		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
 		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			BigGlobeMath.floorI(x),
@@ -54,7 +60,7 @@ public abstract class BigGlobeStructure extends Structure {
 		);
 		double y = column.getFinalTopHeightD();
 		if (!Double.isNaN(y)) {
-			return new Dvec3(x, y + offset, z);
+			return new Vector3d(x, y + offset, z);
 		}
 		else {
 			return null;
@@ -66,6 +72,7 @@ public abstract class BigGlobeStructure extends Structure {
 		int x = context.chunkPos().getStartX() | (bits & 15);
 		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			x,
@@ -90,10 +97,11 @@ public abstract class BigGlobeStructure extends Structure {
 		}
 	}
 
-	public static @Nullable Dvec3 randomPosInChunk(Context context, double horizontalRadius, double verticalRadius) {
+	public static @Nullable Vector3d randomPosInChunk(Context context, double horizontalRadius, double verticalRadius) {
 		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
 		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
 		WorldColumn column = WorldColumn.forGenerator(
+			context.seed(),
 			context.chunkGenerator(),
 			context.noiseConfig(),
 			BigGlobeMath.floorI(x),
@@ -111,7 +119,7 @@ public abstract class BigGlobeStructure extends Structure {
 		maxY -= verticalRadius;
 		if (maxY >= minY) {
 			double y = context.random().nextDouble() * (maxY - minY) + minY;
-			return new Dvec3(x, y, z);
+			return new Vector3d(x, y, z);
 		}
 		else {
 			return null;

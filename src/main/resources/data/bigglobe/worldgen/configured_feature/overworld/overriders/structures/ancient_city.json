@@ -3,12 +3,12 @@
 	"config": {
 		"script": [
 			"if (start.structure == Structure('minecraft:ancient_city'):",
-				"int centerX = int(start.midX)",
-				"int centerZ = int(start.midZ)",
-				"double fromY = start.midY",
+				"int centerX = start.midX",
+				"int centerZ = start.midZ",
+				"int fromY = start.midY",
 				"double toY = `overworld/cavern_center`(centerX, centerZ)",
 				"if (isNaN(toY): return(false))",
-				"start.move(int(toY - fromY))",
+				"start.move(int(toY) - fromY)",
 			")",
 			"return(true)"
 		]

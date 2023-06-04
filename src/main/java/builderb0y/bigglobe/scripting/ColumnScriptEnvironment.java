@@ -75,6 +75,7 @@ public class ColumnScriptEnvironment {
 		ColumnScriptEnvironment environment = new ColumnScriptEnvironment(loadColumn, loadY);
 		for (Map.Entry<RegistryKey<ColumnValue<?>>, ColumnValue<?>> entry : registry.getEntrySet()) {
 			ColumnValue<?> value = entry.getValue();
+			if (value == ColumnValue.Y) continue;
 			for (String name : getNames(entry.getKey())) {
 				InsnTree tree = (
 					value.dependsOnY()
@@ -104,6 +105,7 @@ public class ColumnScriptEnvironment {
 		ColumnScriptEnvironment environment = new ColumnScriptEnvironment(loadColumn, defaultY);
 		for (Map.Entry<RegistryKey<ColumnValue<?>>, ColumnValue<?>> entry : registry.getEntrySet()) {
 			ColumnValue<?> value = entry.getValue();
+			if (value == ColumnValue.Y) continue;
 			for (String name : getNames(entry.getKey())) {
 				InsnTree tree;
 				if (value.dependsOnY()) {
@@ -155,6 +157,7 @@ public class ColumnScriptEnvironment {
 		ColumnScriptEnvironment environment = new ColumnScriptEnvironment(loadColumn, null);
 		for (Map.Entry<RegistryKey<ColumnValue<?>>, ColumnValue<?>> entry : registry.getEntrySet()) {
 			ColumnValue<?> value = entry.getValue();
+			if (value == ColumnValue.Y) continue;
 			for (String name : getNames(entry.getKey())) {
 				if (value.dependsOnY()) {
 					environment.mutable.addFunction(name, new FunctionHandler.Named(name + "(int x, double y, int z)", (parser, name1, arguments) -> {

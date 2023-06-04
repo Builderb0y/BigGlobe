@@ -285,8 +285,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public static class PositionState extends BlockPos {
 
-		public BlockState state;
-		public NbtCompound blockEntityData;
+		public final BlockState state;
+		public final NbtCompound blockEntityData;
 
 		public PositionState(Vec3i vector, BlockState state, NbtCompound blockEntityData) {
 			super(vector);
@@ -316,14 +316,6 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			nbt.putInt("z", this.getZ());
 			nbt.copyFrom(NbtHelper.fromBlockState(this.state));
 			if (this.blockEntityData != null) nbt.put("BlockEntityTag", this.blockEntityData);
-		}
-
-		public void readFromNBT(NbtCompound nbt) {
-			this.setX(nbt.getInt("x"));
-			this.setY(nbt.getInt("y"));
-			this.setZ(nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(nbt);
-			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
 		public boolean place(StructureWorldAccess world, BlockPos origin, BlockBox box) {
@@ -596,12 +588,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			CoordinateSupplier<BlockState> netherBricks = netherBricks(this.crackedChance);
 
 			//empty out existing areas
-			//root.setBlockStateCuboid(-16, 2, -16, 16, 12, 16, BlockStates.AIR);
-			//ground level
-			floorFlip.setBlockStateCuboid(-1, 1, -14, 1, 1, -11, BlockStates.AIR);
-			floorFlip.setBlockStateCuboid(-6, 1, -10, 6, 1, -7, BlockStates.AIR);
-			floorFlip.setBlockStateCuboid(-10, 1, -6, 10, 1, -2, BlockStates.AIR);
-			root.setBlockStateCuboid(-14, 1, -1, 14, 1, 1, BlockStates.AIR);
+			root.setBlockStateCuboid(-11, 1, -11, 11, 11, 11, BlockStates.AIR);
+			rotate4.setBlockStateCuboid(-15, 1, -6, -12, 11, 6, BlockStates.AIR);
 			//floor
 			root.setBlockStateCuboid(-15, 0, -6, 15, 0, 6, netherBricks);
 			floorFlip.setBlockStateCuboid(-6, 0, -15, 6, 0, -7, netherBricks);
@@ -1246,7 +1234,9 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.setBlockState(0, -1, -1, NETHER_BRICK_STAIRS('s'));
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
 			root.setBlockState(0, 0, 0, Blocks.SPAWNER.getDefaultState());
-			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> spawner.getLogic().setEntityId(EntityType.BLAZE));
+			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
+				spawner.getLogic().setEntityId(EntityType.BLAZE);
+			});
 		}
 	}
 }

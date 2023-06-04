@@ -1,15 +1,11 @@
 package builderb0y.bigglobe.overriders.overworld;
 
 import net.minecraft.structure.StructurePiece;
-import net.minecraft.util.math.MathHelper;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
-import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -40,13 +36,13 @@ public class OverworldCavernOverrider {
 
 			this
 			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
-			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class));
-
+			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class))
+			;
 			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
 			this.addDistanceFunctions(columnLoader);
 			this
-			.addVariableRenamedGetField(columnLoader, "cavernCenterY", FieldInfo.getField(OverworldColumn.class, "cavernCenter"))
-			.addVariableRenamedGetField(columnLoader, "cavernThicknessSquared", FieldInfo.getField(OverworldColumn.class, "cavernThicknessSquared"))
+			.addVariableRenamedGetField(columnLoader, "cavernCenterY", OverworldColumn.class, "cavernCenter")
+			.addVariableRenamedGetField(columnLoader, "cavernThicknessSquared", OverworldColumn.class, "cavernThicknessSquared")
 			;
 			this.addVariable("exclusionMultiplier", invokeStatic(MethodInfo.getMethod(Environment.class, "getExclusionMultiplier"), columnLoader));
 			this.addMultiColumnFunction(columnLoader, Environment.class, "getOverlap");
@@ -54,7 +50,7 @@ public class OverworldCavernOverrider {
 		}
 
 		public static double getExclusionMultiplier(OverworldColumn column) {
-			return column.getCavernCell().settings.thickness().maxValue();
+			return column.getCavernThicknessSquared();
 		}
 
 		public static void exclude(OverworldColumn column, double amount) {
@@ -62,12 +58,11 @@ public class OverworldCavernOverrider {
 		}
 
 		public static double getOverlap(OverworldColumn column, double minY, double maxY, double padding) {
-			CavernCell cell = column.getCavernCell();
-			double averageCenter = cell.averageCenter;
-			double sqrtMaxThickness = cell.settings.sqrtMaxThickness();
-			double lowerOverlap = Interpolator.unmixLinear(maxY + padding, maxY, averageCenter - sqrtMaxThickness);
-			double upperOverlap = Interpolator.unmixLinear(minY - padding, minY, averageCenter + sqrtMaxThickness);
-			return MathHelper.clamp(Math.min(lowerOverlap, upperOverlap), 0.0D, 1.0D);
+			double cavernCenter = column.getCavernCenter();
+			double thickness = column.getCavernThickness();
+			double radius = (maxY - minY) * 0.5D;
+			double center = (maxY + minY) * 0.5D;
+			return Math.max(radius + thickness + padding - Math.abs(center - cavernCenter), 0.0D) / thickness;
 		}
 
 		public static double getOverlap(OverworldColumn column, StructureStartWrapper start, double padding) {

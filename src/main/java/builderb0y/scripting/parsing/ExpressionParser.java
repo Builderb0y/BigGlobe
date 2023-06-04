@@ -1,19 +1,25 @@
 package builderb0y.scripting.parsing;
 
+import java.io.IOException;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.HashCommon;
+import net.fabricmc.loader.api.FabricLoader;
+import org.apache.commons.io.file.PathUtils;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -23,11 +29,12 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
+import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
 import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.VariableAssignPostUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
@@ -45,7 +52,47 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ExpressionParser {
 
-	public static final boolean DUMP_GENERATED_CLASSES  = Boolean.getBoolean("builderb0y.bytecode.dumpGeneratedClasses");
+	public static final Path CLASS_DUMP_DIRECTORY;
+	static {
+		Path classDumpDirectory;
+		if (Boolean.getBoolean("builderb0y.bytecode.dumpGeneratedClasses")) {
+			classDumpDirectory = FabricLoader.getInstance().getGameDir().resolve("builderb0y_bytecode_class_dump");
+			if (Files.isDirectory(classDumpDirectory)) try {
+				PathUtils.cleanDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to clean the previous session's script dump output.
+					Dumping of generated classes has been disabled to prevent ambiguity over which file is from which session.
+					Please empty the class dump directory manually when you get a chance.
+					""",
+					exception
+				);
+				classDumpDirectory = null;
+			}
+			else try {
+				Files.createDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to create the script dump directory.
+					Dumping of generated classes has been disabled as there is nowhere to put them.
+					""",
+					exception
+				);
+				classDumpDirectory = null;
+			}
+		}
+		else {
+			classDumpDirectory = null;
+		}
+		CLASS_DUMP_DIRECTORY = classDumpDirectory;
+		ScriptLogger.LOGGER.info("Class dumping is " + (classDumpDirectory != null ? "enabled" : "disabled") + '.');
+	}
+
+	public static void clinit() {}
 
 	public final ExpressionReader input;
 	public int currentLine;
@@ -97,11 +144,20 @@ public class ExpressionParser {
 		}
 	}
 
-	public Class<?> compile() {
-		if (DUMP_GENERATED_CLASSES) {
-			ScriptLogger.LOGGER.info("Compiling script with source:");
-			ScriptLogger.LOGGER.info(this.input.input);
-			ScriptLogger.LOGGER.info(this.clazz.dump());
+	public static void dump(ClassCompileContext context) throws IOException {
+		String baseName = context.info.getSimpleName();
+		Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+		Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
+	}
+
+	public Class<?> compile() throws Throwable {
+		if (CLASS_DUMP_DIRECTORY != null) try {
+			String baseName = this.clazz.info.getSimpleName();
+			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-src.txt"), this.input.input, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+			dump(this.clazz);
+		}
+		catch (IOException exception) {
+			ScriptLogger.LOGGER.error("", exception);
 		}
 		return new ScriptClassLoader(this.clazz).defineMainClass();
 	}
@@ -121,7 +177,7 @@ public class ExpressionParser {
 				"""
 			)
 			.append('\n')
-			.append("Script source:\n").append(this.input.getSource()).append('\n')
+			.append("Script source:\n").append(ScriptLogger.addLineNumbers(this.input.getSource())).append('\n')
 			.append("Compiled bytecode:\n").append(this.clazz.dump()).append('\n')
 			.append("ASM errors: ").append(this.testForASMErrors()).append('\n')
 			.append("Parser class: ").append(this.getClass().getName()).append('\n')
@@ -191,7 +247,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "--" -> {} //indicates that there's another statement to read.
+					case "", "++", "--", "!" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -247,29 +303,67 @@ public class ExpressionParser {
 		try {
 			InsnTree left = this.nextTernary();
 			String operator = this.input.peekOperatorAfterWhitespace();
-			UpdateOp op = switch (operator) {
-				case "=" -> UpdateOp.ASSIGN;
-				case "+=" -> UpdateOp.ADD;
-				case "-=" -> UpdateOp.SUBTRACT;
-				case "*=" -> UpdateOp.MULTIPLY;
-				case "/=" -> UpdateOp.DIVIDE;
-				case "%=" -> UpdateOp.MODULO;
-				case "^=" -> UpdateOp.POWER;
-				case "&=" -> UpdateOp.BITWISE_AND;
-				case "|=" -> UpdateOp.BITWISE_OR;
-				case "#=" -> UpdateOp.BITWISE_XOR;
-				case "&&=" -> UpdateOp.AND;
-				case "||=" -> UpdateOp.OR;
-				case "##=" -> UpdateOp.XOR;
-				case "<<=" -> UpdateOp.SIGNED_LEFT_SHIFT;
-				case ">>=" -> UpdateOp.SIGNED_RIGHT_SHIFT;
-				case "<<<=" -> UpdateOp.UNSIGNED_LEFT_SHIFT;
-				case ">>>=" -> UpdateOp.UNSIGNED_RIGHT_SHIFT;
-				default -> null;
-			};
+			UpdateOp op;
+			UpdateOrder order;
+			switch (operator) {
+				case "="    -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.VOID; }
+				case "+="   -> { op = UpdateOp.ADD;                  order = UpdateOrder.VOID; }
+				case "-="   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.VOID; }
+				case "*="   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.VOID; }
+				case "/="   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.VOID; }
+				case "%="   -> { op = UpdateOp.MODULO;               order = UpdateOrder.VOID; }
+				case "^="   -> { op = UpdateOp.POWER;                order = UpdateOrder.VOID; }
+				case "&="   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.VOID; }
+				case "|="   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.VOID; }
+				case "#="   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.VOID; }
+				case "&&="  -> { op = UpdateOp.AND;                  order = UpdateOrder.VOID; }
+				case "||="  -> { op = UpdateOp.OR;                   order = UpdateOrder.VOID; }
+				case "##="  -> { op = UpdateOp.XOR;                  order = UpdateOrder.VOID; }
+				case "<<="  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.VOID; }
+				case ">>="  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.VOID; }
+				case "<<<=" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.VOID; }
+				case ">>>=" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.VOID; }
+
+				case ":="   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.POST; }
+				case ":+"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.POST; }
+				case ":-"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.POST; }
+				case ":*"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.POST; }
+				case ":/"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.POST; }
+				case ":%"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.POST; }
+				case ":^"   -> { op = UpdateOp.POWER;                order = UpdateOrder.POST; }
+				case ":&"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.POST; }
+				case ":|"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.POST; }
+				case ":#"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.POST; }
+				case ":&&"  -> { op = UpdateOp.AND;                  order = UpdateOrder.POST; }
+				case ":||"  -> { op = UpdateOp.OR;                   order = UpdateOrder.POST; }
+				case ":##"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.POST; }
+				case ":<<"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.POST; }
+				case ":>>"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.POST; }
+				case ":<<<" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.POST; }
+				case ":>>>" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.POST; }
+
+				case "=:"   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.PRE; }
+				case "+:"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.PRE; }
+				case "-:"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.PRE; }
+				case "*:"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.PRE; }
+				case "/:"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.PRE; }
+				case "%:"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.PRE; }
+				case "^:"   -> { op = UpdateOp.POWER;                order = UpdateOrder.PRE; }
+				case "&:"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.PRE; }
+				case "|:"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.PRE; }
+				case "#:"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.PRE; }
+				case "&&:"  -> { op = UpdateOp.AND;                  order = UpdateOrder.PRE; }
+				case "||:"  -> { op = UpdateOp.OR;                   order = UpdateOrder.PRE; }
+				case "##:"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.PRE; }
+				case "<<:"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.PRE; }
+				case ">>:"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.PRE; }
+				case "<<<:" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.PRE; }
+				case ">>>:" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.PRE; }
+				default     -> { op = null; order = null; }
+			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, this.nextSingleExpression());
+				left = left.update(this, op, order, this.nextSingleExpression());
 			}
 			return left;
 		}
@@ -448,14 +542,14 @@ public class ExpressionParser {
 							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 							result = this.environment.getMethod(this, left, memberName, arguments.arguments());
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::getTypeInfo).map(Objects::toString).collect(Collectors.joining(", ", "Actual form: " + left.getTypeInfo() + '.' + memberName + "(", ")"))), this.input);
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 							}
 							result = arguments.maybeWrap(result);
 						}
 						else {
 							result = this.environment.getField(this, left, memberName);
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.getTypeInfo() + '.' + memberName), this.input);
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 							}
 						}
 					}
@@ -511,13 +605,27 @@ public class ExpressionParser {
 				}
 				case "++" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree term = this.nextMember();
-					yield term.update(this, UpdateOp.ADD, ldc(1));
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.VOID, ldc(1));
 				}
 				case "--" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree term = this.nextMember();
-					yield term.update(this, UpdateOp.SUBTRACT, ldc(1));
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.VOID, ldc(1));
+				}
+				case ":++" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.POST, ldc(1));
+				}
+				case ":--" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.POST, ldc(1));
+				}
+				case "++:" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.ADD, UpdateOrder.PRE, ldc(1));
+				}
+				case "--:" -> {
+					this.input.onCharsRead(prefixOperator);
+					yield this.nextMember().update(this, UpdateOp.SUBTRACT, UpdateOrder.PRE, ldc(1));
 				}
 				case "" -> {
 					yield this.nextTerm();
@@ -637,7 +745,7 @@ public class ExpressionParser {
 					//in some cases, input.skipWhitespace() may
 					//be called after the next term has ended.
 					//this is problematic because if the input
-					//is, for example, "var a = 'a',, '$a b'",
+					//is, for example, "String a = 'a',, '$a b'",
 					//then the output would be "ab", without
 					//a space between. so, here we add any
 					//whitespace which got skipped over.
@@ -728,16 +836,27 @@ public class ExpressionParser {
 		try {
 			if (name.equals("var")) {
 				String varName = this.input.expectIdentifierAfterWhitespace();
-				this.input.expectOperatorAfterWhitespace("=");
+				boolean reuse;
+				if (this.input.hasOperatorAfterWhitespace("=")) reuse = false;
+				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
+				else throw new ScriptParsingException("Expected '=' or ':='", this.input);
 				InsnTree initializer = this.nextSingleExpression();
 				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return seq(declaration, new StoreInsnTree(declaration.loader.variable, initializer));
+				return seq(
+					declaration,
+					reuse
+					? new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer)
+					: store(declaration.loader.variable, initializer)
+				);
 			}
 			else if (name.equals("class")) {
 				String className = this.input.expectIdentifierAfterWhitespace();
 				return this.nextUserDefinedClass(className);
 			}
-			else { //not var.
+			else { //not var or class.
+				InsnTree result = this.environment.parseKeyword(this, name);
+				if (result != null) return result;
+				//not keyword.
 				TypeInfo type = this.environment.getType(this, name);
 				if (type != null) {
 					if (this.input.peekAfterWhitespace() == '(') { //casting.
@@ -750,6 +869,11 @@ public class ExpressionParser {
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, store(declaration.loader.variable, initializer));
+							}
+							else if (this.input.hasOperatorAfterWhitespace(":=")) {
+								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
+								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
+								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								return this.nextUserDefinedFunction(type, varName);
@@ -764,13 +888,11 @@ public class ExpressionParser {
 					}
 				}
 				else { //not a type.
-					InsnTree result = this.environment.parseKeyword(this, name);
-					if (result != null) return result;
 					if (this.input.peekAfterWhitespace() == '(') { //function call.
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 						result = this.environment.getFunction(this, name, arguments.arguments());
 						if (result != null) return arguments.maybeWrap(result);
-						throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::getTypeInfo).map(Objects::toString).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
+						throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
 					}
 					else { //variable.
 						InsnTree variable = this.environment.getVariable(this, name);

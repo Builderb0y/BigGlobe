@@ -1,0 +1,22 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "campfires",
+			"variation": 6,
+			"spacing": 12,
+			"restrictions": {
+				"type": "or",
+				"restrictions": [
+					{ "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 },
+					{ "type": "range", "property": "overworld/cliffiness", "min": 0.0, "mid": 1.0, "smooth": false }
+				]
+			}
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:campfire" },
+		{ "weight": 1, "structure": "bigglobe:well" },
+		{ "weight": 1, "structure": "bigglobe:small_house" }
+	]
+}

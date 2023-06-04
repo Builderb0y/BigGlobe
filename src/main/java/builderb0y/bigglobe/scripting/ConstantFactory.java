@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting;
 
+import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandles;
 
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -17,28 +18,40 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler {
 
+	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+
 	public final MethodInfo constantMethod, variableMethod;
 	public final TypeInfo type;
 
 	public ConstantFactory(Class<?> owner, String name, Class<?> inType, Class<?> outType) {
-		this.constantMethod = method(ACC_PUBLIC | ACC_STATIC, owner, name, outType, MethodHandles.Lookup.class, String.class, Class.class, String.class);
-		this.variableMethod = method(ACC_PUBLIC | ACC_STATIC, owner, name, outType, inType);
-		this.type           = this.variableMethod.returnType;
+		this.constantMethod = MethodInfo.findMethod(owner, name, outType, MethodHandles.Lookup.class, String.class, Class.class, inType);
+		this.variableMethod = MethodInfo.findMethod(owner, name, outType, inType);
+		this.type           = type(outType);
+	}
+
+	/**
+	factory method for the most common case,
+	where the owner is the caller class, the name is "of",
+	inType is String.class, and outType is also the caller class.
+	*/
+	public static ConstantFactory autoOfString() {
+		Class<?> caller = STACK_WALKER.getCallerClass();
+		return new ConstantFactory(caller, "of", String.class, caller);
 	}
 
 	@Override
 	public CastResult create(ExpressionParser parser, String name, InsnTree[] arguments) throws ScriptParsingException {
 		ScriptEnvironment.checkArgumentCount(parser, name, 1, arguments);
-		return this.create(parser, name, arguments[0]);
+		return this.create(parser, arguments[0], false);
 	}
 
-	public CastResult create(ExpressionParser parser, String name, InsnTree argument) {
+	public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
 		if (argument.getTypeInfo().simpleEquals(this.variableMethod.paramTypes[0])) {
 			if (argument.getConstantValue().isConstant()) {
 				return new CastResult(ldc(this.constantMethod, argument.getConstantValue()), true);
 			}
 			else {
-				ScriptLogger.LOGGER.warn("", new ScriptParsingException("Non-constant String input for " + name + "(). This will be worse on performance", parser.input));
+				if (implicit) ScriptLogger.LOGGER.warn("Non-constant String input for implicit cast to " + this.type + ". This will be worse on performance. Use an explicit cast to suppress this warning. " + ScriptParsingException.appendContext(parser.input));
 				return new CastResult(invokeStatic(this.variableMethod, argument), true);
 			}
 		}

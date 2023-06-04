@@ -63,7 +63,6 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
@@ -79,32 +78,28 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixins.ChunkGenerator_getStructurePlacementAccess;
+import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
-@AddPseudoField(name = "structureSetRegistry", getter = "getStructureSetRegistry")
-public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
+@AddPseudoField("structureSetRegistry")
+public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
 	public static final boolean WORLD_SLICES = false;
 
 	public static final GenerationStep.Feature[] FEATURE_STEPS = GenerationStep.Feature.values();
 	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 
-	@EncodeInline
 	public final SortedFeatures configuredFeatures;
 	public transient ColumnValue<?>[] displayedColumnValues;
 
@@ -113,35 +108,26 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	public final transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
 
-	public BigGlobeChunkGenerator(
-		Registry<StructureSet> structureSetRegistry,
-		SortedFeatures configuredFeatures,
-		Optional<RegistryEntryList<StructureSet>> structureOverrides,
-		BiomeSource biomeSource
-	) {
-		super(structureSetRegistry, structureOverrides, biomeSource);
+	public BigGlobeChunkGenerator(Registry<StructureSet> structureSetRegistry, BiomeSource biomeSource, SortedFeatures configuredFeatures) {
+		super(structureSetRegistry, Optional.empty(), biomeSource);
 		this.configuredFeatures = configuredFeatures;
-		configuredFeatures.streamConfigs(BigGlobeFeatures.USE_SCRIPT_TEMPLATE).forEach(config -> {
-			try {
-				config.getCompiledScript();
-			}
-			catch (ScriptParsingException exception) {
-				throw new RuntimeException(exception.getLocalizedMessage(), exception);
-			}
-		});
+	}
+
+	public Registry<StructureSet> structureSetRegistry() {
+		return this.structureSetRegistry;
 	}
 
 	@Wrapper
 	public static class SortedFeatures {
 
 		public final Registry<ConfiguredFeature<?, ?>> registry;
-		public final Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
+		public final transient Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
 		public SortedFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
 			this.registry = registry;
-			Map<Feature<? >, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(Registry.FEATURE.size());
-			registry.streamEntries().forEach(registryEntry -> {
-				map.computeIfAbsent(registryEntry.value().feature(), $ -> new ArrayList<>(4)).add(registryEntry);
+			Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(128);
+			registry.streamEntries().forEach(entry -> {
+				map.computeIfAbsent(entry.value().feature(), $ -> new ArrayList<>(4)).add(entry);
 			});
 			this.map = map;
 		}
@@ -158,11 +144,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		public <C extends FeatureConfig> Stream<C> streamConfigs(Feature<C> feature) {
 			return this.streamConfiguredFeatures(feature).map(ConfiguredFeature::config);
 		}
-	}
-
-	@EncodeInline
-	public Registry<StructureSet> getStructureSetRegistry() {
-		return this.structureSetRegistry;
 	}
 
 	public static <T_Generator extends BigGlobeChunkGenerator> AutoCoder<T_Generator> createCoder(FactoryContext<T_Generator> context, String preset, String dimensionName) {
@@ -223,7 +204,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void computeStructurePlacementsIfNeeded(NoiseConfig noiseConfig) {
-		//this is called from ServerWorld.<init>(), so very early.
 		this.setSeed(noiseConfig.getLegacyWorldSeed());
 		super.computeStructurePlacementsIfNeeded(noiseConfig);
 	}
@@ -410,7 +390,14 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void setStructureStarts(DynamicRegistryManager registryManager, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager, long seed) {
+	public void setStructureStarts(
+		DynamicRegistryManager registryManager,
+		NoiseConfig noiseConfig,
+		StructureAccessor structureAccessor,
+		Chunk chunk,
+		StructureTemplateManager structureTemplateManager,
+		long seed
+	) {
 		if (
 			BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures &&
 			DistantHorizonsCompat.isOnDistantHorizonThread()
@@ -418,12 +405,33 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 			return;
 		}
 		this.profiler.run("setStructureStarts", () -> {
-			this.actuallySetStructureStarts(registryManager, noiseConfig, structureAccessor, chunk, structureTemplateManager, seed);
+			this.actuallySetStructureStarts(
+				registryManager,
+				noiseConfig,
+				structureAccessor,
+				chunk,
+				structureTemplateManager,
+				seed
+			);
 		});
 	}
 
-	public void actuallySetStructureStarts(DynamicRegistryManager registryManager, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager, long seed) {
-		super.setStructureStarts(registryManager, noiseConfig, structureAccessor, chunk, structureTemplateManager, seed);
+	public void actuallySetStructureStarts(
+		DynamicRegistryManager registryManager,
+		NoiseConfig noiseConfig,
+		StructureAccessor structureAccessor,
+		Chunk chunk,
+		StructureTemplateManager structureTemplateManager,
+		long seed
+	) {
+		super.setStructureStarts(
+			registryManager,
+			noiseConfig,
+			structureAccessor,
+			chunk,
+			structureTemplateManager,
+			seed
+		);
 	}
 
 	@Override
@@ -445,7 +453,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		StructureAccessor structureAccessor,
 		DynamicRegistryManager dynamicRegistryManager,
 		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
+		StructureTemplateManager structureTemplateManager,
 		long seed,
 		Chunk chunk,
 		ChunkPos pos,
@@ -456,9 +464,11 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 			structureAccessor,
 			dynamicRegistryManager,
 			noiseConfig,
-			structureManager,
+			structureTemplateManager,
 			seed,
 			chunk,
+			pos,
+			sectionPos,
 			false
 		);
 	}
@@ -468,18 +478,22 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		StructureAccessor structureAccessor,
 		DynamicRegistryManager dynamicRegistryManager,
 		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
+		StructureTemplateManager structureTemplateManager,
 		long seed,
-		Chunk chunk
+		Chunk chunk,
+		ChunkPos pos,
+		ChunkSectionPos sectionPos
 	) {
 		return this.setStructureStart(
 			weightedEntry,
 			structureAccessor,
 			dynamicRegistryManager,
 			noiseConfig,
-			structureManager,
+			structureTemplateManager,
 			seed,
 			chunk,
+			pos,
+			sectionPos,
 			true
 		);
 	}
@@ -489,12 +503,13 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		StructureAccessor structureAccessor,
 		DynamicRegistryManager dynamicRegistryManager,
 		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
+		StructureTemplateManager structureTemplateManager,
 		long seed,
 		Chunk chunk,
+		ChunkPos pos,
+		ChunkSectionPos sectionPos,
 		boolean force
 	) {
-		ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk);
 		Structure structure = weightedEntry.structure().value();
 		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
 		int references = existingStart != null ? existingStart.getReferences() : 0;
@@ -504,7 +519,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 			this,
 			this.biomeSource,
 			noiseConfig,
-			structureManager,
+			structureTemplateManager,
 			seed,
 			chunk.getPos(),
 			references,
@@ -642,7 +657,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		public boolean tryStrongholds(int centerChunkX, int centerChunkZ) {
 			int distance = Integer.MAX_VALUE;
 			for (RegistryEntry<Structure> structure : this.structures) {
-				List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, this.noiseConfig);
+				List<StructurePlacement> placements = BigGlobeChunkGenerator.this.getStructurePlacement(structure, this.noiseConfig);
 				for (StructurePlacement placement : placements) {
 					if (placement instanceof ConcentricRingsStructurePlacement concentric) {
 						List<ChunkPos> positions = BigGlobeChunkGenerator.this.getConcentricRingsStartChunks(concentric, this.noiseConfig);
@@ -671,9 +686,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 		}
 
 		public boolean canPossiblyGenerate(int chunkX, int chunkZ, RegistryEntry<Structure> structure) {
-			List<StructurePlacement> placements = ((ChunkGenerator_getStructurePlacementAccess)(BigGlobeChunkGenerator.this)).bigglobe_getStructurePlacement(structure, this.noiseConfig);
+			List<StructurePlacement> placements = BigGlobeChunkGenerator.this.getStructurePlacement(structure, this.noiseConfig);
 			for (StructurePlacement placement : placements) {
-				if (placement.shouldGenerate(BigGlobeChunkGenerator.this, this.noiseConfig, this.world.getSeed(), chunkX, chunkZ)) {
+				if (placement.shouldGenerate(BigGlobeChunkGenerator.this, this.noiseConfig, this.noiseConfig.getLegacyWorldSeed(), chunkX, chunkZ)) {
 					return true;
 				}
 			}
@@ -757,29 +772,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos blockPos) {
-		WorldColumn column = this.column(blockPos.getX(), blockPos.getZ());
-		PlayerEntity player = getClientPlayer();
-		CustomDisplayContext context = player == null ? null : new CustomDisplayContext(player, column, blockPos.getY());
-		if (this.displayedColumnValues == null) {
-			this.displayedColumnValues = (
-				ColumnValue
-				.REGISTRY
-				.stream()
-				.filter(value -> value.accepts(column))
-				.sorted(Comparator.comparing(ColumnValue::getName))
-				.toArray(ColumnValue.ARRAY_FACTORY)
-			);
-		}
-		text.add("Tip: use /bigglobe:filterF3 to filter the following information:");
-		for (ColumnValue<?> value : this.displayedColumnValues) {
-			text.add(
-				value == null
-				? ""
-				: context != null
-				? value.getName() + ": " + value.getDisplayText(context)
-				: value.getName() + ": " + CustomDisplayContext.format(value.getValue(column, blockPos.getY()))
-			);
-		}
+		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 
 	public static @Nullable PlayerEntity getClientPlayer() {
@@ -792,5 +785,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator {
 	@Environment(EnvType.CLIENT)
 	public static PlayerEntity getClientPlayer0() {
 		return MinecraftClient.getInstance().player;
+	}
+
+	@Override
+	public ColumnValue<?>[] bigglobe_getDisplayedColumnValues() {
+		return this.displayedColumnValues;
+	}
+
+	@Override
+	public void bigglobe_setDisplayedColumnValues(ColumnValue<?>[] displayedColumnValues) {
+		this.displayedColumnValues = displayedColumnValues;
 	}
 }

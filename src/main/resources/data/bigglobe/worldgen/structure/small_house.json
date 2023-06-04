@@ -1,0 +1,45 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/small_house",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"int y = ceilInt(max_y(x, z))",
+				"WoodPalette woodPalette = WoodPalette.randomForBiome(getBiome(x, y, z))",
+				"if (woodPalette == null: return())",
+
+				"pieces.add(",
+					"ScriptStructurePiece.new(",
+						"x - 4, y, z - 4, x + 4, y + 7, z + 4,",
+						"'bigglobe:small_house',",
+						"nbtCompound(",
+							"palette: woodPalette.id",
+						")",
+					")",
+					".withRotation(random.nextInt(4) * 90)",
+				")",
+
+				"random.if (",
+					"double angle = random.nextDouble(tau)",
+					"double radius = random.nextDouble(12.0L, 20.0L)",
+					"int farmX = roundInt(cos(angle) * radius + x)",
+					"int farmZ = roundInt(sin(angle) * radius + z)",
+					"int sizeX = random.nextInt(3, 6)",
+					"int sizeZ = random.nextInt(3, 6)",
+					"pieces.add(",
+						"ScriptStructurePiece.new(",
+							"farmX - sizeX, y - 1, farmZ - sizeZ, farmX + sizeX, y + 1, farmZ + sizeZ,",
+							"'bigglobe:farm',",
+							"nbtCompound(",
+								"palette: woodPalette.id",
+							")",
+						")",
+						".withRotation(random.if (90) else (0))",
+					")",
+				")"
+			]
+		}
+	}
+}

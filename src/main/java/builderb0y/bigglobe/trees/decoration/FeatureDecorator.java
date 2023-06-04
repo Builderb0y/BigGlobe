@@ -2,6 +2,7 @@ package builderb0y.bigglobe.trees.decoration;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -10,6 +11,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.FeatureColumns;
 import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.trees.TreeGenerator;
 
 public class FeatureDecorator implements BlockDecorator {
@@ -39,7 +41,8 @@ public class FeatureDecorator implements BlockDecorator {
 			}
 		}
 		else {
-			BigGlobeMod.LOGGER.warn("No feature found for ID " + this.feature.getValue() + "; used by tree with ID: " + generator.palette.getID());
+			Identifier id = generator.worldQueue.getRegistryManager().get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getId(generator.palette);
+			BigGlobeMod.LOGGER.warn("No feature found for ID " + this.feature.getValue() + "; used by tree with ID: " + id);
 		}
 	}
 }

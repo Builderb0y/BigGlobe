@@ -1,0 +1,28 @@
+{
+	"type": "bigglobe:underground_pocket",
+	"value": {
+		"biomes": "#bigglobe:has_structure/underground_pocket/water",
+		"spawn_overrides": {
+			"monster": {
+				"bounding_box": "full",
+				"spawns": [
+					{ "type": "minecraft:zombie",          "weight":  95, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:zombie_villager", "weight":   5, "minCount": 1, "maxCount": 2 },
+					{ "type": "minecraft:skeleton",        "weight": 100, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:spider",          "weight": 100, "minCount": 1, "maxCount": 4 },
+					{ "type": "minecraft:creeper",         "weight": 100, "minCount": 2, "maxCount": 4 },
+					{ "type": "minecraft:slime",           "weight": 100, "minCount": 1, "maxCount": 2 },
+					{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
+					{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
+				]
+			}
+		},
+		"step": "underground_structures",
+		"radius":      { "type": "uniform", "min": 32.0,   "max": 96.0   },
+		"noise_decay": { "type": "uniform", "min":  0.375, "max":  0.625 },
+		"fluid": {
+			"level": { "type": "uniform", "min":  0.25, "max":  0.5 },
+			"state": "minecraft:water[level=0]"
+		}
+	}
+}

@@ -24,9 +24,9 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.Permuter;
 
 /**
-a list which can return random elements via getRandomElement().
+a list which can return random elements via {@link #getRandomElement(RandomGenerator)}.
 additionally, all elements have a "weight" which can make
-them more or less likely to be returned by getRandomElement().
+them more or less likely to be returned by {@link #getRandomElement(RandomGenerator)}.
 all sub-classes are expected to document their policy
 for how elements or weights may be added or modified.
 some modification methods may throw an
@@ -61,7 +61,7 @@ public interface IRandomList<E> extends List<E> {
 
 	public default E getRandomElement(RandomGenerator random) {
 		if (this.isEmpty()) throw new NoSuchElementException();
-		E choice = null;
+		E choice = this.get(this.size() - 1);
 		double totalWeight = 0.0D;
 		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
 			E element = iterator.next();
@@ -70,12 +70,13 @@ public interface IRandomList<E> extends List<E> {
 				choice = element;
 			}
 		}
+		if (!(totalWeight > 0.0D)) choice = null;
 		return choice;
 	}
 
 	public default E getRandomElement(long seed) {
 		if (this.isEmpty()) throw new NoSuchElementException();
-		E choice = null;
+		E choice = this.get(this.size() - 1);
 		double totalWeight = 0.0D;
 		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
 			E element = iterator.next();
@@ -84,6 +85,7 @@ public interface IRandomList<E> extends List<E> {
 				choice = element;
 			}
 		}
+		if (!(totalWeight > 0.0D)) choice = null;
 		return choice;
 	}
 
@@ -200,7 +202,7 @@ public interface IRandomList<E> extends List<E> {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of RandomAccess
 			//by not instantiating a WeightedIterator.
-			E choice = null;
+			E choice = this.get(this.size() - 1);
 			double totalWeight = 0.0D;
 			for (int index = 0, size = this.size(); index < size; index++) {
 				double weight = this.getWeight(index);
@@ -208,6 +210,7 @@ public interface IRandomList<E> extends List<E> {
 					choice = this.get(index);
 				}
 			}
+			if (!(totalWeight > 0.0D)) choice = null;
 			return choice;
 		}
 
@@ -216,7 +219,7 @@ public interface IRandomList<E> extends List<E> {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of RandomAccess
 			//by not instantiating a WeightedIterator.
-			E choice = null;
+			E choice = this.get(this.size() - 1);
 			double totalWeight = 0.0D;
 			for (int index = 0, size = this.size(); index < size; index++) {
 				double weight = this.getWeight(index);
@@ -224,6 +227,7 @@ public interface IRandomList<E> extends List<E> {
 					choice = this.get(index);
 				}
 			}
+			if (!(totalWeight > 0.0D)) choice = null;
 			return choice;
 		}
 
@@ -303,6 +307,7 @@ public interface IRandomList<E> extends List<E> {
 						return element;
 					}
 				}
+				return this.get(this.size() - 1);
 			}
 			return null;
 		}
@@ -323,6 +328,7 @@ public interface IRandomList<E> extends List<E> {
 						return element;
 					}
 				}
+				return this.get(this.size() - 1);
 			}
 			return null;
 		}
@@ -349,6 +355,7 @@ public interface IRandomList<E> extends List<E> {
 						return this.get(index);
 					}
 				}
+				return this.get(this.size() - 1);
 			}
 			return null;
 		}
@@ -367,6 +374,7 @@ public interface IRandomList<E> extends List<E> {
 						return this.get(index);
 					}
 				}
+				return this.get(this.size() - 1);
 			}
 			return null;
 		}

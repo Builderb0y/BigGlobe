@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import builderb0y.bigglobe.columns.ColumnValue;
+import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -25,17 +28,16 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		Parser parser = new Parser(script, processedInputs);
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
-		.addEnvironment(MathScriptEnvironment.INSTANCE);
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(
+			ColumnScriptEnvironment.createFixedXZVariableY(
+				ColumnValue.REGISTRY,
+				load("column", 0, type(WorldColumn.class)),
+				null
+			)
+			.mutable
+		);
 		this.delegate = parser.parse();
-	}
-
-	public static ScriptedGrid2D createUnchecked(String script, Map<String, Grid2D> inputs, double min, double max) {
-		try {
-			return new ScriptedGrid2D(script, inputs, min, max);
-		}
-		catch (ScriptParsingException exception) {
-			throw new RuntimeException(exception);
-		}
 	}
 
 	@Override
@@ -90,6 +92,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
 				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
 				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
 
 				//if (sampleCount <= 0) return;
 				ifThen(
@@ -101,6 +104,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					return_(noop)
 				)
 				.emitBytecode(getBulk);
+				//get column.
+				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//fill samples with firstInput.
 				invokeInterface(
 					getField(
@@ -146,8 +151,9 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types("II" + "D".repeat(this.inputs.size()))
+									types(WorldColumn.class, 'I', 'I', 'D', this.inputs.size())
 								),
+								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
 								maybeAdd(this, y, index, 1, methodDimension),
 								arrayLoad(load(samples), load(index))
@@ -181,6 +187,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
 				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
 				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
 				VarInfo[] scratches = new VarInfo[this.inputs.size()];
@@ -193,6 +200,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					return_(noop)
 				)
 				.emitBytecode(getBulk);
+				//get column.
+				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//allocate scratch arrays.
 				for (Input input : this.inputs.values()) {
 					store(
@@ -254,10 +263,11 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types("II" + "D".repeat(this.inputs.size()))
+									types(WorldColumn.class, 'I', 'I', 'D', this.inputs.size())
 								),
 								Stream.concat(
 									Stream.of(
+										load(column),
 										maybeAdd(this, x, index, 0, methodDimension),
 										maybeAdd(this, y, index, 1, methodDimension)
 									),

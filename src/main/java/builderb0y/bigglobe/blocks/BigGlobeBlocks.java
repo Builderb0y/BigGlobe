@@ -21,7 +21,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.HoeItem;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.SignType;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
@@ -29,18 +28,21 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blockEntities.MutableBlockEntityType;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
+import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
+import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
 import builderb0y.bigglobe.trees.SaplingGrowHandler;
 
 public class BigGlobeBlocks {
 
 	static { BigGlobeMod.LOGGER.debug("Registering blocks..."); }
 
-	public static final SignType CHARRED_SIGN_TYPE = SignTypeRegistry.registerSignType(BigGlobeMod.modID("charred"));
+	public static final SignType CHARRED_WOOD_TYPE = SignTypeRegistry.registerSignType(BigGlobeMod.modID("charred"));
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = register(
 		"overgrown_sand",
@@ -90,6 +92,46 @@ public class BigGlobeBlocks {
 			.breakInstantly()
 			.sounds(BlockSoundGroup.GRASS)
 			.offsetType(OffsetType.XZ)
+		)
+	);
+	/**
+	these blocks are referenced very early during *minecraft's* initialization,
+	before mods are loaded, via mixin.
+	see {@link Items_PlaceableSticks} and {@link Items_PlaceableFlint}.
+	bad things happen when BigGlobeBlocks registers its blocks too early.
+	so instead we have a separate class to hold these blocks
+	which doesn't register them on class initialization.
+	registering the blocks is done in {@link #init()}.
+	*/
+	public static class VanillaBlocks {
+
+		public static final SurfaceMaterialDecorationBlock
+			STICK = new SurfaceMaterialDecorationBlock(
+				AbstractBlock.Settings.of(Material.WOOD)
+				.breakInstantly()
+				.noCollision()
+				.offsetType(OffsetType.XZ)
+				.sounds(BlockSoundGroup.WOOD),
+				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
+			),
+			FLINT = new SurfaceMaterialDecorationBlock(
+				AbstractBlock.Settings.of(Material.STONE, MapColor.IRON_GRAY)
+				.breakInstantly()
+				.noCollision()
+				.offsetType(OffsetType.XZ)
+				.sounds(BlockSoundGroup.STONE),
+				VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D)
+			);
+	}
+	public static final SurfaceMaterialDecorationBlock ROCK = register(
+		"rock",
+		new SurfaceMaterialDecorationBlock(
+			AbstractBlock.Settings.of(Material.STONE)
+				.breakInstantly()
+				.noCollision()
+				.offsetType(OffsetType.XZ)
+				.sounds(BlockSoundGroup.STONE),
+				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
 		)
 	);
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
@@ -161,6 +203,8 @@ public class BigGlobeBlocks {
 			.dropsNothing()
 		)
 	);
+
+	//////////////////////////////// nether ////////////////////////////////
 
 	public static final AshenNetherrackBlock ASHEN_NETHERRACK = register(
 		"ashen_netherrack",
@@ -277,7 +321,7 @@ public class BigGlobeBlocks {
 		new CharredSaplingBlock(
 			new SaplingGenerator() {
 
-				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, BigGlobeMod.modID("charred_tree_vanilla"));
+				public static final RegistryKey<ConfiguredFeature<?, ?>> TREE_KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_KEY, BigGlobeMod.modID("charred_tree_vanilla"));
 
 				/**
 				note: the ConfiguredFeature returned by this method will be
@@ -285,9 +329,8 @@ public class BigGlobeBlocks {
 				*/
 				@Nullable
 				@Override
-				public RegistryEntry<? extends ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
-					MinecraftServer server = BigGlobeMod.currentServer;
-					return server == null ? null : server.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).entryOf(KEY);
+				public RegistryEntry<ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
+					return BigGlobeMod.getCurrentServer().getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntry(TREE_KEY).orElse(null);
 				}
 			},
 			AbstractBlock.Settings.of(Material.PLANT)
@@ -351,7 +394,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.strength(1.0F)
 			.sounds(BlockSoundGroup.WOOD),
-			CHARRED_SIGN_TYPE
+			CHARRED_WOOD_TYPE
 		)
 	);
 	public static final WallSignBlock CHARRED_WALL_SIGN = register(
@@ -363,7 +406,7 @@ public class BigGlobeBlocks {
 			.strength(1.0F)
 			.sounds(BlockSoundGroup.WOOD)
 			.dropsLike(CHARRED_SIGN),
-			CHARRED_SIGN_TYPE
+			CHARRED_WOOD_TYPE
 		)
 	);
 	public static final PressurePlateBlock CHARRED_PRESSURE_PLATE = register(
@@ -371,10 +414,10 @@ public class BigGlobeBlocks {
 		new PressurePlateBlock(
 			PressurePlateBlock.ActivationRule.EVERYTHING,
 			AbstractBlock.Settings.of(Material.WOOD, MapColor.BLACK)
-				.noCollision()
-				.nonOpaque()
-				.strength(0.5F)
-				.sounds(BlockSoundGroup.WOOD)
+			.noCollision()
+			.nonOpaque()
+			.strength(0.5F)
+			.sounds(BlockSoundGroup.WOOD)
 		) {
 
 			@Override
@@ -402,7 +445,7 @@ public class BigGlobeBlocks {
 		"potted_charred_sapling",
 		newPottedPlant(CHARRED_SAPLING)
 	);
-	public static final AbstractButtonBlock CHARRED_BUTTON = register(
+	public static final WoodenButtonBlock CHARRED_BUTTON = register(
 		"charred_button",
 		new WoodenButtonBlock(
 			AbstractBlock.Settings.of(Material.WOOD)
@@ -522,6 +565,8 @@ public class BigGlobeBlocks {
 	}
 
 	public static void init() {
+		register("stick", VanillaBlocks.STICK);
+		register("flint", VanillaBlocks.FLINT);
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::canTillFarmland, Blocks.FARMLAND.getDefaultState());
 		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
 		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);

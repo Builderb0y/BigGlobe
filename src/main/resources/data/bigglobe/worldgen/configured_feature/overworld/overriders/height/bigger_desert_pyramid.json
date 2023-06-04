@@ -5,8 +5,8 @@
 			"for (StructureStart start in structureStarts:",
 				"if (start.structure.type == StructureType('bigglobe:bigger_desert_pyramid'):",
 					"double distance = distanceToSquare(start)",
-					"double mixLevel = smooth(1.0 - distance * 0.0625)",
-					"terrainY = mixLinear(terrainY, start.minY + 16.5, mixLevel)",
+					"double mixLevel = smooth(1.0L - distance * 0.0625L)",
+					"terrainY = mixLinear(terrainY, start.minY + 16.5L, mixLevel)",
 				")",
 			")"
 		]

@@ -1,12 +1,18 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.*;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
@@ -18,6 +24,18 @@ import builderb0y.bigglobe.trees.TreeSpecialCases;
 import builderb0y.bigglobe.util.WorldUtil;
 
 public class SerializableBlockQueue extends BlockQueue {
+
+	/**
+	used for testing serialization logic;
+	enabling this flag will serialize and deserialize every
+	queue before storing it in a delayed generation block.
+	that way, if there's any issues with it, they will
+	become immediately obvious, and you don't need to wait
+	for the delayed generation block to unload and reload.
+	*/
+	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
+
+	public @Nullable Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 
 	public int centerX, centerY, centerZ;
 	public int minX, minY, minZ, maxX, maxY, maxZ;
@@ -41,21 +59,35 @@ public class SerializableBlockQueue extends BlockQueue {
 		int x = BlockPos.unpackLongX(pos);
 		int y = BlockPos.unpackLongY(pos);
 		int z = BlockPos.unpackLongZ(pos);
-		//cursed, but pretty, formatting.
-		if (x < this.minX) this.minX = x; else
-		if (x > this.maxX) this.maxX = x;
-		if (y < this.minY) this.minY = y; else
-		if (y > this.maxY) this.maxY = y;
-		if (z < this.minZ) this.minZ = z; else
-		if (z > this.maxZ) this.maxZ = z;
+		this.minX = Math.min(this.minX, x);
+		this.minY = Math.min(this.minY, y);
+		this.minZ = Math.min(this.minZ, z);
+		this.maxX = Math.max(this.maxX, x);
+		this.maxY = Math.max(this.maxY, y);
+		this.maxZ = Math.max(this.maxZ, z);
+	}
+
+	@Override
+	public void queueReplacement(long pos, BlockState from, BlockState to) {
+		super.queueReplacement(pos, from, to);
+		if (this.queuedReplacements != null) {
+			this.queuedReplacements.put(pos, from);
+		}
 	}
 
 	@Override
 	public void placeQueuedBlocks(WorldAccess world) {
 		BlockPos pos = new BlockPos(this.centerX, this.centerY, this.centerZ);
+		BlockState oldState = world.getBlockState(pos);
+		BlockEntity oldBlockEntity = world.getBlockEntity(pos);
+		NbtCompound oldBlockData = oldBlockEntity == null ? null : oldBlockEntity.createNbt();
 		WorldUtil.setBlockState(world, pos, BlockStates.DELAYED_GENERATION, this.flags);
 		DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, DelayedGenerationBlockEntity.class);
-		if (blockEntity != null) blockEntity.blockQueue = this;
+		if (blockEntity != null) {
+			blockEntity.blockQueue = DEBUG_ALWAYS_SERIALIZE ? read(this.toNBT()) : this;
+			blockEntity.oldState = oldState;
+			blockEntity.oldBlockData = oldBlockData;
+		}
 	}
 
 	public void actuallyPlaceQueuedBlocks(WorldAccess world) {
@@ -65,15 +97,26 @@ public class SerializableBlockQueue extends BlockQueue {
 	public boolean hasSpace(WorldAccess world) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		for (LongIterator iterator = this.queuedBlocks.keySet().iterator(); iterator.hasNext();) {
-			BlockState state = world.getBlockState(pos.set(iterator.nextLong()));
-			if (state.getMaterial().isReplaceable() || state.getMaterial() == Material.PLANT || TreeSpecialCases.getGroundReplacements().containsKey(state)) {
-				continue;
-			}
-			else {
+			long longPos = iterator.nextLong();
+			BlockState state = world.getBlockState(pos.set(longPos));
+			if (!this.canReplace(longPos, state)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public boolean canReplace(long pos, BlockState state) {
+		return canImplicitlyReplace(state) || (
+			this.queuedReplacements != null
+			? this.queuedReplacements.get(pos) == state
+			: TreeSpecialCases.getGroundReplacements().containsKey(state)
+		);
+	}
+
+	public static boolean canImplicitlyReplace(BlockState state) {
+		Material material = state.getMaterial();
+		return material.isReplaceable() || material == Material.PLANT;
 	}
 
 	public static SerializableBlockQueue read(NbtCompound nbt) {
@@ -88,18 +131,34 @@ public class SerializableBlockQueue extends BlockQueue {
 		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
 			palette.add(NbtHelper.toBlockState(paletteNBT.getCompound(index)));
 		}
-		byte[] blocksNBT = nbt.getByteArray("blocks");
+		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
+		if (nbt.contains("replacements", NbtElement.BYTE_ARRAY_TYPE)) {
+			readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
+		}
+		else {
+			queue.queuedReplacements = null;
+		}
+		return queue;
+	}
+
+	public static void readBlocks(int centerX, int centerY, int centerZ, ObjectList<BlockState> palette, NbtCompound nbt, String key, LongPosStateConsumer adder) {
+		byte[] blocksNBT = nbt.getByteArray(key);
 		if ((blocksNBT.length & 3) != 0) {
-			throw new IllegalArgumentException("blocks NBT wrong length: " + blocksNBT.length);
+			throw new IllegalArgumentException(key + " NBT wrong length: " + blocksNBT.length);
 		}
 		for (int index = 0, length = blocksNBT.length; index < length;) {
 			int x = centerX + blocksNBT[index++];
 			int y = centerY + blocksNBT[index++];
 			int z = centerZ + blocksNBT[index++];
 			BlockState state = palette.get(blocksNBT[index++]);
-			queue.queueBlock(BlockPos.asLong(x, y, z), state);
+			adder.accept(BlockPos.asLong(x, y, z), state);
 		}
-		return queue;
+	}
+
+	@FunctionalInterface
+	public static interface LongPosStateConsumer {
+
+		public abstract void accept(long pos, BlockState state);
 	}
 
 	public NbtCompound toNBT() {
@@ -108,15 +167,30 @@ public class SerializableBlockQueue extends BlockQueue {
 		nbt.putInt("flags", this.flags);
 		Object2ByteMap<BlockState> palette = new Object2ByteOpenHashMap<>(16);
 		NbtList paletteNBT = new NbtList();
-		for (BlockState state : this.queuedBlocks.values()) {
+		this.addToPalette(palette, paletteNBT, this.queuedBlocks);
+		if (this.queuedReplacements != null) {
+			this.addToPalette(palette, paletteNBT, this.queuedReplacements);
+		}
+		nbt.put("palette", paletteNBT);
+		nbt.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
+		if (this.queuedReplacements != null) {
+			nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
+		}
+		return nbt;
+	}
+
+	public void addToPalette(Object2ByteMap<BlockState> palette, NbtList paletteNBT, Long2ObjectMap<BlockState> blocks) {
+		for (BlockState state : blocks.values()) {
 			if (!palette.containsKey(state)) {
 				palette.put(state, BigGlobeMath.toUnsignedByteExact(palette.size()));
 				paletteNBT.add(NbtHelper.fromBlockState(state));
 			}
 		}
-		nbt.put("palette", paletteNBT);
-		ByteArrayList blocksNBT = new ByteArrayList(this.queuedBlocks.size() << 2);
-		for (ObjectBidirectionalIterator<Long2ObjectMap.Entry<BlockState>> iterator = this.queuedBlocks.long2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
+	}
+
+	public NbtByteArray writeBlocks(Object2ByteMap<BlockState> palette, Long2ObjectMap<BlockState> blocks) {
+		ByteArrayList blocksNBT = new ByteArrayList(blocks.size() << 2);
+		for (ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = Long2ObjectMaps.fastIterator(blocks); iterator.hasNext();) {
 			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
 			byte x = BigGlobeMath.toByteExact(BlockPos.unpackLongX(entry.getLongKey()) - this.centerX);
 			byte y = BigGlobeMath.toByteExact(BlockPos.unpackLongY(entry.getLongKey()) - this.centerY);
@@ -128,7 +202,15 @@ public class SerializableBlockQueue extends BlockQueue {
 			blocksNBT.add(id);
 		}
 		assert blocksNBT.size() == blocksNBT.elements().length;
-		nbt.put("blocks", new NbtByteArray(blocksNBT.elements()));
-		return nbt;
+		return new NbtByteArray(blocksNBT.elements());
+	}
+
+	@Override
+	public Object[] intellij_childrenArray() {
+		return new Object[] {
+			Map.entry("flags", this.flags),
+			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks)),
+			Map.entry("queuedReplacements", intellij_decodePositions(this.queuedReplacements))
+		};
 	}
 }

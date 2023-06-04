@@ -5,6 +5,7 @@ import java.util.concurrent.RecursiveAction;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -36,7 +37,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -96,7 +97,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource crookedness
 	) {}
 
-	public static void nextUnitVector(HaltonIterator2D iterator, Dvec3 vector) {
+	public static void nextUnitVector(HaltonIterator2D iterator, Vector3d vector) {
 		iterator.next();
 		double x = iterator.x;
 		double y = iterator.y * BigGlobeMath.TAU;
@@ -107,14 +108,18 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		double radius = this.radius.get(context.random().nextLong());
-		Dvec3 center = randomPosInChunk(context, radius, radius);
+		Vector3d center = randomPosInChunk(context, radius, radius);
 		if (center == null) return Optional.empty();
 
 		long worldSeed = context.seed();
 		long seed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(center),
+				new BlockPos(
+					BigGlobeMath.floorI(center.x),
+					BigGlobeMath.floorI(center.y),
+					BigGlobeMath.floorI(center.z)
+				),
 				(StructurePiecesCollector collector) -> {
 					MainPiece mainPiece = new MainPiece(
 						BigGlobeStructures.GEODE_PIECE_TYPE,
@@ -133,10 +138,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					HaltonIterator2D iterator = new HaltonIterator2D(-1.0D, 0.0D, 1.0D, 1.0D, permuter.nextInt() & 0xFFFF);
 					BlocksConfig lastConfig = this.blocks[this.blocks.length - 1];
 					double secondLastThreshold = this.blocks.length > 1 ? this.blocks[this.blocks.length - 2].threshold : 0.0D;
-					Dvec3
-						unit   = new Dvec3(),
-						point1 = new Dvec3(),
-						point2 = new Dvec3();
+					Vector3d
+						unit   = new Vector3d(),
+						point1 = new Vector3d(),
+						point2 = new Vector3d();
 					int spikeCount = (int)(radius * radius * this.spikes.commonness.get(permuter));
 					spikeLoop:
 					for (int spikeIndex = 0; spikeIndex < spikeCount; spikeIndex++) {
@@ -145,7 +150,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							double minRadius = 0.0D, maxRadius = radius;
 							for (int refine = 0; refine < 8; refine++) {
 								double midRadius = (minRadius + maxRadius) * 0.5D;
-								point1.set(unit).multiply(midRadius).add(center);
+								point1.set(unit).mul(midRadius).add(center);
 								double noise = mainPiece.getNoise(
 									BigGlobeMath.floorI(point1.x),
 									BigGlobeMath.floorI(point1.y),
@@ -166,9 +171,9 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						}
 						point2
 						.set(unit)
-						.multiply(-this.spikes.length.get(permuter))
+						.mul(-this.spikes.length.get(permuter))
 						.add(point1)
-						.add(unit.setInSphere(permuter, this.spikes.crookedness.get(permuter)));
+						.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(permuter)));
 						collector.addPiece(
 							new SpikePiece(
 								BigGlobeStructures.GEODE_SPIKE_PIECE_TYPE,
@@ -575,9 +580,9 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			int maxY = Math.min(this.boundingBox.getMaxY(), context.chunk.getTopY() - 1);
 			int maxZ = chunkPos.getEndZ();
 
-			Dvec3 spikeOffset = new Dvec3(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);
-			Dvec3 relativePos = new Dvec3();
-			Dvec3 nearest     = new Dvec3();
+			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);
+			Vector3d relativePos = new Vector3d();
+			Vector3d nearest     = new Vector3d();
 			BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 			for (int x = minX; x <= maxX; x++) {
 				for (int z = minZ; z <= maxZ; z++) {
@@ -586,7 +591,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						double dot = spikeOffset.dot(relativePos);
 						double fraction = dot / spikeOffset.lengthSquared();
 						fraction = MathHelper.clamp(fraction, 0.0D, 1.0D);
-						nearest.set(spikeOffset).multiply(fraction);
+						nearest.set(spikeOffset).mul(fraction);
 						double distanceSquared = relativePos.distanceSquared(nearest);
 						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
 						if (distanceSquared < thresholdSquared && context.chunk.getBlockState(mutablePos.set(x, y, z)).isAir()) {

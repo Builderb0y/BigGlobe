@@ -39,7 +39,7 @@ public abstract class Seed {
 		if (number != null) return new NumberSeed(number.longValue());
 		String string = context.tryAsString();
 		if (string != null) return new StringSeed(string);
-		throw new DecodeException(context.pathToStringBuilder().append(" must be empty, a number, or a string: ").append(context.input).toString());
+		throw new DecodeException(context.pathToStringBuilder().append(" must be empty, a number, or a string. Was: ").append(context.input).toString());
 	}
 
 	public static long computeSeedFromPath(DecodeContext<?> context) {

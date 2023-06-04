@@ -1,0 +1,5 @@
+{
+	"parent": "bigglobe:beach",
+	"restrictions": { "type": "range", "property": "max_y", "max": 0.0 },
+	"biome": "bigglobe:shallow_ocean"
+}

@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"(random.nextBoolean(1.0L / 16.0L) && getBlockState(originX, originY, originZ).isReplaceable()).if (",
+				"placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]')",
+				"return(true)",
+			")"
+		]
+	}
+}

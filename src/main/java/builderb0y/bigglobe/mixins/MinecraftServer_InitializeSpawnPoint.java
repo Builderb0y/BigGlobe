@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.MiscConfiguredFeatures;
 import net.minecraft.world.level.ServerWorldProperties;
 
@@ -26,7 +27,8 @@ public class MinecraftServer_InitializeSpawnPoint {
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				MiscConfiguredFeatures.BONUS_CHEST.value().generate(
+				ConfiguredFeature<?, ?> feature = MiscConfiguredFeatures.BONUS_CHEST.value();
+				if (feature != null) feature.generate(
 					world,
 					world.getChunkManager().getChunkGenerator(),
 					world.random,

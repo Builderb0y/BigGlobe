@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"template": "bigglobe:magma_on_lava",
+		"inputs": {
+			"PLACE": "'minecraft:magma_block'",
+			"REPLACE": "'minecraft:lava[level=0]'",
+			"CHANCE": "1.0L / 64.0L",
+			"COUNT": "int(exp2(random.nextDouble(6.0L)))"
+		}
+	}
+}

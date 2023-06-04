@@ -2,22 +2,19 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if(0.125 * `overworld/normalized_cave_surface_depth`:",
-				"int height = 0",
-				"while (height < 8 && getBlockState(originX, originY + height, originZ).isReplaceable():",
-					"++height",
-				")",
-				"if (height == 0: return(false))",
-				"height = random.nextInt(0, height)",
-				"String facing = random.switch('north', 'south', 'east', 'west')",
-				"BlockState bottomState = BlockState('minecraft:big_dripleaf_stem[facing=north,waterlogged=false]').with('facing', facing)",
-				"BlockState topState = BlockState('minecraft:big_dripleaf[facing=north,waterlogged=false,tilt=none]').with('facing', facing)",
-				"for (int y = originY, height >= 0, ++y --height:",
-					"setBlockState(originX, y, originZ, height == 0 ? topState : bottomState)",
-				")",
-				"return(true)",
+			"int height = 0",
+			"while (height < 8 && getBlockState(originX, originY + height, originZ).isReplaceable():",
+				"++height",
 			")",
-			"return(false)"
+			"if (height == 0: return(false))",
+			"height = random.nextInt(0, height)",
+			"String facing = random.switch('north', 'south', 'east', 'west')",
+			"BlockState bottomState = BlockState('minecraft:big_dripleaf_stem', facing: facing, waterlogged: false)",
+			"BlockState topState = BlockState('minecraft:big_dripleaf', facing: facing, waterlogged: false, tilt: 'none')",
+			"for (int y = originY, height >= 0, ++y,, --height:",
+				"setBlockState(originX, y, originZ, height == 0 ? topState : bottomState)",
+			")",
+			"return(true)"
 		]
 	}
 }

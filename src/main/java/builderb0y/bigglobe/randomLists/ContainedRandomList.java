@@ -1,18 +1,16 @@
 package builderb0y.bigglobe.randomLists;
 
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
+/**
+an extension of {@link ComputedRandomList} which enforces a standardized way of
+getting the weight of each element, via the {@link IWeightedListElement} interface.
+this implementation of {@link IRandomList} will only accept elements which implement this interface.
+*/
 public class ContainedRandomList<E extends IWeightedListElement> extends ComputedRandomList<E> {
 
 	public ContainedRandomList() {}
 
 	public ContainedRandomList(int initialCapacity) {
 		super(initialCapacity);
-	}
-
-	public static <C extends IWeightedListElement> Collector<C, ?, ContainedRandomList<C>> collector() {
-		return Collectors.toCollection(ContainedRandomList::new);
 	}
 
 	@Override

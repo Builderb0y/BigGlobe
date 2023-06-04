@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"(random.nextBoolean(0.25) && getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:grass_block[snowy=false]')).if (",
+				"setBlockState(originX, originY - 1, originZ,",
+					"random.if (0.25: 'minecraft:podzol[snowy=false]')",
+					"else ('bigglobe:overgrown_podzol[snowy=false]')",
+				")",
+			")"
+		]
+	}
+}

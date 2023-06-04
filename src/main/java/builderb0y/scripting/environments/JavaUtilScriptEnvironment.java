@@ -1,12 +1,20 @@
 package builderb0y.scripting.environments;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 
+import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PostUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PreUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.VoidUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -15,6 +23,14 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class JavaUtilScriptEnvironment {
+
+	public static final MethodInfo
+		MAP_GET       = MethodInfo.getMethod(Map      .class, "get"),
+		MAP_PUT       = MethodInfo.getMethod(Map      .class, "put"),
+		MAP_ENTRY_GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
+		MAP_ENTRY_SET = MethodInfo.getMethod(Map.Entry.class, "setValue"),
+		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
+		LIST_SET      = MethodInfo.getMethod(List     .class, "set");
 
 	public static final MutableScriptEnvironment ALL = (
 		new MutableScriptEnvironment()
@@ -28,7 +44,7 @@ public class JavaUtilScriptEnvironment {
 		.addFieldInvokes(Map.class, "size", "isEmpty")
 		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(new MapGetInsnTree(receiver, key), key != arguments[0]);
+			return new CastResult(new CommonGetterInsnTree(receiver, MAP_GET, key, MAP_PUT, "Map"), key != arguments[0]);
 		})
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
@@ -78,7 +94,7 @@ public class JavaUtilScriptEnvironment {
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
 		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(new ListGetInsnTree(receiver, index), index != arguments[0]);
+			return new CastResult(new CommonGetterInsnTree(receiver, LIST_GET, index, LIST_SET, "List"), index != arguments[0]);
 		})
 		.addType("LinkedList", LinkedList.class)
 		.addQualifiedMultiConstructor(LinkedList.class)
@@ -93,62 +109,242 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(ArrayDeque.class)
 		.addType("PriorityQueue", PriorityQueue.class)
 		.addQualifiedMultiConstructor(PriorityQueue.class)
+		.addType("RandomList", IRandomList.class)
+		.addMethodMultiInvokes(IRandomList.class, "getWeight", "setWeight", "add", "set", "iterator", "listIterator", "subList")
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, RandomGenerator.class)
+		.addType("RandomArrayList", RandomList.class)
+		.addQualifiedMultiConstructor(RandomList.class)
 	);
 
-	public static class MapGetInsnTree extends InvokeInsnTree {
+	public static class CommonGetterInsnTree extends InvokeInsnTree {
 
-		public static final MethodInfo
-			GET = MethodInfo.getMethod(Map.class, "get"),
-			PUT = MethodInfo.getMethod(Map.class, "put");
+		public MethodInfo replacer;
+		public String type;
 
-		public MapGetInsnTree(InsnTree map, InsnTree key) {
-			super(INVOKEINTERFACE, map, GET, key);
+		public CommonGetterInsnTree(
+			InsnTree receiver,
+			MethodInfo getter,
+			InsnTree key,
+			MethodInfo replacer,
+			String type
+		) {
+			//hacky, but InvokeInsnTree doesn't actually verify that the getter isn't static.
+			super(getter.isStatic() ? INVOKESTATIC : getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, getter, key);
+			this.replacer = replacer;
+			this.type = type;
 		}
 
 		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+		public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 			if (op == UpdateOp.ASSIGN) {
-				return invokeInterface(this.receiver, PUT, this.args[0], rightValue.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW)).cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
+				InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
+				return switch (order) {
+					case VOID -> new CommonVoidUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
+					case PRE  -> new  CommonPreUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
+					case POST -> new CommonPostUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
+				};
 			}
-			throw new ScriptParsingException("Updating Map not yet implemented", parser.input);
+			else {
+				throw new ScriptParsingException("Updating " + this.type + " not yet implemented", parser.input);
+			}
 		}
 	}
 
-	public static class ListGetInsnTree extends InvokeInsnTree {
+	public static abstract class CommonUpdateInsnTree implements UpdateInsnTree {
 
-		public static final MethodInfo
-			GET = MethodInfo.getMethod(List.class, "get"),
-			SET = MethodInfo.getMethod(List.class, "set");
+		public InsnTree receiver, key, value;
+		public MethodInfo replacer;
 
-		public ListGetInsnTree(InsnTree list, InsnTree index) {
-			super(INVOKEINTERFACE, list, GET, index);
+		public CommonUpdateInsnTree(
+			InsnTree receiver,
+			InsnTree key,
+			InsnTree value,
+			MethodInfo replacer
+		) {
+			this.receiver = receiver;
+			this.key = key;
+			this.value = value;
+			this.replacer = replacer;
+		}
+	}
+
+	public static class CommonVoidUpdateInsnTree extends CommonUpdateInsnTree implements VoidUpdateInsnTree {
+
+		public CommonVoidUpdateInsnTree(
+			InsnTree receiver,
+			InsnTree key,
+			InsnTree value,
+			MethodInfo replacer
+		) {
+			super(receiver, key, value, replacer);
 		}
 
 		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
-			if (op == UpdateOp.ASSIGN) {
-				return invokeInterface(this.receiver, SET, this.args[0], rightValue.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW)).cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
-			}
-			throw new ScriptParsingException("Updating List not yet implemented", parser.input);
+		public void emitBytecode(MethodCompileContext method) {
+			this.receiver.emitBytecode(method);
+			this.key.emitBytecode(method);
+			this.value.emitBytecode(method);
+			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			method.node.visitInsn(POP);
+		}
+	}
+
+	public static class CommonPreUpdateInsnTree extends CommonUpdateInsnTree implements PreUpdateInsnTree {
+
+		public CommonPreUpdateInsnTree(
+			InsnTree receiver,
+			InsnTree key,
+			InsnTree value,
+			MethodInfo replacer
+		) {
+			super(receiver, key, value, replacer);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.receiver.emitBytecode(method);
+			this.key.emitBytecode(method);
+			this.value.emitBytecode(method);
+			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.replacer.returnType;
+		}
+
+		@Override
+		public InsnTree asStatement() {
+			return new CommonVoidUpdateInsnTree(this.receiver, this.key, this.value, this.replacer);
+		}
+	}
+
+	public static class CommonPostUpdateInsnTree extends CommonUpdateInsnTree implements PostUpdateInsnTree {
+
+		public CommonPostUpdateInsnTree(
+			InsnTree receiver,
+			InsnTree key,
+			InsnTree value,
+			MethodInfo replacer
+		) {
+			super(receiver, key, value, replacer);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.receiver.emitBytecode(method);
+			this.key.emitBytecode(method);
+			this.value.emitBytecode(method);
+			method.node.visitInsn(DUP_X2);
+			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			method.node.visitInsn(POP);
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.value.getTypeInfo();
+		}
+
+		@Override
+		public InsnTree asStatement() {
+			return new CommonVoidUpdateInsnTree(this.receiver, this.key, this.value, this.replacer);
 		}
 	}
 
 	public static class MapEntryValueInsnTree extends InvokeInsnTree {
 
-		public static final MethodInfo
-			GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
-			SET = MethodInfo.getMethod(Map.Entry.class, "setValue");
-
 		public MapEntryValueInsnTree(InsnTree entry) {
-			super(INVOKEINTERFACE, entry, GET);
+			super(INVOKEINTERFACE, entry, MAP_ENTRY_GET);
 		}
 
 		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+		public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 			if (op == UpdateOp.ASSIGN) {
-				return invokeInterface(this.receiver, SET, rightValue.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW)).cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
+				InsnTree cast = rightValue.cast(parser, MAP_ENTRY_GET.returnType, CastMode.IMPLICIT_THROW);
+				return switch (order) {
+					case VOID -> new MapEntryVoidUpdateInsnTree(this.receiver, cast);
+					case PRE  -> new  MapEntryPreUpdateInsnTree(this.receiver, cast);
+					case POST -> new MapEntryPostUpdateInsnTree(this.receiver, cast);
+				};
 			}
-			throw new ScriptParsingException("Updating MapEntry not yet implemented", parser.input);
+			else {
+				throw new ScriptParsingException("Updating MapEntry not yet implemented", parser.input);
+			}
+		}
+	}
+
+	public static abstract class MapEntryUpdateInsnTree implements UpdateInsnTree {
+
+		public InsnTree entry, value;
+
+		public MapEntryUpdateInsnTree(InsnTree entry, InsnTree value) {
+			this.entry = entry;
+			this.value = value;
+		}
+	}
+
+	public static class MapEntryVoidUpdateInsnTree extends MapEntryUpdateInsnTree implements VoidUpdateInsnTree {
+
+		public MapEntryVoidUpdateInsnTree(InsnTree entry, InsnTree value) {
+			super(entry, value);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.entry.emitBytecode(method);
+			this.value.emitBytecode(method);
+			MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
+			method.node.visitInsn(POP);
+		}
+	}
+
+	public static class MapEntryPreUpdateInsnTree extends MapEntryUpdateInsnTree implements PreUpdateInsnTree {
+
+		public MapEntryPreUpdateInsnTree(InsnTree entry, InsnTree value) {
+			super(entry, value);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.entry.emitBytecode(method);
+			this.value.emitBytecode(method);
+			MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return MAP_ENTRY_SET.returnType;
+		}
+
+		@Override
+		public InsnTree asStatement() {
+			return new MapEntryVoidUpdateInsnTree(this.entry, this.value);
+		}
+	}
+
+	public static class MapEntryPostUpdateInsnTree extends MapEntryUpdateInsnTree implements PostUpdateInsnTree {
+
+		public MapEntryPostUpdateInsnTree(InsnTree entry, InsnTree value) {
+			super(entry, value);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.entry.emitBytecode(method);
+			this.value.emitBytecode(method);
+			method.node.visitInsn(DUP_X1);
+			MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
+			method.node.visitInsn(POP);
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.value.getTypeInfo();
+		}
+
+		@Override
+		public InsnTree asStatement() {
+			return new MapEntryVoidUpdateInsnTree(this.entry, this.value);
 		}
 	}
 }

@@ -1,36 +1,12 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": [
-			"--originY",
-			"boolean lavaAt(int x, int z:",
-				"return(getBlockState(x, originY, z).getBlock() == Block('minecraft:lava'))",
-			")",
-
-			"if (random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ):",
-				"setBlockState(originX, originY, originZ, 'minecraft:magma_block')",
-				"repeat (20:",
-					";attempt to place 20 more magma blocks in a 7x7 area centered around the feature origin.",
-					";each attempt will only be successful if there is lava at that position,",
-					";and at least one non-lava block adjacent to that position.",
-					"int x = originX + random.nextInt(-3, 4)",
-					"int z = originZ + random.nextInt(-3, 4)",
-					"if (",
-						"lavaAt(x, z) && (",
-							"!lavaAt(x, z - 1) ||",
-							"!lavaAt(x, z + 1) ||",
-							"!lavaAt(x - 1, z) ||",
-							"!lavaAt(x + 1, z)",
-						")",
-					":",
-						"setBlockState(x, originY, z, 'minecraft:magma_block')",
-					")",
-				")",
-				"return(true)",
-			")",
-			"else (",
-				"return(false)",
-			")"
-		]
+		"template": "bigglobe:magma_on_lava",
+		"inputs": {
+			"PLACE": "'minecraft:magma_block'",
+			"REPLACE": "'minecraft:lava[level=0]'",
+			"CHANCE": "1.0L / 64.0L",
+			"COUNT": "int(exp2(random.nextDouble(4.0L)))"
+		}
 	}
 }

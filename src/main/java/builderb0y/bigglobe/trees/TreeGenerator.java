@@ -10,6 +10,7 @@ import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
 
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
 import builderb0y.bigglobe.math.Interpolator;
@@ -26,7 +27,8 @@ public class TreeGenerator {
 
 	public final BlockQueueStructureWorldAccess worldQueue;
 	public final Permuter random;
-	public final TreeRegistry.Entry palette;
+	public final WoodPalette palette;
+	public final Map<BlockState, BlockState> groundReplacements;
 	public final TrunkConfig trunk;
 	public final BranchesConfig branches;
 	public final DecoratorConfig decorators;
@@ -36,20 +38,22 @@ public class TreeGenerator {
 		StructureWorldAccess world,
 		BlockQueue queue,
 		Permuter random,
-		TreeRegistry.Entry palette,
+		WoodPalette palette,
+		Map<BlockState, BlockState> groundReplacements,
 		TrunkConfig trunk,
 		BranchesConfig branches,
 		DecoratorConfig decorators,
 		WorldColumn centerColumn
 	) {
-		this.worldQueue     = queue.createWorld(world);
-		this.random         = random;
-		this.palette        = palette;
-		this.trunk          = trunk;
-		this.branches       = branches;
-		this.decorators     = decorators;
-		this.centerColumn   = centerColumn;
-		this.anywhereColumn = centerColumn.blankCopy();
+		this.worldQueue         = queue.createWorld(world);
+		this.random             = random;
+		this.palette            = palette;
+		this.groundReplacements = groundReplacements;
+		this.trunk              = trunk;
+		this.branches           = branches;
+		this.decorators         = decorators;
+		this.centerColumn       = centerColumn;
+		this.anywhereColumn     = centerColumn.blankCopy();
 	}
 
 	public boolean generate() {
@@ -98,8 +102,7 @@ public class TreeGenerator {
 	}
 
 	public boolean generateTrunkLayer(int y) throws NotEnoughSpaceException {
-		Map<BlockState, BlockState> groundReplacements = TreeSpecialCases.getGroundReplacements();
-		BlockState logY = this.palette.getLog(Axis.Y);
+		Map<BlockState, BlockState> groundReplacements = this.groundReplacements;
 		double radius = this.trunk.currentRadius;
 		double radius2 = squareD(radius);
 		double centerX = this.trunk.currentX;
@@ -116,22 +119,29 @@ public class TreeGenerator {
 				if (offsetX2 + squareD(blockZ - centerZ) < radius2) {
 					mutablePos.setZ(blockZ);
 					BlockState existingState = this.worldQueue.getWorldState(mutablePos);
-					if (this.canTrunkReplace(mutablePos, existingState)) {
-						this.worldQueue.setBlockState(mutablePos, logY);
+					boolean workaroundForBushes = false;
+					if (this.canTrunkReplace(existingState) || (workaroundForBushes = this.canTrunkReplaceBush(mutablePos, existingState))) {
+						BlockState logState = this.palette.logState(this.random, Axis.Y);
+						if (workaroundForBushes) {
+							this.worldQueue.queue.queueReplacement(mutablePos, existingState, logState);
+						}
+						else {
+							this.worldQueue.setBlockState(mutablePos, logState);
+						}
 						for (BlockDecorator decorator : this.decorators.trunkBlock) {
-							decorator.decorate(this, mutablePos, logY);
+							decorator.decorate(this, mutablePos, this.palette.logState(this.random, Axis.Y));
 						}
 						placedAny = true;
 					}
 					else {
 						mutablePos.setY(y + 1);
-						boolean logAboveToo = this.worldQueue.getBlockState(mutablePos) == logY;
+						boolean logAboveToo = this.worldQueue.getBlockState(mutablePos) == this.palette.logState(this.random, Axis.Y);
 						mutablePos.setY(y);
 						if (logAboveToo) {
 							BlockState replacement = groundReplacements.get(existingState);
 							if (replacement != null) {
 								if (replacement != existingState) {
-									this.worldQueue.setBlockState(mutablePos, replacement);
+									this.worldQueue.queue.queueReplacement(mutablePos, existingState, replacement);
 								}
 							}
 							else if (this.trunk.requireValidGround) {
@@ -170,7 +180,7 @@ public class TreeGenerator {
 		if (!(branch.length > 0.0D)) return;
 		double absDX = Math.abs(branch.nx);
 		double absDZ = Math.abs(branch.nz);
-		BlockState logState = this.palette.getWood(absDZ > absDX ? Axis.Z : Axis.X);
+		BlockState logState = this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X);
 
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 		for (double offset = this.random.nextDouble(); offset <= branch.length; offset += 1.0D) {
@@ -187,7 +197,6 @@ public class TreeGenerator {
 		if (!(branch.length > 0.0D)) return;
 		double absDX = Math.abs(branch.nx);
 		double absDZ = Math.abs(branch.nz);
-		BlockState logState = this.palette.getWood(absDZ > absDX ? Axis.Z : Axis.X);
 
 		branch.setFracLength(this, 0.0D);
 		double x1 = branch.currentX, z1 = branch.currentZ, r1 = branch.currentRadius;
@@ -208,11 +217,11 @@ public class TreeGenerator {
 				int startY = floorI(branch.currentY);
 				for (int y = startY; xzLengthSquared + squareD(y - branch.currentY) < radiusSquared; y--) {
 					mutablePos.setY(y);
-					this.generateBranchBlock(mutablePos, logState);
+					this.generateBranchBlock(mutablePos, this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X));
 				}
 				for (int y = startY + 1; xzLengthSquared + squareD(y - branch.currentY) < radiusSquared; y++) {
 					mutablePos.setY(y);
-					this.generateBranchBlock(mutablePos, logState);
+					this.generateBranchBlock(mutablePos, this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X));
 				}
 			}
 		}
@@ -235,17 +244,18 @@ public class TreeGenerator {
 		}
 	}
 
-	public boolean canTrunkReplace(BlockPos.Mutable mutablePos, BlockState existingState) {
-		if (this.canLogReplace(existingState)) {
-			return true;
-		}
-		else if (existingState.getBlock() == this.palette.getBlock(TreeRegistry.Type.WOOD)) {
+	public boolean canTrunkReplace(BlockState existingState) {
+		return this.canLogReplace(existingState);
+	}
+
+	public boolean canTrunkReplaceBush(BlockPos.Mutable mutablePos, BlockState existingState) {
+		if (this.palette.woodBlocks().contains(existingState.getBlock())) {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);
 			existingState = this.worldQueue.getWorldState(mutablePos);
 			mutablePos.setY(oldY);
-			return TreeSpecialCases.getGroundReplacements().containsKey(existingState);
+			return this.groundReplacements.containsKey(existingState);
 		}
 		else {
 			return false;

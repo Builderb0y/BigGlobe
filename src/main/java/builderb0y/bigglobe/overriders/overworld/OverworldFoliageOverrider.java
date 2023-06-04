@@ -30,6 +30,7 @@ public class OverworldFoliageOverrider {
 
 		public Environment() {
 			super();
+
 			this
 			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
 			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class));

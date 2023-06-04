@@ -2,14 +2,17 @@ package builderb0y.bigglobe.scripting;
 
 import net.minecraft.nbt.*;
 
+import builderb0y.bigglobe.mixinInterfaces.NbtCompoundRemoveAndReturnAccess;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment.CommonGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
@@ -17,7 +20,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NbtScriptEnvironment extends MutableScriptEnvironment {
+public class NbtScriptEnvironment {
 
 	public static final TypeInfo
 		NBT_ELEMENT_TYPE     = type(NbtElement          .class),
@@ -38,20 +41,18 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		NBT_ENVIRONMENT_TYPE = type(NbtScriptEnvironment.class);
 
 	public static final MethodInfo
-		NBT_BYTE_ARRAY_CONSTRUCTOR = method(ACC_PUBLIC | ACC_STATIC, NbtScriptEnvironment.class, "nbtByteArray", NbtByteArray.class, byte[].class),
-		NBT_INT_ARRAY_CONSTRUCTOR  = method(ACC_PUBLIC | ACC_STATIC, NbtScriptEnvironment.class, "nbtIntArray",  NbtIntArray .class, int[] .class),
-		NBT_LONG_ARRAY_CONSTRUCTOR = method(ACC_PUBLIC | ACC_STATIC, NbtScriptEnvironment.class, "nbtLongArray", NbtLongArray.class, long[].class);
+		NBT_BYTE_ARRAY_CONSTRUCTOR = MethodInfo.getMethod(NbtScriptEnvironment.class, "nbtByteArray"),
+		NBT_INT_ARRAY_CONSTRUCTOR  = MethodInfo.getMethod(NbtScriptEnvironment.class, "nbtIntArray"),
+		NBT_LONG_ARRAY_CONSTRUCTOR = MethodInfo.getMethod(NbtScriptEnvironment.class, "nbtLongArray");
 
 	public static final MethodInfo
-		GET_MEMBER  = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "getMember", NBT_ELEMENT_TYPE, NBT_ELEMENT_TYPE, TypeInfos.STRING),
-		SET_MEMBER  = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "setMember", TypeInfos.VOID, NBT_ELEMENT_TYPE, TypeInfos.STRING, NBT_ELEMENT_TYPE),
-		GET_ELEMENT = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "getElement", NBT_ELEMENT_TYPE, NBT_ELEMENT_TYPE, TypeInfos.INT),
-		SET_ELEMENT = method(ACC_PUBLIC | ACC_STATIC, NBT_ENVIRONMENT_TYPE, "setElement", TypeInfos.VOID, NBT_ELEMENT_TYPE, TypeInfos.INT, NBT_ELEMENT_TYPE);
+		GET_MEMBER  = MethodInfo.getMethod(NbtScriptEnvironment.class, "getMember"),
+		SET_MEMBER  = MethodInfo.getMethod(NbtScriptEnvironment.class, "setMember"),
+		GET_ELEMENT = MethodInfo.getMethod(NbtScriptEnvironment.class, "getElement"),
+		SET_ELEMENT = MethodInfo.getMethod(NbtScriptEnvironment.class, "setElement");
 
-	public static final NbtScriptEnvironment INSTANCE = new NbtScriptEnvironment();
-
-	public NbtScriptEnvironment() {
-		this
+	public static final MutableScriptEnvironment INSTANCE = (
+		new MutableScriptEnvironment()
 		.addType("Nbt",           NBT_ELEMENT_TYPE)
 		.addType("NbtByte",       NBT_BYTE_TYPE)
 		.addType("NbtShort",      NBT_SHORT_TYPE)
@@ -106,10 +107,10 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 			}
 			InsnTree nameOrIndex = arguments[0];
 			if (nameOrIndex.getTypeInfo().simpleEquals(TypeInfos.STRING)) {
-				return new CastResult(new GetMemberInsnTree(receiver, nameOrIndex, GET_MEMBER, SET_MEMBER), false);
+				return new CastResult(new CommonGetterInsnTree(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement"), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(new GetMemberInsnTree(receiver, nameOrIndex, GET_ELEMENT, SET_ELEMENT), false);
+				return new CastResult(new CommonGetterInsnTree(receiver, GET_ELEMENT, nameOrIndex, SET_ELEMENT, "NbtElement"), false);
 			}
 			else {
 				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
@@ -117,11 +118,9 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		})
 
 		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name) -> {
-			return new GetMemberInsnTree(receiver, ldc(name), GET_MEMBER, SET_MEMBER);
+			return new CommonGetterInsnTree(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement");
 		})
-
-		;
-	}
+	);
 
 	public static NbtByte      nbtBoolean  (boolean value) { return NbtByte  .of(value); }
 	public static NbtByte      nbtByte     (byte    value) { return NbtByte  .of(value); }
@@ -130,10 +129,10 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 	public static NbtLong      nbtLong     (long    value) { return NbtLong  .of(value); }
 	public static NbtFloat     nbtFloat    (float   value) { return NbtFloat .of(value); }
 	public static NbtDouble    nbtDouble   (double  value) { return NbtDouble.of(value); }
-	public static NbtString    nbtString   (String  value) { return NbtString.of(value); }
-	public static NbtByteArray nbtByteArray(byte[]  value) { return new NbtByteArray(value); }
-	public static NbtIntArray  nbtIntArray (int []  value) { return new NbtIntArray (value); }
-	public static NbtLongArray nbtLongArray(long[]  value) { return new NbtLongArray(value); }
+	public static NbtString    nbtString   (String  value) { return value == null ? null : NbtString.of(value); }
+	public static NbtByteArray nbtByteArray(byte[]  value) { return value == null ? null : new NbtByteArray(value); }
+	public static NbtIntArray  nbtIntArray (int []  value) { return value == null ? null : new NbtIntArray (value); }
+	public static NbtLongArray nbtLongArray(long[]  value) { return value == null ? null : new NbtLongArray(value); }
 
 	public static boolean asBoolean(NbtElement element) { return element instanceof AbstractNbtNumber number && number.byteValue  () != 0; }
 	public static byte    asByte   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.byteValue  () :  0; }
@@ -148,10 +147,10 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		return element instanceof NbtCompound compound ? compound.get(name) : null;
 	}
 
-	public static void setMember(NbtElement element, String name, NbtElement value) {
+	public static NbtElement setMember(NbtElement element, String name, NbtElement value) {
 		if (element instanceof NbtCompound compound) {
-			if (value != null) compound.put(name, value);
-			else compound.remove(name);
+			if (value != null) return compound.put(name, value);
+			else return ((NbtCompoundRemoveAndReturnAccess)(compound)).bigglobe_remove(name);
 		}
 		else {
 			throw new IllegalArgumentException("Can't set member named " + name + " on " + element + " to " + value);
@@ -167,12 +166,13 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		return null;
 	}
 
-	public static void setElement(NbtElement element, int index, NbtElement value) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static NbtElement setElement(NbtElement element, int index, NbtElement value) {
 		if (value == null) {
 			throw new NullPointerException("Can't set index " + index + " on " + element + " to a null value");
 		}
-		if (element instanceof AbstractNbtList<?> list) {
-			list.setElement(index, value);
+		if (element instanceof AbstractNbtList list) {
+			return list.set(index, value);
 		}
 		else {
 			throw new IllegalArgumentException("Can't set element at index " + index + " on " + element + " to " + value);
@@ -230,8 +230,8 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 	public static class CompoundBuilderInsnTree implements InsnTree {
 
 		public static final MethodInfo
-			CONSTRUCT      = method(ACC_PUBLIC, NbtCompound.class, "<init>", void.class),
-			BUILD_COMPOUND = method(ACC_PUBLIC | ACC_STATIC, CompoundBuilderInsnTree.class, "buildCompound", NbtCompound.class, NbtCompound.class, String.class, NbtElement.class);
+			CONSTRUCT      = MethodInfo.findConstructor(NbtCompound.class),
+			BUILD_COMPOUND = MethodInfo.getMethod(CompoundBuilderInsnTree.class, "buildCompound");
 
 		public NamedValue[] pairs;
 
@@ -257,72 +257,8 @@ public class NbtScriptEnvironment extends MutableScriptEnvironment {
 		}
 
 		public static NbtCompound buildCompound(NbtCompound compound, String name, NbtElement element) {
-			compound.put(name, element);
+			if (element != null) compound.put(name, element);
 			return compound;
-		}
-	}
-
-	public static class GetMemberInsnTree implements InsnTree {
-
-		public InsnTree receiver, nameOrIndex;
-		public MethodInfo getterMethod, setterMethod;
-
-		public GetMemberInsnTree(InsnTree receiver, InsnTree nameOrIndex, MethodInfo getterMethod, MethodInfo setterMethod) {
-			this.receiver = receiver;
-			this.nameOrIndex = nameOrIndex;
-			this.getterMethod = getterMethod;
-			this.setterMethod = setterMethod;
-		}
-
-		@Override
-		public void emitBytecode(MethodCompileContext method) {
-			this.receiver.emitBytecode(method);
-			this.nameOrIndex.emitBytecode(method);
-			this.getterMethod.emit(method, INVOKESTATIC);
-		}
-
-		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
-			if (op == UpdateOp.ASSIGN) {
-				return new SetMemberInsnTree(this.receiver, this.nameOrIndex, rightValue.cast(parser, NBT_ELEMENT_TYPE, CastMode.IMPLICIT_THROW), this.setterMethod);
-			}
-			throw new ScriptParsingException("Updating NBT data on compound not yet implemented", parser.input);
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return NBT_ELEMENT_TYPE;
-		}
-	}
-
-	public static class SetMemberInsnTree implements InsnTree {
-
-		public InsnTree receiver, nameOrIndex, value;
-		public MethodInfo setterMethod;
-
-		public SetMemberInsnTree(InsnTree receiver, InsnTree nameOrIndex, InsnTree value, MethodInfo setterMethod) {
-			this.receiver = receiver;
-			this.nameOrIndex = nameOrIndex;
-			this.value = value;
-			this.setterMethod = setterMethod;
-		}
-
-		@Override
-		public void emitBytecode(MethodCompileContext method) {
-			this.receiver.emitBytecode(method);
-			this.nameOrIndex.emitBytecode(method);
-			this.value.emitBytecode(method);
-			this.setterMethod.emit(method, INVOKESTATIC);
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return TypeInfos.VOID;
-		}
-
-		@Override
-		public boolean canBeStatement() {
-			return true;
 		}
 	}
 }

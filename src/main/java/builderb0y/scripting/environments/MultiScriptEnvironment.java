@@ -37,8 +37,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree variable = environments.get(index).getField(parser, receiver, name);
-			if (variable != null) return variable;
+			InsnTree field = environments.get(index).getField(parser, receiver, name);
+			if (field != null) return field;
 		}
 		return null;
 	}
@@ -47,8 +47,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree variable = environments.get(index).getFunction(parser, name, arguments);
-			if (variable != null) return variable;
+			InsnTree function = environments.get(index).getFunction(parser, name, arguments);
+			if (function != null) return function;
 		}
 		return null;
 	}
@@ -57,8 +57,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree variable = environments.get(index).getMethod(parser, receiver, name, arguments);
-			if (variable != null) return variable;
+			InsnTree method = environments.get(index).getMethod(parser, receiver, name, arguments);
+			if (method != null) return method;
 		}
 		return null;
 	}
@@ -67,8 +67,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree parseKeyword(ExpressionParser parser, String name) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree variable = environments.get(index).parseKeyword(parser, name);
-			if (variable != null) return variable;
+			InsnTree keyword = environments.get(index).parseKeyword(parser, name);
+			if (keyword != null) return keyword;
 		}
 		return null;
 	}
@@ -77,8 +77,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree variable = environments.get(index).parseMemberKeyword(parser, receiver, name);
-			if (variable != null) return variable;
+			InsnTree memberKeyword = environments.get(index).parseMemberKeyword(parser, receiver, name);
+			if (memberKeyword != null) return memberKeyword;
 		}
 		return null;
 	}

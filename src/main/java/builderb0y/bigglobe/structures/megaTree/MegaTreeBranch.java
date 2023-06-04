@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.structures.megaTree;
 
+import org.joml.Vector3d;
+
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure.MegaTreeContext;
-import builderb0y.bigglobe.util.Dvec3;
+import builderb0y.bigglobe.util.Vectors;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -17,8 +19,8 @@ public class MegaTreeBranch {
 	public int stepsUntilNextSplit;
 	public double startRadius;
 
-	public Dvec3 velocity;
-	public Dvec3 acceleration;
+	public Vector3d velocity;
+	public Vector3d acceleration;
 	public MegaTreeBall lastBall;
 
 	public MegaTreeBranch(
@@ -29,8 +31,8 @@ public class MegaTreeBranch {
 		double startRadius,
 		int totalSteps,
 		int stepsUntilNextSplit,
-		Dvec3 velocity,
-		Dvec3 acceleration
+		Vector3d velocity,
+		Vector3d acceleration
 	) {
 		this.context             = context;
 		this.totalSteps          = totalSteps;
@@ -54,8 +56,8 @@ public class MegaTreeBranch {
 	public void generate() {
 		MegaTreeContext context = this.context;
 		context.addBall(this.lastBall);
-		Dvec3 scratchPos = new Dvec3();
-		Dvec3 shyness = new Dvec3();
+		Vector3d scratchPos = new Vector3d();
+		Vector3d shyness = new Vector3d();
 		WorldColumn column = context.column;
 		while (this.currentStep < this.totalSteps) {
 			this.currentStep++;
@@ -63,26 +65,26 @@ public class MegaTreeBranch {
 			double progress = ((double)(this.currentStep)) / ((double)(this.totalSteps));
 			double currentRadius = Interpolator.mixLinear(this.startRadius, 0.5D, progress);
 
-			Dvec3 position = this.lastBall.data.position();
+			Vector3d position = this.lastBall.data.position();
 			column.setPos(floorI(position.x), floorI(position.z));
 			MegaTreeBall closestBall = context.octree.findClosestBall(this.lastBall);
 			if (closestBall != null) {
 				shyness
-				.subtract(this.lastBall.data.position(), closestBall.data.position())
-				.multiply(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.data.radius() - closestBall.data.radius())));
+				.set(this.lastBall.data.position())
+				.sub(closestBall.data.position())
+				.mul(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.data.radius() - closestBall.data.radius())));
 			}
 			else {
 				shyness.set(0.0D);
 			}
-			scratchPos
-				.setInSphere(context.permuter, 0.25D)
-				.y(scratchPos.y + exp2((column.getFinalTopHeightD() - position.y) * 0.125D + 2.0D))
-				.add(shyness)
-				.add(this.acceleration)
-				.multiply(0.125D / this.startRadius);
-			Dvec3 prevVelocity = this.velocity;
-			Dvec3 nextVelocity = new Dvec3().add(prevVelocity, scratchPos).normalize();
-			this.acceleration = new Dvec3().subtract(nextVelocity, prevVelocity).normalize();
+			Vectors.setInSphere(scratchPos, context.permuter, 0.25D)
+			.add(0.0D, scratchPos.y + exp2((column.getFinalTopHeightD() - position.y) * 0.125D + 2.0D), 0.0D)
+			.add(shyness)
+			.add(this.acceleration)
+			.mul(0.125D / this.startRadius);
+			Vector3d prevVelocity = this.velocity;
+			Vector3d nextVelocity = new Vector3d(prevVelocity).add(scratchPos).normalize();
+			this.acceleration = new Vector3d(nextVelocity).sub(prevVelocity).normalize();
 			this.velocity = nextVelocity;
 
 			this.lastBall = new MegaTreeBall(BigGlobeStructures.MEGA_TREE_BALL_TYPE, this, position.add(nextVelocity), currentRadius);
@@ -90,9 +92,9 @@ public class MegaTreeBranch {
 
 			if (this.stepsUntilNextSplit <= 0 && this.totalSteps - this.currentStep >= 4) {
 				double sizeFactor = context.permuter.nextDouble() * 0.5D + 0.5D;
-				scratchPos.setInSphere(context.permuter, 1.0D);
-				Dvec3 cross = new Dvec3().cross(this.velocity, scratchPos).normalize();
-				Dvec3 splitPosition = position.clone().add(cross);
+				Vectors.setInSphere(scratchPos, context.permuter, 1.0D);
+				Vector3d cross = new Vector3d(this.velocity).cross(scratchPos).normalize();
+				Vector3d splitPosition = new Vector3d(position).add(cross);
 				MegaTreeBranch split = new MegaTreeBranch(
 					context,
 					splitPosition.x,

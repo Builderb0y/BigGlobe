@@ -1,0 +1,26 @@
+{
+	"type": "bigglobe:underground_pocket",
+	"value": {
+		"biomes": "#bigglobe:has_structure/underground_pocket/natural",
+		"spawn_overrides": {},
+		"step": "underground_structures",
+		"radius":      { "type": "uniform", "min": 32.0,   "max": 96.0 },
+		"noise_decay": { "type": "uniform", "min":  0.375, "max":  0.5 },
+		"floor": {
+			"surface": {
+				"top": "minecraft:moss_block",
+				"under": "minecraft:moss_block",
+				"depth": "random.nextDouble(1.0L, 5.0L)"
+			},
+			"decorator": "bigglobe:overworld/natural_pocket_floor"
+		},
+		"ceiling": {
+			"surface": {
+				"top": "minecraft:moss_block",
+				"under": "minecraft:moss_block",
+				"depth": "random.nextDouble(1.0L, 5.0L)"
+			},
+			"decorator": "bigglobe:overworld/natural_pocket_ceiling"
+		}
+	}
+}

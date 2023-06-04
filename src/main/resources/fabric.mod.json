@@ -10,13 +10,15 @@
 	"contributors": [
 		"Mr Slime - helped with overgrown podzol textures."
 	],
+	"contact": {
+		"issues": "https://github.com/Builderb0y/BigGlobe/issues"
+	},
 	"license": "CC-BY-NC 4.0",
 	"icon": "assets/bigglobe/icon_64x.png",
 	"environment": "*",
 	"entrypoints": {
 		"main":          [ "builderb0y.bigglobe.BigGlobeMod" ],
 		"client":        [ "builderb0y.bigglobe.BigGlobeClient" ],
-		"server":        [ "builderb0y.bigglobe.BigGlobeServer" ],
 		"modmenu":       [ "builderb0y.bigglobe.compat.ModMenuCompat" ],
 		"dynamiclights": [ "builderb0y.bigglobe.compat.LambDynamicLightsCompat" ]
 	},
@@ -31,5 +33,8 @@
 		"java": ">=17"
 	},
 	"suggests": {
+	},
+	"breaks": {
+		"wwoo": "*"
 	}
 }

@@ -1,0 +1,13 @@
+{
+	"parent": "bigglobe:root",
+	"restrictions": { "type": "range", "property": "max_y", "mid": 4.0, "max": 8.0 },
+	"biome": "bigglobe:beach",
+	"primary_surface": {
+		"top": "minecraft:sand",
+		"under": "minecraft:sand"
+	},
+	"secondary_surfaces": {
+		"under": "minecraft:gravel",
+		"depth": "random.nextDouble(3.0L, 7.0L)"
+	}
+}

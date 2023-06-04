@@ -3,6 +3,7 @@ package builderb0y.scripting.environments;
 import java.io.PrintStream;
 import java.lang.invoke.StringConcatFactory;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -14,14 +15,18 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
+public class BuiltinScriptEnvironment {
 
 	public static final MethodInfo
 		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
@@ -29,11 +34,8 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 	public static final FieldInfo
 		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
 
-	public static final BuiltinScriptEnvironment
-		INSTANCE = new BuiltinScriptEnvironment();
-
-	public BuiltinScriptEnvironment() {
-		this
+	public static final MutableScriptEnvironment INSTANCE = (
+		new MutableScriptEnvironment()
 
 		//////////////// variables ////////////////
 
@@ -71,7 +73,7 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		.addType("Comparable", TypeInfos.COMPARABLE)
 		.addType("String",     TypeInfos.STRING)
 		.addType("Throwable",  TypeInfos.THROWABLE)
-		.addType("Class",      TypeInfos.CLASS) //todo: casting from String to Class. make sure this uses ScriptEnvironment.getType(), NOT Class.forName()!
+		.addType("Class",      TypeInfos.CLASS)
 
 		//////////////// functions ////////////////
 
@@ -87,10 +89,12 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 				false
 			);
 		})
+		/*
 		.addFunction("throw", (parser, name, arguments) -> {
 			InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(throw_(toThrow), toThrow != arguments[0]);
 		})
+		*/
 		.addFunction("print", (parser, name, arguments) -> {
 			InsnTree loadOut = getStatic(SYSTEM_OUT);
 			InsnTree concat = invokeDynamic(
@@ -115,6 +119,8 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 
 		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
 		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name) -> nextIfElse(receiver, parser, false))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name) -> nextIfElse(receiver, parser, true))
 		.addKeyword("while", (parser, name) -> {
 			ConditionBody whileStatement = ConditionBody.parse(parser);
 			return while_(whileStatement.condition(), whileStatement.body());
@@ -145,7 +151,7 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 			}
 			else {
 				ForLoop loop = ForLoop.parse(parser);
-				return for_(loop.initializer(), loop.condition(), loop.incrementer(), loop.body());
+				return for_(loop.initializer(), loop.condition(), loop.step(), loop.body());
 			}
 		})
 		.addKeyword("switch", (parser, name) -> {
@@ -164,6 +170,9 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 			parser.input.expectAfterWhitespace('(');
 			parser.input.expectAfterWhitespace(')');
 			return ContinueInsnTree.INSTANCE;
+		})
+		.addKeyword("compare", (parser, name) -> {
+			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();
 		})
 
 		//////////////// member keywords ////////////////
@@ -270,8 +279,33 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		.addCast(TypeInfos.DOUBLE_WRAPPER,  TypeInfos.DOUBLE,          true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos. DOUBLE_WRAPPER, "doubleValue",  TypeInfos.DOUBLE)))
 		.addCast(TypeInfos.CHAR_WRAPPER,    TypeInfos.CHAR,            true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   CHAR_WRAPPER, "charValue",    TypeInfos.CHAR)))
 		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN,         true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.BOOLEAN_WRAPPER, "booleanValue", TypeInfos.BOOLEAN)))
+		//toString
+		.addCast(TypeInfos.BYTE,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Byte     .class, "toString", String.class, byte   .class)))
+		.addCast(TypeInfos.SHORT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Short    .class, "toString", String.class, short  .class)))
+		.addCast(TypeInfos.INT,     TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Integer  .class, "toString", String.class, int    .class)))
+		.addCast(TypeInfos.LONG,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Long     .class, "toString", String.class, long   .class)))
+		.addCast(TypeInfos.FLOAT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Float    .class, "toString", String.class, float  .class)))
+		.addCast(TypeInfos.DOUBLE,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Double   .class, "toString", String.class, double .class)))
+		.addCast(TypeInfos.CHAR,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Character.class, "toString", String.class, char   .class)))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Boolean  .class, "toString", String.class, boolean.class)))
+		.addCast(TypeInfos.OBJECT,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Objects  .class, "toString", String.class, Object .class)))
 
-		;
+		//////////////// casting with round mode ////////////////
+
+		.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong", "roundInt", "roundLong")
+		.addFunction("truncInt", makeOpcode("truncInt(float value)", TypeInfos.FLOAT, TypeInfos.INT, F2I))
+		.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
+		.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
+		.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
+	);
+
+	public static FunctionHandler makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
+		return new FunctionHandler.Named(name, (parser, name1, arguments) -> {
+			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
+				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
+			}
+			return null;
+		});
 	}
 
 	public static TypeInfo nextParenthesizedType(ExpressionParser parser) throws ScriptParsingException {
@@ -303,7 +337,20 @@ public class BuiltinScriptEnvironment extends MutableScriptEnvironment {
 		);
 	}
 
+	public static InsnTree nextIfElse(InsnTree condition, ExpressionParser parser, boolean negate) throws ScriptParsingException {
+		ConditionTree conditionTree = condition(parser, condition);
+		if (negate) conditionTree = not(conditionTree);
+		InsnTree ifStatement = seq(tryParenthesized(parser), ldc(!negate));
+		InsnTree elseStatement = nextElse(parser);
+		elseStatement = elseStatement != null ? seq(elseStatement, ldc(negate)) : ldc(negate);
+		return ifElse(parser, conditionTree, ifStatement, elseStatement);
+	}
+
 	public static @Nullable InsnTree nextElse(ExpressionParser parser) throws ScriptParsingException {
-		return parser.input.hasIdentifierAfterWhitespace("else") ? parser.nextSingleExpression() : null;
+		return parser.input.hasIdentifierAfterWhitespace("else") ? tryParenthesized(parser) : null;
+	}
+
+	public static InsnTree tryParenthesized(ExpressionParser parser) throws ScriptParsingException {
+		return parser.input.peekAfterWhitespace() == '(' ? ParenthesizedScript.parse(parser).contents() : parser.nextSingleExpression();
 	}
 }

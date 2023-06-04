@@ -118,12 +118,12 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		}
 	}
 
-	public default InsnTree update(ExpressionParser parser, UpdateOp op, InsnTree rightValue) throws ScriptParsingException {
+	public default InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		throw new ScriptParsingException("Attempt to update non-assignable value", parser.input);
 	}
 
 	public static enum UpdateOp {
-		ASSIGN              ((parser, oldValue, newValue) -> newValue),
+		ASSIGN              ((parser, oldValue, newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
 		ADD                 (InsnTrees::add ),
 		SUBTRACT            (InsnTrees::sub ),
 		MULTIPLY            (InsnTrees::mul ),
@@ -156,6 +156,12 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 
 			public abstract InsnTree construct(ExpressionParser parser, InsnTree oldValue, InsnTree newValue);
 		}
+	}
+
+	public static enum UpdateOrder {
+		VOID,
+		PRE,
+		POST;
 	}
 
 	public default String describe() {

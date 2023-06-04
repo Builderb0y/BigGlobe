@@ -62,11 +62,7 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 			//(in other words, there isn't already another block here).
 			//this action is most likely to succeed when you hit the center of the block.
 			//see also: getPlacementFailChance().
-			if (
-				toPlace != null &&
-				this.world.random.nextDouble() >= this.getPlacementFailChance(blockHitResult) &&
-				this.tryPlace(blockHitResult, toPlace)
-			) {
+			if (toPlace != null && this.tryPlace(blockHitResult, toPlace)) {
 				hitState.onProjectileHit(this.world, hitState, blockHitResult, this);
 				this.discard();
 				return;
@@ -92,26 +88,6 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 		}
 		//last action: get stuck.
 		super.onBlockHit(blockHitResult);
-	}
-
-	/**
-	in a nutshell, this method determines how far away from the center of the block you hit.
-	the closer you are to hitting the center of the block,
-	the more likely it is that a torch will be placed.
-	the chance of placing a torch when you hit the center of the block is 100%.
-	the chance of placing a torch when you hit the edge of the block is 50%.
-	*/
-	public double getPlacementFailChance(BlockHitResult blockHitResult) {
-		Vec3d pos = blockHitResult.getPos();
-		BlockPos floorPos = blockHitResult.getBlockPos();
-		double offsetX = Math.abs(pos.getX() - floorPos.getX() - 0.5D);
-		double offsetY = Math.abs(pos.getY() - floorPos.getY() - 0.5D);
-		double offsetZ = Math.abs(pos.getZ() - floorPos.getZ() - 0.5D);
-		return switch (blockHitResult.getSide().getAxis()) {
-			case X -> Math.max(offsetY, offsetZ);
-			case Y -> Math.max(offsetX, offsetZ);
-			case Z -> Math.max(offsetX, offsetY);
-		};
 	}
 
 	public double getBounceFailChance(BlockHitResult blockHitResult) {

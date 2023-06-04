@@ -75,9 +75,10 @@ public class CoderRegistry<E extends CoderRegistryTyped> extends NamedCoder<E> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, E> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		Entry<? extends E> entry = this.byType.get(context.input.getType());
-		if (entry == null) throw new EncodeException("Unregistered object: " + context.input);
+		E object = context.input;
+		if (object == null) return context.empty();
+		Entry<? extends E> entry = this.byType.get(object.getType());
+		if (entry == null) throw new EncodeException("Unregistered object: " + object);
 		return context.addToStringMap(
 			context.encodeWith((AutoEncoder<E>)(entry.coder)),
 			this.typeKey,

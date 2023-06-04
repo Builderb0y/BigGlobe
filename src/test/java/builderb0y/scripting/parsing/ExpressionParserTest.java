@@ -58,7 +58,14 @@ public class ExpressionParserTest {
 		assertSuccess(-1, "-1 / 4"); //assert rounding towards -∞.
 		assertSuccess(5, "sqrt ( 3 ^ 2 + 4 ^ 2 )");
 		assertSuccess(5, "`sqrt` ( 3 ^ 2 + 4 ^ 2)");
-		assertFail("Unknown variable: sqrt", "sqrt");
+		assertFail(
+			"""
+			Unknown variable: sqrt
+			Candidates:
+				Function sqrt: functionInvokeStatic: public static pure java/lang/Math.sqrt(D)D
+			Actual form: sqrt""",
+			"sqrt"
+		);
 		assertFail("Not a statement", "2 3");
 		assertFail("Unreachable statement", "return(2) return(3)");
 		assertFail("Not a statement", "int x = 2 ,, x ,, x");
@@ -72,6 +79,60 @@ public class ExpressionParserTest {
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483648.0L ,, int ( value )");
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483648.5L ,, int ( value )");
 		assertSuccess(Integer.MIN_VALUE, "double value = -2147483649.0L ,, int ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, truncInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, truncInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, truncLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, truncLong ( value )");
+		assertSuccess( 1,  "float  value =  1.5 ,, truncInt  ( value )");
+		assertSuccess( 1,  "double value =  1.5 ,, truncInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.5 ,, truncLong ( value )");
+		assertSuccess( 1L, "double value =  1.5 ,, truncLong ( value )");
+
+		assertSuccess(-2,  "float  value = -1.5 ,, floorInt  ( value )");
+		assertSuccess(-2,  "double value = -1.5 ,, floorInt  ( value )");
+		assertSuccess(-2L, "float  value = -1.5 ,, floorLong ( value )");
+		assertSuccess(-2L, "double value = -1.5 ,, floorLong ( value )");
+		assertSuccess( 1,  "float  value =  1.5 ,, floorInt  ( value )");
+		assertSuccess( 1,  "double value =  1.5 ,, floorInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.5 ,, floorLong ( value )");
+		assertSuccess( 1L, "double value =  1.5 ,, floorLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, ceilInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, ceilInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, ceilLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, ceilLong ( value )");
+		assertSuccess( 2,  "float  value =  1.5 ,, ceilInt  ( value )");
+		assertSuccess( 2,  "double value =  1.5 ,, ceilInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.5 ,, ceilLong ( value )");
+		assertSuccess( 2L, "double value =  1.5 ,, ceilLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.25 ,, roundInt  ( value )");
+		assertSuccess(-1,  "double value = -1.25 ,, roundInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.25 ,, roundLong ( value )");
+		assertSuccess(-1L, "double value = -1.25 ,, roundLong ( value )");
+		assertSuccess( 1,  "float  value =  1.25 ,, roundInt  ( value )");
+		assertSuccess( 1,  "double value =  1.25 ,, roundInt  ( value )");
+		assertSuccess( 1L, "float  value =  1.25 ,, roundLong ( value )");
+		assertSuccess( 1L, "double value =  1.25 ,, roundLong ( value )");
+
+		assertSuccess(-1,  "float  value = -1.5 ,, roundInt  ( value )");
+		assertSuccess(-1,  "double value = -1.5 ,, roundInt  ( value )");
+		assertSuccess(-1L, "float  value = -1.5 ,, roundLong ( value )");
+		assertSuccess(-1L, "double value = -1.5 ,, roundLong ( value )");
+		assertSuccess( 2,  "float  value =  1.5 ,, roundInt  ( value )");
+		assertSuccess( 2,  "double value =  1.5 ,, roundInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.5 ,, roundLong ( value )");
+		assertSuccess( 2L, "double value =  1.5 ,, roundLong ( value )");
+
+		assertSuccess(-2,  "float  value = -1.75 ,, roundInt  ( value )");
+		assertSuccess(-2,  "double value = -1.75 ,, roundInt  ( value )");
+		assertSuccess(-2L, "float  value = -1.75 ,, roundLong ( value )");
+		assertSuccess(-2L, "double value = -1.75 ,, roundLong ( value )");
+		assertSuccess( 2,  "float  value =  1.75 ,, roundInt  ( value )");
+		assertSuccess( 2,  "double value =  1.75 ,, roundInt  ( value )");
+		assertSuccess( 2L, "float  value =  1.75 ,, roundLong ( value )");
+		assertSuccess( 2L, "double value =  1.75 ,, roundLong ( value )");
 	}
 
 	@Test
@@ -93,7 +154,7 @@ public class ExpressionParserTest {
 		assertSuccess(1, "if ( yes : noop ) ,, 1");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, 2");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, return ( 2 )");
-		assertFail("Body is not a statement", "if (yes: 1) 2");
+		assertFail("Not a statement", "if (yes: 1) 2");
 		assertFail("Not a statement", "if (yes: 1) else (2) 3");
 		assertSuccess(10,
 			"""
@@ -182,6 +243,15 @@ public class ExpressionParserTest {
 				++ counter
 			)
 			counter
+			"""
+		);
+		assertSuccess(5,
+			"""
+			int sum = 0
+			repeat ( 5 :
+				++ sum
+			)
+			sum
 			"""
 		);
 		assertSuccess(125,
@@ -316,6 +386,80 @@ public class ExpressionParserTest {
 				if ( result >= 5 : break ( ) )
 			)
 			result
+			"""
+		);
+		assertSuccess(2 + 4 + 6 + 8 + 10,
+			"""
+			int sum = 0
+			for ( int x = 0 , x <= 10 , ++ x :
+				if ( x & 1 != 0 : continue ( ) )
+				sum += x
+			)
+			sum
+			"""
+		);
+	}
+
+	@Test
+	public void testBoolDotIf() throws ScriptParsingException {
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			return ( a . if ( b = true ) && b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			return ( a . unless ( b = true ) && ! b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			return ( ! a . if ( b = true ) && ! b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			return ( ! a . unless ( b = true ) && b )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			boolean c = false
+			return ( a . if ( b = true ) else ( c = true ) && b && ! c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = true
+			boolean b = false
+			boolean c = false
+			return ( a . unless ( b = true ) else ( c = true ) && ! b && c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			boolean c = false
+			return ( ! a . if ( b = true ) else ( c = true ) && ! b && c )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			boolean a = false
+			boolean b = false
+			boolean c = false
+			return ( ! a . unless ( b = true ) else ( c = true ) && b && ! c )
 			"""
 		);
 	}
@@ -758,7 +902,7 @@ public class ExpressionParserTest {
 			Unknown field: getKey
 			Candidates:
 				Method interface java/util/Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: interface java/util/Map$Entry extends java/lang/Object.getKey""",
+			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).getKey""",
 			"MapEntry entry = null ,, entry . getKey"
 		);
 		assertFail(
@@ -766,7 +910,7 @@ public class ExpressionParserTest {
 			Unknown method or incorrect arguments: key
 			Candidates:
 				Field interface java/util/Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: interface java/util/Map$Entry extends java/lang/Object.key()""",
+			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).key()""",
 			"MapEntry entry = null ,, entry . key ( )"
 		);
 	}

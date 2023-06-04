@@ -7,8 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
@@ -18,11 +20,12 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.TreeRegistry;
 import builderb0y.bigglobe.trees.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
@@ -45,9 +48,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	public boolean generate(FeatureContext<Config> context) {
 		StructureWorldAccess world = context.getWorld();
 		Config config = context.getConfig();
-		Block saplingBlock = config.palette.getBlock(TreeRegistry.Type.SAPLING);
+		IRandomList<Block> saplingBlocks = config.palette.value().saplingBlocks();
 		BlockPos origin = context.getOrigin();
-		if (world.getBlockState(origin).getBlock() != saplingBlock) return false;
+		if (!saplingBlocks.contains(world.getBlockState(origin).getBlock())) return false;
 		Permuter permuter = Permuter.from(context.getRandom());
 		BlockQueue blockQueue = new BlockQueue(true);
 		Deque<BlockPos> toCheck = new ArrayDeque<>(8);
@@ -60,7 +63,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
 			for (Direction direction : Directions.HORIZONTAL) {
 				BlockPos offset = pos.offset(direction);
-				if (blockQueue.getBlockStateOrNull(offset) == null && world.getBlockState(offset).getBlock() == saplingBlock) {
+				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getBlock())) {
 					blockQueue.queueBlock(offset, BlockStates.AIR);
 					centerX += offset.getX();
 					centerZ += offset.getZ();
@@ -101,7 +104,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			world,
 			blockQueue,
 			permuter,
-			config.palette,
+			config.palette.value(),
+			config.ground_replacements,
 			trunkConfig,
 			branchesConfig,
 			decorationsBuilder.build(),
@@ -111,7 +115,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	}
 
 	public static record Config(
-		TreeRegistry.Entry palette,
+		RegistryEntry<WoodPalette> palette,
+		Map<BlockState, BlockState> ground_replacements,
 		TrunkFactory trunk,
 		Branches branches,
 		@VerifyNullable Decorations decorations

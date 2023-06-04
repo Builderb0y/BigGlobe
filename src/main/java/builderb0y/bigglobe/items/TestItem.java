@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.items;
 
+import com.google.common.base.Predicates;
 import org.jetbrains.annotations.TestOnly;
 
 import net.minecraft.item.Item;
@@ -55,7 +56,7 @@ public class TestItem extends Item {
 					world.getSeed(),
 					chunkPos,
 					world,
-					structure.getValidBiomes()::contains
+					Predicates.alwaysTrue()
 				)
 			)
 			.orElse(null)

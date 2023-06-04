@@ -11,7 +11,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -30,11 +29,6 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 	public abstract int offsetY();
 
 	public abstract int offsetZ();
-
-	@Override
-	public void getWorld(int x, int y, int z, CoordinateBiConsumer<StructureWorldAccess> action) {
-		this.delegate.getWorld(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
-	}
 
 	@Override
 	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {

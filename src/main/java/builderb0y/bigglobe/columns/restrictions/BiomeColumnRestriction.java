@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,11 +28,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 
 @UseCoder(name = "INSTANCE", in = BiomeColumnRestriction.Coder.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public class BiomeColumnRestriction extends Object2DoubleOpenCustomHashMap<RegistryEntry<Biome>> implements ColumnRestriction {
-
-	public BiomeColumnRestriction() {
-		super(BigGlobeAutoCodec.REGISTRY_ENTRY_STRATEGY);
-	}
+public class BiomeColumnRestriction extends Object2DoubleOpenHashMap<RegistryEntry<Biome>> implements ColumnRestriction {
 
 	@Override
 	public double getRestriction(WorldColumn column, double y) {
@@ -57,13 +53,13 @@ public class BiomeColumnRestriction extends Object2DoubleOpenCustomHashMap<Regis
 	public static class Coder extends NamedCoder<BiomeColumnRestriction> {
 
 		public static final AutoCoder<RegistryEntry<Biome>> BIOME_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
-			new ReifiedType<RegistryEntry<Biome>>() {}
+			new ReifiedType<>() {}
 		);
 		public static final AutoCoder<Double> CHANCE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
 			new ReifiedType<@VerifyFloatRange(min = 0.0D, max = 1.0D) Double>() {}
 		);
 		public static final AutoEncoder<Map<RegistryEntry<Biome>, Double>> MAP_ENCODER = BigGlobeAutoCodec.AUTO_CODEC.createEncoder(
-			new ReifiedType<Map<RegistryEntry<Biome>, Double>>() {}
+			new ReifiedType<>() {}
 		);
 
 		public static final Coder INSTANCE = new Coder(ReifiedType.from(BiomeColumnRestriction.class));

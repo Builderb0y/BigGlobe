@@ -4,6 +4,9 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 
@@ -13,7 +16,7 @@ public class DistantHorizonsCompat {
 	static {
 		MethodHandle handle;
 		got: {
-			try {
+			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) try {
 				Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment");
 				handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
 				BigGlobeMod.LOGGER.debug("Distant horizon compatibility enabled.");

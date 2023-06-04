@@ -1,0 +1,13 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cold_plains",
+		"minecraft:old_growth_spruce_taiga",
+		"minecraft:old_growth_pine_taiga",
+		"minecraft:snowy_taiga",
+		"minecraft:snowy_plains",
+		"minecraft:taiga",
+		"minecraft:windswept_forest",
+		"minecraft:grove"
+	]
+}

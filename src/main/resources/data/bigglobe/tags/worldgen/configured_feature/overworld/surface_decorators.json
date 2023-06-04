@@ -4,6 +4,9 @@
 		"bigglobe:overworld/occasional_prismarine",
 		"bigglobe:overworld/surface_big_foliage",
 		"bigglobe:overworld/surface_small_foliage",
-		"bigglobe:overworld/occasional_waterfall"
+		"bigglobe:overworld/occasional_waterfall",
+		"bigglobe:overworld/stick",
+		"bigglobe:overworld/flint",
+		"bigglobe:overworld/rock"
 	]
 }

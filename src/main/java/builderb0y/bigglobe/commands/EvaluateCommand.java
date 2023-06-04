@@ -5,6 +5,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -13,6 +15,7 @@ import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 
 public class EvaluateCommand {
 
@@ -29,7 +32,8 @@ public class EvaluateCommand {
 					try {
 						WorldWrapper world = new WorldWrapper(
 							context.getSource().getWorld(),
-							Permuter.from(context.getSource().getWorld().random)
+							Permuter.from(context.getSource().getWorld().random),
+							new Coordination(0, 0, BlockRotation.NONE, BlockBox.infinite())
 						);
 						Vec3d position = context.getSource().getPosition();
 						WorldColumn column = WorldColumn.forWorld(

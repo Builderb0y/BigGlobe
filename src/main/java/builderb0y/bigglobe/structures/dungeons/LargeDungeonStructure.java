@@ -19,6 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -27,8 +28,10 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -46,13 +49,13 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 	public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LargeDungeonStructure.class);
 
-	public LargeDungeonStructure(Config config, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
-		super(config, spawner_entries, palettes);
+	public LargeDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
+		super(config, room_decorators, spawner_entries, palettes);
 	}
 
 	@Override
 	public DungeonLayout layout(WorldColumn column, int y, RandomGenerator random) {
-		return new Layout(column, y, random, this.spawner_entries, this.palettes);
+		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, this.palettes);
 	}
 
 	@Override
@@ -62,8 +65,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Layout extends DungeonLayout {
 
-		public Layout(WorldColumn column, int y, RandomGenerator random, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
-			super(column, y, random, (random.nextInt() & 127) + 64, spawnerEntries, palettes);
+		public Layout(WorldColumn column, int y, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
+			super(column, y, random, (random.nextInt() & 127) + 64, roomDecorators, spawnerEntries, palettes);
 		}
 
 		@Override
@@ -89,7 +92,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 		@Override
 		public RoomDungeonPiece newRoom() {
-			return new Room(BigGlobeStructures.LARGE_DUNGEON_ROOM_TYPE, this.palette, this.random);
+			return new Room(BigGlobeStructures.LARGE_DUNGEON_ROOM_TYPE, this.palette, this.random, this.roomDecorators);
 		}
 
 		@Override
@@ -100,8 +103,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Room extends RoomDungeonPiece {
 
-		public Room(StructurePieceType type, Palette palette, RandomGenerator random) {
-			super(type, 0, null, palette);
+		public Room(StructurePieceType type, Palette palette, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
+			super(type, 0, null, palette, decorators);
 			this.setPit((random.nextInt() & 7) == 0);
 			this.setPos(0, 0, 0);
 		}
@@ -120,18 +123,22 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			Direction orientation;
 			if (this.hasPit()) {
 				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(4), layout.random));
+				this.decorators = null;
 			}
 			else if ((orientation = this.getHallwayDirection()) != null) {
 				layout.decorations.add(new TrapPiece(BigGlobeStructures.LARGE_DUNGEON_TRAP_TYPE, this.x(), this.y() + 1, this.z(), this.palette, orientation));
+				this.decorators = null;
 			}
 			else if ((orientation = this.getDeadEndDirection()) != null) {
 				if (layout.random.nextBoolean()) {
 					layout.decorations.add(new ChestPiece(BigGlobeStructures.LARGE_DUNGEON_CHEST_TYPE, this.x(), this.y() + 1, this.z(), this.palette, orientation, layout.random.nextLong()));
+					this.decorators = null;
 				}
 			}
 			else {
 				if ((layout.random.nextInt() & 7) == 0) {
 					layout.decorations.add(new SpawnerPiece(BigGlobeStructures.LARGE_DUNGEON_SPAWNER_TYPE, this.x(), this.y() + 1, this.z(), this.palette, ((Layout)(layout)).spawnerEntries.getRandomElement(layout.random), layout.random));
+					this.decorators = null;
 				}
 			}
 		}
@@ -220,13 +227,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Palette palette = this.palette();
 			root.setBlockState(0, 0, 0, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, (pos, spawner) -> {
-				spawner.getLogic().setEntityId(this.spawnerType);
-				MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
-				logic.bigglobe_setRequiredPlayerRange(32);
-				logic.bigglobe_setSpawnCount(1);
-				logic.bigglobe_setMaxNearbyEntities(1);
-			});
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, this::initSpawner);
 			root.setBlockState(0, 2, 0, palette.mainSupplier());
 			root.setBlockState(0, 3, 0, palette.slabSupplier(SlabType.BOTTOM));
 			if (this.hasBars()) {
@@ -260,8 +261,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super.initSpawner(pos, spawner);
 			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
 			logic.bigglobe_setRequiredPlayerRange(32);
-			logic.bigglobe_setMaxNearbyEntities(2);
-			logic.bigglobe_setSpawnCount(2);
+			logic.bigglobe_setMaxNearbyEntities(6);
+			logic.bigglobe_setSpawnCount(4);
 		}
 	}
 
@@ -279,6 +280,11 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		@Override
 		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
 			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getFacing()));
+		}
+
+		@Override
+		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
 		}
 
 		public static final BlockState
@@ -375,16 +381,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
-			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
-			ChunkPos chunkPos,
-			BlockPos pivot
-		) {
-			Coordinator coordinator = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator coordinator = this.coordinator(context);
 			Palette palette = this.palette();
 			this.wall(coordinator).setBlockStateCuboid(-1, 0, 0, 1, 6, 0, palette.mainSupplier());
 			this.center(coordinator).stack(0, 6, 0, 2).setBlockStateLine(-1, 0, 0, 1, 0, 0, 3, palette.mainSupplier());
@@ -404,8 +402,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
-			Coordinator coordinator = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator coordinator = this.coordinator(context);
 			Palette palette = this.palette();
 			this.wall(coordinator).stack(2, 7, 0, 2).setBlockState(-1, 0, 0, palette.mainSupplier());
 			this.wall(coordinator).setBlockStateCuboid(-1, 1, 0, 1, 6, 0, palette.mainSupplier());
@@ -428,8 +426,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
-			Coordinator coordinator = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator coordinator = this.coordinator(context);
 			Palette palette = this.palette();
 			this.wall(coordinator).stack(1, 6, 0, 2).setBlockStateLine(-1, 1, 0, 1, 0, 0, 2, palette.mainSupplier());
 			this.wall(coordinator).setBlockStateCuboid(-1, 2, 0, 1, 6, 0, palette.mainSupplier());
@@ -453,8 +451,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
-		public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
-			Coordinator coordinator = this.coordinator(world, chunkBox);
+		public void generateRaw(Context context) {
+			Coordinator coordinator = this.coordinator(context);
 			Palette palette = this.palette();
 			this.wall(coordinator).setBlockStateLine(-1, 1, 0, 2, 7, 0, 2, palette.mainSupplier());
 			this.wall(coordinator).setBlockStateCuboid(-1, 2, 0, 1, 7, 0, palette.mainSupplier());

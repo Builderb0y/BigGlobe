@@ -42,8 +42,12 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 	}
 
 	public static record Config(
-		@VerifySizeRange(min = 1)
-		RandomList<@UseName("feature") RegistryEntry<ConfiguredFeature<?, ?>>> choices
+		@VerifySizeRange(min = 1) RandomList<
+			@UseName("feature") RegistryEntry<
+				ConfiguredFeature<?, ?>
+			>
+		>
+		choices
 	)
 	implements FeatureConfig {}
 }

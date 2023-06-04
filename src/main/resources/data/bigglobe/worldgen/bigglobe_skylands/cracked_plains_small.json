@@ -1,0 +1,51 @@
+{
+	"weight": 0.5,
+	"average_center": { "type": "uniform", "min": 256.0, "max": 768.0 },
+	"floor_decorator": "bigglobe:overworld/skylands/random_top",
+	"ceiling_decorator": "bigglobe:overworld/skylands/random_bottom",
+	"center": {
+		"type": "sum",
+		"layers": [
+			{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 8.0 },
+			{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 4.0 },
+			{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 3.0 },
+			{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 2.0 }
+		]
+	},
+	"thickness": {
+		"type": "sum",
+		"layers": [
+			{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0        },
+			{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.33333333 },
+			{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.11111111 }
+		]
+	},
+	"max_y": [
+		"if (`max_y` >= -64.0: return(nan))",
+		"double center = `overworld/skyland_center`",
+		";make half of the terrain reversed in Y level from the other half, for variety.",
+		"if (`overworld/skyland_thickness` < 0.0:",
+			"center = `overworld/skyland_average_center` * 2 - center",
+		")",
+		"center"
+	],
+	"min_y": [
+		"if (`max_y` >= -64.0: return(nan))",
+		"double center = `overworld/skyland_center`",
+		";make half of the terrain reversed in Y level from the other half, for variety.",
+		"if (`overworld/skyland_thickness` < 0.0:",
+			"center = `overworld/skyland_average_center` * 2 - center",
+		")",
+		"double dip        = abs(`overworld/skyland_thickness`)",
+		"double cellBias   =     `overworld/skyland_edginess_squared`",
+		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"return(center + ((cellBias + heightBias) * 1.5 - dip) * 32.0)"
+	],
+	"surface": {
+		"primary": {
+			"top": "minecraft:grass_block[snowy=false]",
+			"under": "minecraft:dirt"
+		},
+		"primary_depth": "random.nextDouble(3.0, 6.0)"
+	}
+}
