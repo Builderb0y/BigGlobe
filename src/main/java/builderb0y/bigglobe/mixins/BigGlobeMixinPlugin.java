@@ -46,6 +46,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",   Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",       Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanMonumentStructure_DontModifyPiecesOnLoad",    Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",       Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",               Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                Boolean.TRUE);
@@ -61,8 +62,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	}
 
 	public Properties loadProperties() {
-		Path path = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.properties");
-		Path tmp  = FabricLoader.getInstance().getConfigDir().resolve("bigglobe").resolve("mixins.tmp");
+		Path bigGlobeConfigFolder = FabricLoader.getInstance().getConfigDir().resolve("bigglobe");
+		Path path = bigGlobeConfigFolder.resolve("mixins.properties");
+		Path tmp  = bigGlobeConfigFolder.resolve("mixins.tmp");
 		Properties properties = new Properties();
 		if (Files.exists(path)) try {
 			//file exists, so try loading it.

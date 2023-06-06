@@ -36,4 +36,9 @@ public record BlockTagKey(TagKey<Block> key) implements TagWrapper<Block, Block>
 	public Block random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public Block random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

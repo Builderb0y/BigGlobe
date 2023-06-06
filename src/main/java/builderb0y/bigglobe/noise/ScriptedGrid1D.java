@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -29,6 +30,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
 			ColumnScriptEnvironment.createFixedXZVariableY(
 				ColumnValue.REGISTRY,

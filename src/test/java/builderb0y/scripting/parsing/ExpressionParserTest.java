@@ -918,9 +918,14 @@ public class ExpressionParserTest {
 	@Test
 	public void testPrint() throws ScriptParsingException {
 		evaluate("print ( 'a: ', 1, ', b: ' , 2 ) ,, 0");
+		assertSuccess("$10", "'$$10'");
+		assertSuccess("a: 1, b: 2", "'a: $1, b: $2'");
+		assertSuccess("a: 1, b: 2", "'a: $.1, b: $.2'");
 		assertSuccess("a: 1, b: 2", "'a: $(1), b: $(2)'");
+		assertSuccess("a: 1, b: 2", "'a: $.(1), b: $.(2)'");
 		assertSuccess("a: 1, b: 2", "int a = 1 ,, int b = 2 ,, 'a: $a, b: $b'");
 		assertSuccess("2^2 = 4", "int square ( int x : x * x ) ,, int x = 2 ,, '$x^2 = $square ( x )'");
+		assertSuccess("a 42 b", "class X(int x) 'a $.X.new(42).x b'");
 	}
 
 	public static void assertSuccess(Object expected, String script) throws ScriptParsingException {

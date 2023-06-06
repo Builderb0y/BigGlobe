@@ -36,4 +36,9 @@ public record StructurePieceTypeTagKey(TagKey<StructurePieceType> key) implement
 	public StructurePieceTypeEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public StructurePieceTypeEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

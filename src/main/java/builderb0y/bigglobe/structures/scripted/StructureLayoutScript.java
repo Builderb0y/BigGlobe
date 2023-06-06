@@ -46,6 +46,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 3, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(

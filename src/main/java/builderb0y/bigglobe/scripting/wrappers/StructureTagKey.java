@@ -36,6 +36,11 @@ public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<Struc
 	}
 
 	@Override
+	public StructureEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof StructureTagKey that &&

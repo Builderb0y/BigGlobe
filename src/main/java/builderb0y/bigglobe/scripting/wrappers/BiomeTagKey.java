@@ -36,4 +36,9 @@ public record BiomeTagKey(TagKey<Biome> key) implements TagWrapper<Biome, BiomeE
 	public BiomeEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public BiomeEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

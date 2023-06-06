@@ -57,7 +57,8 @@ public interface CommandScript extends Script {
 				.addVariableLoad("originY", 4, TypeInfos.INT)
 				.addVariableLoad("originZ", 5, TypeInfos.INT)
 			)
-			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM));
+			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		}
 
 		@Override

@@ -739,6 +739,17 @@ public class ExpressionParser {
 					this.input.onCharRead('$');
 					string.append('$');
 				}
+				else if (escaped == '.') {
+					this.input.onCharRead('.');
+					string.append((char)(1));
+					arguments.add(this.nextMember());
+					//see below.
+					int skippedWhitespace = this.input.cursor - 1;
+					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
+						skippedWhitespace--;
+					}
+					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
+				}
 				else {
 					string.append((char)(1));
 					arguments.add(this.nextTerm());

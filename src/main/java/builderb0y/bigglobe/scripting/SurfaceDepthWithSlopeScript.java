@@ -38,6 +38,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 6, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()
 					.addVariableLoad("slope_squared", 4, TypeInfos.DOUBLE)

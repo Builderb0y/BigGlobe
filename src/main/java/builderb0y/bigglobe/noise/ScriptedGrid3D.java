@@ -9,6 +9,7 @@ import org.objectweb.asm.Opcodes;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -33,6 +34,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
 			ColumnScriptEnvironment.createFixedXZVariableY(
 				ColumnValue.REGISTRY,

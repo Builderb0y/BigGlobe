@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.scripting;
 
+import java.util.random.RandomGenerator;
+
 import builderb0y.autocodec.common.Case;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
@@ -27,20 +29,22 @@ public class WoodPaletteScriptEnvironment {
 			.addType("WoodPaletteTag", WoodPaletteTagKey.class)
 			.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true)
 			.addCastConstant(WoodPaletteTagKey.CONSTANT_FACTORY, true)
+			.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
+			.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, long.class)
 			.addQualifiedFunctionInvokeStatics(WoodPaletteEntry.class, "randomForBiome", "allForBiome")
+			.addQualifiedFunction(type(WoodPaletteEntry.class), "randomForBiome", new FunctionHandler.Named("randomForBiome(Biome)", (parser, name, arguments) -> {
+				InsnTree biome = ScriptEnvironment.castArgument(parser, "randomForBiome", BiomeEntry.TYPE, CastMode.IMPLICIT_NULL, arguments);
+				if (biome == null) return null;
+				return new CastResult(
+					invokeStatic(
+						MethodInfo.getMethod(WoodPaletteEntry.class, "randomForBiome"),
+						biome,
+						loadRandom
+					),
+					biome != arguments[0]
+				);
+			}))
 		);
-		environment.addQualifiedFunction(type(WoodPaletteEntry.class), "randomForBiome", new FunctionHandler.Named("randomForBiome(Biome)", (parser, name, arguments) -> {
-			InsnTree biome = ScriptEnvironment.castArgument(parser, "randomForBiome", BiomeEntry.TYPE, CastMode.IMPLICIT_NULL, arguments);
-			if (biome == null) return null;
-			return new CastResult(
-				invokeStatic(
-					MethodInfo.getMethod(WoodPaletteEntry.class, "randomForBiome"),
-					biome,
-					loadRandom
-				),
-				biome != arguments[0]
-			);
-		}));
 		for (WoodPaletteType type : WoodPaletteType.VALUES) {
 			String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);
 			environment.addField(type(WoodPaletteEntry.class), baseName + "Blocks", (parser, receiver, name) -> {

@@ -2,12 +2,19 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"Random perIsland = Random.new(",
-				"worldSeed # 16x4AC7180457808109L, ;make sure this matches in all features associated with a 50/50 chance of trees.",
+			";make sure this matches in all features associated with a 50/50 chance of trees.",
+			"long perIslandSeed = (worldSeed # 16x4AC7180457808109L).newSeed(",
 				"int(`overworld/skyland_center_x`),",
 				"int(`overworld/skyland_center_z`)",
 			")",
-			"return(random.nextBoolean() && random.nextBoolean(1.0 / 128.0) && placeFeature(originX, originY, originZ, ConfiguredFeatureTag('bigglobe:overworld/skylands/trees').random(perIsland)))"
+			"return(",
+				"perIslandSeed.nextBoolean() &&",
+				"random.nextBoolean(1.0 / 128.0) &&",
+				"placeFeature(originX, originY, originZ,",
+					"ConfiguredFeatureTag('bigglobe:overworld/skylands/trees')",
+					".random(perIslandSeed.newSeed())",
+				")",
+			")"
 		]
 	}
 }

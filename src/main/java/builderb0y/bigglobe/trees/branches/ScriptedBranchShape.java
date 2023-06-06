@@ -8,6 +8,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
 import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
@@ -45,6 +46,7 @@ public interface ScriptedBranchShape extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 6, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
 		}

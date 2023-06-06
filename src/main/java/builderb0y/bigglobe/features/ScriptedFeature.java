@@ -207,6 +207,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" ))))
 					)
 					.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.addEnvironment(
 						ColumnScriptEnvironment.createFixedXYZ(
 							ColumnValue.REGISTRY,

@@ -37,4 +37,9 @@ public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWr
 	public StructureTypeEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public StructureTypeEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

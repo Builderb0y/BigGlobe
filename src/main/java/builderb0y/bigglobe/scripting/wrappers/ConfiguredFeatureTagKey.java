@@ -36,4 +36,9 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 	public ConfiguredFeatureEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public ConfiguredFeatureEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

@@ -14,13 +14,8 @@ testing:
 where I left off:
 
 changelog:
-	* Added balls of string.
-	* Fixed flint/sticks/rocks spawning under snow.
-	* Fixed rough quartz, budding quartz, quartz buds, and quartz clusters not breaking faster with a pickaxe.
-	* Fixed rough quartz dropping amethyst blocks.
-	* Increased the amount of caves in the overworld.
-	* Buffed spawners in dungeons.
-	* Marked William Wythers' Overhauled Overworld as incompatible with Big Globe, since it A: prevents you from creating a Big Globe world, and B: corrupts existing Big Globe worlds when opening them.
+	* Changed something with skyland decoration. Old skylands on the border of generated chunks may suddenly acquire trees, lose trees, or have a different tree type.
+	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -35,6 +30,9 @@ AutoCodec:
 	VerifyNullable.INSTANCE should override toString().
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
+	@EncodeOnly and @DecodeOnly
+		DecodeOnly could be useful for backwards compatibility.
+		not sure what EncodeOnly would be useful for.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -43,6 +41,9 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
+	expose voronoi information.
+		include cave systems, cavern systems, skylands, and nether biome.
+	nested multi-line comment ;(example ;(text) here)
 
 features:
 	general:
@@ -50,6 +51,10 @@ features:
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 	overworld:
+		make geode bud blocks position-dependent for random direction.
+			same position = same direction.
+			this will fix issues with 2 geodes overlapping.
+		make geode bud blocks only place on budding blocks.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		configurable bedrock amount.
@@ -97,3 +102,5 @@ porting:
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
+	see if CactusBlock uses BlockTags.SAND for placement logic.
+		if it does, remove mixin for making it placeable on overgrown sand.

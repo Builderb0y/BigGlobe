@@ -65,6 +65,7 @@ public interface StructurePlacementScript extends Script {
 					.addVariableLoad("data", 12, NbtScriptEnvironment.NBT_COMPOUND_TYPE)
 				)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					ColumnScriptEnvironment.createVariableXYZ(
 						ColumnValue.REGISTRY,

@@ -43,6 +43,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 4, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
 			return new Holder(actualScript, columnYScriptEnvironment.usedValues);

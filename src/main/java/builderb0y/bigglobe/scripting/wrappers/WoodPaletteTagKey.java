@@ -36,4 +36,9 @@ public record WoodPaletteTagKey(TagKey<WoodPalette> key) implements TagWrapper<W
 	public WoodPaletteEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public WoodPaletteEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }

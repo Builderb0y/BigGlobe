@@ -55,6 +55,7 @@ public interface ScriptStructureOverrider extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 3, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
 		}

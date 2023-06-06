@@ -36,4 +36,9 @@ public record StructurePlacementScriptTagKey(TagKey<StructurePlacementScript.Hol
 	public StructurePlacementScriptEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
 	}
+
+	@Override
+	public StructurePlacementScriptEntry random(long seed) {
+		return this.randomImpl(seed);
+	}
 }
