@@ -26,6 +26,7 @@ public interface Grid2D extends Grid {
 		REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid2D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),   StalactiteGrid2D.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("sine_sum"),        SineWaveGrid2D.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid2D.class);
 	}};

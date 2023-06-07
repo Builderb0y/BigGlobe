@@ -44,6 +44,8 @@ scripting:
 	expose voronoi information.
 		include cave systems, cavern systems, skylands, and nether biome.
 	nested multi-line comment ;(example ;(text) here)
+	operators for !> !< !>= and !<= to negate the normal compare operators.
+		semantics differ from inverting for NaN handling.
 
 features:
 	general:

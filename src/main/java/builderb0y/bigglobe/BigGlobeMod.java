@@ -77,6 +77,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
 		BigGlobeNetherChunkGenerator.init();
+		//BigGlobeEndChunkGenerator.init();
 		BigGlobeSoundEvents.init();
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();

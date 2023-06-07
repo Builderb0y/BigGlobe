@@ -15,6 +15,7 @@ import com.google.common.base.Predicates;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
@@ -212,6 +213,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	}
 
 	public abstract WorldColumn column(int x, int z);
+
+	@Override
+	public abstract Codec<? extends ChunkGenerator> getCodec();
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;

@@ -54,6 +54,8 @@ public class BlockStates {
 		SOUL_SAND              = Blocks.SOUL_SAND.getDefaultState(),
 		SOUL_SOIL              = Blocks.SOUL_SOIL.getDefaultState(),
 
+		END_STONE              = Blocks.END_STONE.getDefaultState(),
+
 		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
 
 	/**
