@@ -22,15 +22,16 @@ import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.autocodec.annotations.SingletonArray;
-import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.ServerValue;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @SuppressWarnings("unused")
+@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class WoodPalette {
 
 	public static final ServerValue<Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>>>
@@ -50,6 +51,24 @@ public class WoodPalette {
 		this.blocks = blocks;
 		this.sapling_grow_feature = sapling_grow_feature;
 		this.biomes = biomes;
+	}
+
+	public static <T_Encoded> void verify(VerifyContext<T_Encoded, WoodPalette> context) throws VerifyException {
+		//fast check.
+		WoodPalette palette = context.object;
+		if (palette != null && palette.blocks.size() != WoodPaletteType.VALUES.length) {
+			//slow print.
+			context.logger().logErrorLazy(() -> {
+				StringBuilder builder = new StringBuilder("WoodPalette is missing blocks: ");
+				for (WoodPaletteType type : WoodPaletteType.VALUES) {
+					if (!palette.blocks.containsKey(type)) {
+						builder.append(type.lowerCaseName).append(", ");
+					}
+				}
+				builder.setLength(builder.length() - 2);
+				return builder.toString();
+			});
+		}
 	}
 
 	public Set<RegistryKey<Biome>> getBiomeSet() {

@@ -17,7 +17,9 @@
 		"sapling": "minecraft:dark_oak_sapling",
 		"potted_sapling": "minecraft:potted_dark_oak_sapling",
 		"standing_sign": "minecraft:dark_oak_sign",
-		"wall_sign": "minecraft:dark_oak_wall_sign"
+		"wall_sign": "minecraft:dark_oak_wall_sign",
+		"hanging_sign": "minecraft:dark_oak_hanging_sign",
+		"wall_hanging_sign": "minecraft:dark_oak_wall_hanging_sign"
 	},
 	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/dark_oak",
 	"biomes": "minecraft:bigglobe_wood_palette/dark_oak"

@@ -20,7 +20,9 @@
 		"sapling": "minecraft:flowering_azalea",
 		"potted_sapling": "minecraft:potted_flowering_azalea_bush",
 		"standing_sign": "minecraft:oak_sign",
-		"wall_sign": "minecraft:oak_wall_sign"
+		"wall_sign": "minecraft:oak_wall_sign",
+		"hanging_sign": "minecraft:oak_hanging_sign",
+		"wall_hanging_sign": "minecraft:oak_wall_hanging_sign"
 	},
 	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/flowering_azalea",
 	"biomes": "minecraft:bigglobe_wood_palette/flowering_azalea"

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.trees.trunks;
 
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.trees.TreeGenerator;
 
 public abstract class TrunkConfig {
 
@@ -11,7 +12,7 @@ public abstract class TrunkConfig {
 	/**
 	if true, the tree will abort generation if it
 	attempts to place a trunk block above a block which
-	isn't in TreeSpecialCases.getGroundReplacements().
+	isn't in {@link TreeGenerator#groundReplacements}.
 	this flag is set to true for natural trees,
 	and false for trees grown from saplings.
 	*/

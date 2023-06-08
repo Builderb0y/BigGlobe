@@ -17,7 +17,9 @@
 		"sapling": "minecraft:crimson_fungus",
 		"potted_sapling": "minecraft:potted_crimson_fungus",
 		"standing_sign": "minecraft:crimson_sign",
-		"wall_sign": "minecraft:crimson_wall_sign"
+		"wall_sign": "minecraft:crimson_wall_sign",
+		"hanging_sign": "minecraft:crimson_hanging_sign",
+		"wall_hanging_sign": "minecraft:crimson_wall_hanging_sign"
 	},
 	"sapling_grow_feature": "bigglobe:nether/trees/artificial/crimson",
 	"biomes": "minecraft:bigglobe_wood_palette/crimson"

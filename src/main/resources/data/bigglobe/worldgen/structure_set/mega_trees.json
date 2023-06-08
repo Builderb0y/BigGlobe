@@ -9,12 +9,13 @@
 		}
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:mega_trees/oak"      },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/spruce"   },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/birch"    },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/jungle"   },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/acacia"   },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/dark_oak" },
-		{ "weight": 1, "structure": "bigglobe:mega_trees/mangrove" }
+		{ "weight": 3, "structure": "bigglobe:mega_trees/oak"      },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/spruce"   },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/birch"    },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/jungle"   },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/acacia"   },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/dark_oak" },
+		{ "weight": 3, "structure": "bigglobe:mega_trees/mangrove" },
+		{ "weight": 1, "structure": "bigglobe:mega_trees/cherry"   }
 	]
 }

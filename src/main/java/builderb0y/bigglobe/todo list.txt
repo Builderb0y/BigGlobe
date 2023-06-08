@@ -11,13 +11,15 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 
-porting testing:
+porting:
 	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
 
 where I left off:
 
 changelog:
-	* Changed something with skyland decoration. Old skylands on the border of generated chunks may suddenly acquire trees, lose trees, or have a different tree type.
+	* Updated to 1.20!
+		* Added custom cherry trees.
+		* Added charred hanging signs.
 	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
 
 AutoCodec:

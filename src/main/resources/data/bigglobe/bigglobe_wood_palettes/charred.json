@@ -17,7 +17,9 @@
 		"sapling": "bigglobe:charred_sapling",
 		"potted_sapling": "bigglobe:potted_charred_sapling",
 		"standing_sign": "bigglobe:charred_sign",
-		"wall_sign": "bigglobe:charred_wall_sign"
+		"wall_sign": "bigglobe:charred_wall_sign",
+		"hanging_sign": "bigglobe:charred_hanging_sign",
+		"wall_hanging_sign": "bigglobe:charred_wall_hanging_sign"
 	},
 	"sapling_grow_feature": "bigglobe:nether/trees/artificial/charred",
 	"biomes": "bigglobe:bigglobe_wood_palette/charred"
