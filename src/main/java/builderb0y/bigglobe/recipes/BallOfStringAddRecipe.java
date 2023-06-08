@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.recipes;
 
-import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -24,7 +24,7 @@ public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public boolean matches(CraftingInventory inventory, World world) {
+	public boolean matches(RecipeInputInventory inventory, World world) {
 		boolean haveBall = false, haveString = false;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {
 			ItemStack stack = inventory.getStack(slot);
@@ -46,7 +46,7 @@ public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager registryManager) {
+	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager) {
 		ItemStack ball = ItemStack.EMPTY;
 		int string = 0;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {

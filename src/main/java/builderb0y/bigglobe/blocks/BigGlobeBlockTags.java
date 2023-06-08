@@ -11,7 +11,9 @@ public class BigGlobeBlockTags {
 	public static final TagKey<Block>
 		AMETHYST_BLOCKS            = of("amethyst_blocks"),
 		AMETHYST_BUDS              = of("amethyst_buds"),
-		MINEABLE_PERCUSSIVE_HAMMER = of("mineable/percussive_hammer");
+		MINEABLE_PERCUSSIVE_HAMMER = of("mineable/percussive_hammer"),
+		ROCK_BREAKABLE             = of("rock_breakable"),
+		REPLACEABLE_PLANTS         = of("replaceable_plants");
 
 	public static TagKey<Block> of(String name) {
 		return TagKey.of(RegistryKeys.BLOCK, BigGlobeMod.modID(name));

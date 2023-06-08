@@ -17,16 +17,26 @@ public class SectionGenerationContext {
 
 	public final Chunk chunk;
 	public final ChunkSection section;
+	public final int sectionStartY;
 	public final long worldSeed;
 	public final ChunkOfColumns<? extends WorldColumn> columns;
 	public final @Nullable LightPositionCollector lights;
 
-	public SectionGenerationContext(Chunk chunk, ChunkSection section, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
-		this.chunk     = chunk;
-		this.section   = section;
-		this.worldSeed = worldSeed;
-		this.columns   = columns;
-		this.lights    = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
+	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+		this.chunk         = chunk;
+		this.section       = section;
+		this.sectionStartY = sectionStartY;
+		this.worldSeed     = worldSeed;
+		this.columns       = columns;
+		this.lights        = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
+	}
+
+	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4, worldSeed, columns);
+	}
+
+	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+		return new SectionGenerationContext(chunk, section, sectionCoord << 4, worldSeed, columns);
 	}
 
 	public void addLight(int index) {
@@ -48,10 +58,10 @@ public class SectionGenerationContext {
 	public PaletteStorage storage() { return SectionUtil.storage(this.container()); }
 	public int id(BlockState state) { return SectionUtil.id(this.container(), state); }
 	public int sectionX() { return this.chunkPos().x; }
-	public int sectionY() { return this.section.getYOffset() >> 4; }
+	public int sectionY() { return this.sectionStartY >> 4; }
 	public int sectionZ() { return this.chunkPos().z; }
 	public int startX() { return this.chunkPos().getStartX(); }
-	public int startY() { return this.section.getYOffset(); }
+	public int startY() { return this.sectionStartY; }
 	public int startZ() { return this.chunkPos().getStartZ(); }
 	public int endX() { return this.startX() | 15; }
 	public int endY() { return this.startY() | 15; }

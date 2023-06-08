@@ -6,7 +6,7 @@
 			"type": "minecraft:item",
 			"name": "bigglobe:wart_weed",
 			"conditions": [{
-				"condition": "minecraft:alternative",
+				"condition": "minecraft:any_of",
 				"terms": [
 					{
 						"condition": "minecraft:match_tool",

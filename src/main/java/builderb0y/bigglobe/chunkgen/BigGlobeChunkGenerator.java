@@ -5,10 +5,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
@@ -54,7 +54,6 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
@@ -219,17 +218,16 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		Arrays
-		.stream(
-			chunk.getSectionArray(),
+		IntStream.rangeClosed(
 			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */) + 1 /* and then back to exclusive for stream() */
+			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */)
 		)
 		.parallel()
-		.forEach((ChunkSection section) -> {
+		.forEach((int index) -> {
+			ChunkSection section = chunk.getSection(index);
 			section.lock();
 			try {
-				generator.accept(new SectionGenerationContext(chunk, section, seed, columns));
+				generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
 			}
 			finally {
 				section.unlock();
@@ -239,27 +237,30 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallel(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
-		Arrays
-		.stream(
-			chunk.getSectionArray(),
+		//ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
+		IntStream.rangeClosed(
 			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */) + 1 /* and then back to exclusive for stream() */
+			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */)
 		)
 		.parallel()
-		.forEach((ChunkSection section) -> {
+		.forEach((int index) -> {
+			ChunkSection section = chunk.getSection(index);
 			section.lock();
 			try {
-				SectionGenerationContext context = new SectionGenerationContext(chunk, section, seed, columns);
+				SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
 				generator.accept(context);
+				/*
 				if (context.hasLights()) {
 					lights.add(context.lights());
 				}
+				//*/
+
 			}
 			finally {
 				section.unlock();
 			}
 		});
+		/*
 		if (lights != null) {
 			ProtoChunk protoChunk = (ProtoChunk)(chunk);
 			for (LightPositionCollector collector; (collector = lights.poll()) != null; ) {
@@ -268,6 +269,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				}
 			}
 		}
+		//*/
 	}
 
 	public void setHeightmaps(Chunk chunk, HeightmapSupplier heightGetter) {

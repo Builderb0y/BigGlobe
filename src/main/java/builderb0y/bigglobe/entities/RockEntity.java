@@ -4,7 +4,6 @@ import java.util.function.Predicate;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -29,10 +28,12 @@ import net.minecraft.world.RaycastContext.FluidHandling;
 import net.minecraft.world.RaycastContext.ShapeType;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class RockEntity extends ThrownItemEntity {
 
@@ -72,14 +73,14 @@ public class RockEntity extends ThrownItemEntity {
 		EntityHitResult entityHitResult;
 		Vec3d nextPosition;
 		Vec3d velocity = this.getVelocity();
-		World world = this.world;
+		World world = EntityVersions.getWorld(this);
 		Vec3d position = this.getPos();
 		HitResult blockHitResult = world.raycast(
 			new RaycastContext(
 				position,
 				nextPosition = position.add(velocity),
 				ShapeType.COLLIDER,
-				this.world.getBlockState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
+				world.getBlockState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
 				? FluidHandling.NONE
 				: FluidHandling.ANY,
 				this
@@ -97,7 +98,7 @@ public class RockEntity extends ThrownItemEntity {
 	@Override
 	public void onBlockHit(BlockHitResult blockHitResult) {
 		super.onBlockHit(blockHitResult);
-		BlockState hitState = this.world.getBlockState(blockHitResult.getBlockPos());
+		BlockState hitState = EntityVersions.getWorld(this).getBlockState(blockHitResult.getBlockPos());
 		if (!hitState.getFluidState().isEmpty()) {
 			if (hitState.getFluidState().isIn(FluidTags.WATER)) {
 				if (
@@ -109,7 +110,7 @@ public class RockEntity extends ThrownItemEntity {
 				//else go through surface
 			}
 			else if (hitState.getFluidState().isIn(FluidTags.LAVA)) {
-				if (this.world instanceof ServerWorld world) {
+				if (EntityVersions.getWorld(this) instanceof ServerWorld world) {
 					world.spawnParticles(ParticleTypes.LAVA, this.getX(), this.getY(), this.getZ(), 16, 0.0D, 0.0D, 0.0D, 0.0D);
 					world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.NEUTRAL, 1.0F, 1.0F);
 				}
@@ -123,8 +124,8 @@ public class RockEntity extends ThrownItemEntity {
 			this.placeRock(blockHitResult);
 		}
 		else {
-			if (hitState.getMaterial() == Material.GLASS) {
-				this.world.breakBlock(blockHitResult.getBlockPos(), true, this);
+			if (hitState.isIn(BigGlobeBlockTags.ROCK_BREAKABLE)) {
+				EntityVersions.getWorld(this).breakBlock(blockHitResult.getBlockPos(), true, this);
 				this.setVelocity(this.getVelocity().multiply(0.75D));
 			}
 			else {
@@ -135,9 +136,9 @@ public class RockEntity extends ThrownItemEntity {
 
 	public void placeRock(BlockHitResult blockHitResult) {
 		BlockPos placePos = blockHitResult.getBlockPos().up();
-		SingleBlockFeature.place(this.world, placePos, BigGlobeBlocks.ROCK.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
+		SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, BigGlobeBlocks.ROCK.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
 		BlockSoundGroup group = BlockSoundGroup.STONE;
-		this.world.playSound(null, placePos, group.getBreakSound(), SoundCategory.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.8F);
+		EntityVersions.getWorld(this).playSound(null, placePos, group.getBreakSound(), SoundCategory.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.8F);
 		this.discard();
 	}
 
@@ -151,11 +152,11 @@ public class RockEntity extends ThrownItemEntity {
 		);
 		this.velocityDirty = true;
 		if (water) {
-			this.world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+			EntityVersions.getWorld(this).playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
 		}
 		else {
 			BlockSoundGroup group = BlockSoundGroup.STONE;
-			this.world.playSound(null, this.getX(), this.getY(), this.getZ(), group.getHitSound(), SoundCategory.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.5F);
+			EntityVersions.getWorld(this).playSound(null, this.getX(), this.getY(), this.getZ(), group.getHitSound(), SoundCategory.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.5F);
 		}
 	}
 

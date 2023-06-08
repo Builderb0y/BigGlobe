@@ -384,7 +384,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			});
 			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, false);
 			ChunkSection bottomSection = chunk.getSection(chunk.getSectionIndex(this.getMinimumY()));
-			BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, bottomSection, this.seed, columns));
+			BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, bottomSection, this.getMinimumY(), this.seed, columns));
 		}
 		this.profiler.run("Recalculate counts", () -> {
 			this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, SectionGenerationContext::recalculateCounts);
@@ -1184,7 +1184,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				HeightLimitView heightView = chunk.getHeightLimitView();
 				IntStream.range(heightView.getBottomSectionCoord(), heightView.getTopSectionCoord()).parallel().forEach(sectionY -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
-					int startY = section.getYOffset();
+					int startY = sectionY << 4;
 					PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
 					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
 						OverworldColumn column = columns.getColumn(paletteIndex & 15);

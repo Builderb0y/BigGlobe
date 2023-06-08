@@ -322,8 +322,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				this.generateRawSections(chunk, columns, structures, distantHorizons);
 			});
 			this.profiler.run("Bedrock", () -> {
-				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.seed, columns)));
-				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.seed, columns)));
+				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.settings.min_y,      this.seed, columns)));
+				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.settings.max_y - 16, this.seed, columns)));
 				lower.join();
 				upper.join();
 			});

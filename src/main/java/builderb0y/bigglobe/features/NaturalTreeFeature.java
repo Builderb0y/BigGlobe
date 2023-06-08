@@ -8,7 +8,6 @@ import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
@@ -90,7 +89,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		return new TreeGenerator(
 			context.getWorld(),
 			config.delay_generation
-			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), Block.NOTIFY_LISTENERS | Block.SKIP_LIGHTING_UPDATES)
+			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
 			: new BlockQueue(false),
 			permuter,
 			config.palette.value(),

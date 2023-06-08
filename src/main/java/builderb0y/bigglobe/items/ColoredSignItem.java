@@ -26,7 +26,11 @@ public class ColoredSignItem extends SignItem {
 	@Override
 	public boolean postPlacement(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
 		SignBlockEntity sign = WorldUtil.getBlockEntity(world, pos, SignBlockEntity.class);
-		if (sign != null) sign.setTextColor(this.color); //set before reading from stack NBT.
+		if (sign != null) {
+			//set before reading from stack NBT.
+			sign.setText(sign.getFrontText().withColor(this.color), true );
+			sign.setText(sign.getBackText ().withColor(this.color), false);
+		}
 		return super.postPlacement(pos, world, player, stack, state);
 	}
 }

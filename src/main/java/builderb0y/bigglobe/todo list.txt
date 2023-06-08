@@ -11,6 +11,9 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 
+porting testing:
+	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
+
 where I left off:
 
 changelog:
@@ -52,6 +55,7 @@ features:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
+		make charred hanging sign look a bit more programmer art-y?
 	overworld:
 		make geode bud blocks position-dependent for random direction.
 			same position = same direction.
@@ -78,6 +82,10 @@ features:
 			mushroom:
 				glowing mushrooms?
 					that hang from the ceiling?
+			frozen?
+				floor:
+					snow.
+					maybe some ice sprinkled in with the snow.
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
@@ -85,6 +93,7 @@ features:
 			occasional "big rooms".
 		underground pockets:
 			molten? (match molten caves)
+			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 		make lilypads renewable?
 	nether:
@@ -99,10 +108,14 @@ before release:
 	make sure SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE is set to false.
 
 porting:
-	add sniffer_diggable_block tag to include overgrown podzol.
-	add hanging signs to WoodPalette.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
 	see if CactusBlock uses BlockTags.SAND for placement logic.
 		if it does, remove mixin for making it placeable on overgrown sand.
+
+back-porting:
+	re-enable lighting update suppression in BlockQueue.
+	spelunking rope block needs to override getPistonBehavior() to return DESTROY.
+	rope anchor block needs to override getPistonBehavior() to return BLOCK.
+	wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".

@@ -26,6 +26,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -300,7 +301,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 			this.player = player;
 			this.y = floorI(player.getY());
 			this.column = WorldColumn.forWorld(
-				player.getWorld(),
+				EntityVersions.getServerWorld(player),
 				floorI(player.getX()),
 				floorI(player.getZ())
 			);
@@ -316,7 +317,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		}
 
 		public World world() {
-			return this.player.getWorld();
+			return EntityVersions.getWorld(this.player);
 		}
 
 		public Chunk chunk() {

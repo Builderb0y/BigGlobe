@@ -79,7 +79,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 	}
 
 	public static boolean isSolidOpaqueFullCube(BlockView world, BlockPos pos, BlockState state) {
-		return state.getMaterial().isSolid() && state.getMaterial().blocksLight() && state.isFullCube(world, pos);
+		return state.isOpaqueFullCube(world, pos);
 	}
 
 	public static class SoundPulse {

@@ -1,14 +1,8 @@
 package builderb0y.bigglobe.compat;
 
-import dev.lambdaurora.lambdynlights.api.DynamicLightHandler;
-import dev.lambdaurora.lambdynlights.api.DynamicLightHandlers;
-import dev.lambdaurora.lambdynlights.api.DynamicLightsInitializer;
+public class LambDynamicLightsCompat /* implements DynamicLightsInitializer */ {
 
-import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
-import builderb0y.bigglobe.entities.TorchArrowEntity;
-
-public class LambDynamicLightsCompat implements DynamicLightsInitializer {
-
+	/*
 	@Override
 	public void onInitializeDynamicLights() {
 		DynamicLightHandlers.registerDynamicLightHandler(
@@ -29,4 +23,5 @@ public class LambDynamicLightsCompat implements DynamicLightsInitializer {
 			}
 		);
 	}
+	*/
 }

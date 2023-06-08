@@ -19,7 +19,7 @@ public class Items_PlaceableSticks {
 		method = "<clinit>",
 		at     = @At(
 			value  = "NEW",
-			target = "net/minecraft/item/Item"
+			target = "(Lnet/minecraft/item/Item$Settings;)Lnet/minecraft/item/Item;"
 		),
 		slice = @Slice(
 			from = @At(value = "CONSTANT", args   = "stringValue=stick"),

@@ -3,7 +3,6 @@ package builderb0y.bigglobe.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -197,13 +196,6 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@SuppressWarnings("deprecation")
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return EMPTY_SHAPE;
-	}
-
-	@Override
-	@Deprecated
-	@SuppressWarnings("deprecation")
-	public PistonBehavior getPistonBehavior(BlockState state) {
-		return PistonBehavior.BLOCK;
 	}
 
 	@Override

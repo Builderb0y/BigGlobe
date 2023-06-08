@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
@@ -25,6 +24,7 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.trees.TreeSpecialCases;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.MaterialVersions;
 
 public class SerializableBlockQueue extends BlockQueue {
 
@@ -54,6 +54,10 @@ public class SerializableBlockQueue extends BlockQueue {
 		this.maxX    = centerX;
 		this.maxY    = centerY;
 		this.maxZ    = centerZ;
+	}
+
+	public SerializableBlockQueue(int centerX, int centerY, int centerZ, boolean causeBlockUpdates) {
+		this(centerX, centerY, centerZ, causeBlockUpdates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 	}
 
 	@Override
@@ -118,8 +122,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	}
 
 	public static boolean canImplicitlyReplace(BlockState state) {
-		Material material = state.getMaterial();
-		return material.isReplaceable() || material == Material.PLANT;
+		return MaterialVersions.isReplaceableOrPlant(state);
 	}
 
 	public static SerializableBlockQueue read(NbtCompound nbt) {

@@ -60,7 +60,8 @@ public class BigGlobeItems {
 		CHARRED_WOOD             = registerPlacer(BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
 		CHARRED_LEAVES           = registerPlacer(BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register      ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_SIGN             = register      ("charred_sign",         new ColoredSignItem       (new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN,         BigGlobeBlocks.CHARRED_WALL_SIGN,         DyeColor.LIGHT_GRAY)),
+		CHARRED_HANGING_SIGN     = register      ("charred_hanging_sign", new ColoredHangingSignItem(new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_HANGING_SIGN, BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN, DyeColor.LIGHT_GRAY)),
 		CHARRED_PRESSURE_PLATE   = registerPlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
 		CHARRED_TRAPDOOR         = registerPlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
 		CHARRED_STAIRS           = registerPlacer(BigGlobeBlocks.CHARRED_STAIRS),
@@ -188,6 +189,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
+			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_HANGING_SIGN);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
 			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);

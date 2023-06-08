@@ -28,6 +28,7 @@ import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator3D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {
 
@@ -122,8 +123,8 @@ public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {
 		}
 		Result result = command.nextResult(false);
 		if (result != null) {
-			source.sendFeedback(Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise." + compareMode.name().toLowerCase(Locale.ROOT) + ".success.single", script.getSource()), false);
-			source.sendFeedback(result.toText(source), false);
+			ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise." + compareMode.name().toLowerCase(Locale.ROOT) + ".success.single", script.getSource()), false);
+			ServerCommandSourceVersions.sendFeedback(source, () -> result.toText(source), false);
 			return 1;
 		}
 		else {
@@ -186,7 +187,7 @@ public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {
 				)
 			);
 		}
-		source.sendFeedback(Text.translatable("commands." + BigGlobeMod.MODID + ".locate.searching"), false);
+		ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.searching"), false);
 		command.start(context.getInput());
 		return 1;
 	}
@@ -229,7 +230,7 @@ public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {
 				this.source.sendError(Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise." + this.compareMode.lowerCaseName + ".fail.multi", this.script.getSource(), this.radius));
 			}
 			else {
-				this.source.sendFeedback(Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise." + this.compareMode.lowerCaseName + ".success.multi", this.script.getSource(), this.radius), false);
+				ServerCommandSourceVersions.sendFeedback(this.source, () -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise." + this.compareMode.lowerCaseName + ".success.multi", this.script.getSource(), this.radius), false);
 				this.sendResults();
 			}
 		}

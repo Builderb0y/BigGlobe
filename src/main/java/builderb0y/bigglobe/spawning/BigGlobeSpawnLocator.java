@@ -20,6 +20,7 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class BigGlobeSpawnLocator {
 
@@ -41,17 +42,17 @@ public class BigGlobeSpawnLocator {
 	public static void initPlayerSpawn(ServerPlayerEntity player) {
 		if (
 			BigGlobeConfig.INSTANCE.get().playerSpawning.perPlayerSpawnPoints &&
-			player.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator
+			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator
 		) {
 			SpawnPoint spawnPoint = findSpawn(
 				overworldChunkGenerator.column(0, 0),
 				Permuter.permute(
-					player.getWorld().getSeed() ^ 0x4BB5FF80362770B0L,
+					EntityVersions.getServerWorld(player).getSeed() ^ 0x4BB5FF80362770B0L,
 					player.getGameProfile().getId()
 				)
 			);
 			if (spawnPoint != null) {
-				player.setSpawnPoint(player.getWorld().getRegistryKey(), spawnPoint.toBlockPos(), spawnPoint.yaw, true, false);
+				player.setSpawnPoint(EntityVersions.getWorld(player).getRegistryKey(), spawnPoint.toBlockPos(), spawnPoint.yaw, true, false);
 				player.refreshPositionAndAngles(spawnPoint.toBlockPos(), spawnPoint.yaw, 0.0F);
 			}
 		}

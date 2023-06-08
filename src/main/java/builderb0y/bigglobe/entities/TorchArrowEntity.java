@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class TorchArrowEntity extends PersistentProjectileEntity {
 
@@ -42,11 +43,12 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 
 	@Override
 	public void onBlockHit(BlockHitResult blockHitResult) {
-		if (!this.world.isClient) {
-			BlockState hitState = this.world.getBlockState(blockHitResult.getBlockPos());
+		World world = EntityVersions.getWorld(this);
+		if (!world.isClient) {
+			BlockState hitState = world.getBlockState(blockHitResult.getBlockPos());
 			if (hitState.getBlock() instanceof TntBlock) {
 				this.setOnFireFor(1); //TNT ignites when a flaming projectile hits it.
-				hitState.onProjectileHit(this.world, hitState, blockHitResult, this);
+				hitState.onProjectileHit(world, hitState, blockHitResult, this);
 				this.discard();
 				return;
 			}
@@ -63,14 +65,14 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 			//this action is most likely to succeed when you hit the center of the block.
 			//see also: getPlacementFailChance().
 			if (toPlace != null && this.tryPlace(blockHitResult, toPlace)) {
-				hitState.onProjectileHit(this.world, hitState, blockHitResult, this);
+				hitState.onProjectileHit(world, hitState, blockHitResult, this);
 				this.discard();
 				return;
 			}
 			//secondary action: bounce off the block.
 			//this action is most likely to fail when we hit the block face directly,
 			//and most likely to succeed when we hit the block at a glancing angle.
-			if (this.world.random.nextDouble() >= this.getBounceFailChance(blockHitResult)) {
+			if (world.random.nextDouble() >= this.getBounceFailChance(blockHitResult)) {
 				Vec3d velocity = this.getVelocity();
 				Axis axis = blockHitResult.getSide().getAxis();
 				this.setVelocity(
@@ -80,7 +82,7 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 				);
 				this.velocityDirty = true;
 				this.playSound(this.getSound(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-				hitState.onProjectileHit(this.world, hitState, blockHitResult, this);
+				hitState.onProjectileHit(world, hitState, blockHitResult, this);
 				this.setCritical(false);
 				this.setPierceLevel((byte)(0));
 				return;
@@ -102,13 +104,14 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 
 	public boolean tryPlace(BlockHitResult blockHitResult, BlockState toPlace) {
 		BlockPos placementPos = blockHitResult.getBlockPos().offset(blockHitResult.getSide());
+		World world = EntityVersions.getWorld(this);
 		if (
-			this.world.isAir(placementPos) &&
-			toPlace.canPlaceAt(this.world, placementPos) &&
-			this.world.setBlockState(placementPos, toPlace)
+			world.isAir(placementPos) &&
+			toPlace.canPlaceAt(world, placementPos) &&
+			world.setBlockState(placementPos, toPlace)
 		) {
 			BlockSoundGroup sound = toPlace.getSoundGroup();
-			this.world.playSound(null, placementPos, sound.getPlaceSound(), SoundCategory.BLOCKS, sound.getVolume() * 0.5F + 0.5F, sound.getPitch() * 0.8f);
+			world.playSound(null, placementPos, sound.getPlaceSound(), SoundCategory.BLOCKS, sound.getVolume() * 0.5F + 0.5F, sound.getPitch() * 0.8f);
 			return true;
 		}
 		return false;
