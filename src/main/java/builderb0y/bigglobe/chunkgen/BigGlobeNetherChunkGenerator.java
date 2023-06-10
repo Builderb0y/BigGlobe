@@ -35,6 +35,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.NetherPositionCache;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
@@ -426,6 +427,11 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		);
 
 		return true;
+	}
+
+	@Override
+	public void prepareBiomeColumn(WorldColumn column) {
+		column.getSurfaceBiome();
 	}
 
 	@Override

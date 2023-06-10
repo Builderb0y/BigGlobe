@@ -167,6 +167,16 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		NETHER_CAVERN_NOISE                     = registerNether   ("cavern_noise",                     withY(   NetherColumn::getCavernNoise               ), null),
 		NETHER_CACHED_CAVERN_NOISE              = registerNether   ("cached_cavern_noise",              withY(   NetherColumn::getCachedCavernNoise         ), null);
 
+	@SuppressWarnings("unused")
+	public static final ColumnValue<EndColumn>
+		END_WARP_X                              = registerEnd      ("warp_x",                        withoutY(      EndColumn::getWarpX                     ), null),
+		END_WARP_Z                              = registerEnd      ("warp_z",                        withoutY(      EndColumn::getWarpZ                     ), null),
+		END_WARP_RADIUS                         = registerEnd      ("warp_radius",                   withoutY(      EndColumn::getWarpRadius                ), null),
+		END_WARP_ANGLE                          = registerEnd      ("warp_angle",                    withoutY(      EndColumn::getWarpAngle                 ), null),
+		END_DISTANCE_TO_ORIGIN                  = registerEnd      ("distance_to_origin",            withoutY(      EndColumn::getDistanceToOrigin          ), EndColumn::debug_distanceToOrigin),
+		END_MOUNTAIN_CENTER_Y                   = registerEnd      ("mountain_center_y",             withoutY(      EndColumn::getMountainCenterY           ), null),
+		END_MOUNTAIN_THICKNESS                  = registerEnd      ("mountain_thickness",            withoutY(      EndColumn::getMountainThickness         ), null);
+
 	public final Class<T_Column> columnClass;
 	public final Getter<T_Column> getter;
 	public final @Nullable CustomDisplay customDisplay;
@@ -208,6 +218,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	public static ColumnValue<NetherColumn> registerNether(String name, Getter<NetherColumn> getter, @Nullable CustomDisplay customDisplay) {
 		return register("nether/" + name, NetherColumn.class, getter, customDisplay);
+	}
+
+	public static ColumnValue<EndColumn> registerEnd(String name, Getter<EndColumn> getter, @Nullable CustomDisplay customDisplay) {
+		return register("end/" + name, EndColumn.class, getter, customDisplay);
 	}
 
 	public static <T_Column extends WorldColumn> ColumnValue<T_Column> register(String name, Class<T_Column> columnClass, Getter<T_Column> getter, @Nullable CustomDisplay customDisplay) {

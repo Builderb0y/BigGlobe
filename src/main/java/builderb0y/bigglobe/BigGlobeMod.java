@@ -28,6 +28,7 @@ import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.SoulCauldronBlock;
 import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
@@ -77,7 +78,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
 		BigGlobeNetherChunkGenerator.init();
-		//BigGlobeEndChunkGenerator.init();
+		BigGlobeEndChunkGenerator.init();
 		BigGlobeSoundEvents.init();
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();

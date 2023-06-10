@@ -2,6 +2,7 @@ package builderb0y.bigglobe.noise;
 
 import java.util.random.RandomGenerator;
 
+import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.settings.Seed;
@@ -9,9 +10,10 @@ import builderb0y.bigglobe.settings.Seed;
 public class SineWaveGrid2D implements Grid2D {
 
 	public final Seed seed;
-	public final double scale;
+	public final @VerifyFloatRange(min = 0.0D, minInclusive = false) double scale;
 	public final double amplitude;
 	public final @VerifyIntRange(min = 0, max = 64) int iterations;
+	public final transient double rcpStandardDeviation;
 	public transient PhaseData phaseData;
 
 	public SineWaveGrid2D(Seed seed, double scale, double amplitude, int iterations) {
@@ -19,6 +21,7 @@ public class SineWaveGrid2D implements Grid2D {
 		this.scale      = scale;
 		this.amplitude  = amplitude;
 		this.iterations = iterations;
+		this.rcpStandardDeviation = amplitude / Math.sqrt(iterations);
 	}
 
 	public PhaseData getPhaseData(long seed) {
@@ -48,9 +51,9 @@ public class SineWaveGrid2D implements Grid2D {
 				double newDistance = Double.POSITIVE_INFINITY;
 				for (int check = 0; check < point; check++) {
 					double checkDistance = Math.abs(result[check] - newValue);
-					newDistance = Math.min(newDistance, Math.min(checkDistance, BigGlobeMath.TAU - check));
+					newDistance = Math.min(newDistance, Math.min(checkDistance, BigGlobeMath.TAU - checkDistance));
 				}
-				if (newDistance > bestDistance) {
+				if (newDistance >= bestDistance) {
 					bestValue = newValue;
 					bestDistance = newDistance;
 				}
@@ -62,22 +65,24 @@ public class SineWaveGrid2D implements Grid2D {
 
 	@Override
 	public double maxValue() {
-		return Math.abs(this.amplitude) * this.iterations;
+		return Math.abs(this.rcpStandardDeviation) * this.iterations;
 	}
 
 	@Override
 	public double minValue() {
-		return -Math.abs(this.amplitude) * this.iterations;
+		return -Math.abs(this.rcpStandardDeviation) * this.iterations;
 	}
 
 	@Override
 	public double getValue(long seed, int x, int y) {
 		PhaseData data = this.getPhaseData(seed);
+		double xd = x / this.scale;
+		double yd = y / this.scale;
 		double sum = 0.0;
 		for (int iteration = 0; iteration < this.iterations; iteration++) {
-			sum += Math.sin(x * data.cosAngles[iteration] + y * data.sinAngles[iteration] + data.offsets[iteration]);
+			sum += Math.sin(xd * data.cosAngles[iteration] + yd * data.sinAngles[iteration] + data.offsets[iteration]);
 		}
-		return sum;
+		return sum * this.rcpStandardDeviation;
 	}
 
 	public static record PhaseData(long seed, double[] cosAngles, double[] sinAngles, double[] offsets) {}

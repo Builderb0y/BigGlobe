@@ -333,13 +333,86 @@
 
 
 		"minecraft:the_end": {
-			"type": "minecraft:the_end",
+			"type": "bigglobe:end",
 			"generator": {
-				"type": "minecraft:noise",
-				"biome_source": {
-					"type": "minecraft:the_end"
-				},
-				"settings": "minecraft:end"
+				"type": "bigglobe:end",
+				"value": {
+					"min_y": -512,
+					"max_y":  512,
+					"warp_x": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
+					"warp_z": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
+					"nest": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.5 }
+							]
+						}
+					},
+					"mountains": {
+						"center_y": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 1024.0, "scaleY": 1024.0, "amplitude": 64.0 },
+								{ "type": "cubic", "scaleX":  512.0, "scaleY":  512.0, "amplitude": 32.0 },
+								{ "type": "cubic", "scaleX":  256.0, "scaleY":  256.0, "amplitude": 16.0 },
+								{ "type": "cubic", "scaleX":  128.0, "scaleY":  128.0, "amplitude":  8.0 },
+								{ "type": "cubic", "scaleX":   64.0, "scaleY":   64.0, "amplitude":  4.0 },
+								{ "type": "cubic", "scaleX":   32.0, "scaleY":   32.0, "amplitude":  2.0 },
+								{ "type": "cubic", "scaleX":   16.0, "scaleY":   16.0, "amplitude":  1.0 }
+							]
+						},
+						"thickness": [
+							"double radius = `end/warp_radius`",
+							"double base = exp2(-4.0 * radius) * 256.0L - 8.0L",
+							"double noise = sin(`end/warp_angle` * 6.0 + log2(radius) * 8.0)",
+							"double amplitude = radius * exp2(-4.0 * radius) * 64.0",
+							"return(base + noise * amplitude)"
+						]
+					},
+					"ring_clouds": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "constant", "value": 0.5 },
+								{ "type": "smooth", "scaleX": 64, "scaleY": 64, "scaleZ": 64, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.125 },
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.0625 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.03125 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.015625 },
+								{ "type": "worley", "scale": 32, "amplitude": -0.5 },
+								{ "type": "worley", "scale": 16, "amplitude": -0.25 }
+							]
+						},
+						"center_y": 192.0,
+						"min_radius": 0.25,
+						"max_radius": 0.5,
+						"vertical_thickness": 64.0
+					},
+					"bridge_clouds": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "constant", "value": 0.5 },
+								{ "type": "smooth", "scaleX": 64, "scaleY": 64, "scaleZ": 64, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.125 },
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.0625 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.03125 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.015625 },
+								{ "type": "worley", "scale": 32, "amplitude": -0.5 },
+								{ "type": "worley", "scale": 16, "amplitude": -0.25 }
+							]
+						},
+						"count": 32,
+						"base_y": 159.0,
+						"archness": 64.0,
+						"min_radius": 0.5,
+						"mid_radius": 1.0,
+						"vertical_thickness": 64.0
+					}
+				}
 			}
 		}
 	}

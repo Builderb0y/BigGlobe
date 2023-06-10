@@ -7,11 +7,9 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
-import builderb0y.autocodec.annotations.VerifyFloatRange;
-import builderb0y.autocodec.annotations.VerifyIntRange;
-import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
@@ -23,8 +21,8 @@ public record EndSettings(
 	Grid2D warp_z,
 	EndNestSettings nest,
 	EndMountainSettings mountains,
-	RingCloudSettings ring_clouds,
-	BridgeCloudSettings bridge_clouds,
+	@VerifyNullable RingCloudSettings ring_clouds,
+	@VerifyNullable BridgeCloudSettings bridge_clouds,
 	EndBiomes biomes
 ) {
 
@@ -33,21 +31,37 @@ public record EndSettings(
 	) {}
 
 	public record EndMountainSettings(
-		Grid2D noise,
+		Grid2D center_y,
 		ColumnYToDoubleScript.Holder thickness
 	) {}
 
 	public record RingCloudSettings(
 		Grid3D noise,
+		double center_y,
+		@VerifyFloatRange(min = 0.0D, minInclusive = false) double min_radius,
+		@VerifySorted(greaterThan = "min_radius") double max_radius,
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
-	) {}
+	) {
+
+		public int verticalSamples() {
+			return BigGlobeMath.floorI(this.vertical_thickness * 2.0D) + 1;
+		}
+	}
 
 	public record BridgeCloudSettings(
 		Grid3D noise,
+		double base_y,
+		double archness,
 		@VerifyIntRange(min = 0) int count,
-		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness,
-		double archness
-	) {}
+		@VerifyFloatRange(min = 0.0D) double min_radius,
+		@VerifySorted(greaterThan = "min_radius") double mid_radius,
+		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
+	) {
+
+		public int verticalSamples() {
+			return BigGlobeMath.floorI(this.vertical_thickness * 2.0D) + 1;
+		}
+	}
 
 	@Wrapper
 	public static class EndBiomes {

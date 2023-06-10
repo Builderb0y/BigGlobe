@@ -41,6 +41,7 @@ public interface ScriptedBranchShape extends Script {
 					)
 					.addXZ("x", "z")
 					.addY("y")
+					.addSeed("worldSeed")
 					.mutable
 				)
 				.addEnvironment(RandomScriptEnvironment.create(

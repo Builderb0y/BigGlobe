@@ -35,7 +35,8 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				load("y", 2, TypeInfos.DOUBLE)
 			)
 			.addXZ("x", "z")
-			.addY("y");
+			.addY("y")
+			.addSeed("worldSeed");
 			ColumnYRandomToDoubleScript actualScript = (
 				new ScriptParser<>(ColumnYRandomToDoubleScript.class, script)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)

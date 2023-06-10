@@ -61,6 +61,14 @@ public interface StructureLayoutScript extends Script {
 					.addVariableLoad("x", 1, TypeInfos.INT)
 					.addVariableLoad("z", 2, TypeInfos.INT)
 
+					.addVariable(
+						"worldSeed",
+						getField(
+							load("column", 4, type(WorldColumn.class)),
+							ColumnScriptEnvironment.SEED
+						)
+					)
+
 					.addFunction(
 						"getBiome",
 						new FunctionHandler.Named(

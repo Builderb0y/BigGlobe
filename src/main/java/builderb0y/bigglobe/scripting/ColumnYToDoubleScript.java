@@ -30,9 +30,11 @@ public interface ColumnYToDoubleScript extends Script {
 			)
 			.trackUsedValues()
 			.addXZ("x", "z")
-			.addY("y");
+			.addY("y")
+			.addSeed("worldSeed");
 			this
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 			.addEnvironment(this.columnScriptEnvironment.mutable);
 		}
 	}

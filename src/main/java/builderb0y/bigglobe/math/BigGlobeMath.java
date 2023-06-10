@@ -464,7 +464,12 @@ public class BigGlobeMath {
 
 	public static short toUnsignedShortExact(int value) {
 		if (value == (value & 0xFFFF)) return (short)(value);
-		else throw new ArithmeticException("Value too big for a short: " + value);
+		else throw new ArithmeticException("Value too big for an unsigned short: " + value);
+	}
+
+	public static int toUnsignedIntExact(long value) {
+		if (value == (value & 0xFFFFFFFFL)) return (int)(value);
+		else throw new ArithmeticException("Value too big for an unsigned int: " + value);
 	}
 
 	public static int positiveProduct(int a, int b) {

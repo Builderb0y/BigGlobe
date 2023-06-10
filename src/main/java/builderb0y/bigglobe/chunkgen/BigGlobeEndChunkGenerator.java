@@ -20,15 +20,20 @@ import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.EndColumn;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.settings.EndSettings;
 import builderb0y.bigglobe.util.SemiThreadLocal;
 
+@UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 	public static final AutoCoder<BigGlobeEndChunkGenerator> END_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(BigGlobeEndChunkGenerator.class);
@@ -45,6 +50,10 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 	public static void init() {
 		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("end"), END_CODEC);
+	}
+
+	public static AutoCoder<BigGlobeEndChunkGenerator> createCoder(FactoryContext<BigGlobeEndChunkGenerator> context) {
+		return BigGlobeChunkGenerator.createCoder(context, "bigglobe", "the_end");
 	}
 
 	@Override
@@ -68,22 +77,56 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				minSurface = Math.min(minSurface, column.getFinalBottomHeightI());
 				maxSurface = Math.max(maxSurface, column.getFinalTopHeightI());
 			}
+			int lowerStart = column.getLowerRingCloudSampleStartY();
+			int upperEnd   = column.getUpperRingCloudSampleEndY();
+			if (lowerStart != Integer.MIN_VALUE) minSurface = Math.min(minSurface, lowerStart);
+			if (upperEnd   != Integer.MIN_VALUE) maxSurface = Math.max(maxSurface, upperEnd);
+			lowerStart = column.getLowerBridgeCloudSampleStartY();
+			upperEnd   = column.getUpperBridgeCloudSampleEndY();
+			if (lowerStart != Integer.MIN_VALUE) minSurface = Math.min(minSurface, lowerStart);
+			if (upperEnd   != Integer.MIN_VALUE) maxSurface = Math.max(maxSurface, upperEnd);
 		}
-		if (maxSurface >= minSurface) this.generateSectionsParallelSimple(chunk, minSurface, maxSurface, columns, context -> {
-			int startY = context.startY();
-			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-				EndColumn column = columns.getColumn(horizontalIndex);
-				if (column.hasTerrain()) {
-					int minY = Math.max(0, column.getFinalBottomHeightI() - startY);
-					int maxY = Math.min(16, column.getFinalTopHeightI() - startY);
+		if (maxSurface > minSurface) { //will also verify that the chunk has terrain in it somewhere.
+			this.generateSectionsParallelSimple(chunk, minSurface, maxSurface, columns, context -> {
+				int startY = context.startY();
+				int solidCount = 0;
+				for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+					EndColumn column = columns.getColumn(horizontalIndex);
 					int endStoneID = context.id(BlockStates.END_STONE);
 					PaletteStorage storage = context.storage();
-					for (int y = minY; y < maxY; y++) {
-						storage.set(horizontalIndex | (y << 8), endStoneID);
+					int mountainMinY, mountainMaxY;
+					if (column.hasTerrain()) {
+						mountainMinY = Math.max(0, column.getFinalBottomHeightI() - startY);
+						mountainMaxY = Math.min(16, column.getFinalTopHeightI() - startY);
+					}
+					else {
+						mountainMinY = mountainMaxY = -1;
+					}
+					double[] lowerRingNoise = column.getLowerRingCloudNoise();
+					double[] upperRingNoise = column.getUpperRingCloudNoise();
+					double[] lowerBridgeNoise = column.getLowerBridgeCloudNoise();
+					double[] upperBridgeNoise = column.getUpperBridgeCloudNoise();
+					int lowerRingStartY = column.getLowerRingCloudSampleStartY();
+					int upperRingStartY = column.getUpperRingCloudSampleStartY();
+					int lowerBridgeStartY = column.getLowerBridgeCloudSampleStartY();
+					int upperBridgeStartY = column.getUpperBridgeCloudSampleStartY();
+					for (int yIndex = 0; yIndex < 16; yIndex++) {
+						int y = yIndex | startY;
+						if (
+							(yIndex >= mountainMinY && yIndex < mountainMaxY)
+							|| (lowerRingNoise != null && y >= lowerRingStartY && y < lowerRingStartY + lowerRingNoise.length && lowerRingNoise[y - lowerRingStartY] > 0.0D)
+							|| (upperRingNoise != null && y >= upperRingStartY && y < upperRingStartY + upperRingNoise.length && upperRingNoise[y - upperRingStartY] > 0.0D)
+							|| (lowerBridgeNoise != null && y >= lowerBridgeStartY && y < lowerBridgeStartY + lowerBridgeNoise.length && lowerBridgeNoise[y - lowerBridgeStartY] > 0.0D)
+							|| (upperBridgeNoise != null && y >= upperBridgeStartY && y < upperBridgeStartY + upperBridgeNoise.length && upperBridgeNoise[y - upperBridgeStartY] > 0.0D)
+						) {
+							storage.set(horizontalIndex | (yIndex << 8), endStoneID);
+							solidCount++;
+						}
 					}
 				}
-			}
-		});
+				context.setNonEmpty(solidCount);
+			});
+		}
 	}
 
 	@Override
@@ -94,6 +137,10 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
 					column.getMountainCenterY();
 					column.getMountainThickness();
+					column.getLowerRingCloudNoise();
+					column.getUpperRingCloudNoise();
+					column.getLowerBridgeCloudNoise();
+					column.getUpperBridgeCloudNoise();
 				});
 			});
 			this.profiler.run("generateRawSections", () -> {
@@ -114,6 +161,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 
+	}
+
+	@Override
+	public void prepareBiomeColumn(WorldColumn column) {
+		column.hasTerrain();
 	}
 
 	@Override

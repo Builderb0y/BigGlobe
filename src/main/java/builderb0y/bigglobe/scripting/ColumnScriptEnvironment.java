@@ -15,6 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.Column;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -34,13 +35,15 @@ public class ColumnScriptEnvironment {
 		COLUMN_VALUE_GET_VALUE_WITHOUT_Y = MethodInfo.getMethod(ColumnValue.class, "getValueWithoutY"),
 		INVOKE_GET_VALUE                 = MethodInfo.getMethod(ColumnScriptEnvironment.class, "invokeGetValue"),
 		INVOKE_GET_VALUE_WITHOUT_Y       = MethodInfo.getMethod(ColumnScriptEnvironment.class, "invokeGetValueWithoutY");
+	public static final FieldInfo
+		SEED                             =  FieldInfo.getField (WorldColumn.class, "seed");
 
 	public MutableScriptEnvironment mutable = new MutableScriptEnvironment();
 	public InsnTree loadColumn;
-	public InsnTree loadY;
+	public @Nullable InsnTree loadY;
 	public Set<ColumnValue<?>> usedValues;
 
-	public ColumnScriptEnvironment(InsnTree loadColumn, InsnTree loadY) {
+	public ColumnScriptEnvironment(InsnTree loadColumn, @Nullable InsnTree loadY) {
 		this.loadColumn = loadColumn;
 		this.loadY = loadY;
 	}
@@ -216,6 +219,11 @@ public class ColumnScriptEnvironment {
 		.addVariableRenamedGetField(this.loadColumn, nameX, Column.class, "x")
 		.addVariableRenamedGetField(this.loadColumn, nameZ, Column.class, "z")
 		;
+		return this;
+	}
+
+	public ColumnScriptEnvironment addSeed(String name) {
+		this.mutable.addVariableRenamedGetField(this.loadColumn, name, SEED);
 		return this;
 	}
 

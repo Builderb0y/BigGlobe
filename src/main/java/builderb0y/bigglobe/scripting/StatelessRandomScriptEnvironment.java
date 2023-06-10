@@ -20,6 +20,8 @@ public class StatelessRandomScriptEnvironment {
 		.addMethodMultiInvokeStatics(StatelessRandomScriptEnvironment.class, "nextBoolean", "nextInt", "nextLong", "nextFloat", "nextDouble")
 	);
 
+	//todo: add .addMethodRenamedInvokeStatic() or whatever and quit using delegation here.
+
 	public static boolean nextBoolean(long seed) {
 		return Permuter.nextBoolean(seed);
 	}

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -35,11 +34,9 @@ import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.StructureTerrainAdaptation;
-import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
@@ -56,12 +53,18 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.perSection.*;
+import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
+import builderb0y.bigglobe.chunkgen.perSection.CaveSurfaceReplacer;
+import builderb0y.bigglobe.chunkgen.perSection.CobblestoneReplacer;
+import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.*;
+import builderb0y.bigglobe.columns.ChunkOfColumns;
+import builderb0y.bigglobe.columns.ColumnValue;
+import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
@@ -1167,36 +1170,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
-		return CompletableFuture.supplyAsync(
-			() -> this.profiler.get("populateBiomes", () -> {
-				ChunkOfBiomeColumns<OverworldColumn> columns = new ChunkOfBiomeColumns<>(OverworldColumn[]::new, this::column);
-				//ColumnZone<RegistryEntry<Biome>> surfaceZones = this.settings.surface.biomes();
-				ColumnValue<OverworldColumn>[] biomeValues = this.biomeValues;
-				this.profiler.run("initial biome column values", () -> {
-					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
-						//populate the values that don't depend on Y in parallel.
-						for (ColumnValue<OverworldColumn> value : biomeValues) {
-							value.getValue(column, 0.0D);
-						}
-					});
-				});
-				HeightLimitView heightView = chunk.getHeightLimitView();
-				IntStream.range(heightView.getBottomSectionCoord(), heightView.getTopSectionCoord()).parallel().forEach(sectionY -> {
-					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
-					int startY = sectionY << 4;
-					PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
-					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
-						OverworldColumn column = columns.getColumn(paletteIndex & 15);
-						int y = startY | (paletteIndex >>> 4 << 2);
-						int newID = SectionUtil.id(container, column.getBiome(y));
-						SectionUtil.storage(container).set(paletteIndex, newID);
-					}
-				});
-				return chunk;
-			}),
-			executor
-		);
+	public void prepareBiomeColumn(WorldColumn column) {
+		for (ColumnValue<OverworldColumn> value : this.biomeValues) {
+			value.getValueWithoutY(column);
+		}
 	}
 
 	@Override

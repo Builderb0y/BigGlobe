@@ -44,16 +44,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructurePresence;
-import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
@@ -81,9 +79,8 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
+import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.SortedFeatureTag;
@@ -219,8 +216,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
 		IntStream.rangeClosed(
-			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */)
+			Math.max(chunk.getSectionIndex(minYInclusive), 0),
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
 		)
 		.parallel()
 		.forEach((int index) -> {
@@ -239,8 +236,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		long seed = this.seed;
 		//ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
 		IntStream.rangeClosed(
-			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */)
+			Math.max(chunk.getSectionIndex(minYInclusive), 0),
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
 		)
 		.parallel()
 		.forEach((int index) -> {
@@ -316,7 +313,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		)
 		.handle((Void result, Throwable throwable) -> {
 			if (throwable != null) {
-				BigGlobeMod.LOGGER.error("", throwable);
+				BigGlobeMod.LOGGER.error("Exception populating noise", throwable);
 			}
 			return chunk;
 		});
@@ -784,6 +781,40 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	@Environment(EnvType.CLIENT)
 	public static PlayerEntity getClientPlayer0() {
 		return MinecraftClient.getInstance().player;
+	}
+
+	public abstract void prepareBiomeColumn(WorldColumn column);
+
+	@Override
+	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
+		return CompletableFuture.supplyAsync(
+			() -> this.profiler.get("populateBiomes", () -> {
+				ChunkOfBiomeColumns<WorldColumn> columns = new ChunkOfBiomeColumns<>(WorldColumn[]::new, this::column);
+				this.profiler.run("initial biome column values", () -> {
+					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), this::prepareBiomeColumn);
+				});
+				HeightLimitView heightView = chunk.getHeightLimitView();
+				IntStream.range(heightView.getBottomSectionCoord(), heightView.getTopSectionCoord()).parallel().forEach(sectionY -> {
+					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
+					int startY = sectionY << 4;
+					PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
+					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
+						WorldColumn column = columns.getColumn(paletteIndex & 15);
+						int y = startY | (paletteIndex >>> 4 << 2);
+						int newID = SectionUtil.id(container, column.getBiome(y));
+						SectionUtil.storage(container).set(paletteIndex, newID);
+					}
+				});
+				return chunk;
+			}),
+			executor
+		)
+		.handle((result, throwable) -> {
+			if (throwable != null) {
+				BigGlobeMod.LOGGER.error("Exception populating chunk biomes", throwable);
+			}
+			return chunk;
+		});
 	}
 
 	@Override

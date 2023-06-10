@@ -6,6 +6,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
@@ -778,38 +780,64 @@ public class ExpressionParser {
 			BigDecimal number = NumberParser.parse(this.input);
 			if (negated) number = number.negate();
 			char suffix = this.input.peek();
+			boolean unsigned = false;
+			if (suffix == 'u' || suffix == 'U') {
+				unsigned = true;
+				this.input.onCharRead(suffix);
+				suffix = this.input.peek();
+			}
 			return switch (suffix) {
 				case 'l', 'L' -> {
 					this.input.onCharRead(suffix);
 					if (number.scale() > 0) {
+						if (unsigned) throw new ScriptParsingException("Unsigned double literals not supported", this.input);
 						double value = number.doubleValue();
 						if (negated && value == 0.0D) value = -0.0D;
 						yield ldc(value);
 					}
 					else {
-						yield ldc(number.longValueExact());
+						if (unsigned) {
+							BigInteger integer = number.toBigIntegerExact();
+							if (integer.signum() >= 0 && integer.bitLength() <= 64) {
+								yield ldc(integer.longValue());
+							}
+							else {
+								throw new ScriptParsingException("Overflow", this.input);
+							}
+						}
+						else {
+							yield ldc(number.longValueExact());
+						}
 					}
 				}
 				case 'i', 'I' -> {
 					this.input.onCharRead(suffix);
 					if (number.scale() > 0) {
+						if (unsigned) throw new ScriptParsingException("Unsigned float literals not supported", this.input);
 						float value = number.floatValue();
 						if (negated && value == 0.0F) value = -0.0F;
 						yield ldc(value);
 					}
 					else {
-						yield ldc(number.intValueExact());
+						if (unsigned) {
+							yield ldc(BigGlobeMath.toUnsignedIntExact(number.longValueExact()));
+						}
+						else {
+							yield ldc(number.intValueExact());
+						}
 					}
 				}
 				case 's', 'S' -> {
 					this.input.onCharRead(suffix);
+					if (unsigned) throw new ScriptParsingException("Unsigned shorts not supported", this.input);
 					if (number.scale() > 0) {
-						throw new ScriptParsingException("Short suffix on non-short literal", this.input);
+						throw new ScriptParsingException("Half-precision floats not supported", this.input);
 					}
 					yield ldc(number.shortValueExact());
 				}
 				default -> {
 					if (number.scale() > 0) {
+						if (unsigned) throw new ScriptParsingException("Unsigned floating point literals not supported", this.input);
 						double doubleValue = number.doubleValue();
 						if (negated && doubleValue == 0.0D) doubleValue = -0.0D;
 						float floatValue = (float)(doubleValue);
@@ -819,7 +847,19 @@ public class ExpressionParser {
 						yield ldc(doubleValue);
 					}
 					else {
-						long longValue = number.longValueExact();
+						long longValue;
+						if (unsigned) {
+							BigInteger integer = number.toBigIntegerExact();
+							if (integer.signum() >= 0 && integer.bitLength() <= 64) {
+								longValue = integer.longValue();
+							}
+							else {
+								throw new ScriptParsingException("Overflow", this.input);
+							}
+						}
+						else {
+							longValue = number.longValueExact();
+						}
 						int intValue = (int)(longValue);
 						if (intValue == longValue) {
 							if (intValue == (short)(intValue)) {

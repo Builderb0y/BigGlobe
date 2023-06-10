@@ -32,6 +32,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 					)
 					.addXZ("x", "z")
 					.addY("y")
+					.addSeed("worldSeed")
 					.mutable
 				)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)

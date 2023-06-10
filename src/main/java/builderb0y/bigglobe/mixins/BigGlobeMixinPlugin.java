@@ -42,6 +42,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",     Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",             Boolean.FALSE);
 		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",   Boolean.TRUE);

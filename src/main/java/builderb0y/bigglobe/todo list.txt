@@ -15,6 +15,8 @@ porting:
 	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
 
 where I left off:
+	need more column values in the end.
+	need hooks for where to generate features in the end.
 
 changelog:
 	* Updated to 1.20!
