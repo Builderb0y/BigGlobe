@@ -15,7 +15,6 @@ porting:
 	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
 
 where I left off:
-	need more column values in the end.
 	need hooks for where to generate features in the end.
 
 changelog:
@@ -53,6 +52,8 @@ scripting:
 	nested multi-line comment ;(example ;(text) here)
 	operators for !> !< !>= and !<= to negate the normal compare operators.
 		semantics differ from inverting for NaN handling.
+	elvis operator ?:
+		also make sure this works on NaN.
 
 features:
 	general:
@@ -123,3 +124,4 @@ back-porting:
 	spelunking rope block needs to override getPistonBehavior() to return DESTROY.
 	rope anchor block needs to override getPistonBehavior() to return BLOCK.
 	wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
+	@VerifyNormal needs to verify that the block does not emit light.

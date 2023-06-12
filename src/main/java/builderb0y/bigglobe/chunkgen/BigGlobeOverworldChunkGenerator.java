@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -78,7 +77,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.OverworldPositionCache;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
-import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -241,20 +239,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			else initialState = BlockStates.AIR;
 
 			if (initialState != BlockStates.AIR) {
-				if (context.palette() instanceof SingularPalette_EntryAccess singular) {
-					//how to set 4096 blocks in one operation.
-					singular.bigglobe_setEntry(initialState);
-				}
-				else {
-					//this shouldn't happen, but we should handle it sanely anyway.
-					int stoneID = context.id(initialState);
-					PaletteStorage storage = context.storage();
-					long payload = stoneID;
-					for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
-						payload |= payload << bits;
-					}
-					Arrays.fill(storage.getData(), payload);
-				}
+				this.setAllStates(context, initialState);
 			}
 
 			PaletteStorage storage = context.storage();

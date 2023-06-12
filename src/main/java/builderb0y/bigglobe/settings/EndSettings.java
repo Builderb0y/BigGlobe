@@ -35,33 +35,37 @@ public record EndSettings(
 		ColumnYToDoubleScript.Holder thickness
 	) {}
 
+	public static interface EndCloudSettings {
+
+		public abstract Grid3D noise();
+
+		public abstract ColumnYToDoubleScript.Holder center_y();
+
+		public abstract double vertical_thickness();
+
+		public default int verticalSamples() {
+			return BigGlobeMath.floorI(this.vertical_thickness() * 2.0D) + 1;
+		}
+	}
+
 	public record RingCloudSettings(
 		Grid3D noise,
-		double center_y,
+		ColumnYToDoubleScript.Holder center_y,
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double min_radius,
 		@VerifySorted(greaterThan = "min_radius") double max_radius,
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
-	) {
-
-		public int verticalSamples() {
-			return BigGlobeMath.floorI(this.vertical_thickness * 2.0D) + 1;
-		}
-	}
+	)
+	implements EndCloudSettings {}
 
 	public record BridgeCloudSettings(
 		Grid3D noise,
-		double base_y,
-		double archness,
 		@VerifyIntRange(min = 0) int count,
+		ColumnYToDoubleScript.Holder center_y,
 		@VerifyFloatRange(min = 0.0D) double min_radius,
 		@VerifySorted(greaterThan = "min_radius") double mid_radius,
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
-	) {
-
-		public int verticalSamples() {
-			return BigGlobeMath.floorI(this.vertical_thickness * 2.0D) + 1;
-		}
-	}
+	)
+	implements EndCloudSettings {}
 
 	@Wrapper
 	public static class EndBiomes {

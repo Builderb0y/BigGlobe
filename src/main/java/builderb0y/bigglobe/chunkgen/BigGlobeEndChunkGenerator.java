@@ -114,8 +114,8 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 						int y = yIndex | startY;
 						if (
 							(yIndex >= mountainMinY && yIndex < mountainMaxY)
-							|| (lowerRingNoise != null && y >= lowerRingStartY && y < lowerRingStartY + lowerRingNoise.length && lowerRingNoise[y - lowerRingStartY] > 0.0D)
-							|| (upperRingNoise != null && y >= upperRingStartY && y < upperRingStartY + upperRingNoise.length && upperRingNoise[y - upperRingStartY] > 0.0D)
+							|| (lowerRingNoise   != null && y >= lowerRingStartY   && y < lowerRingStartY   + lowerRingNoise  .length && lowerRingNoise  [y - lowerRingStartY  ] > 0.0D)
+							|| (upperRingNoise   != null && y >= upperRingStartY   && y < upperRingStartY   + upperRingNoise  .length && upperRingNoise  [y - upperRingStartY  ] > 0.0D)
 							|| (lowerBridgeNoise != null && y >= lowerBridgeStartY && y < lowerBridgeStartY + lowerBridgeNoise.length && lowerBridgeNoise[y - lowerBridgeStartY] > 0.0D)
 							|| (upperBridgeNoise != null && y >= upperBridgeStartY && y < upperBridgeStartY + upperBridgeNoise.length && upperBridgeNoise[y - upperBridgeStartY] > 0.0D)
 						) {
