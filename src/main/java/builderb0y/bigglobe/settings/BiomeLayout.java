@@ -1,13 +1,16 @@
 package builderb0y.bigglobe.settings;
 
 import java.math.BigInteger;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
-import com.google.common.base.Predicates;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -22,28 +25,27 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
-public class OverworldBiomeLayout {
+public class BiomeLayout {
 
-	public static final RegistryKey<OverworldBiomeLayout> ROOT_KEY = RegistryKey.of(BigGlobeDynamicRegistries.OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY, BigGlobeMod.modID("root"));
+	public static final Identifier ROOT_IDENTIFIER = BigGlobeMod.modID("root");
 
 	public final @VerifyNullable String parent;
 	public final ColumnRestriction restrictions;
-	public final RegistryEntry<Biome> biome;
+	public final @VerifyNullable RegistryEntry<Biome> biome;
 	public final @VerifyNullable PrimarySurface primary_surface;
 	public final SecondarySurface @SingletonArray @VerifyNullable [] secondary_surfaces;
 
-	public transient OverworldBiomeLayout ifMatch, unlessMatch;
+	public transient BiomeLayout ifMatch, unlessMatch;
 	public transient long nameHash;
 
-	public OverworldBiomeLayout(
+	public BiomeLayout(
 		@VerifyNullable String parent,
 		ColumnRestriction restrictions,
-		RegistryEntry<Biome> biome,
+		@VerifyNullable RegistryEntry<Biome> biome,
 		@VerifyNullable PrimarySurface primary_surface,
 		SecondarySurface @VerifyNullable [] secondary_surfaces
 	) {
@@ -54,49 +56,73 @@ public class OverworldBiomeLayout {
 		this.secondary_surfaces = secondary_surfaces;
 	}
 
-	public OverworldBiomeLayout search(WorldColumn column, double y, long seed, Predicate<OverworldBiomeLayout> filter) {
-		OverworldBiomeLayout layout = this, chosen = this;
+	public static class OverworldBiomeLayout extends BiomeLayout {
+
+		public OverworldBiomeLayout(
+			@VerifyNullable String parent,
+			ColumnRestriction restrictions,
+			RegistryEntry<Biome> biome,
+			@VerifyNullable PrimarySurface primary_surface,
+			SecondarySurface @VerifyNullable [] secondary_surfaces
+		) {
+			super(parent, restrictions, biome, primary_surface, secondary_surfaces);
+		}
+	}
+
+	public static class EndBiomeLayout extends BiomeLayout {
+
+		public EndBiomeLayout(
+			@VerifyNullable String parent,
+			ColumnRestriction restrictions,
+			RegistryEntry<Biome> biome,
+			@VerifyNullable PrimarySurface primary_surface,
+			SecondarySurface @VerifyNullable [] secondary_surfaces
+		) {
+			super(parent, restrictions, biome, primary_surface, secondary_surfaces);
+		}
+	}
+
+	public <R> R search(WorldColumn column, double y, long seed, Function<BiomeLayout, R> property) {
+		BiomeLayout layout = this, chosen = this;
 		while (true) {
 			boolean test = layout.restrictions.test(column, y, seed ^ layout.nameHash);
-			if (test && filter.test(layout)) chosen = layout;
-			OverworldBiomeLayout next = test ? layout.ifMatch : layout.unlessMatch;
-			if (next == null) return chosen;
+			if (test && property.apply(layout) != null) chosen = layout;
+			BiomeLayout next = test ? layout.ifMatch : layout.unlessMatch;
+			if (next == null) return property.apply(chosen);
 			layout = next;
 		}
 	}
 
-	public RegistryEntry<Biome> getBiome(WorldColumn column, double y, long seed) {
-		return this.search(column, y, seed, Predicates.alwaysTrue()).biome;
-	}
-
-	public PrimarySurface getPrimarySurface(WorldColumn column, double y, long seed) {
-		return this.search(column, y, seed, layout -> layout.primary_surface != null).primary_surface;
-	}
-
-	public SecondarySurface @Nullable [] getSecondarySurfaces(WorldColumn column, double y, long seed) {
-		return this.search(column, y, seed, layout -> layout.secondary_surfaces != null).secondary_surfaces;
-	}
+	public RegistryEntry<Biome> biome() { return this.biome; }
+	public PrimarySurface primarySurface() { return this.primary_surface; }
+	public SecondarySurface @Nullable [] secondarySurfaces() { return this.secondary_surfaces; }
 
 	public static record PrimarySurface(BlockState top, BlockState under) {}
 
 	public static record SecondarySurface(BlockState under, SurfaceDepthWithSlopeScript.Holder depth) {}
 
-	@Wrapper
-	public static class Holder {
+	@SuppressWarnings("unchecked")
+	public static <T_Layout extends BiomeLayout> RegistryKey<T_Layout> key(RegistryWrapper.Impl<T_Layout> registry, Identifier id) {
+		return RegistryKey.of((RegistryKey<? extends Registry<T_Layout>>)(registry.getRegistryKey()), id);
+	}
 
-		public final RegistryWrapper<OverworldBiomeLayout> registry;
-		public final transient OverworldBiomeLayout root;
+	@Wrapper
+	public static class Holder<T_Layout extends BiomeLayout> {
+
+		public final RegistryWrapper.Impl<T_Layout> registry;
+		public final transient T_Layout root;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(RegistryWrapper<OverworldBiomeLayout> registry) {
+		public Holder(RegistryWrapper.Impl<T_Layout> registry) {
 			this.registry = registry;
 			this.usedValues = new HashSet<>();
 			registry.streamEntries().sequential().forEachOrdered(entry -> {
-				RegistryKey<OverworldBiomeLayout> key = UnregisteredObjectException.getKey(entry);
-				OverworldBiomeLayout layout = entry.value();
+				RegistryKey<T_Layout> key = UnregisteredObjectException.getKey(entry);
+				T_Layout layout = entry.value();
 				layout.nameHash = Permuter.permute(0x5DE1C3307454F391L, key.getValue());
-				if (key == ROOT_KEY) {
+				if (key.getValue().equals(ROOT_IDENTIFIER)) {
 					if (layout.parent != null) throw new IllegalStateException(key + " must have no parent.");
+					if (layout.biome == null) throw new IllegalStateException(key + " must have a biome.");
 					if (layout.restrictions != ColumnRestriction.EMPTY) throw new IllegalStateException(key + " must have no restrictions.");
 					if (layout.primary_surface == null) throw new IllegalStateException(key + " must have a primary surface.");
 				}
@@ -106,7 +132,7 @@ public class OverworldBiomeLayout {
 					if (parentName == null) throw new IllegalStateException(key + " must have a parent.");
 					boolean negated = !parentName.isEmpty() && parentName.charAt(0) == '!';
 					if (negated) parentName = parentName.substring(1);
-					OverworldBiomeLayout parent = registry.getOrThrow(RegistryKey.of(BigGlobeDynamicRegistries.OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY, new Identifier(parentName))).value();
+					T_Layout parent = registry.getOrThrow(key(registry, new Identifier(parentName))).value();
 					if (negated) {
 						if (parent.unlessMatch != null && parent.unlessMatch != layout) {
 							throw new IllegalStateException(parentName + " already has a non-matching child.");
@@ -121,10 +147,22 @@ public class OverworldBiomeLayout {
 					}
 				}
 			});
-			this.root = registry.getOrThrow(ROOT_KEY).value();
+			this.root = registry.getOrThrow(key(registry, ROOT_IDENTIFIER)).value();
 			if (BigGlobeConfig.INSTANCE.get().printOverworldBiomeLayoutTree) {
-				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder("Overworld biome layout tree:\n")).toString());
+				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getRegistryKey().getValue()).append(" tree:\n")).toString());
 			}
+		}
+
+		public RegistryEntry<Biome> getBiome(WorldColumn column, double y, long seed) {
+			return this.root.search(column, y, seed, BiomeLayout::biome);
+		}
+
+		public PrimarySurface getPrimarySurface(WorldColumn column, double y, long seed) {
+			return this.root.search(column, y, seed, BiomeLayout::primarySurface);
+		}
+
+		public SecondarySurface @Nullable [] getSecondarySurfaces(WorldColumn column, double y, long seed) {
+			return this.root.search(column, y, seed, BiomeLayout::secondarySurfaces);
 		}
 	}
 
@@ -145,21 +183,21 @@ public class OverworldBiomeLayout {
 			this.name = name;
 		}
 
-		public static Printer parse(RegistryWrapper<OverworldBiomeLayout> registry) {
-			Map<OverworldBiomeLayout, Printer> map = new IdentityHashMap<>();
+		public static <T_Layout extends BiomeLayout> Printer parse(RegistryWrapper.Impl<T_Layout> registry) {
+			Map<BiomeLayout, Printer> map = new IdentityHashMap<>();
 			//map all the layouts to printers.
-			registry.streamEntries().sequential().forEachOrdered((RegistryEntry<OverworldBiomeLayout> entry) -> {
+			registry.streamEntries().sequential().forEachOrdered((RegistryEntry<? extends BiomeLayout> entry) -> {
 				map.put(entry.value(), new Printer(UnregisteredObjectException.getID(entry).toString()));
 			});
 			//build the hierarchy.
-			registry.streamEntries().sequential().forEachOrdered((RegistryEntry<OverworldBiomeLayout> entry) -> {
-				OverworldBiomeLayout layout = entry.value();
+			registry.streamEntries().sequential().forEachOrdered((RegistryEntry<? extends BiomeLayout> entry) -> {
+				BiomeLayout layout = entry.value();
 				Printer printer = map.get(layout);
 				if (layout.ifMatch != null) printer.ifMatch = map.get(layout.ifMatch);
 				if (layout.unlessMatch != null) printer.unlessMatch = map.get(layout.unlessMatch);
 			});
 			//assemble metadata based on hierarchy.
-			Printer root = map.get(registry.getOrThrow(ROOT_KEY).value());
+			Printer root = map.get(registry.getOrThrow(key(registry, ROOT_IDENTIFIER)).value());
 			root.updateDepthSize(0, BigInteger.ZERO);
 			return root;
 		}

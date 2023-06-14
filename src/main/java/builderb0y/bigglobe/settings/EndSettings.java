@@ -1,18 +1,17 @@
 package builderb0y.bigglobe.settings;
 
-import java.util.stream.Stream;
-
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.VerifyFloatRange;
+import builderb0y.autocodec.annotations.VerifyIntRange;
+import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 
 public record EndSettings(
 	@VerifyDivisibleBy16 int min_y,
@@ -23,7 +22,7 @@ public record EndSettings(
 	EndMountainSettings mountains,
 	@VerifyNullable RingCloudSettings ring_clouds,
 	@VerifyNullable BridgeCloudSettings bridge_clouds,
-	EndBiomes biomes
+	BiomeLayout.Holder<EndBiomeLayout> biomes
 ) {
 
 	public record EndNestSettings(
@@ -32,7 +31,11 @@ public record EndSettings(
 
 	public record EndMountainSettings(
 		Grid2D center_y,
-		ColumnYToDoubleScript.Holder thickness
+		ColumnYToDoubleScript.Holder thickness,
+		Grid2D foliage,
+		SortedFeatureTag floor_decorator,
+		SortedFeatureTag ceiling_decorator,
+		SurfaceDepthWithSlopeScript.Holder primary_surface_depth
 	) {}
 
 	public static interface EndCloudSettings {
@@ -66,21 +69,4 @@ public record EndSettings(
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
 	)
 	implements EndCloudSettings {}
-
-	@Wrapper
-	public static class EndBiomes {
-
-		public final RegistryEntryLookup<Biome> biomes;
-		public final RegistryEntry<Biome> the_end, the_void;
-
-		public EndBiomes(RegistryEntryLookup<Biome> biomes) {
-			this.biomes = biomes;
-			this.the_end = biomes.getOrThrow(BiomeKeys.THE_END);
-			this.the_void = biomes.getOrThrow(BiomeKeys.THE_VOID);
-		}
-
-		public Stream<RegistryEntry<Biome>> stream() {
-			return Stream.of(this.the_end, this.the_void);
-		}
-	}
 }

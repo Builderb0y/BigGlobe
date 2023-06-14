@@ -12,7 +12,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -39,7 +38,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 	public static final AutoCoder<ColumnValue<?>> CODER = new AutoCoder<>() {
 
 		@Override
-		public @Nullable <T_Encoded> ColumnValue<?> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+		public <T_Encoded> @Nullable ColumnValue<?> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			return get(context.forceAsString());
 		}
 
@@ -53,21 +52,18 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		}
 	};
 
-	public static @Nullable ColumnValue<?> get(String name) {
-		try {
-			int colon = name.indexOf(':');
-			Identifier id;
-			if (colon >= 0) {
-				id = new Identifier(name.substring(0, colon), name.substring(colon + 1));
-			}
-			else {
-				id = BigGlobeMod.modID(name);
-			}
-			return REGISTRY.get(id);
+	public static ColumnValue<?> get(String name) {
+		int colon = name.indexOf(':');
+		Identifier id;
+		if (colon >= 0) {
+			id = new Identifier(name.substring(0, colon), name.substring(colon + 1));
 		}
-		catch (InvalidIdentifierException ignored) {
-			return null;
+		else {
+			id = BigGlobeMod.modID(name);
 		}
+		ColumnValue<?> value = REGISTRY.get(id);
+		if (value != null) return value;
+		else throw new IllegalArgumentException("Unknown column value: " + id);
 	}
 
 	@SuppressWarnings("unused")
@@ -176,6 +172,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		END_DISTANCE_TO_ORIGIN                  = registerEnd      ("distance_to_origin",            withoutY(      EndColumn::getDistanceToOrigin            ), EndColumn::debug_distanceToOrigin),
 		END_MOUNTAIN_CENTER_Y                   = registerEnd      ("mountain_center_y",             withoutY(      EndColumn::getMountainCenterY             ), null),
 		END_MOUNTAIN_THICKNESS                  = registerEnd      ("mountain_thickness",            withoutY(      EndColumn::getMountainThickness           ), null),
+		END_FOLIAGE                             = registerEnd      ("foliage",                       withoutY(      EndColumn::getFoliage                     ), null),
 		END_RING_CLOUD_HORIZONTAL_BIAS          = registerEnd      ("ring_cloud_horizontal_bias",    withoutY(      EndColumn::getRingCloudHorizontalBias     ), null),
 		END_LOWER_RING_CLOUD_CENTER_Y           = registerEnd      ("lower_ring_cloud_center_y",     withoutY(      EndColumn::getLowerRingCloudCenterY       ), null),
 		END_UPPER_RING_CLOUD_CENTER_Y           = registerEnd      ("upper_ring_cloud_center_y",     withoutY(      EndColumn::getUpperRingCloudCenterY       ), null),

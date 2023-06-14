@@ -24,7 +24,7 @@ public class EvaluateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires(source -> source.hasPermissionLevel(2))
+			.requires(source -> source.hasPermissionLevel(4))
 			.then(
 				CommandManager
 				.argument("script", new CommandScriptArgument())

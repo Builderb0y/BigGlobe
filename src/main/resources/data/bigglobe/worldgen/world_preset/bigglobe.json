@@ -366,11 +366,34 @@
 						},
 						"thickness": [
 							"double radius = `end/warp_radius`",
-							"double base = exp2(-4.0 * radius) * 384.0L - 12.0L",
-							"double noise = sin(`end/warp_angle` * 8.0 + log2(radius) * 8.0)",
-							"double amplitude = radius * exp2(-4.0 * radius) * 64.0",
+							"double base = exp2(-4.0L * radius) * 384.0L - 12.0L",
+							"double noise = sin(`end/warp_angle` * 8.0L + log2(radius) * 8.0L)",
+							"double amplitude = radius * exp2(-4.0L * radius) * 64.0L",
 							"return(base + noise * amplitude)"
-						]
+						],
+						"foliage": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.5    },
+								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.25   },
+								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.125  },
+								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.25   },
+								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.125  },
+								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0625 },
+								{
+									"type": "script",
+									"min": -6.0,
+									"max": 0.0,
+									"script": [
+										"`end/mountain_thickness` / -64.0L"
+									],
+									"inputs": {}
+								}
+							]
+						},
+						"primary_surface_depth": "1.0L",
+						"floor_decorator": "bigglobe:end/mountain_floor",
+						"ceiling_decorator": "bigglobe:end/mountain_ceiling"
 					},
 					"ring_clouds": {
 						"noise": {
@@ -382,8 +405,8 @@
 								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.04 },
 								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.016 },
 								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.0064 },
-								{ "type": "worley", "scale":  64, "amplitude": -1.0 },
-								{ "type": "worley", "scale":  32, "amplitude": -0.5 },
+								{ "type": "worley", "scale":  64, "amplitude": -1.0  },
+								{ "type": "worley", "scale":  32, "amplitude": -0.5  },
 								{ "type": "worley", "scale":  16, "amplitude": -0.25 }
 							]
 						},
@@ -402,8 +425,8 @@
 								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.04 },
 								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.016 },
 								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.0064 },
-								{ "type": "worley", "scale":  64, "amplitude": -1.0 },
-								{ "type": "worley", "scale":  32, "amplitude": -0.5 },
+								{ "type": "worley", "scale":  64, "amplitude": -1.0  },
+								{ "type": "worley", "scale":  32, "amplitude": -0.5  },
 								{ "type": "worley", "scale":  16, "amplitude": -0.25 }
 							]
 						},

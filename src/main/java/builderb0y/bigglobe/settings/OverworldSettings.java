@@ -5,6 +5,7 @@ import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 
 public class OverworldSettings {
 
@@ -16,7 +17,7 @@ public class OverworldSettings {
 	public final @VerifyNullable OverworldSkylandSettings skylands;
 	public final OverworldMiscellaneousSettings miscellaneous;
 
-	public final OverworldBiomeLayout.Holder biomes;
+	public final BiomeLayout.Holder<OverworldBiomeLayout> biomes;
 
 	public OverworldSettings(
 		OverworldHeightSettings height,
@@ -26,7 +27,7 @@ public class OverworldSettings {
 		OverworldUndergroundSettings underground,
 		@VerifyNullable OverworldSkylandSettings skylands,
 		OverworldMiscellaneousSettings miscellaneous,
-		OverworldBiomeLayout.Holder biomes
+		BiomeLayout.Holder<OverworldBiomeLayout> biomes
 	) {
 		this.height = height;
 		this.temperature = temperature;

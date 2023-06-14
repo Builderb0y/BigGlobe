@@ -23,8 +23,8 @@ public class DynamicRegistryWrapperCoder<T> extends NamedCoder<RegistryWrapper<T
 		this.registryKey = registryKey;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public @Nullable <T_Encoded> RegistryWrapper<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
 			if (registryOps.getEntryLookup(this.registryKey).orElse(null) instanceof RegistryWrapper<T> wrapper) {

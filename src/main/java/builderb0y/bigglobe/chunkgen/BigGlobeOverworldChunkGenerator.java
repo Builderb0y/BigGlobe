@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.chunkgen;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -88,13 +89,10 @@ import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
-import builderb0y.bigglobe.settings.OverworldCavernSettings;
-import builderb0y.bigglobe.settings.OverworldSettings;
+import builderb0y.bigglobe.settings.*;
+import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
-import builderb0y.bigglobe.settings.OverworldUndergroundSettings;
-import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
@@ -116,7 +114,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	@EncodeInline
 	public final OverworldSettings settings;
 
-	public final transient ColumnValue<OverworldColumn>[] biomeValues;
 	public final transient OverworldOreFeature.Config[] oreConfigs;
 	public final transient LinkedFlowerConfig[] flowerGroups;
 	public final transient LinkedRockLayerConfig<OverworldRockLayerEntryFeature.Entry>[] rockLayers;
@@ -138,21 +135,14 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				.registry
 				.streamEntries()
 				.map(RegistryEntry::value)
-				.map(layout -> layout.biome)
+				.map(BiomeLayout::biome)
+				.filter(Objects::nonNull)
 			),
 			configuredFeatures
 		);
-		this.settings = settings;
-		this.biomeValues = (
-			settings
-			.biomes
-			.usedValues
-			.stream()
-			.filter(value -> !value.dependsOnY() && OverworldColumn.class.isAssignableFrom(value.columnClass))
-			.toArray(ColumnValue.ARRAY_FACTORY.generic())
-		);
-		this.rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
-		this.flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
+		this.           settings = settings;
+		this.         rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
+		this.       flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
 		this.         oreConfigs = configuredFeatures.streamConfigs(BigGlobeFeatures.OVERWORLD_ORE).toArray(OverworldOreFeature.Config[]::new);
 		this.   heightOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER, config -> config.script,  OverworldHeightOverrider.Holder[]::new);
 		this.  foliageOverriders = filterFeatures(configuredFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER, config -> config.script, OverworldFoliageOverrider.Holder[]::new);
@@ -429,16 +419,14 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public void generateSurface(Chunk chunk, ChunkOfColumns<OverworldColumn> columns, ScriptStructures structures) {
-		ChunkPos chunkPos = chunk.getPos();
-		int startX = chunkPos.getStartX();
-		int startZ = chunkPos.getStartZ();
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		Permuter permuter = new Permuter(0L);
 		OverworldColumn fallback = this.column(0, 0);
 		for (int index = 0; index < 256; index++) {
 			OverworldColumn column = columns.getColumn(index);
-			permuter.setSeed(Permuter.permute(this.seed ^ 0x7EF4E9F5C88A2506L, column.x, column.z));
 			double currentHeight = column.getFinalTopHeightD();
+			pos.set(column.x, BigGlobeMath.ceilI(currentHeight), column.z);
+			permuter.setSeed(Permuter.permute(this.seed ^ 0x7EF4E9F5C88A2506L, column.x, column.z));
 			//for even x values, compute derivative in x direction by adding 1 to x.
 			//for odd x values, subtract 1 instead.
 			//same for z, but adding or subtracting 1 from z
@@ -450,21 +438,18 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				columns.getColumn(index ^  1).getFinalTopHeightD() - currentHeight,
 				columns.getColumn(index ^ 16).getFinalTopHeightD() - currentHeight
 			);
-			int x = startX + (index &  15);
-			int z = startZ + (index >>> 4);
-			pos.set(x, BigGlobeMath.ceilI(currentHeight), z);
 			PrimarySurface primarySurface;
 			SecondarySurface[] secondarySurfaces;
 			double lakeChance = column.getInLake();
-			if (Permuter.toChancedBoolean(Permuter.permute(this.seed ^ 0x99D9DE3ED6D24D11L, x, z), lakeChance)) {
+			if (Permuter.toChancedBoolean(Permuter.permute(this.seed ^ 0x99D9DE3ED6D24D11L, column.x, column.z), lakeChance)) {
 				Data data = structures.lake.data;
 				primarySurface = data.primary_surface();
-				if (primarySurface == null) primarySurface = this.settings.biomes.root.getPrimarySurface(column, currentHeight, this.seed);
+				if (primarySurface == null) primarySurface = this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
 				secondarySurfaces = data.secondary_surfaces();
 			}
 			else {
-				primarySurface = this.settings.biomes.root.getPrimarySurface(column, currentHeight, this.seed);
-				secondarySurfaces = this.settings.biomes.root.getSecondarySurfaces(column, currentHeight, this.seed);
+				primarySurface = this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
+				secondarySurfaces = this.settings.biomes.getSecondarySurfaces(column, currentHeight, this.seed);
 			}
 
 			int depth = 0;
@@ -712,8 +697,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
-		ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+		ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
 		try {
 			this.profiler.run("initial terrain column values", () -> {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), (OverworldColumn column) -> {
@@ -756,14 +741,12 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					this.generateCavernFluids(chunk, columns);
 				});
 			}
-
-			this.profiler.run("Raw structure generation", () -> {
-				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
-			});
-
 			this.profiler.run("Surface", () -> {
 				this.generateSurface(chunk, columns, structures);
 				this.generateSnow(chunk, columns, distantHorizons);
+			});
+			this.profiler.run("Raw structure generation", () -> {
+				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
 			});
 		}
 		finally {
@@ -788,81 +771,85 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			}
 
 			ChunkOfColumns<OverworldColumn> columns = this.chunkColumnCache.get();
-			OverworldPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof OverworldPositionCache overworld ? overworld : null;
-			ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-			this.profiler.run("Initial feature column values", () -> {
-				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
-					column.getFinalTopHeightD();
-					column.getSnowHeight();
-					this.runHeightOverrides(column, scriptStructures, false);
-					if (cache == null && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
-						column.getCaveCell();
-						column.getCaveNoise();
-						column.getCaveSurfaceDepth();
-						this.runCaveOverrides(column, scriptStructures, false);
-					}
-					column.getCavernCell();
-					column.getCavernCenter();
-					column.getCavernThicknessSquared();
-					this.runCavernOverrides(column, scriptStructures, false);
-
-					column.getTemperature();
-					column.getFoliage();
-					this.runFoliageOverrides(column, scriptStructures, false);
-
-					column.getSkylandMinY();
-					column.getSkylandMaxY();
-					this.runSkylandOverriders(column, scriptStructures, false);
-				});
-			});
-			//lambdas -_-
-			OverworldPositionCache cache_ = cache != null ? cache : new OverworldPositionCache(columns);
-			FeatureColumns.FEATURE_COLUMNS.set(columns::getColumnChecked);
 			try {
-				BlockPos.Mutable pos = new BlockPos.Mutable();
-				Permuter permuter = new Permuter(0L);
-				this.profiler.run("flowers", () -> {
-					this.generateFlowers(world, columns, pos, permuter);
-				});
-				this.profiler.run("non-flower (custom) features", () -> {
-					MojangPermuter mojang = permuter.mojang();
-					for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
-						OverworldColumn column = columns.getColumn(columnIndex);
-						pos.setX(column.x).setZ(column.z);
-						permuter.setSeed(Permuter.permute(this.seed ^ 0xF9C81CB5E3A312C9L, column.x, column.z));
+				OverworldPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof OverworldPositionCache overworld ? overworld : null;
+				ScriptStructures scriptStructures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+				this.profiler.run("Initial feature column values", () -> {
+					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
+						column.getFinalTopHeightD();
+						column.getSnowHeight();
+						this.runHeightOverrides(column, scriptStructures, false);
+						if (cache == null && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
+							column.getCaveCell();
+							column.getCaveNoise();
+							column.getCaveSurfaceDepth();
+							this.runCaveOverrides(column, scriptStructures, false);
+						}
+						column.getCavernCell();
+						column.getCavernCenter();
+						column.getCavernThicknessSquared();
+						this.runCavernOverrides(column, scriptStructures, false);
 
-						if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
-							CavernCell cavernCell = column.getCavernCell();
-							if (cavernCell != null) {
-								double center = column.getCavernCenter();
-								double thickness = column.getCavernThickness();
-								if (!Double.isNaN(center) && thickness > 0.0D) {
-									this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
-									this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
-									this.runDecorators(world, pos, mojang, cavernCell.settings.fluid_decorator(), BigGlobeMath.ceilI(column.getCavernAverageCenter()));
+						column.getTemperature();
+						column.getFoliage();
+						this.runFoliageOverrides(column, scriptStructures, false);
+
+						column.getSkylandMinY();
+						column.getSkylandMaxY();
+						this.runSkylandOverriders(column, scriptStructures, false);
+					});
+				});
+				//lambdas -_-
+				OverworldPositionCache cache_ = cache != null ? cache : new OverworldPositionCache(columns);
+				FeatureColumns.FEATURE_COLUMNS.set(columns::getColumnChecked);
+				try {
+					BlockPos.Mutable pos = new BlockPos.Mutable();
+					Permuter permuter = new Permuter(0L);
+					this.profiler.run("flowers", () -> {
+						this.generateFlowers(world, columns, pos, permuter);
+					});
+					this.profiler.run("non-flower (custom) features", () -> {
+						MojangPermuter mojang = permuter.mojang();
+						for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
+							OverworldColumn column = columns.getColumn(columnIndex);
+							pos.setX(column.x).setZ(column.z);
+							permuter.setSeed(Permuter.permute(this.seed ^ 0xF9C81CB5E3A312C9L, column.x, column.z));
+
+							if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
+								CavernCell cavernCell = column.getCavernCell();
+								if (cavernCell != null) {
+									double center = column.getCavernCenter();
+									double thickness = column.getCavernThickness();
+									if (!Double.isNaN(center) && thickness > 0.0D) {
+										this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
+										this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
+										this.runDecorators(world, pos, mojang, cavernCell.settings.fluid_decorator(), BigGlobeMath.ceilI(column.getCavernAverageCenter()));
+									}
+								}
+								CaveCell caveCell = column.getCaveCell();
+								if (caveCell != null) {
+									this.runDecorators(world, pos, mojang, caveCell.settings.floor_decorator(), cache_.getCaveFloors(columnIndex));
+									this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator(), cache_.getCaveCeilings(columnIndex));
 								}
 							}
-							CaveCell caveCell = column.getCaveCell();
-							if (caveCell != null) {
-								this.runDecorators(world, pos, mojang, caveCell.settings.floor_decorator(), cache_.getCaveFloors(columnIndex));
-								this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator(), cache_.getCaveCeilings(columnIndex));
+							this.runDecorators(world, pos, mojang, this.settings.surface.decorator(), column.getFinalTopHeightI());
+							if (column.getFinalTopHeightI() < this.getSeaLevel()) {
+								this.runDecorators(world, pos, mojang, this.settings.miscellaneous.sea_level_decorator(), this.getSeaLevel());
+							}
+
+							SkylandCell skylandCell = column.getSkylandCell();
+							if (skylandCell != null && column.hasSkyland()) {
+								this.runDecorators(world, pos, mojang, skylandCell.settings.floor_decorator(), BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
+								this.runDecorators(world, pos, mojang, skylandCell.settings.ceiling_decorator(), BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
 							}
 						}
-						this.runDecorators(world, pos, mojang, this.settings.surface.decorator(), column.getFinalTopHeightI());
-						if (column.getFinalTopHeightI() < this.getSeaLevel()) {
-							this.runDecorators(world, pos, mojang, this.settings.miscellaneous.sea_level_decorator(), this.getSeaLevel());
-						}
-
-						SkylandCell skylandCell = column.getSkylandCell();
-						if (skylandCell != null && column.hasSkyland()) {
-							this.runDecorators(world, pos, mojang, skylandCell.settings.floor_decorator(), BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
-							this.runDecorators(world, pos, mojang, skylandCell.settings.ceiling_decorator(), BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
-						}
-					}
-				});
+					});
+				}
+				finally {
+					FeatureColumns.FEATURE_COLUMNS.set(null);
+				}
 			}
 			finally {
-				FeatureColumns.FEATURE_COLUMNS.set(null);
 				this.chunkColumnCache.reclaim(columns);
 			}
 		});
@@ -1156,8 +1143,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public void prepareBiomeColumn(WorldColumn column) {
-		for (ColumnValue<OverworldColumn> value : this.biomeValues) {
-			value.getValueWithoutY(column);
+		for (ColumnValue<?> value : this.settings.biomes.usedValues) {
+			value.getValue(column, 0.0D);
 		}
 	}
 

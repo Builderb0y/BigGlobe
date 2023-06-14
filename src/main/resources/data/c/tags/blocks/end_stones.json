@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"minecraft:end_stone",
+		"bigglobe:overgrown_end_stone",
+		"bigglobe:chorus_nylium"
+	]
+}

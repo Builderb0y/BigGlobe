@@ -746,8 +746,7 @@ public class OverworldColumn extends WorldColumn {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
-		return this.settings.biomes.root.getBiome(this, y, this.seed);
-		//return this.settings.surface.biomes().get(this, y);
+		return this.settings.biomes.getBiome(this, y, this.seed);
 	}
 
 	@Override

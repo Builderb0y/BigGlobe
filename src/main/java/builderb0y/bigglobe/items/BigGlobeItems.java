@@ -76,7 +76,12 @@ public class BigGlobeItems {
 		SMALL_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.SMALL_QUARTZ_BUD),
 		MEDIUM_QUARTZ_BUD        = registerPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
 		LARGE_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
-		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER);
+		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER),
+		CHORUS_NYLIUM            = registerPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
+		OVERGROWN_END_STONE      = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
+		TALL_CHORUS_SPORES       = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
+		MEDIUM_CHORUS_SPORES     = registerPlacer(BigGlobeBlocks.MEDIUM_CHORUS_SPORES),
+		SHORT_CHORUS_SPORES      = registerPlacer(BigGlobeBlocks.SHORT_CHORUS_SPORES);
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
@@ -126,6 +131,12 @@ public class BigGlobeItems {
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
 			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1)
+		)
+	);
+	public static final Item CHORUS_SPORE = register(
+		"chorus_spore",
+		new Item(
+			new Item.Settings()
 		)
 	);
 
@@ -181,9 +192,12 @@ public class BigGlobeItems {
 			entries.addBefore(Items.GRASS, SHORT_GRASS);
 			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.LILY_OF_THE_VALLEY, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
+			entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.addAfter(Items.STONE, ROCK);
+			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
+			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
+			entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
@@ -204,6 +218,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
 			entries.addAfter(Items.GUNPOWDER, ASH);
 			entries.addAfter(Items.FLINT, ROCK);
+			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
 			entries.addAfter(Items.CROSSBOW, SLINGSHOT);

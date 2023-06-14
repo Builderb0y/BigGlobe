@@ -1,0 +1,29 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double chance = 0.375L / (exp(-4.0L * `end/foliage`) + 1.0L) ;sigmoid curve.",
+			"random.if (chance:",
+				"random.if (chance:",
+					"random.if (chance:",
+						"random.if (chance:",
+							"return(placeFeature(originX, originY, originZ, 'minecraft:chorus_plant'))",
+						")",
+						"else (",
+							"return(placeBlockState(originX, originY, originZ, 'bigglobe:tall_chorus_spores'))",
+						")",
+					")",
+					"else (",
+						"return(placeBlockState(originX, originY, originZ, 'bigglobe:medium_chorus_spores'))",
+					")",
+				")",
+				"else (",
+					"return(placeBlockState(originX, originY, originZ, 'bigglobe:short_chorus_spores'))",
+				")",
+			")",
+			"else (",
+				"return(false)",
+			")"
+		]
+	}
+}

@@ -23,14 +23,15 @@ public class EndColumn extends WorldColumn {
 		DISTANCE_TO_ORIGIN         = 1 << 4,
 		MOUNTAIN_CENTER_Y          = 1 << 5,
 		MOUNTAIN_THICKNESS         = 1 << 6,
-		LOWER_RING_CLOUD_NOISE     = 1 << 7,
-		UPPER_RING_CLOUD_NOISE     = 1 << 8,
-		LOWER_BRIDGE_CLOUD_NOISE   = 1 << 9,
-		UPPER_BRIDGE_CLOUD_NOISE   = 1 << 10,
-		RING_CLOUD_HORIZONTAL_BIAS = 1 << 11,
-		BRIDGE_CLOUD_ANGULAR_BIAS  = 1 << 12,
-		BRIDGE_CLOUD_RADIAL_BIAS   = 1 << 13,
-		BRIDGE_CLOUD_ARCHNESS      = 1 << 14;
+		FOLIAGE                    = 1 << 7,
+		LOWER_RING_CLOUD_NOISE     = 1 << 8,
+		UPPER_RING_CLOUD_NOISE     = 1 << 9,
+		LOWER_BRIDGE_CLOUD_NOISE   = 1 << 10,
+		UPPER_BRIDGE_CLOUD_NOISE   = 1 << 11,
+		RING_CLOUD_HORIZONTAL_BIAS = 1 << 12,
+		BRIDGE_CLOUD_ANGULAR_BIAS  = 1 << 13,
+		BRIDGE_CLOUD_RADIAL_BIAS   = 1 << 14,
+		BRIDGE_CLOUD_ARCHNESS      = 1 << 15;
 
 	public final EndSettings settings;
 
@@ -42,11 +43,12 @@ public class EndColumn extends WorldColumn {
 		distanceToOrigin,
 		mountainCenterY,
 		mountainThickness,
+		foliage,
 		ringCloudHorizontalBias,
 		bridgeCloudAngularBias,
 		bridgeCloudRadialBias,
 		bridgeCloudArchness;
-	public double[]
+	public double @Nullable []
 		lowerRingCloudNoise,
 		upperRingCloudNoise,
 		lowerBridgeCloudNoise,
@@ -64,7 +66,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(WARP_X)
 			? this.warpX = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				self -> self.settings.warp_x().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.warp_x().getValue(self.seed, self.x, self.z)
 			)
 			: this.warpX
 		);
@@ -75,7 +77,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(WARP_Z)
 			? this.warpZ = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				self -> self.settings.warp_z().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.warp_z().getValue(self.seed, self.x, self.z)
 			)
 			: this.warpZ
 		);
@@ -104,7 +106,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(MOUNTAIN_CENTER_Y)
 			? this.mountainCenterY = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				self -> self.settings.mountains().center_y().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.mountains().center_y().getValue(self.seed, self.x, self.z)
 			)
 			: this.mountainCenterY
 		);
@@ -115,9 +117,20 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(MOUNTAIN_THICKNESS)
 			? this.mountainThickness = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				self -> self.settings.mountains().thickness().evaluate(self, self.getMountainCenterY())
+				(EndColumn self) -> self.settings.mountains().thickness().evaluate(self, self.getMountainCenterY())
 			)
 			: this.mountainThickness
+		);
+	}
+
+	public double getFoliage() {
+		return (
+			this.setFlag(FOLIAGE)
+			? this.foliage = ScriptedGrid.SECRET_COLUMN.apply(
+				this,
+				(EndColumn self) -> self.settings.mountains().foliage().getValue(this.seed, this.x, this.z)
+			)
+			: this.foliage
 		);
 	}
 
@@ -481,7 +494,7 @@ public class EndColumn extends WorldColumn {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
-		return this.hasTerrain() ? this.settings.biomes().the_end : this.settings.biomes().the_void;
+		return this.settings.biomes().getBiome(this, y, this.seed);
 	}
 
 	@Override

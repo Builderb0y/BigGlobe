@@ -28,9 +28,11 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -670,6 +672,74 @@ public class BigGlobeBlocks {
 		)
 	);
 
+	//////////////////////////////// end ////////////////////////////////
+
+	public static final Block CHORUS_NYLIUM = register(
+		"chorus_nylium",
+		new Block(
+			AbstractBlock.Settings.create()
+			.mapColor(MapColor.PURPLE)
+			.sounds(BlockSoundGroup.STONE)
+		)
+	);
+	public static final Block OVERGROWN_END_STONE = register(
+		"overgrown_end_stone",
+		new Block(
+			AbstractBlock.Settings.create()
+			.mapColor(MapColor.PALE_PURPLE)
+			.sounds(BlockSoundGroup.STONE)
+		)
+	);
+	public static final TallPlantBlock TALL_CHORUS_SPORES = register(
+		"tall_chorus_spores",
+		new TallPlantBlock(
+			AbstractBlock.Settings.create()
+			.mapColor(MapColor.PURPLE)
+			.sounds(BlockSoundGroup.GRASS)
+			.offset(OffsetType.XZ)
+			.noCollision()
+			.nonOpaque()
+			.breakInstantly()
+			.pistonBehavior(PistonBehavior.DESTROY)
+		) {
+
+			@Override
+			public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+				return floor.isOpaqueFullCube(world, pos);
+			}
+		}
+	);
+	public static final ChorusSporeBlock MEDIUM_CHORUS_SPORES = register(
+		"medium_chorus_spores",
+		new ChorusSporeBlock(
+			AbstractBlock.Settings.create()
+			.mapColor(MapColor.PURPLE)
+			.replaceable()
+			.sounds(BlockSoundGroup.GRASS)
+			.offset(OffsetType.XZ)
+			.noCollision()
+			.nonOpaque()
+			.breakInstantly()
+			.pistonBehavior(PistonBehavior.DESTROY),
+			TALL_CHORUS_SPORES
+		)
+	);
+	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
+		"short_chorus_spores",
+		new ChorusSporeBlock(
+			AbstractBlock.Settings.create()
+			.mapColor(MapColor.PURPLE)
+			.replaceable()
+			.sounds(BlockSoundGroup.GRASS)
+			.offset(OffsetType.XZ)
+			.noCollision()
+			.nonOpaque()
+			.breakInstantly()
+			.pistonBehavior(PistonBehavior.DESTROY),
+			MEDIUM_CHORUS_SPORES
+		)
+	);
+
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
 	//////////////////////////////// end of blocks ////////////////////////////////
@@ -730,7 +800,10 @@ public class BigGlobeBlocks {
 			SMALL_QUARTZ_BUD,
 			MEDIUM_QUARTZ_BUD,
 			LARGE_QUARTZ_BUD,
-			QUARTZ_CLUSTER
+			QUARTZ_CLUSTER,
+			SHORT_CHORUS_SPORES,
+			MEDIUM_CHORUS_SPORES,
+			TALL_CHORUS_SPORES
 		);
 
 		ColorProviderRegistry.BLOCK.register(

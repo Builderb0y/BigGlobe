@@ -13,8 +13,8 @@ import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
+import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 
 public class OverworldSkylandSettings {
 

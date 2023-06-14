@@ -162,9 +162,14 @@ public class TypeInfo {
 				array.add(type);
 			}
 			else if (object instanceof Integer count) {
-				List<TypeInfo> last = List.copyOf(array.subList(start, array.size()));
-				for (int loop = 1; loop < count; loop++) {
-					array.addAll(last);
+				if (count == 0) {
+					array.subList(start, array.size()).clear();
+				}
+				else {
+					List<TypeInfo> last = List.copyOf(array.subList(start, array.size()));
+					for (int loop = 1; loop < count; loop++) {
+						array.addAll(last);
+					}
 				}
 			}
 			else {

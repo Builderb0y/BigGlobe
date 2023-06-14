@@ -13,15 +13,23 @@ testing:
 
 porting:
 	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
+	torch flowers and pitcher plants.
+		see where they generate in vanilla.
+		copy that in big globe.
 
 where I left off:
-	need hooks for where to generate features in the end.
+	need (more) hooks for where to generate features in the end.
+	add those cherry flower thingies to the ground around cherry trees.
+	test that bonemealing chorus spores works as intended.
+	test that breaking new end blocks drops the correct item.
 
 changelog:
 	* Updated to 1.20!
 		* Added custom cherry trees.
 		* Added charred hanging signs.
+	* Added end support!
 	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
+	* Fixed temperate plains biome spawning inside cold plains biome in the overworld sometimes.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -61,6 +69,7 @@ features:
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 		make charred hanging sign look a bit more programmer art-y?
+		look into a custom loader for scripted configured features that doesn't rely on json format.
 	overworld:
 		make geode bud blocks position-dependent for random direction.
 			same position = same direction.

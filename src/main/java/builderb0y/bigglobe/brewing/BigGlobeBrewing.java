@@ -28,6 +28,7 @@ public class BigGlobeBrewing {
 		BrewingRecipeRegistry.registerPotionRecipe(Potions.AWKWARD, BigGlobeItems.ASH, WITHER);
 		BrewingRecipeRegistry.registerPotionRecipe(WITHER, Items.REDSTONE, LONG_WITHER);
 		BrewingRecipeRegistry.registerPotionRecipe(WITHER, Items.GLOWSTONE_DUST, STRONG_WITHER);
+		BrewingRecipeRegistry.registerPotionRecipe(Potions.WATER, BigGlobeItems.CHORUS_SPORE, Potions.AWKWARD);
 		BigGlobeMod.LOGGER.debug("Done registering potion recipes.");
 	}
 
