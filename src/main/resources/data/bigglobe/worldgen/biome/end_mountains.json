@@ -18,7 +18,7 @@
 					"blue": 167
 				}
 			},
-			"probability": 0.01
+			"probability": 0.003
 		},
 		"sky_color": 0,
 		"water_color": 4159204,
@@ -39,5 +39,5 @@
 		"water_ambient": [],
 		"water_creature": []
 	},
-	"temperature": 0.5
+	"temperature": 1.0
 }

@@ -41,6 +41,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
@@ -52,6 +53,12 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+/**
+higher-level script-parsing logic than {@link ExpressionReader}.
+handles expressions, user-defined variables/methods/classes,
+order of operations, etc... and building an abstract syntax tree out of them.
+this abstract syntax tree is represented with {@link InsnTree}.
+*/
 public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY;
@@ -514,7 +521,7 @@ public class ExpressionParser {
 
 	public InsnTree nextExponent() throws ScriptParsingException {
 		try {
-			InsnTree left = this.nextMember();
+			InsnTree left = this.nextElvis();
 			if (this.input.hasOperatorAfterWhitespace("^")) {
 				left = pow(this, left, this.nextExponent());
 			}
@@ -528,11 +535,32 @@ public class ExpressionParser {
 		}
 	}
 
+	public InsnTree nextElvis() throws ScriptParsingException {
+		try {
+			InsnTree left = this.nextMember();
+			while (true) {
+				if (this.input.hasOperatorAfterWhitespace("?:")) {
+					InsnTree right = this.nextMember();
+					left = left.elvis(this, right);
+				}
+				else {
+					return left;
+				}
+			}
+		}
+		catch (RuntimeException exception) {
+			throw new ScriptParsingException(exception, this.input);
+		}
+		catch (StackOverflowError error) {
+			throw new ScriptParsingException("Script too long or too complex", error, this.input);
+		}
+	}
+
 	public InsnTree nextMember() throws ScriptParsingException {
 		try {
 			InsnTree left = this.nextPrefixOperator();
 			while (true) {
-				if (this.input.hasAfterWhitespace('.')) {
+				if (this.input.hasOperatorAfterWhitespace(".")) {
 					//note: can be the empty String, "".
 					//this is intentional to support array/list-lookup syntax:
 					//array.(index)
@@ -549,11 +577,23 @@ public class ExpressionParser {
 							result = arguments.maybeWrap(result);
 						}
 						else {
-							result = this.environment.getField(this, left, memberName);
+							result = this.environment.getField(this, left, memberName, GetFieldMode.NORMAL);
 							if (result == null) {
 								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 							}
 						}
+					}
+					left = result;
+				}
+				else if (this.input.hasOperatorAfterWhitespace(".?")) {
+					String memberName = this.input.readIdentifierAfterWhitespace();
+					if (this.input.peekAfterWhitespace() == '(') {
+						//todo: implement this.
+						throw new ScriptParsingException("Nullable method calls are not yet implemented.", this.input);
+					}
+					InsnTree result = this.environment.getField(this, left, memberName, GetFieldMode.NULLABLE);
+					if (result == null) {
+						throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + ".?" + memberName), this.input);
 					}
 					left = result;
 				}
@@ -787,6 +827,10 @@ public class ExpressionParser {
 				suffix = this.input.peek();
 			}
 			return switch (suffix) {
+				case 'f', 'F', 'd', 'D' -> {
+					this.input.onCharRead(suffix);
+					throw new ScriptParsingException("This isn't a C-family language. Doubles are suffixed by 'L', and floats are not suffixed by anything.", this.input);
+				}
 				case 'l', 'L' -> {
 					this.input.onCharRead(suffix);
 					if (number.scale() > 0) {
@@ -886,7 +930,7 @@ public class ExpressionParser {
 	public InsnTree nextIdentifier(String name) throws ScriptParsingException {
 		try {
 			if (name.equals("var")) {
-				String varName = this.input.expectIdentifierAfterWhitespace();
+				String varName = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "variable");
 				boolean reuse;
 				if (this.input.hasOperatorAfterWhitespace("=")) reuse = false;
 				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
@@ -901,7 +945,7 @@ public class ExpressionParser {
 				);
 			}
 			else if (name.equals("class")) {
-				String className = this.input.expectIdentifierAfterWhitespace();
+				String className = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "class");
 				return this.nextUserDefinedClass(className);
 			}
 			else { //not var or class.
@@ -917,16 +961,19 @@ public class ExpressionParser {
 						String varName = this.input.readIdentifierAfterWhitespace();
 						if (!varName.isEmpty()) { //variable or method declaration.
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
+								this.verifyName(varName, "variable");
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, store(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasOperatorAfterWhitespace(":=")) {
+								this.verifyName(varName, "variable");
 								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
+								this.verifyName(varName, "method");
 								return this.nextUserDefinedFunction(type, varName);
 							}
 							else {
@@ -1040,7 +1087,7 @@ public class ExpressionParser {
 				return new CastResult(invokeStatic(newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
 			else {
-				return new CastResult(invokeVirtual(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
+				return new CastResult(invokeInstance(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
 		});
 		return new MethodDeclarationInsnTree(newMethod, result);
@@ -1062,7 +1109,7 @@ public class ExpressionParser {
 			TypeInfo type = this.environment.getType(this, typeName);
 			if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, this.input);
 
-			String fieldName = this.input.expectIdentifierAfterWhitespace();
+			String fieldName = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "field");
 			FieldCompileContext field = innerClass.newField(ACC_PUBLIC, fieldName, type);
 			fields.add(field);
 
@@ -1081,7 +1128,7 @@ public class ExpressionParser {
 		//add constructors.
 		innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID).scopes.withScope((MethodCompileContext constructor) -> {
 			VarInfo constructorThis = constructor.addThis();
-			invokeSpecial(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+			invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
 			for (FieldCompileContext field : fields) {
 				if (field.initializer != null) {
 					putField(
@@ -1097,7 +1144,7 @@ public class ExpressionParser {
 		if (!fields.isEmpty()) {
 			innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo constructorThis = constructor.addThis();
-				invokeSpecial(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+				invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
@@ -1113,7 +1160,7 @@ public class ExpressionParser {
 		if (nonDefaulted.size() != fields.size() && !nonDefaulted.isEmpty()) {
 			innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo constructorThis = constructor.addThis();
-				invokeSpecial(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+				invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
@@ -1241,8 +1288,26 @@ public class ExpressionParser {
 		return this.environment.listCandidates(identifier).map("\t"::concat).collect(Collectors.joining("\n", prefix + "\nCandidates:\n", '\n' + suffix));
 	}
 
+	public static boolean isLetter(char c) {
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+	}
+
 	public static boolean isNumber(char c) {
 		return c >= '0' && c <= '9';
+	}
+
+	public static boolean isLetterOrNumber(char c) {
+		return isLetter(c) || isNumber(c);
+	}
+
+	public String verifyName(String name, String type) throws ScriptParsingException {
+		if (name.isEmpty()) throw new ScriptParsingException(type + " name must not be empty", this.input);
+		if (name.equals("_")) throw new ScriptParsingException(type + " name must not be _ as it is a reserved word in java", this.input);
+		if (!isLetter(name.charAt(0))) throw new ScriptParsingException(type + " name must start with an ASCII letter or underscore", this.input);
+		for (int index = 1, length = name.length(); index < length; index++) {
+			if (!isLetterOrNumber(name.charAt(index))) throw new ScriptParsingException(type + " name must contain only ASCII letters, numbers, and underscores", this.input);
+		}
+		return name;
 	}
 
 	public void beginCodeBlock() throws ScriptParsingException {

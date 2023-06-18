@@ -52,7 +52,7 @@ public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":locateNoise")
-			.requires(source -> source.hasPermissionLevel(2))
+			.requires(source -> source.hasPermissionLevel(4))
 			.then(
 				CommandManager
 				.argument("range", IntegerArgumentType.integer(1, 30_000_000))

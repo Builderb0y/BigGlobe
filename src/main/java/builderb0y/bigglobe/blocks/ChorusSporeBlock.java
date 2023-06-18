@@ -1,12 +1,10 @@
 package builderb0y.bigglobe.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.block.PlantBlock;
+import net.minecraft.block.*;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -16,10 +14,19 @@ import builderb0y.bigglobe.features.SingleBlockFeature;
 public class ChorusSporeBlock extends PlantBlock implements Fertilizable {
 
 	public final Block growInto;
+	public final VoxelShape shape;
 
-	public ChorusSporeBlock(Settings settings, Block into) {
+	public ChorusSporeBlock(Settings settings, Block into, VoxelShape shape) {
 		super(settings);
 		this.growInto = into;
+		this.shape = shape;
+	}
+
+	@Override
+	@Deprecated
+	@SuppressWarnings("deprecation")
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return this.shape;
 	}
 
 	@Override

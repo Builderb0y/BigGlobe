@@ -68,7 +68,7 @@ public class RandomScriptEnvironment {
 				return new CastResult(
 					switch_(
 						parser,
-						invokeInterface(
+						invokeInstance(
 							loader,
 							NEXT_INT_1,
 							ldc(arguments.length)
@@ -119,7 +119,7 @@ public class RandomScriptEnvironment {
 			);
 		}
 		else { //random.if(a)
-			conditionInsnTree = invokeInterface(receiver, NEXT_BOOLEAN);
+			conditionInsnTree = invokeInstance(receiver, NEXT_BOOLEAN);
 			body = firstPart;
 		}
 		parser.endCodeBlock();

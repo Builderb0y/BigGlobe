@@ -2,10 +2,34 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"boolean isReplaceableOrPlant(int x, int y, int z:",
+				"BlockState state = getBlockState(x, y, z)",
+				"return(state.isReplaceable() || state.isIn('bigglobe:replaceable_plants'))",
+			")",
 			"double distance = 4.0 * `overworld/height_adjusted_temperature` ^ 2",
 			"if (`overworld/foliage` < 0.0: distance += 4.0 * `overworld/height_adjusted_foliage` ^ 2)",
 			"double chance = max(1.0 - distance, 0.0) ^ 2",
-			"random.nextBoolean(chance / 2048.0) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/trees/natural/cherry')"
+			"(random.nextBoolean(chance / 2048.0) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/trees/natural/cherry')).if (",
+				"for (int attempt = 0, attempt < 256, ++attempt:",
+					"double angle = random.nextDouble(tau)",
+					"double radius = random.nextDouble(16.0L)",
+					"int x = originX + roundInt(cos(angle) * radius)",
+					"int z = originZ + roundInt(sin(angle) * radius)",
+					"int y = originY",
+					"while (isYLevelValid(y) &&  isReplaceableOrPlant(x, y, z): --y)",
+					"while (isYLevelValid(y) && !isReplaceableOrPlant(x, y, z): ++y)",
+					"BlockState oldState = getBlockState(x, y, z)",
+					"if (oldState.getBlock() == Block('minecraft:pink_petals'):",
+						"int flowers = oldState.flower_amount",
+						"if (flowers < 4:",
+							"setBlockState(x, y, z, oldState.with('flower_amount', flowers + 1))",
+						")",
+					")",
+					"else (",
+						"placeBlockState(x, y, z, BlockState('minecraft:pink_petals', facing: random.switch('north', 'south', 'east', 'west'), flower_amount: 1))",
+					")",
+				")",
+			")"
 		]
 	}
 }

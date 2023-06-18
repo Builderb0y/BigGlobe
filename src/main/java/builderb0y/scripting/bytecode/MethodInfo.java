@@ -12,12 +12,12 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@SuppressWarnings("deprecation")
 public class MethodInfo {
 
-	public static final int
-		INTERFACE = ACC_INTERFACE,
-		PURE      = Integer.MIN_VALUE;
+	public static final int PURE = Integer.MIN_VALUE;
 
+	@Deprecated //use getter method instead.
 	public int access;
 	public TypeInfo owner;
 	public String name;
@@ -62,7 +62,7 @@ public class MethodInfo {
 	}
 
 	public int access() {
-		return this.access & ~(INTERFACE | PURE);
+		return this.access & ~PURE;
 	}
 
 	public boolean isStatic() {
@@ -70,7 +70,18 @@ public class MethodInfo {
 	}
 
 	public boolean isInterface() {
-		return (this.access & INTERFACE) != 0;
+		return this.owner.type.isInterface;
+	}
+
+	public int getInvokeOpcode() {
+		if (this.isStatic()) return INVOKESTATIC;
+		if (this.isPrivate() || this.name.equals("<init>")) return INVOKESPECIAL;
+		if (this.isInterface()) return INVOKEINTERFACE;
+		return INVOKEVIRTUAL;
+	}
+
+	public boolean isPrivate() {
+		return (this.access() & ACC_PRIVATE) != 0;
 	}
 
 	public boolean isPure() {
@@ -90,10 +101,8 @@ public class MethodInfo {
 	}
 
 	public static MethodInfo forMethod(Method method) {
-		int access = method.getModifiers();
-		if (method.getDeclaringClass().isInterface()) access |= INTERFACE;
 		return new MethodInfo(
-			access,
+			method.getModifiers(),
 			TypeInfo.of(method.getDeclaringClass()),
 			method.getName(),
 			TypeInfo.of(method.getGenericReturnType()),

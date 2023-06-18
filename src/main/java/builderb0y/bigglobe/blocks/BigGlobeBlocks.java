@@ -676,18 +676,22 @@ public class BigGlobeBlocks {
 
 	public static final Block CHORUS_NYLIUM = register(
 		"chorus_nylium",
-		new Block(
+		new ChorusNyliumBlock(
 			AbstractBlock.Settings.create()
 			.mapColor(MapColor.PURPLE)
 			.sounds(BlockSoundGroup.STONE)
+			.strength(3.0F, 9.0F)
+			.requiresTool()
 		)
 	);
 	public static final Block OVERGROWN_END_STONE = register(
 		"overgrown_end_stone",
-		new Block(
+		new OvergrownEndStoneBlock(
 			AbstractBlock.Settings.create()
 			.mapColor(MapColor.PALE_PURPLE)
 			.sounds(BlockSoundGroup.STONE)
+			.strength(3.0F, 9.0F)
+			.requiresTool()
 		)
 	);
 	public static final TallPlantBlock TALL_CHORUS_SPORES = register(
@@ -721,7 +725,8 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			TALL_CHORUS_SPORES
+			TALL_CHORUS_SPORES,
+			VoxelShapes.fullCube()
 		)
 	);
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
@@ -736,7 +741,8 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			MEDIUM_CHORUS_SPORES
+			MEDIUM_CHORUS_SPORES,
+			VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D)
 		)
 	);
 

@@ -21,7 +21,6 @@
 	"block.bigglobe.charred_trapdoor": "Charred Trapdoor",
 	"block.bigglobe.charred_wood": "Charred Wood",
 	"block.bigglobe.chorus_nylium": "Chorus Nylium",
-	"block.bigglobe.chorus_spore": "Chorus Spore",
 	"block.bigglobe.crystalline_prismarine": "Crystalline Prismarine",
 	"block.bigglobe.flint": "Flint",
 	"block.bigglobe.floatstone": "Floatstone",
@@ -66,6 +65,7 @@
 
 	"item.bigglobe.ash": "Ash",
 	"item.bigglobe.ball_of_string": "Ball Of String",
+	"item.bigglobe.chorus_spore": "Chorus Spore",
 	"item.bigglobe.percussive_hammer": "Percussive Hammer",
 	"item.bigglobe.slingshot": "Slingshot",
 	"item.bigglobe.soul_lava_bucket": "Soul Lava Bucket",

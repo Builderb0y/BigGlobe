@@ -123,13 +123,13 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
 		NamedType query = new NamedType();
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
 			FieldInfo field = this.fields.get(query);
-			if (field != null) return InsnTrees.getField(receiver, field);
+			if (field != null) return mode.makeField(parser, receiver, field);
 		}
 		return null;
 	}

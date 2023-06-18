@@ -15,7 +15,8 @@ public class BigGlobeBlockTags {
 		MINEABLE_PERCUSSIVE_HAMMER = of("mineable/percussive_hammer"),
 		ROCK_BREAKABLE             = of("rock_breakable"),
 		REPLACEABLE_PLANTS         = of("replaceable_plants"),
-		END_STONES                 = common("end_stones");
+		END_STONES                 = common("end_stones"),
+		END_STONE_SPREADABLE       = of("end_stone_spreadable");
 
 	public static TagKey<Block> of(String name) {
 		return TagKey.of(RegistryKeys.BLOCK, BigGlobeMod.modID(name));

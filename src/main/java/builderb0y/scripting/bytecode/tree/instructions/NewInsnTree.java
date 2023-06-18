@@ -15,11 +15,6 @@ public class NewInsnTree extends InvokeStaticInsnTree {
 	}
 
 	@Override
-	public int opcode() {
-		return INVOKESPECIAL;
-	}
-
-	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		method.node.visitTypeInsn(NEW, this.method.owner.getInternalName());
 		method.node.visitInsn(DUP);
@@ -43,11 +38,6 @@ public class NewInsnTree extends InvokeStaticInsnTree {
 			if (method.isStatic() || !method.name.equals("<init>") || !method.returnType.isVoid()) {
 				throw new IllegalArgumentException(method.toString());
 			}
-		}
-
-		@Override
-		public int opcode() {
-			return INVOKESPECIAL;
 		}
 
 		@Override

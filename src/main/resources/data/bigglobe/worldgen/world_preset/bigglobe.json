@@ -374,12 +374,12 @@
 						"foliage": {
 							"type": "sum",
 							"layers": [
-								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.5    },
-								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.25   },
-								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.125  },
-								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.25   },
-								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.125  },
-								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0625 },
+								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.5      },
+								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.25     },
+								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.125    },
+								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.0625   },
+								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.03125  },
+								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.015625 },
 								{
 									"type": "script",
 									"min": -6.0,
@@ -413,7 +413,11 @@
 						"center_y": "192.0",
 						"min_radius": 0.375,
 						"max_radius": 0.625,
-						"vertical_thickness": 64.0
+						"vertical_thickness": 64.0,
+						"lower_floor_decorator":   "bigglobe:end/ring_cloud_lower_floor",
+						"lower_ceiling_decorator": "bigglobe:end/ring_cloud_lower_ceiling",
+						"upper_floor_decorator":   "bigglobe:end/ring_cloud_upper_floor",
+						"upper_ceiling_decorator": "bigglobe:end/ring_cloud_upper_ceiling"
 					},
 					"bridge_clouds": {
 						"noise": {
@@ -434,7 +438,11 @@
 						"center_y": "(1.0L - exp(-0.5 * `end/warp_radius`)) * 256.0 + 159.0",
 						"min_radius": 0.625,
 						"mid_radius": 1.0,
-						"vertical_thickness": 64.0
+						"vertical_thickness": 64.0,
+						"lower_floor_decorator":   "bigglobe:end/bridge_cloud_lower_floor",
+						"lower_ceiling_decorator": "bigglobe:end/bridge_cloud_lower_ceiling",
+						"upper_floor_decorator":   "bigglobe:end/bridge_cloud_upper_floor",
+						"upper_ceiling_decorator": "bigglobe:end/bridge_cloud_upper_ceiling"
 					}
 				}
 			}

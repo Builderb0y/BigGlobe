@@ -1,1 +1,1 @@
-Current status: Released on Modrinth, but still in alpha. Only the overworld and nether have custom generation right now. The end has not been started yet.
+Current status: Released on [Modrinth](https://modrinth.com/mod/big-globe), but still in alpha. Only the overworld and nether have custom generation right now. The end is still a work in progress.

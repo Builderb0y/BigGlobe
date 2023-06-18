@@ -49,6 +49,14 @@ public record EndSettings(
 		public default int verticalSamples() {
 			return BigGlobeMath.floorI(this.vertical_thickness() * 2.0D) + 1;
 		}
+
+		public abstract SortedFeatureTag lower_floor_decorator();
+
+		public abstract SortedFeatureTag lower_ceiling_decorator();
+
+		public abstract SortedFeatureTag upper_floor_decorator();
+
+		public abstract SortedFeatureTag upper_ceiling_decorator();
 	}
 
 	public record RingCloudSettings(
@@ -56,7 +64,11 @@ public record EndSettings(
 		ColumnYToDoubleScript.Holder center_y,
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double min_radius,
 		@VerifySorted(greaterThan = "min_radius") double max_radius,
-		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
+		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness,
+		SortedFeatureTag lower_floor_decorator,
+		SortedFeatureTag lower_ceiling_decorator,
+		SortedFeatureTag upper_floor_decorator,
+		SortedFeatureTag upper_ceiling_decorator
 	)
 	implements EndCloudSettings {}
 
@@ -66,7 +78,11 @@ public record EndSettings(
 		ColumnYToDoubleScript.Holder center_y,
 		@VerifyFloatRange(min = 0.0D) double min_radius,
 		@VerifySorted(greaterThan = "min_radius") double mid_radius,
-		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness
+		@VerifyFloatRange(min = 0.0D, minInclusive = false) double vertical_thickness,
+		SortedFeatureTag lower_floor_decorator,
+		SortedFeatureTag lower_ceiling_decorator,
+		SortedFeatureTag upper_floor_decorator,
+		SortedFeatureTag upper_ceiling_decorator
 	)
 	implements EndCloudSettings {}
 }

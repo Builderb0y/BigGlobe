@@ -5,6 +5,8 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.ints.IntList;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
@@ -38,6 +40,8 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.EndPositionCache;
+import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -45,6 +49,9 @@ import builderb0y.bigglobe.settings.BiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.EndSettings;
+import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
+import builderb0y.bigglobe.settings.EndSettings.EndMountainSettings;
+import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.util.SemiThreadLocal;
 
@@ -216,8 +223,12 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					column.getLowerBridgeCloudNoise();
 					column.getUpperBridgeCloudNoise();
 					column.getFoliage();
+					column.updateLevels();
 				});
 			});
+			if (chunk instanceof PositionCacheHolder holder) {
+				holder.bigglobe_setPositionCache(new EndPositionCache(columns));
+			}
 			this.profiler.run("generateRawSections", () -> {
 				this.generateRawSections(chunk, columns, distantHorizons);
 			});
@@ -252,6 +263,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					}
 				});
 			}
+			EndPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof EndPositionCache end ? end : null;
 			ChunkOfColumns<EndColumn> columns = this.chunkColumnCache.get();
 			try {
 				this.profiler.run("Initial feature column values", () -> {
@@ -259,21 +271,44 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 						column.getFinalTopHeightD();
 						column.getFinalBottomHeightD();
 						column.getFoliage();
+						if (cache == null) {
+							column.getLowerRingCloudNoise();
+							column.getUpperRingCloudNoise();
+							column.getLowerBridgeCloudNoise();
+							column.getUpperBridgeCloudNoise();
+							column.updateLevels();
+						}
 					});
 				});
-				this.profiler.run("Mountain features", () -> {
+				EndPositionCache cache_ = cache != null ? cache : new EndPositionCache(columns);
+				this.profiler.run("Feature placement", () -> {
 					FeatureColumns.FEATURE_COLUMNS.set(columns::getColumnChecked);
 					try {
 						BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 						Permuter permuter = new Permuter(0L);
 						MojangPermuter mojang = permuter.mojang();
+						EndMountainSettings mountainSettings    = this.settings.mountains();
+						RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds();
+						BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
 						for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
 							EndColumn column = columns.getColumn(columnIndex);
+							mutablePos.setX(column.x).setZ(column.z);
+							permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
 							if (column.hasTerrain()) {
-								mutablePos.setX(column.x).setZ(column.z);
-								permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
-								this.runDecorators(world, mutablePos, mojang, this.settings.mountains().floor_decorator(), column.getFinalTopHeightI());
-								this.runDecorators(world, mutablePos, mojang, this.settings.mountains().ceiling_decorator(), column.getFinalBottomHeightI() - 1);
+								this.runDecorators(world, mutablePos, mojang, mountainSettings.floor_decorator(), column.getFinalTopHeightI());
+								this.runDecorators(world, mutablePos, mojang, mountainSettings.ceiling_decorator(), column.getFinalBottomHeightI() - 1);
+							}
+							if (ringCloudSettings != null) {
+								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   get(cache_.lowerRingCloudFloors,   columnIndex));
+								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), get(cache_.lowerRingCloudCeilings, columnIndex));
+								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   get(cache_.upperRingCloudFloors,   columnIndex));
+								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), get(cache_.upperRingCloudCeilings, columnIndex));
+							}
+							if (bridgeCloudSettings != null) {
+								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   get(cache_.lowerBridgeCloudFloors,   columnIndex));
+								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.lowerBridgeCloudCeilings, columnIndex));
+								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   get(cache_.upperBridgeCloudFloors,   columnIndex));
+								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.upperBridgeCloudCeilings, columnIndex));
 							}
 						}
 					}
@@ -286,6 +321,10 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				this.chunkColumnCache.reclaim(columns);
 			}
 		});
+	}
+
+	public static @Nullable IntList get(@Nullable IntList @Nullable [] array, int index) {
+		return array != null ? array[index] : null;
 	}
 
 	@Override

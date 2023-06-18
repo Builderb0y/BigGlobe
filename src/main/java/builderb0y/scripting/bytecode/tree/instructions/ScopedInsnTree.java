@@ -62,4 +62,9 @@ public class ScopedInsnTree implements InsnTree {
 	public InsnTree asStatement() {
 		return new ScopedInsnTree(this.body.asStatement());
 	}
+
+	@Override
+	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+		return new ScopedInsnTree(this.body.elvis(parser, alternative));
+	}
 }

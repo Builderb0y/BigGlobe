@@ -1,11 +1,32 @@
 package builderb0y.scripting.parsing;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup.ClassOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import builderb0y.scripting.bytecode.ClassCompileContext;
 
+/**
+the ClassLoader responsible for converting script bytecode into actual classes.
+the scripts themselves are loaded from data packs. many built-in scripts
+can be found in data/bigglobe/worldgen/configured_feature/<dimension>/.
+
+I can't use {@link MethodHandles.Lookup#defineHiddenClass(byte[], boolean, ClassOption...)}
+because scripts themselves can define their own classes too, and reference them,
+but if the script and the user-defined class are both hidden, then neither can reference the other.
+
+I also don't want to use {@link MethodHandles.Lookup#defineClass(byte[])},
+because it ensures a strong reachability link between
+the defined class and the class loader of the caller,
+and I want to ensure my defined classes are unloadable whenever they
+are no longer needed, which is the case when the world unloads.
+
+so, my solution is to instantiate a new ScriptClassLoader for each script.
+the ScriptClassLoader can only {@link #findClass(String) find} classes
+which were defined with the script associated with the class loader.
+*/
 public class ScriptClassLoader extends ClassLoader {
 
 	public static final AtomicInteger CLASS_UNIQUIFIER = new AtomicInteger();

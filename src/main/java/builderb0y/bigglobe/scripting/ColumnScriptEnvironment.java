@@ -82,13 +82,13 @@ public class ColumnScriptEnvironment {
 			for (String name : getNames(entry.getKey())) {
 				InsnTree tree = (
 					value.dependsOnY()
-					? invokeVirtual(
+					? invokeInstance(
 						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
 						COLUMN_VALUE_GET_VALUE,
 						loadColumn,
 						loadY
 					)
-					: invokeVirtual(
+					: invokeInstance(
 						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
 						COLUMN_VALUE_GET_VALUE_WITHOUT_Y,
 						loadColumn
@@ -117,7 +117,7 @@ public class ColumnScriptEnvironment {
 						if (castArgument == null) return null;
 						if (environment.usedValues != null) environment.usedValues.add(value);
 						return new CastResult(
-							invokeVirtual(
+							invokeInstance(
 								COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name1)),
 								COLUMN_VALUE_GET_VALUE,
 								loadColumn,
@@ -127,7 +127,7 @@ public class ColumnScriptEnvironment {
 						);
 					}));
 					if (defaultY != null) {
-						tree = invokeVirtual(
+						tree = invokeInstance(
 							COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
 							COLUMN_VALUE_GET_VALUE,
 							loadColumn,
@@ -139,7 +139,7 @@ public class ColumnScriptEnvironment {
 					}
 				}
 				else {
-					tree = invokeVirtual(
+					tree = invokeInstance(
 						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
 						COLUMN_VALUE_GET_VALUE_WITHOUT_Y,
 						loadColumn

@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"double chance = 0.375L / (exp(-4.0L * `end/foliage`) + 1.0L) ;sigmoid curve.",
+			"double chance = `end/foliage` * 0.75L",
 			"random.if (chance:",
 				"random.if (chance:",
 					"random.if (chance:",

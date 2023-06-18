@@ -105,7 +105,9 @@ task copyToReleases(type: Copy) {
 	into(new File("$projectDir/releases"))
 }
 
-build.dependsOn(copyToReleases)
+test.enabled = true
+
+build.dependsOn(test, copyToReleases)
 
 // configure the maven publication
 /*

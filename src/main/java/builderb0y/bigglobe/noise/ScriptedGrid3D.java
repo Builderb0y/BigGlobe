@@ -125,7 +125,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//fill samples with input.
-				invokeInterface(
+				invokeInstance(
 					getField(
 						load(thisVar),
 						input.fieldInfo(getBulk)
@@ -246,7 +246,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(
 							load(thisVar),
 							input.fieldInfo(getBulk)

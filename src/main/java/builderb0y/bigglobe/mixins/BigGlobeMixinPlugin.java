@@ -34,6 +34,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                    Boolean.FALSE);
@@ -42,6 +43,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                            Boolean.FALSE);
+		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",             Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                    Boolean.TRUE);

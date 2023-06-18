@@ -109,7 +109,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//fill samples with firstInput.
-				invokeInterface(
+					invokeInstance(
 					getField(
 						load(thisVar),
 						firstInput.fieldInfo(getBulk)
@@ -224,7 +224,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(
 							load(thisVar),
 							input.fieldInfo(getBulk)

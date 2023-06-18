@@ -259,7 +259,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			.scopes
 			.withScope((MethodCompileContext constructor) -> {
 				VarInfo thisVar = constructor.addThis();
-				invokeSpecial(
+				invokeInstance(
 					load(thisVar),
 					constructor(ACC_PUBLIC, Object.class)
 				)
@@ -299,7 +299,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					load(coordinates[dimension]).emitBytecode(getValue);
 				}
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(
 							load(thisVar),
 							input.fieldInfo(getValue)

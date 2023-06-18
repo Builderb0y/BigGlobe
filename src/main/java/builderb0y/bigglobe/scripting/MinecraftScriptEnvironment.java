@@ -24,6 +24,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -59,6 +60,9 @@ public class MinecraftScriptEnvironment {
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
 			.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
 			.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
+			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
+				return mode.makeStaticGetter(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
+			}))
 			.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
@@ -181,7 +185,7 @@ public class MinecraftScriptEnvironment {
 		MethodInfo randomFunction = MethodInfo.findMethod(owner, "random", returnType, RandomGenerator.class);
 		return (parser, receiver, name, arguments) -> {
 			if (arguments.length == 0) {
-				return new CastResult(invokeVirtual(receiver, randomFunction, loadRandom), false);
+				return new CastResult(invokeInstance(receiver, randomFunction, loadRandom), false);
 			}
 			return null;
 		};

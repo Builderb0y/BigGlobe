@@ -1,10 +1,16 @@
 package builderb0y.bigglobe.columns;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -53,10 +59,81 @@ public class EndColumn extends WorldColumn {
 		upperRingCloudNoise,
 		lowerBridgeCloudNoise,
 		upperBridgeCloudNoise;
+	public IntList
+		lowerRingCloudFloorLevels,
+		lowerRingCloudCeilingLevels,
+		upperRingCloudFloorLevels,
+		upperRingCloudCeilingLevels,
+		lowerBridgeCloudFloorLevels,
+		lowerBridgeCloudCeilingLevels,
+		upperBridgeCloudFloorLevels,
+		upperBridgeCloudCeilingLevels;
 
 	public EndColumn(EndSettings settings, long seed, int x, int z) {
 		super(seed, x, z);
 		this.settings = settings;
+	}
+
+	/**
+	the logic for {@link #updateLevels()} needs to
+	be ran 4 times for 4 different types of clouds,
+	just assigning to different fields.
+	so this class contains those fields and
+	performs the relevant logic on them.
+	I reckon this makes the code about twice as short as normal.
+	it would be 4x, but there's some extra
+	lines for storing the fields to operate on.
+	*/
+	public static class CloudLevelUpdater {
+
+		public static final CloudLevelUpdater
+			LOWER_RING   = new CloudLevelUpdater("lowerRingCloudNoise",   "lowerRingCloudFloorLevels",   "lowerRingCloudCeilingLevels"  ),
+			UPPER_RING   = new CloudLevelUpdater("upperRingCloudNoise",   "upperRingCloudFloorLevels",   "upperRingCloudCeilingLevels"  ),
+			LOWER_BRIDGE = new CloudLevelUpdater("lowerBridgeCloudNoise", "lowerBridgeCloudFloorLevels", "lowerBridgeCloudCeilingLevels"),
+			UPPER_BRIDGE = new CloudLevelUpdater("upperBridgeCloudNoise", "upperBridgeCloudFloorLevels", "upperBridgeCloudCeilingLevels");
+
+		public final VarHandle noise, floor, ceiling;
+
+		public CloudLevelUpdater(String noise, String floor, String ceiling) {
+			try {
+				this.noise   = MethodHandles.lookup().findVarHandle(EndColumn.class, noise,   double[].class);
+				this.floor   = MethodHandles.lookup().findVarHandle(EndColumn.class, floor,   IntList.class);
+				this.ceiling = MethodHandles.lookup().findVarHandle(EndColumn.class, ceiling, IntList.class);
+			}
+			catch (Exception exception) {
+				throw AutoCodecUtil.rethrow(exception);
+			}
+		}
+
+		public void update(EndColumn column, int minY) {
+			double[] noise = (double[])(this.noise.get(column));
+			if (noise == null) return;
+			int maxY = minY + noise.length;
+			boolean previousCloud = false;
+			IntList floorLevels = null, ceilingLevels = null;
+			for (int y = minY; y < maxY; y++) {
+				int index = y - minY;
+				boolean currentCloud = noise[index] > 0.0D;
+				if (previousCloud && !currentCloud) {
+					if (floorLevels == null) floorLevels = new IntArrayList(1);
+					floorLevels.add(y);
+				}
+				else if (currentCloud && !previousCloud) {
+					if (ceilingLevels == null) ceilingLevels = new IntArrayList(1);
+					ceilingLevels.add(y - 1);
+				}
+				previousCloud = currentCloud;
+			}
+			this.floor.set(column, floorLevels);
+			this.ceiling.set(column, ceilingLevels);
+		}
+	}
+
+	public void updateLevels() {
+		CloudLevelUpdater.LOWER_RING.update(this, this.getLowerRingCloudSampleStartY());
+		CloudLevelUpdater.UPPER_RING.update(this, this.getUpperRingCloudSampleStartY());
+		CloudLevelUpdater.LOWER_BRIDGE.update(this, this.getLowerBridgeCloudSampleStartY());
+		CloudLevelUpdater.UPPER_BRIDGE.update(this, this.getUpperBridgeCloudSampleStartY());
 	}
 
 	//////////////////////////////// warp ////////////////////////////////

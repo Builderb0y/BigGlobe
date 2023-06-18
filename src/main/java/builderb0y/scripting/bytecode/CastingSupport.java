@@ -3,7 +3,9 @@ package builderb0y.scripting.bytecode;
 import org.objectweb.asm.Opcodes;
 
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.I2ZInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.D2ZInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.F2ZInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
@@ -29,22 +31,17 @@ public class CastingSupport {
 		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, double.class))),
 		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, double.class))),
 		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT, false, opcode(Opcodes.D2F)),
-		I2Z = data(TypeInfos.INT, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new I2ZInsnTree(value)),
-		L2Z = data(
-			TypeInfos.LONG,
-			TypeInfos.BOOLEAN,
-			false,
-			allOf(
-				data(TypeInfos.LONG, TypeInfos.INT, false, opcode(Opcodes.LCMP)),
-				I2Z
-			)
-		),
-		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, invoke(CastingSupport.class, "F2Z")),
-		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, invoke(CastingSupport.class, "D2Z"));
+		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new F2ZInsnTree(value)),
+		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new D2ZInsnTree(value));
 
 	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
+		if (value.getTypeInfo().equals(type)) {
+			return new IdentityCastInsnTree(value, type);
+		}
 		//passing in a null parser is NOT recommended, but in this case it is safe.
-		return BuiltinScriptEnvironment.INSTANCE.cast(null, value, type, false);
+		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(null, value, type, false);
+		if (casted != null) return casted;
+		else throw new IllegalArgumentException("Can't primitively cast " + value.describe() + " to " + type);
 	}
 
 	public static CastHandler opcode(int opcode) {
@@ -53,7 +50,7 @@ public class CastingSupport {
 
 	public static CastHandler invokeVirtual(MethodInfo method) {
 		if (method.isStatic()) throw new IllegalArgumentException("Static method: " + method);
-		return (parser, value, to, implicit) -> InsnTrees.invokeVirtualOrInterface(value, method);
+		return (parser, value, to, implicit) -> InsnTrees.invokeInstance(value, method);
 	}
 
 	public static CastHandler invokeStatic(MethodInfo method) {
@@ -75,11 +72,11 @@ public class CastingSupport {
 	}
 
 	public static boolean F2Z(float value) {
-		return value != 0.0F && value == value;
+		return value == value;
 	}
 
 	public static boolean D2Z(double value) {
-		return value != 0.0D && value == value;
+		return value == value;
 	}
 
 	public static int floorInt(float value) {

@@ -253,11 +253,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addVariableRenamedInvoke(InsnTree receiver, String name, MethodInfo method) {
-		return this.addVariable(name, invokeVirtualOrInterface(receiver, method));
+		return this.addVariable(name, invokeInstance(receiver, method));
 	}
 
 	public MutableScriptEnvironment addVariableInvoke(InsnTree receiver, MethodInfo method) {
-		return this.addVariable(method.name, invokeVirtualOrInterface(receiver, method));
+		return this.addVariable(method.name, invokeInstance(receiver, method));
 	}
 
 	//////////////// invokeStatic ////////////////
@@ -344,7 +344,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// get ////////////////
 
 	public MutableScriptEnvironment addFieldGet(String name, FieldInfo field) {
-		return this.addField(field.owner, name, new FieldHandler.Named(field.toString(), (parser, receiver, name1) -> InsnTrees.getField(receiver, field)));
+		return this.addField(field.owner, name, new FieldHandler.Named(field.toString(), (parser, receiver, name1, mode) -> mode.makeField(parser, receiver, field)));
 	}
 
 	public MutableScriptEnvironment addFieldGet(FieldInfo field) {
@@ -366,7 +366,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvoke(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 0) throw new IllegalArgumentException("Getter requires parameters");
-		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1) -> invokeVirtualOrInterface(receiver, getter)));
+		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1, mode) -> mode.makeInstanceGetter(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvoke(MethodInfo getter) {
@@ -392,7 +392,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvokeStatic(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 1) throw new IllegalArgumentException("Static getter requires parameters");
-		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1) -> invokeStatic(getter, receiver)));
+		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1, mode) -> mode.makeStaticGetter(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvokeStatic(MethodInfo getter) {
@@ -481,7 +481,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
 		return this.addFunction(name, new FunctionHandler.Named("functionInvoke: " + method + " for receiver " + receiver.describe(), (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(invokeInstance(receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -530,7 +530,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, new MethodHandler.Named("methodInvoke: " + method, (parser, receiver, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(invokeInstance(receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -646,7 +646,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////////////////////// qualified variables ////////////////////////////////
 
 	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler variableHandler) {
-		return this.addField(TypeInfos.CLASS, name, new FieldHandler.Named("qualifiedVariable on " + owner + ": " + variableHandler, (parser, receiver, name1) -> {
+		return this.addField(TypeInfos.CLASS, name, new FieldHandler.Named("qualifiedVariable on " + owner + ": " + variableHandler, (parser, receiver, name1, mode) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
 				return variableHandler.create(parser, name1);
@@ -928,7 +928,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
 		class Accumulator {
 
 			public final NamedType query = new NamedType();
@@ -938,7 +938,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				this.query.name = n;
 				this.query.owner = type;
 				FieldHandler handler = MutableScriptEnvironment.this.fields.get(this.query);
-				return handler != null && (this.result = handler.create(parser, receiver, name)) != null;
+				return handler != null && (this.result = handler.create(parser, receiver, name, mode)) != null;
 			}
 		}
 		Accumulator accumulator = new Accumulator();
@@ -1084,13 +1084,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface FieldHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException;
+		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException;
 
 		public static record Named(String name, FieldHandler handler) implements FieldHandler {
 
 			@Override
-			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-				return this.handler.create(parser, receiver, name);
+			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
+				return this.handler.create(parser, receiver, name, mode);
 			}
 
 			@Override

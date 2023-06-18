@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:end/foliage"
+		"bigglobe:end/foliage",
+		"bigglobe:end/occasional_obsidian_spire"
 	]
 }

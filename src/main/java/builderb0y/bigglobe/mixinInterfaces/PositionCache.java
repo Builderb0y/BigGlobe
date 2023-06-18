@@ -1,11 +1,14 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
+import java.util.function.Function;
+
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.chunk.ProtoChunk;
 
 import builderb0y.bigglobe.columns.ChunkOfColumns;
+import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.OverworldColumn;
 
@@ -54,6 +57,42 @@ public interface PositionCache {
 				this.cavernFloors  [index] = column.cavernFloors;
 				this.cavernCeilings[index] = column.cavernCeilings;
 			}
+		}
+	}
+
+	public static class EndPositionCache implements PositionCache {
+
+		public IntList[]
+			lowerRingCloudFloors,
+			lowerRingCloudCeilings,
+			upperRingCloudFloors,
+			upperRingCloudCeilings,
+			lowerBridgeCloudFloors,
+			lowerBridgeCloudCeilings,
+			upperBridgeCloudFloors,
+			upperBridgeCloudCeilings;
+
+		public EndPositionCache(ChunkOfColumns<EndColumn> columns) {
+			this.lowerRingCloudFloors     = collect(columns, (EndColumn column) -> column.lowerRingCloudFloorLevels);
+			this.lowerRingCloudCeilings   = collect(columns, (EndColumn column) -> column.lowerRingCloudCeilingLevels);
+			this.upperRingCloudFloors     = collect(columns, (EndColumn column) -> column.upperRingCloudFloorLevels);
+			this.upperRingCloudCeilings   = collect(columns, (EndColumn column) -> column.upperRingCloudCeilingLevels);
+			this.lowerBridgeCloudFloors   = collect(columns, (EndColumn column) -> column.lowerBridgeCloudFloorLevels);
+			this.lowerBridgeCloudCeilings = collect(columns, (EndColumn column) -> column.lowerBridgeCloudCeilingLevels);
+			this.upperBridgeCloudFloors   = collect(columns, (EndColumn column) -> column.upperBridgeCloudFloorLevels);
+			this.upperBridgeCloudCeilings = collect(columns, (EndColumn column) -> column.upperBridgeCloudCeilingLevels);
+		}
+
+		public static IntList[] collect(ChunkOfColumns<EndColumn> columns, Function<EndColumn, IntList> getter) {
+			IntList[] array = null;
+			for (int index = 0; index < 256; index++) {
+				IntList list = getter.apply(columns.getColumn(index));
+				if (list != null) {
+					if (array == null) array = new IntList[256];
+					array[index] = list;
+				}
+			}
+			return array;
 		}
 	}
 

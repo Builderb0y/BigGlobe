@@ -112,7 +112,7 @@ public class BuiltinScriptEnvironment {
 				ConstantValue.ARRAY_FACTORY.empty(),
 				arguments
 			);
-			return new CastResult(invokeVirtual(loadOut, PRINTLN, concat), false);
+			return new CastResult(invokeInstance(loadOut, PRINTLN, concat), false);
 		})
 
 		//////////////// keywords ////////////////
@@ -206,7 +206,7 @@ public class BuiltinScriptEnvironment {
 		.addCast(TypeInfos.BOOLEAN, TypeInfos.FLOAT, false, CastingSupport.I2F.changeInput(TypeInfos.BOOLEAN))
 		.addCast(TypeInfos.BOOLEAN, TypeInfos.DOUBLE, false, CastingSupport.I2D.changeInput(TypeInfos.BOOLEAN))
 		//byte
-		.addCast(TypeInfos.BYTE, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		//.addCast(TypeInfos.BYTE, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
 		.addCastIdentity(TypeInfos.BYTE, TypeInfos.CHAR, true)
 		.addCastIdentity(TypeInfos.BYTE, TypeInfos.SHORT, true)
 		.addCastIdentity(TypeInfos.BYTE, TypeInfos.INT, true)
@@ -214,7 +214,7 @@ public class BuiltinScriptEnvironment {
 		.addCast(TypeInfos.BYTE, TypeInfos.FLOAT, true, CastingSupport.I2F)
 		.addCast(TypeInfos.BYTE, TypeInfos.DOUBLE, true, CastingSupport.I2D)
 		//char
-		.addCast(TypeInfos.CHAR, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		//.addCast(TypeInfos.CHAR, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
 		.addCast(TypeInfos.CHAR, TypeInfos.BYTE, false, CastingSupport.I2B)
 		.addCast(TypeInfos.CHAR, TypeInfos.SHORT, true, CastingSupport.I2S)
 		.addCastIdentity(TypeInfos.CHAR, TypeInfos.INT, true)
@@ -222,7 +222,7 @@ public class BuiltinScriptEnvironment {
 		.addCast(TypeInfos.CHAR, TypeInfos.FLOAT, true, CastingSupport.I2F)
 		.addCast(TypeInfos.CHAR, TypeInfos.DOUBLE, true, CastingSupport.I2D)
 		//short
-		.addCast(TypeInfos.SHORT, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		//.addCast(TypeInfos.SHORT, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
 		.addCast(TypeInfos.SHORT, TypeInfos.BYTE, false, CastingSupport.I2B)
 		.addCast(TypeInfos.SHORT, TypeInfos.CHAR, false, CastingSupport.I2C)
 		.addCastIdentity(TypeInfos.SHORT, TypeInfos.INT, true)
@@ -230,7 +230,7 @@ public class BuiltinScriptEnvironment {
 		.addCast(TypeInfos.SHORT, TypeInfos.FLOAT, true, CastingSupport.I2F)
 		.addCast(TypeInfos.SHORT, TypeInfos.DOUBLE, true, CastingSupport.I2D)
 		//int
-		.addCast(CastingSupport.I2Z)
+		//.addCast(CastingSupport.I2Z)
 		.addCast(CastingSupport.I2B)
 		.addCast(CastingSupport.I2C)
 		.addCast(CastingSupport.I2S)
@@ -238,7 +238,7 @@ public class BuiltinScriptEnvironment {
 		.addCast(CastingSupport.I2F)
 		.addCast(CastingSupport.I2D)
 		//long
-		.addCast(CastingSupport.L2Z)
+		//.addCast(CastingSupport.L2Z)
 		.addCasts(CastingSupport.L2I, CastingSupport.I2B)
 		.addCasts(CastingSupport.L2I, CastingSupport.I2C)
 		.addCasts(CastingSupport.L2I, CastingSupport.I2S)

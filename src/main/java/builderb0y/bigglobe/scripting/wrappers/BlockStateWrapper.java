@@ -38,6 +38,7 @@ public class BlockStateWrapper {
 		CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class),
 		DEFAULT_CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getDefaultState", String.class, BlockState.class);
 	public static final MethodInfo
+		GET_PROPERTY = MethodInfo.getMethod(BlockStateWrapper.class, "getProperty"),
 		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with");
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
@@ -112,14 +113,15 @@ public class BlockStateWrapper {
 		return state.mirror(Directions.scriptMirror(axis));
 	}
 
-	public static @Nullable Comparable<?> getProperty(BlockState state, String name) {
+	@SuppressWarnings("unchecked")
+	public static <C extends Comparable<C>> @Nullable C getProperty(BlockState state, String name) {
 		Property<?> property = state.getBlock().getStateManager().getProperty(name);
 		if (property == null) return null;
 		Comparable<?> value = state.get(property);
 		if (value instanceof StringIdentifiable e) {
 			value = e.asString();
 		}
-		return value;
+		return (C)(value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

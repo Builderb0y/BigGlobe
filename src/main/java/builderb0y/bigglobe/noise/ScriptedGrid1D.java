@@ -99,7 +99,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
 				//fill samples with input.
-				invokeInterface(
+					invokeInstance(
 					getField(
 						load(thisVar),
 						input.fieldInfo(getBulkX)
@@ -196,7 +196,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(load(thisVar), input.fieldInfo(getBulkX)),
 						method(
 							ACC_PUBLIC | ACC_INTERFACE,

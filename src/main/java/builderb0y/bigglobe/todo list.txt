@@ -16,12 +16,14 @@ porting:
 	torch flowers and pitcher plants.
 		see where they generate in vanilla.
 		copy that in big globe.
+	update to 1.20.1.
 
 where I left off:
-	need (more) hooks for where to generate features in the end.
-	add those cherry flower thingies to the ground around cherry trees.
-	test that bonemealing chorus spores works as intended.
-	test that breaking new end blocks drops the correct item.
+	height overriders.
+	structure overriders.
+	cloud overriders.
+	upside down obsidian spires.
+	end nest/nest exclusion zone.
 
 changelog:
 	* Updated to 1.20!
@@ -30,6 +32,7 @@ changelog:
 	* Added end support!
 	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
 	* Fixed temperate plains biome spawning inside cold plains biome in the overworld sometimes.
+	* Fixed not being able to query BlockState properties in scripts.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -60,8 +63,11 @@ scripting:
 	nested multi-line comment ;(example ;(text) here)
 	operators for !> !< !>= and !<= to negate the normal compare operators.
 		semantics differ from inverting for NaN handling.
-	elvis operator ?:
-		also make sure this works on NaN.
+	nullable invoke.
+		foo.?bar()
+	ensure that all casting methods properly handle null as an input.
+		in other words, SomeType(null) should not cause an NPE.
+	lambdas?
 
 features:
 	general:
@@ -112,8 +118,10 @@ features:
 		make lilypads renewable?
 	nether:
 	end:
-		jessie wants worley noise for the end.
-			convex.
+		block of void?
+			void ingots?
+				void armor?
+		asteroids in the void biome.
 
 before release:
 	make sure nothing in test package is used.

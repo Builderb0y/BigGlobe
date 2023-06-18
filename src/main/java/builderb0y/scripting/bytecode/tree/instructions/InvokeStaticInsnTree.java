@@ -98,7 +98,7 @@ public class InvokeStaticInsnTree implements InsnTree {
 	}
 
 	public int opcode() {
-		return INVOKESTATIC;
+		return this.method.getInvokeOpcode();
 	}
 
 	@Override

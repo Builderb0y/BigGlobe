@@ -3,7 +3,9 @@ package builderb0y.scripting.bytecode;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -24,14 +26,14 @@ public class ClassCompileContext {
 
 	public ClassNode node;
 	public TypeInfo info;
-	public InheritanceContext inheritance;
+	public Map<String, TypeInfo> definedClasses;
 	public List<ClassCompileContext> innerClasses;
 
 	public ClassCompileContext(int access, TypeInfo info) {
 		this.node = new ClassNode();
 		this.info = info;
-		this.inheritance = new InheritanceContext();
-		this.inheritance.lookup.put(info.getInternalName(), info);
+		this.definedClasses = new HashMap<>(2);
+		this.definedClasses.put(info.getInternalName(), info);
 		this.node.visit(
 			V17,
 			access,
@@ -47,8 +49,8 @@ public class ClassCompileContext {
 	public ClassCompileContext(ClassCompileContext parent, int access, TypeInfo info) {
 		this.node = new ClassNode();
 		this.info = info;
-		this.inheritance = parent.inheritance;
-		this.inheritance.lookup.put(info.getInternalName(), info);
+		this.definedClasses = parent.definedClasses;
+		this.definedClasses.put(info.getInternalName(), info);
 		this.node.visit(
 			V17,
 			access,
@@ -86,13 +88,11 @@ public class ClassCompileContext {
 
 			@Override
 			public String getCommonSuperClass(String type1, String type2) {
-				InheritanceContext inheritance = ClassCompileContext.this.inheritance;
-				TypeInfo info1 = inheritance.getInheritance(type1);
-				TypeInfo info2 = inheritance.getInheritance(type2);
-				if (info1 != null && info2 != null) {
-					return TypeMerger.computeMostSpecificType(info1, info2).getInternalName();
-				}
-				return super.getCommonSuperClass(type1, type2);
+				TypeInfo info1 = ClassCompileContext.this.definedClasses.get(type1);
+				TypeInfo info2 = ClassCompileContext.this.definedClasses.get(type2);
+				if (info1 == null) info1 = TypeInfo.parseInternalName(type1, 0, type1.length());
+				if (info2 == null) info2 = TypeInfo.parseInternalName(type2, 0, type2.length());
+				return TypeMerger.computeMostSpecificType(info1, info2).getInternalName();
 			}
 		};
 		this.node.accept(writer);
@@ -109,7 +109,7 @@ public class ClassCompileContext {
 		this.newMethod(access, "<init>", TypeInfos.VOID).scopes.withScope(method -> {
 			VarInfo thisVar = method.addThis();
 			return_(
-				invokeSpecial(
+				invokeInstance(
 					load(thisVar),
 					//super constructor access doesn't actually matter for this use case.
 					constructor(ACC_PUBLIC, this.info.superClass)
