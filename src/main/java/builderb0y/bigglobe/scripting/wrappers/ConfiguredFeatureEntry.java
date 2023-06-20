@@ -24,6 +24,7 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 	}
 
 	public static ConfiguredFeatureEntry of(String id) {
+		if (id == null) return null;
 		return new ConfiguredFeatureEntry(
 			BigGlobeMod
 			.getCurrentServer()

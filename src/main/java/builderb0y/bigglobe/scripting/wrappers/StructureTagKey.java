@@ -22,6 +22,7 @@ public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<Struc
 	}
 
 	public static StructureTagKey of(String id) {
+		if (id == null) return null;
 		return new StructureTagKey(TagKey.of(RegistryKeys.STRUCTURE, new Identifier(id)));
 	}
 

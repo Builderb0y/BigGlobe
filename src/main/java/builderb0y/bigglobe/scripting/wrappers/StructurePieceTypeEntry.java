@@ -23,6 +23,7 @@ public record StructurePieceTypeEntry(RegistryEntry<StructurePieceType> entry) i
 	}
 
 	public static StructurePieceType of(String id) {
+		if (id == null) return null;
 		StructurePieceType type = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE_PIECE).get(new Identifier(id));
 		if (type != null) return type;
 		else throw new IllegalArgumentException("Unknown structure piece type: " + id);

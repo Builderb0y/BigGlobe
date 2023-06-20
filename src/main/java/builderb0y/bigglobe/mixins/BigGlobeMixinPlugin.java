@@ -36,7 +36,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                      Boolean.TRUE);
-		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                Boolean.FALSE); //unnecessary in 1.20.1.
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                    Boolean.FALSE);
 		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",  Boolean.TRUE);
 		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",   Boolean.TRUE);

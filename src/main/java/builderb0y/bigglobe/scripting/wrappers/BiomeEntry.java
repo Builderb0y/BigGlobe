@@ -25,6 +25,7 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 	}
 
 	public static BiomeEntry of(String id) {
+		if (id == null) return null;
 		return new BiomeEntry(
 			BigGlobeMod
 			.getCurrentServer()

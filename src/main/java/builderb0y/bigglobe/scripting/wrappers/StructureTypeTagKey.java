@@ -25,6 +25,7 @@ public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWr
 	}
 
 	public static StructureTypeTagKey of(String id) {
+		if (id == null) return null;
 		return new StructureTypeTagKey(TagKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id)));
 	}
 

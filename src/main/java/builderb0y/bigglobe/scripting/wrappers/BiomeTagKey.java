@@ -24,6 +24,7 @@ public record BiomeTagKey(TagKey<Biome> key) implements TagWrapper<Biome, BiomeE
 	}
 
 	public static BiomeTagKey of(String id) {
+		if (id == null) return null;
 		return new BiomeTagKey(TagKey.of(RegistryKeys.BIOME, new Identifier(id)));
 	}
 

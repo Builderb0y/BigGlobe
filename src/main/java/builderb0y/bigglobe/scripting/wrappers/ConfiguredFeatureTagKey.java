@@ -24,6 +24,7 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 	}
 
 	public static ConfiguredFeatureTagKey of(String id) {
+		if (id == null) return null;
 		return new ConfiguredFeatureTagKey(TagKey.of(RegistryKeys.CONFIGURED_FEATURE, new Identifier(id)));
 	}
 

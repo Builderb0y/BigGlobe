@@ -230,10 +230,11 @@ public class ColumnScriptEnvironment {
 	public static final ConstantFactory COLUMN_VALUE_CONSTANT_FACTORY = new ConstantFactory(ColumnScriptEnvironment.class, "getColumnValueRuntime", String.class, ColumnValue.class);
 
 	public static ColumnValue<?> getColumnValueRuntime(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return ColumnValue.get(id);
+		return getColumnValueRuntime(id);
 	}
 
 	public static ColumnValue<?> getColumnValueRuntime(String id) {
+		if (id == null) return null;
 		return ColumnValue.get(id);
 	}
 

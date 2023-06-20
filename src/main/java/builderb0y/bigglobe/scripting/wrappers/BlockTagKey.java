@@ -24,6 +24,7 @@ public record BlockTagKey(TagKey<Block> key) implements TagWrapper<Block, Block>
 	}
 
 	public static BlockTagKey of(String id) {
+		if (id == null) return null;
 		return new BlockTagKey(TagKey.of(RegistryKeys.BLOCK, new Identifier(id)));
 	}
 

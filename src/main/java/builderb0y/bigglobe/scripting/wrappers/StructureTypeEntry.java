@@ -24,6 +24,7 @@ public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) implemen
 	}
 
 	public static StructureTypeEntry of(String id) {
+		if (id == null) return null;
 		return new StructureTypeEntry(Registries.STRUCTURE_TYPE.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id))));
 	}
 

@@ -24,6 +24,7 @@ public record StructurePieceTypeTagKey(TagKey<StructurePieceType> key) implement
 	}
 
 	public static StructurePieceTypeTagKey of(String id) {
+		if (id == null) return null;
 		return new StructurePieceTypeTagKey(TagKey.of(RegistryKeys.STRUCTURE_PIECE, new Identifier(id)));
 	}
 

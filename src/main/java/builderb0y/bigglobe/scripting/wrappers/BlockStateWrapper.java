@@ -42,6 +42,7 @@ public class BlockStateWrapper {
 		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with");
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
+		if (id == null) return null;
 		BlockResult result = BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false);
 		if (result.properties().size() != result.blockState().getProperties().size()) {
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
@@ -54,6 +55,7 @@ public class BlockStateWrapper {
 	}
 
 	public static BlockState getState(String id) throws CommandSyntaxException {
+		if (id == null) return null;
 		//this method will be called only if the string is non-constant.
 		//for performance reasons, we will skip properties checking here.
 		return BlockArgumentParser.block(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK).getReadOnlyWrapper(), id, false).blockState();
@@ -64,6 +66,7 @@ public class BlockStateWrapper {
 	}
 
 	public static BlockState getDefaultState(String id) {
+		if (id == null) return null;
 		Identifier identifier = new Identifier(id);
 		if (Registries.BLOCK.containsId(identifier)) {
 			return Registries.BLOCK.get(identifier).getDefaultState();

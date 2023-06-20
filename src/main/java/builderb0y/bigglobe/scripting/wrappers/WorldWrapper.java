@@ -5,10 +5,14 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
@@ -180,6 +184,33 @@ public class WorldWrapper {
 			BlockState state = this.world.getBlockState(pos);
 			world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
 		}
+	}
+
+	public void summon(String entityType, double x, double y, double z) {
+		Identifier identifier = new Identifier(entityType);
+		if (Registries.ENTITY_TYPE.containsId(identifier)) {
+			Entity entity = Registries.ENTITY_TYPE.get(identifier).create(this.world.toServerWorld());
+			if (entity != null) {
+				entity.refreshPositionAndAngles(x, y, z, entity.getYaw(), entity.getPitch());
+				this.world.spawnEntityAndPassengers(entity);
+			}
+			else {
+				throw new IllegalArgumentException("Entity type " + entityType + " is not enabled in this world's feature flags.");
+			}
+		}
+		else {
+			throw new IllegalArgumentException("Unknown entity type: " + entityType);
+		}
+	}
+
+	public void summon(String entityType, double x, double y, double z, NbtCompound nbt) {
+		NbtCompound copy = nbt.copy();
+		copy.putString("id", entityType);
+		Entity entity = EntityType.loadEntityWithPassengers(copy, this.world.toServerWorld(), entity1 -> {
+			entity1.refreshPositionAndAngles(x, y, z, entity1.getYaw(), entity1.getPitch());
+			return entity1;
+		});
+		if (entity != null) this.world.spawnEntityAndPassengers(entity);
 	}
 
 	@Override

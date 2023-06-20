@@ -13,10 +13,12 @@ import net.minecraft.world.biome.Biome;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.EndSettings;
 import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
+import builderb0y.bigglobe.settings.EndSettings.EndNestSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
 
 public class EndColumn extends WorldColumn {
@@ -192,12 +194,31 @@ public class EndColumn extends WorldColumn {
 	public double getMountainThickness() {
 		return (
 			this.setFlag(MOUNTAIN_THICKNESS)
-			? this.mountainThickness = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.mountains().thickness().evaluate(self, self.getMountainCenterY())
-			)
+			? this.mountainThickness = this.computeMountainThickness()
 			: this.mountainThickness
 		);
+	}
+
+	public double computeMountainThickness() {
+		double thickness = ScriptedGrid.SECRET_COLUMN.apply(
+			this,
+			(EndColumn self) -> self.settings.mountains().thickness().evaluate(self, self.getMountainCenterY())
+		);
+		double distance = this.getDistanceToOrigin();
+		EndNestSettings nest = this.settings.nest();
+		if (distance < nest.outer_exclusion_radius()) {
+			thickness *= Math.max(
+				1.0D - BigGlobeMath.squareD(
+					Interpolator.unmixLinear(
+						nest.outer_exclusion_radius(),
+						nest.inner_exclusion_radius(),
+						distance
+					)
+				),
+				0.0D
+			);
+		}
+		return thickness;
 	}
 
 	public double getFoliage() {

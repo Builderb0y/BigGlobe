@@ -349,7 +349,9 @@
 								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 },
 								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.5 }
 							]
-						}
+						},
+						"inner_exclusion_radius": 512.0,
+						"outer_exclusion_radius": 1024.0
 					},
 					"mountains": {
 						"center_y": {

@@ -7,11 +7,9 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -30,10 +28,10 @@ public class BlockWrapper {
 	}
 
 	public static Block getBlock(String id) {
+		if (id == null) return null;
 		Identifier identifier = new Identifier(id);
-		Registry<Block> registry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BLOCK);
-		if (registry.containsId(identifier)) {
-			return registry.get(identifier);
+		if (Registries.BLOCK.containsId(identifier)) {
+			return Registries.BLOCK.get(identifier);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown block: " + id);

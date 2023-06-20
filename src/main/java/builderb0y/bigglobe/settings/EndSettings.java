@@ -26,7 +26,9 @@ public record EndSettings(
 ) {
 
 	public record EndNestSettings(
-		Grid2D noise
+		Grid2D noise,
+		@VerifyFloatRange(min = 0.0D) double inner_exclusion_radius,
+		@VerifySorted(greaterThan = "inner_exclusion_radius") double outer_exclusion_radius
 	) {}
 
 	public record EndMountainSettings(
