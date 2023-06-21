@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.columns;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -29,17 +31,19 @@ public class EndColumn extends WorldColumn {
 		WARP_RADIUS                = 1 << 2,
 		WARP_ANGLE                 = 1 << 3,
 		DISTANCE_TO_ORIGIN         = 1 << 4,
-		MOUNTAIN_CENTER_Y          = 1 << 5,
-		MOUNTAIN_THICKNESS         = 1 << 6,
-		FOLIAGE                    = 1 << 7,
-		LOWER_RING_CLOUD_NOISE     = 1 << 8,
-		UPPER_RING_CLOUD_NOISE     = 1 << 9,
-		LOWER_BRIDGE_CLOUD_NOISE   = 1 << 10,
-		UPPER_BRIDGE_CLOUD_NOISE   = 1 << 11,
-		RING_CLOUD_HORIZONTAL_BIAS = 1 << 12,
-		BRIDGE_CLOUD_ANGULAR_BIAS  = 1 << 13,
-		BRIDGE_CLOUD_RADIAL_BIAS   = 1 << 14,
-		BRIDGE_CLOUD_ARCHNESS      = 1 << 15;
+		ANGLE_TO_ORIGIN            = 1 << 5,
+		NEST_NOISE                 = 1 << 6,
+		MOUNTAIN_CENTER_Y          = 1 << 7,
+		MOUNTAIN_THICKNESS         = 1 << 8,
+		FOLIAGE                    = 1 << 9,
+		LOWER_RING_CLOUD_NOISE     = 1 << 10,
+		UPPER_RING_CLOUD_NOISE     = 1 << 11,
+		LOWER_BRIDGE_CLOUD_NOISE   = 1 << 12,
+		UPPER_BRIDGE_CLOUD_NOISE   = 1 << 13,
+		RING_CLOUD_HORIZONTAL_BIAS = 1 << 14,
+		BRIDGE_CLOUD_ANGULAR_BIAS  = 1 << 15,
+		BRIDGE_CLOUD_RADIAL_BIAS   = 1 << 16,
+		BRIDGE_CLOUD_ARCHNESS      = 1 << 17;
 
 	public final EndSettings settings;
 
@@ -49,6 +53,7 @@ public class EndColumn extends WorldColumn {
 		warpRadius,
 		warpAngle,
 		distanceToOrigin,
+		angleToOrigin,
 		mountainCenterY,
 		mountainThickness,
 		foliage,
@@ -57,11 +62,14 @@ public class EndColumn extends WorldColumn {
 		bridgeCloudRadialBias,
 		bridgeCloudArchness;
 	public double @Nullable []
+		nestNoise,
 		lowerRingCloudNoise,
 		upperRingCloudNoise,
 		lowerBridgeCloudNoise,
 		upperBridgeCloudNoise;
 	public IntList
+		nestFloorLevels,
+		nestCeilingLevels,
 		lowerRingCloudFloorLevels,
 		lowerRingCloudCeilingLevels,
 		upperRingCloudFloorLevels,
@@ -89,16 +97,18 @@ public class EndColumn extends WorldColumn {
 	public static class CloudLevelUpdater {
 
 		public static final CloudLevelUpdater
-			LOWER_RING   = new CloudLevelUpdater("lowerRingCloudNoise",   "lowerRingCloudFloorLevels",   "lowerRingCloudCeilingLevels"  ),
-			UPPER_RING   = new CloudLevelUpdater("upperRingCloudNoise",   "upperRingCloudFloorLevels",   "upperRingCloudCeilingLevels"  ),
-			LOWER_BRIDGE = new CloudLevelUpdater("lowerBridgeCloudNoise", "lowerBridgeCloudFloorLevels", "lowerBridgeCloudCeilingLevels"),
-			UPPER_BRIDGE = new CloudLevelUpdater("upperBridgeCloudNoise", "upperBridgeCloudFloorLevels", "upperBridgeCloudCeilingLevels");
+			NEST         = new CloudLevelUpdater("getNestNoise",             "nestFloorLevels",             "nestCeilingLevels"            ),
+			LOWER_RING   = new CloudLevelUpdater("getLowerRingCloudNoise",   "lowerRingCloudFloorLevels",   "lowerRingCloudCeilingLevels"  ),
+			UPPER_RING   = new CloudLevelUpdater("getUpperRingCloudNoise",   "upperRingCloudFloorLevels",   "upperRingCloudCeilingLevels"  ),
+			LOWER_BRIDGE = new CloudLevelUpdater("getLowerBridgeCloudNoise", "lowerBridgeCloudFloorLevels", "lowerBridgeCloudCeilingLevels"),
+			UPPER_BRIDGE = new CloudLevelUpdater("getUpperBridgeCloudNoise", "upperBridgeCloudFloorLevels", "upperBridgeCloudCeilingLevels");
 
-		public final VarHandle noise, floor, ceiling;
+		public final MethodHandle noise;
+		public final VarHandle floor, ceiling;
 
 		public CloudLevelUpdater(String noise, String floor, String ceiling) {
 			try {
-				this.noise   = MethodHandles.lookup().findVarHandle(EndColumn.class, noise,   double[].class);
+				this.noise   = MethodHandles.lookup().findVirtual  (EndColumn.class, noise, MethodType.methodType(double[].class));
 				this.floor   = MethodHandles.lookup().findVarHandle(EndColumn.class, floor,   IntList.class);
 				this.ceiling = MethodHandles.lookup().findVarHandle(EndColumn.class, ceiling, IntList.class);
 			}
@@ -108,7 +118,13 @@ public class EndColumn extends WorldColumn {
 		}
 
 		public void update(EndColumn column, int minY) {
-			double[] noise = (double[])(this.noise.get(column));
+			double[] noise;
+			try {
+				noise = (double[])(this.noise.invokeExact(column));
+			}
+			catch (Throwable throwable) {
+				throw AutoCodecUtil.rethrow(throwable);
+			}
 			if (noise == null) return;
 			int maxY = minY + noise.length;
 			boolean previousCloud = false;
@@ -132,8 +148,9 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public void updateLevels() {
-		CloudLevelUpdater.LOWER_RING.update(this, this.getLowerRingCloudSampleStartY());
-		CloudLevelUpdater.UPPER_RING.update(this, this.getUpperRingCloudSampleStartY());
+		CloudLevelUpdater.NEST        .update(this, this.settings.nest().min_y());
+		CloudLevelUpdater.LOWER_RING  .update(this, this.getLowerRingCloudSampleStartY());
+		CloudLevelUpdater.UPPER_RING  .update(this, this.getUpperRingCloudSampleStartY());
 		CloudLevelUpdater.LOWER_BRIDGE.update(this, this.getLowerBridgeCloudSampleStartY());
 		CloudLevelUpdater.UPPER_BRIDGE.update(this, this.getUpperBridgeCloudSampleStartY());
 	}
@@ -174,8 +191,39 @@ public class EndColumn extends WorldColumn {
 		return this.setFlag(DISTANCE_TO_ORIGIN) ? this.distanceToOrigin = Math.sqrt(BigGlobeMath.squareD(this.x, this.z)) : this.distanceToOrigin;
 	}
 
+	public double getAngleToOrigin() {
+		return this.setFlag(ANGLE_TO_ORIGIN) ? this.angleToOrigin = Math.atan2(this.z, this.x) : this.angleToOrigin;
+	}
+
 	public static String debug_distanceToOrigin(CustomDisplayContext context) {
 		return CustomDisplayContext.format(context.<EndColumn>column().getDistanceToOrigin()) + " block(s) " + context.arrow(0, 0);
+	}
+
+	//////////////////////////////// nest ////////////////////////////////
+
+	public double[] getNestNoise() {
+		if (this.getDistanceToOrigin() >= this.settings.nest().max_radius()) return null;
+		double[] nestNoise = this.nestNoise;
+		if (nestNoise == null) {
+			nestNoise = this.nestNoise = new double[this.settings.nest().verticalSamples()];
+		}
+		if (this.setFlag(NEST_NOISE)) {
+			int startY = this.settings.nest().min_y();
+			ScriptedGrid.SECRET_COLUMN.accept(this, nestNoise, (double[] noise) -> {
+				this.settings.nest().shape().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			});
+		}
+		return nestNoise;
+	}
+
+	public double getNestNoise(double y) {
+		return this.getNestNoise(BigGlobeMath.floorI(y));
+	}
+
+	public double getNestNoise(int y) {
+		return ScriptedGrid.SECRET_COLUMN.apply(this, (EndColumn self) -> {
+			return self.settings.nest().shape().getValue(self.seed, self.x, y, self.z);
+		});
 	}
 
 	//////////////////////////////// mountains ////////////////////////////////
@@ -317,7 +365,9 @@ public class EndColumn extends WorldColumn {
 		}
 		if (this.setFlag(LOWER_RING_CLOUD_NOISE)) {
 			int startY = this.getLowerRingCloudSampleStartY();
-			ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, lowerRingCloudNoise, lowerRingCloudNoise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, lowerRingCloudNoise, (double[] noise) -> {
+				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			});
 			double noiseMax = ringCloudSettings.noise().maxValue();
 			for (int index = 0, length = lowerRingCloudNoise.length; index < length; index++) {
 				lowerRingCloudNoise[index] -= (horizontalBias + this.getLowerRingCloudVerticalBias(index + startY)) * noiseMax;
@@ -386,7 +436,9 @@ public class EndColumn extends WorldColumn {
 		}
 		if (this.setFlag(UPPER_RING_CLOUD_NOISE)) {
 			int startY = this.getUpperRingCloudSampleStartY();
-			ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, upperRingCloudNoise, upperRingCloudNoise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, upperRingCloudNoise, (double[] noise) -> {
+				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			});
 			double maxNoise = ringCloudSettings.noise().maxValue();
 			for (int index = 0, length = upperRingCloudNoise.length; index < length; index++) {
 				upperRingCloudNoise[index] -= (horizontalBias + this.getUpperRingCloudVerticalBias(index + startY)) * maxNoise;
@@ -502,7 +554,9 @@ public class EndColumn extends WorldColumn {
 		}
 		if (this.setFlag(LOWER_BRIDGE_CLOUD_NOISE)) {
 			int startY = this.getLowerBridgeCloudSampleStartY();
-			bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, lowerBridgeCloudNoise, lowerBridgeCloudNoise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, lowerBridgeCloudNoise, (double[] noise) -> {
+				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			});
 			for (int index = 0, length = lowerBridgeCloudNoise.length; index < length; index++) {
 				lowerBridgeCloudNoise[index] -= (horizontalBias + this.getLowerBridgeCloudVerticalBias(index + startY)) * bridgeCloudSettings.noise().maxValue();
 			}
@@ -566,7 +620,9 @@ public class EndColumn extends WorldColumn {
 		}
 		if (this.setFlag(UPPER_BRIDGE_CLOUD_NOISE)) {
 			int startY = this.getUpperBridgeCloudSampleStartY();
-			bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, upperBridgeCloudNoise, upperBridgeCloudNoise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, upperBridgeCloudNoise, (double[] noise) -> {
+				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			});
 			for (int index = 0, length = upperBridgeCloudNoise.length; index < length; index++) {
 				upperBridgeCloudNoise[index] -= (horizontalBias + this.getUpperBridgeCloudVerticalBias(index + startY)) * bridgeCloudSettings.noise().maxValue();
 			}

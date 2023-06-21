@@ -1,0 +1,56 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"class Column (int x,, int z)",
+			"class Height (int y)",
+			"int findGround(int x, int z:",
+				"int y = originY",
+				"until (`end/nest_noise`(x, y, z) > 0.0L:",
+					"unless (isYLevelValid(:--y): return(-2147483648)",
+				")",
+				"return(y + 1)",
+			")",
+			"void placeColumn(MapEntry entry:",
+				"Column column = entry.key",
+				"Height height = entry.value",
+				"int x = column.x",
+				"int z = column.z",
+				"int minY = findGround(x, z)",
+				"if (minY == -2147483648: return())",
+				"int maxY = minY + height.y",
+				"for (int y = minY, y < maxY, ++y:",
+					"setBlockState(x, y, z, 'minecraft:obsidian')",
+				")",
+			")",
+
+			"int groundZero = findGround(originX, originZ)",
+			"if (groundZero == -2147483648: return(false))",
+			"int maxHeightI = originY - groundZero",
+			"double standardDeviation = sqrt(maxHeightI * 0.125L)",
+
+			";generate initial heights above lava level.",
+			";the 'heights' map maps Columns to Heights.",
+			"Map heights = HashMap.new()",
+			"Column column = Column.new()",
+			"while ((Height height = heights.(column.x = originX,, column.z = originZ,, column),, height == null || height.y <= maxHeightI):",
+				"column.x = roundInt(random.nextGaussian(column.x, standardDeviation))",
+				"column.z = roundInt(random.nextGaussian(column.z, standardDeviation))",
+				"if ((column.x - originX) ^ 2 + (column.z - originZ) ^ 2 > max(standardDeviation * 4.0L, 2.0L) ^ 2: continue())",
+				"Height height = heights.(column)",
+				"if (height != null: ++height.y)",
+				"else (heights.(Column.new(column.x, column.z)) = Height.new(0))",
+			")",
+
+			";place blocks.",
+			"for (MapEntry entry in heights.entrySet():",
+				"placeColumn(entry)",
+			")",
+
+			";place crystal.",
+			"summon('minecraft:end_crystal', originX + 0.5L, originY + 1, originZ + 0.5L)",
+
+			"return(true)"
+		]
+	}
+}

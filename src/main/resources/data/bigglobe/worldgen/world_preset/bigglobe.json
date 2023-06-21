@@ -342,16 +342,32 @@
 					"warp_x": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
 					"warp_z": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
 					"nest": {
-						"noise": {
-							"type": "sum",
-							"layers": [
-								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
-								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 },
-								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.5 }
-							]
+						"shape": {
+							"type": "script",
+							"min": -9999.0,
+							"max": 1.0,
+							"script": [
+								"double relativeX = x / 128.0L",
+								"double relativeY = (y - 119.5) / 64.0L",
+								"double relativeZ = z / 128.0L",
+								"double theta = `end/angle_to_origin`",
+								"double width = cos(theta * 10.0L) * unmixSmooth(-0.75, -0.5, relativeY)",
+								"double centerRadius = relativeX ^ 2 + relativeY ^ 2 + relativeZ ^ 2",
+								"double edgeRadius = (1.0L - centerRadius) ^ 2",
+								"double result = edgeRadius * 16.0L + relativeY + width / sqrt(2.0L)",
+								"return(-result)"
+							],
+							"inputs": {}
 						},
-						"inner_exclusion_radius": 512.0,
-						"outer_exclusion_radius": 1024.0
+						"min_y": 48,
+						"max_y": 164,
+						"max_radius": 144,
+						"inner_exclusion_radius":  512.0,
+						"outer_exclusion_radius": 1024.0,
+						"spawn_location": [ 96, 83, 0 ],
+						"spawn_obsidian_platform": false,
+						"gateway_radius": 84.0,
+						"gateway_height": 96
 					},
 					"mountains": {
 						"center_y": {

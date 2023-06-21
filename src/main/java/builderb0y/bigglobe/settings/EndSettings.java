@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.settings;
 
-import builderb0y.autocodec.annotations.VerifyFloatRange;
-import builderb0y.autocodec.annotations.VerifyIntRange;
-import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -26,10 +23,22 @@ public record EndSettings(
 ) {
 
 	public record EndNestSettings(
-		Grid2D noise,
+		Grid3D shape,
+		int min_y,
+		int max_y,
+		int max_radius,
 		@VerifyFloatRange(min = 0.0D) double inner_exclusion_radius,
-		@VerifySorted(greaterThan = "inner_exclusion_radius") double outer_exclusion_radius
-	) {}
+		@VerifySorted(greaterThan = "inner_exclusion_radius") double outer_exclusion_radius,
+		int @VerifySizeRange(min = 3, max = 3) [] spawn_location,
+		boolean spawn_obsidian_platform,
+		@VerifyFloatRange(min = 0.0D) @VerifySorted(lessThanOrEqual = "inner_exclusion_radius") double gateway_radius,
+		int gateway_height
+	) {
+
+		public int verticalSamples() {
+			return this.max_y - this.min_y + 1;
+		}
+	}
 
 	public record EndMountainSettings(
 		Grid2D center_y,

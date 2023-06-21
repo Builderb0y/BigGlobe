@@ -1,8 +1,11 @@
 package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -23,6 +26,10 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.EndSpikeFeature;
+import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
+import net.minecraft.world.gen.feature.EndSpikeFeatureConfig;
+import net.minecraft.world.gen.feature.util.FeatureContext;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -39,6 +46,7 @@ import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.EndPositionCache;
 import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
@@ -118,13 +126,17 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			upperEnd   = column.getUpperBridgeCloudSampleEndY();
 			if (lowerStart != Integer.MIN_VALUE) minSurface = Math.min(minSurface, lowerStart);
 			if (upperEnd   != Integer.MIN_VALUE) maxSurface = Math.max(maxSurface, upperEnd);
+			if (column.getDistanceToOrigin() < column.settings.nest().max_radius()) {
+				minSurface = Math.min(lowerStart, column.settings.nest().min_y());
+				maxSurface = Math.max(upperEnd,   column.settings.nest().max_y());
+			}
 		}
 		if (maxSurface > minSurface) { //will also verify that the chunk has terrain in it somewhere.
 			this.generateSectionsParallelSimple(chunk, minSurface, maxSurface, columns, context -> {
 				int startY = context.startY();
 				int solidCount = 0;
 				for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-					EndColumn column = columns.getColumn(horizontalIndex);
+					EndColumn column = (EndColumn)(context.columns.getColumn(horizontalIndex));
 					int endStoneID = context.id(BlockStates.END_STONE);
 					PaletteStorage storage = context.storage();
 					int mountainMinY, mountainMaxY;
@@ -135,10 +147,12 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					else {
 						mountainMinY = mountainMaxY = -1;
 					}
+					double[] nestNoise = column.getNestNoise();
 					double[] lowerRingNoise = column.getLowerRingCloudNoise();
 					double[] upperRingNoise = column.getUpperRingCloudNoise();
 					double[] lowerBridgeNoise = column.getLowerBridgeCloudNoise();
 					double[] upperBridgeNoise = column.getUpperBridgeCloudNoise();
+					int nestStartY = column.settings.nest().min_y();
 					int lowerRingStartY = column.getLowerRingCloudSampleStartY();
 					int upperRingStartY = column.getUpperRingCloudSampleStartY();
 					int lowerBridgeStartY = column.getLowerBridgeCloudSampleStartY();
@@ -151,6 +165,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 							|| (upperRingNoise   != null && y >= upperRingStartY   && y < upperRingStartY   + upperRingNoise  .length && upperRingNoise  [y - upperRingStartY  ] > 0.0D)
 							|| (lowerBridgeNoise != null && y >= lowerBridgeStartY && y < lowerBridgeStartY + lowerBridgeNoise.length && lowerBridgeNoise[y - lowerBridgeStartY] > 0.0D)
 							|| (upperBridgeNoise != null && y >= upperBridgeStartY && y < upperBridgeStartY + upperBridgeNoise.length && upperBridgeNoise[y - upperBridgeStartY] > 0.0D)
+							|| (nestNoise        != null && y >= nestStartY        && y < nestStartY        + nestNoise       .length && nestNoise       [y - nestStartY       ] > 0.0D)
 						) {
 							storage.set(horizontalIndex | (yIndex << 8), endStoneID);
 							solidCount++;
@@ -216,6 +231,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		try {
 			this.profiler.run("Initial terrain column values", () -> {
 				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
+					column.getNestNoise();
 					column.getMountainCenterY();
 					column.getMountainThickness();
 					column.getLowerRingCloudNoise();
@@ -235,7 +251,14 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			this.profiler.run("heightmaps", () -> {
 				this.setHeightmaps(chunk, (index, includeWater) -> {
 					EndColumn column = columns.getColumn(index);
-					return column.hasTerrain() ? column.getFinalTopHeightI() : column.settings.min_y();
+					int height = column.settings.min_y();
+					if (column.hasTerrain()) height = column.getFinalTopHeightI();
+					height = Math.max(height, last(column.nestFloorLevels));
+					height = Math.max(height, last(column.lowerRingCloudFloorLevels));
+					height = Math.max(height, last(column.upperRingCloudFloorLevels));
+					height = Math.max(height, last(column.lowerBridgeCloudFloorLevels));
+					height = Math.max(height, last(column.upperBridgeCloudFloorLevels));
+					return height;
 				});
 			});
 			this.profiler.run("Raw structure generation", () -> {
@@ -248,6 +271,10 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		finally {
 			this.chunkColumnCache.reclaim(columns);
 		}
+	}
+
+	public static int last(IntList list) {
+		return list != null && !list.isEmpty() ? list.getInt(list.size() - 1) : Integer.MIN_VALUE;
 	}
 
 	@Override
@@ -272,6 +299,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 						column.getFinalBottomHeightD();
 						column.getFoliage();
 						if (cache == null) {
+							column.getNestNoise();
 							column.getLowerRingCloudNoise();
 							column.getUpperRingCloudNoise();
 							column.getLowerBridgeCloudNoise();
@@ -309,6 +337,12 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.lowerBridgeCloudCeilings, columnIndex));
 								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   get(cache_.upperBridgeCloudFloors,   columnIndex));
 								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.upperBridgeCloudCeilings, columnIndex));
+							}
+						}
+						if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {
+							List<Spike> spikes = EndSpikeFeature.getSpikes(world).stream().filter(spike -> spike.getCenterX() >> 4 == chunk.getPos().x && spike.getCenterZ() >> 4 == chunk.getPos().z).collect(Collectors.toList());
+							if (!spikes.isEmpty()) {
+								BigGlobeFeatures.END_SPIKE.generate(new FeatureContext<>(Optional.empty(), world, this, new MojangPermuter(0L) /* ignored */, BlockPos.ORIGIN /* also ignored */, new EndSpikeFeatureConfig(false, spikes, null)));
 							}
 						}
 					}

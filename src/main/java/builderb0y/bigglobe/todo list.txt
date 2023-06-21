@@ -21,6 +21,10 @@ where I left off:
 	cloud overriders.
 	upside down obsidian spires.
 	end nest.
+		obsidian spikes need access to arbitrary column locations.
+			for this I think I'll put a ChunkOfColumns on every ProtoChunk, instead of a PositionCache.
+		need decorator tag for floor and ceiling of end nest.
+	check and make sure all gateways send you to the correct location.
 
 changelog:
 	* Updated to 1.20!

@@ -209,7 +209,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.addEnvironment(
-						ColumnScriptEnvironment.createFixedXYZ(
+						ColumnScriptEnvironment.createFixedXZVariableY(
 							ColumnValue.REGISTRY,
 							load("column", 5, type(WorldColumn.class)),
 							new OpcodeCastInsnTree(

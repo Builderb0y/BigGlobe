@@ -36,7 +36,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                      Boolean.TRUE);
-		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                Boolean.FALSE); //unnecessary in 1.20.1.
+		//defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                Boolean.TRUE); //unnecessary in 1.20.1.
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                    Boolean.FALSE);
 		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",  Boolean.TRUE);
 		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",   Boolean.TRUE);
@@ -44,6 +44,8 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                            Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",        Boolean.TRUE);
+		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",             Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                    Boolean.TRUE);
@@ -57,6 +59,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                        Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                    Boolean.TRUE);

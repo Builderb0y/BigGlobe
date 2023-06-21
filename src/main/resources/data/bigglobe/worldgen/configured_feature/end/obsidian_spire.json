@@ -76,7 +76,7 @@
 					"getBlockState(originX,     gatewayMinY, originZ - 1).isAir() &&",
 					"getBlockState(originX,     gatewayMinY, originZ + 1).isAir()",
 				":",
-					"placeFeature(originX, gatewayMinY + 3, originZ, 'minecraft:end_gateway_return')",
+					"placeFeature(originX, gatewayMinY + 3, originZ, 'bigglobe:end/gateway_return')",
 				")",
 			")",
 
