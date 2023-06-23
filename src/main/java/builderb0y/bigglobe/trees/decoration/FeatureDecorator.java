@@ -9,8 +9,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.FeatureColumns;
-import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.trees.TreeGenerator;
 
@@ -26,19 +24,12 @@ public class FeatureDecorator implements BlockDecorator {
 	public void decorate(TreeGenerator generator, BlockPos pos, BlockState state) {
 		ConfiguredFeature<?, ?> feature = generator.worldQueue.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(this.feature);
 		if (feature != null) {
-			ColumnSupplier oldSupplier = FeatureColumns.FEATURE_COLUMNS.get();
-			try {
-				FeatureColumns.FEATURE_COLUMNS.set(ColumnSupplier.varyingPosition(generator.anywhereColumn));
-				feature.generate(
-					generator.worldQueue,
-					((ServerChunkManager)(generator.worldQueue.getChunkManager())).getChunkGenerator(),
-					generator.random.mojang(),
-					pos
-				);
-			}
-			finally {
-				FeatureColumns.FEATURE_COLUMNS.set(oldSupplier);
-			}
+			feature.generate(
+				generator.worldQueue,
+				((ServerChunkManager)(generator.worldQueue.getChunkManager())).getChunkGenerator(),
+				generator.random.mojang(),
+				pos
+			);
 		}
 		else {
 			Identifier id = generator.worldQueue.getRegistryManager().get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getId(generator.palette);

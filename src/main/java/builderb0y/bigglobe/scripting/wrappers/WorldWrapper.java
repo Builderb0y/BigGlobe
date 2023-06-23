@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
@@ -17,19 +16,22 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.SingleBlockFeature;
+import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class WorldWrapper {
+public class WorldWrapper implements ColumnLookup {
 
 	public static final TypeInfo TYPE = type(WorldWrapper.class);
 
@@ -37,22 +39,43 @@ public class WorldWrapper {
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final Permuter permuter;
-	public final WorldColumn biomeColumn;
+	public final WorldColumn randomColumn;
 
 	public WorldWrapper(StructureWorldAccess world, Permuter permuter, Coordination coordination) {
 		this.world = world;
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
 		this.permuter = permuter;
-		this.biomeColumn = WorldColumn.forWorld(world, 0, 0);
+		this.randomColumn = WorldColumn.forWorld(world, 0, 0);
 	}
 
 	public @Nullable BlockPos pos(int x, int y, int z) {
 		return this.coordination.modifyPos(this.pos.set(x, y, z));
 	}
 
+	public BlockPos unboundedPos(int x, int y, int z) {
+		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
+	}
+
 	public long getSeed() {
 		return this.world.getSeed();
+	}
+
+	@Override
+	public WorldColumn lookupColumn(int x, int z) {
+		BlockPos pos = this.unboundedPos(x, 0, z);
+		Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
+		if (chunk instanceof ChunkOfColumnsHolder holder) {
+			ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
+			if (columns != null) {
+				WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
+				if (column != null) {
+					return column;
+				}
+			}
+		}
+		this.randomColumn.setPos(pos.getX(), pos.getZ());
+		return this.randomColumn;
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
@@ -117,21 +140,7 @@ public class WorldWrapper {
 	}
 
 	public BiomeEntry getBiome(int x, int y, int z) {
-		BlockPos pos = this.pos(x, y, z);
-		if (pos != null) {
-			this.biomeColumn.setPos(x, z);
-			return new BiomeEntry(this.biomeColumn.getBiome(y));
-		}
-		else {
-			return new BiomeEntry(
-				this
-				.world
-				.getRegistryManager()
-				.get(RegistryKeys.BIOME)
-				.getEntry(BiomeKeys.PLAINS)
-				.orElseThrow(() -> new UnregisteredObjectException("Missing default plains biome"))
-			);
-		}
+		return new BiomeEntry(this.lookupColumn(x, z).getBiome(y));
 	}
 
 	public boolean isYLevelValid(int y) {
@@ -236,8 +245,12 @@ public class WorldWrapper {
 			return pos.setX(x3).setZ(z3);
 		}
 
+		public BlockPos.Mutable modifyPosUnbounded(BlockPos.Mutable pos) {
+			return rotate(pos, this.x, this.z, this.rotation);
+		}
+
 		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
-			return this.area.contains(rotate(pos, this.x, this.z, this.rotation)) ? pos : null;
+			return this.area.contains(this.modifyPosUnbounded(pos)) ? pos : null;
 		}
 
 		public BlockState modifyState(BlockState state) {

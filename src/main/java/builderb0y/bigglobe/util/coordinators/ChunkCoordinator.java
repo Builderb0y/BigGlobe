@@ -13,16 +13,16 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
-import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 public class ChunkCoordinator extends ScratchPosCoordinator {
 
 	public final Chunk chunk;
-	public final ColumnSupplier biomeColumn;
+	public final ColumnLookup biomeColumn;
 
-	public ChunkCoordinator(Chunk chunk, ColumnSupplier biomeColumn) {
+	public ChunkCoordinator(Chunk chunk, ColumnLookup biomeColumn) {
 		this.chunk = chunk;
 		this.biomeColumn = biomeColumn;
 	}
@@ -64,7 +64,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
 		action.accept(
 			this.scratchPos.set(x, y, z),
-			this.biomeColumn.getColumn(x, z).getBiome(y)
+			this.biomeColumn.lookupColumn(x, z).getBiome(y)
 		);
 	}
 

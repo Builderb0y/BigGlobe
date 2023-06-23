@@ -45,11 +45,11 @@ public interface CommandScript extends Script {
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(
-				ColumnScriptEnvironment.createVariableXYZ(
+				ColumnScriptEnvironmentBuilder.createVariableXYZ(
 					ColumnValue.REGISTRY,
 					load("column", 2, type(WorldColumn.class))
 				)
-				.mutable
+				.build()
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()

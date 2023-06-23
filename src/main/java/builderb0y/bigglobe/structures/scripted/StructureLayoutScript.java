@@ -65,7 +65,7 @@ public interface StructureLayoutScript extends Script {
 						"worldSeed",
 						getField(
 							load("column", 4, type(WorldColumn.class)),
-							ColumnScriptEnvironment.SEED
+							ColumnScriptEnvironmentBuilder.SEED
 						)
 					)
 
@@ -98,11 +98,11 @@ public interface StructureLayoutScript extends Script {
 					.addVariableLoad("pieces", 5, type(List.class))
 				)
 				.addEnvironment(
-					ColumnScriptEnvironment.createVariableXYZ(
+					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 4, type(WorldColumn.class))
 					)
-					.mutable
+					.build()
 				)
 				.parse()
 			);

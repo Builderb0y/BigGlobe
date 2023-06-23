@@ -25,7 +25,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 			super(
 				new ScriptParser<>(SurfaceDepthWithSlopeScript.class, script)
 				.addEnvironment(
-					ColumnScriptEnvironment.createFixedXYZ(
+					ColumnScriptEnvironmentBuilder.createFixedXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 1, type(WorldColumn.class)),
 						load("y", 2, TypeInfos.DOUBLE)
@@ -33,7 +33,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 					.addXZ("x", "z")
 					.addY("y")
 					.addSeed("worldSeed")
-					.mutable
+					.build()
 				)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(

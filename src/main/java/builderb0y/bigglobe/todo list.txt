@@ -21,10 +21,15 @@ where I left off:
 	cloud overriders.
 	upside down obsidian spires.
 	end nest.
-		obsidian spikes need access to arbitrary column locations.
-			for this I think I'll put a ChunkOfColumns on every ProtoChunk, instead of a PositionCache.
 		need decorator tag for floor and ceiling of end nest.
 	check and make sure all gateways send you to the correct location.
+		they don't. fix this.
+		problem 1: gateways assume 0-256 height when checking if the chunk is empty,
+		via checking if the highest filled section is at -1.
+		problem 2: gateways can sometimes place you on ring or bridge clouds.
+	force population of ChunkOfColumnHolders in 3x3 chunk area before feature placement.
+		possibly make Chunk into a ChunkOfColumnHolder instead of ProtoChunk.
+	verify overworld and nether still generate correctly with the new ChunkOfColumnsHolder system.
 
 changelog:
 	* Updated to 1.20!

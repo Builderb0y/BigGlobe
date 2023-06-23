@@ -5,7 +5,7 @@ import java.util.random.RandomGenerator;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
@@ -34,7 +34,7 @@ public interface ScriptedBranchShape extends Script {
 					.addVariableLoad("fraction", 1, TypeInfos.DOUBLE)
 				)
 				.addEnvironment(
-					ColumnScriptEnvironment.createFixedXYZ(
+					ColumnScriptEnvironmentBuilder.createFixedXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 3, type(WorldColumn.class)),
 						load("y", 4, TypeInfos.DOUBLE)
@@ -42,7 +42,7 @@ public interface ScriptedBranchShape extends Script {
 					.addXZ("x", "z")
 					.addY("y")
 					.addSeed("worldSeed")
-					.mutable
+					.build()
 				)
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 6, type(RandomGenerator.class))

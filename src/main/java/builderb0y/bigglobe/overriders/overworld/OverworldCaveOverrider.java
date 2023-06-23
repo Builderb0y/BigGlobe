@@ -8,7 +8,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -36,7 +36,7 @@ public interface OverworldCaveOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
-					ColumnScriptEnvironment.createFixedXZVariableY(
+					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
 						getField(
 							load("context", 1, type(Context.class)),
@@ -45,7 +45,7 @@ public interface OverworldCaveOverrider extends Script {
 						null
 					)
 					.addXZ("x", "z")
-					.mutable
+					.build()
 				)
 				.parse()
 			);
@@ -71,7 +71,7 @@ public interface OverworldCaveOverrider extends Script {
 
 			InsnTree loadContext = load("context", 1, type(Context.class));
 			InsnTree loadColumn = InsnTrees.getField(loadContext, FieldInfo.getField(Context.class, "column"));
-			this.addVariableGetFields(loadContext, AbstractCaveExclusionContext.class, "structureStarts", "rawGeneration");
+			this.addVariableGetField(loadContext, AbstractCaveExclusionContext.class, "structureStarts");
 			this.addDistanceFunctions(loadColumn);
 			this.addFunctionMultiInvokes(loadContext, Context.class, "excludeSurface");
 			this.addFunctionMultiInvokes(loadContext, AbstractCaveExclusionContext.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere");
@@ -86,8 +86,8 @@ public interface OverworldCaveOverrider extends Script {
 		public final double topD, bottomD;
 		public final double noiseMin;
 
-		public Context(ScriptStructures structureStarts, OverworldColumn column, boolean rawGeneration) {
-			super(structureStarts, rawGeneration, column.getFinalTopHeightI(), column.getFinalTopHeightI() - column.getCaveCell().settings.depth(), column.caveNoise);
+		public Context(ScriptStructures structureStarts, OverworldColumn column) {
+			super(structureStarts, column.getFinalTopHeightI(), column.getFinalTopHeightI() - column.getCaveCell().settings.depth(), column.caveNoise);
 			this.column          = column;
 			this.caveCell        = column.getCaveCell();
 			this.caveSettings    = this.caveCell.settings;

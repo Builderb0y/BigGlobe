@@ -46,11 +46,11 @@ public interface ScriptStructureOverrider extends Script {
 					.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
 				)
 				.addEnvironment(
-					ColumnScriptEnvironment.createVariableXYZ(
+					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 2, type(WorldColumn.class))
 					)
-					.mutable
+					.build()
 				)
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 3, type(RandomGenerator.class))

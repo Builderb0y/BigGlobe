@@ -10,7 +10,7 @@
 							"return(placeFeature(originX, originY, originZ, 'minecraft:chorus_plant'))",
 						")",
 						"else (",
-							"return(placeBlockState(originX, originY, originZ, 'bigglobe:tall_chorus_spores'))",
+							"return(placeBlockState(originX, originY, originZ, 'bigglobe:tall_chorus_spores[half=lower]'))",
 						")",
 					")",
 					"else (",

@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -32,12 +32,12 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
-			ColumnScriptEnvironment.createFixedXZVariableY(
+			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 				ColumnValue.REGISTRY,
 				load("column", 0, type(WorldColumn.class)),
 				null
 			)
-			.mutable
+			.build()
 		);
 		this.delegate = parser.parse();
 	}

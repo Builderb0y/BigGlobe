@@ -7,7 +7,6 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -32,7 +31,6 @@ public class OverworldHeightOverrider {
 			super();
 
 			this
-			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
 			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class));
 
 			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));

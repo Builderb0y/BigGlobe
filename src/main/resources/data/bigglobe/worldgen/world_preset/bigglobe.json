@@ -348,7 +348,7 @@
 							"max": 1.0,
 							"script": [
 								"double relativeX = x / 128.0L",
-								"double relativeY = (y - 119.5) / 64.0L",
+								"double relativeY = (y - 103.5) / 64.0L",
 								"double relativeZ = z / 128.0L",
 								"double theta = `end/angle_to_origin`",
 								"double width = cos(theta * 10.0L) * unmixSmooth(-0.75, -0.5, relativeY)",
@@ -359,15 +359,15 @@
 							],
 							"inputs": {}
 						},
-						"min_y": 48,
-						"max_y": 164,
+						"min_y": 32,
+						"max_y": 148,
 						"max_radius": 144,
 						"inner_exclusion_radius":  512.0,
 						"outer_exclusion_radius": 1024.0,
-						"spawn_location": [ 96, 83, 0 ],
+						"spawn_location": [ 96, 67, 0 ],
 						"spawn_obsidian_platform": false,
 						"gateway_radius": 84.0,
-						"gateway_height": 96
+						"gateway_height": 80
 					},
 					"mountains": {
 						"center_y": {

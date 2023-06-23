@@ -12,7 +12,7 @@ import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -32,7 +32,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface OverworldDataOverrider extends Script {
 
-	public abstract void override(ScriptStructures structureStarts, OverworldColumn column, boolean rawGeneration);
+	public abstract void override(ScriptStructures structureStarts, OverworldColumn column);
 
 	public static double distanceToSquare(OverworldColumn column, double minX, double minZ, double maxX, double maxZ) {
 		double offsetX = Interpolator.clamp(minX, maxX, column.x) - column.x;
@@ -98,22 +98,22 @@ public interface OverworldDataOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
-					ColumnScriptEnvironment.createFixedXZVariableY(
+					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
 						load("column", 2, type(OverworldColumn.class)),
 						null
 					)
 					.addXZ("x", "z")
-					.mutable
+					.build()
 				)
 				.parse()
 			);
 		}
 
 		@Override
-		public void override(ScriptStructures structureStarts, OverworldColumn column, boolean rawGeneration) {
+		public void override(ScriptStructures structureStarts, OverworldColumn column) {
 			try {
-				this.script.override(structureStarts, column, rawGeneration);
+				this.script.override(structureStarts, column);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
@@ -17,6 +16,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -40,16 +40,14 @@ import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.AbstractChunkOfColumns;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.EndPositionCache;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -61,7 +59,6 @@ import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
 import builderb0y.bigglobe.settings.EndSettings.EndMountainSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
-import builderb0y.bigglobe.util.SemiThreadLocal;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
@@ -71,7 +68,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 	@EncodeInline
 	public final EndSettings settings;
-	public transient SemiThreadLocal<ChunkOfColumns<EndColumn>> chunkColumnCache;
 
 	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
 		super(
@@ -98,16 +94,23 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public void setSeed(long seed) {
-		super.setSeed(seed);
-		this.chunkColumnCache = SemiThreadLocal.weak(4, () -> (
-			new ChunkOfColumns<>(EndColumn[]::new, this::column)
-		));
+	public EndColumn column(int x, int z) {
+		return new EndColumn(this.settings, this.seed, x, z);
 	}
 
 	@Override
-	public EndColumn column(int x, int z) {
-		return new EndColumn(this.settings, this.seed, x, z);
+	public void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
+		columns.asType(EndColumn.class).setPosAndPopulate(chunkPos.getStartX(), chunkPos.getStartZ(), column -> {
+			column.getNestNoise();
+			column.getMountainCenterY();
+			column.getMountainThickness();
+			column.getLowerRingCloudNoise();
+			column.getUpperRingCloudNoise();
+			column.getLowerBridgeCloudNoise();
+			column.getUpperBridgeCloudNoise();
+			column.getFoliage();
+			column.updateLevels();
+		});
 	}
 
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<EndColumn> columns, boolean distantHorizons) {
@@ -227,50 +230,29 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ChunkOfColumns<EndColumn> columns = this.chunkColumnCache.get();
-		try {
-			this.profiler.run("Initial terrain column values", () -> {
-				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
-					column.getNestNoise();
-					column.getMountainCenterY();
-					column.getMountainThickness();
-					column.getLowerRingCloudNoise();
-					column.getUpperRingCloudNoise();
-					column.getLowerBridgeCloudNoise();
-					column.getUpperBridgeCloudNoise();
-					column.getFoliage();
-					column.updateLevels();
-				});
+		ChunkOfColumns<EndColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(EndColumn.class);
+		this.profiler.run("generateRawSections", () -> {
+			this.generateRawSections(chunk, columns, distantHorizons);
+		});
+		this.profiler.run("heightmaps", () -> {
+			this.setHeightmaps(chunk, (index, includeWater) -> {
+				EndColumn column = columns.getColumn(index);
+				int height = column.settings.min_y();
+				if (column.hasTerrain()) height = column.getFinalTopHeightI();
+				height = Math.max(height, last(column.nestFloorLevels));
+				height = Math.max(height, last(column.lowerRingCloudFloorLevels));
+				height = Math.max(height, last(column.upperRingCloudFloorLevels));
+				height = Math.max(height, last(column.lowerBridgeCloudFloorLevels));
+				height = Math.max(height, last(column.upperBridgeCloudFloorLevels));
+				return height;
 			});
-			if (chunk instanceof PositionCacheHolder holder) {
-				holder.bigglobe_setPositionCache(new EndPositionCache(columns));
-			}
-			this.profiler.run("generateRawSections", () -> {
-				this.generateRawSections(chunk, columns, distantHorizons);
-			});
-			this.profiler.run("heightmaps", () -> {
-				this.setHeightmaps(chunk, (index, includeWater) -> {
-					EndColumn column = columns.getColumn(index);
-					int height = column.settings.min_y();
-					if (column.hasTerrain()) height = column.getFinalTopHeightI();
-					height = Math.max(height, last(column.nestFloorLevels));
-					height = Math.max(height, last(column.lowerRingCloudFloorLevels));
-					height = Math.max(height, last(column.upperRingCloudFloorLevels));
-					height = Math.max(height, last(column.lowerBridgeCloudFloorLevels));
-					height = Math.max(height, last(column.upperBridgeCloudFloorLevels));
-					return height;
-				});
-			});
-			this.profiler.run("Raw structure generation", () -> {
-				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
-			});
-			this.profiler.run("Surface", () -> {
-				this.generateSurface(chunk, columns);
-			});
-		}
-		finally {
-			this.chunkColumnCache.reclaim(columns);
-		}
+		});
+		this.profiler.run("Raw structure generation", () -> {
+			RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
+		});
+		this.profiler.run("Surface", () -> {
+			this.generateSurface(chunk, columns);
+		});
 	}
 
 	public static int last(IntList list) {
@@ -290,82 +272,44 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					}
 				});
 			}
-			EndPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof EndPositionCache end ? end : null;
-			ChunkOfColumns<EndColumn> columns = this.chunkColumnCache.get();
-			try {
-				this.profiler.run("Initial feature column values", () -> {
-					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), (EndColumn column) -> {
-						column.getFinalTopHeightD();
-						column.getFinalBottomHeightD();
-						column.getFoliage();
-						if (cache == null) {
-							column.getNestNoise();
-							column.getLowerRingCloudNoise();
-							column.getUpperRingCloudNoise();
-							column.getLowerBridgeCloudNoise();
-							column.getUpperBridgeCloudNoise();
-							column.updateLevels();
-						}
-					});
-				});
-				EndPositionCache cache_ = cache != null ? cache : new EndPositionCache(columns);
-				this.profiler.run("Feature placement", () -> {
-					FeatureColumns.FEATURE_COLUMNS.set(columns::getColumnChecked);
-					try {
-						BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-						Permuter permuter = new Permuter(0L);
-						MojangPermuter mojang = permuter.mojang();
-						EndMountainSettings mountainSettings    = this.settings.mountains();
-						RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds();
-						BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
-						for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
-							EndColumn column = columns.getColumn(columnIndex);
-							mutablePos.setX(column.x).setZ(column.z);
-							permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
-							if (column.hasTerrain()) {
-								this.runDecorators(world, mutablePos, mojang, mountainSettings.floor_decorator(), column.getFinalTopHeightI());
-								this.runDecorators(world, mutablePos, mojang, mountainSettings.ceiling_decorator(), column.getFinalBottomHeightI() - 1);
-							}
-							if (ringCloudSettings != null) {
-								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   get(cache_.lowerRingCloudFloors,   columnIndex));
-								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), get(cache_.lowerRingCloudCeilings, columnIndex));
-								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   get(cache_.upperRingCloudFloors,   columnIndex));
-								this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), get(cache_.upperRingCloudCeilings, columnIndex));
-							}
-							if (bridgeCloudSettings != null) {
-								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   get(cache_.lowerBridgeCloudFloors,   columnIndex));
-								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.lowerBridgeCloudCeilings, columnIndex));
-								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   get(cache_.upperBridgeCloudFloors,   columnIndex));
-								this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), get(cache_.upperBridgeCloudCeilings, columnIndex));
-							}
-						}
-						if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {
-							List<Spike> spikes = EndSpikeFeature.getSpikes(world).stream().filter(spike -> spike.getCenterX() >> 4 == chunk.getPos().x && spike.getCenterZ() >> 4 == chunk.getPos().z).collect(Collectors.toList());
-							if (!spikes.isEmpty()) {
-								BigGlobeFeatures.END_SPIKE.generate(new FeatureContext<>(Optional.empty(), world, this, new MojangPermuter(0L) /* ignored */, BlockPos.ORIGIN /* also ignored */, new EndSpikeFeatureConfig(false, spikes, null)));
-							}
-						}
+			ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+			ChunkOfColumns<EndColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(EndColumn.class);
+			this.profiler.run("Feature placement", () -> {
+				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+				Permuter permuter = new Permuter(0L);
+				MojangPermuter mojang = permuter.mojang();
+				EndMountainSettings mountainSettings    = this.settings.mountains();
+				RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds();
+				BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+				for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
+					EndColumn column = columns.getColumn(columnIndex);
+					mutablePos.setX(column.x).setZ(column.z);
+					permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
+					if (column.hasTerrain()) {
+						this.runDecorators(world, mutablePos, mojang, mountainSettings.floor_decorator(), column.getFinalTopHeightI());
+						this.runDecorators(world, mutablePos, mojang, mountainSettings.ceiling_decorator(), column.getFinalBottomHeightI() - 1);
 					}
-					finally {
-						FeatureColumns.FEATURE_COLUMNS.set(null);
+					if (ringCloudSettings != null) {
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   column.lowerRingCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), column.lowerRingCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   column.upperRingCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), column.upperRingCloudCeilingLevels);
 					}
-				});
-			}
-			finally {
-				this.chunkColumnCache.reclaim(columns);
-			}
+					if (bridgeCloudSettings != null) {
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   column.lowerBridgeCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), column.lowerBridgeCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   column.upperBridgeCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), column.upperBridgeCloudCeilingLevels);
+					}
+				}
+				if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {
+					List<Spike> spikes = EndSpikeFeature.getSpikes(world).stream().filter(spike -> spike.getCenterX() >> 4 == chunk.getPos().x && spike.getCenterZ() >> 4 == chunk.getPos().z).collect(Collectors.toList());
+					if (!spikes.isEmpty()) {
+						BigGlobeFeatures.END_SPIKE.generate(new FeatureContext<>(Optional.empty(), world, this, new MojangPermuter(0L) /* ignored */, BlockPos.ORIGIN /* also ignored */, new EndSpikeFeatureConfig(false, spikes, null)));
+					}
+				}
+			});
 		});
-	}
-
-	public static @Nullable IntList get(@Nullable IntList @Nullable [] array, int index) {
-		return array != null ? array[index] : null;
-	}
-
-	@Override
-	public void prepareBiomeColumn(WorldColumn column) {
-		for (ColumnValue<?> value : this.settings.biomes().usedValues) {
-			value.getValue(column, 0.0D);
-		}
 	}
 
 	@Override

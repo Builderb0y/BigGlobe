@@ -7,7 +7,7 @@
 			"int findGround(int x, int z:",
 				"int y = originY",
 				"until (`end/nest_noise`(x, y, z) > 0.0L:",
-					"unless (isYLevelValid(:--y): return(-2147483648)",
+					"unless (isYLevelValid(:--y): return(-2147483648))",
 				")",
 				"return(y + 1)",
 			")",
@@ -27,7 +27,7 @@
 			"int groundZero = findGround(originX, originZ)",
 			"if (groundZero == -2147483648: return(false))",
 			"int maxHeightI = originY - groundZero",
-			"double standardDeviation = sqrt(maxHeightI * 0.125L)",
+			"double standardDeviation = sqrt(maxHeightI * 0.25L)",
 
 			";generate initial heights above lava level.",
 			";the 'heights' map maps Columns to Heights.",
@@ -48,7 +48,9 @@
 			")",
 
 			";place crystal.",
-			"summon('minecraft:end_crystal', originX + 0.5L, originY + 1, originZ + 0.5L)",
+			"summon('minecraft:end_crystal', originX + 0.5L, originY + 1, originZ + 0.5L, nbtCompound(",
+				"ShowBottom: 0",
+			"))",
 
 			"return(true)"
 		]

@@ -18,15 +18,10 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -45,7 +40,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.*;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.StructurePresence;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -87,12 +85,15 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.util.SemiThreadLocal;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.WorldgenProfiler;
@@ -211,6 +212,27 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	}
 
 	public abstract WorldColumn column(int x, int z);
+
+	public abstract void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons);
+
+	public ChunkOfColumns<? extends WorldColumn> createAndPopulateChunkOfColumns(ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
+		ChunkOfColumns<? extends WorldColumn> columns = new ChunkOfColumns<>(this::column);
+		this.populateChunkOfColumns(columns, chunkPos, structures, distantHorizons);
+		return columns;
+	}
+
+	public ChunkOfColumns<? extends WorldColumn> getChunkOfColumns(Chunk chunk, ScriptStructures structures, boolean distantHorizons) {
+		if (chunk instanceof ChunkOfColumnsHolder holder) {
+			ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
+			if (columns == null) {
+				holder.bigglobe_setChunkOfColumns(columns = this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons));
+			}
+			return columns;
+		}
+		else {
+			return this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons);
+		}
+	}
 
 	@Override
 	public abstract Codec<? extends ChunkGenerator> getCodec();
@@ -790,40 +812,35 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 
-	public static @Nullable PlayerEntity getClientPlayer() {
-		return switch (FabricLoader.getInstance().getEnvironmentType()) {
-			case CLIENT -> getClientPlayer0();
-			case SERVER -> null;
-		};
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static PlayerEntity getClientPlayer0() {
-		return MinecraftClient.getInstance().player;
-	}
-
-	public abstract void prepareBiomeColumn(WorldColumn column);
+	public final transient SemiThreadLocal<ChunkOfBiomeColumns<? extends WorldColumn>> biomeColumns = SemiThreadLocal.strong(4, () -> new ChunkOfBiomeColumns<>(this::column));
 
 	@Override
 	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		return CompletableFuture.supplyAsync(
 			() -> this.profiler.get("populateBiomes", () -> {
-				ChunkOfBiomeColumns<WorldColumn> columns = new ChunkOfBiomeColumns<>(WorldColumn[]::new, this::column);
-				this.profiler.run("initial biome column values", () -> {
-					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), this::prepareBiomeColumn);
-				});
-				HeightLimitView heightView = chunk.getHeightLimitView();
-				IntStream.range(heightView.getBottomSectionCoord(), heightView.getTopSectionCoord()).parallel().forEach(sectionY -> {
-					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
-					int startY = sectionY << 4;
-					PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
-					for (int paletteIndex = 0; paletteIndex < 64; paletteIndex++) {
-						WorldColumn column = columns.getColumn(paletteIndex & 15);
-						int y = startY | (paletteIndex >>> 4 << 2);
-						int newID = SectionUtil.id(container, column.getBiome(y));
-						SectionUtil.storage(container).set(paletteIndex, newID);
-					}
-				});
+				ChunkOfBiomeColumns<? extends WorldColumn> columns = this.biomeColumns.get();
+				try {
+					this.populateChunkOfColumns(columns, chunk.getPos(), ScriptStructures.EMPTY_SCRIPT_STRUCTURES, distantHorizons);
+					IntStream.range(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord()).parallel().forEach(sectionY -> {
+						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
+						int startY = sectionY << 4;
+						PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
+						for (int zIndex = 0; zIndex < 4; zIndex++) {
+							for (int xIndex = 0; xIndex < 4; xIndex++) {
+								WorldColumn column = columns.getColumn(xIndex << 2, zIndex << 2);
+								for (int yIndex = 0; yIndex < 4; yIndex++) {
+									int y = startY | (yIndex << 2);
+									int newID = SectionUtil.id(container, column.getBiome(y));
+									SectionUtil.storage(container).set((yIndex << 4) | (zIndex << 2) | xIndex, newID);
+								}
+							}
+						}
+					});
+				}
+				finally {
+					this.biomeColumns.reclaim(columns);
+				}
 				return chunk;
 			}),
 			executor

@@ -19,11 +19,11 @@ public interface ColumnYToDoubleScript extends Script {
 
 	public static class Parser extends ScriptParser<ColumnYToDoubleScript> {
 
-		public final ColumnScriptEnvironment columnScriptEnvironment;
+		public final ColumnScriptEnvironmentBuilder builder;
 
 		public Parser(String input) {
 			super(ColumnYToDoubleScript.class, input);
-			this.columnScriptEnvironment = ColumnScriptEnvironment.createFixedXYZ(
+			this.builder = ColumnScriptEnvironmentBuilder.createFixedXYZ(
 				ColumnValue.REGISTRY,
 				load("column", 1, type(WorldColumn.class)),
 				load("y", 2, TypeInfos.DOUBLE)
@@ -35,7 +35,7 @@ public interface ColumnYToDoubleScript extends Script {
 			this
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(this.columnScriptEnvironment.mutable);
+			.addEnvironment(this.builder.build());
 		}
 	}
 
@@ -51,7 +51,7 @@ public interface ColumnYToDoubleScript extends Script {
 
 		public static Holder create(String script) throws ScriptParsingException {
 			Parser parser = new Parser(script);
-			return new Holder(parser.parse(), parser.columnScriptEnvironment.usedValues);
+			return new Holder(parser.parse(), parser.builder.usedValues);
 		}
 
 		@Override

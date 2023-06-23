@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -36,7 +36,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
-			ColumnScriptEnvironment.createFixedXZVariableY(
+			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 				ColumnValue.REGISTRY,
 				load("column", 0, type(WorldColumn.class)),
 				new OpcodeCastInsnTree(
@@ -45,7 +45,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					TypeInfos.DOUBLE
 				)
 			)
-			.mutable
+			.build()
 		);
 		this.delegate = parser.parse();
 	}

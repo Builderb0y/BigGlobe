@@ -67,11 +67,11 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(
-					ColumnScriptEnvironment.createVariableXYZ(
+					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 2, type(WorldColumn.class))
 					)
-					.mutable
+					.build()
 				)
 				.parse()
 			);

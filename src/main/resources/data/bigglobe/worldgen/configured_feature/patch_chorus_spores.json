@@ -17,7 +17,7 @@
 						"'bigglobe:medium_chorus_spores'",
 					")",
 					"else if (oldState.getBlock() == Block('bigglobe:medium_chorus_spores'):",
-						"'bigglobe:tall_chorus_spores'",
+						"'bigglobe:tall_chorus_spores[half=lower]'",
 					")",
 					"else (",
 						"continue()",

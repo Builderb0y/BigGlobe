@@ -8,7 +8,7 @@ import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.overriders.AbstractCaveExclusionContext;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.overworld.OverworldCaveOverrider;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
@@ -38,7 +38,7 @@ public interface NoiseOverrider extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(
-					ColumnScriptEnvironment.createFixedXZVariableY(
+					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
 						getField(
 							load("context", 1, type(Context.class)),
@@ -47,7 +47,7 @@ public interface NoiseOverrider extends Script {
 						null
 					)
 					.addXZ("x", "z")
-					.mutable
+					.build()
 				)
 				.parse()
 			);
@@ -72,7 +72,7 @@ public interface NoiseOverrider extends Script {
 			InsnTree loadContext = load("context", 1, type(Context.class));
 			INSTANCE
 			.addAll(StructureScriptEnvironment.INSTANCE)
-			.addVariableGetFields(loadContext, AbstractCaveExclusionContext.class, "structureStarts", "rawGeneration")
+			.addVariableGetField(loadContext, AbstractCaveExclusionContext.class, "structureStarts")
 			.addFunctionMultiInvokes(loadContext, OverworldCaveOverrider.Context.class, "excludeSurface")
 			.addFunctionMultiInvokes(loadContext, AbstractCaveExclusionContext.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
 			;
@@ -83,16 +83,15 @@ public interface NoiseOverrider extends Script {
 
 		public final NetherColumn column;
 
-		public Context(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise) {
-			super(structureStarts, rawGeneration, topI, bottomI, noise);
+		public Context(NetherColumn column, ScriptStructures structureStarts, int topI, int bottomI, double[] noise) {
+			super(structureStarts, topI, bottomI, noise);
 			this.column = column;
 		}
 
-		public static Context caves(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration) {
+		public static Context caves(NetherColumn column, ScriptStructures structureStarts) {
 			return new CaveContext(
 				column,
 				structureStarts,
-				rawGeneration,
 				column.getFinalTopHeightI(),
 				column.getFinalBottomHeightI(),
 				column.caveNoise,
@@ -100,13 +99,12 @@ public interface NoiseOverrider extends Script {
 			);
 		}
 
-		public static Context caverns(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration) {
+		public static Context caverns(NetherColumn column, ScriptStructures structureStarts) {
 			NetherCavernSettings caverns = column.getLocalCell().settings.caverns();
 			Grid3D noise = caverns.noise();
 			return new CavernContext(
 				column,
 				structureStarts,
-				rawGeneration,
 				caverns.max_y(),
 				caverns.min_y(),
 				column.cavernNoise,
@@ -124,8 +122,8 @@ public interface NoiseOverrider extends Script {
 
 		public final ColumnYToDoubleScript.Holder width;
 
-		public CaveContext(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise, ColumnYToDoubleScript.Holder width) {
-			super(column, structureStarts, rawGeneration, topI, bottomI, noise);
+		public CaveContext(NetherColumn column, ScriptStructures structureStarts, int topI, int bottomI, double[] noise, ColumnYToDoubleScript.Holder width) {
+			super(column, structureStarts, topI, bottomI, noise);
 			this.width = width;
 		}
 
@@ -139,8 +137,8 @@ public interface NoiseOverrider extends Script {
 
 		public final double maxNoise;
 
-		public CavernContext(NetherColumn column, ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise, double maxNoise) {
-			super(column, structureStarts, rawGeneration, topI, bottomI, noise);
+		public CavernContext(NetherColumn column, ScriptStructures structureStarts, int topI, int bottomI, double[] noise, double maxNoise) {
+			super(column, structureStarts, topI, bottomI, noise);
 			this.maxNoise = maxNoise;
 		}
 
