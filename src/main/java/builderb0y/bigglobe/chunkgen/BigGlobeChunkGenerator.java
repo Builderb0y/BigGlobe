@@ -93,10 +93,8 @@ import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.util.SemiThreadLocal;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.util.WorldgenProfiler;
+import builderb0y.bigglobe.util.Tripwire;
+import builderb0y.bigglobe.util.*;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
@@ -230,8 +228,26 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			return columns;
 		}
 		else {
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is not a ChunkOfColumnsHolder: " + chunk);
+			}
 			return this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons);
 		}
+	}
+
+	public ScriptStructures preGenerateFeatureColumns(StructureWorldAccess world, ChunkPos chunkPos, StructureAccessor structureAccessor, boolean distantHorizons) {
+		ScriptStructures structures = null;
+		for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+			for (int offsetX = -1; offsetX <= 1; offsetX++) {
+				ChunkPos newPos = new ChunkPos(chunkPos.x + offsetX, chunkPos.z + offsetZ);
+				ScriptStructures newStructures = ScriptStructures.getStructures(structureAccessor, chunkPos, distantHorizons);
+				this.getChunkOfColumns(world.getChunk(newPos.x, newPos.z), newStructures, distantHorizons);
+				if (offsetX == 0 && offsetZ == 0) {
+					structures = newStructures;
+				}
+			}
+		}
+		return structures;
 	}
 
 	@Override
@@ -320,6 +336,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		}
 		else {
 			//this shouldn't happen, but we should handle it sanely anyway.
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace(context + " does not have a SingularPalette.");
+			}
 			int stoneID = context.id(state);
 			PaletteStorage storage = context.storage();
 			long payload = stoneID;

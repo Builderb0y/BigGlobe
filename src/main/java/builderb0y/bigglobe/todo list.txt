@@ -12,7 +12,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 porting:
-	re-enable lambdynamiclights compatibility as soon as it updates to 1.20.
 	add trail ruins structure somewhere.
 
 where I left off:
@@ -27,9 +26,6 @@ where I left off:
 		problem 1: gateways assume 0-256 height when checking if the chunk is empty,
 		via checking if the highest filled section is at -1.
 		problem 2: gateways can sometimes place you on ring or bridge clouds.
-	force population of ChunkOfColumnHolders in 3x3 chunk area before feature placement.
-		possibly make Chunk into a ChunkOfColumnHolder instead of ProtoChunk.
-	verify overworld and nether still generate correctly with the new ChunkOfColumnsHolder system.
 
 changelog:
 	* Updated to 1.20!
@@ -166,3 +162,4 @@ back-porting:
 	wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
 	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
+	re-enable lighting in SectionGenerationContext.

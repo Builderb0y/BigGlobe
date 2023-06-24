@@ -752,7 +752,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
 			ChunkOfColumns<OverworldColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(OverworldColumn.class);
 			BlockPos.Mutable pos = new BlockPos.Mutable();
 			Permuter permuter = new Permuter(0L);

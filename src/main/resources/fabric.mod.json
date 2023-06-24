@@ -20,7 +20,7 @@
 		"main":          [ "builderb0y.bigglobe.BigGlobeMod" ],
 		"client":        [ "builderb0y.bigglobe.BigGlobeClient" ],
 		"modmenu":       [ "builderb0y.bigglobe.compat.ModMenuCompat" ],
-		"dynamiclights_temporarily_disabled": [ "builderb0y.bigglobe.compat.LambDynamicLightsCompat" ]
+		"dynamiclights": [ "builderb0y.bigglobe.compat.LambDynamicLightsCompat" ]
 	},
 	"mixins": [
 		"bigglobe.mixins.json"

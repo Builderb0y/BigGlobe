@@ -26,6 +26,7 @@ import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -72,6 +73,21 @@ public class WorldWrapper implements ColumnLookup {
 				if (column != null) {
 					return column;
 				}
+				else {
+					if (Tripwire.isEnabled()) {
+						Tripwire.logWithStackTrace("ChunkOfColumnsHolder at " + chunk.getPos() + " has the wrong coordinates? Requested " + pos.getX() + ", " + pos.getZ() + ", range covers from " + columns.getColumn(0).x + ", " + columns.getColumn(0).z + " to " + columns.getColumn(255).x + ", " + columns.getColumn(255).z);
+					}
+				}
+			}
+			else {
+				if (Tripwire.isEnabled()) {
+					Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is missing a ChunkOfColumns.");
+				}
+			}
+		}
+		else {
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace("Chunk at [" + (pos.getX() >> 4) + ", " + (pos.getZ() >> 4) + " is not a ChunkOfColumnsHolder: " + chunk);
 			}
 		}
 		this.randomColumn.setPos(pos.getX(), pos.getZ());

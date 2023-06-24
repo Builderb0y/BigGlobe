@@ -356,7 +356,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
 			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
 			this.profiler.run("Feature placement", () -> {
 				BlockPos.Mutable pos = new BlockPos.Mutable();

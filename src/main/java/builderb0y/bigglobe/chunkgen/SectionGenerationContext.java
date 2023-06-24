@@ -20,7 +20,7 @@ public class SectionGenerationContext {
 	public final int sectionStartY;
 	public final long worldSeed;
 	public final ChunkOfColumns<? extends WorldColumn> columns;
-	public final @Nullable LightPositionCollector lights;
+	//public final @Nullable LightPositionCollector lights;
 
 	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
 		this.chunk         = chunk;
@@ -28,7 +28,7 @@ public class SectionGenerationContext {
 		this.sectionStartY = sectionStartY;
 		this.worldSeed     = worldSeed;
 		this.columns       = columns;
-		this.lights        = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
+		//this.lights        = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
 	}
 
 	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
@@ -40,16 +40,18 @@ public class SectionGenerationContext {
 	}
 
 	public void addLight(int index) {
+		/*
 		if (this.lights != null) {
 			this.lights.add(index);
 		}
+		*/
 	}
 
 	public boolean hasLights() {
-		return this.lights != null && !this.lights.isEmpty();
+		return false; //this.lights != null && !this.lights.isEmpty();
 	}
 
-	public LightPositionCollector lights() { return this.lights; }
+	public @Nullable LightPositionCollector lights() { return null; } //this.lights; }
 	public Chunk chunk() { return this.chunk; }
 	public ChunkPos chunkPos() { return this.chunk.getPos(); }
 	public ChunkSection section() { return this.section; }
@@ -123,5 +125,10 @@ public class SectionGenerationContext {
 		this.setNonEmpty(nonEmpty);
 		this.setRandomTickingBlocks(tickingBlocks);
 		this.setRandomTickingFluids(tickingFluids);
+	}
+
+	@Override
+	public String toString() {
+		return "SectionGenerationContext: { at: " + this.sectionX() + ", " + this.sectionY() + ", " + this.sectionZ() + " (world position: " + this.startX() + ", " + this.startY() + ", " + this.startZ() + " -> " + this.endX() + ", " + this.endY() + ", " + this.endZ() + "), chunk: " + this.chunk() + ", section: " + this.section() + ", palette: " + this.palette() + ", storage: " + this.storage() + " }";
 	}
 }

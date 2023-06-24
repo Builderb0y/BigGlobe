@@ -272,7 +272,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					}
 				});
 			}
-			ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
 			ChunkOfColumns<EndColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(EndColumn.class);
 			this.profiler.run("Feature placement", () -> {
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
