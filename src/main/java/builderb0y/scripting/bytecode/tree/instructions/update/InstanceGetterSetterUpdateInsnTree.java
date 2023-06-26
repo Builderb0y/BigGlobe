@@ -30,9 +30,9 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 		public void emitBytecode(MethodCompileContext method) {
 			this.receiver.emitBytecode(method);
 			method.node.visitInsn(DUP);
-			this.getter.emit(method, this.getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.getter.emit(method);
 			this.updater.emitBytecode(method);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 	}
 
@@ -46,10 +46,10 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 		public void emitBytecode(MethodCompileContext method) {
 			this.receiver.emitBytecode(method);
 			method.node.visitInsn(DUP);
-			this.getter.emit(method, this.getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.getter.emit(method);
 			method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X1 : DUP_X1);
 			this.updater.emitBytecode(method);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 
 		@Override
@@ -73,10 +73,10 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 		public void emitBytecode(MethodCompileContext method) {
 			this.receiver.emitBytecode(method);
 			method.node.visitInsn(DUP);
-			this.getter.emit(method, this.getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.getter.emit(method);
 			this.updater.emitBytecode(method);
 			method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X1 : DUP_X1);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 
 		@Override
@@ -100,7 +100,7 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 		public void emitBytecode(MethodCompileContext method) {
 			this.receiver.emitBytecode(method);
 			this.updater.emitBytecode(method);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 	}
 
@@ -114,7 +114,7 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 		public void emitBytecode(MethodCompileContext method) {
 			this.receiver.emitBytecode(method);
 			method.node.visitInsn(DUP);
-			this.getter.emit(method, this.getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.getter.emit(method);
 			if (this.getter.returnType.isDoubleWidth()) {
 				method.node.visitInsn(DUP2_X1);
 				method.node.visitInsn(POP2);
@@ -123,7 +123,7 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 				method.node.visitInsn(SWAP);
 			}
 			this.updater.emitBytecode(method);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 
 		@Override
@@ -148,7 +148,7 @@ public abstract class InstanceGetterSetterUpdateInsnTree implements UpdateInsnTr
 			this.receiver.emitBytecode(method);
 			this.updater.emitBytecode(method);
 			method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X1 : DUP_X1);
-			this.setter.emit(method, this.setter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.setter.emit(method);
 		}
 
 		@Override

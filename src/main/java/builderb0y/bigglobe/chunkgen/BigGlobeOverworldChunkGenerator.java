@@ -172,6 +172,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			columns.asType(OverworldColumn.class).setPosAndPopulate(chunkPos.getStartX(), chunkPos.getStartZ(), (OverworldColumn column) -> {
 				column.getFinalTopHeightD();
 				column.getSnowHeight();
+				column.getSkylandMinY();
+				column.getSkylandMaxY();
+				this.runSkylandOverriders(column, structures);
 				this.runHeightOverrides(column, structures);
 
 				column.getTemperature();
@@ -191,10 +194,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 					column.populateCaveFloorsAndCeilings();
 				}
-
-				column.getSkylandMinY();
-				column.getSkylandMaxY();
-				this.runSkylandOverriders(column, structures);
 			});
 		});
 	}
@@ -1086,7 +1085,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		WorldColumn column = this.column(x, z);
+		OverworldColumn column = this.column(x, z);
+		this.runHeightOverrides(column, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 		int height = column.getFinalTopHeightI();
 		int seaLevel = this.getSeaLevel();
 		if (height < seaLevel && heightmap.getBlockPredicate().test(BlockStates.WATER)) {
@@ -1097,7 +1097,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-		WorldColumn column = this.column(x, z);
+		OverworldColumn column = this.column(x, z);
+		this.runHeightOverrides(column, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 		int height = column.getFinalTopHeightI();
 		int minY = this.getMinimumY();
 		BlockState[] states = new BlockState[Math.max(height, this.getSeaLevel()) - minY];

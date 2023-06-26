@@ -30,6 +30,7 @@ import builderb0y.scripting.util.ReflectionData;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@Deprecated
 public interface OverworldDataOverrider extends Script {
 
 	public abstract void override(ScriptStructures structureStarts, OverworldColumn column);

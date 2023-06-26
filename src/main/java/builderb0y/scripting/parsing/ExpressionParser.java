@@ -14,6 +14,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -131,13 +132,18 @@ public class ExpressionParser {
 		this.environment.user().parser = this;
 	}
 
-	public ExpressionParser addEnvironment(MutableScriptEnvironment environment) {
-		this.environment.mutable().addAll(environment);
+	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
+		if (environment instanceof MutableScriptEnvironment mutable) {
+			this.environment.mutable().addAll(mutable);
+		}
+		else {
+			this.environment.environments.add(environment);
+		}
 		return this;
 	}
 
-	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
-		this.environment.environments.add(environment);
+	public ExpressionParser configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
+		this.environment.mutable().configure(configurator);
 		return this;
 	}
 

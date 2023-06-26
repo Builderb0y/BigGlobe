@@ -5,15 +5,14 @@ import com.mojang.serialization.Codec;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.DummyFeature;
 import builderb0y.bigglobe.overriders.overworld.OverworldHeightOverrider;
-import builderb0y.bigglobe.overriders.overworld.OverworldHeightOverrider.Holder;
 
-public class HeightOverrideFeature extends DummyFeature<HeightOverrideFeature.Config> {
+public class OverworldHeightOverrideFeature extends DummyFeature<OverworldHeightOverrideFeature.Config> {
 
-	public HeightOverrideFeature(Codec<Config> configCodec) {
+	public OverworldHeightOverrideFeature(Codec<Config> configCodec) {
 		super(configCodec);
 	}
 
-	public HeightOverrideFeature() {
+	public OverworldHeightOverrideFeature() {
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 	}
 
@@ -21,7 +20,7 @@ public class HeightOverrideFeature extends DummyFeature<HeightOverrideFeature.Co
 
 		public final OverworldHeightOverrider.Holder script;
 
-		public Config(Holder script) {
+		public Config(OverworldHeightOverrider.Holder script) {
 			this.script = script;
 		}
 	}

@@ -51,6 +51,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.end.EndHeightOverrider;
 import builderb0y.bigglobe.settings.BiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
@@ -69,6 +70,8 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@EncodeInline
 	public final EndSettings settings;
 
+	public final transient EndHeightOverrider.Holder[] heightOverriders;
+
 	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
 		super(
 			new ColumnBiomeSource(
@@ -83,6 +86,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			configuredFeatures
 		);
 		this.settings = settings;
+		this.heightOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.END_HEIGHT_OVERRIDER).map(config -> config.script).toArray(EndHeightOverrider.Holder[]::new);
 	}
 
 	public static void init() {
@@ -104,6 +108,9 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			column.getNestNoise();
 			column.getMountainCenterY();
 			column.getMountainThickness();
+			for (EndHeightOverrider.Holder overrider : this.heightOverriders) {
+				overrider.override(structures, column);
+			}
 			column.getLowerRingCloudNoise();
 			column.getUpperRingCloudNoise();
 			column.getLowerBridgeCloudNoise();
@@ -340,6 +347,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		EndColumn column = this.column(x, z);
+		column.getMountainCenterY();
+		column.getMountainThickness();
+		for (EndHeightOverrider.Holder overrider : this.heightOverriders) {
+			overrider.override(ScriptStructures.EMPTY_SCRIPT_STRUCTURES, column);
+		}
 		return column.hasTerrain() ? column.getFinalTopHeightI() : this.getMinimumY();
 	}
 
@@ -349,6 +361,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		Arrays.fill(states, BlockStates.AIR);
 		int minY = this.settings.min_y();
 		EndColumn column = this.column(x, z);
+		column.getMountainCenterY();
+		column.getMountainThickness();
+		for (EndHeightOverrider.Holder overrider : this.heightOverriders) {
+			overrider.override(ScriptStructures.EMPTY_SCRIPT_STRUCTURES, column);
+		}
 		if (column.hasTerrain()) {
 			int start = column.getFinalBottomHeightI();
 			int end = column.getFinalTopHeightI();

@@ -26,13 +26,16 @@ where I left off:
 		problem 1: gateways assume 0-256 height when checking if the chunk is empty,
 		via checking if the highest filled section is at -1.
 		problem 2: gateways can sometimes place you on ring or bridge clouds.
+	try to fix ancient city cavern exclusion creating perfectly flat roof.
+	clean up and generify volumetric overriders.
 
 changelog:
-	* Updated to 1.20!
+	* Updated to 1.20.1!
 		* Added custom cherry trees.
 		* Added charred hanging signs.
 	* Added end support!
 	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
+	* Fixed ocean monuments sometimes causing terrain gen artifacts on skylands directly above them.
 	* Fixed temperate plains biome spawning inside cold plains biome in the overworld sometimes.
 	* Fixed not being able to query BlockState properties in scripts.
 
@@ -86,6 +89,7 @@ scripting:
 	List.shuffle()
 	add dedicated wrappers for BlockEntity, BlockEntityType, BlockEntityTagKey.
 	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
+	add copy constructor and clone() for user-defined classes.
 
 features:
 	general:

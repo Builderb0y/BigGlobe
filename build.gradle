@@ -105,9 +105,11 @@ task copyToReleases(type: Copy) {
 	into(new File("$projectDir/releases"))
 }
 
-test.enabled = true
+test() {
+	useJUnitPlatform()
+}
 
-build.dependsOn(test, copyToReleases)
+build.dependsOn(copyToReleases)
 
 // configure the maven publication
 /*

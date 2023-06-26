@@ -37,8 +37,8 @@ public class BigGlobeFeatures {
 	public static final RockLayerGroupFeature           NETHER_ROCK_LAYER_GROUP       = register("nether_rock_layer_group",       new           RockLayerGroupFeature());
 	public static final NetherRockLayerEntryFeature     NETHER_ROCK_LAYER_ENTRY       = register("nether_rock_layer_entry",       new     NetherRockLayerEntryFeature());
 
-	public static final HeightOverrideFeature           OVERWORLD_HEIGHT_OVERRIDER    = register("overworld_height_overrider",    new           HeightOverrideFeature());
-	public static final FoliageOverrideFeature          OVERWORLD_FOLIAGE_OVERRIDER   = register("overworld_foliage_overrider",   new          FoliageOverrideFeature());
+	public static final OverworldHeightOverrideFeature  OVERWORLD_HEIGHT_OVERRIDER    = register("overworld_height_overrider",    new  OverworldHeightOverrideFeature());
+	public static final OverworldFoliageOverrideFeature OVERWORLD_FOLIAGE_OVERRIDER   = register("overworld_foliage_overrider",   new OverworldFoliageOverrideFeature());
 	public static final OverworldCaveOverrideFeature    OVERWORLD_CAVE_OVERRIDER      = register("overworld_cave_overrider",      new    OverworldCaveOverrideFeature());
 	public static final OverworldCavernOverrideFeature  OVERWORLD_CAVERN_OVERRIDER    = register("overworld_cavern_overrider",    new  OverworldCavernOverrideFeature());
 	public static final OverworldSkylandOverrideFeature OVERWORLD_SKYLAND_OVERRIDER   = register("overworld_skyland_overrider",   new OverworldSkylandOverrideFeature());
@@ -46,6 +46,7 @@ public class BigGlobeFeatures {
 	public static final StructureOverrideFeature        NETHER_STRUCTURE_OVERRIDER    = register("nether_structure_overrider",    new        StructureOverrideFeature());
 	public static final NetherNoiseOverrideFeature      NETHER_CAVE_OVERRIDER         = register("nether_cave_overrider",         new      NetherNoiseOverrideFeature());
 	public static final NetherNoiseOverrideFeature      NETHER_CAVERN_OVERRIDER       = register("nether_cavern_overrider",       new      NetherNoiseOverrideFeature());
+	public static final EndHeightOverrideFeature        END_HEIGHT_OVERRIDER          = register("end_height_overrider",          new        EndHeightOverrideFeature());
 
 	public static final ScriptedFeature                 SCRIPT                        = register("script",                        new                 ScriptedFeature());
 

@@ -187,7 +187,7 @@ public class JavaUtilScriptEnvironment {
 			this.receiver.emitBytecode(method);
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 			method.node.visitInsn(POP);
 		}
 	}
@@ -208,7 +208,7 @@ public class JavaUtilScriptEnvironment {
 			this.receiver.emitBytecode(method);
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 		}
 
 		@Override
@@ -239,7 +239,7 @@ public class JavaUtilScriptEnvironment {
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
 			method.node.visitInsn(DUP_X2);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 			method.node.visitInsn(POP);
 		}
 

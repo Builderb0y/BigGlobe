@@ -61,6 +61,10 @@ public class MethodInfo {
 		method.node.visitMethodInsn(opcode, this.owner.getInternalName(), this.name, this.getDescriptor(), this.isInterface());
 	}
 
+	public void emit(MethodCompileContext method) {
+		this.emit(method, this.getInvokeOpcode());
+	}
+
 	public int access() {
 		return this.access & ~PURE;
 	}

@@ -3,6 +3,7 @@ package builderb0y.scripting.parsing;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.Type;
 
@@ -91,14 +92,14 @@ public class ScriptParser<I> extends ExpressionParser {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addEnvironment(MutableScriptEnvironment environment) {
+	public ScriptParser<I> addEnvironment(ScriptEnvironment environment) {
 		return (ScriptParser<I>)(super.addEnvironment(environment));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public ScriptParser<I> addEnvironment(ScriptEnvironment environment) {
-		return (ScriptParser<I>)(super.addEnvironment(environment));
+	public ScriptParser<I> configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
+		return (ScriptParser<I>)(super.configureEnvironment(configurator));
 	}
 
 	public static Method findImplementingMethod(Class<?> implementingClass) {

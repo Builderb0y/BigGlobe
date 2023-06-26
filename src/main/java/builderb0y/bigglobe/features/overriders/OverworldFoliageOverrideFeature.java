@@ -7,13 +7,13 @@ import builderb0y.bigglobe.features.DummyFeature;
 import builderb0y.bigglobe.overriders.overworld.OverworldFoliageOverrider;
 import builderb0y.bigglobe.overriders.overworld.OverworldFoliageOverrider.Holder;
 
-public class FoliageOverrideFeature extends DummyFeature<FoliageOverrideFeature.Config> {
+public class OverworldFoliageOverrideFeature extends DummyFeature<OverworldFoliageOverrideFeature.Config> {
 
-	public FoliageOverrideFeature(Codec<Config> codec) {
+	public OverworldFoliageOverrideFeature(Codec<Config> codec) {
 		super(codec);
 	}
 
-	public FoliageOverrideFeature() {
+	public OverworldFoliageOverrideFeature() {
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 	}
 

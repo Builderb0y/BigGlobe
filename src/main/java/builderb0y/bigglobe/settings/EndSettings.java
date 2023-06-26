@@ -27,11 +27,9 @@ public record EndSettings(
 		int min_y,
 		int max_y,
 		int max_radius,
-		@VerifyFloatRange(min = 0.0D) double inner_exclusion_radius,
-		@VerifySorted(greaterThan = "inner_exclusion_radius") double outer_exclusion_radius,
 		int @VerifySizeRange(min = 3, max = 3) [] spawn_location,
 		boolean spawn_obsidian_platform,
-		@VerifyFloatRange(min = 0.0D) @VerifySorted(lessThanOrEqual = "inner_exclusion_radius") double gateway_radius,
+		@VerifyFloatRange(min = 0.0D) double gateway_radius,
 		int gateway_height
 	) {
 
