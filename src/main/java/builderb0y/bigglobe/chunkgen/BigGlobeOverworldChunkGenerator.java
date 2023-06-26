@@ -663,23 +663,23 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			);
 			//lower cutoff
 			{
-				double minY = Math.max(context.bottomD, context.column.settings.height.minYAboveBedrock());
-				CaveCell cell = context.column.getCaveCell();
+				double minY = Math.max(context.minYD, context.column().settings.height.minYAboveBedrock());
+				CaveCell cell = context.column().getCaveCell();
 				double lowerWidth = cell.settings.getEffectiveWidth(column, minY);
-				int topY = Math.min(BigGlobeMath.floorI(minY + lowerWidth), context.topI - 1);
+				int topY = Math.min(BigGlobeMath.floorI(minY + lowerWidth), context.maxY - 1);
 				double rcpLowerWidth = 1.0D / lowerWidth;
-				for (int y = topY; y >= context.bottomI; y--) {
+				for (int y = topY; y >= context.minY; y--) {
 					double above = (y - minY) * rcpLowerWidth;
 					context.excludeUnchecked(y, BigGlobeMath.squareD(1.0D - above));
 				}
 			}
 			//edge
 			{
-				int distance = context.column.settings.underground.caves().placement.distance;
+				int distance = context.column().settings.underground.caves().placement.distance;
 				double progress = context.caveCell.voronoiCell.progressToEdgeD(context.column.x, context.column.z);
-				for (int y = context.bottomI; y < context.topI; y++) {
+				for (int y = context.minY; y < context.maxY; y++) {
 					double
-						width     = context.caveSettings.getEffectiveWidth(column, y),
+						width     = context.caveCell.settings.getEffectiveWidth(column, y),
 						threshold = 1.0D - width / (distance * 0.5D),
 						fraction  = Interpolator.unmixLinear(threshold, 1.0D, progress);
 					if (fraction > 0.0D) {

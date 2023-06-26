@@ -6,24 +6,28 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.MathHelper;
 
+import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface VolumetricOverrider {
+public interface VolumetricOverrider extends Overrider {
 
-	public static final ScriptEnvironment STRUCTURE_CONTEXT_ENVIRONMENT = (
-		new MutableScriptEnvironment().configure(environment -> {
+	public static final ScriptEnvironment STRUCTURE_START_EXCLUDE_ENVIRONMENT = (
+		new MutableScriptEnvironment().configure((MutableScriptEnvironment environment) -> {
 			InsnTree loadContext = load("context", 1, type(Context.class));
-			InsnTree loadColumn = getField(loadContext, FieldInfo.getField(Context.class, "column"));
 			environment
 			.addVariableGetField(loadContext, Context.class, "structureStarts")
 			.addFunctionMultiInvokes(loadContext, Context.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
@@ -238,6 +242,38 @@ public interface VolumetricOverrider {
 
 		public void excludeSphere(StructurePiece piece, double padding) {
 			this._excludeSphere(piece.getBoundingBox(), padding);
+		}
+	}
+
+	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends Overrider.Holder<T_Overrider> implements VolumetricOverrider {
+
+		public Holder(ScriptParser<T_Overrider> parser, Class<? extends Context> contextClass) throws ScriptParsingException {
+			super(
+				parser
+				.addEnvironment(MathScriptEnvironment.INSTANCE)
+				.addEnvironment(JavaUtilScriptEnvironment.ALL)
+				.addEnvironment(STRUCTURE_START_EXCLUDE_ENVIRONMENT)
+				.addEnvironment(
+					Overrider.createDistanceEnvironment(
+						getField(
+							load("context", 1, type(contextClass)),
+							FieldInfo.getField(Context.class, "column")
+						)
+					)
+				)
+				.addEnvironment(
+					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
+						ColumnValue.REGISTRY,
+						getField(
+							load("context", 1, type(contextClass)),
+							FieldInfo.getField(Context.class, "column")
+						),
+						null
+					)
+					.addXZ("x", "z")
+					.build()
+				)
+			);
 		}
 	}
 }
