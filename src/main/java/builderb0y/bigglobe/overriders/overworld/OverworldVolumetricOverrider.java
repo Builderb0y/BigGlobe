@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.overworld;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -24,6 +25,21 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 	@Deprecated
 	public default void override(VolumetricOverrider.Context context) {
 		this.override((Context)(context));
+	}
+
+	public static Context caveContext(ScriptStructures structures, OverworldColumn column) {
+		return new Context(
+			structures,
+			column,
+			column.getFinalTopHeightI() - column.getCaveCell().settings.depth(),
+			column.getCaveNoise()
+		) {
+
+			@Override
+			public double getExclusionMultiplier(int y) {
+				return this.caveCell.settings.getEffectiveWidth(this.column(), y);
+			}
+		};
 	}
 
 	public static abstract class Context extends VolumetricOverrider.Context {
@@ -56,11 +72,13 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
-	public static class Holder<T_Overrider extends OverworldVolumetricOverrider> extends VolumetricOverrider.Holder<T_Overrider> implements OverworldVolumetricOverrider {
+	@Wrapper
+	public static class Holder extends VolumetricOverrider.Holder<OverworldVolumetricOverrider> implements OverworldVolumetricOverrider {
 
-		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
+		public Holder(String script) throws ScriptParsingException {
 			super(
-				parser.addEnvironment(EXCLUDE_SURFACE_ENVIRONMENT),
+				new ScriptParser<>(OverworldVolumetricOverrider.class, script)
+				.addEnvironment(EXCLUDE_SURFACE_ENVIRONMENT),
 				OverworldVolumetricOverrider.Context.class
 			);
 		}

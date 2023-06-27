@@ -27,7 +27,6 @@ where I left off:
 		via checking if the highest filled section is at -1.
 		problem 2: gateways can sometimes place you on ring or bridge clouds.
 	try to fix ancient city cavern exclusion creating perfectly flat roof.
-	clean up and generify volumetric overriders.
 
 changelog:
 	* Updated to 1.20.1!

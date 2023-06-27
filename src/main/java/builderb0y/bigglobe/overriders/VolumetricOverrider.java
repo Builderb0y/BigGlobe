@@ -14,8 +14,6 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -31,6 +29,8 @@ public interface VolumetricOverrider extends Overrider {
 			environment
 			.addVariableGetField(loadContext, Context.class, "structureStarts")
 			.addFunctionMultiInvokes(loadContext, Context.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
+			.addVariableRenamedGetField(loadContext, "volumeMinY", Context.class, "minY")
+			.addVariableRenamedGetField(loadContext, "volumeMaxY", Context.class, "maxY")
 			;
 		})
 	);
@@ -250,8 +250,6 @@ public interface VolumetricOverrider extends Overrider {
 		public Holder(ScriptParser<T_Overrider> parser, Class<? extends Context> contextClass) throws ScriptParsingException {
 			super(
 				parser
-				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(STRUCTURE_START_EXCLUDE_ENVIRONMENT)
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(

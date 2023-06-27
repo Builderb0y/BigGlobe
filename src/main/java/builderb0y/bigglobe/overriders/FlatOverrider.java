@@ -9,8 +9,6 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.FakeInstanceGetterInsnTree;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -62,8 +60,6 @@ public interface FlatOverrider extends Overrider {
 		public Holder(ScriptParser<T_Overrider> parser, Class<? extends WorldColumn> columnClass) throws ScriptParsingException {
 			super(
 				parser
-				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(JavaUtilScriptEnvironment.ALL)
 				.addEnvironment(STRUCTURE_STARTS_ENVIRONMENT)
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(

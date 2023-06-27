@@ -46,6 +46,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
+import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
@@ -55,7 +56,7 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.overriders.nether.NoiseOverrider;
+import builderb0y.bigglobe.overriders.nether.NetherVolumetricOverrider;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -80,7 +81,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public final NetherSettings settings;
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
-	public final transient NoiseOverrider.Holder[] caveOverriders, cavernOverriders;
+	public final transient NetherVolumetricOverrider.Holder[] caveOverriders, cavernOverriders;
 	public final transient LinkedRockLayerConfig<NetherRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient NetherOreFeature.Config[] ores;
 
@@ -95,10 +96,10 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			configuredFeatures
 		);
 		this.settings            = settings;
-		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
-		this.caveOverriders      = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER     ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
-		this.cavernOverriders    = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER   ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
-		this.ores                = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE                ).toArray(NetherOreFeature.Config[]::new);
+		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER);
+		this.caveOverriders      = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_CAVE_OVERRIDER     );
+		this.cavernOverriders    = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_CAVERN_OVERRIDER   );
+		this.ores                = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 		this.rockLayers          = LinkedRockLayerConfig.NETHER_FACTORY.link(configuredFeatures);
 	}
 
@@ -281,7 +282,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public void runCaveOverriders(ScriptStructures structures, NetherColumn column) {
-		NoiseOverrider.Context context = NoiseOverrider.Context.caves(column, structures);
+		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.caveContext(structures, column);
 		for (StructureStartWrapper start : structures.starts) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
@@ -289,13 +290,13 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		}
-		for (NoiseOverrider.Holder overrider : this.caveOverriders) {
+		for (NetherVolumetricOverrider.Holder overrider : this.caveOverriders) {
 			overrider.override(context);
 		}
 	}
 
 	public void runCavernOverriders(ScriptStructures structures, NetherColumn column) {
-		NoiseOverrider.Context context = NoiseOverrider.Context.caverns(column, structures);
+		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.cavernContext(structures, column);
 		for (StructureStartWrapper start : structures.starts) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
@@ -303,7 +304,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		}
-		for (NoiseOverrider.Holder overrider : this.cavernOverriders) {
+		for (NetherVolumetricOverrider.Holder overrider : this.cavernOverriders) {
 			overrider.override(context);
 		}
 	}

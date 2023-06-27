@@ -16,6 +16,8 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -108,7 +110,13 @@ public interface Overrider extends Script {
 	public static class Holder<T_Overrider extends Overrider> extends ScriptHolder<T_Overrider> implements Overrider {
 
 		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
-			super(parser.addEnvironment(StructureScriptEnvironment.INSTANCE).parse());
+			super(
+				parser
+				.addEnvironment(MathScriptEnvironment.INSTANCE)
+				.addEnvironment(JavaUtilScriptEnvironment.ALL)
+				.addEnvironment(StructureScriptEnvironment.INSTANCE)
+				.parse()
+			);
 		}
 	}
 }

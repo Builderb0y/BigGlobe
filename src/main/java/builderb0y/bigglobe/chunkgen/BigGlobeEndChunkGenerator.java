@@ -14,6 +14,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -31,6 +32,7 @@ import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
 import net.minecraft.world.gen.feature.EndSpikeFeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MemberUsage;
@@ -47,11 +49,16 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
+import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.end.EndFoliageOverrider;
 import builderb0y.bigglobe.overriders.end.EndHeightOverrider;
+import builderb0y.bigglobe.overriders.end.EndVolumetricOverrider;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.BiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
@@ -71,6 +78,9 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	public final EndSettings settings;
 
 	public final transient EndHeightOverrider.Holder[] heightOverriders;
+	public final transient EndFoliageOverrider.Holder[] foliageOverriders;
+	public final transient EndVolumetricOverrider.Holder[] lowerRingCloudOverriders, upperRingCloudOverriders, lowerBridgeCloudOverriders, upperBridgeCloudOverriders;
+	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
 	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
 		super(
@@ -85,8 +95,14 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			),
 			configuredFeatures
 		);
-		this.settings = settings;
-		this.heightOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.END_HEIGHT_OVERRIDER).map(config -> config.script).toArray(EndHeightOverrider.Holder[]::new);
+		this.settings                   = settings;
+		this.heightOverriders           = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.            END_HEIGHT_OVERRIDER);
+		this.foliageOverriders          = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.           END_FOLIAGE_OVERRIDER);
+		this.lowerRingCloudOverriders   = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_LOWER_RING_CLOUD_OVERRIDER);
+		this.upperRingCloudOverriders   = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_UPPER_RING_CLOUD_OVERRIDER);
+		this.lowerBridgeCloudOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_LOWER_BRIDGE_CLOUD_OVERRIDER);
+		this.upperBridgeCloudOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_UPPER_BRIDGE_CLOUD_OVERRIDER);
+		this.structureOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.         END_STRUCTURE_OVERRIDER);
 	}
 
 	public static void init() {
@@ -111,11 +127,26 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			for (EndHeightOverrider.Holder overrider : this.heightOverriders) {
 				overrider.override(structures, column);
 			}
+			column.getFoliage();
+			for (EndFoliageOverrider.Holder overrider : this.foliageOverriders) {
+				overrider.override(structures, column);
+			}
 			column.getLowerRingCloudNoise();
 			column.getUpperRingCloudNoise();
 			column.getLowerBridgeCloudNoise();
 			column.getUpperBridgeCloudNoise();
-			column.getFoliage();
+			for (EndVolumetricOverrider.Holder overrider : this.lowerRingCloudOverriders) {
+				overrider.override(EndVolumetricOverrider.lowerRingCloudContext(structures, column));
+			}
+			for (EndVolumetricOverrider.Holder overrider : this.upperRingCloudOverriders) {
+				overrider.override(EndVolumetricOverrider.upperRingCloudContext(structures, column));
+			}
+			for (EndVolumetricOverrider.Holder overrider : this.lowerBridgeCloudOverriders) {
+				overrider.override(EndVolumetricOverrider.lowerBridgeCloudContext(structures, column));
+			}
+			for (EndVolumetricOverrider.Holder overrider : this.upperBridgeCloudOverriders) {
+				overrider.override(EndVolumetricOverrider.upperBridgeCloudContext(structures, column));
+			}
 			column.updateLevels();
 		});
 	}
@@ -317,6 +348,18 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			});
 		});
+	}
+
+	@Override
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
+		EndColumn column = this.column(0, 0);
+		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
+			if (!overrider.override(wrapper, column, permuter)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

@@ -7,18 +7,23 @@ import net.minecraft.structure.StructurePiece;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
+import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface ScriptStructureOverrider extends Script {
+public interface ScriptStructureOverrider extends Overrider {
+
+	public static final MutableScriptEnvironment START_MOVE_ENVIRONMENT = (
+		new MutableScriptEnvironment()
+		.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
+		.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
+	);
 
 	public abstract boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random);
 
@@ -32,19 +37,12 @@ public interface ScriptStructureOverrider extends Script {
 	}
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<ScriptStructureOverrider> implements ScriptStructureOverrider {
+	public static class Holder extends Overrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
 				new ScriptParser<>(ScriptStructureOverrider.class, script)
-				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(JavaUtilScriptEnvironment.ALL)
-				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(
-					new MutableScriptEnvironment()
-					.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
-					.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
-				)
+				.addEnvironment(START_MOVE_ENVIRONMENT)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
@@ -56,7 +54,6 @@ public interface ScriptStructureOverrider extends Script {
 					load("random", 3, type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.parse()
 			);
 		}
 
