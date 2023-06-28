@@ -65,29 +65,36 @@ public class WorldWrapper implements ColumnLookup {
 	@Override
 	public WorldColumn lookupColumn(int x, int z) {
 		BlockPos pos = this.unboundedPos(x, 0, z);
-		Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
-		if (chunk instanceof ChunkOfColumnsHolder holder) {
-			ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
-			if (columns != null) {
-				WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
-				if (column != null) {
-					return column;
+		if (this.coordination.area.contains(pos)) {
+			Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
+			if (chunk instanceof ChunkOfColumnsHolder holder) {
+				ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
+				if (columns != null) {
+					WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
+					if (column != null) {
+						return column;
+					}
+					else {
+						if (Tripwire.isEnabled()) {
+							Tripwire.logWithStackTrace("ChunkOfColumnsHolder at " + chunk.getPos() + " has the wrong coordinates? Requested " + pos.getX() + ", " + pos.getZ() + ", range covers from " + columns.getColumn(0).x + ", " + columns.getColumn(0).z + " to " + columns.getColumn(255).x + ", " + columns.getColumn(255).z);
+						}
+					}
 				}
 				else {
 					if (Tripwire.isEnabled()) {
-						Tripwire.logWithStackTrace("ChunkOfColumnsHolder at " + chunk.getPos() + " has the wrong coordinates? Requested " + pos.getX() + ", " + pos.getZ() + ", range covers from " + columns.getColumn(0).x + ", " + columns.getColumn(0).z + " to " + columns.getColumn(255).x + ", " + columns.getColumn(255).z);
+						Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is missing a ChunkOfColumns.");
 					}
 				}
 			}
 			else {
 				if (Tripwire.isEnabled()) {
-					Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is missing a ChunkOfColumns.");
+					Tripwire.logWithStackTrace("Chunk at [" + (pos.getX() >> 4) + ", " + (pos.getZ() >> 4) + " is not a ChunkOfColumnsHolder: " + chunk);
 				}
 			}
 		}
 		else {
 			if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("Chunk at [" + (pos.getX() >> 4) + ", " + (pos.getZ() >> 4) + " is not a ChunkOfColumnsHolder: " + chunk);
+				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.area);
 			}
 		}
 		this.randomColumn.setPos(pos.getX(), pos.getZ());

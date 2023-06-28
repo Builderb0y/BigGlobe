@@ -1,9 +1,11 @@
-bug fixes:
+bugs:
 	geode spikes can still spawn outside of geodes.
 	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
 		this is a fabric bug.
 	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
+	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
+		this is caused by distant horizons constructing a new chunk every time you request one.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -12,21 +14,15 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 porting:
-	add trail ruins structure somewhere.
 
 where I left off:
-	height overriders.
-	structure overriders.
-	cloud overriders.
+	add trail ruins structure somewhere.
 	upside down obsidian spires.
-	end nest.
-		need decorator tag for floor and ceiling of end nest.
 	check and make sure all gateways send you to the correct location.
 		they don't. fix this.
 		problem 1: gateways assume 0-256 height when checking if the chunk is empty,
 		via checking if the highest filled section is at -1.
 		problem 2: gateways can sometimes place you on ring or bridge clouds.
-	try to fix ancient city cavern exclusion creating perfectly flat roof.
 
 changelog:
 	* Updated to 1.20.1!
@@ -37,6 +33,7 @@ changelog:
 	* Fixed ocean monuments sometimes causing terrain gen artifacts on skylands directly above them.
 	* Fixed temperate plains biome spawning inside cold plains biome in the overworld sometimes.
 	* Fixed not being able to query BlockState properties in scripts.
+	* Ceiling over ancient cities is now less flat.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -144,6 +141,8 @@ features:
 				void tools?
 				void armor?
 		asteroids in the void biome.
+		ender clam?
+			source of ender pearls.
 
 before release:
 	make sure nothing in test package is used.

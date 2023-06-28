@@ -323,6 +323,8 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					EndColumn column = columns.getColumn(columnIndex);
 					mutablePos.setX(column.x).setZ(column.z);
 					permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
+					this.runDecorators(world, mutablePos, mojang, this.settings.nest().floor_decorator(), column.nestFloorLevels);
+					this.runDecorators(world, mutablePos, mojang, this.settings.nest().ceiling_decorator(), column.nestCeilingLevels);
 					if (column.hasTerrain()) {
 						this.runDecorators(world, mutablePos, mojang, mountainSettings.floor_decorator(), column.getFinalTopHeightI());
 						this.runDecorators(world, mutablePos, mojang, mountainSettings.ceiling_decorator(), column.getFinalBottomHeightI() - 1);
@@ -330,14 +332,14 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					if (ringCloudSettings != null) {
 						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   column.lowerRingCloudFloorLevels);
 						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), column.lowerRingCloudCeilingLevels);
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   column.upperRingCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), column.upperRingCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.upper_floor_decorator(),   column.upperRingCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.upper_ceiling_decorator(), column.upperRingCloudCeilingLevels);
 					}
 					if (bridgeCloudSettings != null) {
 						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   column.lowerBridgeCloudFloorLevels);
 						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), column.lowerBridgeCloudCeilingLevels);
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   column.upperBridgeCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), column.upperBridgeCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.upper_floor_decorator(),   column.upperBridgeCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.upper_ceiling_decorator(), column.upperBridgeCloudCeilingLevels);
 					}
 				}
 				if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {

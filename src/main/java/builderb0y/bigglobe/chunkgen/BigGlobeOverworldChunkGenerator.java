@@ -34,7 +34,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
@@ -73,7 +72,6 @@ import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.OverworldRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -1015,15 +1013,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				return false;
 			}
 		}
-		//expand structure bounding boxes so that overriders
-		//which depend on them being expanded work properly.
-		((StructureStart_BoundingBoxSetter)(Object)(start)).bigglobe_setBoundingBox(
-			start.getBoundingBox().expand(
-				entry.value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-				? 16
-				: 4
-			)
-		);
 		return true;
 	}
 

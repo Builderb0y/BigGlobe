@@ -23,7 +23,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -51,7 +50,6 @@ import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
@@ -383,19 +381,10 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		NetherColumn column = this.column(0, 0);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) return false;
+			if (!overrider.override(wrapper, column, permuter)) {
+				return false;
+			}
 		}
-
-		//expand structure bounding boxes so that overriders
-		//which depend on them being expanded work properly.
-		((StructureStart_BoundingBoxSetter)(Object)(start)).bigglobe_setBoundingBox(
-			start.getBoundingBox().expand(
-				entry.value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-				? 16
-				: 4
-			)
-		);
-
 		return true;
 	}
 

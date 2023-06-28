@@ -30,7 +30,9 @@ public record EndSettings(
 		int @VerifySizeRange(min = 3, max = 3) [] spawn_location,
 		boolean spawn_obsidian_platform,
 		@VerifyFloatRange(min = 0.0D) double gateway_radius,
-		int gateway_height
+		int gateway_height,
+		SortedFeatureTag floor_decorator,
+		SortedFeatureTag ceiling_decorator
 	) {
 
 		public int verticalSamples() {

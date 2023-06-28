@@ -375,7 +375,9 @@
 						"spawn_location": [ 96, 67, 0 ],
 						"spawn_obsidian_platform": false,
 						"gateway_radius": 84.0,
-						"gateway_height": 80
+						"gateway_height": 80,
+						"floor_decorator": "bigglobe:end/nest_floor",
+						"ceiling_decorator": "bigglobe:end/nest_ceiling"
 					},
 					"mountains": {
 						"center_y": {

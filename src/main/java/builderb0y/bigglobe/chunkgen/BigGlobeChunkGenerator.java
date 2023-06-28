@@ -54,6 +54,7 @@ import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
@@ -90,6 +91,7 @@ import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
+import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -600,6 +602,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				)
 			)
 		) {
+			//expand structure bounding boxes so that overriders
+			//which depend on them being expanded work properly.
+			((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
+				newStart.getBoundingBox().expand(
+					weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
+					? 16
+					: 4
+				)
+			);
 			structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
 			return true;
 		}
