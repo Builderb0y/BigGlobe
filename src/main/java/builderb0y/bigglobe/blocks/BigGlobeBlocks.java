@@ -23,10 +23,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.HoeItem;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
@@ -36,11 +34,13 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
 import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
 import builderb0y.bigglobe.trees.SaplingGrowHandler;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlocks {
 
@@ -380,7 +380,7 @@ public class BigGlobeBlocks {
 		new CharredSaplingBlock(
 			new SaplingGenerator() {
 
-				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("charred_tree_vanilla"));
+				public static final RegistryKey<ConfiguredFeature<?, ?>> KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("charred_tree_vanilla"));
 
 				/**
 				note: the ConfiguredFeature returned by this method will be
@@ -765,7 +765,7 @@ public class BigGlobeBlocks {
 	}
 
 	public static <B extends Block> B register(String name, B block) {
-		return Registry.register(Registries.BLOCK, BigGlobeMod.modID(name), block);
+		return Registry.register(RegistryVersions.block(), BigGlobeMod.modID(name), block);
 	}
 
 	public static void init() {

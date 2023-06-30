@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +13,7 @@ import net.minecraft.world.gen.feature.MiscConfiguredFeatures;
 import net.minecraft.world.level.ServerWorldProperties;
 
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServer_InitializeSpawnPoint {
@@ -28,7 +28,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(MiscConfiguredFeatures.BONUS_CHEST);
+				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(MiscConfiguredFeatures.BONUS_CHEST);
 				if (feature != null) feature.generate(
 					world,
 					world.getChunkManager().getChunkGenerator(),

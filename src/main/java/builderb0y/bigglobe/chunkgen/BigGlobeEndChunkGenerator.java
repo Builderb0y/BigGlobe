@@ -11,7 +11,6 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureStart;
@@ -67,6 +66,7 @@ import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
 import builderb0y.bigglobe.settings.EndSettings.EndMountainSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
@@ -106,7 +106,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("end"), END_CODEC);
+		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("end"), END_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeEndChunkGenerator> createCoder(FactoryContext<BigGlobeEndChunkGenerator> context) {

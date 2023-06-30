@@ -12,9 +12,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
@@ -91,6 +89,8 @@ import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
@@ -142,7 +142,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("overworld"), OVERWORLD_CODEC);
+		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("overworld"), OVERWORLD_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeOverworldChunkGenerator> createCoder(FactoryContext<BigGlobeOverworldChunkGenerator> context) {
@@ -965,7 +965,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				if (centerX >> 4 == chunkX && centerZ >> 4 == chunkZ) {
 					OverworldColumn column = this.column(centerX, centerZ);
 					if (column.getCavernCell().settings.has_ancient_cities()) {
-						RegistryEntry<Structure> structure = registryManager.get(RegistryKeys.STRUCTURE).getEntry(StructureKeys.ANCIENT_CITY).orElse(null);
+						RegistryEntry<Structure> structure = registryManager.get(RegistryKeyVersions.structure()).getEntry(StructureKeys.ANCIENT_CITY).orElse(null);
 						if (structure != null) {
 							this.forceSetStructureStart(
 								new WeightedEntry(structure, 1),

@@ -7,7 +7,6 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
@@ -64,6 +63,7 @@ import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.NetherPillarStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
@@ -102,7 +102,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("nether"), NETHER_CODEC);
+		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("nether"), NETHER_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeNetherChunkGenerator> createCoder(FactoryContext<BigGlobeNetherChunkGenerator> context) {

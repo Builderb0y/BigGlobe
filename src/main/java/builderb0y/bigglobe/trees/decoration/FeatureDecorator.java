@@ -2,7 +2,6 @@ package builderb0y.bigglobe.trees.decoration;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -11,6 +10,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.trees.TreeGenerator;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class FeatureDecorator implements BlockDecorator {
 
@@ -22,7 +22,7 @@ public class FeatureDecorator implements BlockDecorator {
 
 	@Override
 	public void decorate(TreeGenerator generator, BlockPos pos, BlockState state) {
-		ConfiguredFeature<?, ?> feature = generator.worldQueue.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(this.feature);
+		ConfiguredFeature<?, ?> feature = generator.worldQueue.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(this.feature);
 		if (feature != null) {
 			feature.generate(
 				generator.worldQueue,

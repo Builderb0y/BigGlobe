@@ -2,9 +2,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.Structure;
@@ -12,6 +10,8 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> {
@@ -36,8 +36,8 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 			BigGlobeMod
 			.getCurrentServer()
 			.getRegistryManager()
-			.get(RegistryKeys.STRUCTURE)
-			.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE, new Identifier(id)))
+			.get(RegistryKeyVersions.structure())
+			.entryOf(RegistryKey.of(RegistryKeyVersions.structure(), new Identifier(id)))
 		);
 	}
 
@@ -54,9 +54,9 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 	public StructureTypeEntry type() {
 		if (this.type == null) {
 			this.type = new StructureTypeEntry(
-				Registries.STRUCTURE_TYPE.entryOf(
+				RegistryVersions.structureType().entryOf(
 					UnregisteredObjectException.getKey(
-						Registries.STRUCTURE_TYPE,
+						RegistryVersions.structureType(),
 						this.entry.value().getType()
 					)
 				)

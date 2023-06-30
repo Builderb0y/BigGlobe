@@ -2,7 +2,6 @@ package builderb0y.bigglobe.spawning;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,10 +20,11 @@ import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeSpawnLocator {
 
-	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(RegistryKeys.BIOME, BigGlobeMod.modID("player_spawn_friendly"));
+	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(RegistryKeyVersions.biome(), BigGlobeMod.modID("player_spawn_friendly"));
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {

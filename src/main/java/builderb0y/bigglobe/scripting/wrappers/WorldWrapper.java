@@ -8,7 +8,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
@@ -30,6 +29,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -237,8 +237,8 @@ public class WorldWrapper implements ColumnLookup {
 
 	public void summon(String entityType, double x, double y, double z) {
 		Identifier identifier = new Identifier(entityType);
-		if (Registries.ENTITY_TYPE.containsId(identifier)) {
-			Entity entity = Registries.ENTITY_TYPE.get(identifier).create(this.world.toServerWorld());
+		if (RegistryVersions.entityType().containsId(identifier)) {
+			Entity entity = RegistryVersions.entityType().get(identifier).create(this.world.toServerWorld());
 			if (entity != null) {
 				entity.refreshPositionAndAngles(x, y, z, entity.getYaw(), entity.getPitch());
 				this.world.spawnEntityAndPassengers(entity);

@@ -12,9 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.state.property.Property;
 
@@ -28,6 +26,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
@@ -59,7 +58,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		if (context.isEmpty()) return null;
 		String string = context.tryAsString();
 		if (string != null) try {
-			BlockResult result = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), string, false);
+			BlockResult result = BlockArgumentParserVersions.block(string, false);
 			Set<Property<?>> missing = new HashSet<>(result.blockState().getProperties());
 			missing.removeAll(result.properties().keySet());
 			if (!missing.isEmpty()) {

@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.DyeColor;
 
@@ -18,6 +17,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeItems {
 
@@ -144,14 +144,14 @@ public class BigGlobeItems {
 
 	public static BlockItem registerPlacer(Block block) {
 		return Registry.register(
-			Registries.ITEM,
-			Registries.BLOCK.getId(block),
+			RegistryVersions.item(),
+			RegistryVersions.block().getId(block),
 			new BlockItem(block, new Item.Settings())
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
-		return Registry.register(Registries.ITEM, BigGlobeMod.modID(name), item);
+		return Registry.register(RegistryVersions.item(), BigGlobeMod.modID(name), item);
 	}
 
 	public static void init() {

@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.*;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -29,6 +28,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.ServerValue;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @SuppressWarnings("unused")
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
@@ -74,7 +74,7 @@ public class WoodPalette {
 	public Set<RegistryKey<Biome>> getBiomeSet() {
 		if (this.biomeSet == null) {
 			if (this.biomes != null) {
-				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BIOME).getEntryList(this.biomes);
+				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.biome()).getEntryList(this.biomes);
 				if (list.isPresent()) {
 					this.biomeSet = list.get().stream().map(UnregisteredObjectException::getKey).collect(Collectors.toSet());
 				}

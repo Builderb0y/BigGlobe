@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -97,6 +96,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
@@ -640,7 +640,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				step_ -> (
 					world
 					.getRegistryManager()
-					.get(RegistryKeys.STRUCTURE)
+					.get(RegistryKeyVersions.structure())
 					.streamEntries()
 					.filter(structure -> structure.value().getFeatureGenerationStep() == step_)
 					.toArray(REGISTRY_ENTRY_ARRAY_FACTORY.generic())
@@ -662,7 +662,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			StructureStart start = starts.get(startIndex);
 			try {
 				world.setCurrentlyGeneratingStructureName(() -> {
-					RegistryKey<Structure> key = world.getRegistryManager().get(RegistryKeys.STRUCTURE).getKey(structure).orElse(null);
+					RegistryKey<Structure> key = world.getRegistryManager().get(RegistryKeyVersions.structure()).getKey(structure).orElse(null);
 					return (key != null ? key : structure).toString();
 				});
 				long startSeed = Permuter.permute(seed, start.getPos());
@@ -680,7 +680,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 				report
 				.addElement("Structure being placed")
-				.add("ID", () -> String.valueOf(world.getRegistryManager().get(RegistryKeys.STRUCTURE).getId(structure)))
+				.add("ID", () -> String.valueOf(world.getRegistryManager().get(RegistryKeyVersions.structure()).getId(structure)))
 				.add("Description", () -> String.valueOf(structure))
 				.add("Start", () -> String.valueOf(start))
 				.add("Start position", () -> String.valueOf(start.getPos()));

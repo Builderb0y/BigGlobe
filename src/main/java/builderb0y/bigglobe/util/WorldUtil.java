@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +19,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class WorldUtil {
 
@@ -84,7 +84,7 @@ public class WorldUtil {
 			return (B)(blockEntity);
 		}
 		else {
-			RegistryKey<BlockEntityType<?>> id = Registries.BLOCK_ENTITY_TYPE.getKey(type).orElse(null);
+			RegistryKey<BlockEntityType<?>> id = RegistryVersions.blockEntityType().getKey(type).orElse(null);
 			String name = id != null ? id.toString() : "(unregistered: " + type + " for block(s): " + ((MutableBlockEntityType)(type)).bigglobe_getBlocks() + ')';
 			BigGlobeMod.LOGGER.warn("Expected " + name + " at " + pos + " in " + world + ", but got " + blockEntity + " instead.");
 			return null;

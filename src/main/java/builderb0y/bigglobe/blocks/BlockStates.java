@@ -7,10 +7,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
-import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
+
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 /** frequently used BlockState's. */
 public class BlockStates {
@@ -70,7 +70,7 @@ public class BlockStates {
 	*/
 	public static BlockState of(String name) {
 		try {
-			BlockResult result = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), name, false);
+			BlockResult result = BlockArgumentParserVersions.block(name, false);
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 			remaining.removeAll(result.properties().keySet());
 			if (!remaining.isEmpty()) {

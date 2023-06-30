@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -26,7 +26,7 @@ public record StructureTypeTagKey(TagKey<StructureType<?>> key) implements TagWr
 
 	public static StructureTypeTagKey of(String id) {
 		if (id == null) return null;
-		return new StructureTypeTagKey(TagKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id)));
+		return new StructureTypeTagKey(TagKey.of(RegistryKeyVersions.structureType(), new Identifier(id)));
 	}
 
 	@Override

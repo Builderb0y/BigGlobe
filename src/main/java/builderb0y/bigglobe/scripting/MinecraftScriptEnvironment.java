@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.scripting.wrappers.*;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -112,8 +112,8 @@ public class MinecraftScriptEnvironment {
 					//BlockState('a', b: ?)
 					String blockName = (String)(constantBlock.asJavaObject());
 					Identifier identifier = new Identifier(blockName);
-					if (Registries.BLOCK.containsId(identifier)) {
-						Block block = Registries.BLOCK.get(identifier);
+					if (RegistryVersions.block().containsId(identifier)) {
+						Block block = RegistryVersions.block().get(identifier);
 						Set<String> properties = block.getStateManager().getProperties().stream().map(Property::getName).collect(Collectors.toSet());
 						List<ConstantValue> constantProperties = new ArrayList<>(16);
 						constantProperties.add(constantBlock);

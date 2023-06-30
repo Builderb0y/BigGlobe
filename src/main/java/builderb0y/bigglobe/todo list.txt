@@ -23,19 +23,6 @@ where I left off:
 		see log in downloads folder for more details.
 
 changelog:
-	# No guarantees are made that worlds created in old MC versions will work correctly in this new version. In particular, the end dimension from old worlds will still be vanilla in new versions unless you're good at messing with your level.dat file. Worlds created in this version will have the new end dimension.
-	* Updated to 1.20.1!
-		* Added custom cherry trees.
-		* Added charred hanging signs.
-		* Added vanilla trail ruins to the world.
-	* Added end support!
-	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
-	* Fixed ocean monuments sometimes causing terrain gen artifacts on skylands directly above them.
-	* Fixed temperate plains biome spawning inside cold plains biome in the overworld sometimes.
-	* Fixed not being able to query BlockState properties in scripts.
-	* Ceiling over ancient cities is now less flat.
-	* Overworld surface decorative structures now spawn slightly further away from each other.
-	* Fixed overlapping geodes doubling up on buds, at the cost of changing the json spec for geodes.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

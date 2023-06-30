@@ -16,16 +16,16 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class SporeParticles {
 
 	public static void init() {
-		Registry.register(Registries.PARTICLE_TYPE, BigGlobeMod.modID("spore"), Type.INSTANCE);
+		Registry.register(RegistryVersions.particleType(), BigGlobeMod.modID("spore"), Type.INSTANCE);
 	}
 
 	@Environment(EnvType.CLIENT)

@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.common.base.Predicates;
 
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.gen.StructureAccessor;
@@ -17,6 +16,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 
@@ -39,7 +39,7 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 		if (starts.isEmpty()) {
 			return EMPTY_SCRIPT_STRUCTURES;
 		}
-		Registry<Structure> structureRegistry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE);
+		Registry<Structure> structureRegistry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure());
 		return new ScriptStructures(
 			starts
 			.stream()

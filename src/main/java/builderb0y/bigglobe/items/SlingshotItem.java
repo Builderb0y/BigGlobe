@@ -13,7 +13,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -24,6 +23,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
 mostly a copy-paste of {@link BowItem} but edited to work with rocks,
@@ -31,7 +31,7 @@ which are not an instance of {@link ArrowItem}.
 */
 public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 
-	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeys.ITEM, BigGlobeMod.modID("slingshot_ammunition"));
+	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeyVersions.item(), BigGlobeMod.modID("slingshot_ammunition"));
 	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(AMMUNITION);
 
 	public SlingshotItem(Settings settings) {

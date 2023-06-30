@@ -3,7 +3,6 @@ package builderb0y.bigglobe.features;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -15,10 +14,11 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class EndSpikeReplacementFeature extends Feature<EndSpikeFeatureConfig> {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("end/nest_spike"));
+	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("end/nest_spike"));
 
 	public EndSpikeReplacementFeature(Codec<EndSpikeFeatureConfig> configCodec) {
 		super(configCodec);
@@ -34,7 +34,7 @@ public class EndSpikeReplacementFeature extends Feature<EndSpikeFeatureConfig> {
 
 	@Override
 	public boolean generate(FeatureContext<EndSpikeFeatureConfig> context) {
-		ConfiguredFeature<?, ?> delegate = context.getWorld().getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(DELEGATE_KEY);
+		ConfiguredFeature<?, ?> delegate = context.getWorld().getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(DELEGATE_KEY);
 		if (delegate == null) return false;
 		boolean placedAny = false;
 		for (Spike spike : context.getConfig().getSpikes()) {

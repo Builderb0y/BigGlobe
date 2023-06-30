@@ -2,14 +2,14 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -25,7 +25,7 @@ public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) implemen
 
 	public static StructureTypeEntry of(String id) {
 		if (id == null) return null;
-		return new StructureTypeEntry(Registries.STRUCTURE_TYPE.entryOf(RegistryKey.of(RegistryKeys.STRUCTURE_TYPE, new Identifier(id))));
+		return new StructureTypeEntry(RegistryVersions.structureType().entryOf(RegistryKey.of(RegistryKeyVersions.structureType(), new Identifier(id))));
 	}
 
 	@Override
