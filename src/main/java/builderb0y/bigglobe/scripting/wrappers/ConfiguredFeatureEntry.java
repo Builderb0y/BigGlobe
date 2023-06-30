@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,12 +24,13 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 	}
 
 	public static ConfiguredFeatureEntry of(String id) {
+		if (id == null) return null;
 		return new ConfiguredFeatureEntry(
 			BigGlobeMod
 			.getCurrentServer()
 			.getRegistryManager()
-			.get(RegistryKeys.CONFIGURED_FEATURE)
-			.entryOf(RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, new Identifier(id)))
+			.get(RegistryKeyVersions.configuredFeature())
+			.entryOf(RegistryKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id)))
 		);
 	}
 

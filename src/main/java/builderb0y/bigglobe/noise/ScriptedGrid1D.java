@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -32,12 +32,12 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
-			ColumnScriptEnvironment.createFixedXZVariableY(
+			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 				ColumnValue.REGISTRY,
 				load("column", 0, type(WorldColumn.class)),
 				null
 			)
-			.mutable
+			.build()
 		);
 		this.delegate = parser.parse();
 	}
@@ -99,7 +99,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
 				//fill samples with input.
-				invokeInterface(
+					invokeInstance(
 					getField(
 						load(thisVar),
 						input.fieldInfo(getBulkX)
@@ -196,7 +196,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(load(thisVar), input.fieldInfo(getBulkX)),
 						method(
 							ACC_PUBLIC | ACC_INTERFACE,

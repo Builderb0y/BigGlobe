@@ -1,0 +1,9 @@
+{
+	"parent": "bigglobe:overgrown_end",
+	"restrictions": { "type": "range", "property": "end/foliage", "min": 0.125, "mid": 0.25 },
+	"biome": "bigglobe:chorus_forest",
+	"primary_surface": {
+		"top": "bigglobe:chorus_nylium",
+		"under": "minecraft:end_stone"
+	}
+}

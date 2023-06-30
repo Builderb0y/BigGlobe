@@ -313,7 +313,7 @@ public class OverworldColumn extends WorldColumn {
 	public double @Nullable [] getCaveNoise() {
 		if (this.setFlag(CAVE_NOISE)) {
 			CaveCell cell = this.getCaveCell();
-			if (cell != null) ScriptedGrid.SECRET_COLUMN.run(this, () -> cell.settings.getBulkY(this));
+			if (cell != null) ScriptedGrid.SECRET_COLUMN.accept(this, self -> cell.settings.getBulkY(self));
 		}
 		return this.caveNoise;
 	}
@@ -746,8 +746,7 @@ public class OverworldColumn extends WorldColumn {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
-		return this.settings.biomes.root.getBiome(this, y, this.seed);
-		//return this.settings.surface.biomes().get(this, y);
+		return this.settings.biomes.getBiome(this, y, this.seed);
 	}
 
 	@Override

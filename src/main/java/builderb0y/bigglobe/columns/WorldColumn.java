@@ -38,10 +38,12 @@ public abstract class WorldColumn extends Column {
 	}
 
 	/**
-	returns the Y level above the highest block that can generate in this column as part of normal terrain,
-	or {@link Integer#MIN_VALUE} if no blocks can generate in this column.
-	in other words, blocks can only exist in this column at positions where
-	y >= {@link #getFinalBottomHeightI()} && y < {@link #getFinalTopHeightI()}.
+	returns the Y level of the block above the primary surface of this column,
+	or {@link Integer#MIN_VALUE} if no such surface exists.
+	this is not necessarily the limit for where blocks can be placed in the column.
+	for example, overworld skylands and end clouds are not
+	considered by this method. additionally, in overworld oceans,
+	this value is the bottom of the ocean, not the top of it.
 	this value should differ from {@link #getFinalTopHeightD()} by no more than 1.0.
 	*/
 	public int getFinalTopHeightI() {
@@ -50,18 +52,20 @@ public abstract class WorldColumn extends Column {
 	}
 
 	/**
-	returns the Y level of the highest block that can generate in this column as part of normal
-	terrain as a double, or {@link Double#NaN} if no blocks can generate in this column.
-	the returned double is NOT required to be rounded to the nearest integer.
+	similar to {@link #getFinalTopHeightI()},
+	but not required to be rounded to the nearest integer.
+	in general, {@link #getFinalTopHeightI()} is the
+	{@link BigGlobeMath#ceilI(double) ceil} of this value.
+	if there is no surface at this column's position, returns {@link Double#NaN}.
 	*/
 	public abstract double getFinalTopHeightD();
 
 	/**
-	returns the Y level of the lowest block that can generate in this column,
-	or {@link Integer#MIN_VALUE} if no blocks can generate in this column.
-	in other words, blocks can only exist in this column at positions where
-	y >= {@link #getFinalBottomHeightI()} && y < {@link #getFinalTopHeightI()}.
-	this value should differ from {@link #getFinalTopHeightD()} by no more than 1.0.
+	returns the Y level of the bottom of the primary surface of this column,
+	or {@link Integer#MIN_VALUE} if no such surface exists.
+	this is not necessarily the limit for where blocks can be placed in the column.
+	for example, end clouds are not considered by this method.
+	this value should differ from {@link #getFinalBottomHeightD()} by no more than 1.0.
 	*/
 	public int getFinalBottomHeightI() {
 		double height = this.getFinalBottomHeightD();
@@ -69,16 +73,16 @@ public abstract class WorldColumn extends Column {
 	}
 
 	/**
-	returns the Y level of the lowest block that can generate in this column
-	as a double, or {@link Double#NaN} if no blocks can generate in this column.
-	the returned double is NOT required to be rounded to the nearest integer.
+	similar to {@link #getFinalBottomHeightI()},
+	but not required to be rounded to the nearest integer.
+	in general, {@link #getFinalBottomHeightI()} is the
+	{@link BigGlobeMath#floorI(double)} floor} of this value.
+	if there is no surface at this column's position, returns {@link Double#NaN}.
 	*/
 	public abstract double getFinalBottomHeightD();
 
 	/**
-	returns true if any blocks can generate in this column.
-	this can be used as a shortcut instead of checking if the
-	above 4 methods returned {@link Integer#MIN_VALUE} or {@link Double#NaN}.
+	returns true if this column has a primary surface at this column's location.
 	*/
 	public boolean hasTerrain() {
 		return true;

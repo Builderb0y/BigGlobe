@@ -4,7 +4,7 @@ import org.joml.Vector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
+import net.minecraft.block.SnowBlock;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePieceType;
@@ -28,6 +28,7 @@ import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.MaterialVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -202,13 +203,11 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	}
 
 	public boolean canLogReplace(BlockState state) {
-		Material material = state.getMaterial();
-		return material.isReplaceable() || material == Material.LEAVES;
+		return MaterialVersions.isReplaceableOrPlant(state);
 	}
 
 	public boolean canLeavesReplace(BlockState state) {
-		Material material = state.getMaterial();
-		return material == Material.AIR || material == Material.SNOW_LAYER;
+		return state.isAir() || state.getBlock() instanceof SnowBlock;
 	}
 
 	public void placeSnow(StructureWorldAccess world, BlockPos.Mutable pos, OverworldColumn overworldColumn, Permuter permuter) {

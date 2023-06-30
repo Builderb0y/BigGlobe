@@ -34,10 +34,10 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree field = environments.get(index).getField(parser, receiver, name);
+			InsnTree field = environments.get(index).getField(parser, receiver, name, mode);
 			if (field != null) return field;
 		}
 		return null;

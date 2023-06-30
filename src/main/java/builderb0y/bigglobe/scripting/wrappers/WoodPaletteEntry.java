@@ -36,6 +36,7 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 	}
 
 	public static WoodPaletteEntry of(String id) {
+		if (id == null) return null;
 		return new WoodPaletteEntry(
 			BigGlobeMod
 			.getCurrentServer()

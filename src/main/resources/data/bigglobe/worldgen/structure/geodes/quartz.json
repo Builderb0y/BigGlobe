@@ -43,7 +43,10 @@
 			"commonness":   { "type": "exponential", "min": 0.015625, "max":  0.125 },
 			"crookedness":  { "type": "linear_high", "min": 0.0,      "max":  6.0   }
 		},
-		"growth_block_tag": "bigglobe:quartz_buds",
+		"growth": {
+			"place": "#bigglobe:quartz_buds",
+			"against": "#bigglobe:quartz_geode_blocks"
+		},
 		"terrain_adaptation": "bury"
 	}
 }

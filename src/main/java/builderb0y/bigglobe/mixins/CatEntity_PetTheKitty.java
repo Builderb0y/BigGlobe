@@ -15,6 +15,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.versions.EntityVersions;
+
 /**
 in vanilla, you can't pet cats. this is obviously a bug, so I'm fixing it.
 if anyone finds this code and wants it in production,
@@ -30,8 +32,8 @@ public abstract class CatEntity_PetTheKitty extends TameableEntity {
 	@Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
 	public void bigglobe_petTheKitty(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> callback) {
 		if (player.isSneaking() && player.getStackInHand(hand).isEmpty()) {
-			if (!this.world.isClient) {
-				this.world.sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+			if (!EntityVersions.getWorld(this).isClient) {
+				EntityVersions.getWorld(this).sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
 				this.playSound(SoundEvents.ENTITY_CAT_PURR, this.getSoundVolume(), this.getSoundPitch());
 			}
 			callback.setReturnValue(ActionResult.SUCCESS);

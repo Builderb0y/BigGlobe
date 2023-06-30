@@ -45,11 +45,11 @@ public interface CommandScript extends Script {
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(
-				ColumnScriptEnvironment.createVariableXYZ(
+				ColumnScriptEnvironmentBuilder.createVariableXYZ(
 					ColumnValue.REGISTRY,
 					load("column", 2, type(WorldColumn.class))
 				)
-				.mutable
+				.build()
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
@@ -63,7 +63,8 @@ public interface CommandScript extends Script {
 
 		@Override
 		public InsnTree createReturn(InsnTree value) {
-			return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW));
+			if (value.getTypeInfo().isVoid()) return return_(seq(value, ldc(null, TypeInfos.OBJECT)));
+			else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW));
 		}
 	}
 

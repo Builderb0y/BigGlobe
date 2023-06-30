@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +24,8 @@ public record ConfiguredFeatureTagKey(TagKey<ConfiguredFeature<?, ?>> key) imple
 	}
 
 	public static ConfiguredFeatureTagKey of(String id) {
-		return new ConfiguredFeatureTagKey(TagKey.of(RegistryKeys.CONFIGURED_FEATURE, new Identifier(id)));
+		if (id == null) return null;
+		return new ConfiguredFeatureTagKey(TagKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id)));
 	}
 
 	@Override

@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +37,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public static final TypeInfo DOUBLE_ARRAY = type(double[].class);
 	public static final ScopeLocal<WorldColumn> SECRET_COLUMN = new ScopeLocal<>();
 	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
+	public static final InsnTree GET_WORLD_SEED = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getWorldSeed"));
 
 	public final Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
@@ -48,6 +51,11 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 	public static WorldColumn getSecretColumn() {
 		return SECRET_COLUMN.getCurrent();
+	}
+
+	public static long getWorldSeed() {
+		WorldColumn column = SECRET_COLUMN.getCurrent();
+		return column != null ? column.seed : 0L;
 	}
 
 	public abstract Grid getDelegate();
@@ -251,7 +259,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			.scopes
 			.withScope((MethodCompileContext constructor) -> {
 				VarInfo thisVar = constructor.addThis();
-				invokeSpecial(
+				invokeInstance(
 					load(thisVar),
 					constructor(ACC_PUBLIC, Object.class)
 				)
@@ -291,7 +299,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					load(coordinates[dimension]).emitBytecode(getValue);
 				}
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(
 							load(thisVar),
 							input.fieldInfo(getValue)
@@ -371,6 +379,9 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		@Override
 		public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
+			if (name.equals("worldSeed")) {
+				return GET_WORLD_SEED;
+			}
 			if (name.length() == 1) {
 				char c = name.charAt(0);
 				if (c >= 'x' && c < 'x' + this.gridTypeInfo.dimensions) {
@@ -383,7 +394,12 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		@Override
 		public Stream<String> listCandidates(String name) {
-			return Stream.ofNullable(this.inputs.get(name)).map(input -> "Input " + input.name + " @ " + input.index);
+			return Stream.of(
+				Stream.of("worldSeed"),
+				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> String.valueOf((char)(c))),
+				Stream.ofNullable(this.inputs.get(name)).map(input -> "Input " + input.name + " @ " + input.index)
+			)
+			.flatMap(Function.identity());
 		}
 	}
 }

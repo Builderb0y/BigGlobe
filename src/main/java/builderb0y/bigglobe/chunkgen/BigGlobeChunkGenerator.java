@@ -5,10 +5,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
@@ -18,17 +18,12 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -54,10 +49,11 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.ProtoChunk;
+import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
@@ -82,22 +78,25 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
+import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
+import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
+import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.util.WorldgenProfiler;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.util.Tripwire;
+import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
@@ -214,22 +213,60 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public abstract WorldColumn column(int x, int z);
 
+	public abstract void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons);
+
+	public ChunkOfColumns<? extends WorldColumn> createAndPopulateChunkOfColumns(ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
+		ChunkOfColumns<? extends WorldColumn> columns = new ChunkOfColumns<>(this::column);
+		this.populateChunkOfColumns(columns, chunkPos, structures, distantHorizons);
+		return columns;
+	}
+
+	public ChunkOfColumns<? extends WorldColumn> getChunkOfColumns(Chunk chunk, ScriptStructures structures, boolean distantHorizons) {
+		if (chunk instanceof ChunkOfColumnsHolder holder) {
+			ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
+			if (columns == null) {
+				holder.bigglobe_setChunkOfColumns(columns = this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons));
+			}
+			return columns;
+		}
+		else {
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is not a ChunkOfColumnsHolder: " + chunk);
+			}
+			return this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons);
+		}
+	}
+
+	public ScriptStructures preGenerateFeatureColumns(StructureWorldAccess world, ChunkPos chunkPos, StructureAccessor structureAccessor, boolean distantHorizons) {
+		ScriptStructures structures = null;
+		for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+			for (int offsetX = -1; offsetX <= 1; offsetX++) {
+				ChunkPos newPos = new ChunkPos(chunkPos.x + offsetX, chunkPos.z + offsetZ);
+				ScriptStructures newStructures = ScriptStructures.getStructures(structureAccessor, chunkPos, distantHorizons);
+				this.getChunkOfColumns(world.getChunk(newPos.x, newPos.z), newStructures, distantHorizons);
+				if (offsetX == 0 && offsetZ == 0) {
+					structures = newStructures;
+				}
+			}
+		}
+		return structures;
+	}
+
 	@Override
 	public abstract Codec<? extends ChunkGenerator> getCodec();
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		Arrays
-		.stream(
-			chunk.getSectionArray(),
-			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */) + 1 /* and then back to exclusive for stream() */
+		IntStream.rangeClosed(
+			Math.max(chunk.getSectionIndex(minYInclusive), 0),
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
 		)
 		.parallel()
-		.forEach((ChunkSection section) -> {
+		.forEach((int index) -> {
+			ChunkSection section = chunk.getSection(index);
 			section.lock();
 			try {
-				generator.accept(new SectionGenerationContext(chunk, section, seed, columns));
+				generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
 			}
 			finally {
 				section.unlock();
@@ -239,27 +276,30 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallel(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
-		Arrays
-		.stream(
-			chunk.getSectionArray(),
-			chunk.getSectionIndex(minYInclusive),
-			chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */) + 1 /* and then back to exclusive for stream() */
+		//ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
+		IntStream.rangeClosed(
+			Math.max(chunk.getSectionIndex(minYInclusive), 0),
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
 		)
 		.parallel()
-		.forEach((ChunkSection section) -> {
+		.forEach((int index) -> {
+			ChunkSection section = chunk.getSection(index);
 			section.lock();
 			try {
-				SectionGenerationContext context = new SectionGenerationContext(chunk, section, seed, columns);
+				SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
 				generator.accept(context);
+				/*
 				if (context.hasLights()) {
 					lights.add(context.lights());
 				}
+				//*/
+
 			}
 			finally {
 				section.unlock();
 			}
 		});
+		/*
 		if (lights != null) {
 			ProtoChunk protoChunk = (ProtoChunk)(chunk);
 			for (LightPositionCollector collector; (collector = lights.poll()) != null; ) {
@@ -268,6 +308,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				}
 			}
 		}
+		//*/
 	}
 
 	public void setHeightmaps(Chunk chunk, HeightmapSupplier heightGetter) {
@@ -288,6 +329,26 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public static interface HeightmapSupplier {
 
 		public abstract int getHeight(int index, boolean includeWater);
+	}
+
+	public void setAllStates(SectionGenerationContext context, BlockState state) {
+		if (context.palette() instanceof SingularPalette_EntryAccess singular) {
+			//how to set 4096 blocks in one operation.
+			singular.bigglobe_setEntry(state);
+		}
+		else {
+			//this shouldn't happen, but we should handle it sanely anyway.
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace(context + " does not have a SingularPalette.");
+			}
+			int stoneID = context.id(state);
+			PaletteStorage storage = context.storage();
+			long payload = stoneID;
+			for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
+				payload |= payload << bits;
+			}
+			Arrays.fill(storage.getData(), payload);
+		}
 	}
 
 	public abstract void generateRawTerrain(
@@ -314,7 +375,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		)
 		.handle((Void result, Throwable throwable) -> {
 			if (throwable != null) {
-				BigGlobeMod.LOGGER.error("", throwable);
+				BigGlobeMod.LOGGER.error("Exception populating noise", throwable);
 			}
 			return chunk;
 		});
@@ -541,6 +602,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				)
 			)
 		) {
+			//expand structure bounding boxes so that overriders
+			//which depend on them being expanded work properly.
+			((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
+				newStart.getBoundingBox().expand(
+					weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
+					? 16
+					: 4
+				)
+			);
 			structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
 			return true;
 		}
@@ -570,7 +640,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				step_ -> (
 					world
 					.getRegistryManager()
-					.get(RegistryKeys.STRUCTURE)
+					.get(RegistryKeyVersions.structure())
 					.streamEntries()
 					.filter(structure -> structure.value().getFeatureGenerationStep() == step_)
 					.toArray(REGISTRY_ENTRY_ARRAY_FACTORY.generic())
@@ -592,7 +662,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			StructureStart start = starts.get(startIndex);
 			try {
 				world.setCurrentlyGeneratingStructureName(() -> {
-					RegistryKey<Structure> key = world.getRegistryManager().get(RegistryKeys.STRUCTURE).getKey(structure).orElse(null);
+					RegistryKey<Structure> key = world.getRegistryManager().get(RegistryKeyVersions.structure()).getKey(structure).orElse(null);
 					return (key != null ? key : structure).toString();
 				});
 				long startSeed = Permuter.permute(seed, start.getPos());
@@ -610,7 +680,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 				report
 				.addElement("Structure being placed")
-				.add("ID", () -> String.valueOf(world.getRegistryManager().get(RegistryKeys.STRUCTURE).getId(structure)))
+				.add("ID", () -> String.valueOf(world.getRegistryManager().get(RegistryKeyVersions.structure()).getId(structure)))
 				.add("Description", () -> String.valueOf(structure))
 				.add("Start", () -> String.valueOf(start))
 				.add("Start position", () -> String.valueOf(start.getPos()));
@@ -772,16 +842,45 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 
-	public static @Nullable PlayerEntity getClientPlayer() {
-		return switch (FabricLoader.getInstance().getEnvironmentType()) {
-			case CLIENT -> getClientPlayer0();
-			case SERVER -> null;
-		};
-	}
+	public final transient SemiThreadLocal<ChunkOfBiomeColumns<? extends WorldColumn>> biomeColumns = SemiThreadLocal.strong(4, () -> new ChunkOfBiomeColumns<>(this::column));
 
-	@Environment(EnvType.CLIENT)
-	public static PlayerEntity getClientPlayer0() {
-		return MinecraftClient.getInstance().player;
+	@Override
+	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		return CompletableFuture.supplyAsync(
+			() -> this.profiler.get("populateBiomes", () -> {
+				ChunkOfBiomeColumns<? extends WorldColumn> columns = this.biomeColumns.get();
+				try {
+					this.populateChunkOfColumns(columns, chunk.getPos(), ScriptStructures.EMPTY_SCRIPT_STRUCTURES, distantHorizons);
+					IntStream.range(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord()).parallel().forEach(sectionY -> {
+						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
+						int startY = sectionY << 4;
+						PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
+						for (int zIndex = 0; zIndex < 4; zIndex++) {
+							for (int xIndex = 0; xIndex < 4; xIndex++) {
+								WorldColumn column = columns.getColumn(xIndex << 2, zIndex << 2);
+								for (int yIndex = 0; yIndex < 4; yIndex++) {
+									int y = startY | (yIndex << 2);
+									int newID = SectionUtil.id(container, column.getBiome(y));
+									SectionUtil.storage(container).set((yIndex << 4) | (zIndex << 2) | xIndex, newID);
+								}
+							}
+						}
+					});
+				}
+				finally {
+					this.biomeColumns.reclaim(columns);
+				}
+				return chunk;
+			}),
+			executor
+		)
+		.handle((result, throwable) -> {
+			if (throwable != null) {
+				BigGlobeMod.LOGGER.error("Exception populating chunk biomes", throwable);
+			}
+			return chunk;
+		});
 	}
 
 	@Override

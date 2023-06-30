@@ -24,6 +24,7 @@ public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScri
 	}
 
 	public static StructurePlacementScriptEntry of(String id) {
+		if (id == null) return null;
 		return new StructurePlacementScriptEntry(
 			BigGlobeMod
 			.getCurrentServer()

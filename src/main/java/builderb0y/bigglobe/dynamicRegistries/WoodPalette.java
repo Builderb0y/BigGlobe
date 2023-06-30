@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.*;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -22,15 +21,17 @@ import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.autocodec.annotations.SingletonArray;
-import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.ServerValue;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @SuppressWarnings("unused")
+@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class WoodPalette {
 
 	public static final ServerValue<Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>>>
@@ -52,10 +53,28 @@ public class WoodPalette {
 		this.biomes = biomes;
 	}
 
+	public static <T_Encoded> void verify(VerifyContext<T_Encoded, WoodPalette> context) throws VerifyException {
+		//fast check.
+		WoodPalette palette = context.object;
+		if (palette != null && palette.blocks.size() != WoodPaletteType.VALUES.length) {
+			//slow print.
+			context.logger().logErrorLazy(() -> {
+				StringBuilder builder = new StringBuilder("WoodPalette is missing blocks: ");
+				for (WoodPaletteType type : WoodPaletteType.VALUES) {
+					if (!palette.blocks.containsKey(type)) {
+						builder.append(type.lowerCaseName).append(", ");
+					}
+				}
+				builder.setLength(builder.length() - 2);
+				return builder.toString();
+			});
+		}
+	}
+
 	public Set<RegistryKey<Biome>> getBiomeSet() {
 		if (this.biomeSet == null) {
 			if (this.biomes != null) {
-				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.BIOME).getEntryList(this.biomes);
+				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.biome()).getEntryList(this.biomes);
 				if (list.isPresent()) {
 					this.biomeSet = list.get().stream().map(UnregisteredObjectException::getKey).collect(Collectors.toSet());
 				}
@@ -89,29 +108,29 @@ public class WoodPalette {
 	//////////////////////////////// block ////////////////////////////////
 
 	public Block getBlock(RandomGenerator random, WoodPaletteType type) {
-		Block block = this.blocks.get(type).getRandomElement(random);
+		Block block = this.getBlocks(type).getRandomElement(random);
 		if (block != null) return block;
 		else throw new IllegalStateException("WoodPaletteType not present: " + type);
 	}
 
-	public Block logBlock          (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LOG           ); }
-	public Block woodBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WOOD          ); }
-	public Block strippedLogBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_LOG  ); }
-	public Block strippedWoodBlock (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_WOOD ); }
-	public Block planksBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PLANKS        ); }
-	public Block stairsBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STAIRS        ); }
-	public Block slabBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SLAB          ); }
-	public Block fenceBlock        (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE         ); }
-	public Block fenceGateBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE_GATE    ); }
-	public Block doorBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.DOOR          ); }
-	public Block trapdoorBlock     (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.TRAPDOOR      ); }
-	public Block pressurePlateBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PRESSURE_PLATE); }
-	public Block buttonBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.BUTTON        ); }
-	public Block leavesBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LEAVES        ); }
-	public Block saplingBlock      (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SAPLING       ); }
-	public Block pottedSaplingBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING); }
-	public Block standingSignBlock (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN ); }
-	public Block wallSignBlock     (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN     ); }
+	public Block logBlock            (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LOG              ); }
+	public Block woodBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WOOD             ); }
+	public Block strippedLogBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_LOG     ); }
+	public Block strippedWoodBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_WOOD    ); }
+	public Block planksBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PLANKS           ); }
+	public Block stairsBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STAIRS           ); }
+	public Block slabBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SLAB             ); }
+	public Block fenceBlock          (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE            ); }
+	public Block fenceGateBlock      (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE_GATE       ); }
+	public Block doorBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.DOOR             ); }
+	public Block trapdoorBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.TRAPDOOR         ); }
+	public Block pressurePlateBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PRESSURE_PLATE   ); }
+	public Block buttonBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.BUTTON           ); }
+	public Block leavesBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LEAVES           ); }
+	public Block saplingBlock        (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SAPLING          ); }
+	public Block pottedSaplingBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING   ); }
+	public Block standingSignBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN    ); }
+	public Block wallSignBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN        ); }
 
 	//////////////////////////////// blocks ////////////////////////////////
 
@@ -121,24 +140,24 @@ public class WoodPalette {
 		else throw new IllegalStateException("WoodPaletteType not present: " + type);
 	}
 
-	public IRandomList<Block> logBlocks          () { return this.getBlocks(WoodPaletteType.LOG           ); }
-	public IRandomList<Block> woodBlocks         () { return this.getBlocks(WoodPaletteType.WOOD          ); }
-	public IRandomList<Block> strippedLogBlocks  () { return this.getBlocks(WoodPaletteType.STRIPPED_LOG  ); }
-	public IRandomList<Block> strippedWoodBlocks () { return this.getBlocks(WoodPaletteType.STRIPPED_WOOD ); }
-	public IRandomList<Block> planksBlocks       () { return this.getBlocks(WoodPaletteType.PLANKS        ); }
-	public IRandomList<Block> stairsBlocks       () { return this.getBlocks(WoodPaletteType.STAIRS        ); }
-	public IRandomList<Block> slabBlocks         () { return this.getBlocks(WoodPaletteType.SLAB          ); }
-	public IRandomList<Block> fenceBlocks        () { return this.getBlocks(WoodPaletteType.FENCE         ); }
-	public IRandomList<Block> fenceGateBlocks    () { return this.getBlocks(WoodPaletteType.FENCE_GATE    ); }
-	public IRandomList<Block> doorBlocks         () { return this.getBlocks(WoodPaletteType.DOOR          ); }
-	public IRandomList<Block> trapdoorBlocks     () { return this.getBlocks(WoodPaletteType.TRAPDOOR      ); }
-	public IRandomList<Block> pressurePlateBlocks() { return this.getBlocks(WoodPaletteType.PRESSURE_PLATE); }
-	public IRandomList<Block> buttonBlocks       () { return this.getBlocks(WoodPaletteType.BUTTON        ); }
-	public IRandomList<Block> leavesBlocks       () { return this.getBlocks(WoodPaletteType.LEAVES        ); }
-	public IRandomList<Block> saplingBlocks      () { return this.getBlocks(WoodPaletteType.SAPLING       ); }
-	public IRandomList<Block> pottedSaplingBlocks() { return this.getBlocks(WoodPaletteType.POTTED_SAPLING); }
-	public IRandomList<Block> standingSignBlocks () { return this.getBlocks(WoodPaletteType.STANDING_SIGN ); }
-	public IRandomList<Block> wallSignBlocks     () { return this.getBlocks(WoodPaletteType.WALL_SIGN     ); }
+	public IRandomList<Block> logBlocks            () { return this.getBlocks(WoodPaletteType.LOG              ); }
+	public IRandomList<Block> woodBlocks           () { return this.getBlocks(WoodPaletteType.WOOD             ); }
+	public IRandomList<Block> strippedLogBlocks    () { return this.getBlocks(WoodPaletteType.STRIPPED_LOG     ); }
+	public IRandomList<Block> strippedWoodBlocks   () { return this.getBlocks(WoodPaletteType.STRIPPED_WOOD    ); }
+	public IRandomList<Block> planksBlocks         () { return this.getBlocks(WoodPaletteType.PLANKS           ); }
+	public IRandomList<Block> stairsBlocks         () { return this.getBlocks(WoodPaletteType.STAIRS           ); }
+	public IRandomList<Block> slabBlocks           () { return this.getBlocks(WoodPaletteType.SLAB             ); }
+	public IRandomList<Block> fenceBlocks          () { return this.getBlocks(WoodPaletteType.FENCE            ); }
+	public IRandomList<Block> fenceGateBlocks      () { return this.getBlocks(WoodPaletteType.FENCE_GATE       ); }
+	public IRandomList<Block> doorBlocks           () { return this.getBlocks(WoodPaletteType.DOOR             ); }
+	public IRandomList<Block> trapdoorBlocks       () { return this.getBlocks(WoodPaletteType.TRAPDOOR         ); }
+	public IRandomList<Block> pressurePlateBlocks  () { return this.getBlocks(WoodPaletteType.PRESSURE_PLATE   ); }
+	public IRandomList<Block> buttonBlocks         () { return this.getBlocks(WoodPaletteType.BUTTON           ); }
+	public IRandomList<Block> leavesBlocks         () { return this.getBlocks(WoodPaletteType.LEAVES           ); }
+	public IRandomList<Block> saplingBlocks        () { return this.getBlocks(WoodPaletteType.SAPLING          ); }
+	public IRandomList<Block> pottedSaplingBlocks  () { return this.getBlocks(WoodPaletteType.POTTED_SAPLING   ); }
+	public IRandomList<Block> standingSignBlocks   () { return this.getBlocks(WoodPaletteType.STANDING_SIGN    ); }
+	public IRandomList<Block> wallSignBlocks       () { return this.getBlocks(WoodPaletteType.WALL_SIGN        ); }
 
 	//////////////////////////////// states ////////////////////////////////
 

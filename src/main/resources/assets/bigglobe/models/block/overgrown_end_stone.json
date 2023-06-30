@@ -1,0 +1,25 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "bigglobe:block/overgrown_end_stone_top",
+		"1": "bigglobe:block/overgrown_end_stone_north_south",
+		"2": "bigglobe:block/overgrown_end_stone_east_west",
+		"3": "minecraft:block/end_stone",
+		"particle": "bigglobe:block/overgrown_end_stone_top"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"up":    { "uv": [  0, 0, 16, 16 ], "texture": "#0", "cullface": "up"    },
+				"down":  { "uv": [  0, 0, 16, 16 ], "texture": "#3", "cullface": "down"  },
+				"north": { "uv": [  0, 0, 16, 16 ], "texture": "#1", "cullface": "north" },
+				"south": { "uv": [  0, 0, 16, 16 ], "texture": "#1", "cullface": "south" },
+				"east":  { "uv": [  0, 0, 16, 16 ], "texture": "#2", "cullface": "east"  },
+				"west":  { "uv": [ 16, 0,  0, 16 ], "texture": "#2", "cullface": "west"  }
+			}
+		}
+	]
+}

@@ -3,8 +3,8 @@ package builderb0y.bigglobe.trees;
 import java.util.Map;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.MushroomBlock;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
@@ -20,6 +20,7 @@ import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.versions.MaterialVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -264,14 +265,12 @@ public class TreeGenerator {
 
 	public boolean canLogReplace(BlockState state) {
 		if (state.getFluidState().isStill()) return this.trunk.canGenerateInLiquid;
-		Material material = state.getMaterial();
-		return material.isReplaceable() || material == Material.PLANT || material == Material.LEAVES || material == Material.UNDERWATER_PLANT || state.getBlock() instanceof MushroomBlock;
+		return MaterialVersions.isReplaceableOrPlant(state) || state.isIn(BlockTags.LEAVES) || state.getBlock() instanceof MushroomBlock;
 	}
 
 	public boolean canLeavesReplace(BlockState state) {
 		if (state.getFluidState().isStill()) return false;
-		Material material = state.getMaterial();
-		return material.isReplaceable() || material == Material.PLANT;
+		return MaterialVersions.isReplaceableOrPlant(state);
 	}
 
 	public static class NotEnoughSpaceException extends Exception {

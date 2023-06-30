@@ -90,20 +90,7 @@ public class TypeInfo {
 			case 'L' -> {
 				int end = ++start;
 				while (input.charAt(end) != ';') end++;
-				char[] chars = new char[end - start];
-				for (int index = start; index < end; index++) {
-					char c = input.charAt(index);
-					chars[index - start] = c == '/' ? '.' : c;
-				}
-				try {
-					yield new ParsedTypeInfo(
-						of(Class.forName(new String(chars))),
-						end + 1
-					);
-				}
-				catch (ClassNotFoundException exception) {
-					throw new IllegalArgumentException("Cannot find class " + input, exception);
-				}
+				yield new ParsedTypeInfo(parseInternalName(input, start, end), end + 1);
 			}
 			case '[' -> {
 				ParsedTypeInfo result = parseNext(input, start + 1);
@@ -111,6 +98,21 @@ public class TypeInfo {
 			}
 			default -> throw new IllegalArgumentException(input.toString());
 		};
+	}
+
+	public static TypeInfo parseInternalName(CharSequence internalName, int start, int end) {
+		char[] chars = new char[end - start];
+		for (int index = start; index < end; index++) {
+			char c = internalName.charAt(index);
+			chars[index - start] = c == '/' ? '.' : c;
+		}
+		String name = new String(chars);
+		try {
+			return of(Class.forName(name));
+		}
+		catch (ClassNotFoundException exception) {
+			throw new IllegalArgumentException("Cannot find class " + name, exception);
+		}
 	}
 
 	public static TypeInfo parse(char c) {
@@ -162,9 +164,14 @@ public class TypeInfo {
 				array.add(type);
 			}
 			else if (object instanceof Integer count) {
-				List<TypeInfo> last = List.copyOf(array.subList(start, array.size()));
-				for (int loop = 1; loop < count; loop++) {
-					array.addAll(last);
+				if (count == 0) {
+					array.subList(start, array.size()).clear();
+				}
+				else {
+					List<TypeInfo> last = List.copyOf(array.subList(start, array.size()));
+					for (int loop = 1; loop < count; loop++) {
+						array.addAll(last);
+					}
 				}
 			}
 			else {

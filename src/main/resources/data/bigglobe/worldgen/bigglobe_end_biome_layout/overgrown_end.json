@@ -1,0 +1,9 @@
+{
+	"parent": "!bigglobe:end_mountains",
+	"restrictions": { "type": "range", "property": "end/foliage", "min": 0.0, "mid": 0.125 },
+	"biome": "bigglobe:overgrown_end",
+	"primary_surface": {
+		"top": "bigglobe:overgrown_end_stone",
+		"under": "minecraft:end_stone"
+	}
+}

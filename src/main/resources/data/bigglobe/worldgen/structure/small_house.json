@@ -7,7 +7,8 @@
 		"layout": {
 			"script": [
 				"int y = ceilInt(max_y(x, z))",
-				"WoodPalette woodPalette = WoodPalette.randomForBiome(getBiome(x, y, z))",
+				"Biome biome = getBiome(x, y, z)",
+				"WoodPalette woodPalette = WoodPalette.randomForBiome(biome)",
 				"if (woodPalette == null: return())",
 
 				"pieces.add(",

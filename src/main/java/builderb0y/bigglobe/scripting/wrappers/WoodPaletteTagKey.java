@@ -24,6 +24,7 @@ public record WoodPaletteTagKey(TagKey<WoodPalette> key) implements TagWrapper<W
 	}
 
 	public static WoodPaletteTagKey of(String id) {
+		if (id == null) return null;
 		return new WoodPaletteTagKey(TagKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, new Identifier(id)));
 	}
 

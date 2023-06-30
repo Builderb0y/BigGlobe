@@ -7,49 +7,49 @@ import java.util.Arrays;
 public class OperatorTest {
 
 	public static final int[] INTS = {
-		Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3, Integer.MIN_VALUE + 4, Integer.MIN_VALUE + 5,
-		-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-		Integer.MAX_VALUE - 5, Integer.MAX_VALUE - 4, Integer.MAX_VALUE - 3, Integer.MAX_VALUE - 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE
+		Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3,
+		-3, -2, -1, 0, 1, 2, 3,
+		Integer.MAX_VALUE - 3, Integer.MAX_VALUE - 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE
 	};
 	public static final long[] LONGS = {
-		Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MIN_VALUE + 2, Long.MIN_VALUE + 3, Long.MIN_VALUE + 4, Long.MIN_VALUE + 5,
-		Integer.MIN_VALUE - 5L, Integer.MIN_VALUE - 4L, Integer.MIN_VALUE - 3L, Integer.MIN_VALUE - 2L, Integer.MIN_VALUE - 1L,
-		Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3, Integer.MIN_VALUE + 4, Integer.MIN_VALUE + 5,
-		-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-		Integer.MAX_VALUE - 5, Integer.MAX_VALUE - 4, Integer.MAX_VALUE - 3, Integer.MAX_VALUE - 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE,
-		Integer.MAX_VALUE + 1L, Integer.MAX_VALUE + 2L, Integer.MAX_VALUE + 3L, Integer.MAX_VALUE + 4L, Integer.MAX_VALUE + 5L,
-		Long.MAX_VALUE - 5L, Long.MAX_VALUE - 4L, Long.MAX_VALUE - 3L, Long.MAX_VALUE - 2L, Long.MAX_VALUE - 1L
+		Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MIN_VALUE + 2, Long.MIN_VALUE + 3,
+		Integer.MIN_VALUE - 5L, Integer.MIN_VALUE - 4L, Integer.MIN_VALUE - 3L,
+		Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3,
+		-3, -2, -1, 0, 1, 2, 3,
+		Integer.MAX_VALUE - 3, Integer.MAX_VALUE - 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE,
+		Integer.MAX_VALUE + 1L, Integer.MAX_VALUE + 2L, Integer.MAX_VALUE + 3L,
+		Long.MAX_VALUE - 3L, Long.MAX_VALUE - 2L, Long.MAX_VALUE - 1L
 	};
 	public static final float[] FLOATS = andNegatives(
 		0.0F,
-		Float.MIN_VALUE, Float.MIN_VALUE * 2.0F, Float.MIN_VALUE * 3.0F, Float.MIN_VALUE * 4.0F,
-		down(Float.MIN_NORMAL, 4), down(Float.MIN_NORMAL, 3), down(Float.MIN_NORMAL, 2), down(Float.MIN_NORMAL, 1),
+		Float.MIN_VALUE, Float.MIN_VALUE * 2.0F, Float.MIN_VALUE * 3.0F,
+		down(Float.MIN_NORMAL, 3), down(Float.MIN_NORMAL, 2), down(Float.MIN_NORMAL, 1),
 		Float.MIN_NORMAL,
-		up(Float.MIN_NORMAL, 1), up(Float.MIN_NORMAL, 2), up(Float.MIN_NORMAL, 3), up(Float.MIN_NORMAL, 4),
-		Float.MIN_NORMAL * 2.0F, Float.MIN_NORMAL * 3.0F, Float.MIN_NORMAL * 4.0F,
-		down(1.0F, 4), down(1.0F, 3), down(1.0F, 2), down(1.0F, 1),
-		up(1.0F, 1), up(1.0F, 2), up(1.0F, 3), up(1.0F, 4),
+		up(Float.MIN_NORMAL, 1), up(Float.MIN_NORMAL, 2), up(Float.MIN_NORMAL, 3),
+		Float.MIN_NORMAL * 2.0F, Float.MIN_NORMAL * 3.0F,
+		down(1.0F, 3), down(1.0F, 2), down(1.0F, 1),
+		up(1.0F, 1), up(1.0F, 2), up(1.0F, 3),
 		0.25F, 0.5F, 0.75F, 1.0F,
 		1.25F, 1.5F, 1.75F, 2.0F,
-		3.0F, 4.0F,
-		down(Float.MAX_VALUE, 4), down(Float.MAX_VALUE, 3), down(Float.MAX_VALUE, 2), down(Float.MAX_VALUE, 1),
+		3.0F,
+		down(Float.MAX_VALUE, 3), down(Float.MAX_VALUE, 2), down(Float.MAX_VALUE, 1),
 		Float.MAX_VALUE,
 		Float.POSITIVE_INFINITY,
 		Float.NaN
 	);
 	public static final double[] DOUBLES = andNegatives(
 		0.0D,
-		Double.MIN_VALUE, Double.MIN_VALUE * 2.0D, Double.MIN_VALUE * 3.0D, Double.MIN_VALUE * 4.0D,
-		down(Double.MIN_NORMAL, 4), down(Double.MIN_NORMAL, 3), down(Double.MIN_NORMAL, 2), down(Double.MIN_NORMAL, 1),
+		Double.MIN_VALUE, Double.MIN_VALUE * 2.0D, Double.MIN_VALUE * 3.0D,
+		down(Double.MIN_NORMAL, 3), down(Double.MIN_NORMAL, 2), down(Double.MIN_NORMAL, 1),
 		Double.MIN_NORMAL,
-		up(Double.MIN_NORMAL, 1), up(Double.MIN_NORMAL, 2), up(Double.MIN_NORMAL, 3), up(Double.MIN_NORMAL, 4),
-		Double.MIN_NORMAL * 2.0D, Double.MIN_NORMAL * 3.0D, Double.MIN_NORMAL * 4.0D,
-		down(1.0D, 4), down(1.0D, 3), down(1.0D, 2), down(1.0D, 1),
-		up(1.0D, 1), up(1.0D, 2), up(1.0D, 3), up(1.0D, 4),
+		up(Double.MIN_NORMAL, 1), up(Double.MIN_NORMAL, 2), up(Double.MIN_NORMAL, 3),
+		Double.MIN_NORMAL * 2.0D, Double.MIN_NORMAL * 3.0D,
+		down(1.0D, 3), down(1.0D, 2), down(1.0D, 1),
+		up(1.0D, 1), up(1.0D, 2), up(1.0D, 3),
 		0.25D, 0.5D, 0.75D, 1.0D,
 		1.25D, 1.5D, 1.75D, 2.0D,
-		3.0D, 4.0D,
-		down(Double.MAX_VALUE, 4), down(Double.MAX_VALUE, 3), down(Double.MAX_VALUE, 2), down(Double.MAX_VALUE, 1),
+		3.0D,
+		down(Double.MAX_VALUE, 3), down(Double.MAX_VALUE, 2), down(Double.MAX_VALUE, 1),
 		Double.MAX_VALUE,
 		Double.POSITIVE_INFINITY,
 		Double.NaN

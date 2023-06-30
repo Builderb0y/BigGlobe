@@ -4,8 +4,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import net.minecraft.structure.*;
-import net.minecraft.util.Identifier;
+import net.minecraft.structure.IglooGenerator;
+import net.minecraft.structure.SimpleStructurePiece;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
@@ -17,16 +18,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 @Mixin(IglooGenerator.Piece.class)
 public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends SimpleStructurePiece {
 
-	public IglooGeneratorPiece_DontMoveInBigGlobeWorlds(
-		StructurePieceType type,
-		int length,
-		StructureTemplateManager structureTemplateManager,
-		Identifier id,
-		String template,
-		StructurePlacementData placementData,
-		BlockPos pos
-	) {
-		super(type, length, structureTemplateManager, id, template, placementData, pos);
+	public IglooGeneratorPiece_DontMoveInBigGlobeWorlds() {
+		super(null, 0, null, null, null, null, null);
 	}
 
 	/**

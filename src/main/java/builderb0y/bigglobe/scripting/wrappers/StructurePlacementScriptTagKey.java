@@ -24,6 +24,7 @@ public record StructurePlacementScriptTagKey(TagKey<StructurePlacementScript.Hol
 	}
 
 	public static StructurePlacementScriptTagKey of(String id) {
+		if (id == null) return null;
 		return new StructurePlacementScriptTagKey(TagKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, new Identifier(id)));
 	}
 

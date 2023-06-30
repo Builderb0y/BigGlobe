@@ -1,9 +1,11 @@
-bug fixes:
+bugs:
 	geode spikes can still spawn outside of geodes.
 	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
 		this is a fabric bug.
 	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
+	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
+		this is caused by distant horizons constructing a new chunk every time you request one.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -11,11 +13,16 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 
+porting:
+
 where I left off:
+	there are apparently issues with connecting to dedicated servers.
+		Internal Exception: io.netty.handler.codec.DecoderException: io.netty.handler.codec.EncoderException: Failed to decode: builderb0y.autocodec.decoders.DecodeException: Not a RegistryOps: NBT; . . .
+		this is on 3.5.0 for MC 1.19.2.
+		it can't lookup configured_features when syncing the wood palette registry to the client.
+		see log in downloads folder for more details.
 
 changelog:
-	* Changed something with skyland decoration. Old skylands on the border of generated chunks may suddenly acquire trees, lose trees, or have a different tree type.
-	* Fixed ocean monuments occasionally ignoring their structure override rules and spawning above sea level.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -32,7 +39,8 @@ AutoCodec:
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
 	@EncodeOnly and @DecodeOnly
 		DecodeOnly could be useful for backwards compatibility.
-		not sure what EncodeOnly would be useful for.
+		maybe EncodeOnly could be used to add comments or something to encoded data?
+			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -46,17 +54,38 @@ scripting:
 	nested multi-line comment ;(example ;(text) here)
 	operators for !> !< !>= and !<= to negate the normal compare operators.
 		semantics differ from inverting for NaN handling.
+	more invoke syntaxes:
+		nullable invoke.
+			foo.?bar()
+		receiver invoke.
+			foo.<bar() returns foo, not the return value of bar().
+			add setters to user-defined classes. they could make use of this.
+		nullable receiver invoke?
+			foo.?<bar() or foo.<?bar()? should both be accepted?
+		non-null invoke?
+			foo.!bar() requires that bar() return a non-null value.
+		nullable non-null invoke?
+			foo.?!bar() makes a choice:
+				if foo is null, then the result is null and bar() is not invoked.
+				if foo is non-null, then bar() is invoked and is required to return a non-null value.
+	ensure that all casting methods properly handle null as an input.
+		in other words, SomeType(null) should not cause an NPE.
+	lambdas?
+		Stream API?
+	List.shuffle()
+	add dedicated wrappers for BlockEntity, BlockEntityType, BlockEntityTagKey.
+	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
+	add copy constructor and clone() for user-defined classes.
+	cache scripts.
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
+		make charred hanging sign look a bit more programmer art-y?
+		look into a custom loader for scripted configured features that doesn't rely on json format.
 	overworld:
-		make geode bud blocks position-dependent for random direction.
-			same position = same direction.
-			this will fix issues with 2 geodes overlapping.
-		make geode bud blocks only place on budding blocks.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		configurable bedrock amount.
@@ -78,6 +107,10 @@ features:
 			mushroom:
 				glowing mushrooms?
 					that hang from the ceiling?
+			frozen?
+				floor:
+					snow.
+					maybe some ice sprinkled in with the snow.
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
@@ -85,12 +118,18 @@ features:
 			occasional "big rooms".
 		underground pockets:
 			molten? (match molten caves)
+			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 		make lilypads renewable?
 	nether:
 	end:
-		jessie wants worley noise for the end.
-			convex.
+		block of void?
+			void ingots?
+				void tools?
+				void armor?
+		asteroids in the void biome.
+		ender clam?
+			source of ender pearls.
 
 before release:
 	make sure nothing in test package is used.
@@ -99,10 +138,17 @@ before release:
 	make sure SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE is set to false.
 
 porting:
-	add sniffer_diggable_block tag to include overgrown podzol.
-	add hanging signs to WoodPalette.
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
 	see if CactusBlock uses BlockTags.SAND for placement logic.
 		if it does, remove mixin for making it placeable on overgrown sand.
+
+back-porting:
+	re-enable lighting update suppression in BlockQueue.
+	spelunking rope block needs to override getPistonBehavior() to return DESTROY.
+	rope anchor block needs to override getPistonBehavior() to return BLOCK.
+	wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
+	@VerifyNormal needs to verify that the block does not emit light.
+	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
+	re-enable lighting in SectionGenerationContext.

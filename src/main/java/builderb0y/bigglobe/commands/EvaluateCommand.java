@@ -16,6 +16,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class EvaluateCommand {
 
@@ -23,7 +24,7 @@ public class EvaluateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires(source -> source.hasPermissionLevel(2))
+			.requires(source -> source.hasPermissionLevel(4))
 			.then(
 				CommandManager
 				.argument("script", new CommandScriptArgument())
@@ -42,7 +43,7 @@ public class EvaluateCommand {
 							BigGlobeMath.floorI(position.z)
 						);
 						Object result = script.evaluate(world, column, column.x, BigGlobeMath.floorI(position.y), column.z);
-						context.getSource().sendFeedback(Text.literal(" = " + result), false);
+						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.literal(" = " + result), false);
 						return result instanceof Number number ? number.intValue() : 1;
 					}
 					catch (Throwable throwable) {

@@ -129,6 +129,20 @@ public class InsnTrees implements ExtendedOpcodes {
 	public static ConstantValue constant(TypeInfo value) { return ConstantValue.of(value); }
 	public static ConstantValue constant(Object   value, TypeInfo type) { return ConstantValue.of(value, type); }
 	public static ConstantValue constant(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) { return ConstantValue.dynamic(bootstrapMethod, bootstrapArgs); }
+	public static ConstantValue constantAbsent(TypeInfo type) {
+		return switch (type.getSort()) {
+			case BYTE          -> constant((byte)(0));
+			case CHAR          -> constant((char)(0));
+			case SHORT         -> constant((short)(0));
+			case INT           -> constant((int)(0));
+			case LONG          -> constant((long)(0));
+			case FLOAT         -> constant(Float.NaN);
+			case DOUBLE        -> constant(Double.NaN);
+			case BOOLEAN       -> constant(false);
+			case OBJECT, ARRAY -> constant(null, type);
+			case VOID          -> throw new IllegalArgumentException("Void-typed field");
+		};
+	}
 
 	public static InsnTree ldc(boolean  value) { return new ConstantInsnTree(constant(value)); }
 	public static InsnTree ldc(byte     value) { return new ConstantInsnTree(constant(value)); }
@@ -143,6 +157,10 @@ public class InsnTrees implements ExtendedOpcodes {
 	public static InsnTree ldc(Object   value, TypeInfo type) { return new ConstantInsnTree(constant(value, type)); }
 	public static InsnTree ldc(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) { return new ConstantInsnTree(constant(bootstrapMethod, bootstrapArgs)); }
 	public static InsnTree ldc(ConstantValue value) { return new ConstantInsnTree(value); }
+
+	public static InsnTree ldcAbsent(TypeInfo type) {
+		return ldc(constantAbsent(type));
+	}
 
 	public static InsnTree load(VarInfo info) {
 		return new LoadInsnTree(info);
@@ -264,20 +282,8 @@ public class InsnTrees implements ExtendedOpcodes {
 		return InvokeStaticInsnTree.create(method, args);
 	}
 
-	public static InsnTree invokeVirtual(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(INVOKEVIRTUAL, receiver, method, args);
-	}
-
-	public static InsnTree invokeSpecial(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(INVOKESPECIAL, receiver, method, args);
-	}
-
-	public static InsnTree invokeInterface(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(INVOKEINTERFACE, receiver, method, args);
-	}
-
-	public static InsnTree invokeVirtualOrInterface(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(method.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, method, args);
+	public static InsnTree invokeInstance(InsnTree receiver, MethodInfo method, InsnTree... args) {
+		return new InvokeInsnTree(receiver, method, args);
 	}
 
 	public static InsnTree invokeDynamic(MethodInfo bootstrapMethod, MethodInfo runtimeMethod, ConstantValue[] bootstrapArgs, InsnTree[] runtimeArgs) {
@@ -422,12 +428,26 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new ForInsnTree(initializer, condition, step, body);
 	}
 
+	@Deprecated //you probably want to provide some arguments.
+	public static InsnTree seq() {
+		return noop;
+	}
+
+	@Deprecated //you probably want to provide more arguments.
+	public static InsnTree seq(InsnTree tree) {
+		return tree;
+	}
+
 	public static InsnTree seq(InsnTree first, InsnTree second) {
 		return new SequenceInsnTree(first, second);
 	}
 
 	public static InsnTree seq(InsnTree... statements) {
-		return reduce(InsnTrees::seq, statements);
+		return switch (statements.length) {
+			case 0 -> noop;
+			case 1 -> statements[0];
+			default -> new SequenceInsnTree(statements);
+		};
 	}
 
 	public static InsnTree switch_(ExpressionParser parser, InsnTree value, Int2ObjectSortedMap<InsnTree> cases) {

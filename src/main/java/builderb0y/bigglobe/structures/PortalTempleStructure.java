@@ -20,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
@@ -45,6 +44,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class PortalTempleStructure extends BigGlobeStructure {
 
@@ -302,7 +302,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public PositionState(NbtCompound nbt) {
 			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt);
+			this.state = NbtHelper.toBlockState(RegistryVersions.block().getReadOnlyWrapper(), nbt);
 			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 

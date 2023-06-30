@@ -10,20 +10,20 @@ import java.util.stream.Collectors;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.*;
-import builderb0y.scripting.bytecode.InsnTrees;
+import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -59,6 +59,9 @@ public class MinecraftScriptEnvironment {
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
 			.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
 			.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
+			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
+				return mode.makeStaticGetter(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
+			}))
 			.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
@@ -83,12 +86,13 @@ public class MinecraftScriptEnvironment {
 	}
 
 	public static MutableScriptEnvironment createWithWorld(InsnTree loadWorld) {
-		InsnTree loadRandom = InsnTrees.getField(loadWorld, field(ACC_PUBLIC | ACC_FINAL, WorldWrapper.class, "permuter", Permuter.class));
+		InsnTree loadRandom = getField(loadWorld, FieldInfo.getField(WorldWrapper.class, "permuter"));
 
 		return (
 			createWithRandom(loadRandom)
 			.addVariableRenamedInvoke(loadWorld, "worldSeed", method(ACC_PUBLIC | ACC_PURE, WorldWrapper.TYPE, "getSeed", TypeInfos.LONG))
 			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "placeBlockState", "fillBlockState", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
+			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")
 			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", (parser, receiver, name, arguments) -> {
 				InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_NULL, arguments);
 				return position == null ? null : new CastResult(invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]), position != arguments);
@@ -108,8 +112,8 @@ public class MinecraftScriptEnvironment {
 					//BlockState('a', b: ?)
 					String blockName = (String)(constantBlock.asJavaObject());
 					Identifier identifier = new Identifier(blockName);
-					if (Registries.BLOCK.containsId(identifier)) {
-						Block block = Registries.BLOCK.get(identifier);
+					if (RegistryVersions.block().containsId(identifier)) {
+						Block block = RegistryVersions.block().get(identifier);
 						Set<String> properties = block.getStateManager().getProperties().stream().map(Property::getName).collect(Collectors.toSet());
 						List<ConstantValue> constantProperties = new ArrayList<>(16);
 						constantProperties.add(constantBlock);
@@ -181,7 +185,7 @@ public class MinecraftScriptEnvironment {
 		MethodInfo randomFunction = MethodInfo.findMethod(owner, "random", returnType, RandomGenerator.class);
 		return (parser, receiver, name, arguments) -> {
 			if (arguments.length == 0) {
-				return new CastResult(invokeVirtual(receiver, randomFunction, loadRandom), false);
+				return new CastResult(invokeInstance(receiver, randomFunction, loadRandom), false);
 			}
 			return null;
 		};

@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.noise;
 
+import org.jetbrains.annotations.UnknownNullability;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -8,24 +10,28 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid3D extends Grid {
 
-	public static final CoderRegistry<Grid3D> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("grid_3d"));
+	@UnknownNullability
+	@SuppressWarnings("TestOnlyProblems")
+	public static final CoderRegistry<Grid3D> REGISTRY = Grid.TESTING.booleanValue() ? null : new CoderRegistry<>(BigGlobeMod.modID("grid_3d"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid3D.class);
+		if (REGISTRY != null) {
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid3D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid3D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid3D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid3D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid3D.class);
+		}
 	}};
 
 	/** returns the value at the specified coordinates. */

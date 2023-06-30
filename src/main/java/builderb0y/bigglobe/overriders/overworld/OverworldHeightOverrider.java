@@ -2,45 +2,43 @@ package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.bigglobe.overriders.FlatOverrider;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
+public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 
-public class OverworldHeightOverrider {
+	public static final MutableScriptEnvironment Y_LEVELS_ENVIRONMENT = (
+		new MutableScriptEnvironment()
+		.addVariable("terrainY", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldHeightOverrider.class, OverworldColumn.class, "getMaxY",  "setMaxY" ))
+		.addVariable("snowY",    FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldHeightOverrider.class, OverworldColumn.class, "getSnowY", "setSnowY"))
+	);
+
+	public static double getMaxY(OverworldColumn column) {
+		return column.finalHeight;
+	}
+
+	public static void setMaxY(OverworldColumn column, double y) {
+		column.finalHeight = y;
+	}
+
+	public static double getSnowY(OverworldColumn column) {
+		return column.snowHeight;
+	}
+
+	public static void setSnowY(OverworldColumn column, double y) {
+		column.snowHeight = y;
+	}
 
 	@Wrapper
-	public static class Holder extends OverworldDataOverrider.Holder {
+	public static class Holder extends OverworldFlatOverrider.Holder<OverworldHeightOverrider> implements OverworldHeightOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldDataOverrider.class, script)
-				.addEnvironment(OverworldHeightOverrider.Environment.INSTANCE)
+				new ScriptParser<>(OverworldHeightOverrider.class, script)
+				.addEnvironment(Y_LEVELS_ENVIRONMENT)
 			);
-		}
-	}
-
-	public static class Environment extends OverworldDataOverrider.Environment {
-
-		public static final Environment INSTANCE = new Environment();
-
-		public Environment() {
-			super();
-
-			this
-			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
-			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class));
-
-			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
-			this.addDistanceFunctions(columnLoader);
-			this
-			.addVariableRenamedGetField(columnLoader, "terrainY", FieldInfo.getField(OverworldColumn.class, "finalHeight"))
-			.addVariableRenamedGetField(columnLoader, "snowY", FieldInfo.getField(OverworldColumn.class, "snowHeight"))
-			;
 		}
 	}
 }

@@ -43,8 +43,8 @@ public class BlockQueue {
 	public BlockQueue(boolean causeBlockUpdates) {
 		this.flags = (
 			causeBlockUpdates
-			? Block.NOTIFY_ALL       | Block.SKIP_LIGHTING_UPDATES
-			: Block.NOTIFY_LISTENERS | Block.SKIP_LIGHTING_UPDATES
+			? Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_ALL
+			: Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_LISTENERS | Block.FORCE_STATE
 		);
 	}
 

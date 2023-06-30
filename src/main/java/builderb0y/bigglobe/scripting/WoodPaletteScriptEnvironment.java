@@ -47,15 +47,17 @@ public class WoodPaletteScriptEnvironment {
 		);
 		for (WoodPaletteType type : WoodPaletteType.VALUES) {
 			String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);
-			environment.addField(type(WoodPaletteEntry.class), baseName + "Blocks", (parser, receiver, name) -> {
-				return invokeVirtual(
+			environment.addField(type(WoodPaletteEntry.class), baseName + "Blocks", (parser, receiver, name, mode) -> {
+				return mode.makeInstanceGetter(
+					parser,
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlocks"),
 					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
 				);
 			});
-			environment.addField(type(WoodPaletteEntry.class), baseName + "Block", (parser, receiver, name) -> {
-				return invokeVirtual(
+			environment.addField(type(WoodPaletteEntry.class), baseName + "Block", (parser, receiver, name, mode) -> {
+				return mode.makeInstanceGetter(
+					parser,
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlock"),
 					loadRandom,
@@ -64,7 +66,7 @@ public class WoodPaletteScriptEnvironment {
 			});
 			environment.addMemberKeyword(type(WoodPaletteEntry.class), baseName + "State", (parser, receiver, name) -> {
 				parser.beginCodeBlock();
-				InsnTree tree = invokeVirtual(
+				InsnTree tree = invokeInstance(
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getState"),
 					loadRandom,

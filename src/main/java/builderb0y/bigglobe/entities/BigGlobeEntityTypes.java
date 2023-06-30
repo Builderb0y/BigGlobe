@@ -6,11 +6,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeEntityTypes {
 
@@ -68,7 +68,7 @@ public class BigGlobeEntityTypes {
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }
 
 	public static <E extends Entity> EntityType<E> register(String name, EntityType<E> type) {
-		return Registry.register(Registries.ENTITY_TYPE, BigGlobeMod.modID(name), type);
+		return Registry.register(RegistryVersions.entityType(), BigGlobeMod.modID(name), type);
 	}
 
 	/** triggers static initializer. */

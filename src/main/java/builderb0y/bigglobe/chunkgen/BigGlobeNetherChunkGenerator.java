@@ -7,7 +7,6 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
@@ -15,6 +14,7 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -22,7 +22,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -35,26 +34,26 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.NetherPositionCache;
-import builderb0y.bigglobe.mixinInterfaces.PositionCache.PositionCacheHolder;
 import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.AbstractChunkOfColumns;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.NetherColumn;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
+import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.bigglobe.overriders.nether.NoiseOverrider;
+import builderb0y.bigglobe.overriders.nether.NetherVolumetricOverrider;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -64,7 +63,7 @@ import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.NetherPillarStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
-import builderb0y.bigglobe.util.SemiThreadLocal;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
@@ -78,10 +77,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	@EncodeInline
 	public final NetherSettings settings;
-	public transient SemiThreadLocal<ChunkOfColumns<NetherColumn>> chunkColumnCache;
 
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
-	public final transient NoiseOverrider.Holder[] caveOverriders, cavernOverriders;
+	public final transient NetherVolumetricOverrider.Holder[] caveOverriders, cavernOverriders;
 	public final transient LinkedRockLayerConfig<NetherRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient NetherOreFeature.Config[] ores;
 
@@ -96,15 +94,15 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			configuredFeatures
 		);
 		this.settings            = settings;
-		this.structureOverriders = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER).map(config -> config.script).toArray(ScriptStructureOverrider.Holder[]::new);
-		this.caveOverriders      = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVE_OVERRIDER     ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
-		this.cavernOverriders    = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_CAVERN_OVERRIDER   ).map(config -> config.script).toArray(          NoiseOverrider.Holder[]::new);
-		this.ores                = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE                ).toArray(NetherOreFeature.Config[]::new);
+		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER);
+		this.caveOverriders      = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_CAVE_OVERRIDER     );
+		this.cavernOverriders    = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_CAVERN_OVERRIDER   );
+		this.ores                = configuredFeatures.streamConfigs(BigGlobeFeatures.NETHER_ORE).toArray(NetherOreFeature.Config[]::new);
 		this.rockLayers          = LinkedRockLayerConfig.NETHER_FACTORY.link(configuredFeatures);
 	}
 
 	public static void init() {
-		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("nether"), NETHER_CODEC);
+		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("nether"), NETHER_CODEC);
 	}
 
 	public static AutoCoder<BigGlobeNetherChunkGenerator> createCoder(FactoryContext<BigGlobeNetherChunkGenerator> context) {
@@ -112,16 +110,26 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public void setSeed(long seed) {
-		super.setSeed(seed);
-		this.chunkColumnCache = SemiThreadLocal.weak(4, () -> {
-			return new ChunkOfColumns<>(NetherColumn[]::new, this::column);
-		});
+	public NetherColumn column(int x, int z) {
+		return new NetherColumn(this.settings, this.seed, x, z);
 	}
 
 	@Override
-	public NetherColumn column(int x, int z) {
-		return new NetherColumn(this.settings, this.seed, x, z);
+	public void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
+		columns.asType(NetherColumn.class).setPosAndPopulate(chunkPos.getStartX(), chunkPos.getStartZ(), column -> {
+			column.getLocalCell();
+			if (!columns.isForBiomes()) {
+				column.getEdginess();
+
+				column.getCaveNoise();
+				this.runCaveOverriders(structures, column);
+
+				column.getCavernNoise();
+				this.runCavernOverriders(structures, column);
+
+				column.populateCaveAndCavernFloors();
+			}
+		});
 	}
 
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<NetherColumn> columns, ScriptStructures structures, boolean distantHorizons) {
@@ -271,8 +279,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void runCaveOverriders(ScriptStructures structures, NetherColumn column, boolean rawTerrain) {
-		NoiseOverrider.Context context = NoiseOverrider.Context.caves(column, structures, rawTerrain);
+	public void runCaveOverriders(ScriptStructures structures, NetherColumn column) {
+		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.caveContext(structures, column);
 		for (StructureStartWrapper start : structures.starts) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
@@ -280,13 +288,13 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		}
-		for (NoiseOverrider.Holder overrider : this.caveOverriders) {
+		for (NetherVolumetricOverrider.Holder overrider : this.caveOverriders) {
 			overrider.override(context);
 		}
 	}
 
-	public void runCavernOverriders(ScriptStructures structures, NetherColumn column, boolean rawTerrain) {
-		NoiseOverrider.Context context = NoiseOverrider.Context.caverns(column, structures, rawTerrain);
+	public void runCavernOverriders(ScriptStructures structures, NetherColumn column) {
+		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.cavernContext(structures, column);
 		for (StructureStartWrapper start : structures.starts) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
@@ -294,62 +302,43 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				}
 			}
 		}
-		for (NoiseOverrider.Holder overrider : this.cavernOverriders) {
+		for (NetherVolumetricOverrider.Holder overrider : this.cavernOverriders) {
 			overrider.override(context);
 		}
 	}
 
 	@Override
 	public void generateRawTerrain(Executor executor, Chunk chunk, StructureAccessor structureAccessor, boolean distantHorizons) {
-		ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		try {
-			this.profiler.run("initial terrain column values", () -> {
-				columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
-					column.getLocalCell();
-					column.getEdginess();
-					column.getCaveNoise();
-					this.runCaveOverriders(structures, column, true);
-					column.getCavernNoise();
-					this.runCavernOverriders(structures, column, true);
-					column.populateCaveAndCavernFloors();
-				});
-			});
-			if (chunk instanceof PositionCacheHolder holder) {
-				holder.bigglobe_setPositionCache(new NetherPositionCache(columns));
-			}
-			this.profiler.run("set raw terrain blocks", () -> {
-				this.generateRawSections(chunk, columns, structures, distantHorizons);
-			});
-			this.profiler.run("Bedrock", () -> {
-				CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.seed, columns)));
-				CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.seed, columns)));
-				lower.join();
-				upper.join();
-			});
-			this.profiler.run("Recount", () -> {
-				this.generateSectionsParallelSimple(
-					chunk,
-					chunk.getBottomY(),
-					chunk.getTopY(),
-					columns,
-					SectionGenerationContext::recalculateCounts
-				);
-			});
-			this.profiler.run("Init heightmaps", () -> {
-				int maxY = this.settings.max_y;
-				this.setHeightmaps(chunk, (index, includeWater) -> maxY);
-			});
-			this.profiler.run("Surface", () -> {
-				this.generateSurface(chunk, columns);
-			});
-			this.profiler.run("Raw structure generation", () -> {
-				RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
-			});
-		}
-		finally {
-			this.chunkColumnCache.reclaim(columns);
-		}
+		ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
+		this.profiler.run("set raw terrain blocks", () -> {
+			this.generateRawSections(chunk, columns, structures, distantHorizons);
+		});
+		this.profiler.run("Bedrock", () -> {
+			CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.settings.min_y,      this.seed, columns)));
+			CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.settings.max_y - 16, this.seed, columns)));
+			lower.join();
+			upper.join();
+		});
+		this.profiler.run("Recount", () -> {
+			this.generateSectionsParallelSimple(
+				chunk,
+				chunk.getBottomY(),
+				chunk.getTopY(),
+				columns,
+				SectionGenerationContext::recalculateCounts
+			);
+		});
+		this.profiler.run("Init heightmaps", () -> {
+			int maxY = this.settings.max_y;
+			this.setHeightmaps(chunk, (index, includeWater) -> maxY);
+		});
+		this.profiler.run("Surface", () -> {
+			this.generateSurface(chunk, columns);
+		});
+		this.profiler.run("Raw structure generation", () -> {
+			RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
+		});
 	}
 
 	@Override
@@ -366,44 +355,24 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			NetherPositionCache cache = chunk instanceof PositionCacheHolder holder && holder.bigglobe_getPositionCache() instanceof NetherPositionCache nether ? nether : null;
-			ChunkOfColumns<NetherColumn> columns = this.chunkColumnCache.get();
-			try {
-				this.profiler.run("Initial feature column values", () -> {
-					ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-					columns.setPosAndPopulate(chunk.getPos().getStartX(), chunk.getPos().getStartZ(), column -> {
-						column.getLocalCell();
-						column.getEdginess();
-						if (cache == null) {
-							column.getCaveNoise();
-							this.runCaveOverriders(structures, column, false);
-							column.getCavernNoise();
-							this.runCavernOverriders(structures, column, false);
-							column.populateCaveAndCavernFloors();
-						}
-					});
-				});
-				NetherPositionCache cache_ = cache != null ? cache : new NetherPositionCache(columns);
-				this.profiler.run("Feature placement", () -> {
-					BlockPos.Mutable pos = new BlockPos.Mutable();
-					Permuter permuter = new Permuter(0L);
-					MojangPermuter mojang = permuter.mojang();
-					for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
-						NetherColumn column = columns.getColumn(columnIndex);
-						pos.setX(column.x).setZ(column.z);
-						permuter.setSeed(Permuter.permute(this.seed ^ 0xC4D38782789D95FDL, column.x, column.z));
-						LocalNetherSettings localSettings = column.getLocalCell().settings;
-						this.runDecorators(world, pos, mojang, localSettings.caverns().floor_decorator(), cache_.cavernFloors[columnIndex]);
-						this.runDecorators(world, pos, mojang, localSettings.caverns().ceiling_decorator(), cache_.cavernCeilings[columnIndex]);
-						this.runDecorators(world, pos, mojang, localSettings.caves().floor_decorator(), cache_.caveFloors[columnIndex]);
-						this.runDecorators(world, pos, mojang, localSettings.caves().ceiling_decorator(), cache_.caveCeilings[columnIndex]);
-						this.runDecorators(world, pos, mojang, localSettings.fluid_decorator(), column.getLocalCell().lavaLevel);
-					}
-				});
-			}
-			finally {
-				this.chunkColumnCache.reclaim(columns);
-			}
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
+			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
+			this.profiler.run("Feature placement", () -> {
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				Permuter permuter = new Permuter(0L);
+				MojangPermuter mojang = permuter.mojang();
+				for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
+					NetherColumn column = columns.getColumn(columnIndex);
+					pos.setX(column.x).setZ(column.z);
+					permuter.setSeed(Permuter.permute(this.seed ^ 0xC4D38782789D95FDL, column.x, column.z));
+					LocalNetherSettings localSettings = column.getLocalCell().settings;
+					this.runDecorators(world, pos, mojang, localSettings.caverns().floor_decorator(), column.cavernFloors);
+					this.runDecorators(world, pos, mojang, localSettings.caverns().ceiling_decorator(), column.cavernCeilings);
+					this.runDecorators(world, pos, mojang, localSettings.caves().floor_decorator(), column.caveFloors);
+					this.runDecorators(world, pos, mojang, localSettings.caves().ceiling_decorator(), column.caveCeilings);
+					this.runDecorators(world, pos, mojang, localSettings.fluid_decorator(), column.getLocalCell().lavaLevel);
+				}
+			});
 		});
 	}
 
@@ -412,19 +381,10 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		NetherColumn column = this.column(0, 0);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) return false;
+			if (!overrider.override(wrapper, column, permuter)) {
+				return false;
+			}
 		}
-
-		//expand structure bounding boxes so that overriders
-		//which depend on them being expanded work properly.
-		((StructureStart_BoundingBoxSetter)(Object)(start)).bigglobe_setBoundingBox(
-			start.getBoundingBox().expand(
-				entry.value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-				? 16
-				: 4
-			)
-		);
-
 		return true;
 	}
 

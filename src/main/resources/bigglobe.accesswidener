@@ -12,3 +12,7 @@ accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
 
 #used to expose biome downfall to scripts.
 accessible class net/minecraft/world/biome/Biome$Weather
+
+#used by spore particles in the end to, you know, construct the particle.
+#did you know that crimson and warped spore particles are instances of WaterSuspendParticle?
+accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/particle/SpriteProvider;DDDDDD)V

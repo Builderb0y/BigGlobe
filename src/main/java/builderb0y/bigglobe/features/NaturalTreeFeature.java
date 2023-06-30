@@ -8,7 +8,6 @@ import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +17,6 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.chunkgen.FeatureColumns;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
@@ -55,7 +53,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		WorldColumn column = FeatureColumns.get(context.getWorld(), origin.getX(), origin.getZ());
+		WorldColumn column = WorldColumn.forWorld(context.getWorld(), origin.getX(), origin.getZ());
 		double height = config.height.evaluate(column, origin.getY(), permuter);
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
@@ -90,7 +88,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		return new TreeGenerator(
 			context.getWorld(),
 			config.delay_generation
-			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), Block.NOTIFY_LISTENERS | Block.SKIP_LIGHTING_UPDATES)
+			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
 			: new BlockQueue(false),
 			permuter,
 			config.palette.value(),

@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.DyeColor;
 
@@ -18,6 +17,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeItems {
 
@@ -60,7 +60,7 @@ public class BigGlobeItems {
 		CHARRED_WOOD             = registerPlacer(BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
 		CHARRED_LEAVES           = registerPlacer(BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register      ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_SIGN             = register      ("charred_sign",         new ColoredSignItem       (new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN,         BigGlobeBlocks.CHARRED_WALL_SIGN,         DyeColor.LIGHT_GRAY)),
 		CHARRED_PRESSURE_PLATE   = registerPlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
 		CHARRED_TRAPDOOR         = registerPlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
 		CHARRED_STAIRS           = registerPlacer(BigGlobeBlocks.CHARRED_STAIRS),
@@ -75,7 +75,12 @@ public class BigGlobeItems {
 		SMALL_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.SMALL_QUARTZ_BUD),
 		MEDIUM_QUARTZ_BUD        = registerPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
 		LARGE_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
-		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER);
+		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER),
+		CHORUS_NYLIUM            = registerPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
+		OVERGROWN_END_STONE      = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
+		TALL_CHORUS_SPORES       = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
+		MEDIUM_CHORUS_SPORES     = registerPlacer(BigGlobeBlocks.MEDIUM_CHORUS_SPORES),
+		SHORT_CHORUS_SPORES      = registerPlacer(BigGlobeBlocks.SHORT_CHORUS_SPORES);
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
@@ -127,19 +132,25 @@ public class BigGlobeItems {
 			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1)
 		)
 	);
+	public static final Item CHORUS_SPORE = register(
+		"chorus_spore",
+		new Item(
+			new Item.Settings()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
 	public static BlockItem registerPlacer(Block block) {
 		return Registry.register(
-			Registries.ITEM,
-			Registries.BLOCK.getId(block),
+			RegistryVersions.item(),
+			RegistryVersions.block().getId(block),
 			new BlockItem(block, new Item.Settings())
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
-		return Registry.register(Registries.ITEM, BigGlobeMod.modID(name), item);
+		return Registry.register(RegistryVersions.item(), BigGlobeMod.modID(name), item);
 	}
 
 	public static void init() {
@@ -180,9 +191,12 @@ public class BigGlobeItems {
 			entries.addBefore(Items.GRASS, SHORT_GRASS);
 			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.LILY_OF_THE_VALLEY, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
+			entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.addAfter(Items.STONE, ROCK);
+			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
+			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
+			entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
@@ -202,6 +216,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
 			entries.addAfter(Items.GUNPOWDER, ASH);
 			entries.addAfter(Items.FLINT, ROCK);
+			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
 			entries.addAfter(Items.CROSSBOW, SLINGSHOT);

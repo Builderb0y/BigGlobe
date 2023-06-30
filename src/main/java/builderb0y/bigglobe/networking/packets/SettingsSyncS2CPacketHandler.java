@@ -28,6 +28,7 @@ import builderb0y.bigglobe.mixins.NbtIo_ReadElementAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.settings.OverworldClientSettings;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 
@@ -67,7 +68,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 
 	public void send(ServerPlayerEntity player) {
 		OverworldClientSettings settings;
-		if (player.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator generator) {
+		if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator generator) {
 			settings = OverworldClientSettings.of(
 				generator.seed,
 				generator.settings

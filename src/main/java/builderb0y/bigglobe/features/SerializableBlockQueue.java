@@ -8,14 +8,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.*;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
@@ -23,8 +21,9 @@ import net.minecraft.world.WorldAccess;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.trees.TreeSpecialCases;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class SerializableBlockQueue extends BlockQueue {
 
@@ -38,7 +37,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	*/
 	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
 
-	public @Nullable Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
+	public @NotNull Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 
 	public int centerX, centerY, centerZ;
 	public int minX, minY, minZ, maxX, maxY, maxZ;
@@ -54,6 +53,10 @@ public class SerializableBlockQueue extends BlockQueue {
 		this.maxX    = centerX;
 		this.maxY    = centerY;
 		this.maxZ    = centerZ;
+	}
+
+	public SerializableBlockQueue(int centerX, int centerY, int centerZ, boolean causeBlockUpdates) {
+		this(centerX, centerY, centerZ, causeBlockUpdates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 	}
 
 	@Override
@@ -73,9 +76,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	@Override
 	public void queueReplacement(long pos, BlockState from, BlockState to) {
 		super.queueReplacement(pos, from, to);
-		if (this.queuedReplacements != null) {
-			this.queuedReplacements.put(pos, from);
-		}
+		this.queuedReplacements.put(pos, from);
 	}
 
 	@Override
@@ -110,16 +111,14 @@ public class SerializableBlockQueue extends BlockQueue {
 	}
 
 	public boolean canReplace(long pos, BlockState state) {
-		return canImplicitlyReplace(state) || (
-			this.queuedReplacements != null
-			? this.queuedReplacements.get(pos) == state
-			: TreeSpecialCases.getGroundReplacements().containsKey(state)
+		return (
+			canImplicitlyReplace(state) ||
+			this.queuedReplacements.get(pos) == state
 		);
 	}
 
 	public static boolean canImplicitlyReplace(BlockState state) {
-		Material material = state.getMaterial();
-		return material.isReplaceable() || material == Material.PLANT;
+		return MaterialVersions.isReplaceableOrPlant(state);
 	}
 
 	public static SerializableBlockQueue read(NbtCompound nbt) {
@@ -131,17 +130,12 @@ public class SerializableBlockQueue extends BlockQueue {
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
 		NbtList paletteNBT = nbt.getList("palette", NbtElement.COMPOUND_TYPE);
 		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
-		RegistryWrapper<Block> registry = Registries.BLOCK.getReadOnlyWrapper();
+		RegistryWrapper<Block> registry = RegistryVersions.block().getReadOnlyWrapper();
 		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
 			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
 		}
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
-		if (nbt.contains("replacements", NbtElement.BYTE_ARRAY_TYPE)) {
-			readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
-		}
-		else {
-			queue.queuedReplacements = null;
-		}
+		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
 		return queue;
 	}
 
@@ -172,14 +166,10 @@ public class SerializableBlockQueue extends BlockQueue {
 		Object2ByteMap<BlockState> palette = new Object2ByteOpenHashMap<>(16);
 		NbtList paletteNBT = new NbtList();
 		this.addToPalette(palette, paletteNBT, this.queuedBlocks);
-		if (this.queuedReplacements != null) {
-			this.addToPalette(palette, paletteNBT, this.queuedReplacements);
-		}
+		this.addToPalette(palette, paletteNBT, this.queuedReplacements);
 		nbt.put("palette", paletteNBT);
 		nbt.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
-		if (this.queuedReplacements != null) {
-			nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
-		}
+		nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
 		return nbt;
 	}
 

@@ -11,6 +11,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PostUpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PreUpdateInsnTree;
@@ -49,8 +50,11 @@ public class JavaUtilScriptEnvironment {
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 		.addFieldRenamedInvoke("key", Map.Entry.class, "getKey")
-		.addField(type(Map.Entry.class), "value", (parser, receiver, name) -> {
-			return new MapEntryValueInsnTree(receiver);
+		.addField(type(Map.Entry.class), "value", (parser, receiver, name, mode) -> {
+			return switch (mode) {
+				case NORMAL -> new MapEntryValueInsnTree(receiver);
+				case NULLABLE -> new NullableInvokeInsnTree(receiver, MAP_ENTRY_GET, InsnTree.ARRAY_FACTORY.empty());
+			};
 		})
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
@@ -128,8 +132,7 @@ public class JavaUtilScriptEnvironment {
 			MethodInfo replacer,
 			String type
 		) {
-			//hacky, but InvokeInsnTree doesn't actually verify that the getter isn't static.
-			super(getter.isStatic() ? INVOKESTATIC : getter.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, receiver, getter, key);
+			super(receiver, getter, key);
 			this.replacer = replacer;
 			this.type = type;
 		}
@@ -184,7 +187,7 @@ public class JavaUtilScriptEnvironment {
 			this.receiver.emitBytecode(method);
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 			method.node.visitInsn(POP);
 		}
 	}
@@ -205,7 +208,7 @@ public class JavaUtilScriptEnvironment {
 			this.receiver.emitBytecode(method);
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 		}
 
 		@Override
@@ -236,7 +239,7 @@ public class JavaUtilScriptEnvironment {
 			this.key.emitBytecode(method);
 			this.value.emitBytecode(method);
 			method.node.visitInsn(DUP_X2);
-			this.replacer.emit(method, this.replacer.isStatic() ? INVOKESTATIC : this.replacer.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL);
+			this.replacer.emit(method);
 			method.node.visitInsn(POP);
 		}
 
@@ -254,7 +257,7 @@ public class JavaUtilScriptEnvironment {
 	public static class MapEntryValueInsnTree extends InvokeInsnTree {
 
 		public MapEntryValueInsnTree(InsnTree entry) {
-			super(INVOKEINTERFACE, entry, MAP_ENTRY_GET);
+			super(entry, MAP_ENTRY_GET);
 		}
 
 		@Override

@@ -10,13 +10,13 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
@@ -61,7 +61,7 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		}
 		String oldState = nbt.getString("old_state");
 		if (!oldState.isEmpty()) try {
-			this.oldState = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), oldState, false).blockState();
+			this.oldState = BlockArgumentParserVersions.block(oldState, false).blockState();
 		}
 		catch (CommandSyntaxException exception) {
 			BigGlobeMod.LOGGER.error("", exception);

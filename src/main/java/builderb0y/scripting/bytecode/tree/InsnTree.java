@@ -7,6 +7,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.ElvisInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -19,8 +20,8 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	public static final ObjectArrayFactory<InsnTree> ARRAY_FACTORY = new ObjectArrayFactory<>(InsnTree.class);
 
 	/**
-	provides bytecode to the provided visitor which will push
-	the value represented by this InsnTree onto the stack.
+	provides bytecode to the provided method's {@link MethodCompileContext#node}
+	which will push the value represented by this InsnTree onto the stack.
 	if our {@link #getTypeInfo()} is {@link TypeInfos#VOID},
 	then nothing will actually be on the stack,
 	but whatever side effects involved in
@@ -42,7 +43,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 
 	public default InsnTree cast(ExpressionParser parser, TypeInfo type, CastMode mode) {
 		if (this.getTypeInfo().simpleEquals(type)) {
-			return this;
+			return mode.implicit ? this : new IdentityCastInsnTree(this, type);
 		}
 		if (type.isVoid()) {
 			return this.asStatement();
@@ -162,6 +163,10 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		VOID,
 		PRE,
 		POST;
+	}
+
+	public default InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+		return ElvisInsnTree.create(parser, this, alternative);
 	}
 
 	public default String describe() {

@@ -14,6 +14,7 @@ import net.minecraft.util.Formatting;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.commands.AsyncLocateCommand.Result;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncCommand implements Comparator<T_Result> {
 
@@ -32,12 +33,12 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 		//first 10 results get sent as feedback and logged.
 		for (int index = 0; index < 10 && iterator.hasNext(); index++) {
 			T_Result result = iterator.next();
-			this.source.sendFeedback(result.toText(this.source), false);
+			ServerCommandSourceVersions.sendFeedback(this.source, () -> result.toText(this.source), false);
 			BigGlobeMod.LOGGER.info(result.toString());
 		}
 		if (iterator.hasNext()) {
 			//if there are more than 10 results, send feedback saying how many more results there were.
-			this.source.sendFeedback(Text.translatable("commands." + BigGlobeMod.MODID + ".locate.more", this.results.size() - 10), false);
+			ServerCommandSourceVersions.sendFeedback(this.source, () -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.more", this.results.size() - 10), false);
 			//first 100 results only get logged.
 			for (int index = 10; index < 100 && iterator.hasNext(); index++) {
 				T_Result result = iterator.next();

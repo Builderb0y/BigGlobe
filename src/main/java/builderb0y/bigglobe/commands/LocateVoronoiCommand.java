@@ -32,6 +32,7 @@ import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateVoronoiCommand {
 
@@ -192,8 +193,9 @@ public class LocateVoronoiCommand {
 			VoronoiDiagram2D.SeedPoint seedPoint = diagram.getSeedPoint(cellX, cellZ);
 			column.setPosUnchecked(seedPoint.centerX, seedPoint.centerZ);
 			if (this.getSettings(column) == settings) {
-				source.sendFeedback(
-					Text.translatable(
+				ServerCommandSourceVersions.sendFeedback(
+					source,
+					() -> Text.translatable(
 						"commands.bigglobe.locateVoronoi.success",
 						settingsKey.getValue().toString(),
 						this.name,
