@@ -6,6 +6,12 @@ import java.util.function.IntFunction;
 
 public class ArrayBuilder<T> extends ArrayList<T> {
 
+	public ArrayBuilder() {}
+
+	public ArrayBuilder(int initialCapacity) {
+		super(initialCapacity);
+	}
+
 	@SafeVarargs
 	public final void add(T... elements) {
 		Collections.addAll(this, elements);

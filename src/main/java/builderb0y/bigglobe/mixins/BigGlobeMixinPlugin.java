@@ -46,6 +46,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",          Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds", Boolean.TRUE);
+		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",    Boolean.TRUE);
 		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",               Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                       Boolean.TRUE);

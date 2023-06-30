@@ -13,6 +13,7 @@ public class SmoothifyGrid3DTest {
 
 	@Test
 	public void testAll() {
+		Grid.TESTING.setTrue();
 		ValueGrid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
 		double[] values = new double[sampleCount];
 		for (int x = -64; x < 64; x++) {
@@ -27,17 +28,17 @@ public class SmoothifyGrid3DTest {
 	public void testPosition(ValueGrid3D grid, double[] values, int x, int y, int z) {
 		grid.getBulkX(worldSeed, x, y, z, values, sampleCount);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x + index, y, z), values[index], 0.000001F);
+			assertEquals(grid.getValue(worldSeed, x + index, y, z), values[index], 0.000001D);
 		}
 		this.checkContinuous(values);
 		grid.getBulkY(worldSeed, x, y, z, values, sampleCount);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x, y + index, z), values[index], 0.000001F);
+			assertEquals(grid.getValue(worldSeed, x, y + index, z), values[index], 0.000001D);
 		}
 		this.checkContinuous(values);
 		grid.getBulkZ(worldSeed, x, y, z, values, sampleCount);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x, y, z + index), values[index], 0.000001F);
+			assertEquals(grid.getValue(worldSeed, x, y, z + index), values[index], 0.000001D);
 		}
 		this.checkContinuous(values);
 	}

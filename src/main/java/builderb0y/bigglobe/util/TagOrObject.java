@@ -34,11 +34,18 @@ public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 		this.object = object;
 	}
 
-	public @Nullable RegistryEntry<T> random(RandomGenerator random) {
+	public boolean contains(RegistryEntry<T> entry) {
+		return this.tag != null ? this.tag.contains(entry) : this.object.matchesKey(UnregisteredObjectException.getKey(entry));
+	}
+
+	public boolean isEmpty() {
+		return this.tag != null && this.tag.size() == 0;
+	}
+
+	public RegistryEntry<T> random(RandomGenerator random) {
 		return this.tag != null ? this.tag.getRandom(MojangPermuter.from(random)).orElse(null) : this.object;
 	}
 
-	@NotNull
 	@Override
 	public Iterator<RegistryEntry<T>> iterator() {
 		return this.tag != null ? this.tag.iterator() : Collections.singletonList(this.object).iterator();

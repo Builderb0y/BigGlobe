@@ -17,68 +17,24 @@ public class StatelessRandomScriptEnvironment {
 			}
 			return RandomScriptEnvironment.createSeed(parser, arguments);
 		}))
-		.addMethodMultiInvokeStatics(StatelessRandomScriptEnvironment.class, "nextBoolean", "nextInt", "nextLong", "nextFloat", "nextDouble")
+		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextBoolean", boolean.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, long.class, float.class)
+		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, long.class, double.class)
+
+		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextUniformInt", int.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextBoundedInt", int.class, long.class, int.class)
+		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextBoundedInt", int.class, long.class, int.class, int.class)
+
+		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextUniformLong", long.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextBoundedLong", long.class, long.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextBoundedLong", long.class, long.class, long.class, long.class)
+
+		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextPositiveFloat", float.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextBoundedFloat", float.class, long.class, float.class)
+		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextBoundedFloat", float.class, long.class, float.class, float.class)
+
+		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextPositiveDouble", double.class, long.class)
+		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextBoundedDouble", double.class, long.class, double.class)
+		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextBoundedDouble", double.class, long.class, double.class, double.class)
 	);
-
-	//todo: add .addMethodRenamedInvokeStatic() or whatever and quit using delegation here.
-
-	public static boolean nextBoolean(long seed) {
-		return Permuter.nextBoolean(seed);
-	}
-
-	public static boolean nextBoolean(long seed, float chance) {
-		return Permuter.nextChancedBoolean(seed, chance);
-	}
-
-	public static boolean nextBoolean(long seed, double chance) {
-		return Permuter.nextChancedBoolean(seed, chance);
-	}
-
-	public static int nextInt(long seed) {
-		return Permuter.nextUniformInt(seed);
-	}
-
-	public static int nextInt(long seed, int max) {
-		return Permuter.nextBoundedInt(seed, max);
-	}
-
-	public static int nextInt(long seed, int min, int max) {
-		return Permuter.nextBoundedInt(seed, min, max);
-	}
-
-	public static long nextLong(long seed) {
-		return Permuter.nextUniformLong(seed);
-	}
-
-	public static long nextLong(long seed, long max) {
-		return Permuter.nextBoundedLong(seed, max);
-	}
-
-	public static long nextLong(long seed, long min, long max) {
-		return Permuter.nextBoundedLong(seed, min, max);
-	}
-
-	public static float nextFloat(long seed) {
-		return Permuter.nextPositiveFloat(seed);
-	}
-
-	public static float nextFloat(long seed, float max) {
-		return Permuter.nextBoundedFloat(seed, max);
-	}
-
-	public static float nextFloat(long seed, float min, float max) {
-		return Permuter.nextBoundedFloat(seed, min, max);
-	}
-
-	public static double nextDouble(long seed) {
-		return Permuter.nextPositiveDouble(seed);
-	}
-
-	public static double nextDouble(long seed, double max) {
-		return Permuter.nextBoundedDouble(seed, max);
-	}
-
-	public static double nextDouble(long seed, double min, double max) {
-		return Permuter.nextBoundedDouble(seed, min, max);
-	}
 }

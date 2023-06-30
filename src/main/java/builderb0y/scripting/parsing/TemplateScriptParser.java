@@ -1,7 +1,6 @@
 package builderb0y.scripting.parsing;
 
 import java.util.Collections;
-import java.util.stream.Stream;
 
 import org.objectweb.asm.tree.MethodNode;
 
@@ -14,6 +13,7 @@ import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -29,7 +29,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
 		this.inputs.validateInputs(message -> new ScriptParsingException(message, null));
-		Stream.Builder<InsnTree> initializers = Stream.builder();
+		ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
 		for (RequiredInput input : this.inputs.template.inputs) {
 			String inputSource = this.inputs.providedInputs.get(input.name);
 			assert inputSource != null;
@@ -51,9 +51,9 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 			this.environment.mutable()
 			.addVariable(input.name, load(declaration.loader.variable))
 			.addVariable('$' + input.name, inputTree);
-			initializers.accept(initializer);
+			initializers.add(initializer);
 		}
-		initializers.accept(super.parseEntireInput());
-		return seq(initializers.build().toArray(InsnTree.ARRAY_FACTORY));
+		initializers.add(super.parseEntireInput());
+		return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
 	}
 }

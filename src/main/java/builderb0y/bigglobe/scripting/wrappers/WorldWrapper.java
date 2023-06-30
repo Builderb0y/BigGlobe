@@ -22,6 +22,8 @@ import net.minecraft.world.chunk.ChunkStatus;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
@@ -41,6 +43,18 @@ public class WorldWrapper implements ColumnLookup {
 	public final BlockPos.Mutable pos;
 	public final Permuter permuter;
 	public final WorldColumn randomColumn;
+	/**
+	sometimes, a Feature will get placed in a live world,
+	completely outside of worldgen logic.
+	in this case, {@link Tripwire} gets triggered a *lot*,
+	because the chunks are usually not ProtoChunk's,
+	and therefore not ChunkOfColumnsHolder's.
+	we want to avoid log spam in this case,
+	so we only check the chunk if this WorldWrapper
+	is being used for worldgen purposes.
+	*/
+	public final boolean checkForColumns;
+	public final boolean distantHorizons;
 
 	public WorldWrapper(StructureWorldAccess world, Permuter permuter, Coordination coordination) {
 		this.world = world;
@@ -48,6 +62,11 @@ public class WorldWrapper implements ColumnLookup {
 		this.pos = new BlockPos.Mutable();
 		this.permuter = permuter;
 		this.randomColumn = WorldColumn.forWorld(world, 0, 0);
+		while (world instanceof BlockQueueStructureWorldAccess queue) {
+			world = queue.world;
+		}
+		this.checkForColumns = !(world instanceof World);
+		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 	}
 
 	public @Nullable BlockPos pos(int x, int y, int z) {
@@ -65,35 +84,33 @@ public class WorldWrapper implements ColumnLookup {
 	@Override
 	public WorldColumn lookupColumn(int x, int z) {
 		BlockPos pos = this.unboundedPos(x, 0, z);
-		if (this.coordination.area.contains(pos)) {
-			Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
-			if (chunk instanceof ChunkOfColumnsHolder holder) {
-				ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
-				if (columns != null) {
-					WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
-					if (column != null) {
-						return column;
-					}
-					else {
-						if (Tripwire.isEnabled()) {
+		if (this.checkForColumns) {
+			if (this.coordination.area.contains(pos)) {
+				Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
+				if (chunk instanceof ChunkOfColumnsHolder holder) {
+					ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
+					if (columns != null) {
+						WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
+						if (column != null) {
+							return column;
+						}
+						else if (Tripwire.isEnabled()) {
 							Tripwire.logWithStackTrace("ChunkOfColumnsHolder at " + chunk.getPos() + " has the wrong coordinates? Requested " + pos.getX() + ", " + pos.getZ() + ", range covers from " + columns.getColumn(0).x + ", " + columns.getColumn(0).z + " to " + columns.getColumn(255).x + ", " + columns.getColumn(255).z);
 						}
 					}
-				}
-				else {
-					if (Tripwire.isEnabled()) {
+					//distant horizons can sometimes create a new
+					//Chunk object every time one is requested,
+					//and of course that's not gonna have a ChunkOfColumns on it.
+					//best not to log this case since it's a known issue.
+					else if (Tripwire.isEnabled() && !this.distantHorizons) {
 						Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is missing a ChunkOfColumns.");
 					}
 				}
-			}
-			else {
-				if (Tripwire.isEnabled()) {
+				else if (Tripwire.isEnabled()) {
 					Tripwire.logWithStackTrace("Chunk at [" + (pos.getX() >> 4) + ", " + (pos.getZ() >> 4) + " is not a ChunkOfColumnsHolder: " + chunk);
 				}
 			}
-		}
-		else {
-			if (Tripwire.isEnabled()) {
+			else if (Tripwire.isEnabled()) {
 				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.area);
 			}
 		}

@@ -428,12 +428,26 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new ForInsnTree(initializer, condition, step, body);
 	}
 
+	@Deprecated //you probably want to provide some arguments.
+	public static InsnTree seq() {
+		return noop;
+	}
+
+	@Deprecated //you probably want to provide more arguments.
+	public static InsnTree seq(InsnTree tree) {
+		return tree;
+	}
+
 	public static InsnTree seq(InsnTree first, InsnTree second) {
 		return new SequenceInsnTree(first, second);
 	}
 
 	public static InsnTree seq(InsnTree... statements) {
-		return reduce(InsnTrees::seq, statements);
+		return switch (statements.length) {
+			case 0 -> noop;
+			case 1 -> statements[0];
+			default -> new SequenceInsnTree(statements);
+		};
 	}
 
 	public static InsnTree switch_(ExpressionParser parser, InsnTree value, Int2ObjectSortedMap<InsnTree> cases) {

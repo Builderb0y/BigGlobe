@@ -3,8 +3,8 @@
 		"type": "bigglobe:restricted",
 		"value": {
 			"salt": "campfires",
-			"variation": 6,
-			"spacing": 12,
+			"variation": 8,
+			"spacing": 16,
 			"restrictions": {
 				"type": "or",
 				"restrictions": [
