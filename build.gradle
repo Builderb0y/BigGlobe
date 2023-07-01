@@ -1,5 +1,5 @@
 plugins() {
-	id('fabric-loom') version('1.1-SNAPSHOT')
+	id('fabric-loom') version('1.2-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -106,6 +106,10 @@ task copyToReleases(type: Copy) {
 		}
 	}
 	into(new File("$projectDir/releases"))
+}
+
+test() {
+	useJUnitPlatform()
 }
 
 build.dependsOn(copyToReleases)

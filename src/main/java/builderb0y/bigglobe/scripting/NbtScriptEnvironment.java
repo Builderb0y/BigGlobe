@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.scripting;
 
+import java.util.Objects;
+
 import net.minecraft.nbt.*;
 
 import builderb0y.bigglobe.mixinInterfaces.NbtCompoundRemoveAndReturnAccess;
@@ -117,7 +119,7 @@ public class NbtScriptEnvironment {
 			}
 		})
 
-		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name) -> {
+		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name, mode) -> {
 			return new CommonGetterInsnTree(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement");
 		})
 	);
@@ -222,7 +224,7 @@ public class NbtScriptEnvironment {
 		}
 
 		public static NbtList buildList(NbtList list, NbtElement element) {
-			list.add(element);
+			list.add(Objects.requireNonNull(element, "element"));
 			return list;
 		}
 	}

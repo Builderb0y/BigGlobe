@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +24,8 @@ public record BiomeTagKey(TagKey<Biome> key) implements TagWrapper<Biome, BiomeE
 	}
 
 	public static BiomeTagKey of(String id) {
-		return new BiomeTagKey(TagKey.of(Registry.BIOME_KEY, new Identifier(id)));
+		if (id == null) return null;
+		return new BiomeTagKey(TagKey.of(RegistryKeyVersions.biome(), new Identifier(id)));
 	}
 
 	@Override
@@ -35,5 +36,10 @@ public record BiomeTagKey(TagKey<Biome> key) implements TagWrapper<Biome, BiomeE
 	@Override
 	public BiomeEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public BiomeEntry random(long seed) {
+		return this.randomImpl(seed);
 	}
 }

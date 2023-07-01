@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.tag.TagKey;
+import net.minecraft.structure.StructurePieceType;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +24,8 @@ public record StructurePieceTypeTagKey(TagKey<StructurePieceType> key) implement
 	}
 
 	public static StructurePieceTypeTagKey of(String id) {
-		return new StructurePieceTypeTagKey(TagKey.of(Registry.STRUCTURE_PIECE_KEY, new Identifier(id)));
+		if (id == null) return null;
+		return new StructurePieceTypeTagKey(TagKey.of(RegistryKeyVersions.structurePieceType(), new Identifier(id)));
 	}
 
 	@Override
@@ -35,5 +36,10 @@ public record StructurePieceTypeTagKey(TagKey<StructurePieceType> key) implement
 	@Override
 	public StructurePieceTypeEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public StructurePieceTypeEntry random(long seed) {
+		return this.randomImpl(seed);
 	}
 }

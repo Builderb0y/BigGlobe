@@ -35,7 +35,7 @@ public class DynamicConstantTest {
 		constructor.scopes.pushScope();
 		VarInfo constructorThis = constructor.addThis();
 		return_(
-			invokeSpecial(
+			invokeInstance(
 				load(constructorThis),
 				constructor(ACC_PUBLIC, superClass)
 			)

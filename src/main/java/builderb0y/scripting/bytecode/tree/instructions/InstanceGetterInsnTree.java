@@ -11,12 +11,11 @@ public class InstanceGetterInsnTree extends InvokeInsnTree {
 	public MethodInfo setter;
 
 	public InstanceGetterInsnTree(
-		int opcode,
 		InsnTree receiver,
 		MethodInfo getter,
 		MethodInfo setter
 	) {
-		super(opcode, receiver, getter);
+		super(receiver, getter);
 		this.setter = setter;
 	}
 

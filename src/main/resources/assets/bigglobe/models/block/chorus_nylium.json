@@ -1,0 +1,9 @@
+{
+	"parent": "block/cube_bottom_top",
+	"textures": {
+		"particle": "bigglobe:block/chorus_nylium_side",
+		"top":      "bigglobe:block/chorus_nylium_top",
+		"side":     "bigglobe:block/chorus_nylium_side",
+		"bottom":   "minecraft:block/end_stone"
+	}
+}

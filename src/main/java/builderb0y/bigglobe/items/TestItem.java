@@ -12,11 +12,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @TestOnly
 @Deprecated
@@ -36,7 +36,7 @@ public class TestItem extends Item {
 			context.getBlockPos(),
 			world
 			.getRegistryManager()
-			.get(Registry.STRUCTURE_KEY)
+			.get(RegistryKeyVersions.structure())
 			.get(BigGlobeMod.modID("dungeons/large"))
 		);
 		return ActionResult.SUCCESS;

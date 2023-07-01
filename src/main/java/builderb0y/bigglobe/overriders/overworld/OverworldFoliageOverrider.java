@@ -2,42 +2,34 @@ package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.bigglobe.overriders.FlatOverrider;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
+public interface OverworldFoliageOverrider extends OverworldFlatOverrider {
 
-public class OverworldFoliageOverrider {
+	public static final MutableScriptEnvironment FOLIAGE_ENVIRONMENT = (
+		new MutableScriptEnvironment()
+		.addVariable("foliage", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldFoliageOverrider.class, OverworldColumn.class, "getFoliage", "setFoliage"))
+	);
+
+	public static double getFoliage(OverworldColumn column) {
+		return column.foliage;
+	}
+
+	public static void setFoliage(OverworldColumn column, double foliage) {
+		column.foliage = foliage;
+	}
 
 	@Wrapper
-	public static class Holder extends OverworldDataOverrider.Holder {
+	public static class Holder extends OverworldFlatOverrider.Holder<OverworldFoliageOverrider> implements OverworldFoliageOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldDataOverrider.class, script)
-				.addEnvironment(OverworldFoliageOverrider.Environment.INSTANCE)
+				new ScriptParser<>(OverworldFoliageOverrider.class, script)
+				.addEnvironment(FOLIAGE_ENVIRONMENT)
 			);
-		}
-	}
-
-	public static class Environment extends OverworldDataOverrider.Environment {
-
-		public static final Environment INSTANCE = new Environment();
-
-		public Environment() {
-			super();
-
-			this
-			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
-			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class));
-
-			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
-			this.addDistanceFunctions(columnLoader);
-			this.addVariableGetField(columnLoader, FieldInfo.getField(OverworldColumn.class, "foliage"));
 		}
 	}
 }

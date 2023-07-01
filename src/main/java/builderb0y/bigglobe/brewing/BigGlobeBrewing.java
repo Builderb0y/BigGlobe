@@ -10,6 +10,7 @@ import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBrewing {
 
@@ -27,10 +28,11 @@ public class BigGlobeBrewing {
 		BrewingRecipeRegistry.registerPotionRecipe(Potions.AWKWARD, BigGlobeItems.ASH, WITHER);
 		BrewingRecipeRegistry.registerPotionRecipe(WITHER, Items.REDSTONE, LONG_WITHER);
 		BrewingRecipeRegistry.registerPotionRecipe(WITHER, Items.GLOWSTONE_DUST, STRONG_WITHER);
+		BrewingRecipeRegistry.registerPotionRecipe(Potions.WATER, BigGlobeItems.CHORUS_SPORE, Potions.AWKWARD);
 		BigGlobeMod.LOGGER.debug("Done registering potion recipes.");
 	}
 
 	public static Potion register(String name, Potion potion) {
-		return Registry.register(Registry.POTION, BigGlobeMod.modID(name), potion);
+		return Registry.register(RegistryVersions.potion(), BigGlobeMod.modID(name), potion);
 	}
 }

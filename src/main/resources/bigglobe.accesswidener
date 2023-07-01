@@ -13,8 +13,12 @@ accessible method net/minecraft/world/gen/chunk/ChunkGenerator getStructurePlace
 #instead of a hard-coded Y level which only works for vanilla worlds.
 accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
 
+#used by charred button blocks to press for 10 ticks instead of 30.
+extendable method net/minecraft/block/AbstractButtonBlock getPressTicks ()I
+
 #used to expose biome downfall to scripts.
 accessible class net/minecraft/world/biome/Biome$Weather
 
-#used to make charred buttons have a delay of 10 ticks instead of 30.
-extendable method net/minecraft/block/AbstractButtonBlock getPressTicks ()I
+#used by spore particles in the end to, you know, construct the particle.
+#did you know that crimson and warped spore particles are instances of WaterSuspendParticle?
+accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/particle/SpriteProvider;DDDDDD)V

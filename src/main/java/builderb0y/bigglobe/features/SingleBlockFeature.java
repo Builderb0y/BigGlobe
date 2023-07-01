@@ -42,6 +42,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature.Config;
 import builderb0y.bigglobe.mixins.PlantBlock_CanPlantOnTopAccess;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.MaterialVersions;
 
 public class SingleBlockFeature extends Feature<Config> {
 
@@ -195,7 +196,7 @@ public class SingleBlockFeature extends Feature<Config> {
 			return (
 				this.replace != null
 				? this.replace.contains(state)
-				: state.getMaterial().isReplaceable()
+				: MaterialVersions.isReplaceable(state)
 			);
 		}
 	}

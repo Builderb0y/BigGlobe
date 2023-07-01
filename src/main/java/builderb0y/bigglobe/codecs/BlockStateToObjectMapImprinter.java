@@ -6,10 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
 
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
@@ -20,6 +18,7 @@ import builderb0y.autocodec.imprinters.AutoImprinter.NamedImprinter;
 import builderb0y.autocodec.imprinters.ImprintContext;
 import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> extends NamedImprinter<M> {
 
@@ -34,7 +33,7 @@ public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> ext
 	public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, M> context) throws ImprintException {
 		try {
 			for (Map.Entry<String, DecodeContext<T_Encoded>> entry : context.forceAsStringMap().entrySet()) {
-				BlockResult keys = BlockArgumentParser.block(Registry.BLOCK, entry.getKey(), false);
+				BlockResult keys = BlockArgumentParserVersions.block(entry.getKey(), false);
 				V value = entry.getValue().decodeWith(this.valueDecoder);
 				keys
 				.blockState()

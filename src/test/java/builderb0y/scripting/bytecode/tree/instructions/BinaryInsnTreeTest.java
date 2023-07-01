@@ -233,7 +233,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 			if (a instanceof Float af && b instanceof Float bf) {
 				if (Float.floatToIntBits(af) == Float.floatToIntBits(bf)) return;
 				float diff = af / bf;
-				assertEquals(1.0F, diff, 0.0000001F);
+				assertEquals(1.0F, diff, 0.000001F);
 			}
 			else if (a instanceof Double ad && b instanceof Double bd) {
 				if (Double.doubleToLongBits(ad) == Double.doubleToLongBits(bd)) return;

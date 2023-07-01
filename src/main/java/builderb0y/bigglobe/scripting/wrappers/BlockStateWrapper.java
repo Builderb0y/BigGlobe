@@ -9,20 +9,21 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.EmptyBlockView;
 
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
 import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -35,10 +36,12 @@ public class BlockStateWrapper {
 		CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getState", String.class, BlockState.class),
 		DEFAULT_CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getDefaultState", String.class, BlockState.class);
 	public static final MethodInfo
+		GET_PROPERTY = MethodInfo.getMethod(BlockStateWrapper.class, "getProperty"),
 		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with");
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
-		BlockResult result = BlockArgumentParser.block(Registry.BLOCK, id, false);
+		if (id == null) return null;
+		BlockResult result = BlockArgumentParserVersions.block(id, false);
 		if (result.properties().size() != result.blockState().getProperties().size()) {
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 			remaining.removeAll(result.properties().keySet());
@@ -50,9 +53,10 @@ public class BlockStateWrapper {
 	}
 
 	public static BlockState getState(String id) throws CommandSyntaxException {
+		if (id == null) return null;
 		//this method will be called only if the string is non-constant.
 		//for performance reasons, we will skip properties checking here.
-		return BlockArgumentParser.block(Registry.BLOCK, id, false).blockState();
+		return BlockArgumentParserVersions.block(id, false).blockState();
 	}
 
 	public static BlockState getDefaultState(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
@@ -60,9 +64,10 @@ public class BlockStateWrapper {
 	}
 
 	public static BlockState getDefaultState(String id) {
+		if (id == null) return null;
 		Identifier identifier = new Identifier(id);
-		if (Registry.BLOCK.containsId(identifier)) {
-			return Registry.BLOCK.get(identifier).getDefaultState();
+		if (RegistryVersions.block().containsId(identifier)) {
+			return RegistryVersions.block().get(identifier).getDefaultState();
 		}
 		else {
 			throw new RuntimeException("Unknown block: " + id);
@@ -82,7 +87,7 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean isReplaceable(BlockState state) {
-		return state.getMaterial().isReplaceable();
+		return MaterialVersions.isReplaceable(state);
 	}
 
 	public static boolean blocksLight(BlockState state) {
@@ -109,14 +114,15 @@ public class BlockStateWrapper {
 		return state.mirror(Directions.scriptMirror(axis));
 	}
 
-	public static @Nullable Comparable<?> getProperty(BlockState state, String name) {
+	@SuppressWarnings("unchecked")
+	public static <C extends Comparable<C>> @Nullable C getProperty(BlockState state, String name) {
 		Property<?> property = state.getBlock().getStateManager().getProperty(name);
 		if (property == null) return null;
 		Comparable<?> value = state.get(property);
 		if (value instanceof StringIdentifiable e) {
 			value = e.asString();
 		}
-		return value;
+		return (C)(value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -133,7 +139,7 @@ public class BlockStateWrapper {
 
 	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
 		BlockPos pos = world.pos(x, y, z);
-		return pos != null && world.world.getBlockState(pos).getMaterial().isReplaceable() && state.canPlaceAt(world.world, pos);
+		return pos != null && MaterialVersions.isReplaceable(world.world.getBlockState(pos)) && state.canPlaceAt(world.world, pos);
 	}
 
 	public static boolean hasWater(BlockState state) {

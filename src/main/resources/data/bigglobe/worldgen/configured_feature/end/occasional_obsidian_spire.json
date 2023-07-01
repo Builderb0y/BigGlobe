@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.nextBoolean(1.0L / 65536.0L) && placeFeature(originX, originY, originZ, 'bigglobe:end/obsidian_spire')"
+		]
+	}
+}

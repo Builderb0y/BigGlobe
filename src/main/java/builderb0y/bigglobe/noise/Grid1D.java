@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.noise;
 
+import org.jetbrains.annotations.UnknownNullability;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -8,24 +10,28 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid1D extends Grid {
 
-	public static final CoderRegistry<Grid1D> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("grid_1d"));
+	@UnknownNullability
+	@SuppressWarnings("TestOnlyProblems")
+	public static final CoderRegistry<Grid1D> REGISTRY = Grid.TESTING.booleanValue() ? null : new CoderRegistry<>(BigGlobeMod.modID("grid_1d"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid1D.class);
+		if (REGISTRY != null) {
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid1D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid1D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid1D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid1D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid1D.class);
+		}
 	}};
 
 	/** returns the value at the specified coordinate. */

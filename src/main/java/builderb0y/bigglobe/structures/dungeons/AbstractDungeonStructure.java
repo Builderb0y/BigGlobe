@@ -64,6 +64,8 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -223,7 +225,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public RoomDungeonPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
 			String id = nbt.getString("decorators");
-			this.decorators = id.isEmpty() ? null : TagKey.of(Registry.CONFIGURED_FEATURE_KEY, new Identifier(id));
+			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id));
 		}
 
 		@Override
@@ -447,14 +449,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, nbt);
 			String id = nbt.getString("entityType");
 			if (id.isEmpty()) id = "minecraft:zombie";
-			this.spawnerType = Registry.ENTITY_TYPE.get(new Identifier(id));
+			this.spawnerType = RegistryVersions.entityType().get(new Identifier(id));
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
-			nbt.putString("entityType", Registry.ENTITY_TYPE.getId(this.spawnerType).toString());
+			nbt.putString("entityType", RegistryVersions.entityType().getId(this.spawnerType).toString());
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {

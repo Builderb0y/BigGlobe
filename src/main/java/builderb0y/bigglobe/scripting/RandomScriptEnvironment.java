@@ -14,6 +14,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -35,17 +36,11 @@ public class RandomScriptEnvironment {
 			new MutableScriptEnvironment()
 			.addType("Random", RandomGenerator.class)
 			.addVariable("random", loader)
-			.addQualifiedFunction(type(RandomGenerator.class), "new", (parser, name, arguments) -> {
-				if (arguments.length == 0) throw new ScriptParsingException("Random.new() requires a seed.", parser.input);
-				InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW);
-				boolean needCasting = seed != arguments[0];
-				for (int index = 1, length = arguments.length; index < length; index++) {
-					InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
-					needCasting |= next != arguments[index];
-					seed = invokeStatic(PERMUTE_INT, seed, next);
-				}
-				return new CastResult(newInstance(CONSTRUCTOR, seed), needCasting);
-			})
+			.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (parser, name, arguments) -> {
+				if (arguments.length == 0) return null;
+				CastResult seed = createSeed(parser, arguments);
+				return new CastResult(newInstance(CONSTRUCTOR, seed.tree()), seed.requiredCasting());
+			}))
 			.addMethodInvoke(RandomGenerator.class, "nextBoolean")
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
@@ -73,7 +68,7 @@ public class RandomScriptEnvironment {
 				return new CastResult(
 					switch_(
 						parser,
-						invokeInterface(
+						invokeInstance(
 							loader,
 							NEXT_INT_1,
 							ldc(arguments.length)
@@ -96,6 +91,17 @@ public class RandomScriptEnvironment {
 		);
 	}
 
+	public static CastResult createSeed(ExpressionParser parser, InsnTree... arguments) {
+		InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW);
+		boolean needCasting = seed != arguments[0];
+		for (int index = 1, length = arguments.length; index < length; index++) {
+			InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+			needCasting |= next != arguments[index];
+			seed = invokeStatic(PERMUTE_INT, seed, next);
+		}
+		return new CastResult(seed, needCasting);
+	}
+
 	public static InsnTree randomIf(ExpressionParser parser, InsnTree receiver, boolean negate) throws ScriptParsingException {
 		parser.beginCodeBlock();
 		InsnTree conditionInsnTree, body;
@@ -113,7 +119,7 @@ public class RandomScriptEnvironment {
 			);
 		}
 		else { //random.if(a)
-			conditionInsnTree = invokeInterface(receiver, NEXT_BOOLEAN);
+			conditionInsnTree = invokeInstance(receiver, NEXT_BOOLEAN);
 			body = firstPart;
 		}
 		parser.endCodeBlock();

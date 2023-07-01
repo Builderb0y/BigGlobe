@@ -4,12 +4,12 @@ import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.block.Block;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +24,8 @@ public record BlockTagKey(TagKey<Block> key) implements TagWrapper<Block, Block>
 	}
 
 	public static BlockTagKey of(String id) {
-		return new BlockTagKey(TagKey.of(Registry.BLOCK_KEY, new Identifier(id)));
+		if (id == null) return null;
+		return new BlockTagKey(TagKey.of(RegistryKeyVersions.block(), new Identifier(id)));
 	}
 
 	@Override
@@ -35,5 +36,10 @@ public record BlockTagKey(TagKey<Block> key) implements TagWrapper<Block, Block>
 	@Override
 	public Block random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public Block random(long seed) {
+		return this.randomImpl(seed);
 	}
 }

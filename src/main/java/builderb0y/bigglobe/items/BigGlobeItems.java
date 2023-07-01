@@ -16,6 +16,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeItems {
 
@@ -31,11 +32,11 @@ public class BigGlobeItems {
 	public static final BlockItem
 		OVERGROWN_SAND           = registerBlockPlacer(BigGlobeBlocks.OVERGROWN_SAND),
 		OVERGROWN_PODZOL         = registerBlockPlacer(BigGlobeBlocks.OVERGROWN_PODZOL),
-		ROSE                     = registerDecoPlacer(BigGlobeBlocks.ROSE),
-		SHORT_GRASS              = registerDecoPlacer(BigGlobeBlocks.SHORT_GRASS),
-		MUSHROOM_SPORES          = registerDecoPlacer(BigGlobeBlocks.MUSHROOM_SPORES),
-		ROPE_ANCHOR              = registerDecoPlacer(BigGlobeBlocks.ROPE_ANCHOR),
-		SPELUNKING_ROPE          = registerDecoPlacer(BigGlobeBlocks.SPELUNKING_ROPE),
+		ROSE                     = registerDecoPlacer (BigGlobeBlocks.ROSE),
+		SHORT_GRASS              = registerDecoPlacer (BigGlobeBlocks.SHORT_GRASS),
+		MUSHROOM_SPORES          = registerDecoPlacer (BigGlobeBlocks.MUSHROOM_SPORES),
+		ROPE_ANCHOR              = registerDecoPlacer (BigGlobeBlocks.ROPE_ANCHOR),
+		SPELUNKING_ROPE          = registerDecoPlacer (BigGlobeBlocks.SPELUNKING_ROPE),
 		CRYSTALLINE_PRISMARINE   = registerBlockPlacer(BigGlobeBlocks.CRYSTALLINE_PRISMARINE),
 		SLATED_PRISMARINE        = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
@@ -43,37 +44,42 @@ public class BigGlobeItems {
 		FLOATSTONE               = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE),
 		FLOATSTONE_SLAB          = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE_SLAB),
 		FLOATSTONE_STAIRS        = registerBlockPlacer(BigGlobeBlocks.FLOATSTONE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings().group(ItemGroup.MISC))),
+		ROCK                     = register           ("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings().group(ItemGroup.MISC))),
 		ASHEN_NETHERRACK         = registerBlockPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerBlockPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerBlockPlacer(BigGlobeBlocks.SULFUR_BLOCK),
-		WART_WEED                = registerDecoPlacer(BigGlobeBlocks.WART_WEED),
-		CHARRED_GRASS            = registerDecoPlacer(BigGlobeBlocks.CHARRED_GRASS),
-		BLAZING_BLOSSOM          = registerDecoPlacer(BigGlobeBlocks.BLAZING_BLOSSOM),
-		GLOWING_GOLDENROD        = registerDecoPlacer(BigGlobeBlocks.GLOWING_GOLDENROD),
+		WART_WEED                = registerDecoPlacer (BigGlobeBlocks.WART_WEED),
+		CHARRED_GRASS            = registerDecoPlacer (BigGlobeBlocks.CHARRED_GRASS),
+		BLAZING_BLOSSOM          = registerDecoPlacer (BigGlobeBlocks.BLAZING_BLOSSOM),
+		GLOWING_GOLDENROD        = registerDecoPlacer (BigGlobeBlocks.GLOWING_GOLDENROD),
 		CHARRED_PLANKS           = registerBlockPlacer(BigGlobeBlocks.CHARRED_PLANKS),
-		CHARRED_SAPLING          = registerDecoPlacer(BigGlobeBlocks.CHARRED_SAPLING),
+		CHARRED_SAPLING          = registerDecoPlacer (BigGlobeBlocks.CHARRED_SAPLING),
 		CHARRED_LOG              = registerBlockPlacer(BigGlobeBlocks.CHARRED_LOG),
 		STRIPPED_CHARRED_LOG     = registerBlockPlacer(BigGlobeBlocks.STRIPPED_CHARRED_LOG),
 		CHARRED_WOOD             = registerBlockPlacer(BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerBlockPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
-		CHARRED_LEAVES           = registerDecoPlacer(BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register      ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16).group(ItemGroup.DECORATIONS), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
-		CHARRED_PRESSURE_PLATE   = registerPlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE, ItemGroup.REDSTONE),
-		CHARRED_TRAPDOOR         = registerPlacer(BigGlobeBlocks.CHARRED_TRAPDOOR, ItemGroup.REDSTONE),
+		CHARRED_LEAVES           = registerDecoPlacer (BigGlobeBlocks.CHARRED_LEAVES),
+		CHARRED_SIGN             = register           ("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16).group(ItemGroup.DECORATIONS), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_PRESSURE_PLATE   = registerPlacer     (BigGlobeBlocks.CHARRED_PRESSURE_PLATE, ItemGroup.REDSTONE),
+		CHARRED_TRAPDOOR         = registerPlacer     (BigGlobeBlocks.CHARRED_TRAPDOOR, ItemGroup.REDSTONE),
 		CHARRED_STAIRS           = registerBlockPlacer(BigGlobeBlocks.CHARRED_STAIRS),
-		CHARRED_BUTTON           = registerPlacer(BigGlobeBlocks.CHARRED_BUTTON, ItemGroup.REDSTONE),
+		CHARRED_BUTTON           = registerPlacer     (BigGlobeBlocks.CHARRED_BUTTON, ItemGroup.REDSTONE),
 		CHARRED_SLAB             = registerBlockPlacer(BigGlobeBlocks.CHARRED_SLAB),
-		CHARRED_FENCE_GATE       = registerPlacer(BigGlobeBlocks.CHARRED_FENCE_GATE, ItemGroup.REDSTONE),
-		CHARRED_FENCE            = registerDecoPlacer(BigGlobeBlocks.CHARRED_FENCE),
-		CHARRED_DOOR             = register      ("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings().group(ItemGroup.REDSTONE))),
+		CHARRED_FENCE_GATE       = registerPlacer     (BigGlobeBlocks.CHARRED_FENCE_GATE, ItemGroup.REDSTONE),
+		CHARRED_FENCE            = registerDecoPlacer (BigGlobeBlocks.CHARRED_FENCE),
+		CHARRED_DOOR             = register           ("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings().group(ItemGroup.REDSTONE))),
 		SOUL_MAGMA               = registerBlockPlacer(BigGlobeBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ             = registerBlockPlacer(BigGlobeBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ           = registerBlockPlacer(BigGlobeBlocks.BUDDING_QUARTZ),
-		SMALL_QUARTZ_BUD         = registerDecoPlacer(BigGlobeBlocks.SMALL_QUARTZ_BUD),
-		MEDIUM_QUARTZ_BUD        = registerDecoPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
-		LARGE_QUARTZ_BUD         = registerDecoPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
-		QUARTZ_CLUSTER           = registerDecoPlacer(BigGlobeBlocks.QUARTZ_CLUSTER);
+		SMALL_QUARTZ_BUD         = registerDecoPlacer (BigGlobeBlocks.SMALL_QUARTZ_BUD),
+		MEDIUM_QUARTZ_BUD        = registerDecoPlacer (BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
+		LARGE_QUARTZ_BUD         = registerDecoPlacer (BigGlobeBlocks.LARGE_QUARTZ_BUD),
+		QUARTZ_CLUSTER           = registerDecoPlacer (BigGlobeBlocks.QUARTZ_CLUSTER),
+		CHORUS_NYLIUM            = registerBlockPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
+		OVERGROWN_END_STONE      = registerBlockPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
+		TALL_CHORUS_SPORES       = registerDecoPlacer (BigGlobeBlocks.TALL_CHORUS_SPORES),
+		MEDIUM_CHORUS_SPORES     = registerDecoPlacer (BigGlobeBlocks.MEDIUM_CHORUS_SPORES),
+		SHORT_CHORUS_SPORES      = registerDecoPlacer (BigGlobeBlocks.SHORT_CHORUS_SPORES);
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
@@ -128,6 +134,12 @@ public class BigGlobeItems {
 			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1).group(ItemGroup.MISC)
 		)
 	);
+	public static final Item CHORUS_SPORE = register(
+		"chorus_spore",
+		new Item(
+			new Item.Settings()
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
@@ -141,14 +153,14 @@ public class BigGlobeItems {
 
 	public static BlockItem registerPlacer(Block block, ItemGroup group) {
 		return Registry.register(
-			Registry.ITEM,
-			Registry.BLOCK.getId(block),
+			RegistryVersions.item(),
+			RegistryVersions.block().getId(block),
 			new BlockItem(block, new Item.Settings().group(group))
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
-		return Registry.register(Registry.ITEM, BigGlobeMod.modID(name), item);
+		return Registry.register(RegistryVersions.item(), BigGlobeMod.modID(name), item);
 	}
 
 	public static void init() {
@@ -158,7 +170,7 @@ public class BigGlobeItems {
 	}
 
 	@Environment(EnvType.CLIENT)
-	//@SuppressWarnings("UnstableApiUsage")
+	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
 		ColorProviderRegistry.ITEM.register(
 			(stack, tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
@@ -169,54 +181,6 @@ public class BigGlobeItems {
 			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
 			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
 		});
-		/*
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
-			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
-			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB, FLOATSTONE, FLOATSTONE_STAIRS, FLOATSTONE_SLAB);
-			entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
-			entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
-			entries.addBefore(Items.SAND, OVERGROWN_SAND);
-			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK);
-			entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
-			entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
-			entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);
-			entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
-			entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
-			entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
-			entries.addBefore(Items.GRASS, SHORT_GRASS);
-			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
-			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.LILY_OF_THE_VALLEY, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
-			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
-			entries.addAfter(Items.STONE, ROCK);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
-			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
-			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
-			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
-			entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
-			entries.addAfter(Items.LEAD, string(16), string(64), string(256));
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
-			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
-			entries.addAfter(Items.CHARCOAL, SULFUR);
-			entries.addAfter(Items.GUNPOWDER, ASH);
-			entries.addAfter(Items.FLINT, ROCK);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
-			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
-		});
-		*/
 	}
 
 	public static ItemStack string(int blocks) {

@@ -26,7 +26,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.overriders.nether.NoiseOverrider;
+import builderb0y.bigglobe.overriders.nether.NetherVolumetricOverrider;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Vectors;
 
@@ -280,7 +280,7 @@ public class NetherPillarStructure extends BigGlobeStructure {
 			}
 		}
 
-		public void runCaveExclusions(NoiseOverrider.Context context) {
+		public void runCaveExclusions(NetherVolumetricOverrider.Context context) {
 			Projector projector = this.new Projector().setX(context.column.x).setZ(context.column.z);
 			/**
 			my claim is that the function
@@ -379,12 +379,12 @@ public class NetherPillarStructure extends BigGlobeStructure {
 			sqrtTerm = Math.sqrt(sqrtTerm);
 			double div = 0.5D / a;
 			int minY = BigGlobeMath.ceilI((-b - sqrtTerm) * div);
-			if (minY >= context.topI) return; //interval does not intersect the Y range we care about.
+			if (minY >= context.maxY) return; //interval does not intersect the Y range we care about.
 			int maxY = BigGlobeMath.floorI((-b + sqrtTerm) * div);
-			if (maxY < context.bottomI) return; //interval does not intersect the Y range we care about.
+			if (maxY < context.minY) return; //interval does not intersect the Y range we care about.
 
-			minY = Math.max(Math.max(minY, Piece.this.boundingBox.getMinY()), context.bottomI);
-			maxY = Math.min(Math.min(maxY, Piece.this.boundingBox.getMaxY()), context.topI - 1);
+			minY = Math.max(Math.max(minY, Piece.this.boundingBox.getMinY()), context.minY);
+			maxY = Math.min(Math.min(maxY, Piece.this.boundingBox.getMaxY()), context.maxY - 1);
 			for (int y = minY; y <= maxY; y++) {
 				double fraction = projector.setY(y).project(true).getRadiusFractionSquared();
 				if (fraction > 0.0D && fraction < 4.0D) {

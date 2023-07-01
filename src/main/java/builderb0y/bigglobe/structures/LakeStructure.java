@@ -28,8 +28,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.PrimarySurface;
-import builderb0y.bigglobe.settings.OverworldBiomeLayout.SecondarySurface;
+import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
+import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -249,7 +249,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			}
 		}
 
-		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, boolean)}. */
+		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures)}. */
 		public double getDip(int x, int z, double distance) {
 			double distanceFraction = distance / this.data.horizontal_radius;
 			double angle = Math.atan2(z - this.data.z, x - this.data.x) * (1.0D / BigGlobeMath.TAU) + 0.5D;

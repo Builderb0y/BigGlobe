@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -76,79 +77,95 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
-		for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
-			if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException("Variable '" + entry.getKey() + "' is already defined in this scope");
+		if (!that.variables.isEmpty()) {
+			for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
+				if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Variable '" + entry.getKey() + "' is already defined in this scope");
+				}
 			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllFields(MutableScriptEnvironment that) {
-		for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
-			if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException("Field '" + entry.getKey() + "' is already defined in this scope");
+		if (!that.fields.isEmpty()) {
+			for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
+				if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Field '" + entry.getKey() + "' is already defined in this scope");
+				}
 			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllFunctions(MutableScriptEnvironment that) {
-		for (Map.Entry<String, List<FunctionHandler>> entry : that.functions.entrySet()) {
-			List<FunctionHandler> handlers = this.functions.get(entry.getKey());
-			if (handlers != null) handlers.addAll(entry.getValue());
-			else this.functions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+		if (!that.functions.isEmpty()) {
+			for (Map.Entry<String, List<FunctionHandler>> entry : that.functions.entrySet()) {
+				List<FunctionHandler> handlers = this.functions.get(entry.getKey());
+				if (handlers != null) handlers.addAll(entry.getValue());
+				else this.functions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllMethods(MutableScriptEnvironment that) {
-		for (Map.Entry<NamedType, List<MethodHandler>> entry : that.methods.entrySet()) {
-			List<MethodHandler> handlers = this.methods.get(entry.getKey());
-			if (handlers != null) handlers.addAll(entry.getValue());
-			else this.methods.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+		if (!that.methods.isEmpty()) {
+			for (Map.Entry<NamedType, List<MethodHandler>> entry : that.methods.entrySet()) {
+				List<MethodHandler> handlers = this.methods.get(entry.getKey());
+				if (handlers != null) handlers.addAll(entry.getValue());
+				else this.methods.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllTypes(MutableScriptEnvironment that) {
-		for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
-			if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException("Type '" + entry.getKey() + "' is already defined in this scope");
+		if (!that.types.isEmpty()) {
+			for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
+				if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Type '" + entry.getKey() + "' is already defined in this scope");
+				}
 			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllKeywords(MutableScriptEnvironment that) {
-		for (Map.Entry<String, KeywordHandler> entry : that.keywords.entrySet()) {
-			if (this.keywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException("Keyword '" + entry.getKey() + "' is already defined in this scope");
+		if (!that.keywords.isEmpty()) {
+			for (Map.Entry<String, KeywordHandler> entry : that.keywords.entrySet()) {
+				if (this.keywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Keyword '" + entry.getKey() + "' is already defined in this scope");
+				}
 			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
-		for (Map.Entry<NamedType, MemberKeywordHandler> entry : that.memberKeywords.entrySet()) {
-			if (this.memberKeywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-				throw new IllegalArgumentException("Member keyword '" + entry.getKey() + "' is already defined in this scope");
+		if (!that.memberKeywords.isEmpty()) {
+			for (Map.Entry<NamedType, MemberKeywordHandler> entry : that.memberKeywords.entrySet()) {
+				if (this.memberKeywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Member keyword '" + entry.getKey() + "' is already defined in this scope");
+				}
 			}
 		}
 		return this;
 	}
 
 	public MutableScriptEnvironment addAllCasters(MutableScriptEnvironment that) {
-		for (Map.Entry<TypeInfo, Map<TypeInfo, CastHandlerHolder>> entry : that.casters.entrySet()) {
-			Map<TypeInfo, CastHandlerHolder> from = this.casters.get(entry.getKey());
-			Map<TypeInfo, CastHandlerHolder> to = entry.getValue();
-			if (from == null) {
-				this.casters.put(entry.getKey(), new HashMap<>(to));
-			}
-			else {
-				for (Map.Entry<TypeInfo, CastHandlerHolder> entry2 : to.entrySet()) {
-					if (from.putIfAbsent(entry2.getKey(), entry2.getValue()) != null) {
-						throw new IllegalArgumentException("Caster " + entry.getKey() + " -> " + entry2.getKey() + " (" + entry2.getValue() + ") is already present in this environment");
+		if (!that.casters.isEmpty()) {
+			for (Map.Entry<TypeInfo, Map<TypeInfo, CastHandlerHolder>> entry : that.casters.entrySet()) {
+				Map<TypeInfo, CastHandlerHolder> from = this.casters.get(entry.getKey());
+				Map<TypeInfo, CastHandlerHolder> to = entry.getValue();
+				if (from == null) {
+					this.casters.put(entry.getKey(), new HashMap<>(to));
+				}
+				else {
+					for (Map.Entry<TypeInfo, CastHandlerHolder> entry2 : to.entrySet()) {
+						if (from.putIfAbsent(entry2.getKey(), entry2.getValue()) != null) {
+							throw new IllegalArgumentException("Caster " + entry.getKey() + " -> " + entry2.getKey() + " (" + entry2.getValue() + ") is already present in this environment");
+						}
 					}
 				}
 			}
@@ -174,6 +191,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		for (MutableScriptEnvironment environment : environments) {
 			this.addAll(environment);
 		}
+		return this;
+	}
+
+	public MutableScriptEnvironment configure(Consumer<MutableScriptEnvironment> configurator) {
+		configurator.accept(this);
 		return this;
 	}
 
@@ -253,11 +275,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addVariableRenamedInvoke(InsnTree receiver, String name, MethodInfo method) {
-		return this.addVariable(name, invokeVirtualOrInterface(receiver, method));
+		return this.addVariable(name, invokeInstance(receiver, method));
 	}
 
 	public MutableScriptEnvironment addVariableInvoke(InsnTree receiver, MethodInfo method) {
-		return this.addVariable(method.name, invokeVirtualOrInterface(receiver, method));
+		return this.addVariable(method.name, invokeInstance(receiver, method));
 	}
 
 	//////////////// invokeStatic ////////////////
@@ -344,7 +366,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// get ////////////////
 
 	public MutableScriptEnvironment addFieldGet(String name, FieldInfo field) {
-		return this.addField(field.owner, name, new FieldHandler.Named(field.toString(), (parser, receiver, name1) -> InsnTrees.getField(receiver, field)));
+		return this.addField(field.owner, name, new FieldHandler.Named(field.toString(), (parser, receiver, name1, mode) -> mode.makeField(parser, receiver, field)));
 	}
 
 	public MutableScriptEnvironment addFieldGet(FieldInfo field) {
@@ -366,7 +388,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvoke(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 0) throw new IllegalArgumentException("Getter requires parameters");
-		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1) -> invokeVirtualOrInterface(receiver, getter)));
+		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1, mode) -> mode.makeInstanceGetter(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvoke(MethodInfo getter) {
@@ -392,7 +414,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvokeStatic(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 1) throw new IllegalArgumentException("Static getter requires parameters");
-		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1) -> invokeStatic(getter, receiver)));
+		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1, mode) -> mode.makeStaticGetter(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvokeStatic(MethodInfo getter) {
@@ -476,12 +498,28 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addFunctionRenamedMagicInvokeStatic(String exposedName, Class<?> in, String internalName, Object... args) {
+		Arguments parsedArgs = Argument.parse(args);
+		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
+		return this.addFunction(exposedName, new FunctionHandler.Named(parsedArgs.toString(), (parser, name, providedArgs) -> {
+			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
+			if (builtArgs == null) return null;
+			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
+			if (castArgs == null) return null;
+			return new CastResult(invokeStatic(method, castArgs), builtArgs != castArgs);
+		}));
+	}
+
+	public MutableScriptEnvironment addFunctionMagicInvokeStatic(Class<?> in, String name, Object... args) {
+		return this.addFunctionRenamedMagicInvokeStatic(name, in, name, args);
+	}
+
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
 		return this.addFunction(name, new FunctionHandler.Named("functionInvoke: " + method + " for receiver " + receiver.describe(), (parser, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(invokeInstance(receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -518,6 +556,22 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addFunctionRenamedMagicInvoke(String exposedName, Class<?> in, String internalName, InsnTree receiver, Object... args) {
+		Arguments parsedArgs = Argument.parse(args);
+		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
+		return this.addFunction(exposedName, new FunctionHandler.Named(parsedArgs.toString(), (parser, name, providedArgs) -> {
+			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
+			if (builtArgs == null) return null;
+			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
+			if (castArgs == null) return null;
+			return new CastResult(invokeInstance(receiver, method, castArgs), builtArgs != castArgs);
+		}));
+	}
+
+	public MutableScriptEnvironment addFunctionMagicInvoke(Class<?> in, String name, InsnTree receiver, Object... args) {
+		return this.addFunctionRenamedMagicInvoke(name, in, name, receiver, args);
+	}
+
 	//////////////////////////////// methods ////////////////////////////////
 
 	public MutableScriptEnvironment addMethod(TypeInfo owner, String name, MethodHandler methodHandler) {
@@ -530,7 +584,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, new MethodHandler.Named("methodInvoke: " + method, (parser, receiver, name1, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeVirtualOrInterface(receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(invokeInstance(receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -573,6 +627,22 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addMethodInvokeSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addMethodInvoke(name, MethodInfo.findMethod(in, name, returnType, paramTypes));
+	}
+
+	public MutableScriptEnvironment addMethodRenamedMagicInvoke(TypeInfo owner, String exposedName, Class<?> in, String internalName, Object... args) {
+		Arguments parsedArgs = Argument.parse(args);
+		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
+		return this.addMethod(owner, exposedName, new MethodHandler.Named(parsedArgs.toString(), (parser, receiver, name, providedArgs) -> {
+			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
+			if (builtArgs == null) return null;
+			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
+			if (castArgs == null) return null;
+			return new CastResult(invokeInstance(receiver, method, castArgs), builtArgs != castArgs);
+		}));
+	}
+
+	public MutableScriptEnvironment addMethodMagicInvoke(TypeInfo owner, Class<?> in, String name, Object... args) {
+		return this.addMethodRenamedMagicInvoke(owner, name, in, name, args);
 	}
 
 	//////////////// invokeStatic ////////////////
@@ -646,7 +716,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////////////////////// qualified variables ////////////////////////////////
 
 	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler variableHandler) {
-		return this.addField(TypeInfos.CLASS, name, new FieldHandler.Named("qualifiedVariable on " + owner + ": " + variableHandler, (parser, receiver, name1) -> {
+		return this.addField(TypeInfos.CLASS, name, new FieldHandler.Named("qualifiedVariable on " + owner + ": " + variableHandler, (parser, receiver, name1, mode) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
 				return variableHandler.create(parser, name1);
@@ -928,7 +998,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
 		class Accumulator {
 
 			public final NamedType query = new NamedType();
@@ -938,7 +1008,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				this.query.name = n;
 				this.query.owner = type;
 				FieldHandler handler = MutableScriptEnvironment.this.fields.get(this.query);
-				return handler != null && (this.result = handler.create(parser, receiver, name)) != null;
+				return handler != null && (this.result = handler.create(parser, receiver, name, mode)) != null;
 			}
 		}
 		Accumulator accumulator = new Accumulator();
@@ -1084,13 +1154,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface FieldHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException;
+		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException;
 
 		public static record Named(String name, FieldHandler handler) implements FieldHandler {
 
 			@Override
-			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-				return this.handler.create(parser, receiver, name);
+			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
+				return this.handler.create(parser, receiver, name, mode);
 			}
 
 			@Override
@@ -1335,6 +1405,118 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				value = caster.cast(parser, value, caster.to, implicit);
 			}
 			return value;
+		}
+	}
+
+	public static interface Argument extends Typeable {
+
+		public abstract Class<?> getArgumentClass();
+
+		public abstract int requiredIndex();
+
+		public default InsnTree getFrom(InsnTree[] providedArgs) {
+			return providedArgs[this.requiredIndex()];
+		}
+
+		public static Arguments parse(Object... args) {
+			int length = args.length;
+			Argument[] arguments = new Argument[length];
+			int requiredIndex = 0;
+			for (int index = 0; index < length; index++) {
+				Object arg = args[index];
+				if (arg instanceof Class<?> clazz) {
+					arguments[index] = new ClassArgument(clazz, requiredIndex++);
+				}
+				else if (arg instanceof TypeInfo type) {
+					arguments[index] = new TypeArgument(type, requiredIndex++);
+				}
+				else if (arg instanceof InsnTree tree) {
+					arguments[index] = new ImplicitArgument(tree);
+				}
+				else {
+					throw new IllegalArgumentException("Unexpected argument " + arg + " at index " + index);
+				}
+			}
+			return new Arguments(requiredIndex, arguments);
+		}
+	}
+
+	public static record ClassArgument(Class<?> clazz, int requiredIndex) implements Argument {
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return type(this.clazz);
+		}
+
+		@Override
+		public Class<?> getArgumentClass() {
+			return this.clazz;
+		}
+	}
+
+	public static record TypeArgument(TypeInfo type, int requiredIndex) implements Argument {
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.type;
+		}
+
+		@Override
+		public Class<?> getArgumentClass() {
+			return this.type.toClass();
+		}
+	}
+
+	public static record ImplicitArgument(InsnTree tree) implements Argument {
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.tree.getTypeInfo();
+		}
+
+		@Override
+		public Class<?> getArgumentClass() {
+			return this.tree.getTypeInfo().toClass();
+		}
+
+		@Override
+		public int requiredIndex() {
+			return -1;
+		}
+
+		@Override
+		public InsnTree getFrom(InsnTree[] providedArgs) {
+			return this.tree;
+		}
+	}
+
+	public static record Arguments(int requiredCount, Argument... arguments) {
+
+		public MethodInfo getMethodInfo(Class<?> owner, String name, Class<?> returnType) {
+			return MethodInfo.findMethod(owner, name, returnType, Arrays.stream(this.arguments).map(Argument::getArgumentClass).toArray(Class<?>[]::new));
+		}
+
+		public MethodInfo getMethodInfo(Class<?> owner, String name) {
+			MethodInfo method = MethodInfo.getMethod(owner, name);
+			if (this.arguments.length != method.paramTypes.length) {
+				throw new IllegalArgumentException("Invalid arguments for found method: this.arguments: " + Arrays.toString(this.arguments) + ", found: " + Arrays.toString(method.paramTypes));
+			}
+			for (int index = 0, length = this.arguments.length; index < length; index++) {
+				if (!this.arguments[index].getTypeInfo().equals(method.paramTypes[index])) {
+					throw new IllegalArgumentException("Invalid arguments for found method: this.arguments: " + Arrays.toString(this.arguments) + ", found: " + Arrays.toString(method.paramTypes));
+				}
+			}
+			return method;
+		}
+
+		public InsnTree @Nullable [] buildTrees(InsnTree[] providedArgs) {
+			int length = providedArgs.length;
+			if (this.requiredCount != length) return null;
+			InsnTree[] trees = new InsnTree[length];
+			for (int index = 0; index < length; index++) {
+				trees[index] = this.arguments[index].getFrom(providedArgs);
+			}
+			return trees;
 		}
 	}
 }

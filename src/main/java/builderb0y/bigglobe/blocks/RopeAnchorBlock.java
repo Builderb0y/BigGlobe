@@ -200,14 +200,14 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	}
 
 	@Override
+	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, HAS_ROPE);
+	}
+
+	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public PistonBehavior getPistonBehavior(BlockState state) {
 		return PistonBehavior.BLOCK;
-	}
-
-	@Override
-	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HAS_ROPE);
 	}
 }

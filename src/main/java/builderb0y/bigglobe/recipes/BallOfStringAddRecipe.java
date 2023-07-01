@@ -7,15 +7,15 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 
-	public static final TagKey<Item> STRING = TagKey.of(Registry.ITEM_KEY, new Identifier("c", "string"));
+	public static final TagKey<Item> STRING = TagKey.of(RegistryKeyVersions.item(), new Identifier("c", "string"));
 
 	public BallOfStringAddRecipe(Identifier id) {
 		super(id);

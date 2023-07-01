@@ -2,12 +2,20 @@ package builderb0y.scripting.environments;
 
 import java.util.stream.Stream;
 
+import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableFakeInvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -41,8 +49,53 @@ public interface ScriptEnvironment {
 	that I can't think of right now, but I don't want to need to add this
 	exception to the method signature later if/when I do think of something.
 	*/
-	public default @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public default @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
 		return null;
+	}
+
+	public static enum GetFieldMode {
+
+		NORMAL {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new GetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+				return new InvokeInsnTree(receiver, getter, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
+				return new InvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			}
+		},
+
+		NULLABLE {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new NullableGetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+				return new NullableInvokeInsnTree(receiver, getter, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			}
+		};
+
+		public abstract InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field);
+
+		public abstract InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments);
+
+		public abstract InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments);
 	}
 
 	/**

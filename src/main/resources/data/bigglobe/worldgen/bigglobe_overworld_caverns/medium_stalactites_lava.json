@@ -13,9 +13,9 @@
 	},
 	"thickness": {
 		"type": "script",
-		"script": "base > 0 && stalactites < 1 ? base * (1 - stalactites) : 0",
-		"min": 0.0,
-		"max": 496.0,
+		"script": "base > 0.0L ? base * (1.0L - stalactites) : base",
+		"min": -1240.0,
+		"max":   496.0,
 		"inputs": {
 			"base": {
 				"type": "sum",

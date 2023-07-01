@@ -34,6 +34,7 @@ import net.minecraft.world.chunk.Chunk;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.MaterialVersions;
 
 public class SpelunkingRopeBlock extends FallingBlock {
 
@@ -212,7 +213,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 			do {
 				if (world.isOutOfHeightLimit(mutablePos)) break;
 				BlockState toReplace = chunk.getBlockState(mutablePos);
-				if (!toReplace.getMaterial().isReplaceable()) break;
+				if (!MaterialVersions.isReplaceable(toReplace)) break;
 				world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
 				stack.decrement(1);
 				placedAny = true;
@@ -232,7 +233,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		while (true) {
 			if (world.isOutOfHeightLimit(mutablePos)) break;
 			BlockState toReplace = chunk.getBlockState(mutablePos);
-			if (!toReplace.getMaterial().isReplaceable()) break;
+			if (!MaterialVersions.isReplaceable(toReplace)) break;
 			world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
 			placedAny = true;
 			mutablePos.setY(mutablePos.getY() - 1);
@@ -247,7 +248,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		}
 		return (
 			!world.isOutOfHeightLimit(mutablePos) &&
-			world.getBlockState(mutablePos).getMaterial().isReplaceable()
+			MaterialVersions.isReplaceable(world.getBlockState(mutablePos))
 		);
 	}
 
@@ -260,13 +261,6 @@ public class SpelunkingRopeBlock extends FallingBlock {
 			this.soundGroup.volume,
 			this.soundGroup.pitch
 		);
-	}
-
-	@Override
-	@Deprecated
-	@SuppressWarnings("deprecation")
-	public PistonBehavior getPistonBehavior(BlockState state) {
-		return PistonBehavior.DESTROY;
 	}
 
 	@Override
@@ -286,5 +280,12 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	@SuppressWarnings("deprecation")
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
 		return state.with(FACING, mirror.apply(state.get(FACING)));
+	}
+
+	@Override
+	@Deprecated
+	@SuppressWarnings("deprecation")
+	public PistonBehavior getPistonBehavior(BlockState state) {
+		return PistonBehavior.DESTROY;
 	}
 }

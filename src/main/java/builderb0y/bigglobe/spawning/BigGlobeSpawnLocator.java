@@ -2,12 +2,11 @@ package builderb0y.bigglobe.spawning;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -20,10 +19,12 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeSpawnLocator {
 
-	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(Registry.BIOME_KEY, BigGlobeMod.modID("player_spawn_friendly"));
+	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(RegistryKeyVersions.biome(), BigGlobeMod.modID("player_spawn_friendly"));
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
@@ -41,17 +42,17 @@ public class BigGlobeSpawnLocator {
 	public static void initPlayerSpawn(ServerPlayerEntity player) {
 		if (
 			BigGlobeConfig.INSTANCE.get().playerSpawning.perPlayerSpawnPoints &&
-			player.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator
+			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator
 		) {
 			SpawnPoint spawnPoint = findSpawn(
 				overworldChunkGenerator.column(0, 0),
 				Permuter.permute(
-					player.getWorld().getSeed() ^ 0x4BB5FF80362770B0L,
+					EntityVersions.getServerWorld(player).getSeed() ^ 0x4BB5FF80362770B0L,
 					player.getGameProfile().getId()
 				)
 			);
 			if (spawnPoint != null) {
-				player.setSpawnPoint(player.getWorld().getRegistryKey(), spawnPoint.toBlockPos(), spawnPoint.yaw, true, false);
+				player.setSpawnPoint(EntityVersions.getWorld(player).getRegistryKey(), spawnPoint.toBlockPos(), spawnPoint.yaw, true, false);
 				player.refreshPositionAndAngles(spawnPoint.toBlockPos(), spawnPoint.yaw, 0.0F);
 			}
 		}

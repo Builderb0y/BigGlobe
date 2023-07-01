@@ -65,10 +65,10 @@ public class RockLayerReplacer {
 					int layerSectionMaxY = Math.min(layerMaxY >> 4, endSection - 1);
 					for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
 						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(layerSectionY));
-						SectionGenerationContext context = new SectionGenerationContext(chunk, section, worldSeed, columns);
+						SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY, worldSeed, columns);
 						PaletteIdReplacer replacer = entry.getReplacer(context);
 						PaletteStorage storage = context.storage();
-						int sectionMinY = section.getYOffset();
+						int sectionMinY = context.startY();
 						int sectionMaxY = sectionMinY | 15;
 
 						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {

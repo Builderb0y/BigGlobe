@@ -3,9 +3,9 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.RegistryEntry;
 
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
@@ -24,6 +24,7 @@ public record WoodPaletteTagKey(TagKey<WoodPalette> key) implements TagWrapper<W
 	}
 
 	public static WoodPaletteTagKey of(String id) {
+		if (id == null) return null;
 		return new WoodPaletteTagKey(TagKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, new Identifier(id)));
 	}
 
@@ -35,5 +36,10 @@ public record WoodPaletteTagKey(TagKey<WoodPalette> key) implements TagWrapper<W
 	@Override
 	public WoodPaletteEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public WoodPaletteEntry random(long seed) {
+		return this.randomImpl(seed);
 	}
 }

@@ -10,8 +10,8 @@ public class StaticGetterInsnTree extends InvokeStaticInsnTree {
 
 	public MethodInfo setter;
 
-	public StaticGetterInsnTree(MethodInfo getter, MethodInfo setter, InsnTree... args) {
-		super(getter, args);
+	public StaticGetterInsnTree(MethodInfo getter, MethodInfo setter) {
+		super(getter);
 		this.setter = setter;
 	}
 

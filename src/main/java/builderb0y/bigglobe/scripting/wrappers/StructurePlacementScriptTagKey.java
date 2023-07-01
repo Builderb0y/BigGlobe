@@ -3,9 +3,9 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.RegistryEntry;
 
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ConstantFactory;
@@ -24,6 +24,7 @@ public record StructurePlacementScriptTagKey(TagKey<StructurePlacementScript.Hol
 	}
 
 	public static StructurePlacementScriptTagKey of(String id) {
+		if (id == null) return null;
 		return new StructurePlacementScriptTagKey(TagKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, new Identifier(id)));
 	}
 
@@ -35,5 +36,10 @@ public record StructurePlacementScriptTagKey(TagKey<StructurePlacementScript.Hol
 	@Override
 	public StructurePlacementScriptEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public StructurePlacementScriptEntry random(long seed) {
+		return this.randomImpl(seed);
 	}
 }

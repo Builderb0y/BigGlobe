@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"half=lower": { "model": "bigglobe:block/tall_chorus_spores_bottom" },
+		"half=upper": { "model": "bigglobe:block/tall_chorus_spores_top" }
+	}
+}

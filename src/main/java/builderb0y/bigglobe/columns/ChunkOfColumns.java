@@ -1,36 +1,38 @@
 package builderb0y.bigglobe.columns;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ChunkOfColumns<T_Column extends Column> {
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 
-	public final T_Column[] columns;
+public class ChunkOfColumns<T_Column extends Column> extends AbstractChunkOfColumns<T_Column> implements ColumnLookup {
 
-	public ChunkOfColumns(IntFunction<T_Column[]> arrayFactory, ColumnFactory<T_Column> columnFactory) {
-		T_Column[] columns = this.columns = arrayFactory.apply(256);
-		for (int index = 0; index < 256; index++) {
+	public ChunkOfColumns(ColumnFactory<T_Column> columnFactory) {
+		super(columnFactory, 256);
+		T_Column[] columns = this.columns;
+		for (int index = 1; index < 256; index++) {
 			columns[index] = columnFactory.create(index & 15, index >>> 4);
 		}
 	}
 
-	@FunctionalInterface
-	public static interface ColumnFactory<T_Column extends Column> {
-
-		public abstract T_Column create(int x, int z);
+	@Override
+	public boolean isForBiomes() {
+		return false;
 	}
 
-	public static void checkStart(int startX, int startZ) {
-		if (((startX | startZ) & 15) != 0) {
-			throw new IllegalArgumentException("Start position not divisible by 16: " + startX + ", " + startZ);
-		}
+	@Override
+	public <T_NewColumn extends Column> ChunkOfColumns<T_NewColumn> asType(Class<T_NewColumn> columnClass) {
+		return (ChunkOfColumns<T_NewColumn>)(super.asType(columnClass));
 	}
 
+	@Override
+	public <T_NewColumn extends Column> ChunkOfColumns<? extends T_NewColumn> asSubType(Class<T_NewColumn> columnClass) {
+		return (ChunkOfColumns<? extends T_NewColumn>)(super.asSubType(columnClass));
+	}
+
+	@Override
 	public void setPosUnchecked(int startX, int startZ) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
@@ -39,13 +41,7 @@ public class ChunkOfColumns<T_Column extends Column> {
 		}
 	}
 
-	public void setPos(int startX, int startZ) {
-		T_Column column = this.columns[0];
-		if (column.x != startX || column.z != startZ) {
-			this.setPosUnchecked(startX, startZ);
-		}
-	}
-
+	@Override
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
@@ -59,28 +55,14 @@ public class ChunkOfColumns<T_Column extends Column> {
 		});
 	}
 
-	public void setPosAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
-		T_Column column = this.columns[0];
-		if (column.x != startX || column.z != startZ) {
-			this.setPosUncheckedAndPopulate(startX, startZ, populator);
-		}
-		else {
-			this.populate(populator);
-		}
-	}
-
-	public void populate(Consumer<? super T_Column> populator) {
-		Arrays.stream(this.columns).parallel().forEach(populator);
+	@Override
+	public WorldColumn lookupColumn(int x, int z) {
+		return (WorldColumn)(this.getColumnChecked(x, z));
 	}
 
 	public @Nullable T_Column getColumnChecked(int x, int z) {
-		T_Column first = this.columns[0];
-		if (x >= first.x && z >= first.z && x <= (first.x | 15) && z <= (first.z | 15)) {
-			return this.getColumn(x, z);
-		}
-		else {
-			return null;
-		}
+		T_Column column = this.getColumn(x, z);
+		return column.x == x && column.z == z ? column : null;
 	}
 
 	public T_Column getColumn(int index) {
@@ -93,13 +75,5 @@ public class ChunkOfColumns<T_Column extends Column> {
 
 	public static int toIndex(int x, int z) {
 		return ((z & 15) << 4) | (x & 15);
-	}
-
-	public Stream<T_Column> stream() {
-		return Arrays.stream(this.columns);
-	}
-
-	public Stream<T_Column> parallelStream() {
-		return this.stream().parallel();
 	}
 }

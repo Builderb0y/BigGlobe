@@ -46,6 +46,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", 3, type(RandomGenerator.class))
 				))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(
@@ -59,6 +60,14 @@ public interface StructureLayoutScript extends Script {
 
 					.addVariableLoad("x", 1, TypeInfos.INT)
 					.addVariableLoad("z", 2, TypeInfos.INT)
+
+					.addVariable(
+						"worldSeed",
+						getField(
+							load("column", 4, type(WorldColumn.class)),
+							ColumnScriptEnvironmentBuilder.SEED
+						)
+					)
 
 					.addFunction(
 						"getBiome",
@@ -89,11 +98,11 @@ public interface StructureLayoutScript extends Script {
 					.addVariableLoad("pieces", 5, type(List.class))
 				)
 				.addEnvironment(
-					ColumnScriptEnvironment.createVariableXYZ(
+					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
 						load("column", 4, type(WorldColumn.class))
 					)
-					.mutable
+					.build()
 				)
 				.parse()
 			);

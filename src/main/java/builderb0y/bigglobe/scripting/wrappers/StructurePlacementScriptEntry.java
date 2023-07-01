@@ -2,9 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -24,6 +24,7 @@ public record StructurePlacementScriptEntry(RegistryEntry<StructurePlacementScri
 	}
 
 	public static StructurePlacementScriptEntry of(String id) {
+		if (id == null) return null;
 		return new StructurePlacementScriptEntry(
 			BigGlobeMod
 			.getCurrentServer()

@@ -11,14 +11,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
@@ -79,7 +79,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 	}
 
 	public static boolean isSolidOpaqueFullCube(BlockView world, BlockPos pos, BlockState state) {
-		return state.getMaterial().isSolid() && state.getMaterial().blocksLight() && state.isFullCube(world, pos);
+		return state.isOpaqueFullCube(world, pos);
 	}
 
 	public static class SoundPulse {

@@ -10,6 +10,7 @@ import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlockEntityTypes {
 
@@ -22,6 +23,6 @@ public class BigGlobeBlockEntityTypes {
 	public static void init() {} //triggers static class initializers.
 
 	public static <B extends BlockEntity> BlockEntityType<B> register(String name, BlockEntityFactory<B> factory, Block... blocks) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, BigGlobeMod.modID(name), new BlockEntityType<>(factory, Set.of(blocks), null));
+		return Registry.register(RegistryVersions.blockEntityType(), BigGlobeMod.modID(name), new BlockEntityType<>(factory, Set.of(blocks), null));
 	}
 }

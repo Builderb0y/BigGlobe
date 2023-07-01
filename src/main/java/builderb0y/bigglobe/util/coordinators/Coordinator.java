@@ -14,6 +14,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -21,14 +22,13 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LimitArea;
@@ -61,7 +61,7 @@ public interface Coordinator {
 	creates a Coordinator which delegates all calls to the provided chunk,
 	without performing any pre-processing on the coordinates.
 	*/
-	public static Coordinator forChunk(Chunk chunk, ColumnSupplier biomeColumn) {
+	public static Coordinator forChunk(Chunk chunk, ColumnLookup biomeColumn) {
 		return new ChunkCoordinator(chunk, biomeColumn);
 	}
 

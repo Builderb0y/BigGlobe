@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class StringEntity extends Entity {
 
@@ -88,7 +89,7 @@ public class StringEntity extends Entity {
 		//System.out.println((this.world.isClient ? "CLIENT: " : "SERVER: ") + (prevEntity != null ? prevEntity.getId() : 0) + " <- " + this.getId() + " -> " + (nextEntity != null ? nextEntity.getId() : 0));
 		super.tick();
 		this.tickMovement(prevEntity, nextEntity);
-		if (!this.world.isClient) {
+		if (!EntityVersions.getWorld(this).isClient) {
 			this.maybeSplit(prevEntity, nextEntity);
 		}
 	}
@@ -179,9 +180,9 @@ public class StringEntity extends Entity {
 					double newX = (this.getX() + player.getX()) * 0.5D;
 					double newY = (this.getY() + (player.getBoundingBox().minY + player.getBoundingBox().maxY) * 0.5D) * 0.5D;
 					double newZ = (this.getZ() + player.getZ()) * 0.5D;
-					StringEntity newEntity = new StringEntity(BigGlobeEntityTypes.STRING, this.world, player.getX(), player.getY(), player.getZ());
+					StringEntity newEntity = new StringEntity(BigGlobeEntityTypes.STRING, EntityVersions.getWorld(this), player.getX(), player.getY(), player.getZ());
 					newEntity.move(MovementType.SELF, new Vec3d(newX - player.getX(), newY - player.getY(), newZ - player.getZ()));
-					this.world.spawnEntity(newEntity);
+					EntityVersions.getWorld(this).spawnEntity(newEntity);
 					this.setNextEntity(newEntity);
 					newEntity.setPrevEntity(this);
 					newEntity.setNextEntity(player);
@@ -294,14 +295,15 @@ public class StringEntity extends Entity {
 		}
 
 		public Entity update() {
+			World world = EntityVersions.getWorld(StringEntity.this);
 			Entity entity;
-			if (StringEntity.this.world.isClient) {
+			if (world.isClient) {
 				Integer id = StringEntity.this.dataTracker.get(this.trackedID);
-				entity = id == 0 ? null : StringEntity.this.world.getEntityById(id);
+				entity = id == 0 ? null : world.getEntityById(id);
 			}
 			else {
 				UUID uuid = this.uuid;
-				entity = uuid == null ? null : ((ServerWorld)(StringEntity.this.world)).getEntity(uuid);
+				entity = uuid == null ? null : ((ServerWorld)world).getEntity(uuid);
 			}
 			if (entity != null) {
 				if (entity.squaredDistanceTo(StringEntity.this) > 256.0D) {
@@ -312,14 +314,14 @@ public class StringEntity extends Entity {
 					entity = null;
 				}
 			}
-			if (!StringEntity.this.world.isClient) {
+			if (!world.isClient) {
 				StringEntity.this.dataTracker.set(this.trackedID, entity != null ? entity.getId() : 0);
 			}
 			return this.entity = entity;
 		}
 
 		public void setEntity(Entity entity) {
-			if (!StringEntity.this.world.isClient) {
+			if (!EntityVersions.getWorld(StringEntity.this).isClient) {
 				if (entity != null) {
 					this.uuid = entity.getUuid();
 					StringEntity.this.dataTracker.set(this.trackedID, entity.getId());

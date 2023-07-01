@@ -6,9 +6,9 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 import org.joml.Vector3d;
 
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.EncodeInline;

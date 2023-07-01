@@ -2,8 +2,8 @@ package builderb0y.bigglobe.structures;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.tag.TagKey;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import net.minecraft.world.gen.structure.Structure;
@@ -17,6 +17,8 @@ import builderb0y.bigglobe.structures.dungeons.SmallDungeonStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeStructures {
 
@@ -107,7 +109,7 @@ public class BigGlobeStructures {
 	public static final BigGlobeStructurePieceType
 		LAKE_PIECE_TYPE = registerPiece("lake_piece", LakeStructure.Piece::new);
 	public static final TagKey<Structure>
-		SLIMES_SPAWN_ON_WATER_TAG_KEY = TagKey.of(Registry.STRUCTURE_KEY, BigGlobeMod.modID("slimes_spawn_on_water"));
+		SLIMES_SPAWN_ON_WATER_TAG_KEY = TagKey.of(RegistryKeyVersions.structure(), BigGlobeMod.modID("slimes_spawn_on_water"));
 
 	//////////////// portal temple ////////////////
 
@@ -141,15 +143,15 @@ public class BigGlobeStructures {
 	static { BigGlobeMod.LOGGER.debug("Done registering structures."); }
 
 	public static BigGlobeStructurePieceType registerPiece(String name, BigGlobeStructurePieceType type) {
-		return Registry.register(Registry.STRUCTURE_PIECE, BigGlobeMod.modID(name), type);
+		return Registry.register(RegistryVersions.structurePieceType(), BigGlobeMod.modID(name), type);
 	}
 
 	public static <T_Structure extends Structure> StructureType<T_Structure> registerType(String name, Codec<T_Structure> codec) {
-		return Registry.register(Registry.STRUCTURE_TYPE, BigGlobeMod.modID(name), () -> codec);
+		return Registry.register(RegistryVersions.structureType(), BigGlobeMod.modID(name), () -> codec);
 	}
 
 	public static <T_Placement extends StructurePlacement> StructurePlacementType<T_Placement> registerPlacement(String name, Codec<T_Placement> codec) {
-		return Registry.register(Registry.STRUCTURE_PLACEMENT, BigGlobeMod.modID(name), () -> codec);
+		return Registry.register(RegistryVersions.structurePlacementType(), BigGlobeMod.modID(name), () -> codec);
 	}
 
 	public static void init() {}

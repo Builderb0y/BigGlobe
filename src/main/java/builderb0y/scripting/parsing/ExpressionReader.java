@@ -1,12 +1,14 @@
 package builderb0y.scripting.parsing;
 
-import com.mojang.brigadier.StringReader;
-
 import net.minecraft.util.function.CharPredicate;
 
 /**
-similar to {@link StringReader}, but with some additional functionality thrown in,
-and some unnecessary functionality thrown out.
+lowest-level parsing logic for scripts,
+handles reading of characters, operators, and identifiers,
+skipping of whitespace, and maintains an up-to-date
+line number for the current cursor position.
+
+for higher-level parsing logic, see {@link ExpressionParser}.
 */
 public class ExpressionReader {
 
@@ -25,7 +27,7 @@ public class ExpressionReader {
 		StringBuilder builder = new StringBuilder(length);
 		for (int index = 0; index < length;) {
 			char c = input.charAt(index);
-			if (c == '\r') { //canonicalize line endings.
+			if (c == '\r') {
 				index++;
 				if (index < length && input.charAt(index) == '\n') {
 					index++;

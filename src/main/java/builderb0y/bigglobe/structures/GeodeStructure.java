@@ -13,11 +13,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -37,6 +34,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.Vectors;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
@@ -47,7 +45,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public final RandomSource radius;
 	public final BlocksConfig @VerifySizeRange(min = 1) @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
 	public final SpikesConfig spikes;
-	public final @VerifyNullable TagKey<Block> growth_block_tag;
+	public final @VerifyNullable GrowthConfig growth;
 
 	public GeodeStructure(
 		Config config,
@@ -55,15 +53,20 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource radius,
 		BlocksConfig[] blocks,
 		SpikesConfig spikes,
-		@VerifyNullable TagKey<Block> growth_block_tag
+		@VerifyNullable GrowthConfig growth
 	) {
 		super(config);
-		this.noise = noise;
+		this.noise  = noise;
 		this.radius = radius;
 		this.blocks = blocks;
 		this.spikes = spikes;
-		this.growth_block_tag = growth_block_tag;
+		this.growth = growth;
 	}
+
+	public static record GrowthConfig(
+		TagOrObject<Block> place,
+		TagOrObject<Block> against
+	) {}
 
 	public static record BlocksConfig(
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double threshold,
@@ -129,7 +132,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						radius,
 						this.noise,
 						this.blocks,
-						this.growth_block_tag
+						this.growth
 					);
 					collector.addPiece(mainPiece);
 					//Grid3D grid = this.noise;
@@ -215,7 +218,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			public @UseName("r") double radius;
 			public Grid3D noise;
 			public BlocksConfig[] blocks;
-			public @UseName("gbt") @VerifyNullable TagKey<Block> growth_block_tag;
+			public @UseName("gbt") @VerifyNullable GrowthConfig growth;
 
 			public Data(
 				double x,
@@ -224,19 +227,28 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				double radius,
 				Grid3D noise,
 				BlocksConfig[] blocks,
-				@Nullable TagKey<Block> growth_block_tag
+				@Nullable GrowthConfig growth
 			) {
 				this.x = x;
 				this.y = y;
 				this.z = z;
+				this.noise  = noise;
 				this.radius = radius;
-				this.noise = noise;
 				this.blocks = blocks;
-				this.growth_block_tag = growth_block_tag;
+				this.growth = growth;
 			}
 		}
 
-		public MainPiece(StructurePieceType type, double x, double y, double z, double radius, Grid3D noise, BlocksConfig[] blocks, TagKey<Block> growth_block_tag) {
+		public MainPiece(
+			StructurePieceType type,
+			double x,
+			double y,
+			double z,
+			double radius,
+			Grid3D noise,
+			BlocksConfig[] blocks,
+			GrowthConfig growth
+		) {
 			super(
 				type,
 				0,
@@ -248,7 +260,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					BigGlobeMath.floorI(y + radius),
 					BigGlobeMath.floorI(z + radius)
 				),
-				new Data(x, y, z, radius, noise, blocks, growth_block_tag)
+				new Data(x, y, z, radius, noise, blocks, growth)
 			);
 		}
 
@@ -339,12 +351,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			if (this.data.growth_block_tag == null) return;
-			BlocksConfig[] blocks = this.data.blocks;
-			if (blocks.length == 0) return;
-			BlocksConfig blockConfig = blocks[blocks.length - 1];
-			RegistryEntryList<Block> buds = Registry.BLOCK.getEntryList(this.data.growth_block_tag).orElse(null);
-			if (buds == null || buds.size() == 0) return;
+			GrowthConfig growth = this.data.growth;
+			if (growth == null || growth.place.isEmpty() || growth.against.isEmpty()) return;
 			int minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
 			int minY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
 			int minZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
@@ -352,17 +360,22 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			int maxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
 			int maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 			BlockPos.Mutable pos = new BlockPos.Mutable();
-			Permuter permuter = new Permuter(Permuter.permute(world.getSeed() ^ 0x13AFC86BC0528060L, chunkPos));
+			Permuter permuter = new Permuter(0L);
+			long seed = world.getSeed() ^ 0x13AFC86BC0528060L;
 			for (int y = minY; y <= maxY; y++) {
+				long seedY = Permuter.permute(seed, y);
 				for (int z = minZ; z <= maxZ; z++) {
+					long seedZ = Permuter.permute(seedY, z);
 					for (int x = minX; x <= maxX; x++) {
 						if (world.isAir(pos.set(x, y, z))) {
+							long seedX = Permuter.permute(seedZ, x);
+							permuter.setSeed(seedX);
 							Direction direction = Permuter.choose(permuter, Directions.ALL);
-							if (blockConfig.contains(world.getBlockState(pos.move(direction)))) {
+							if (growth.against.contains(world.getBlockState(pos.move(direction)).getBlock().getRegistryEntry())) {
 								BlockState toPlace = (
-									buds
-									.getRandom(permuter.mojang())
-									.orElseThrow()
+									growth
+									.place
+									.random(permuter)
 									.value()
 									.getDefaultState()
 								);

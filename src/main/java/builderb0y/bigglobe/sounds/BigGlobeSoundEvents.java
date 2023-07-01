@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.sounds;
 
+import net.minecraft.util.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeSoundEvents {
 
@@ -12,7 +13,7 @@ public class BigGlobeSoundEvents {
 
 	public static SoundEvent of(String name) {
 		Identifier id = BigGlobeMod.modID(name);
-		return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
+		return Registry.register(RegistryVersions.soundEvent(), id, new SoundEvent(id));
 	}
 
 	public static void init() {}

@@ -12,6 +12,7 @@ import net.minecraft.util.Formatting;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class WorldgenTimingsCommand {
 
@@ -30,7 +31,7 @@ public class WorldgenTimingsCommand {
 					BigGlobeChunkGenerator generator = (BigGlobeChunkGenerator)(context.getSource().getWorld().getChunkManager().getChunkGenerator());
 					if (generator.profiler.timings == null) {
 						generator.profiler.timings = new ConcurrentHashMap<>(32);
-						context.getSource().sendFeedback(Text.translatable(PREFIX + "started", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
+						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable(PREFIX + "started", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
 						return 1;
 					}
 					else {
@@ -44,7 +45,7 @@ public class WorldgenTimingsCommand {
 					BigGlobeChunkGenerator generator = (BigGlobeChunkGenerator)(context.getSource().getWorld().getChunkManager().getChunkGenerator());
 					ConcurrentHashMap<Object, Long> timings = generator.profiler.timings;
 					if (timings != null) {
-						context.getSource().sendFeedback(Text.translatable(PREFIX + "stopped", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
+						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable(PREFIX + "stopped", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
 						dump(context.getSource(), timings);
 						generator.profiler.timings = null;
 						return 1;
@@ -60,7 +61,7 @@ public class WorldgenTimingsCommand {
 					BigGlobeChunkGenerator generator = (BigGlobeChunkGenerator)(context.getSource().getWorld().getChunkManager().getChunkGenerator());
 					ConcurrentHashMap<Object, Long> timings = generator.profiler.timings;
 					if (timings != null) {
-						context.getSource().sendFeedback(Text.translatable(PREFIX + "restarted", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
+						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable(PREFIX + "restarted", context.getSource().getWorld().getRegistryKey().getValue().toString()), true);
 						dump(context.getSource(), timings);
 						timings.clear();
 						return 1;
@@ -89,31 +90,34 @@ public class WorldgenTimingsCommand {
 	}
 
 	public static void dump(ServerCommandSource source, ConcurrentHashMap<Object, Long> map) {
-		source.sendFeedback(Text.translatable(PREFIX + "dump.header"), false);
+		ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable(PREFIX + "dump.header"), false);
 		long sum = map.values().stream().mapToLong(Long::longValue).sum();
 		map.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEachOrdered(entry -> {
-			source.sendFeedback(
-				Text.literal(entry.getKey().toString())
-				.formatted(Formatting.GREEN)
-				.append(
-					Text.literal(": ")
-					.formatted(Formatting.WHITE)
-				)
-				.append(
-					Text.literal(String.format("%,d ns", entry.getValue()))
-					.formatted(Formatting.AQUA)
-				)
-				.append(
-					Text.literal(" (")
-					.formatted(Formatting.WHITE)
-				)
-				.append(
-					Text.literal(String.format("%,.1f%%", entry.getValue().doubleValue() * 100.0D / sum))
-					.formatted(Formatting.BLUE)
-				)
-				.append(
-					Text.literal(")")
-					.formatted(Formatting.WHITE)
+			ServerCommandSourceVersions.sendFeedback(
+				source,
+				() -> (
+					Text.literal(entry.getKey().toString())
+					.formatted(Formatting.GREEN)
+					.append(
+						Text.literal(": ")
+						.formatted(Formatting.WHITE)
+					)
+					.append(
+						Text.literal(String.format("%,d ns", entry.getValue()))
+						.formatted(Formatting.AQUA)
+					)
+					.append(
+						Text.literal(" (")
+						.formatted(Formatting.WHITE)
+					)
+					.append(
+						Text.literal(String.format("%,.1f%%", entry.getValue().doubleValue() * 100.0D / sum))
+						.formatted(Formatting.BLUE)
+					)
+					.append(
+						Text.literal(")")
+						.formatted(Formatting.WHITE)
+					)
 				),
 				false
 			);

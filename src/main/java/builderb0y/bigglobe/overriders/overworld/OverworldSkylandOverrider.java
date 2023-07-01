@@ -2,44 +2,44 @@ package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.bigglobe.overriders.FlatOverrider;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
+public interface OverworldSkylandOverrider extends OverworldFlatOverrider {
 
-public class OverworldSkylandOverrider {
+	public static final ScriptEnvironment SKYLAND_ENVIRONMENT = (
+		new MutableScriptEnvironment()
+		.addVariable("skylandMinY", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldSkylandOverrider.class, OverworldColumn.class, "getSkylandMinY", "setSkylandMinY"))
+		.addVariable("skylandMaxY", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldSkylandOverrider.class, OverworldColumn.class, "getSkylandMaxY", "setSkylandMaxY"))
+	);
+
+	public static double getSkylandMinY(OverworldColumn column) {
+		return column.skylandMinY;
+	}
+
+	public static void setSkylandMinY(OverworldColumn column, double y) {
+		column.skylandMinY = y;
+	}
+
+	public static double getSkylandMaxY(OverworldColumn column) {
+		return column.skylandMaxY;
+	}
+
+	public static void setSkylandMaxY(OverworldColumn column, double y) {
+		column.skylandMaxY = y;
+	}
 
 	@Wrapper
-	public static class Holder extends OverworldDataOverrider.Holder {
+	public static class Holder extends OverworldFlatOverrider.Holder<OverworldSkylandOverrider> implements OverworldSkylandOverrider {
 
 		public Holder(String script) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldDataOverrider.class, script)
-				.addEnvironment(OverworldSkylandOverrider.Environment.INSTANCE)
+				new ScriptParser<>(OverworldSkylandOverrider.class, script)
+				.addEnvironment(SKYLAND_ENVIRONMENT)
 			);
-		}
-	}
-
-	public static class Environment extends OverworldDataOverrider.Environment {
-
-		public static final Environment INSTANCE = new Environment();
-
-		public Environment() {
-			super();
-
-			this
-			.addVariableLoad("rawGeneration", 3, TypeInfos.BOOLEAN)
-			.addVariableLoad("structureStarts", 1, type(ScriptStructures.class))
-			;
-			InsnTree columnLoader = load("column", 2, type(OverworldColumn.class));
-			this.addDistanceFunctions(columnLoader);
-			this
-			.addVariableGetField(columnLoader, OverworldColumn.class, "skylandMinY")
-			.addVariableGetField(columnLoader, OverworldColumn.class, "skylandMaxY")
-			;
 		}
 	}
 }

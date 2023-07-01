@@ -30,7 +30,7 @@ public class DynamicTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 		Registry<T> lookup = context.decodeWith(this.registryCoder);
 		Identifier tagID = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		TagKey<T> tagKey = TagKey.of(this.registryCoder.registryKey, tagID);
-		RegistryEntryList<T> tag = lookup.getEntryList(tagKey).orElse(null);
+		RegistryEntryList<T> tag = lookup.getOrCreateEntryList(tagKey);
 		if (tag != null) {
 			return tag;
 		}

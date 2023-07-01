@@ -5,11 +5,10 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.WorldAccess;
@@ -19,6 +18,8 @@ import net.minecraft.world.chunk.Chunk;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
+import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class WorldUtil {
 
@@ -57,7 +58,7 @@ public class WorldUtil {
 		}
 		while (true) {
 			if (world.isOutOfHeightLimit(mutablePos)) return null;
-			if (!world.getBlockState(mutablePos).getMaterial().isReplaceable()) return mutablePos;
+			if (!MaterialVersions.isReplaceable(world.getBlockState(mutablePos))) return mutablePos;
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 	}
@@ -83,7 +84,7 @@ public class WorldUtil {
 			return (B)(blockEntity);
 		}
 		else {
-			RegistryKey<BlockEntityType<?>> id = Registry.BLOCK_ENTITY_TYPE.getKey(type).orElse(null);
+			RegistryKey<BlockEntityType<?>> id = RegistryVersions.blockEntityType().getKey(type).orElse(null);
 			String name = id != null ? id.toString() : "(unregistered: " + type + " for block(s): " + ((MutableBlockEntityType)(type)).bigglobe_getBlocks() + ')';
 			BigGlobeMod.LOGGER.warn("Expected " + name + " at " + pos + " in " + world + ", but got " + blockEntity + " instead.");
 			return null;
@@ -136,7 +137,7 @@ public class WorldUtil {
 	}
 
 	public static boolean isReplaceableNonFluid(BlockState state) {
-		return state.getMaterial().isReplaceable() && state.getFluidState().isEmpty();
+		return MaterialVersions.isReplaceable(state) && state.getFluidState().isEmpty();
 	}
 
 	public static boolean isReplaceableNonFluid(BlockView world, BlockPos pos) {

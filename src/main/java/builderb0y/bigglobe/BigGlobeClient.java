@@ -10,6 +10,7 @@ import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
+import builderb0y.bigglobe.particles.BigGlobeParticles;
 
 @Environment(EnvType.CLIENT)
 public class BigGlobeClient implements ClientModInitializer {
@@ -23,6 +24,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeEntityRenderers.init();
 		BigGlobeNetwork.initClient();
 		BigGlobeCommands.initClient();
+		BigGlobeParticles.initClient();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}
 }

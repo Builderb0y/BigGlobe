@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.noise;
 
+import org.jetbrains.annotations.UnknownNullability;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -8,26 +10,31 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid2D extends Grid {
 
-	public static final CoderRegistry<Grid2D> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("grid_2d"));
+	@UnknownNullability
+	@SuppressWarnings("TestOnlyProblems")
+	public static final CoderRegistry<Grid2D> REGISTRY = Grid.TESTING.booleanValue() ? null : new CoderRegistry<>(BigGlobeMod.modID("grid_2d"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid2D.class);
+		if (REGISTRY != null) {
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),        ConstantGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),   WhiteNoiseGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear"),            LinearGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),            SmoothGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),              CubicGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),            WorleyGrid2D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),            NegateGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                  AbsGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("square"),            SquareGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid2D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid2D.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid2D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),   StalactiteGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),   StalactiteGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sine_sum"),        SineWaveGrid2D.class);
 
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid2D.class);
+		}
 	}};
 
 	/** returns the value at the specified coordinates. */

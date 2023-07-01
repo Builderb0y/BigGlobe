@@ -26,6 +26,7 @@ import net.minecraft.util.registry.RegistryKey;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class DumpRegistriesCommand {
 
@@ -109,7 +110,7 @@ public class DumpRegistriesCommand {
 						throw AutoCodecUtil.rethrow(throwable);
 					}
 				});
-				context.getSource().sendFeedback(Text.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);
+				ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);
 				return 1;
 			})
 		);

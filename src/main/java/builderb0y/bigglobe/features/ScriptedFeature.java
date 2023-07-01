@@ -16,18 +16,18 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.*;
-import builderb0y.bigglobe.chunkgen.FeatureColumns;
-import builderb0y.bigglobe.chunkgen.FeatureColumns.ColumnSupplier;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLookupPosition;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -53,8 +53,6 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 	@Override
 	public boolean generate(FeatureContext<Config> context) {
 		BlockPos origin = context.getOrigin();
-		ColumnSupplier oldSupplier = FeatureColumns.FEATURE_COLUMNS.get();
-		WorldColumn column = FeatureColumns.get(context.getWorld(), origin.getX(), origin.getZ(), oldSupplier);
 		Permuter permuter = Permuter.from(context.getRandom());
 		BlockRotation rotation = (
 			context.getConfig().rotate_randomly
@@ -114,28 +112,21 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			);
 		};
 		WorldWrapper wrapper = new WorldWrapper(world, permuter, coordination);
-		try {
-			FeatureColumns.FEATURE_COLUMNS.set(ColumnSupplier.fixedPosition(column));
-			if (
-				context.getConfig().script.generate(
-					wrapper,
-					origin.getX(),
-					origin.getY(),
-					origin.getZ(),
-					column
-				)
-			) {
-				if (context.getConfig().queueType != QueueType.NONE) {
-					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.getWorld());
-				}
-				return true;
+		if (
+			context.getConfig().script.generate(
+				wrapper,
+				origin.getX(),
+				origin.getY(),
+				origin.getZ()
+			)
+		) {
+			if (context.getConfig().queueType != QueueType.NONE) {
+				((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.getWorld());
 			}
-			else {
-				return false;
-			}
+			return true;
 		}
-		finally {
-			FeatureColumns.FEATURE_COLUMNS.set(oldSupplier);
+		else {
+			return false;
 		}
 	}
 
@@ -173,8 +164,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			WorldWrapper world,
 			int originX,
 			int originY,
-			int originZ,
-			WorldColumn column
+			int originZ
 		)
 		throws EarlyFeatureExitException;
 
@@ -207,17 +197,25 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" ))))
 					)
 					.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.addEnvironment(
-						ColumnScriptEnvironment.createFixedXYZ(
+						ColumnScriptEnvironmentBuilder.createFromLookup(
 							ColumnValue.REGISTRY,
-							load("column", 5, type(WorldColumn.class)),
-							new OpcodeCastInsnTree(
-								load("originY", 3, TypeInfos.INT),
-								I2D,
-								TypeInfos.DOUBLE
+							new IdentityCastInsnTree(
+								load("world", 1, type(WorldWrapper.class)),
+								type(ColumnLookup.class)
+							),
+							new DefaultLookupPosition(
+								load("originX", 2, TypeInfos.INT),
+								new OpcodeCastInsnTree(
+									load("originY", 3, TypeInfos.INT),
+									I2D,
+									TypeInfos.DOUBLE
+								),
+								load("originZ", 4, TypeInfos.INT)
 							)
 						)
-						.mutable
+						.build()
 					)
 					.parse()
 				);
@@ -225,9 +223,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			}
 
 			@Override
-			public boolean generate(WorldWrapper world, int originX, int originY, int originZ, WorldColumn column) {
+			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
 				try {
-					return this.script.generate(world, originX, originY, originZ, column);
+					return this.script.generate(world, originX, originY, originZ);
 				}
 				catch (EarlyFeatureExitException exit) {
 					return exit.placeBlocks;

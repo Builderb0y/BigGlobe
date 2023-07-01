@@ -14,14 +14,12 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 public abstract class AbstractCaveExclusionContext {
 
 	public final ScriptStructures structureStarts;
-	public final boolean rawGeneration;
 
 	public final int topI, bottomI;
 	public final double[] noise;
 
-	public AbstractCaveExclusionContext(ScriptStructures structureStarts, boolean rawGeneration, int topI, int bottomI, double[] noise) {
+	public AbstractCaveExclusionContext(ScriptStructures structureStarts, int topI, int bottomI, double[] noise) {
 		this.structureStarts = structureStarts;
-		this.rawGeneration = rawGeneration;
 		this.topI = topI;
 		this.bottomI = bottomI;
 		this.noise = noise;

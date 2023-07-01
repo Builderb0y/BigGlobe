@@ -22,8 +22,8 @@ public abstract class Column {
 		}
 	}
 
-	public final boolean hasFlag(int flag) {
-		return (this.flags & flag) != 0;
+	public final boolean hasFlag(int flags) {
+		return (this.flags & flags) == flags;
 	}
 
 	/**

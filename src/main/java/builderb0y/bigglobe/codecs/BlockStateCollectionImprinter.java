@@ -12,16 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.tag.TagKey;
 import net.minecraft.state.State;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
 
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
@@ -33,6 +31,9 @@ import builderb0y.autocodec.imprinters.ImprintContext;
 import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCollectionImprinter extends NamedImprinter<Collection<BlockState>> {
 
@@ -63,8 +64,8 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 
 	public <T_Encoded> void imprintAsString(ImprintContext<T_Encoded, Collection<BlockState>> context, String string) throws ImprintException {
 		try {
-			BlockArgumentParser
-			.blockOrTag(Registry.BLOCK, string, false)
+			BlockArgumentParserVersions
+			.blockOrTag(string, false)
 			.ifLeft(blockResult -> {
 				if (blockResult.blockState().getProperties().size() == blockResult.properties().size()) {
 					context.object.add(blockResult.blockState());
@@ -112,7 +113,10 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectName(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier id) throws DecodeException {
-		Block block = Registry.BLOCK.get(id);
+		if (!RegistryVersions.block().containsId(id)) {
+			throw new DecodeException("Unknown block: " + id);
+		}
+		Block block = RegistryVersions.block().get(id);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		if (stringProperties.isEmpty()) {
 			context.object.addAll(block.getStateManager().getStates());
@@ -126,9 +130,9 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectTag(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier tagID) throws DecodeException {
-		TagKey<Block> tagKey = TagKey.of(Registry.BLOCK_KEY, tagID);
-		RegistryEntryList<Block> tagEntries = Registry.BLOCK.getEntryList(tagKey).orElse(null);
-		if (tagEntries == null) throw new ImprintException("No such tag " + tagID + " in registry " + Registry.BLOCK_KEY.getValue());
+		TagKey<Block> tagKey = TagKey.of(RegistryKeyVersions.block(), tagID);
+		RegistryEntryList<Block> tagEntries = RegistryVersions.block().getEntryList(tagKey).orElse(null);
+		if (tagEntries == null) throw new ImprintException("No such tag " + tagID + " in registry " + RegistryKeyVersions.block().getValue());
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		this.filterAndAdd(context.object, tagEntries, stringProperties);
 	}

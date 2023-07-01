@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +20,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 
@@ -27,6 +27,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class RespawnCommand {
 
@@ -111,7 +112,7 @@ public class RespawnCommand {
 
 			@Override
 			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
-				return doRespawnWorld(player, player.getWorld(), force);
+				return doRespawnWorld(player, EntityVersions.getServerWorld(player), force);
 			}
 		},
 
@@ -207,7 +208,13 @@ public class RespawnCommand {
 			ServerWorld world = player.server.getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
 
-			if (force || (world.getBlockState(position).getBlock().canMobSpawnInside() && world.getBlockState(position.up()).getBlock().canMobSpawnInside())) {
+			if (
+				force
+				|| (
+					world.getBlockState(position).getBlock().canMobSpawnInside() &&
+					world.getBlockState(position.up()).getBlock().canMobSpawnInside()
+				)
+			) {
 				float yaw = player.getSpawnAngle();
 				player.teleport(world, position.getX() + 0.5D, position.getY(), position.getZ() + 0.5D, yaw, 0.0F);
 				return null;
@@ -217,10 +224,10 @@ public class RespawnCommand {
 		}
 
 		public static @Nullable Text tryRespawnNew(ServerPlayerEntity player) {
-			if (player.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator) {
-				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(overworldChunkGenerator.column(0, 0), player.world.random.nextLong());
+			if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator) {
+				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(overworldChunkGenerator.column(0, 0), EntityVersions.getServerWorld(player).random.nextLong());
 				if (spawnPoint != null) {
-					player.teleport(player.getWorld(), spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.yaw, 0.0F);
+					player.teleport(EntityVersions.getServerWorld(player), spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.yaw, 0.0F);
 					return null;
 				}
 				else {

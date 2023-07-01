@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -36,6 +36,7 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 	}
 
 	public static WoodPaletteEntry of(String id) {
+		if (id == null) return null;
 		return new WoodPaletteEntry(
 			BigGlobeMod
 			.getCurrentServer()

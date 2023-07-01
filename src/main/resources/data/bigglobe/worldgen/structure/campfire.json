@@ -18,7 +18,8 @@
 				")",
 
 				"int y = ceilInt(max_y(x, z))",
-				"WoodPalette palette = WoodPalette.randomForBiome(getBiome(x, y, z))",
+				"Biome biome = getBiome(x, y, z)",
+				"WoodPalette palette = WoodPalette.randomForBiome(biome)",
 				"if (palette == null: return())",
 				"String paletteID = palette.id",
 

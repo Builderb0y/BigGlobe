@@ -333,13 +333,146 @@
 
 
 		"minecraft:the_end": {
-			"type": "minecraft:the_end",
+			"type": "bigglobe:end",
 			"generator": {
-				"type": "minecraft:noise",
-				"biome_source": {
-					"type": "minecraft:the_end"
-				},
-				"settings": "minecraft:end"
+				"type": "bigglobe:end",
+				"value": {
+					"min_y": -512,
+					"max_y":  512,
+					"warp_x": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
+					"warp_z": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },
+					"nest": {
+						"shape": {
+							"type": "script",
+							"min": -9999.0,
+							"max": 1.875,
+							"script": [
+								"double relativeX = x / 128.0L",
+								"double relativeY = (y - 103.5) / 64.0L",
+								"double relativeZ = z / 128.0L",
+								"double theta = `end/angle_to_origin`",
+								"double width = cos(theta * 10.0L) * unmixSmooth(-0.75, -0.5, relativeY)",
+								"double centerRadius = relativeX ^ 2 + relativeY ^ 2 + relativeZ ^ 2",
+								"double edgeRadius = (1.0L - centerRadius) ^ 2",
+								"double result = edgeRadius * 16.0L + relativeY + width / sqrt(2.0L)",
+								"double roughness = noise * (relativeY * -0.5L + 0.5L)",
+								"return(roughness - result)"
+							],
+							"inputs": {
+								"noise": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.5 },
+										{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.25 },
+										{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.125 }
+									]
+								}
+							}
+						},
+						"min_y": 28,
+						"max_y": 152,
+						"max_radius": 148,
+						"spawn_location": [ 96, 67, 0 ],
+						"spawn_obsidian_platform": false,
+						"gateway_radius": 84.0,
+						"gateway_height": 80,
+						"floor_decorator": "bigglobe:end/nest_floor",
+						"ceiling_decorator": "bigglobe:end/nest_ceiling"
+					},
+					"mountains": {
+						"center_y": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 1024.0, "scaleY": 1024.0, "amplitude": 64.0 },
+								{ "type": "cubic", "scaleX":  512.0, "scaleY":  512.0, "amplitude": 32.0 },
+								{ "type": "cubic", "scaleX":  256.0, "scaleY":  256.0, "amplitude": 16.0 },
+								{ "type": "cubic", "scaleX":  128.0, "scaleY":  128.0, "amplitude":  8.0 },
+								{ "type": "cubic", "scaleX":   64.0, "scaleY":   64.0, "amplitude":  4.0 },
+								{ "type": "cubic", "scaleX":   32.0, "scaleY":   32.0, "amplitude":  2.0 },
+								{ "type": "cubic", "scaleX":   16.0, "scaleY":   16.0, "amplitude":  1.0 }
+							]
+						},
+						"thickness": [
+							"double radius = `end/warp_radius`",
+							"double base = exp2(-4.0L * radius) * 384.0L - 12.0L",
+							"double noise = sin(`end/warp_angle` * 8.0L + log2(radius) * 8.0L)",
+							"double amplitude = radius * exp2(-4.0L * radius) * 64.0L",
+							"return(base + noise * amplitude)"
+						],
+						"foliage": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.5      },
+								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.25     },
+								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.125    },
+								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.0625   },
+								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.03125  },
+								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.015625 },
+								{
+									"type": "script",
+									"min": -6.0,
+									"max": 0.0,
+									"script": [
+										"`end/mountain_thickness` / -64.0L"
+									],
+									"inputs": {}
+								}
+							]
+						},
+						"primary_surface_depth": "1.0L",
+						"floor_decorator": "bigglobe:end/mountain_floor",
+						"ceiling_decorator": "bigglobe:end/mountain_ceiling"
+					},
+					"ring_clouds": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "constant", "value": 0.5 },
+								{ "type": "smooth", "scaleX": 64, "scaleY": 64, "scaleZ": 64, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.1 },
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.04 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.016 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.0064 },
+								{ "type": "worley", "scale":  64, "amplitude": -1.0  },
+								{ "type": "worley", "scale":  32, "amplitude": -0.5  },
+								{ "type": "worley", "scale":  16, "amplitude": -0.25 }
+							]
+						},
+						"center_y": "192.0",
+						"min_radius": 0.375,
+						"max_radius": 0.625,
+						"vertical_thickness": 64.0,
+						"lower_floor_decorator":   "bigglobe:end/ring_cloud_lower_floor",
+						"lower_ceiling_decorator": "bigglobe:end/ring_cloud_lower_ceiling",
+						"upper_floor_decorator":   "bigglobe:end/ring_cloud_upper_floor",
+						"upper_ceiling_decorator": "bigglobe:end/ring_cloud_upper_ceiling"
+					},
+					"bridge_clouds": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "constant", "value": 0.5 },
+								{ "type": "smooth", "scaleX": 64, "scaleY": 64, "scaleZ": 64, "amplitude": 0.25 },
+								{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.1 },
+								{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.04 },
+								{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.016 },
+								{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.0064 },
+								{ "type": "worley", "scale":  64, "amplitude": -1.0  },
+								{ "type": "worley", "scale":  32, "amplitude": -0.5  },
+								{ "type": "worley", "scale":  16, "amplitude": -0.25 }
+							]
+						},
+						"count": 32,
+						"center_y": "(1.0L - exp(-0.5 * `end/warp_radius`)) * 256.0 + 159.0",
+						"min_radius": 0.625,
+						"mid_radius": 1.0,
+						"vertical_thickness": 64.0,
+						"lower_floor_decorator":   "bigglobe:end/bridge_cloud_lower_floor",
+						"lower_ceiling_decorator": "bigglobe:end/bridge_cloud_lower_ceiling",
+						"upper_floor_decorator":   "bigglobe:end/bridge_cloud_upper_floor",
+						"upper_ceiling_decorator": "bigglobe:end/bridge_cloud_upper_ceiling"
+					}
+				}
 			}
 		}
 	}

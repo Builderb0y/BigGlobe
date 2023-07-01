@@ -218,6 +218,7 @@ public class SpecialFunctionSyntax {
 				parser.input.setCursor(typeRevert);
 				throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 			}
+			parser.verifyName(name, "variable");
 			parser.environment.user().push();
 			VariableDeclarationInsnTree iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 			VariableDeclarationInsnTree userVar = parser.environment.user().newVariable(name, type);
@@ -241,18 +242,18 @@ public class SpecialFunctionSyntax {
 			//)
 			InsnTree storeIterator = store(
 				this.iterator.loader.variable,
-				invokeInterface(
+				invokeInstance(
 					this.iterable,
 					method(ACC_PUBLIC | ACC_INTERFACE, TypeInfos.ITERABLE, "iterator", TypeInfos.ITERATOR)
 				)
 			);
-			InsnTree hasNext = invokeInterface(
+			InsnTree hasNext = invokeInstance(
 				load(this.iterator.loader.variable),
 				method(ACC_PUBLIC | ACC_INTERFACE, TypeInfos.ITERATOR, "hasNext", TypeInfos.BOOLEAN)
 			);
 			InsnTree storeUserVar = store(
 				this.userVar.loader.variable,
-				invokeInterface(
+				invokeInstance(
 					load(this.iterator.loader.variable),
 					method(ACC_PUBLIC | ACC_INTERFACE, TypeInfos.ITERATOR, "next", TypeInfos.OBJECT)
 				)
@@ -303,7 +304,7 @@ public class SpecialFunctionSyntax {
 				String typeName = parser.input.expectIdentifierAfterWhitespace();
 				TypeInfo type = parser.environment.getType(parser, typeName);
 				if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
-				String name = parser.input.expectIdentifierAfterWhitespace();
+				String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "parameter");
 				parameters.add(new UserParameter(type, name));
 				if (parser.input.hasOperatorAfterWhitespace(",")) continue;
 				else if (parser.input.hasOperatorAfterWhitespace(":")) break;

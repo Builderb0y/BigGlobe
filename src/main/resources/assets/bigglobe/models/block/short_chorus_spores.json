@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cross",
+	"textures": {
+		"cross": "bigglobe:block/short_chorus_spores"
+	}
+}

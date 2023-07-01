@@ -12,11 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.state.property.Property;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.Mirror;
@@ -28,6 +26,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
@@ -39,7 +38,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static <T_Encoded> void verifyNormal(VerifyContext<T_Encoded, BlockState> context) throws VerifyException {
 		BlockState state = context.object;
-		if (state != null && (state.getLuminance() != 0 || state.hasBlockEntity())) {
+		if (state != null && (state.getLuminance() > 0 || state.hasBlockEntity())) {
 			StringBuilder message = new StringBuilder("For technical reasons, ");
 			context.appendPathTo(message);
 			throw new VerifyException(message.append(" cannot emit light or have a BlockEntity. (was ").append(state).append(')').toString());
@@ -57,7 +56,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		if (context.isEmpty()) return null;
 		String string = context.tryAsString();
 		if (string != null) try {
-			BlockResult result = BlockArgumentParser.block(Registry.BLOCK, string, false);
+			BlockResult result = BlockArgumentParserVersions.block(string, false);
 			Set<Property<?>> missing = new HashSet<>(result.blockState().getProperties());
 			missing.removeAll(result.properties().keySet());
 			if (!missing.isEmpty()) {

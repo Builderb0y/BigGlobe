@@ -8,6 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.command.argument.RegistryKeyArgumentType;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
@@ -15,8 +17,6 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.NetherColumn;
@@ -32,6 +32,7 @@ import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
+import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateVoronoiCommand {
 
@@ -192,8 +193,9 @@ public class LocateVoronoiCommand {
 			VoronoiDiagram2D.SeedPoint seedPoint = diagram.getSeedPoint(cellX, cellZ);
 			column.setPosUnchecked(seedPoint.centerX, seedPoint.centerZ);
 			if (this.getSettings(column) == settings) {
-				source.sendFeedback(
-					Text.translatable(
+				ServerCommandSourceVersions.sendFeedback(
+					source,
+					() -> Text.translatable(
 						"commands.bigglobe.locateVoronoi.success",
 						settingsKey.getValue().toString(),
 						this.name,

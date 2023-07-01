@@ -8,7 +8,8 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironment;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
+import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -33,8 +34,9 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(
-			ColumnScriptEnvironment.createFixedXZVariableY(
+			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 				ColumnValue.REGISTRY,
 				load("column", 0, type(WorldColumn.class)),
 				new OpcodeCastInsnTree(
@@ -43,7 +45,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					TypeInfos.DOUBLE
 				)
 			)
-			.mutable
+			.build()
 		);
 		this.delegate = parser.parse();
 	}
@@ -123,7 +125,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//fill samples with input.
-				invokeInterface(
+				invokeInstance(
 					getField(
 						load(thisVar),
 						input.fieldInfo(getBulk)
@@ -244,7 +246,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				}
 				//fill scratch arrays.
 				for (Input input : this.inputs.values()) {
-					invokeInterface(
+					invokeInstance(
 						getField(
 							load(thisVar),
 							input.fieldInfo(getBulk)

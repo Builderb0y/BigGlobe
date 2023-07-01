@@ -7,10 +7,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
+
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 /** frequently used BlockState's. */
 public class BlockStates {
@@ -54,6 +54,8 @@ public class BlockStates {
 		SOUL_SAND              = Blocks.SOUL_SAND.getDefaultState(),
 		SOUL_SOIL              = Blocks.SOUL_SOIL.getDefaultState(),
 
+		END_STONE              = Blocks.END_STONE.getDefaultState(),
+
 		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
 
 	/**
@@ -68,7 +70,7 @@ public class BlockStates {
 	*/
 	public static BlockState of(String name) {
 		try {
-			BlockResult result = BlockArgumentParser.block(Registry.BLOCK, name, false);
+			BlockResult result = BlockArgumentParserVersions.block(name, false);
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 			remaining.removeAll(result.properties().keySet());
 			if (!remaining.isEmpty()) {

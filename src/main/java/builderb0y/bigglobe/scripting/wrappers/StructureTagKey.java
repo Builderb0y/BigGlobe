@@ -3,13 +3,13 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<Structure, StructureEntry> {
@@ -22,7 +22,8 @@ public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<Struc
 	}
 
 	public static StructureTagKey of(String id) {
-		return new StructureTagKey(TagKey.of(Registry.STRUCTURE_KEY, new Identifier(id)));
+		if (id == null) return null;
+		return new StructureTagKey(TagKey.of(RegistryKeyVersions.structure(), new Identifier(id)));
 	}
 
 	@Override
@@ -33,6 +34,11 @@ public record StructureTagKey(TagKey<Structure> key) implements TagWrapper<Struc
 	@Override
 	public StructureEntry random(RandomGenerator random) {
 		return this.randomImpl(random);
+	}
+
+	@Override
+	public StructureEntry random(long seed) {
+		return this.randomImpl(seed);
 	}
 
 	@Override

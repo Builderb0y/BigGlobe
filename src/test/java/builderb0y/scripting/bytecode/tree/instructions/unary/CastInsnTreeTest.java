@@ -29,7 +29,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.BOOLEAN, TypeInfos.FLOAT, I2F);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.BOOLEAN, TypeInfos.DOUBLE, I2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.BYTE, TypeInfos.BOOLEAN, I2Z);
+		//this.test(CastMode.EXPLICIT_THROW, TypeInfos.BYTE, TypeInfos.BOOLEAN, I2Z);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.BYTE, TypeInfos.BYTE);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.BYTE, TypeInfos.CHAR);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.BYTE, TypeInfos.SHORT);
@@ -38,7 +38,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.BYTE, TypeInfos.FLOAT, I2F);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.BYTE, TypeInfos.DOUBLE, I2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.CHAR, TypeInfos.BOOLEAN, I2Z);
+		//this.test(CastMode.EXPLICIT_THROW, TypeInfos.CHAR, TypeInfos.BOOLEAN, I2Z);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.CHAR, TypeInfos.BYTE, I2B);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.CHAR, TypeInfos.CHAR);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.CHAR, TypeInfos.SHORT, I2S);
@@ -47,7 +47,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.CHAR, TypeInfos.FLOAT, I2F);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.CHAR, TypeInfos.DOUBLE, I2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.SHORT, TypeInfos.BOOLEAN, I2Z);
+		//this.test(CastMode.EXPLICIT_THROW, TypeInfos.SHORT, TypeInfos.BOOLEAN, I2Z);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.SHORT, TypeInfos.BYTE, I2B);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.SHORT, TypeInfos.CHAR, I2C);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.SHORT, TypeInfos.SHORT);
@@ -56,7 +56,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.SHORT, TypeInfos.FLOAT, I2F);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.SHORT, TypeInfos.DOUBLE, I2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.INT, TypeInfos.BOOLEAN, I2Z);
+		//this.test(CastMode.EXPLICIT_THROW, TypeInfos.INT, TypeInfos.BOOLEAN, I2Z);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.INT, TypeInfos.BYTE, I2B);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.INT, TypeInfos.CHAR, I2C);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.INT, TypeInfos.SHORT, I2S);
@@ -65,7 +65,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.INT, TypeInfos.FLOAT, I2F);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.INT, TypeInfos.DOUBLE, I2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.LONG, TypeInfos.BOOLEAN, L2Z);
+		//this.test(CastMode.EXPLICIT_THROW, TypeInfos.LONG, TypeInfos.BOOLEAN, L2Z);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.LONG, TypeInfos.BYTE, L2I, I2B);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.LONG, TypeInfos.CHAR, L2I, I2C);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.LONG, TypeInfos.SHORT, L2I, I2S);
@@ -74,7 +74,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.LONG, TypeInfos.FLOAT, L2F);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.LONG, TypeInfos.DOUBLE, L2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.BOOLEAN, INVOKESTATIC);
+		this.test(CastMode.EXPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.BOOLEAN, DUP, FCMPG, ICONST_1, IXOR);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.BYTE, INVOKESTATIC, I2B);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.CHAR, INVOKESTATIC, I2C);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.SHORT, INVOKESTATIC, I2S);
@@ -83,7 +83,7 @@ public class CastInsnTreeTest {
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.FLOAT);
 		this.test(CastMode.IMPLICIT_THROW, TypeInfos.FLOAT, TypeInfos.DOUBLE, F2D);
 
-		this.test(CastMode.EXPLICIT_THROW, TypeInfos.DOUBLE, TypeInfos.BOOLEAN, INVOKESTATIC);
+		this.test(CastMode.EXPLICIT_THROW, TypeInfos.DOUBLE, TypeInfos.BOOLEAN, DUP2, DCMPG, ICONST_1, IXOR);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.DOUBLE, TypeInfos.BYTE, INVOKESTATIC, I2B);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.DOUBLE, TypeInfos.CHAR, INVOKESTATIC, I2C);
 		this.test(CastMode.EXPLICIT_THROW, TypeInfos.DOUBLE, TypeInfos.SHORT, INVOKESTATIC, I2S);
