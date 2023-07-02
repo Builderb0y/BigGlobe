@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.features;
 
+import java.util.List;
 import java.util.Map;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
@@ -35,7 +36,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	become immediately obvious, and you don't need to wait
 	for the delayed generation block to unload and reload.
 	*/
-	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
+	public static final boolean DEBUG_ALWAYS_SERIALIZE = true;
 
 	public @NotNull Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 
@@ -121,6 +122,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		return MaterialVersions.isReplaceableOrPlant(state);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static SerializableBlockQueue read(NbtCompound nbt) {
 		int flags = nbt.getInt("flags");
 		int[] center = nbt.getIntArray("center");
@@ -136,6 +138,17 @@ public class SerializableBlockQueue extends BlockQueue {
 		}
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
+		NbtList blockEntities = nbt.getList("blockEntities", NbtElement.COMPOUND_TYPE);
+		if (!blockEntities.isEmpty()) {
+			for (NbtCompound blockEntityNBT : (List<NbtCompound>)(Object)(blockEntities)) {
+				BlockPos pos = BlockEntity.posFromNbt(blockEntityNBT);
+				BlockState state = queue.queuedBlocks.get(pos.asLong());
+				if (state != null && state.hasBlockEntity()) {
+					BlockEntity blockEntity = BlockEntity.createFromNbt(pos, state, blockEntityNBT);
+					if (blockEntity != null) queue.queueBlockEntity(pos, blockEntity);
+				}
+			}
+		}
 		return queue;
 	}
 
@@ -170,6 +183,13 @@ public class SerializableBlockQueue extends BlockQueue {
 		nbt.put("palette", paletteNBT);
 		nbt.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
 		nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
+		if (!this.queuedBlockEntities.isEmpty()) {
+			NbtList blockEntities = new NbtList();
+			for (BlockEntity blockEntity : this.queuedBlockEntities.values()) {
+				blockEntities.add(blockEntity.createNbtWithIdentifyingData());
+			}
+			nbt.put("blockEntities", blockEntities);
+		}
 		return nbt;
 	}
 
@@ -204,7 +224,8 @@ public class SerializableBlockQueue extends BlockQueue {
 		return new Object[] {
 			Map.entry("flags", this.flags),
 			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks)),
-			Map.entry("queuedReplacements", intellij_decodePositions(this.queuedReplacements))
+			Map.entry("queuedReplacements", intellij_decodePositions(this.queuedReplacements)),
+			Map.entry("queuedBlockEntities", intellij_decodePositions(this.queuedBlockEntities))
 		};
 	}
 }

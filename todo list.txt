@@ -16,12 +16,6 @@ testing:
 porting:
 
 where I left off:
-	test connecting to dedicated server before releasing!
-	there are apparently issues with connecting to dedicated servers.
-		Internal Exception: io.netty.handler.codec.DecoderException: io.netty.handler.codec.EncoderException: Failed to decode: builderb0y.autocodec.decoders.DecodeException: Not a RegistryOps: NBT; . . .
-		this is on 3.5.0 for MC 1.19.2.
-		it can't lookup configured_features when syncing the wood palette registry to the client.
-		see log in downloads folder for more details.
 
 changelog:
 

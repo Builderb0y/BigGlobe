@@ -83,7 +83,7 @@ public class WorldWrapper implements ColumnLookup {
 
 	@Override
 	public WorldColumn lookupColumn(int x, int z) {
-		BlockPos pos = this.unboundedPos(x, 0, z);
+		BlockPos pos = this.unboundedPos(x, this.coordination.area.getMinY(), z);
 		if (this.checkForColumns) {
 			if (this.coordination.area.contains(pos)) {
 				Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);

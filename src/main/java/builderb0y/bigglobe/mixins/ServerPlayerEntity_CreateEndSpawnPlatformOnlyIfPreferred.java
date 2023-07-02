@@ -16,10 +16,13 @@ public abstract class ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred {
 
 	@Inject(method = "createEndSpawnPlatform", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_dontSpawnEndPlatformUnlessDesired(ServerWorld world, BlockPos centerPos, CallbackInfo callback) {
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-			if (!generator.settings.nest().spawn_obsidian_platform()) {
-				callback.cancel();
-			}
+		BlockPos downPos;
+		if (
+			world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator &&
+			!generator.settings.nest().spawn_obsidian_platform() &&
+			world.getBlockState(downPos = centerPos.down()).isOpaqueFullCube(world, downPos)
+		) {
+			callback.cancel();
 		}
 	}
 }
