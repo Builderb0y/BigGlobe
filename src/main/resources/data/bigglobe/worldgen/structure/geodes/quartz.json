@@ -45,7 +45,10 @@
 		},
 		"growth": {
 			"place": "#bigglobe:quartz_buds",
-			"against": "#bigglobe:quartz_geode_blocks"
+			"against": [
+				"bigglobe:rough_quartz",
+				"bigglobe:budding_quartz"
+			]
 		},
 		"terrain_adaptation": "bury"
 	}

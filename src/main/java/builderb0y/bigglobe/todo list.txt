@@ -16,13 +16,18 @@ testing:
 porting:
 
 where I left off:
-	there are apparently issues with connecting to dedicated servers.
-		Internal Exception: io.netty.handler.codec.DecoderException: io.netty.handler.codec.EncoderException: Failed to decode: builderb0y.autocodec.decoders.DecodeException: Not a RegistryOps: NBT; . . .
-		this is on 3.5.0 for MC 1.19.2.
-		it can't lookup configured_features when syncing the wood palette registry to the client.
-		see log in downloads folder for more details.
+	re-add projected grids.
+		use one of these for cos(angle) part of end nest shape.
 
 changelog:
+	* End spawn platform is now slightly smarter about if/where it spawns.
+	* Fixed obsidian spires in the end only partially spawning sometimes.
+	* Fixed queued features not working correctly with BlockEntity's.
+	* Fixed end gateways sometimes spawning at the wrong Y level or potentially underground.
+	* Fixed end spikes not displaying beam while dragon is being summoned.
+	* Fixed end cities sometimes spawning above a crater when they're too close to the nest.
+	* Fixed cave overriders in the overworld being a bit too aggressive.
+	* Geodes now have more flexible configuration for growth blocks. And this time it's backwards-compatible with V3.6.0.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -77,6 +82,9 @@ scripting:
 	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
 	add copy constructor and clone() for user-defined classes.
 	cache scripts.
+	expose dx/dz for height overriders.
+		I honestly want to try sine wave erosion as an overrider ngl.
+		would need to be populated in columns before overriders are run.
 
 features:
 	general:
@@ -85,6 +93,7 @@ features:
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
+		priority for overriders?
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
@@ -96,6 +105,7 @@ features:
 		ice spikes.
 		glaciers.
 		log cabin structure?
+		slightly larger house structure?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -111,7 +121,12 @@ features:
 				floor:
 					snow.
 					maybe some ice sprinkled in with the snow.
+			sandy?
+				floor:
+					sand.
+					sandstone under that.
 		make geode placement faster by only computing noise in a sphere instead of a cube.
+		more types of geodes/more colors of pretty crystals?
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
 			piles of gold?

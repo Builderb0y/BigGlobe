@@ -61,7 +61,9 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(BlockPos pos) {
-		return this.world.getBlockEntity(pos);
+		BlockEntity blockEntity = this.queue.getBlockEntity(pos);
+		if (blockEntity == null) blockEntity = this.world.getBlockEntity(pos);
+		return blockEntity;
 	}
 
 	@Override

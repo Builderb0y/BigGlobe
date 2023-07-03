@@ -36,6 +36,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.versions.BlockPosVersions;
 
 public class LakeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -113,7 +114,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		collector.addPiece(piece);
 		return Optional.of(
 			new StructurePosition(
-				BlockPos.ofFloored(pos.x, pos.y, pos.z),
+				BlockPosVersions.floor(pos.x, pos.y, pos.z),
 				Either.right(collector)
 			)
 		);

@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:end_height_overrider",
-	"config": {
-		"script": [
-			"mountainThickness *= 1.0L - unmixClamp(1024.0L, 512.0L, `end/distance_to_origin`) ^ 2"
-		]
-	}
-}

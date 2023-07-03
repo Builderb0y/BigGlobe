@@ -13,6 +13,7 @@ import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class DynamicRegistryCoder<T> extends NamedCoder<RegistryEntryLookup<T>> {
 
@@ -31,11 +32,11 @@ public class DynamicRegistryCoder<T> extends NamedCoder<RegistryEntryLookup<T>> 
 				return lookup;
 			}
 			else {
-				throw new DecodeException(() -> "Registry " + this.registryKey.getValue() + " not present in RegistryOps");
+				throw AutoCodecVersions.newDecodeExceptions(() -> "Registry " + this.registryKey.getValue() + " not present in RegistryOps");
 			}
 		}
 		else {
-			throw new DecodeException(() -> "Not a RegistryOps: " + context.ops);
+			throw AutoCodecVersions.newDecodeExceptions(() -> "Not a RegistryOps: " + context.ops);
 		}
 	}
 

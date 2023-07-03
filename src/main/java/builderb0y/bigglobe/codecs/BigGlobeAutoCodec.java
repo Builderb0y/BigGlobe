@@ -300,9 +300,8 @@ public class BigGlobeAutoCodec {
 			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
 		}
 
-		@SuppressWarnings("unchecked")
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull Registry<T> registry) {
-			this.                    registryKey = (RegistryKey<Registry<T>>)(registry.getKey());
+			this.                    registryKey = RegistryVersions.getRegistryKey(registry);
 			this.                       registry = registry;
 
 			this.                     objectType = objectType;

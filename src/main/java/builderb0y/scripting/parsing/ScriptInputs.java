@@ -14,6 +14,7 @@ import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
 
 public class ScriptInputs {
@@ -67,17 +68,17 @@ public class ScriptInputs {
 
 			if (inputs.script != null) {
 				if (inputs.template != null) {
-					throw new VerifyException(() -> context.pathToStringBuilder().append(" cannot specify both script and template at the same time.").toString());
+					throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" cannot specify both script and template at the same time.").toString());
 				}
 				else if (inputs.inputs != null) {
-					throw new VerifyException(() -> context.pathToStringBuilder().append(" can only specify inputs with template, not script.").toString());
+					throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" can only specify inputs with template, not script.").toString());
 				}
 			}
 			else if (inputs.template == null) {
-				throw new VerifyException(() -> context.pathToStringBuilder().append(" must specify either script or template.").toString());
+				throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must specify either script or template.").toString());
 			}
 			else if (inputs.inputs == null) {
-				throw new VerifyException(() -> context.pathToStringBuilder().append(" must specify inputs when template is specified.").toString());
+				throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must specify inputs when template is specified.").toString());
 			}
 		}
 

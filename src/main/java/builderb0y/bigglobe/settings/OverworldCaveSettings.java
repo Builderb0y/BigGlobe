@@ -18,6 +18,7 @@ import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class OverworldCaveSettings {
 
@@ -52,7 +53,7 @@ public class OverworldCaveSettings {
 			LocalOverworldCaveSettings settings = context.object;
 			if (settings != null) {
 				if (settings.surface_depth_noise == null && (settings.floor_blocks != null || settings.ceiling_blocks != null)) {
-					throw new VerifyException(() -> "Must specify " + context.pathToString() + " when floor_blocks or ceiling_blocks are present.");
+					throw AutoCodecVersions.newVerifyException(() -> "Must specify " + context.pathToString() + " when floor_blocks or ceiling_blocks are present.");
 				}
 			}
 		}

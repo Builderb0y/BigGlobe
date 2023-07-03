@@ -6,6 +6,7 @@ import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
+import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -28,6 +29,8 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 	}
 
 	public static Context caveContext(ScriptStructures structures, OverworldColumn column) {
+		ColumnYToDoubleScript.Holder noiseThreshold = column.getCaveCell().settings.noise_threshold();
+		double noiseMin = column.getCaveCell().settings.noise().minValue();
 		return new Context(
 			structures,
 			column,
@@ -37,7 +40,7 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 
 			@Override
 			public double getExclusionMultiplier(int y) {
-				return this.caveCell.settings.getEffectiveWidth(this.column(), y);
+				return noiseThreshold.evaluate(this.column(), y) - noiseMin;
 			}
 		};
 	}

@@ -397,7 +397,9 @@
 							"double base = exp2(-4.0L * radius) * 384.0L - 12.0L",
 							"double noise = sin(`end/warp_angle` * 8.0L + log2(radius) * 8.0L)",
 							"double amplitude = radius * exp2(-4.0L * radius) * 64.0L",
-							"return(base + noise * amplitude)"
+							"double result = base + noise * amplitude",
+							"result *= 1.0 - unmixClamp(1024.0L, 512.0L, `end/distance_to_origin`) ^ 2",
+							"return(result)"
 						],
 						"foliage": {
 							"type": "sum",

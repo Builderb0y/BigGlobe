@@ -26,6 +26,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
@@ -39,7 +40,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	public static <T_Encoded> void verifyNormal(VerifyContext<T_Encoded, BlockState> context) throws VerifyException {
 		BlockState state = context.object;
 		if (state != null && state.hasBlockEntity()) {
-			throw new VerifyException(() -> {
+			throw AutoCodecVersions.newVerifyException(() -> {
 				StringBuilder message = new StringBuilder("For technical reasons, ");
 				context.appendPathTo(message);
 				return message.append(" cannot have a BlockEntity. (was ").append(state).append(')').toString();

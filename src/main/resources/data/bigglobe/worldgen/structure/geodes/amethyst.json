@@ -45,7 +45,10 @@
 		},
 		"growth": {
 			"place": "#bigglobe:amethyst_buds",
-			"against": "#bigglobe:amethyst_geode_blocks"
+			"against": [
+				"minecraft:amethyst_block",
+				"minecraft:budding_amethyst"
+			]
 		},
 		"terrain_adaptation": "bury"
 	}

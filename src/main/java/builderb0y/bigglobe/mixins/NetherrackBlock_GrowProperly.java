@@ -6,10 +6,11 @@ import org.spongepowered.asm.mixin.Overwrite;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.NetherrackBlock;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+
+import builderb0y.bigglobe.versions.TagsVersions;
 
 @Mixin(NetherrackBlock.class)
 public class NetherrackBlock_GrowProperly {
@@ -38,7 +39,7 @@ public class NetherrackBlock_GrowProperly {
 					if (offsetX == 0 && offsetY == 0 && offsetZ == 0) continue;
 					adjacentPos.setY(pos.getY() + offsetY);
 					BlockState adjacentState = world.getBlockState(adjacentPos);
-					if (adjacentState.isIn(BlockTags.NYLIUM) && (chance++ == 0 || random.nextInt(chance) == 0)) {
+					if (adjacentState.isIn(TagsVersions.nylium()) && (chance++ == 0 || random.nextInt(chance) == 0)) {
 						replacement = adjacentState;
 					}
 				}

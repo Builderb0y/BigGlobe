@@ -13,6 +13,7 @@ import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class DynamicRegistryWrapperImplCoder<T> extends NamedCoder<RegistryWrapper.Impl<T>> {
 
@@ -34,11 +35,11 @@ public class DynamicRegistryWrapperImplCoder<T> extends NamedCoder<RegistryWrapp
 				return (RegistryWrapper.Impl<T>)(wrapper);
 			}
 			else {
-				throw new DecodeException(() -> "Unable to access registry " + this.registryKey.getValue() + " in " + registryOps);
+				throw AutoCodecVersions.newDecodeExceptions(() -> "Unable to access registry " + this.registryKey.getValue() + " in " + registryOps);
 			}
 		}
 		else {
-			throw new DecodeException(() -> "Not a RegistryOps: " + context.ops);
+			throw AutoCodecVersions.newDecodeExceptions(() -> "Not a RegistryOps: " + context.ops);
 		}
 	}
 

@@ -155,10 +155,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void populateHeightEmpty(EndColumn column) {
-		this.populateHeight(column, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
-	}
-
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<EndColumn> columns, boolean distantHorizons) {
 		int minSurface = Integer.MAX_VALUE;
 		int maxSurface = Integer.MIN_VALUE;
@@ -400,7 +396,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		EndColumn column = this.column(x, z);
-		this.populateHeightEmpty(column);
 		return column.hasTerrain() ? column.getFinalTopHeightI() : this.getMinimumY();
 	}
 
@@ -410,7 +405,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		Arrays.fill(states, BlockStates.AIR);
 		int minY = this.settings.min_y();
 		EndColumn column = this.column(x, z);
-		this.populateHeightEmpty(column);
 		if (column.hasTerrain()) {
 			int start = column.getFinalBottomHeightI();
 			int end = column.getFinalTopHeightI();

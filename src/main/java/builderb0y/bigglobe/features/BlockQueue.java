@@ -7,10 +7,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.Debug;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.StructureWorldAccess;
@@ -31,6 +34,7 @@ then the queue is copied to the world. otherwise, the queue is discarded and not
 public class BlockQueue {
 
 	public Long2ObjectLinkedOpenHashMap<BlockState> queuedBlocks = new Long2ObjectLinkedOpenHashMap<>(1024);
+	public Long2ObjectLinkedOpenHashMap<BlockEntity> queuedBlockEntities = new Long2ObjectLinkedOpenHashMap<>(0);
 	public int flags;
 
 	public BlockQueue(int flags) {
@@ -38,7 +42,11 @@ public class BlockQueue {
 	}
 
 	public BlockQueue(boolean causeBlockUpdates) {
-		this.flags = causeBlockUpdates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS | Block.FORCE_STATE;
+		this.flags = (
+			causeBlockUpdates
+			? Block.NOTIFY_ALL
+			: Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+		);
 	}
 
 	public BlockQueueStructureWorldAccess createWorld(StructureWorldAccess world) {
@@ -51,6 +59,13 @@ public class BlockQueue {
 
 	public void queueBlock(long pos, BlockState state) {
 		this.queuedBlocks.put(pos, state);
+		if (state.hasBlockEntity()) {
+			BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(BlockPos.fromLong(pos), state);
+			if (blockEntity != null) this.queueBlockEntity(pos, blockEntity);
+		}
+		else {
+			this.queuedBlockEntities.remove(pos);
+		}
 	}
 
 	public void queueReplacement(BlockPos pos, BlockState from, BlockState to) {
@@ -59,6 +74,22 @@ public class BlockQueue {
 
 	public void queueReplacement(long pos, BlockState from, BlockState to) {
 		this.queueBlock(pos, to);
+	}
+
+	public void queueBlockEntity(long pos, BlockEntity blockEntity) {
+		this.queuedBlockEntities.put(pos, blockEntity);
+	}
+
+	public void queueBlockEntity(BlockPos pos, BlockEntity blockEntity) {
+		this.queueBlockEntity(pos.asLong(), blockEntity);
+	}
+
+	public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
+		return this.getBlockEntity(pos.asLong());
+	}
+
+	public @Nullable BlockEntity getBlockEntity(long pos) {
+		return this.queuedBlockEntities.get(pos);
 	}
 
 	public void placeQueuedBlocks(WorldAccess world) {
@@ -70,6 +101,17 @@ public class BlockQueue {
 			) {
 				Long2ObjectMap.Entry<BlockState> entry = iterator.next();
 				world.setBlockState(pos.set(entry.getLongKey()), entry.getValue(), this.flags);
+			}
+			if (!this.queuedBlockEntities.isEmpty()) for (
+				ObjectIterator<Long2ObjectMap.Entry<BlockEntity>> iterator = this.queuedBlockEntities.long2ObjectEntrySet().fastIterator();
+				iterator.hasNext();
+			) {
+				Long2ObjectMap.Entry<BlockEntity> entry = iterator.next();
+				BlockEntity worldBlockEntity = world.getBlockEntity(pos.set(entry.getLongKey()));
+				if (worldBlockEntity != null) {
+					BlockEntity queuedBlockEntity = entry.getValue();
+					worldBlockEntity.readNbt(queuedBlockEntity.createNbt());
+				}
 			}
 			/*
 			if ((this.flags & Block.SKIP_LIGHTING_UPDATES) != 0 && world instanceof World) {
@@ -122,31 +164,33 @@ public class BlockQueue {
 	public Object[] intellij_childrenArray() {
 		return new Object[] {
 			Map.entry("flags", this.flags),
-			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks))
+			Map.entry("queuedBlocks", intellij_decodePositions(this.queuedBlocks)),
+			Map.entry("queuedBlockEntities", intellij_decodePositions(this.queuedBlockEntities))
 		};
 	}
 
-	public static Object intellij_decodePositions(Long2ObjectMap<BlockState> map) {
+	public static <T> Object intellij_decodePositions(Long2ObjectMap<T> map) {
 		if (map == null) return "null";
 		int size = map.size();
-		QueuedBlock[] blocks = new QueuedBlock[size];
+		@SuppressWarnings("unchecked")
+		QueuedBlock<T>[] blocks = new QueuedBlock[size];
 		int index = 0;
 		for (
-			ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = (
+			ObjectIterator<Long2ObjectMap.Entry<T>> iterator = (
 				Long2ObjectMaps.fastIterator(map)
 			);
 			iterator.hasNext();
 		) {
-			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
-			blocks[index++] = new QueuedBlock(entry.getLongKey(), entry.getValue());
+			Long2ObjectMap.Entry<T> entry = iterator.next();
+			blocks[index++] = new QueuedBlock<>(entry.getLongKey(), entry.getValue());
 		}
 		assert index == blocks.length;
 		return blocks;
 	}
 
-	public static record QueuedBlock(int x, int y, int z, long packed, BlockState state) {
+	public static record QueuedBlock<T>(int x, int y, int z, long packed, T state) {
 
-		public QueuedBlock(long packed, BlockState state) {
+		public QueuedBlock(long packed, T state) {
 			this(
 				BlockPos.unpackLongX(packed),
 				BlockPos.unpackLongY(packed),
@@ -156,7 +200,7 @@ public class BlockQueue {
 			);
 		}
 
-		public QueuedBlock(int x, int y, int z, BlockState state) {
+		public QueuedBlock(int x, int y, int z, T state) {
 			this(x, y, z, BlockPos.asLong(x, y, z), state);
 		}
 	}
