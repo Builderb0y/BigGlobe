@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.concurrent.RecursiveAction;
 
 import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 import net.minecraft.block.Block;
@@ -34,8 +33,10 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectList;
+import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectSet;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -45,7 +46,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public final RandomSource radius;
 	public final BlocksConfig @VerifyNotEmpty @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
 	public final SpikesConfig spikes;
-	public final @VerifyNullable GrowthConfig growth;
+	public final GrowthConfig @VerifyNullable @SingletonArray [] growth;
 
 	public GeodeStructure(
 		Config config,
@@ -53,7 +54,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource radius,
 		BlocksConfig[] blocks,
 		SpikesConfig spikes,
-		@VerifyNullable GrowthConfig growth
+		GrowthConfig @VerifyNullable [] growth
 	) {
 		super(config);
 		this.noise  = noise;
@@ -64,8 +65,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	}
 
 	public static record GrowthConfig(
-		TagOrObject<Block> place,
-		TagOrObject<Block> against
+		LazyRegistryObjectList.Impl<Block> place,
+		LazyRegistryObjectSet.Impl<Block> against
 	) {}
 
 	public static record BlocksConfig(
@@ -80,7 +81,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			for (int index = 1, length = array.length; index < length; index++) {
 				double newThreshold = array[index].threshold;
 				if (newThreshold > threshold) threshold = newThreshold;
-				else throw new VerifyException(() -> context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
+				else throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
 			}
 		}
 
@@ -218,7 +219,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			public @UseName("r") double radius;
 			public Grid3D noise;
 			public BlocksConfig[] blocks;
-			public @UseName("gbt") @VerifyNullable GrowthConfig growth;
+			public @UseName("gbt") GrowthConfig @VerifyNullable @SingletonArray [] growth;
 
 			public Data(
 				double x,
@@ -227,7 +228,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				double radius,
 				Grid3D noise,
 				BlocksConfig[] blocks,
-				@Nullable GrowthConfig growth
+				GrowthConfig @VerifyNullable [] growth
 			) {
 				this.x = x;
 				this.y = y;
@@ -247,7 +248,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			double radius,
 			Grid3D noise,
 			BlocksConfig[] blocks,
-			GrowthConfig growth
+			GrowthConfig[] growth
 		) {
 			super(
 				type,
@@ -351,8 +352,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			GrowthConfig growth = this.data.growth;
-			if (growth == null || growth.place.isEmpty() || growth.against.isEmpty()) return;
+			GrowthConfig[] growth = this.data.growth;
+			if (growth == null || growth.length == 0) return;
 			int minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
 			int minY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
 			int minZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
@@ -371,24 +372,22 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							long seedX = Permuter.permute(seedZ, x);
 							permuter.setSeed(seedX);
 							Direction direction = Permuter.choose(permuter, Directions.ALL);
-							if (growth.against.contains(world.getBlockState(pos.move(direction)).getBlock().getRegistryEntry())) {
-								BlockState toPlace = (
-									growth
-									.place
-									.random(permuter)
-									.value()
-									.getDefaultState()
-								);
-								if (toPlace.contains(Properties.FACING)) {
-									toPlace = toPlace.with(Properties.FACING, direction.getOpposite());
-								}
-								world.setBlockState(pos.set(x, y, z), toPlace, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
-							}
-						}
-					}
-				}
-			}
-		}
+							Block against = world.getBlockState(pos.move(direction)).getBlock();
+							for (GrowthConfig growthConfig : growth) {
+								if (growthConfig.against.contains(against) && !growthConfig.place.isEmpty()) {
+									BlockState toPlace = Permuter.choose(permuter, growthConfig.place).getDefaultState();
+									if (toPlace.contains(Properties.FACING)) {
+										toPlace = toPlace.with(Properties.FACING, direction.getOpposite());
+									}
+									world.setBlockState(pos.set(x, y, z), toPlace, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+									break;
+								} //if growth matches
+							} //for growth
+						} //if air
+					} //for x
+				} //for z
+			} //for y
+		} //method
 
 		@Override
 		public void translate(int x, int y, int z) {

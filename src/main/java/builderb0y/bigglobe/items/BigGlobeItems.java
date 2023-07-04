@@ -3,12 +3,15 @@ package builderb0y.bigglobe.items;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.DyeColor;
@@ -45,7 +48,7 @@ public class BigGlobeItems {
 		FLOATSTONE               = registerPlacer(BigGlobeBlocks.FLOATSTONE),
 		FLOATSTONE_SLAB          = registerPlacer(BigGlobeBlocks.FLOATSTONE_SLAB),
 		FLOATSTONE_STAIRS        = registerPlacer(BigGlobeBlocks.FLOATSTONE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings())),
+		ROCK                     = register      ("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings())),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -163,20 +166,20 @@ public class BigGlobeItems {
 	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
 		ColorProviderRegistry.ITEM.register(
-			(stack, tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
+			(ItemStack stack, int tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
 		);
-		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (stack, world, entity, seed) -> {
+		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (ItemStack stack, ClientWorld world, LivingEntity entity, int seed) -> {
 			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
 			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
 			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB, FLOATSTONE, FLOATSTONE_STAIRS, FLOATSTONE_SLAB);
 			entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
 			entries.addBefore(Items.SAND, OVERGROWN_SAND);
 			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
@@ -198,27 +201,27 @@ public class BigGlobeItems {
 			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
 			entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register((FabricItemGroupEntries entries) -> {
 			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
 			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
 			entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
 			entries.addAfter(Items.LEAD, string(16), string(64), string(256));
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
 			entries.addAfter(Items.GUNPOWDER, ASH);
 			entries.addAfter(Items.FLINT, ROCK);
 			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
 		});
 	}

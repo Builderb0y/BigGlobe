@@ -44,6 +44,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class PortalTempleStructure extends BigGlobeStructure {
@@ -712,7 +713,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				double x = posNBT.getDouble(0) + this.centerPos.getX();
 				double y = posNBT.getDouble(1) + this.centerPos.getY();
 				double z = posNBT.getDouble(2) + this.centerPos.getZ();
-				BlockPos pos = BlockPos.ofFloored(x, y, z);
+				BlockPos pos = BlockPosVersions.floor(x, y, z);
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x, y, z));
 					EntityType.getEntityFromNbt(nbt, world.toServerWorld()).ifPresent(entity -> {

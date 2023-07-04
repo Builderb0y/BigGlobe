@@ -36,7 +36,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	become immediately obvious, and you don't need to wait
 	for the delayed generation block to unload and reload.
 	*/
-	public static final boolean DEBUG_ALWAYS_SERIALIZE = true;
+	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
 
 	public @NotNull Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 

@@ -16,6 +16,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
+import builderb0y.bigglobe.versions.WorldVersions;
+
 public class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
 
 	public final VoxelShape shape;
@@ -52,7 +54,7 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 	@SuppressWarnings("deprecation")
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
 		if (state.get(Properties.WATERLOGGED)) {
-			world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+			WorldVersions.scheduleFluidTick(world, pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}
 		if (direction == Direction.DOWN && !this.canPlaceAt(state, world, pos)) {
 			return BlockStates.AIR;

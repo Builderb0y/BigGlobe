@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.versions;
 
 import net.minecraft.block.BlockState;
-
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import net.minecraft.block.Material;
 
 public class MaterialVersions {
 
@@ -11,6 +10,6 @@ public class MaterialVersions {
 	}
 
 	public static boolean isReplaceableOrPlant(BlockState state) {
-		return isReplaceable(state) || state.isIn(BigGlobeBlockTags.REPLACEABLE_PLANTS);
+		return isReplaceable(state) || state.getMaterial() == Material.PLANT;
 	}
 }

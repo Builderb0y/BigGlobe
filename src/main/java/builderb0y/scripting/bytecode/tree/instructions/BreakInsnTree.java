@@ -7,11 +7,15 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class BreakInsnTree implements InsnTree {
 
-	public static final BreakInsnTree INSTANCE = new BreakInsnTree();
+	public String loopName;
+
+	public BreakInsnTree(String loopName) {
+		this.loopName = loopName;
+	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.node.visitJumpInsn(GOTO, method.scopes.findLoop().end.getLabel());
+		method.node.visitJumpInsn(GOTO, method.scopes.findLoop(this.loopName).end.getLabel());
 	}
 
 	@Override

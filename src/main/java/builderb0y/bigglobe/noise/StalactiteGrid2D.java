@@ -7,6 +7,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.settings.Seed;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class StalactiteGrid2D implements Grid2D {
 
@@ -23,7 +24,7 @@ public class StalactiteGrid2D implements Grid2D {
 
 	public static <T_Encoded> void checkNotZero(VerifyContext<T_Encoded, Double> context) throws VerifyException {
 		if (context.object != null && context.object.doubleValue() == 0.0D) {
-			throw new VerifyException(() -> context.pathToStringBuilder().append(" cannot be 0.").toString());
+			throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" cannot be 0.").toString());
 		}
 	}
 

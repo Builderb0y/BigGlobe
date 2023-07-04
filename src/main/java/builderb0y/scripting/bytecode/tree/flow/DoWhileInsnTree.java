@@ -11,10 +11,12 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class DoWhileInsnTree implements InsnTree {
 
-	public final ConditionTree condition;
-	public final InsnTree body;
+	public String loopName;
+	public ConditionTree condition;
+	public InsnTree body;
 
-	public DoWhileInsnTree(ExpressionParser parser, ConditionTree condition, InsnTree body) {
+	public DoWhileInsnTree(ExpressionParser parser, String loopName, ConditionTree condition, InsnTree body) {
+		this.loopName = loopName;
 		this.condition = condition;
 		if (!body.canBeStatement()) {
 			throw new IllegalArgumentException("Body is not a statement");
@@ -24,7 +26,7 @@ public class DoWhileInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Scope scope = method.scopes.pushLoop();
+		Scope scope = method.scopes.pushLoop(this.loopName);
 		this.body.emitBytecode(method);
 		this.condition.emitBytecode(method, scope.start.getLabel(), null);
 		method.scopes.popLoop();

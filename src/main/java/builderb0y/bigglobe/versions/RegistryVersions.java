@@ -15,6 +15,7 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.DefaultedRegistry;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -40,4 +41,9 @@ public class RegistryVersions {
 	public static Registry         <StructurePieceType             > structurePieceType    () { return Registries.STRUCTURE_PIECE     ; }
 	public static Registry         <StructurePlacementType<?>      > structurePlacementType() { return Registries.STRUCTURE_PLACEMENT ; }
 	public static Registry         <SoundEvent                     > soundEvent            () { return Registries.SOUND_EVENT         ; }
+
+	@SuppressWarnings("unchecked")
+	public static <T> RegistryKey<Registry<T>> getRegistryKey(Registry<T> registry) {
+		return (RegistryKey<Registry<T>>)(registry.getKey());
+	}
 }

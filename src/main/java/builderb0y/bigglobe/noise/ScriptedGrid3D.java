@@ -155,6 +155,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
+						null,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
@@ -277,6 +278,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
+						null,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),

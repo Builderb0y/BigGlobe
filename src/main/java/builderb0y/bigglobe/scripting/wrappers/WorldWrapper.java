@@ -30,6 +30,7 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.bigglobe.versions.WorldVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -129,7 +130,8 @@ public class WorldWrapper implements ColumnLookup {
 			state = this.coordination.modifyState(state);
 			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
 			if (!state.getFluidState().isEmpty()) {
-				this.world.scheduleFluidTick(
+				WorldVersions.scheduleFluidTick(
+					this.world,
 					pos,
 					state.getFluidState().getFluid(),
 					state.getFluidState().getFluid().getTickRate(this.world)
