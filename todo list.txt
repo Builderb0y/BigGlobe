@@ -16,8 +16,6 @@ testing:
 porting:
 
 where I left off:
-	re-add projected grids.
-		use one of these for cos(angle) part of end nest shape.
 
 changelog:
 	* End spawn platform is now slightly smarter about if/where it spawns.
@@ -27,7 +25,8 @@ changelog:
 	* Fixed end spikes not displaying beam while dragon is being summoned.
 	* Fixed end cities sometimes spawning above a crater when they're too close to the nest.
 	* Fixed cave overriders in the overworld being a bit too aggressive.
-	* Geodes now have more flexible configuration for growth blocks. And this time it's backwards-compatible with V3.6.0.
+	* Geodes now have more flexible configuration for growth blocks. And this time it's backwards-compatible with V3.6.0!
+	* Overriders now have a priority field to fine-tune which ones run in which order.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -73,8 +72,6 @@ scripting:
 			foo.?!bar() makes a choice:
 				if foo is null, then the result is null and bar() is not invoked.
 				if foo is non-null, then bar() is invoked and is required to return a non-null value.
-	ensure that all casting methods properly handle null as an input.
-		in other words, SomeType(null) should not cause an NPE.
 	lambdas?
 		Stream API?
 	List.shuffle()
@@ -93,7 +90,6 @@ features:
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
-		priority for overriders?
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
@@ -167,3 +163,4 @@ back-porting:
 	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
 	re-enable lighting in SectionGenerationContext.
+	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.

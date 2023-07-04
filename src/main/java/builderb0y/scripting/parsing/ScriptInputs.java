@@ -1,9 +1,6 @@
 package builderb0y.scripting.parsing;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -14,6 +11,7 @@ import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
 
@@ -43,6 +41,20 @@ public class ScriptInputs {
 		if (expected.size() != actual.size() || !actual.containsAll(expected)) {
 			throw exceptionFactory.apply("Input mismatch: expected " + expected + ", got " + actual);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return this.template.hashCode() * 31 + this.providedInputs.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || (
+			obj instanceof ScriptInputs that &&
+			this.template.equals(that.template) &&
+			this.providedInputs.equals(that.providedInputs)
+		);
 	}
 
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
@@ -82,9 +94,45 @@ public class ScriptInputs {
 			}
 		}
 
+		public boolean isScript() {
+			return this.script != null;
+		}
+
+		public boolean isTemplate() {
+			return this.script == null;
+		}
+
 		public ScriptInputs buildScriptInputs() {
-			if (this.script != null) return new ScriptInputs(this.script);
-			else return new ScriptInputs(this.template.value(), this.inputs);
+			return (
+				this.isScript()
+				? new ScriptInputs(this.script)
+				: new ScriptInputs(this.template.value(), this.inputs)
+			);
+		}
+
+		@Override
+		public int hashCode() {
+			return (
+				this.isScript()
+				? this.script.hashCode()
+				: UnregisteredObjectException.getKey(this.template).getValue().hashCode() * 31 + this.inputs.hashCode()
+			);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj == this || (
+				obj instanceof SerializableScriptInputs that
+				&& this.isScript() == that.isScript()
+				&& (
+					this.isScript()
+					? this.script.equals(that.script)
+					: (
+						UnregisteredObjectException.getID(this.template).equals(UnregisteredObjectException.getID(that.template)) &&
+						this.inputs.equals(that.inputs)
+					)
+				)
+			);
 		}
 	}
 }
