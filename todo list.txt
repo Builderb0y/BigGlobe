@@ -49,7 +49,6 @@ AutoCodec:
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
-	ability to break or continue nested loops.
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
