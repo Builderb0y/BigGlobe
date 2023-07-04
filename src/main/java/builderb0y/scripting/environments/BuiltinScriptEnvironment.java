@@ -122,27 +122,32 @@ public class BuiltinScriptEnvironment {
 		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name) -> nextIfElse(receiver, parser, false))
 		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name) -> nextIfElse(receiver, parser, true))
 		.addKeyword("while", (parser, name) -> {
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			ConditionBody whileStatement = ConditionBody.parse(parser);
-			return while_(whileStatement.condition(), whileStatement.body());
+			return while_(loopName, whileStatement.condition(), whileStatement.body());
 		})
 		.addKeyword("until", (parser, name) -> {
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			ConditionBody whileStatement = ConditionBody.parse(parser);
-			return while_(not(whileStatement.condition()), whileStatement.body());
+			return while_(loopName, not(whileStatement.condition()), whileStatement.body());
 		})
 		.addKeyword("do", (parser, name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 			case "while" -> {
+				String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield doWhile(parser, whileStatement.condition(), whileStatement.body());
+				yield doWhile(parser, loopName, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
+				String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 				ConditionBody whileStatement = ConditionBody.parse(parser);
-				yield doWhile(parser, not(whileStatement.condition()), whileStatement.body());
+				yield doWhile(parser, loopName, not(whileStatement.condition()), whileStatement.body());
 			}
 			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 		})
 		.addKeyword("repeat", (parser, name) -> {
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			ScriptBody repeatStatement = ScriptBody.parse(parser, (count, parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
-			return WhileInsnTree.createRepeat(parser, repeatStatement.expression(), repeatStatement.body());
+			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 		})
 		.addKeyword("for", (parser, name) -> {
 			ForEachLoop enhancedLoop = ForEachLoop.tryParse(parser);
@@ -151,7 +156,7 @@ public class BuiltinScriptEnvironment {
 			}
 			else {
 				ForLoop loop = ForLoop.parse(parser);
-				return for_(loop.initializer(), loop.condition(), loop.step(), loop.body());
+				return for_(loop.loopName(), loop.initializer(), loop.condition(), loop.step(), loop.body());
 			}
 		})
 		.addKeyword("switch", (parser, name) -> {
@@ -159,17 +164,20 @@ public class BuiltinScriptEnvironment {
 			return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
 		})
 		.addKeyword("block", (parser, name) -> {
-			return block(ParenthesizedScript.parse(parser).contents());
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+			return block(loopName, ParenthesizedScript.parse(parser).contents());
 		})
 		.addKeyword("break", (parser, name) -> {
 			parser.input.expectAfterWhitespace('(');
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
-			return BreakInsnTree.INSTANCE;
+			return new BreakInsnTree(loopName);
 		})
 		.addKeyword("continue", (parser, name) -> {
 			parser.input.expectAfterWhitespace('(');
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
-			return ContinueInsnTree.INSTANCE;
+			return new ContinueInsnTree(loopName);
 		})
 		.addKeyword("compare", (parser, name) -> {
 			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();

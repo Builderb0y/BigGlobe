@@ -14,15 +14,17 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class WhileInsnTree implements InsnTree {
 
+	public String loopName;
 	public ConditionTree condition;
 	public InsnTree body;
 
-	public WhileInsnTree(ConditionTree condition, InsnTree body) {
+	public WhileInsnTree(String loopName, ConditionTree condition, InsnTree body) {
+		this.loopName = loopName;
 		this.condition = condition;
 		this.body = body.asStatement();
 	}
 
-	public static InsnTree createRepeat(ExpressionParser parser, InsnTree times, InsnTree body) {
+	public static InsnTree createRepeat(ExpressionParser parser, String loopName, InsnTree times, InsnTree body) {
 		if (!times.getTypeInfo().isSingleWidthInt()) {
 			throw new InvalidOperandException("Number of times to repeat is not an int");
 		}
@@ -49,12 +51,12 @@ public class WhileInsnTree implements InsnTree {
 			//init = limit.then(store(limit.loader.variable, times)).then(counter).then(store(counter.loader.variable, ldc(0)));
 			loadLimit = limit.loader;
 		}
-		return for_(init, lt(parser, counter.loader, loadLimit), inc(counter.loader.variable, 1), body);
+		return for_(loopName, init, lt(parser, counter.loader, loadLimit), inc(counter.loader.variable, 1), body);
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Scope scope = method.scopes.pushLoop();
+		Scope scope = method.scopes.pushLoop(this.loopName);
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, scope.start.getLabel());

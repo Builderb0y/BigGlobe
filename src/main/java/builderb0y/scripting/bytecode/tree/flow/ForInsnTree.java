@@ -13,12 +13,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ForInsnTree implements InsnTree {
 
+	public String loopName;
 	public InsnTree initializer;
 	public ConditionTree condition;
 	public InsnTree step;
 	public InsnTree body;
 
-	public ForInsnTree(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+	public ForInsnTree(String loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+		this.loopName = loopName;
 		this.initializer = initializer.asStatement();
 		this.condition = condition;
 		this.step = step.asStatement();
@@ -30,7 +32,7 @@ public class ForInsnTree implements InsnTree {
 		method.scopes.pushScope();
 		LabelNode continuePoint = labelNode();
 		this.initializer.emitBytecode(method);
-		Scope scope = method.scopes.pushLoop(continuePoint);
+		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.body.emitBytecode(method);
 		method.node.instructions.add(continuePoint);

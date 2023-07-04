@@ -7,11 +7,15 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class ContinueInsnTree implements InsnTree {
 
-	public static final ContinueInsnTree INSTANCE = new ContinueInsnTree();
+	public String loopName;
+
+	public ContinueInsnTree(String loopName) {
+		this.loopName = loopName;
+	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.node.visitJumpInsn(GOTO, method.scopes.findLoop().getContinuePoint().getLabel());
+		method.node.visitJumpInsn(GOTO, method.scopes.findLoop(this.loopName).getContinuePoint().getLabel());
 	}
 
 	@Override

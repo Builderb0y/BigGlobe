@@ -173,9 +173,10 @@ public class SpecialFunctionSyntax {
 		}
 	}
 
-	public static record ForLoop(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body, boolean hasNewVariables) implements CodeBlock {
+	public static record ForLoop(String loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body, boolean hasNewVariables) implements CodeBlock {
 
 		public static ForLoop parse(ExpressionParser parser) throws ScriptParsingException {
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace('(');
 			parser.environment.user().push();
 			InsnTree initializer = parser.nextScript();
@@ -188,14 +189,15 @@ public class SpecialFunctionSyntax {
 			parser.input.expectAfterWhitespace(')');
 			boolean newVariables = parser.environment.user().hasNewVariables();
 			parser.environment.user().pop();
-			return new ForLoop(initializer, condition, incrementer, body, newVariables);
+			return new ForLoop(loopName, initializer, condition, incrementer, body, newVariables);
 		}
 	}
 
-	public static record ForEachLoop(VariableDeclarationInsnTree iterator, VariableDeclarationInsnTree userVar, InsnTree iterable, InsnTree body) {
+	public static record ForEachLoop(String loopName, VariableDeclarationInsnTree iterator, VariableDeclarationInsnTree userVar, InsnTree iterable, InsnTree body) {
 
 		public static @Nullable ForEachLoop tryParse(ExpressionParser parser) throws ScriptParsingException {
 			CursorPos revert = parser.input.getCursor();
+			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace('(');
 			String typeName = parser.input.readIdentifierAfterWhitespace();
 			if (typeName.isEmpty()) {
@@ -227,7 +229,7 @@ public class SpecialFunctionSyntax {
 			InsnTree body = parser.nextScript();
 			parser.input.expectAfterWhitespace(')');
 			parser.environment.user().pop();
-			return new ForEachLoop(iterator, userVar, iterable, body);
+			return new ForEachLoop(loopName, iterator, userVar, iterable, body);
 		}
 
 		public InsnTree toLoop(ExpressionParser parser) {
@@ -265,6 +267,7 @@ public class SpecialFunctionSyntax {
 					this.userVar,
 					storeIterator,
 					while_(
+						this.loopName,
 						condition(parser, hasNext),
 						seq(
 							storeUserVar,
