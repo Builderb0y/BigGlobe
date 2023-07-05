@@ -18,11 +18,6 @@ porting:
 where I left off:
 
 changelog:
-	## As stated in the changelogs for V3.6.0 for MC 1.19.4 and MC 1.20.1, no guarantees are made that old worlds will load correctly in this version. In particular, the end dimension will still be vanilla unless you make a new world.
-	In addition to back-porting V3.6.0 to MC 1.19.2, the following bugs have also been fixed:
-		* Fixed being unable to connect to multiplayer servers.
-		* End spawn platform will now be a bit more intelligent about where and whether or not it spawns.
-		* Fixed obsidian spires in the end placing only some of their blocks.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -45,7 +40,6 @@ AutoCodec:
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
-	ability to break or continue nested loops.
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
@@ -68,8 +62,6 @@ scripting:
 			foo.?!bar() makes a choice:
 				if foo is null, then the result is null and bar() is not invoked.
 				if foo is non-null, then bar() is invoked and is required to return a non-null value.
-	ensure that all casting methods properly handle null as an input.
-		in other words, SomeType(null) should not cause an NPE.
 	lambdas?
 		Stream API?
 	List.shuffle()
@@ -77,6 +69,9 @@ scripting:
 	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
 	add copy constructor and clone() for user-defined classes.
 	cache scripts.
+	expose dx/dz for height overriders.
+		I honestly want to try sine wave erosion as an overrider ngl.
+		would need to be populated in columns before overriders are run.
 
 features:
 	general:
@@ -96,6 +91,7 @@ features:
 		ice spikes.
 		glaciers.
 		log cabin structure?
+		slightly larger house structure?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -111,7 +107,12 @@ features:
 				floor:
 					snow.
 					maybe some ice sprinkled in with the snow.
+			sandy?
+				floor:
+					sand.
+					sandstone under that.
 		make geode placement faster by only computing noise in a sphere instead of a cube.
+		more types of geodes/more colors of pretty crystals?
 		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
 			piles of gold?
@@ -153,3 +154,5 @@ back-porting:
 	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
 	re-enable lighting in SectionGenerationContext.
+	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
+	remove hanging signs and cherry stuff.

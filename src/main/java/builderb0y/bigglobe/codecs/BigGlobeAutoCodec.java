@@ -15,15 +15,14 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.registry.*;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
@@ -291,9 +290,8 @@ public class BigGlobeAutoCodec {
 			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
 		}
 
-		@SuppressWarnings("unchecked")
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull Registry<T> registry) {
-			this.                registryKey = (RegistryKey<Registry<T>>)(registry.getKey());
+			this.                registryKey = RegistryVersions.getRegistryKey(registry);
 			this.                   registry = registry;
 
 			this.                 objectType = objectType;

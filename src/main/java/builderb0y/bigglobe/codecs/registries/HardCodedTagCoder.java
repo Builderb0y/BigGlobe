@@ -3,10 +3,10 @@ package builderb0y.bigglobe.codecs.registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.tag.TagKey;
+import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
@@ -14,13 +14,15 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 
 	public final Registry<T> registry;
 
 	public HardCodedTagCoder(Registry<T> registry) {
-		super("HardCodedTagCoder<" + registry.getKey().getValue() + '>');
+		super("HardCodedTagCoder<" + RegistryVersions.getRegistryKey(registry).getValue() + '>');
 		this.registry = registry;
 	}
 
@@ -28,13 +30,13 @@ public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 	public <T_Encoded> @Nullable RegistryEntryList<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
 		Identifier tagID = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
-		TagKey<T> tagKey = TagKey.of(this.registry.getKey(), tagID);
+		TagKey<T> tagKey = TagKey.of(RegistryVersions.getRegistryKey(this.registry), tagID);
 		RegistryEntryList<T> tag = this.registry.getOrCreateEntryList(tagKey);
 		if (tag != null) {
 			return tag;
 		}
 		else {
-			throw new DecodeException("No such tag " + tagID + " in registry " + this.registry.getKey());
+			throw AutoCodecVersions.newDecodeExceptions(() -> "No such tag " + tagID + " in registry " + RegistryVersions.getRegistryKey(this.registry));
 		}
 	}
 
@@ -46,7 +48,7 @@ public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 			return context.input(key.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException("Tag " + context.input + " is missing a key");
+			throw AutoCodecVersions.newEncodeException(() -> "Tag " + context.input + " is missing a key");
 		}
 	}
 }

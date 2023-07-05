@@ -23,6 +23,7 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.WorldVersions;
 
 import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
 
@@ -45,7 +46,8 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
 		if (state.get(HAS_ROPE) && newState != state) {
 			Direction direction = state.get(FACING);
-			world.createAndScheduleBlockTick(
+			WorldVersions.scheduleBlockTick(
+				world,
 				new BlockPos(
 					pos.getX() + direction.getOffsetX(),
 					pos.getY() - 1,

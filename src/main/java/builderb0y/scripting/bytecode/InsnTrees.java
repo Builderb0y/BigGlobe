@@ -416,16 +416,16 @@ public class InsnTrees implements ExtendedOpcodes {
 		return IfElseInsnTree.create(parser, conditionTree, trueBody, falseBody);
 	}
 
-	public static InsnTree while_(ConditionTree condition, InsnTree body) {
-		return new WhileInsnTree(condition, body);
+	public static InsnTree while_(String loopName, ConditionTree condition, InsnTree body) {
+		return new WhileInsnTree(loopName, condition, body);
 	}
 
-	public static InsnTree doWhile(ExpressionParser parser, ConditionTree condition, InsnTree body) {
-		return new DoWhileInsnTree(parser, condition, body);
+	public static InsnTree doWhile(ExpressionParser parser, String loopName, ConditionTree condition, InsnTree body) {
+		return new DoWhileInsnTree(parser, loopName, condition, body);
 	}
 
-	public static InsnTree for_(InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
-		return new ForInsnTree(initializer, condition, step, body);
+	public static InsnTree for_(String loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+		return new ForInsnTree(loopName, initializer, condition, step, body);
 	}
 
 	@Deprecated //you probably want to provide some arguments.
@@ -458,8 +458,8 @@ public class InsnTrees implements ExtendedOpcodes {
 		return ScopedInsnTree.create(body);
 	}
 
-	public static InsnTree block(InsnTree body) {
-		return new BlockInsnTree(body);
+	public static InsnTree block(String loopName, InsnTree body) {
+		return new BlockInsnTree(loopName, body);
 	}
 
 	public static InsnTree getFromStack(TypeInfo type) {

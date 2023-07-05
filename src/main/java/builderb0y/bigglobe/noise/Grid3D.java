@@ -30,6 +30,13 @@ public interface Grid3D extends Grid {
 			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),              SummingGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("product"),          ProductGrid3D.class);
 
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_x"),      ProjectGrid3D_X.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_y"),      ProjectGrid3D_Y.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_z"),      ProjectGrid3D_Z.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_xy"),    ProjectGrid3D_XY.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_xz"),    ProjectGrid3D_XZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_yz"),    ProjectGrid3D_YZ.class);
+
 			REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid3D.class);
 		}
 	}};

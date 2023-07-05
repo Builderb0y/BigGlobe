@@ -1,5 +1,7 @@
 package builderb0y.scripting.parsing;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.function.CharPredicate;
 
 /**
@@ -374,7 +376,7 @@ public class ExpressionReader {
 		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_');
 	}
 
-	public String readIdentifier() throws ScriptParsingException {
+	public @Nullable String readIdentifierOrNull() throws ScriptParsingException {
 		char c = this.peek();
 		if (isLetterOrUnderscore(c)) {
 			int startIndex = this.cursor;
@@ -403,8 +405,18 @@ public class ExpressionReader {
 			return this.input.substring(start.cursor, this.cursor - 1);
 		}
 		else {
-			return "";
+			return null;
 		}
+	}
+
+	public @Nullable String readIdentifierOrNullAfterWhitespace() throws ScriptParsingException {
+		this.skipWhitespace();
+		return this.readIdentifierOrNull();
+	}
+
+	public String readIdentifier() throws ScriptParsingException {
+		String identifier = this.readIdentifierOrNull();
+		return identifier != null ? identifier : "";
 	}
 
 	public String readIdentifierAfterWhitespace() throws ScriptParsingException {

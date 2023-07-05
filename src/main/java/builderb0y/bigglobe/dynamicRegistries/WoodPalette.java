@@ -114,24 +114,24 @@ public class WoodPalette {
 		else throw new IllegalStateException("WoodPaletteType not present: " + type);
 	}
 
-	public Block logBlock            (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LOG              ); }
-	public Block woodBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WOOD             ); }
-	public Block strippedLogBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_LOG     ); }
-	public Block strippedWoodBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_WOOD    ); }
-	public Block planksBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PLANKS           ); }
-	public Block stairsBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STAIRS           ); }
-	public Block slabBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SLAB             ); }
-	public Block fenceBlock          (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE            ); }
-	public Block fenceGateBlock      (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE_GATE       ); }
-	public Block doorBlock           (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.DOOR             ); }
-	public Block trapdoorBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.TRAPDOOR         ); }
-	public Block pressurePlateBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PRESSURE_PLATE   ); }
-	public Block buttonBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.BUTTON           ); }
-	public Block leavesBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LEAVES           ); }
-	public Block saplingBlock        (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SAPLING          ); }
-	public Block pottedSaplingBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING   ); }
-	public Block standingSignBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN    ); }
-	public Block wallSignBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN        ); }
+	public Block logBlock          (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LOG           ); }
+	public Block woodBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WOOD          ); }
+	public Block strippedLogBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_LOG  ); }
+	public Block strippedWoodBlock (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STRIPPED_WOOD ); }
+	public Block planksBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PLANKS        ); }
+	public Block stairsBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STAIRS        ); }
+	public Block slabBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SLAB          ); }
+	public Block fenceBlock        (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE         ); }
+	public Block fenceGateBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.FENCE_GATE    ); }
+	public Block doorBlock         (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.DOOR          ); }
+	public Block trapdoorBlock     (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.TRAPDOOR      ); }
+	public Block pressurePlateBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.PRESSURE_PLATE); }
+	public Block buttonBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.BUTTON        ); }
+	public Block leavesBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.LEAVES        ); }
+	public Block saplingBlock      (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.SAPLING       ); }
+	public Block pottedSaplingBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING); }
+	public Block standingSignBlock (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN ); }
+	public Block wallSignBlock     (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN     ); }
 
 	//////////////////////////////// blocks ////////////////////////////////
 
@@ -283,8 +283,7 @@ public class WoodPalette {
 	}
 
 	public BlockState pottedSaplingState(RandomGenerator random) {
-		BlockState state = this.getState(random, WoodPaletteType.POTTED_SAPLING);
-		return state;
+		return this.getState(random, WoodPaletteType.POTTED_SAPLING);
 	}
 
 	public BlockState standingSignState(RandomGenerator random, int rotation, boolean waterlogged) {

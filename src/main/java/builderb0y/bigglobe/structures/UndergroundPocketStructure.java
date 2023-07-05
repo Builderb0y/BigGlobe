@@ -42,6 +42,7 @@ import builderb0y.bigglobe.settings.Seed.NumberSeed;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.BlockPosVersions;
 
 public class UndergroundPocketStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -130,7 +131,7 @@ public class UndergroundPocketStructure extends BigGlobeStructure implements Raw
 		if (center == null) return Optional.empty();
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(center.x, center.y, center.z),
+				BlockPosVersions.floor(center.x, center.y, center.z),
 				collector -> {
 					collector.addPiece(
 						new Piece(

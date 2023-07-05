@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.trees.decoration;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 
@@ -11,6 +10,7 @@ import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.TagsVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -70,6 +70,6 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 
 	public static boolean canShelfReplace(BlockState state) {
 		if (state.getFluidState().isStill()) return false;
-		return MaterialVersions.isReplaceableOrPlant(state) || state.isIn(BlockTags.LEAVES);
+		return MaterialVersions.isReplaceableOrPlant(state) || state.isIn(TagsVersions.leaves());
 	}
 }

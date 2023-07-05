@@ -17,6 +17,7 @@ import builderb0y.autocodec.encoders.AutoEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class CoderRegistry<E extends CoderRegistryTyped> extends NamedCoder<E> {
 
@@ -78,7 +79,7 @@ public class CoderRegistry<E extends CoderRegistryTyped> extends NamedCoder<E> {
 		E object = context.input;
 		if (object == null) return context.empty();
 		Entry<? extends E> entry = this.byType.get(object.getType());
-		if (entry == null) throw new EncodeException("Unregistered object: " + object);
+		if (entry == null) throw AutoCodecVersions.newEncodeException(() -> "Unregistered object: " + object);
 		return context.addToStringMap(
 			context.encodeWith((AutoEncoder<E>)(entry.coder)),
 			this.typeKey,
@@ -91,7 +92,7 @@ public class CoderRegistry<E extends CoderRegistryTyped> extends NamedCoder<E> {
 		if (context.isEmpty()) return null;
 		Identifier id = this.toID(context.getMember(this.typeKey).forceAsString());
 		Entry<? extends E> entry = this.byID.get(id);
-		if (entry == null) throw new DecodeException("Unregistered ID: " + id);
+		if (entry == null) throw AutoCodecVersions.newDecodeExceptions(() -> "Unregistered ID: " + id);
 		return context.removeMember(this.typeKey).decodeWith(entry.coder);
 	}
 

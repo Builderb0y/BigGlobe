@@ -1,5 +1,7 @@
 package builderb0y.scripting.parsing;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.TestCommon;
@@ -267,6 +269,51 @@ public class FlowTest extends TestCommon {
 				sum += x
 			)
 			sum
+			"""
+		);
+	}
+
+	@Test
+	public void testNamedLoops() throws ScriptParsingException {
+		assertSuccess(List.of(1, 2, 3, 4, 5),
+			"""
+			List list = ArrayList . new ( )
+			for outer ( int outer = 1 , outer <= 5 , ++ outer :
+				for ( int inner = 1 , inner <= 5 , ++ inner :
+					if ( outer == 2 : break ( outer ) )
+					list . add ( inner )
+				)
+			)
+			return ( list )
+			"""
+		);
+		assertSuccess(List.of(1, 2, 3, 4, 5),
+			"""
+			List list = ArrayList . new ( )
+			int outer = 1
+			while outer ( outer <= 5 :
+				for ( int inner = 1 , inner <= 5 , ++ inner :
+					if ( outer == 2 : break ( outer ) )
+					list . add ( inner )
+				)
+				++ outer
+			)
+			return ( list )
+			"""
+		);
+		assertSuccess(List.of(1, 2, 3, 4, 5),
+			"""
+			List list = ArrayList . new ( )
+			int outer = 1
+			block outer (
+				for ( int inner = 1 , inner <= 5 , ++ inner :
+					if ( outer == 2 : break ( outer ) )
+					list . add ( inner )
+				)
+				++ outer
+				continue ( )
+			)
+			return ( list )
 			"""
 		);
 	}

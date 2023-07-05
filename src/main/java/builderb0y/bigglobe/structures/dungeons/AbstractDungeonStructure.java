@@ -31,7 +31,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.StructureWorldAccess;
@@ -295,7 +294,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int y = this.y();
 			int z = this.z();
 			if (this.decorators != null && contains(chunkBox, x, y, z)) {
-				RegistryEntryList<ConfiguredFeature<?, ?>> tag = world.getRegistryManager().get(Registry.CONFIGURED_FEATURE_KEY).getEntryList(this.decorators).orElse(null);
+				RegistryEntryList<ConfiguredFeature<?, ?>> tag = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).getEntryList(this.decorators).orElse(null);
 				if (tag != null) {
 					RegistryEntry<ConfiguredFeature<?, ?>> entry = tag.getRandom(random).orElse(null);
 					if (entry != null) {

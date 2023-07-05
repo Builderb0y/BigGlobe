@@ -12,12 +12,12 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.structure.StructureSet;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -159,10 +159,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		for (EndHeightOverrider.Holder overrider : this.heightOverriders) {
 			overrider.override(structures, column);
 		}
-	}
-
-	public void populateHeightEmpty(EndColumn column) {
-		this.populateHeight(column, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 	}
 
 	public void generateRawSections(Chunk chunk, ChunkOfColumns<EndColumn> columns, boolean distantHorizons) {
@@ -406,7 +402,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		EndColumn column = this.column(x, z);
-		this.populateHeightEmpty(column);
 		return column.hasTerrain() ? column.getFinalTopHeightI() : this.getMinimumY();
 	}
 
@@ -416,7 +411,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		Arrays.fill(states, BlockStates.AIR);
 		int minY = this.settings.min_y();
 		EndColumn column = this.column(x, z);
-		this.populateHeightEmpty(column);
 		if (column.hasTerrain()) {
 			int start = column.getFinalBottomHeightI();
 			int end = column.getFinalTopHeightI();

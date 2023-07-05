@@ -47,7 +47,7 @@ import builderb0y.bigglobe.versions.MaterialVersions;
 public class SingleBlockFeature extends Feature<Config> {
 
 	public static final Predicate<BlockState>
-		IS_REPLACEABLE  = state -> state.getMaterial().isReplaceable(),
+		IS_REPLACEABLE  = MaterialVersions::isReplaceable,
 		IS_AIR          = BlockState::isAir,
 		IS_SOURCE_WATER = state -> state == BlockStates.WATER,
 		HAS_WATER       = state -> state.getFluidState().getFluid() == Fluids.WATER;

@@ -122,6 +122,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
 					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
 					for_(
+						null,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
@@ -217,6 +218,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
 					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
 					for_(
+						null,
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),

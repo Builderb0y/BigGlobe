@@ -34,6 +34,20 @@ public class ScriptTemplate {
 		);
 	}
 
+	@Override
+	public int hashCode() {
+		return this.source.hashCode() * 31 + this.inputs.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || (
+			obj instanceof ScriptTemplate that &&
+			this.source.equals(that.source) &&
+			this.inputs.equals(that.inputs)
+		);
+	}
+
 	public static class RequiredInput {
 
 		public final String name, type;
@@ -46,6 +60,20 @@ public class ScriptTemplate {
 		@Override
 		public String toString() {
 			return "ScriptTemplate$RequiredInput: { name: " + this.name + ", type: " + this.type + " }";
+		}
+
+		@Override
+		public int hashCode() {
+			return this.name.hashCode() * 31 + this.type.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj || (
+				obj instanceof RequiredInput that &&
+				this.name.equals(that.name) &&
+				this.type.equals(that.type)
+			);
 		}
 	}
 }

@@ -3,10 +3,10 @@ package builderb0y.bigglobe.codecs.registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
@@ -14,13 +14,15 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 
 	public final Registry<T> registry;
 
 	public HardCodedRegistryEntryCoder(Registry<T> registry) {
-		super("HardCodedRegistryEntryCoder<" + registry.getKey().getValue() + '>');
+		super("HardCodedObjectCoder<" + RegistryVersions.getRegistryKey(registry).getValue() + '>');
 		this.registry = registry;
 	}
 
@@ -28,13 +30,13 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 	public <T_Encoded> @Nullable RegistryEntry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
 		Identifier identifier = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
-		RegistryKey<T> key = RegistryKey.of(this.registry.getKey(), identifier);
+		RegistryKey<T> key = RegistryKey.of(RegistryVersions.getRegistryKey(this.registry), identifier);
 		RegistryEntry<T> entry = this.registry.getOrCreateEntry(key);
 		if (entry != null) {
 			return entry;
 		}
 		else {
-			throw new DecodeException("Registry " + this.registry.getKey().getValue() + " does not contain ID " + identifier);
+			throw AutoCodecVersions.newDecodeExceptions(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain ID " + identifier);
 		}
 	}
 
@@ -47,7 +49,7 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 			return context.input(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException("Registry " + this.registry.getKey().getValue() + " does not contain object " + input);
+			throw AutoCodecVersions.newEncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + input);
 		}
 	}
 }

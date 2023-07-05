@@ -8,7 +8,6 @@ import org.joml.Vector3d;
 
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -20,6 +19,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.versions.BlockPosVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -65,7 +65,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double foliage_ = foliage; //lambdas -_-
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(x, y, z),
+				BlockPosVersions.floor(x, y, z),
 				(StructurePiecesCollector collector) -> {
 					double size = this.data.size.get(foliage_);
 					MegaTreeContext megaTreeContext = new MegaTreeContext(

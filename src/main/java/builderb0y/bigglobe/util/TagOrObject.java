@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
@@ -65,14 +66,14 @@ public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 		return this.tag != null ? this.tag.stream() : Stream.of(this.object);
 	}
 
-	public <X extends Throwable> String toString(Function<String, X> exceptionFactory) throws X {
+	public <X extends Throwable> String toString(Function<Supplier<String>, X> exceptionFactory) throws X {
 		if (this.tag != null) {
 			TagKey<T> key = this.tag.getStorage().left().orElse(null);
 			if (key != null) {
 				return "#" + key.id();
 			}
 			else {
-				throw exceptionFactory.apply("Tag " + this.tag + " is missing a key");
+				throw exceptionFactory.apply(() -> "Tag " + this.tag + " is missing a key");
 			}
 		}
 		else {
@@ -81,7 +82,7 @@ public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 				return key.getValue().toString();
 			}
 			else {
-				throw exceptionFactory.apply("RegistryEntry " + this.object + " is missing a key");
+				throw exceptionFactory.apply(() -> "RegistryEntry " + this.object + " is missing a key");
 			}
 		}
 	}

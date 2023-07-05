@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
@@ -21,6 +20,7 @@ import net.minecraft.world.WorldView;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.TagsVersions;
 
 public abstract class SoulLavaFluid extends FlowableFluid {
 
@@ -62,7 +62,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	@Override
 	@SuppressWarnings("deprecation") //this is what vanilla does.
 	public boolean canBeReplacedWith(FluidState state, BlockView world, BlockPos pos, Fluid fluid, Direction direction) {
-		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(FluidTags.WATER);
+		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(TagsVersions.water());
 	}
 
 	@Override

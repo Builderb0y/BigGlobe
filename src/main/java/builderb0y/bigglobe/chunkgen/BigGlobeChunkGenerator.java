@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -42,10 +43,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
@@ -274,7 +272,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallel(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		//ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
+		ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
 		IntStream.rangeClosed(
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
 			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
@@ -286,18 +284,14 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			try {
 				SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
 				generator.accept(context);
-				/*
 				if (context.hasLights()) {
 					lights.add(context.lights());
 				}
-				//*/
-
 			}
 			finally {
 				section.unlock();
 			}
 		});
-		/*
 		if (lights != null) {
 			ProtoChunk protoChunk = (ProtoChunk)(chunk);
 			for (LightPositionCollector collector; (collector = lights.poll()) != null; ) {
@@ -306,7 +300,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				}
 			}
 		}
-		//*/
 	}
 
 	public void setHeightmaps(Chunk chunk, HeightmapSupplier heightGetter) {

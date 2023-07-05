@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.LabelNode;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,12 +25,6 @@ public class ScopeContext {
 		this.popScope();
 	}
 
-	public void withLoop(Consumer<MethodCompileContext> action) {
-		this.pushLoop();
-		action.accept(this.method);
-		this.popScope();
-	}
-
 	public Scope pushScope() {
 		Scope scope = new Scope(Scope.Type.NORMAL);
 		this.stack.add(scope);
@@ -43,15 +38,16 @@ public class ScopeContext {
 		return scope;
 	}
 
-	public Scope pushLoop() {
+	public Scope pushLoop(String loopName) {
 		Scope scope = new Scope(Scope.Type.LOOP);
+		scope.loopName = loopName;
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
 		return scope;
 	}
 
-	public Scope pushLoop(LabelNode continuePoint) {
-		Scope scope = this.pushLoop();
+	public Scope pushLoop(String name, LabelNode continuePoint) {
+		Scope scope = this.pushLoop(name);
 		scope.continuePoint = continuePoint;
 		return scope;
 	}
@@ -77,13 +73,13 @@ public class ScopeContext {
 		return this.stack.get(0);
 	}
 
-	public Scope findLoop() {
+	public Scope findLoop(String loopName) {
 		List<Scope> stack = this.stack;
 		for (int index = stack.size(); --index >= 0;) {
 			Scope scope = stack.get(index);
-			if (scope.type == Scope.Type.LOOP) return scope;
+			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName))) return scope;
 		}
-		throw new IllegalStateException("No enclosing loop");
+		throw new IllegalStateException(loopName == null ? "No enclosing loop" : "No enclosing loop named " + loopName);
 	}
 
 	public static class Scope {
@@ -92,6 +88,7 @@ public class ScopeContext {
 		public LabelNode end;
 		public LabelNode continuePoint;
 		public Type type;
+		public @Nullable String loopName;
 
 		public Scope(Type type) {
 			this.type = type;

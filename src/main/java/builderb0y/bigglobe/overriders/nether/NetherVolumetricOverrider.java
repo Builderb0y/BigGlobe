@@ -21,11 +21,12 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 
 	public static Context caveContext(ScriptStructures structures, NetherColumn column) {
 		ColumnYToDoubleScript.Holder noiseThreshold = column.getLocalCell().settings.caves().noise_threshold();
+		double noiseMin = column.getLocalCell().settings.caves().noise().minValue();
 		return new Context(structures, column, column.getFinalBottomHeightI(), column.getCaveNoise()) {
 
 			@Override
 			public double getExclusionMultiplier(int y) {
-				return noiseThreshold.evaluate(this.column, y);
+				return noiseThreshold.evaluate(this.column, y) - noiseMin;
 			}
 		};
 	}

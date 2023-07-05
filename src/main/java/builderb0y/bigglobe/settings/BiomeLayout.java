@@ -27,6 +27,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BiomeLayout {
 
@@ -101,7 +102,7 @@ public class BiomeLayout {
 	public static record SecondarySurface(BlockState under, SurfaceDepthWithSlopeScript.Holder depth) {}
 
 	public static <T_Layout extends BiomeLayout> RegistryKey<T_Layout> key(Registry<T_Layout> registry, Identifier id) {
-		return RegistryKey.of(registry.getKey(), id);
+		return RegistryKey.of(RegistryVersions.getRegistryKey(registry), id);
 	}
 
 	@Wrapper
@@ -147,7 +148,7 @@ public class BiomeLayout {
 			});
 			this.root = registry.getOrThrow(key(registry, ROOT_IDENTIFIER));
 			if (BigGlobeConfig.INSTANCE.get().printOverworldBiomeLayoutTree) {
-				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getKey().getValue()).append(" tree:\n")).toString());
+				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(RegistryVersions.getRegistryKey(registry).getValue()).append(" tree:\n")).toString());
 			}
 		}
 

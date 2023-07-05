@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.registry.Registry;
@@ -170,14 +172,13 @@ public class BigGlobeItems {
 	}
 
 	@Environment(EnvType.CLIENT)
-	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
 		ColorProviderRegistry.ITEM.register(
-			(stack, tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
+			(ItemStack stack, int tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
 		);
-		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (stack, world, entity, seed) -> {
+		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (ItemStack stack, ClientWorld world, LivingEntity entity, int seed) -> {
 			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
 			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
 		});

@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.registry.*;
 import net.minecraft.tag.TagKey;
+import net.minecraft.util.registry.*;
 
 public class TagOrObjectKey<T> {
 

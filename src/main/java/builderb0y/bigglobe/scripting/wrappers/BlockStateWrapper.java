@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
@@ -24,6 +23,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.MaterialVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.bigglobe.versions.TagsVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -143,11 +143,11 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean hasWater(BlockState state) {
-		return state.getFluidState().isIn(FluidTags.WATER);
+		return state.getFluidState().isIn(TagsVersions.water());
 	}
 
 	public static boolean hasLava(BlockState state) {
-		return state.getFluidState().isIn(FluidTags.LAVA);
+		return state.getFluidState().isIn(TagsVersions.lava());
 	}
 
 	public static boolean hasSoulLava(BlockState state) {

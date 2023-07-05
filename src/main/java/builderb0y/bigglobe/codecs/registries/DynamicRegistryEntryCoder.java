@@ -14,6 +14,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 
@@ -35,7 +36,7 @@ public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 			return entry;
 		}
 		else {
-			throw new DecodeException(id + " not present in registry " + this.registryCoder.registryKey.getValue());
+			throw AutoCodecVersions.newDecodeExceptions(() -> id + " not present in registry " + this.registryCoder.registryKey.getValue());
 		}
 	}
 
@@ -47,7 +48,7 @@ public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 			return context.input(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException("RegistryEntry " + context.input + " is missing a key");
+			throw AutoCodecVersions.newEncodeException(() -> "RegistryEntry " + context.input + " is missing a key");
 		}
 	}
 }

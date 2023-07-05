@@ -16,6 +16,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import net.minecraft.world.gen.feature.Feature;
@@ -39,4 +40,9 @@ public class RegistryVersions {
 	public static Registry         <StructurePieceType             > structurePieceType    () { return Registry.STRUCTURE_PIECE     ; }
 	public static Registry         <StructurePlacementType<?>      > structurePlacementType() { return Registry.STRUCTURE_PLACEMENT ; }
 	public static Registry         <SoundEvent                     > soundEvent            () { return Registry.SOUND_EVENT         ; }
+
+	@SuppressWarnings("unchecked")
+	public static <T> RegistryKey<Registry<T>> getRegistryKey(Registry<T> registry) {
+		return (RegistryKey<Registry<T>>)(registry.getKey());
+	}
 }

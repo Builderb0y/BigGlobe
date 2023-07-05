@@ -35,7 +35,20 @@ public abstract class ServerWorld_CreateEnderDragonFightInBigGlobeWorlds extends
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void bigglobe_createEnderDragonFight(MinecraftServer server, Executor workerExecutor, Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List<Spawner> spawners, boolean shouldTickTime, CallbackInfo ci) {
+	private void bigglobe_createEnderDragonFight(
+		MinecraftServer server,
+		Executor workerExecutor,
+		Session session,
+		ServerWorldProperties properties,
+		RegistryKey<World> worldKey,
+		DimensionOptions dimensionOptions,
+		WorldGenerationProgressListener worldGenerationProgressListener,
+		boolean debugWorld,
+		long seed,
+		List<Spawner> spawners,
+		boolean shouldTickTime,
+		CallbackInfo callback
+	) {
 		if (this.getRegistryKey() == World.END && this.getDimensionEntry().matchesKey(BigGlobeDimensionTypeKeys.END)) {
 			this.enderDragonFight = new EnderDragonFight((ServerWorld)(Object)(this), server.getSaveProperties().getGeneratorOptions().getSeed(), server.getSaveProperties().getDragonFight());
 		}

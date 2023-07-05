@@ -17,6 +17,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.util.ScopeLocal;
+import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -39,7 +40,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
 	public static final InsnTree GET_WORLD_SEED = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getWorldSeed"));
 
-	public final Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
+	public final @DefaultEmpty Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
 	public final @VerifySorted(greaterThanOrEqual = "min") double max;
 
@@ -77,16 +78,16 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public static <T_Encoded> void verifyInputName(VerifyContext<T_Encoded, String> context) throws VerifyException {
 		String inputName = context.object;
 		if (inputName != null) {
-			if (inputName.isEmpty()) throw new VerifyException(context.pathToStringBuilder().append(" cannot be an empty string.").toString());
-			if (inputName.equals("_")) throw new VerifyException(context.pathToStringBuilder().append(" cannot be _ as it is a reserved name.").toString());
+			if (inputName.isEmpty()) throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" cannot be an empty string.").toString());
+			if (inputName.equals("_")) throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" cannot be _ as it is a reserved name.").toString());
 			char c = inputName.charAt(0);
 			if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')) {
-				throw new VerifyException(context.pathToStringBuilder().append(" must start with an alphabetic character or an underscore.").toString());
+				throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must start with an alphabetic character or an underscore.").toString());
 			}
 			for (int index = 1, length = inputName.length(); index < length; index++) {
 				c = inputName.charAt(index);
 				if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')) {
-					throw new VerifyException(context.pathToStringBuilder().append(" must contain only alphabetic characters, numeric characters, and underscores.").toString());
+					throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must contain only alphabetic characters, numeric characters, and underscores.").toString());
 				}
 			}
 		}
