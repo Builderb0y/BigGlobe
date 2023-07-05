@@ -23,7 +23,7 @@ import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class SerializableBlockQueue extends BlockQueue {
@@ -119,7 +119,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	}
 
 	public static boolean canImplicitlyReplace(BlockState state) {
-		return MaterialVersions.isReplaceableOrPlant(state);
+		return BlockStateVersions.isReplaceableOrPlant(state);
 	}
 
 	@SuppressWarnings("unchecked")

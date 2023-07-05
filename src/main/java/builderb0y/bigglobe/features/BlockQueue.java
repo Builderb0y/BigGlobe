@@ -173,7 +173,7 @@ public class BlockQueue {
 		if (map == null) return "null";
 		int size = map.size();
 		@SuppressWarnings("unchecked")
-		QueuedBlock<T>[] blocks = new QueuedBlock[size];
+		QueuedObject<T>[] blocks = new QueuedObject[size];
 		int index = 0;
 		for (
 			ObjectIterator<Long2ObjectMap.Entry<T>> iterator = (
@@ -182,15 +182,15 @@ public class BlockQueue {
 			iterator.hasNext();
 		) {
 			Long2ObjectMap.Entry<T> entry = iterator.next();
-			blocks[index++] = new QueuedBlock<>(entry.getLongKey(), entry.getValue());
+			blocks[index++] = new QueuedObject<>(entry.getLongKey(), entry.getValue());
 		}
 		assert index == blocks.length;
 		return blocks;
 	}
 
-	public static record QueuedBlock<T>(int x, int y, int z, long packed, T state) {
+	public static record QueuedObject<T>(int x, int y, int z, long packed, T object) {
 
-		public QueuedBlock(long packed, T state) {
+		public QueuedObject(long packed, T state) {
 			this(
 				BlockPos.unpackLongX(packed),
 				BlockPos.unpackLongY(packed),
@@ -200,7 +200,7 @@ public class BlockQueue {
 			);
 		}
 
-		public QueuedBlock(int x, int y, int z, T state) {
+		public QueuedObject(int x, int y, int z, T state) {
 			this(x, y, z, BlockPos.asLong(x, y, z), state);
 		}
 	}

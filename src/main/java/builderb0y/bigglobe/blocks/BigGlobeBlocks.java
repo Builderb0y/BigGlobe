@@ -650,7 +650,8 @@ public class BigGlobeBlocks {
 	public static final Block LARGE_QUARTZ_BUD = register(
 		"large_quartz_bud",
 		new AmethystClusterBlock(5, 3,
-			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			AbstractBlock.Settings
+			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.MEDIUM_AMETHYST_BUD)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
@@ -658,7 +659,8 @@ public class BigGlobeBlocks {
 	public static final Block MEDIUM_QUARTZ_BUD = register(
 		"medium_quartz_bud",
 		new AmethystClusterBlock(4, 3,
-			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			AbstractBlock.Settings
+			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.LARGE_AMETHYST_BUD)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
@@ -666,7 +668,8 @@ public class BigGlobeBlocks {
 	public static final Block SMALL_QUARTZ_BUD = register(
 		"small_quartz_bud",
 		new AmethystClusterBlock(3, 4,
-			AbstractBlock.Settings.copy(QUARTZ_CLUSTER)
+			AbstractBlock.Settings
+			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.SMALL_AMETHYST_BUD)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
@@ -677,7 +680,8 @@ public class BigGlobeBlocks {
 	public static final Block CHORUS_NYLIUM = register(
 		"chorus_nylium",
 		new ChorusNyliumBlock(
-			AbstractBlock.Settings.create()
+			AbstractBlock.Settings
+			.create()
 			.mapColor(MapColor.PURPLE)
 			.sounds(BlockSoundGroup.STONE)
 			.strength(3.0F, 9.0F)
@@ -687,7 +691,8 @@ public class BigGlobeBlocks {
 	public static final Block OVERGROWN_END_STONE = register(
 		"overgrown_end_stone",
 		new OvergrownEndStoneBlock(
-			AbstractBlock.Settings.create()
+			AbstractBlock.Settings
+			.create()
 			.mapColor(MapColor.PALE_PURPLE)
 			.sounds(BlockSoundGroup.STONE)
 			.strength(3.0F, 9.0F)
@@ -697,7 +702,8 @@ public class BigGlobeBlocks {
 	public static final TallPlantBlock TALL_CHORUS_SPORES = register(
 		"tall_chorus_spores",
 		new TallPlantBlock(
-			AbstractBlock.Settings.create()
+			AbstractBlock.Settings
+			.create()
 			.mapColor(MapColor.PURPLE)
 			.sounds(BlockSoundGroup.GRASS)
 			.offset(OffsetType.XZ)
@@ -716,7 +722,8 @@ public class BigGlobeBlocks {
 	public static final ChorusSporeBlock MEDIUM_CHORUS_SPORES = register(
 		"medium_chorus_spores",
 		new ChorusSporeBlock(
-			AbstractBlock.Settings.create()
+			AbstractBlock.Settings
+			.create()
 			.mapColor(MapColor.PURPLE)
 			.replaceable()
 			.sounds(BlockSoundGroup.GRASS)
@@ -732,7 +739,8 @@ public class BigGlobeBlocks {
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
 		"short_chorus_spores",
 		new ChorusSporeBlock(
-			AbstractBlock.Settings.create()
+			AbstractBlock.Settings
+			.create()
 			.mapColor(MapColor.PURPLE)
 			.replaceable()
 			.sounds(BlockSoundGroup.GRASS)

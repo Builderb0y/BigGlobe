@@ -43,9 +43,9 @@ dependencies() {
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 
-	modCompileOnly(fileTree(file('dependencies/compileOnly')))
-	modImplementation(fileTree(file('dependencies/implementation')))
-	modRuntimeOnly(fileTree(file('dependencies/runtimeOnly')))
+	modCompileOnly(fileTree(file("dependencies/$project.minecraft_version/compileOnly")))
+	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
+	modRuntimeOnly(fileTree(file("dependencies/$project.minecraft_version/runtimeOnly")))
 }
 
 compileJava() {
@@ -103,6 +103,7 @@ task copyToReleases(type: Copy) {
 		}
 	}
 	into(new File("$projectDir/releases"))
+	duplicatesStrategy = DuplicatesStrategy.FAIL
 }
 
 test() {

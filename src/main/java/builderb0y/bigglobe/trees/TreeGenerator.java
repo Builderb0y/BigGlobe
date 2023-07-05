@@ -19,7 +19,7 @@ import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.TagsVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
@@ -265,12 +265,12 @@ public class TreeGenerator {
 
 	public boolean canLogReplace(BlockState state) {
 		if (state.getFluidState().isStill()) return this.trunk.canGenerateInLiquid;
-		return MaterialVersions.isReplaceableOrPlant(state) || state.isIn(TagsVersions.leaves()) || state.getBlock() instanceof MushroomBlock;
+		return BlockStateVersions.isReplaceableOrPlant(state) || state.isIn(TagsVersions.leaves()) || state.getBlock() instanceof MushroomBlock;
 	}
 
 	public boolean canLeavesReplace(BlockState state) {
 		if (state.getFluidState().isStill()) return false;
-		return MaterialVersions.isReplaceableOrPlant(state);
+		return BlockStateVersions.isReplaceableOrPlant(state);
 	}
 
 	public static class NotEnoughSpaceException extends Exception {

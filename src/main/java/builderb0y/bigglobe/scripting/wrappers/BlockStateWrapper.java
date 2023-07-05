@@ -21,7 +21,7 @@ import builderb0y.bigglobe.scripting.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.TagsVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -87,7 +87,7 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean isReplaceable(BlockState state) {
-		return MaterialVersions.isReplaceable(state);
+		return BlockStateVersions.isReplaceable(state);
 	}
 
 	public static boolean blocksLight(BlockState state) {
@@ -139,7 +139,7 @@ public class BlockStateWrapper {
 
 	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
 		BlockPos pos = world.pos(x, y, z);
-		return pos != null && MaterialVersions.isReplaceable(world.world.getBlockState(pos)) && state.canPlaceAt(world.world, pos);
+		return pos != null && BlockStateVersions.isReplaceable(world.world.getBlockState(pos)) && state.canPlaceAt(world.world, pos);
 	}
 
 	public static boolean hasWater(BlockState state) {

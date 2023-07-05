@@ -10,7 +10,6 @@ import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -28,6 +27,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BiomeLayout {
 
@@ -101,9 +101,8 @@ public class BiomeLayout {
 
 	public static record SecondarySurface(BlockState under, SurfaceDepthWithSlopeScript.Holder depth) {}
 
-	@SuppressWarnings("unchecked")
 	public static <T_Layout extends BiomeLayout> RegistryKey<T_Layout> key(RegistryWrapper.Impl<T_Layout> registry, Identifier id) {
-		return RegistryKey.of((RegistryKey<? extends Registry<T_Layout>>)(registry.getRegistryKey()), id);
+		return RegistryKey.of(RegistryVersions.getRegistryKey(registry), id);
 	}
 
 	@Wrapper
@@ -149,7 +148,7 @@ public class BiomeLayout {
 			});
 			this.root = registry.getOrThrow(key(registry, ROOT_IDENTIFIER)).value();
 			if (BigGlobeConfig.INSTANCE.get().printOverworldBiomeLayoutTree) {
-				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getRegistryKey().getValue()).append(" tree:\n")).toString());
+				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(RegistryVersions.getRegistryKey(registry).getValue()).append(" tree:\n")).toString());
 			}
 		}
 

@@ -22,6 +22,7 @@ import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSetting
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
@@ -84,7 +85,7 @@ public class BigGlobeDynamicRegistries {
 		)
 		.map(RegistryEntry::value)
 		.forEachOrdered(list::add);
-		if (list.isEmpty()) throw new IllegalStateException((registry instanceof RegistryWrapper.Impl<T> impl ? impl.getRegistryKey().getValue() : registry) + " is empty");
+		if (list.isEmpty()) throw new IllegalStateException((registry instanceof RegistryWrapper.Impl<T> impl ? RegistryVersions.getRegistryKey(impl).getValue() : registry) + " is empty");
 		return list;
 	}
 }

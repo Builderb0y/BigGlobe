@@ -21,7 +21,7 @@ import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRestrictedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.VariationsList;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 
@@ -65,11 +65,11 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 
 		mutablePos.set(BigGlobeMath.floorI(x), context.getOrigin().getY(), BigGlobeMath.floorI(z));
 		Chunk chunk = context.getWorld().getChunk(mutablePos);
-		while (MaterialVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
+		while (BlockStateVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
 			mutablePos.setY(mutablePos.getY() - 1);
 			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.getOrigin().getY()) > radius * radius) return;
 		}
-		while (!MaterialVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
+		while (!BlockStateVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
 			mutablePos.setY(mutablePos.getY() + 1);
 			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.getOrigin().getY()) > radius * radius) return;
 		}

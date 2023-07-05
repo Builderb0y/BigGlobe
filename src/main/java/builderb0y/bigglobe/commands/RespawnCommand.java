@@ -8,7 +8,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,6 +27,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class RespawnCommand {
@@ -146,11 +146,10 @@ public class RespawnCommand {
 
 		public static @Nullable Text doRespawnWorld(ServerPlayerEntity player, ServerWorld world, boolean force) {
 			WorldProperties properties = world.getLevelProperties();
-			BlockState state;
 			if (
 				force || (
-					(state = world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ()))).getBlock().canMobSpawnInside(state) &&
-					(state = world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ()))).getBlock().canMobSpawnInside(state)
+					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ()))) &&
+					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ())))
 				)
 			) {
 				player.teleport(world, properties.getSpawnX() + 0.5D, properties.getSpawnY(), properties.getSpawnZ() + 0.5D, properties.getSpawnAngle(), 0.0F);
@@ -210,12 +209,11 @@ public class RespawnCommand {
 			ServerWorld world = player.server.getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
 
-			BlockState state;
 			if (
 				force
 				|| (
-					(state = world.getBlockState(position)).getBlock().canMobSpawnInside(state) &&
-					(state = world.getBlockState(position.up())).getBlock().canMobSpawnInside(state)
+					BlockStateVersions.canSpawnInside(world.getBlockState(position)) &&
+					BlockStateVersions.canSpawnInside(world.getBlockState(position.up()))
 				)
 			) {
 				float yaw = player.getSpawnAngle();
