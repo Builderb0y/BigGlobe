@@ -16,17 +16,21 @@ testing:
 porting:
 
 where I left off:
+	fix formatting of BigGlobeBlocks.(quartz buds).
+	add BlockStateVersions.canMobSpawnInside(), use in RespawnCommand.tryRespawnWorld() and tryRespawnCommand().
+	add EntityVersions.onGround(), use in StringEntity.applyGravity().
+	re-add BigGlobeItems.registerBlockPlacer(), registerDecoPlacer(), etc.
+	rename BlockQueue.QueuedBlock.state (the debug display field) to object.
+		and while I'm at it, rename the record itself to QueuedObject.
+	remove hanging signs in WoodPalette.
+	add BlockStateVersions.withIfExists().
+	add RegistryVersions.getRegistryKey(RegistryWrapper.Impl).
+	use MaterialVersions::isReplaceable in SingleBlockFeature.IS_REPLACEBLE.
+	load dependencies from correct version folder automatically.
+	check if releases jar file exists before copying to that location.
+		basically don't overwrite it if it exists.
 
 changelog:
-	* End spawn platform is now slightly smarter about if/where it spawns.
-	* Fixed obsidian spires in the end only partially spawning sometimes.
-	* Fixed queued features not working correctly with BlockEntity's.
-	* Fixed end gateways sometimes spawning at the wrong Y level or potentially underground.
-	* Fixed end spikes not displaying beam while dragon is being summoned.
-	* Fixed end cities sometimes spawning above a crater when they're too close to the nest.
-	* Fixed cave overriders in the overworld being a bit too aggressive.
-	* Geodes now have more flexible configuration for growth blocks. And this time it's backwards-compatible with V3.6.0!
-	* Overriders now have a priority field to fine-tune which ones run in which order.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -154,7 +158,7 @@ porting:
 	see if CactusBlock uses BlockTags.SAND for placement logic.
 		if it does, remove mixin for making it placeable on overgrown sand.
 
-back-porting:
+back-porting from 1.20 to 1.19.4:
 	re-enable lighting update suppression in BlockQueue.
 	spelunking rope block needs to override getPistonBehavior() to return DESTROY.
 	rope anchor block needs to override getPistonBehavior() to return BLOCK.
@@ -163,3 +167,18 @@ back-porting:
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
 	re-enable lighting in SectionGenerationContext.
 	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
+	remove hanging signs and cherry stuff.
+	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
+	"any_of" -> "alternative" entry should specify that this is for loot tables.
+	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
+	remove tags/worldgen/biome/has_structure/trail_ruins.
+	revert minecraft version dependency in fabric.mod.json.
+
+back-porting from 1.19.4 to 1.19.2:
+	remove BiomeDownfallAccessor.
+	remove BigGlobeGameRules.SOUL_LAVA_CONVERSION.
+	re-add call to BigGlobeDynamicRegistries.addBuiltin() in mod initializer.
+	fix SlimeEntity_AllowSpawningFromSpawner.
+	fix OceanMonumentGeneratorBase_VanillaBugFixes.
+	re-add structureSetRegistry pseudo-field to BigGlobeChunkGenerator.
+	revert biomes to re-add precipitation field.
