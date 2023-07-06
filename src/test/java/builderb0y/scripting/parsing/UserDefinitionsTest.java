@@ -300,6 +300,20 @@ public class UserDefinitionsTest extends TestCommon {
 			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
 			"""
 		);
+		assertSuccess(2,
+			"""
+			class One ( int x = 2 )
+			One one = new ( )
+			one . x
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class One ( int x = 1 )
+			One one = new ( 2 )
+			one . x
+			"""
+		);
 	}
 
 	@Test

@@ -31,8 +31,8 @@
 
 			";generate initial heights above lava level.",
 			";the 'heights' map maps Columns to Heights.",
-			"Map heights = HashMap.new()",
-			"Column column = Column.new()",
+			"HashMap heights = new()",
+			"Column column = new()",
 			"while ((Height height = heights.(column.x = originX,, column.z = originZ,, column),, height == null || height.y <= maxHeightI):",
 				"column.x = roundInt(random.nextGaussian(column.x, standardDeviation))",
 				"column.z = roundInt(random.nextGaussian(column.z, standardDeviation))",

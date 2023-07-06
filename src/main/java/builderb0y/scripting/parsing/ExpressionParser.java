@@ -60,6 +60,7 @@ handles expressions, user-defined variables/methods/classes,
 order of operations, etc... and building an abstract syntax tree out of them.
 this abstract syntax tree is represented with {@link InsnTree}.
 */
+@SuppressWarnings("ErrorNotRethrown")
 public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY;
@@ -378,7 +379,7 @@ public class ExpressionParser {
 			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, order, this.nextSingleExpression());
+				left = left.update(this, op, order, this.nextVariableInitializer(left.getTypeInfo()));
 			}
 			return left;
 		}
@@ -968,13 +969,13 @@ public class ExpressionParser {
 						if (!varName.isEmpty()) { //variable or method declaration.
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
+								InsnTree initializer = this.nextVariableInitializer(type);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, store(declaration.loader.variable, initializer));
 							}
 							else if (this.input.hasOperatorAfterWhitespace(":=")) {
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
+								InsnTree initializer = this.nextVariableInitializer(type);
 								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
 								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
 							}
@@ -1011,6 +1012,20 @@ public class ExpressionParser {
 		}
 		catch (StackOverflowError error) {
 			throw new ScriptParsingException("Script too long or too complex", error, this.input);
+		}
+	}
+
+	public InsnTree nextVariableInitializer(TypeInfo variableType) throws ScriptParsingException {
+		if (this.input.hasIdentifierAfterWhitespace("new")) {
+			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", arguments.arguments());
+			if (expression == null) {
+				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
+			}
+			return arguments.maybeWrap(expression);
+		}
+		else {
+			return this.nextSingleExpression().cast(this, variableType, CastMode.IMPLICIT_THROW);
 		}
 	}
 

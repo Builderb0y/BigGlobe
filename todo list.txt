@@ -65,15 +65,16 @@ scripting:
 	lambdas?
 		Stream API?
 	List.shuffle()
-	add dedicated wrappers for BlockEntity, BlockEntityType, BlockEntityTagKey.
-	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
 	add copy constructor and clone() for user-defined classes.
+		clone() is deep copy, constructor is shallow copy?
+			this is the more intuitive option, but it is more difficult semantically
+			due to the fact that you can't assign to final fields inside clone().
+			not that I have final fields yet, but still.
 	cache scripts.
-	expose dx/dz for height overriders.
-		I honestly want to try sine wave erosion as an overrider ngl.
-		would need to be populated in columns before overriders are run.
 	for (int x in [0, 10) % step: body)
 		how to handle descending iteration?
+	smarter detection of which variables are captured by methods.
+		don't capture variables which aren't used.
 
 features:
 	general:
