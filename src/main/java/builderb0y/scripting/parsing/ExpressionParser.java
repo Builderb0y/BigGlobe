@@ -413,6 +413,12 @@ public class ExpressionParser {
 		}
 	}
 
+	public void checkBoolean(InsnTree left, String operator) throws ScriptParsingException {
+		if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
+			throw new ScriptParsingException("Expected boolean before " + operator, this.input);
+		}
+	}
+
 	public InsnTree nextBoolean() throws ScriptParsingException {
 		try {
 			InsnTree left = this.nextCompare();
@@ -421,24 +427,33 @@ public class ExpressionParser {
 				switch (operator) {
 					case "&&" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before &&", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = and(this, left, this.nextCompare());
 					}
 					case "||" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before ||", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = or(this, left, this.nextCompare());
 					}
 					case "##" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before ##", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = xor(this, left, this.nextCompare());
+					}
+					case "!&&" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, and(this, left, this.nextCompare()));
+					}
+					case "!||" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, or(this, left, this.nextCompare()));
+					}
+					case "!##" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, xor(this, left, this.nextCompare()));
 					}
 					default -> {
 						return left;
@@ -460,12 +475,16 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "<"  -> { this.input.onCharsRead(operator); left = bool(lt(this, left, this.nextSum())); }
-					case "<=" -> { this.input.onCharsRead(operator); left = bool(le(this, left, this.nextSum())); }
-					case ">"  -> { this.input.onCharsRead(operator); left = bool(gt(this, left, this.nextSum())); }
-					case ">=" -> { this.input.onCharsRead(operator); left = bool(ge(this, left, this.nextSum())); }
-					case "==" -> { this.input.onCharsRead(operator); left = bool(eq(this, left, this.nextSum())); }
-					case "!=" -> { this.input.onCharsRead(operator); left = bool(ne(this, left, this.nextSum())); }
+					case "<"   -> { this.input.onCharsRead(operator); left = bool(    lt(this, left, this.nextSum()) ); }
+					case "<="  -> { this.input.onCharsRead(operator); left = bool(    le(this, left, this.nextSum()) ); }
+					case ">"   -> { this.input.onCharsRead(operator); left = bool(    gt(this, left, this.nextSum()) ); }
+					case ">="  -> { this.input.onCharsRead(operator); left = bool(    ge(this, left, this.nextSum()) ); }
+					case "=="  -> { this.input.onCharsRead(operator); left = bool(    eq(this, left, this.nextSum()) ); }
+					case "!="  -> { this.input.onCharsRead(operator); left = bool(    ne(this, left, this.nextSum()) ); }
+					case "!>"  -> { this.input.onCharsRead(operator); left = bool(not(gt(this, left, this.nextSum()))); }
+					case "!<"  -> { this.input.onCharsRead(operator); left = bool(not(lt(this, left, this.nextSum()))); }
+					case "!>=" -> { this.input.onCharsRead(operator); left = bool(not(ge(this, left, this.nextSum()))); }
+					case "!<=" -> { this.input.onCharsRead(operator); left = bool(not(le(this, left, this.nextSum()))); }
 					default   -> { return left; }
 				}
 			}

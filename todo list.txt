@@ -46,8 +46,8 @@ scripting:
 	expose voronoi information.
 		include cave systems, cavern systems, skylands, and nether biome.
 	nested multi-line comment ;(example ;(text) here)
-	operators for !> !< !>= and !<= to negate the normal compare operators.
-		semantics differ from inverting for NaN handling.
+	add !&, !|, !&&, and !||.
+		add unit test for these.
 	more invoke syntaxes:
 		nullable invoke.
 			foo.?bar()
@@ -84,9 +84,12 @@ features:
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 	overworld:
+		world preset fields for caves_enabled and caverns_enabled.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		configurable bedrock amount.
+			remove fast logic, replace with configured feature.
+			may need sorted feature tag for min_y_decorator.
 		desert fossils.
 		fallen logs.
 		column values for cliff frac and cliff bias.
@@ -122,10 +125,14 @@ features:
 			occasional "big rooms".
 		underground pockets:
 			molten? (match molten caves)
+				maybe just put blackstone inside lava pockets?
 			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 		make lilypads renewable?
 	nether:
+		replace bedrock with configured feature.
+			may need sorted feature tags for min_y_decorator and max_y_decorator.
+		world preset fields for caves_enabled and caverns_enabled.
 	end:
 		block of void?
 			void ingots?
