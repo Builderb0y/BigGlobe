@@ -14,6 +14,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.optimization.ClassOptimizer;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -123,6 +124,7 @@ public class ScriptParser<I> extends ExpressionParser {
 
 	public I parse() throws ScriptParsingException {
 		this.toBytecode();
+		ClassOptimizer.DEFAULT.optimize(this.clazz.node);
 		return this.toScript();
 	}
 
