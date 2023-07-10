@@ -27,6 +27,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
@@ -402,9 +403,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		IntList yLevels
 	) {
 		if (decorator != null && yLevels != null && !yLevels.isEmpty()) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
+				this.profiler.run(decorator.list.getTagKey().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
 						int y = yLevels.getInt(yIndex);
@@ -429,9 +430,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		int yLevel
 	) {
 		if (decorator != null && yLevel != Integer.MIN_VALUE) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
+				this.profiler.run(decorator.list.getTagKey().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					pos.setY(yLevel);
 					long blockSeed = Permuter.permute(columnSeed, yLevel);

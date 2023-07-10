@@ -20,8 +20,8 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 	}
 
 	public static Context caveContext(ScriptStructures structures, NetherColumn column) {
-		ColumnYToDoubleScript.Holder noiseThreshold = column.getLocalCell().settings.caves().noise_threshold();
-		double noiseMin = column.getLocalCell().settings.caves().noise().minValue();
+		ColumnYToDoubleScript.Holder noiseThreshold = column.getLocalCell().settings.caves.noise_threshold();
+		double noiseMin = column.getLocalCell().settings.caves.noise().minValue();
 		return new Context(structures, column, column.getFinalBottomHeightI(), column.getCaveNoise()) {
 
 			@Override
@@ -32,7 +32,7 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 	}
 
 	public static Context cavernContext(ScriptStructures structures, NetherColumn column) {
-		NetherCavernSettings caverns = column.getLocalCell().settings.caverns();
+		NetherCavernSettings caverns = column.getLocalCell().settings.caverns;
 		Grid3D noise = caverns.noise();
 		double exclusionMultiplier = Math.max(-noise.minValue(), noise.maxValue());
 		return new Context(structures, column, caverns.min_y(), column.getCavernNoise()) {

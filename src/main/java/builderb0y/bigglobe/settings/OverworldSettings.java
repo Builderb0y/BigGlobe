@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.settings;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
@@ -54,12 +53,10 @@ public class OverworldSettings {
 	) {}
 
 	public static record OverworldSurfaceSettings(
-		SurfaceDepthWithSlopeScript.Holder primary_surface_depth,
-		@VerifyNullable SortedFeatureTag decorator
+		SurfaceDepthWithSlopeScript.Holder primary_surface_depth
 	) {}
 
 	public static record OverworldMiscellaneousSettings(
-		double snow_temperature_multiplier,
-		@VerifyNullable SortedFeatureTag sea_level_decorator
+		double snow_temperature_multiplier
 	) {}
 }

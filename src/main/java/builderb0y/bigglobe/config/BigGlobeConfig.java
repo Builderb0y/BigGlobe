@@ -46,9 +46,9 @@ public class BigGlobeConfig {
 	public boolean bigGlobeTreesInOtherWorlds = false;
 
 	@Tooltip(count = 3)
-	@UseName("Print overworld biome layout tree")
+	@UseName("Print biome layout trees")
 	@DefaultIgnore
-	public boolean printOverworldBiomeLayoutTree = false;
+	public boolean printBiomeLayoutTrees = false;
 
 	@Tooltip(count = 2)
 	@UseName("Distant Horizons Integration")

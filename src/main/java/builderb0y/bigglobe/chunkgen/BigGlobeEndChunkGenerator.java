@@ -12,7 +12,9 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
@@ -26,6 +28,7 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.EndSpikeFeature;
 import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
 import net.minecraft.world.gen.feature.EndSpikeFeatureConfig;
@@ -47,8 +50,10 @@ import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.BigGlobeConfiguredFeatureTagKeys;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.OverrideFeature;
+import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -63,7 +68,6 @@ import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.EndSettings;
 import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
-import builderb0y.bigglobe.settings.EndSettings.EndMountainSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -82,11 +86,27 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient EndVolumetricOverrider.Holder[] lowerRingCloudOverriders, upperRingCloudOverriders, lowerBridgeCloudOverriders, upperBridgeCloudOverriders;
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
-	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
+	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup;
+
+	public final transient SortedFeatureTag
+		bridgeCloudLowerCeilingDecorators,
+		bridgeCloudLowerFloorDecorators,
+		bridgeCloudUpperCeilingDecorators,
+		bridgeCloudUpperFloorDecorators,
+		mountainCeilingDecorators,
+		mountainFloorDecorators,
+		nestCeilingDecorators,
+		nestFloorDecorators,
+		ringCloudLowerCeilingDecorators,
+		ringCloudLowerFloorDecorators,
+		ringCloudUpperCeilingDecorators,
+		ringCloudUpperFloorDecorators;
+
+	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures, RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup) {
 		super(
 			new ColumnBiomeSource(
 				settings
-				.biomes()
+				.biomes
 				.registry
 				.streamEntries()
 				.map(RegistryEntry::value)
@@ -95,14 +115,32 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			),
 			configuredFeatures
 		);
-		this.settings                   = settings;
-		this.heightOverriders           = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.            END_HEIGHT_OVERRIDER);
-		this.foliageOverriders          = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.           END_FOLIAGE_OVERRIDER);
-		this.lowerRingCloudOverriders   = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_LOWER_RING_CLOUD_OVERRIDER);
-		this.upperRingCloudOverriders   = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_UPPER_RING_CLOUD_OVERRIDER);
-		this.lowerBridgeCloudOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_LOWER_BRIDGE_CLOUD_OVERRIDER);
-		this.upperBridgeCloudOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_UPPER_BRIDGE_CLOUD_OVERRIDER);
-		this.structureOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.         END_STRUCTURE_OVERRIDER);
+		this.settings                          = settings;
+		this.heightOverriders                  = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.            END_HEIGHT_OVERRIDER);
+		this.foliageOverriders                 = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.           END_FOLIAGE_OVERRIDER);
+		this.lowerRingCloudOverriders          = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_LOWER_RING_CLOUD_OVERRIDER);
+		this.upperRingCloudOverriders          = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  END_UPPER_RING_CLOUD_OVERRIDER);
+		this.lowerBridgeCloudOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_LOWER_BRIDGE_CLOUD_OVERRIDER);
+		this.upperBridgeCloudOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_UPPER_BRIDGE_CLOUD_OVERRIDER);
+		this.structureOverriders               = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.         END_STRUCTURE_OVERRIDER);
+
+		this.configuredFeatureLookup           = configuredFeatureLookup;
+		this.bridgeCloudLowerCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_CEILING);
+		this.bridgeCloudLowerFloorDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_FLOOR);
+		this.bridgeCloudUpperCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_CEILING);
+		this.bridgeCloudUpperFloorDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_FLOOR);
+		this.mountainCeilingDecorators         = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_CEILING);
+		this.mountainFloorDecorators           = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_FLOOR);
+		this.nestCeilingDecorators             = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_NEST_CEILING);
+		this.nestFloorDecorators               = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_NEST_FLOOR);
+		this.ringCloudLowerCeilingDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_CEILING);
+		this.ringCloudLowerFloorDecorators     = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_FLOOR);
+		this.ringCloudUpperCeilingDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_CEILING);
+		this.ringCloudUpperFloorDecorators     = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_FLOOR);
+	}
+
+	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
+		return new SortedFeatureTag(this.configuredFeatureLookup.getOrThrow(key));
 	}
 
 	public static void init() {
@@ -171,9 +209,9 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			upperEnd   = column.getUpperBridgeCloudSampleEndY();
 			if (lowerStart != Integer.MIN_VALUE) minSurface = Math.min(minSurface, lowerStart);
 			if (upperEnd   != Integer.MIN_VALUE) maxSurface = Math.max(maxSurface, upperEnd);
-			if (column.getDistanceToOrigin() < column.settings.nest().max_radius()) {
-				minSurface = Math.min(lowerStart, column.settings.nest().min_y());
-				maxSurface = Math.max(upperEnd,   column.settings.nest().max_y());
+			if (column.getDistanceToOrigin() < column.settings.nest.max_radius()) {
+				minSurface = Math.min(lowerStart, column.settings.nest.min_y());
+				maxSurface = Math.max(upperEnd,   column.settings.nest.max_y());
 			}
 		}
 		if (maxSurface > minSurface) { //will also verify that the chunk has terrain in it somewhere.
@@ -197,7 +235,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					double[] upperRingNoise = column.getUpperRingCloudNoise();
 					double[] lowerBridgeNoise = column.getLowerBridgeCloudNoise();
 					double[] upperBridgeNoise = column.getUpperBridgeCloudNoise();
-					int nestStartY = column.settings.nest().min_y();
+					int nestStartY = column.settings.nest.min_y();
 					int lowerRingStartY = column.getLowerRingCloudSampleStartY();
 					int upperRingStartY = column.getUpperRingCloudSampleStartY();
 					int lowerBridgeStartY = column.getLowerBridgeCloudSampleStartY();
@@ -236,12 +274,12 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				columns.getColumn(horizontalIndex ^ 16).getFinalTopHeightD() - currentHeight
 			);
 
-			PrimarySurface primarySurface = this.settings.biomes().getPrimarySurface(column, currentHeight, this.seed);
-			SecondarySurface[] secondarySurfaces = this.settings.biomes().getSecondarySurfaces(column, currentHeight, this.seed);
+			PrimarySurface primarySurface = this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
+			SecondarySurface[] secondarySurfaces = this.settings.biomes.getSecondarySurfaces(column, currentHeight, this.seed);
 
 			int depth = 0;
 			done: {
-				int primaryDepth = BigGlobeMath.floorI(this.settings.mountains().primary_surface_depth().evaluate(column, currentHeight, derivativeMagnitudeSquared, permuter));
+				int primaryDepth = BigGlobeMath.floorI(this.settings.mountains.primary_surface_depth().evaluate(column, currentHeight, derivativeMagnitudeSquared, permuter));
 				for (; depth < primaryDepth; depth++) {
 					mutablePos.setY(mutablePos.getY() - 1);
 					if (chunk.getBlockState(mutablePos).isOpaque()) {
@@ -279,7 +317,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		this.profiler.run("heightmaps", () -> {
 			this.setHeightmaps(chunk, (index, includeWater) -> {
 				EndColumn column = columns.getColumn(index);
-				int height = column.settings.min_y();
+				int height = column.settings.min_y;
 				if (column.hasTerrain()) height = column.getFinalTopHeightI();
 				height = Math.max(height, last(column.nestFloorLevels));
 				height = Math.max(height, last(column.lowerRingCloudFloorLevels));
@@ -320,30 +358,29 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 				Permuter permuter = new Permuter(0L);
 				MojangPermuter mojang = permuter.mojang();
-				EndMountainSettings mountainSettings    = this.settings.mountains();
-				RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds();
-				BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+				RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds;
+				BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 				for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
 					EndColumn column = columns.getColumn(columnIndex);
 					mutablePos.setX(column.x).setZ(column.z);
 					permuter.setSeed(Permuter.permute(this.seed ^ 0x9C4110F7CC26D977L, column.x, column.z));
-					this.runDecorators(world, mutablePos, mojang, this.settings.nest().floor_decorator(), column.nestFloorLevels);
-					this.runDecorators(world, mutablePos, mojang, this.settings.nest().ceiling_decorator(), column.nestCeilingLevels);
+					this.runDecorators(world, mutablePos, mojang, this.nestFloorDecorators, column.nestFloorLevels);
+					this.runDecorators(world, mutablePos, mojang, this.nestCeilingDecorators, column.nestCeilingLevels);
 					if (column.hasTerrain()) {
-						this.runDecorators(world, mutablePos, mojang, mountainSettings.floor_decorator(), column.getFinalTopHeightI());
-						this.runDecorators(world, mutablePos, mojang, mountainSettings.ceiling_decorator(), column.getFinalBottomHeightI() - 1);
+						this.runDecorators(world, mutablePos, mojang, this.mountainFloorDecorators, column.getFinalTopHeightI());
+						this.runDecorators(world, mutablePos, mojang, this.mountainCeilingDecorators, column.getFinalBottomHeightI() - 1);
 					}
 					if (ringCloudSettings != null) {
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_floor_decorator(),   column.lowerRingCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.lower_ceiling_decorator(), column.lowerRingCloudCeilingLevels);
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.upper_floor_decorator(),   column.upperRingCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, ringCloudSettings.upper_ceiling_decorator(), column.upperRingCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, this.ringCloudLowerFloorDecorators,   column.lowerRingCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, this.ringCloudLowerCeilingDecorators, column.lowerRingCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, this.ringCloudUpperFloorDecorators,   column.upperRingCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, this.ringCloudUpperCeilingDecorators, column.upperRingCloudCeilingLevels);
 					}
 					if (bridgeCloudSettings != null) {
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_floor_decorator(),   column.lowerBridgeCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.lower_ceiling_decorator(), column.lowerBridgeCloudCeilingLevels);
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.upper_floor_decorator(),   column.upperBridgeCloudFloorLevels);
-						this.runDecorators(world, mutablePos, mojang, bridgeCloudSettings.upper_ceiling_decorator(), column.upperBridgeCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, this.bridgeCloudLowerFloorDecorators,   column.lowerBridgeCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, this.bridgeCloudLowerCeilingDecorators, column.lowerBridgeCloudCeilingLevels);
+						this.runDecorators(world, mutablePos, mojang, this.bridgeCloudUpperFloorDecorators,   column.upperBridgeCloudFloorLevels);
+						this.runDecorators(world, mutablePos, mojang, this.bridgeCloudUpperCeilingDecorators, column.upperBridgeCloudCeilingLevels);
 					}
 				}
 				if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {
@@ -380,7 +417,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public int getWorldHeight() {
-		return this.settings.max_y() - this.settings.min_y();
+		return this.settings.max_y - this.settings.min_y;
 	}
 
 	@Override
@@ -390,7 +427,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 	@Override
 	public int getMinimumY() {
-		return this.settings.min_y();
+		return this.settings.min_y;
 	}
 
 	@Override
@@ -403,7 +440,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		BlockState[] states = new BlockState[this.getWorldHeight()];
 		Arrays.fill(states, BlockStates.AIR);
-		int minY = this.settings.min_y();
+		int minY = this.settings.min_y;
 		EndColumn column = this.column(x, z);
 		if (column.hasTerrain()) {
 			int start = column.getFinalBottomHeightI();

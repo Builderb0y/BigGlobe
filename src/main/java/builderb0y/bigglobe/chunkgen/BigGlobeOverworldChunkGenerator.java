@@ -13,8 +13,10 @@ import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
@@ -29,12 +31,12 @@ import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
@@ -46,7 +48,6 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.CaveSurfaceReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.CobblestoneReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
@@ -60,9 +61,7 @@ import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.BigGlobeFeatures;
-import builderb0y.bigglobe.features.OverrideFeature;
-import builderb0y.bigglobe.features.SingleBlockFeature;
+import builderb0y.bigglobe.features.*;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
@@ -113,9 +112,16 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient OverworldSkylandOverrider.Holder[] skylandOverriders;
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
+	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> featureLookup;
+	public final transient SortedFeatureTag
+		surfaceDecorators,
+		bedrockDecorators,
+		seaLevelDecorators;
+
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
-		SortedFeatures configuredFeatures
+		SortedFeatures configuredFeatures,
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> featureLookup
 	) {
 		super(
 			new ColumnBiomeSource(
@@ -139,6 +145,15 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.   cavernOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.   OVERWORLD_CAVERN_OVERRIDER);
 		this.  skylandOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  OVERWORLD_SKYLAND_OVERRIDER);
 		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER);
+
+		this.      featureLookup = featureLookup;
+		this.  surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
+		this.  bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
+		this. seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
+	}
+
+	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
+		return new SortedFeatureTag(this.featureLookup.getOrThrow(key));
 	}
 
 	public static void init() {
@@ -236,22 +251,18 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				this.setAllStates(context, initialState);
 			}
 
-			PaletteStorage storage = context.storage();
-			int airID        = context.id(BlockStates.AIR);
-			int waterID      = context.id(BlockStates.WATER);
-			int stoneID      = context.id(BlockStates.STONE);
-			if (storage != (storage = context.storage())) { //resize.
-				airID        = context.id(BlockStates.AIR);
-				waterID      = context.id(BlockStates.WATER);
-				stoneID      = context.id(BlockStates.STONE);
-				assert storage == context.storage();
-			}
-
-			PaletteStorage storage_ = storage;
-			int airID_        = airID;
-			int stoneID_      = stoneID;
-			int waterID_      = waterID;
 			this.profiler.run("Place raw terrain blocks", () -> {
+				PaletteStorage storage = context.storage();
+				int airID        = context.id(BlockStates.AIR);
+				int waterID      = context.id(BlockStates.WATER);
+				int stoneID      = context.id(BlockStates.STONE);
+				if (storage != (storage = context.storage())) { //resize.
+					airID        = context.id(BlockStates.AIR);
+					waterID      = context.id(BlockStates.WATER);
+					stoneID      = context.id(BlockStates.STONE);
+					assert storage == context.storage();
+				}
+
 				OverworldUndergroundSettings undergroundSettings = this.settings.underground;
 				boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
 				int endY = startY | 15;
@@ -262,8 +273,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							horizontalIndex,
 							startY,
 							Math.min(column.getFinalTopHeightI() - 1, endY),
-							storage_,
-							stoneID_
+							storage,
+							stoneID
 						);
 					}
 				}
@@ -274,8 +285,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							horizontalIndex,
 							Math.max(column.getFinalTopHeightI(), startY),
 							Math.min(seaLevel - 1, endY),
-							storage_,
-							waterID_
+							storage,
+							waterID
 						);
 					}
 				}
@@ -286,8 +297,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							horizontalIndex,
 							Math.max(Math.max(column.getFinalTopHeightI(), seaLevel), startY),
 							endY,
-							storage_,
-							airID_
+							storage,
+							airID
 						);
 					}
 				}
@@ -301,7 +312,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							assert maxCaves - minCaves < 16;
 							for (int y = minCaves; y <= maxCaves; y++) {
 								if (column.isCaveAt(y, true)) {
-									storage_.set(horizontalIndex | ((y & 15) << 8), airID_);
+									storage.set(horizontalIndex | ((y & 15) << 8), airID);
 								}
 							}
 						}
@@ -317,7 +328,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 									int maxCavern = Math.min(BigGlobeMath.floorI(cavernCenter + cavernThickness), endY);
 									assert maxCavern - minCavern < 16;
 									for (int y = minCavern; y <= maxCavern; y++) {
-										storage_.set(horizontalIndex | ((y & 15) << 8), airID_);
+										storage.set(horizontalIndex | ((y & 15) << 8), airID);
 									}
 								}
 							}
@@ -365,8 +376,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			});
 			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, false);
-			ChunkSection bottomSection = chunk.getSection(chunk.getSectionIndex(this.getMinimumY()));
-			BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, bottomSection, this.getMinimumY(), this.seed, columns));
 		}
 		this.profiler.run("Recalculate counts", () -> {
 			this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, SectionGenerationContext::recalculateCounts);
@@ -753,6 +762,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					pos.setX(column.x).setZ(column.z);
 					permuter.setSeed(Permuter.permute(this.seed ^ 0xF9C81CB5E3A312C9L, column.x, column.z));
 
+					this.runDecorators(world, pos, mojang, this.bedrockDecorators, column.getFinalBottomHeightI() - 1);
 					if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 						CavernCell cavernCell = column.getCavernCell();
 						if (cavernCell != null) {
@@ -770,9 +780,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator(), column.caveCeilings);
 						}
 					}
-					this.runDecorators(world, pos, mojang, this.settings.surface.decorator(), column.getFinalTopHeightI());
+					this.runDecorators(world, pos, mojang, this.surfaceDecorators, column.getFinalTopHeightI());
 					if (column.getFinalTopHeightI() < this.getSeaLevel()) {
-						this.runDecorators(world, pos, mojang, this.settings.miscellaneous.sea_level_decorator(), this.getSeaLevel());
+						this.runDecorators(world, pos, mojang, this.seaLevelDecorators, this.getSeaLevel());
 					}
 
 					SkylandCell skylandCell = column.getSkylandCell();

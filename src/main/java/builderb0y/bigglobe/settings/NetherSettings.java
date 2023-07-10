@@ -1,9 +1,13 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
@@ -16,42 +20,97 @@ import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class NetherSettings {
 	public final VoronoiDiagram2D biome_placement;
-	public final RegistryWrapper<LocalNetherSettings> local_settings_registry;
+	public final RegistryWrapper<LocalNetherSettings> localSettingsRegistry;
 	public final transient IRandomList<LocalNetherSettings> local_settings;
+	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatures;
 	public final @VerifyDivisibleBy16 int min_y;
 	public final @VerifyDivisibleBy16 int max_y;
 
 	public NetherSettings(
 		VoronoiDiagram2D biome_placement,
-		RegistryWrapper<LocalNetherSettings> local_settings_registry,
+		RegistryWrapper<LocalNetherSettings> localSettingsRegistry,
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatures,
 		int min_y,
 		int max_y
 	) {
 		this.biome_placement = biome_placement;
-		this.local_settings_registry = local_settings_registry;
-		this.local_settings = BigGlobeDynamicRegistries.sortAndCollect(local_settings_registry);
+		this.configuredFeatures = configuredFeatures;
+		this.localSettingsRegistry = localSettingsRegistry;
+		this.local_settings = BigGlobeDynamicRegistries.sortAndCollect(localSettingsRegistry);
 		this.min_y = min_y;
 		this.max_y = max_y;
+		localSettingsRegistry.streamEntries().sequential().forEach((RegistryEntry<LocalNetherSettings> localSettingsEntry) -> {
+			Identifier baseKey = UnregisteredObjectException.getKey(localSettingsEntry).getValue();
+			LocalNetherSettings localSettings = localSettingsEntry.value();
+			localSettings.caveCeilingsDecorator   = this.decoratorTag(baseKey, "cave_ceilings");
+			localSettings.caveFloorsDecorator     = this.decoratorTag(baseKey, "cave_floors");
+			localSettings.cavernCeilingsDecorator = this.decoratorTag(baseKey, "cavern_ceilings");
+			localSettings.cavernFloorsDecorator   = this.decoratorTag(baseKey, "cavern_floors");
+			localSettings.fluidDecorator          = this.decoratorTag(baseKey, "fluid");
+			localSettings.lowerBedrockDecorator   = this.decoratorTag(baseKey, "lower_bedrock");
+			localSettings.upperBedrockDecorator   = this.decoratorTag(baseKey, "upper_bedrock");
+		});
+	}
+
+	public SortedFeatureTag decoratorTag(Identifier baseKey, String suffix) {
+		return new SortedFeatureTag(
+			this.configuredFeatures.getOrThrow(
+				TagKey.of(
+					RegistryKeyVersions.configuredFeature(),
+					new Identifier(
+						baseKey.getNamespace(),
+						"nether/biomes/" + baseKey.getPath() + '/' + suffix
+					)
+				)
+			)
+		);
 	}
 
 	public int height() {
 		return this.max_y - this.min_y;
 	}
 
-	public static record LocalNetherSettings(
-		double weight,
-		RegistryEntry<Biome> biome,
-		NetherCavernSettings caverns,
-		NetherCaveSettings caves,
-		BlockState fluid_state,
-		RandomSource fluid_level,
-		SortedFeatureTag fluid_decorator,
-		@VerifyNormal BlockState filler
-	)
-	implements IWeightedListElement {
+	public static class LocalNetherSettings implements IWeightedListElement {
+
+		public final double weight;
+		public final RegistryEntry<Biome> biome;
+		public final NetherCavernSettings caverns;
+		public final NetherCaveSettings caves;
+		public final BlockState fluid_state;
+		public final RandomSource fluid_level;
+		public final @VerifyNormal BlockState filler;
+
+		public transient SortedFeatureTag
+			caveCeilingsDecorator,
+			caveFloorsDecorator,
+			cavernCeilingsDecorator,
+			cavernFloorsDecorator,
+			fluidDecorator,
+			lowerBedrockDecorator,
+			upperBedrockDecorator;
+
+		public LocalNetherSettings(
+			double weight,
+			RegistryEntry<Biome> biome,
+			NetherCavernSettings caverns,
+			NetherCaveSettings caves,
+			BlockState fluid_state,
+			RandomSource fluid_level,
+			@VerifyNormal BlockState filler
+		) {
+			this.weight = weight;
+			this.biome = biome;
+			this.caverns = caverns;
+			this.caves = caves;
+			this.fluid_state = fluid_state;
+			this.fluid_level = fluid_level;
+			this.filler = filler;
+		}
 
 		@Override
 		public double getWeight() {
@@ -67,9 +126,7 @@ public class NetherSettings {
 		int edge_padding,
 		Grid3D noise,
 		@VerifyNullable NetherSurfaceSettings floor_surface,
-		@VerifyNullable NetherSurfaceSettings ceiling_surface,
-		SortedFeatureTag floor_decorator,
-		SortedFeatureTag ceiling_decorator
+		@VerifyNullable NetherSurfaceSettings ceiling_surface
 	) {}
 
 	public static record NetherCaveSettings(
@@ -78,9 +135,7 @@ public class NetherSettings {
 		ColumnYToDoubleScript.Holder effective_width,
 		@VerifyNullable Integer lower_padding,
 		@VerifyNullable NetherSurfaceSettings floor_surface,
-		@VerifyNullable NetherSurfaceSettings ceiling_surface,
-		SortedFeatureTag floor_decorator,
-		SortedFeatureTag ceiling_decorator
+		@VerifyNullable NetherSurfaceSettings ceiling_surface
 	) {}
 
 	public static record NetherSurfaceSettings(

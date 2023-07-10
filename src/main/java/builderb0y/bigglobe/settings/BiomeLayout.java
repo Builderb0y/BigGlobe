@@ -147,7 +147,7 @@ public class BiomeLayout {
 				}
 			});
 			this.root = registry.getOrThrow(key(registry, ROOT_IDENTIFIER)).value();
-			if (BigGlobeConfig.INSTANCE.get().printOverworldBiomeLayoutTree) {
+			if (BigGlobeConfig.INSTANCE.get().printBiomeLayoutTrees) {
 				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(RegistryVersions.getRegistryKey(registry).getValue()).append(" tree:\n")).toString());
 			}
 		}

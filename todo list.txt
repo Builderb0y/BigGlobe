@@ -6,6 +6,7 @@ bugs:
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
 	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
 		this is caused by distant horizons constructing a new chunk every time you request one.
+	immersive portals places the end portal inside the end nest.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -18,6 +19,11 @@ porting:
 where I left off:
 
 changelog:
+	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
+	* "decorator" configured feature tags now have hard-coded locations.
+	* Fixed nether quartz geodes and nether pockets being able to spawn intersecting bedrock.
+		* I *think* existing ones should survive this change as-is? New ones might spawn in a different location than they did previously, even with the same seed.
+	* Sped up distant horizons chunk generation in the nether slightly.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -32,9 +38,9 @@ AutoCodec:
 	VerifyNullable.INSTANCE should override toString().
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
-	@EncodeOnly and @DecodeOnly
-		DecodeOnly could be useful for backwards compatibility.
-		maybe EncodeOnly could be used to add comments or something to encoded data?
+	@DontEncode and @DontDecode
+		DontEncode could be useful for backwards compatibility.
+		maybe DontDecode could be used to add comments or something to encoded data?
 			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
 
 scripting:
@@ -46,8 +52,6 @@ scripting:
 	expose voronoi information.
 		include cave systems, cavern systems, skylands, and nether biome.
 	nested multi-line comment ;(example ;(text) here)
-	add !&, !|, !&&, and !||.
-		add unit test for these.
 	more invoke syntaxes:
 		nullable invoke.
 			foo.?bar()
@@ -84,7 +88,6 @@ features:
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 	overworld:
-		world preset fields for caves_enabled and caverns_enabled.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		configurable bedrock amount.
@@ -132,7 +135,6 @@ features:
 	nether:
 		replace bedrock with configured feature.
 			may need sorted feature tags for min_y_decorator and max_y_decorator.
-		world preset fields for caves_enabled and caverns_enabled.
 	end:
 		block of void?
 			void ingots?
@@ -180,3 +182,5 @@ back-porting from 1.19.4 to 1.19.2:
 	fix OceanMonumentGeneratorBase_VanillaBugFixes.
 	re-add structureSetRegistry pseudo-field to BigGlobeChunkGenerator.
 	revert biomes to re-add precipitation field.
+	check which fabric version adds SignTypeRegistry, and mark
+	that as the minimum compatible version in fabric.mod.json.

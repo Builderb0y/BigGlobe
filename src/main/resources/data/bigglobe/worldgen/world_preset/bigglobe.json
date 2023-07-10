@@ -269,15 +269,13 @@
 								"- (max_y - `overworld/sea_level`) / 512.0L ;less surface at higher Y levels",
 								"+ `overworld/foliage` * 2.0L ;more surface when foliage is high",
 							")"
-						],
-						"decorator": "bigglobe:overworld/surface_decorators"
+						]
 					},
 
 
 
 					"miscellaneous": {
-						"snow_temperature_multiplier": 8.0,
-						"sea_level_decorator": "bigglobe:overworld/sea_level_decorators"
+						"snow_temperature_multiplier": 8.0
 					},
 
 

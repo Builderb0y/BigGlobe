@@ -79,8 +79,8 @@ public class BigGlobeDynamicRegistries {
 					UnregisteredObjectException.getKey(entry).getValue()
 				),
 				Comparator
-					.comparing(Identifier::getNamespace)
-					.thenComparing(Identifier::getPath)
+				.comparing(Identifier::getNamespace)
+				.thenComparing(Identifier::getPath)
 			)
 		)
 		.map(RegistryEntry::value)

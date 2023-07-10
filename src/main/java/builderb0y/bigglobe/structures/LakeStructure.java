@@ -224,7 +224,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			SortedFeatureTag featureEntry = this.data.fluid_surface_feature;
 			if (featureEntry == null) return;
 
-			ConfiguredFeature<?, ?>[] features = featureEntry.getSortedFeatures(world);
+			ConfiguredFeature<?, ?>[] features = featureEntry.getSortedFeatures();
 			int featureCount = features.length;
 			if (featureCount == 0) return;
 
