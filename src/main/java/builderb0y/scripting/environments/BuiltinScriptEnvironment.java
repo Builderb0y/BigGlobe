@@ -150,14 +150,7 @@ public class BuiltinScriptEnvironment {
 			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 		})
 		.addKeyword("for", (parser, name) -> {
-			ForEachLoop enhancedLoop = ForEachLoop.tryParse(parser);
-			if (enhancedLoop != null) {
-				return enhancedLoop.toLoop(parser);
-			}
-			else {
-				ForLoop loop = ForLoop.parse(parser);
-				return for_(loop.loopName(), loop.initializer(), loop.condition(), loop.step(), loop.body());
-			}
+			return ForLoop.parse(parser).buildLoop(parser);
 		})
 		.addKeyword("switch", (parser, name) -> {
 			SwitchBody switchBody = SwitchBody.parse(parser);

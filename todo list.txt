@@ -24,6 +24,7 @@ changelog:
 	* Fixed nether quartz geodes and nether pockets being able to spawn intersecting bedrock.
 		* I *think* existing ones should survive this change as-is? New ones might spawn in a different location than they did previously, even with the same seed.
 	* Sped up distant horizons chunk generation in the nether slightly.
+	* Miscelaneous scripting improvements.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -77,6 +78,8 @@ scripting:
 	cache scripts.
 	for (int x in [0, 10) % step: body)
 		how to handle descending iteration?
+		maybe for (int x in -[0, 10) % step: body)?
+		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 

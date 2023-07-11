@@ -162,7 +162,7 @@ public class InsnTrees implements ExtendedOpcodes {
 		return ldc(constantAbsent(type));
 	}
 
-	public static InsnTree load(VarInfo info) {
+	public static LoadInsnTree load(VarInfo info) {
 		return new LoadInsnTree(info);
 	}
 

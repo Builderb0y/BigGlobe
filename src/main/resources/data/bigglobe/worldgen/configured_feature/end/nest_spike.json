@@ -11,9 +11,7 @@
 				")",
 				"return(y + 1)",
 			")",
-			"void placeColumn(MapEntry entry:",
-				"Column column = entry.key",
-				"Height height = entry.value",
+			"void placeColumn(Column column, Height height:",
 				"int x = column.x",
 				"int z = column.z",
 				"int minY = findGround(x, z)",
@@ -43,8 +41,8 @@
 			")",
 
 			";place blocks.",
-			"for (MapEntry entry in heights.entrySet():",
-				"placeColumn(entry)",
+			"for (Column c, Height height in heights:",
+				"placeColumn(c, height)",
 			")",
 
 			";place crystal.",

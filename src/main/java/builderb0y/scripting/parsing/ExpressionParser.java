@@ -28,16 +28,12 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.*;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
-import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.VariableAssignPostUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.RootScriptEnvironment;
@@ -379,7 +375,7 @@ public class ExpressionParser {
 			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, order, this.nextVariableInitializer(left.getTypeInfo()));
+				left = left.update(this, op, order, this.nextVariableInitializer(left.getTypeInfo(), false));
 			}
 			return left;
 		}
@@ -962,12 +958,11 @@ public class ExpressionParser {
 				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
 				else throw new ScriptParsingException("Expected '=' or ':='", this.input);
 				InsnTree initializer = this.nextSingleExpression();
-				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return seq(
-					declaration,
+				VarInfo variable = this.environment.user().newVariable(varName, initializer.getTypeInfo());
+				return (
 					reuse
-					? new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer)
-					: store(declaration.loader.variable, initializer)
+					? new VariableDeclarePostAssignInsnTree(variable, initializer)
+					: new VariableDeclareAssignInsnTree(variable, initializer)
 				);
 			}
 			else if (name.equals("class")) {
@@ -988,15 +983,15 @@ public class ExpressionParser {
 						if (!varName.isEmpty()) { //variable or method declaration.
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextVariableInitializer(type);
-								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return seq(declaration, store(declaration.loader.variable, initializer));
+								InsnTree initializer = this.nextVariableInitializer(type, true);
+								VarInfo variable = this.environment.user().newVariable(varName, type);
+								return new VariableDeclareAssignInsnTree(variable, initializer);
 							}
 							else if (this.input.hasOperatorAfterWhitespace(":=")) {
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextVariableInitializer(type);
-								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
+								InsnTree initializer = this.nextVariableInitializer(type, true);
+								VarInfo variable = this.environment.user().newVariable(varName, type);
+								return new VariableDeclarePostAssignInsnTree(variable, initializer);
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								this.verifyName(varName, "method");
@@ -1034,7 +1029,7 @@ public class ExpressionParser {
 		}
 	}
 
-	public InsnTree nextVariableInitializer(TypeInfo variableType) throws ScriptParsingException {
+	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {
 		if (this.input.hasIdentifierAfterWhitespace("new")) {
 			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", arguments.arguments());
@@ -1044,7 +1039,11 @@ public class ExpressionParser {
 			return arguments.maybeWrap(expression);
 		}
 		else {
-			return this.nextSingleExpression().cast(this, variableType, CastMode.IMPLICIT_THROW);
+			InsnTree tree = this.nextSingleExpression();
+			if (cast) {
+				tree = tree.cast(this, variableType, CastMode.IMPLICIT_THROW);
+			}
+			return tree;
 		}
 	}
 

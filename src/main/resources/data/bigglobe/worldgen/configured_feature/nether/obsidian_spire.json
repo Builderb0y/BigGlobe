@@ -28,9 +28,7 @@
 			")",
 
 			";check area to make sure we have enough space to generate.",
-			"for (MapEntry entry in heights.entrySet():",
-				"Column c = entry.key",
-				"Height height = entry.value",
+			"for (Column c, Height height in heights:",
 				"int x = c.x",
 				"int z = c.z",
 				"int maxY = height.y",
@@ -41,14 +39,14 @@
 
 			";sort columns by height.",
 			"TreeMap queue = new()",
-			"for (MapEntry entry in heights.entrySet():",
-				"Integer startY = Height(entry.value).y",
+			"for (Column c, Height height in heights:",
+				"Integer startY = height.y",
 				"LinkedList list = queue.(startY)",
 				"if (list == null:",
 					"list = new()",
 					"queue.(startY) = list",
 				")",
-				"list.add(entry.key)",
+				"list.add(c)",
 			")",
 
 			";process each column.",

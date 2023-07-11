@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.math;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,6 +56,7 @@ public class FastExpTest {
 		public static final float STEP = 1.0F / 524288.0F;
 
 		@Test
+		@Disabled
 		public void time() {
 			for (int trial = 1; trial <= 10; trial++) {
 				System.out.printf("Trial %d:\n", trial);

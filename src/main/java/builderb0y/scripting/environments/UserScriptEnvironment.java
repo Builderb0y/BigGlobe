@@ -9,11 +9,13 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -182,19 +184,19 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		return this.variables.hasNewElements();
 	}
 
-	public VariableDeclarationInsnTree newVariable(String name, TypeInfo type) {
+	public VarInfo newVariable(String name, TypeInfo type) {
 		try {
 			this.parser.checkVariable(name);
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception.getMessage(), exception);
 		}
-		VariableDeclarationInsnTree tree = new VariableDeclarationInsnTree(name, type);
-		this.variables.put(name, tree.loader);
-		return tree;
+		VarInfo variable = new VarInfo(name, -1, type);
+		this.variables.put(name, load(variable));
+		return variable;
 	}
 
-	public VariableDeclarationInsnTree newAnonymousVariable(TypeInfo type) {
+	public VarInfo newAnonymousVariable(TypeInfo type) {
 		return this.newVariable("$" + this.varUniquifier++, type);
 	}
 
