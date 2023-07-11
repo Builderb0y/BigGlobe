@@ -2,6 +2,7 @@ package builderb0y.scripting.parsing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.RandomAccess;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
@@ -20,6 +21,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.AbstractForIteratorInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.ForIteratorInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.ForMapIteratorInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.ForRandomAccessListInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
@@ -204,7 +206,9 @@ public class SpecialFunctionSyntax {
 					parser.input.setCursor(afterIn);
 					VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 					VarInfo userVar = parser.environment.user().newVariable(firstVarName, firstType);
-					InsnTree iterable = parser.nextScript().cast(parser, TypeInfos.ITERABLE, CastMode.IMPLICIT_THROW);
+					InsnTree rawIterable = parser.nextScript();
+					boolean useFastIteration = rawIterable.getTypeInfo().extendsOrImplements(type(List.class)) && rawIterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class));
+					InsnTree iterable = useFastIteration ? rawIterable : rawIterable.cast(parser, TypeInfos.ITERABLE, CastMode.IMPLICIT_THROW);
 					parser.input.expectOperatorAfterWhitespace(":");
 					InsnTree body = parser.nextScript();
 					parser.input.expectAfterWhitespace(')');
@@ -213,8 +217,9 @@ public class SpecialFunctionSyntax {
 						loopName,
 						new VariableDeclareAssignInsnTree(
 							iterator,
-							invokeInstance(iterable, AbstractForIteratorInsnTree.ITERATOR)
+							useFastIteration ? iterable : invokeInstance(iterable, AbstractForIteratorInsnTree.ITERATOR)
 						),
+						useFastIteration,
 						new VariableDeclarationInsnTree(userVar),
 						body.asStatement()
 					);
@@ -301,7 +306,8 @@ public class SpecialFunctionSyntax {
 
 	public static record ForEachLoop(
 		String loopName,
-		VariableDeclareAssignInsnTree iterator,
+		VariableDeclareAssignInsnTree iteratorOrList,
+		boolean useFastIteration,
 		VariableDeclarationInsnTree userVar,
 		InsnTree body
 	)
@@ -309,7 +315,11 @@ public class SpecialFunctionSyntax {
 
 		@Override
 		public InsnTree buildLoop(ExpressionParser parser) {
-			return new ForIteratorInsnTree(this.loopName, this.userVar, this.iterator, this.body);
+			return (
+				this.useFastIteration
+				? new ForRandomAccessListInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
+				: new ForIteratorInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
+			);
 		}
 	}
 

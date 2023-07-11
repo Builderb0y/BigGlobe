@@ -2,6 +2,7 @@ package builderb0y.bigglobe.overriders;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 
 import com.google.common.base.Predicates;
 
@@ -18,7 +19,7 @@ import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class ScriptStructures extends AbstractList<StructureStartWrapper> {
+public class ScriptStructures extends AbstractList<StructureStartWrapper> implements RandomAccess {
 
 	public static final StructureStartWrapper[] EMPTY_STRUCTURE_START_ARRAY = {};
 	public static final ScriptStructures EMPTY_SCRIPT_STRUCTURES = new ScriptStructures(EMPTY_STRUCTURE_START_ARRAY);

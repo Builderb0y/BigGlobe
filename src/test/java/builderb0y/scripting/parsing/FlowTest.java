@@ -161,6 +161,21 @@ public class FlowTest extends TestCommon {
 			sum
 			"""
 		);
+		assertSuccess(1 + 2 + 3 + 4 + 5,
+			"""
+			ArrayList list = new ( 5 )
+			list . add ( 1 )
+			list . add ( 2 )
+			list . add ( 3 )
+			list . add ( 4 )
+			list . add ( 5 )
+			int sum = 0
+			for ( byte value in Iterable ( list ) :
+				sum += value
+			)
+			sum
+			"""
+		);
 		assertSuccess(1 * 2 + 3 * 4,
 			"""
 			HashMap map = new ( 2 )

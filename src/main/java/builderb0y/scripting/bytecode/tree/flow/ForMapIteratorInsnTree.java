@@ -73,9 +73,9 @@ public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 		ForIteratorInsnTree.NEXT.emit(method);
 		method.node.visitInsn(DUP);
 		GET_KEY.emit(method);
-		store(this.keyVariable, method);
+		castAndstore(this.keyVariable, method);
 		GET_VALUE.emit(method);
-		store(this.valueVariable, method);
+		castAndstore(this.valueVariable, method);
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, continuePoint.getLabel());
 

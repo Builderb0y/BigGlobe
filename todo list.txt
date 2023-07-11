@@ -50,6 +50,7 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
+		double jump flattener.
 	expose voronoi information.
 		include cave systems, cavern systems, skylands, and nether biome.
 	nested multi-line comment ;(example ;(text) here)
@@ -82,6 +83,7 @@ scripting:
 		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
+	user-defined methods (not functions) in user-defined classes.
 
 features:
 	general:
