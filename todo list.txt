@@ -17,9 +17,13 @@ testing:
 porting:
 
 where I left off:
-	hard-code LocalOverworldCaveSettings.floor/ceiling_decorator.
 	hard-code LocalCavernSettings.floor/ceiling/fluid_decorator.
 	hard-code LocalSkylandSettings.floor/ceiling_decorator.
+	use column restrictions for ocean monuments to prevent them from spawning where it's too hilly.
+	add a config option to make spawn locations more random.
+		in other words, not always in a birch forest.
+	change rock model so that some variants have fewer rocks.
+	make ocean monuments spawn one block lower.
 
 changelog:
 	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
@@ -27,7 +31,8 @@ changelog:
 	* Fixed nether quartz geodes and nether pockets being able to spawn intersecting bedrock.
 		* I *think* existing ones should survive this change as-is? New ones might spawn in a different location than they did previously, even with the same seed.
 	* Sped up distant horizons chunk generation in the nether slightly.
-	* Miscelaneous scripting improvements.
+	* Miscellaneous scripting improvements.
+	* Lush and mushroom caves no longer have dungeons or spider pits by default.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

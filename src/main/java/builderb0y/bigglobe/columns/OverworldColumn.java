@@ -288,7 +288,7 @@ public class OverworldColumn extends WorldColumn {
 			this.caveCeilings = new IntArrayList(8);
 			double[] noise = this.caveNoise;
 			assert noise != null;
-			int depth = cell.settings.depth();
+			int depth = cell.settings.depth;
 			int minY = this.getFinalTopHeightI() - depth;
 			boolean previousCave = false;
 			for (int index = 0; index < depth; index++) {
@@ -343,7 +343,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double getCaveDepth() {
 		CaveCell cell = this.getCaveCell();
-		return cell == null ? Double.NaN : cell.settings.depth();
+		return cell == null ? Double.NaN : cell.settings.depth;
 	}
 
 	public double getCaveNoiseThreshold(double y) {
@@ -373,7 +373,7 @@ public class OverworldColumn extends WorldColumn {
 	public double computeCaveSurfaceDepth() {
 		CaveCell cell = this.getCaveCell();
 		if (cell == null) return Double.NaN;
-		Grid2D noise = cell.settings.surface_depth_noise();
+		Grid2D noise = cell.settings.surface_depth_noise;
 		if (noise == null) return Double.NaN;
 		return noise.getValue(this.seed, this.x, this.z);
 	}
@@ -381,7 +381,7 @@ public class OverworldColumn extends WorldColumn {
 	public double getNormalizedCaveSurfaceDepth() {
 		double depth = this.getCaveSurfaceDepth();
 		if (Double.isNaN(depth)) return Double.NaN;
-		return depth / this.getCaveCell().settings.surface_depth_noise().maxValue();
+		return depth / this.getCaveCell().settings.surface_depth_noise.maxValue();
 	}
 
 	public @Nullable CaveCell getCaveCell() {

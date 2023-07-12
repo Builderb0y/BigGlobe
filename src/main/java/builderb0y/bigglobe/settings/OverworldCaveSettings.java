@@ -1,7 +1,12 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
@@ -18,7 +23,9 @@ import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.AutoCodecVersions;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class OverworldCaveSettings {
 
@@ -27,27 +34,72 @@ public class OverworldCaveSettings {
 	public final transient IRandomList<LocalOverworldCaveSettings> templates;
 	public final transient int maxDepth;
 
-	public OverworldCaveSettings(VoronoiDiagram2D placement, RegistryWrapper<LocalOverworldCaveSettings> template_registry) {
+	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup;
+
+	public OverworldCaveSettings(
+		VoronoiDiagram2D placement,
+		RegistryWrapper<LocalOverworldCaveSettings> template_registry,
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup
+	) {
 		this.placement = placement;
 		this.template_registry = template_registry;
+		this.configuredFeatureLookup = configuredFeatureLookup;
 		this.templates = BigGlobeDynamicRegistries.sortAndCollect(template_registry);
-		this.maxDepth = this.templates.stream().mapToInt(LocalOverworldCaveSettings::depth).max().orElse(0);
+		this.maxDepth = this.templates.stream().mapToInt((LocalOverworldCaveSettings settings) -> settings.depth).max().orElse(0);
+		template_registry.streamEntries().sequential().forEach((RegistryEntry<LocalOverworldCaveSettings> entry) -> {
+			Identifier baseKey = UnregisteredObjectException.getKey(entry).getValue();
+			LocalOverworldCaveSettings settings = entry.value();
+			settings.floor_decorator = this.tag(baseKey, "floor");
+			settings.ceiling_decorator = this.tag(baseKey, "ceiling");
+		});
+	}
+
+	public SortedFeatureTag tag(Identifier baseKey, String type) {
+		return new SortedFeatureTag(
+			this.configuredFeatureLookup.getOrThrow(
+				TagKey.of(
+					RegistryKeyVersions.configuredFeature(),
+					new Identifier(
+						baseKey.getNamespace(),
+						"overworld/caves/" + baseKey.getPath() + '/' + type
+					)
+				)
+			)
+		);
 	}
 
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
-	public static record LocalOverworldCaveSettings(
-		double weight,
-		@VerifyIntRange(min = 0, minInclusive = false) int depth,
-		Grid3D noise,
-		ColumnYToDoubleScript.Holder noise_threshold,
-		ColumnYToDoubleScript.Holder effective_width,
-		@VerifyNullable Grid2D surface_depth_noise,
-		@VerifyNullable CaveSurfaceBlocks floor_blocks,
-		@VerifyNullable CaveSurfaceBlocks ceiling_blocks,
-		@VerifyNullable SortedFeatureTag floor_decorator,
-		@VerifyNullable SortedFeatureTag ceiling_decorator
-	)
-	implements IWeightedListElement {
+	public static class LocalOverworldCaveSettings implements IWeightedListElement {
+
+		public final double weight;
+		public final @VerifyIntRange(min = 0, minInclusive = false) int depth;
+		public final Grid3D noise;
+		public final ColumnYToDoubleScript.Holder noise_threshold;
+		public final ColumnYToDoubleScript.Holder effective_width;
+		public final @VerifyNullable Grid2D surface_depth_noise;
+		public final @VerifyNullable CaveSurfaceBlocks floor_blocks;
+		public final @VerifyNullable CaveSurfaceBlocks ceiling_blocks;
+		public transient SortedFeatureTag floor_decorator, ceiling_decorator;
+
+		public LocalOverworldCaveSettings(
+			double weight,
+			@VerifyIntRange(min = 0, minInclusive = false) int depth,
+			Grid3D noise,
+			ColumnYToDoubleScript.Holder noise_threshold,
+			ColumnYToDoubleScript.Holder effective_width,
+			@VerifyNullable Grid2D surface_depth_noise,
+			@VerifyNullable CaveSurfaceBlocks floor_blocks,
+			@VerifyNullable CaveSurfaceBlocks ceiling_blocks
+		) {
+			this.weight = weight;
+			this.depth = depth;
+			this.noise = noise;
+			this.noise_threshold = noise_threshold;
+			this.effective_width = effective_width;
+			this.surface_depth_noise = surface_depth_noise;
+			this.floor_blocks = floor_blocks;
+			this.ceiling_blocks = ceiling_blocks;
+		}
 
 		public static <T_Encoded> void verify(VerifyContext<T_Encoded, LocalOverworldCaveSettings> context) throws VerifyException {
 			LocalOverworldCaveSettings settings = context.object;

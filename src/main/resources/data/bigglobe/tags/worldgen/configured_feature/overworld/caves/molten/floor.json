@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:overworld/caves/floor_all",
+		"bigglobe:overworld/caves/occasional_dungeon",
 		"bigglobe:overworld/caves/the_floor_is_lava",
 		"bigglobe:overworld/caves/occasional_polished_blackstone"
 	]

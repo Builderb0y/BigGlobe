@@ -279,7 +279,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void runCaveOverriders(ScriptStructures structures, NetherColumn column) {
 		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.caveContext(structures, column);
-		for (StructureStartWrapper start : structures.starts) {
+		for (StructureStartWrapper start : structures.elements) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
 					((NetherPillarStructure.Piece)(piece)).runCaveExclusions(context);
@@ -293,7 +293,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void runCavernOverriders(ScriptStructures structures, NetherColumn column) {
 		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.cavernContext(structures, column);
-		for (StructureStartWrapper start : structures.starts) {
+		for (StructureStartWrapper start : structures.elements) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
 					((NetherPillarStructure.Piece)(piece)).runCaveExclusions(context);

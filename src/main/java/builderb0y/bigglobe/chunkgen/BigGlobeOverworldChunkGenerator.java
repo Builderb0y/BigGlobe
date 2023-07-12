@@ -776,8 +776,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 						}
 						CaveCell caveCell = column.getCaveCell();
 						if (caveCell != null) {
-							this.runDecorators(world, pos, mojang, caveCell.settings.floor_decorator(), column.caveFloors);
-							this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator(), column.caveCeilings);
+							this.runDecorators(world, pos, mojang, caveCell.settings.floor_decorator,   column.caveFloors);
+							this.runDecorators(world, pos, mojang, caveCell.settings.ceiling_decorator, column.caveCeilings);
 						}
 					}
 					this.runDecorators(world, pos, mojang, this.surfaceDecorators, column.getFinalTopHeightI());

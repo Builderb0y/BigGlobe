@@ -31,8 +31,8 @@ public class CaveSurfaceReplacer {
 			CaveCell caveCell = column.getCaveCell();
 			if (caveCell == null) return;
 			LocalOverworldCaveSettings caveSettings = caveCell.settings;
-			CaveSurfaceBlocks floorBlocks = caveSettings.floor_blocks();
-			CaveSurfaceBlocks ceilingBlocks = caveSettings.ceiling_blocks();
+			CaveSurfaceBlocks floorBlocks = caveSettings.floor_blocks;
+			CaveSurfaceBlocks ceilingBlocks = caveSettings.ceiling_blocks;
 			if (floorBlocks == null && ceilingBlocks == null) continue;
 
 			int      floorSurfaceID =   floorBlocks != null ? context.id(  floorBlocks.surface   ()) : Integer.MIN_VALUE;
