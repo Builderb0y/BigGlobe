@@ -17,6 +17,9 @@ testing:
 porting:
 
 where I left off:
+	hard-code LocalOverworldCaveSettings.floor/ceiling_decorator.
+	hard-code LocalCavernSettings.floor/ceiling/fluid_decorator.
+	hard-code LocalSkylandSettings.floor/ceiling_decorator.
 
 changelog:
 	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
@@ -50,9 +53,77 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
-		double jump flattener.
+		jump to very next instruction remover.
 	expose voronoi information.
-		include cave systems, cavern systems, skylands, and nether biome.
+		`overworld/biome`
+			id
+			biome
+			primary_surface
+				top
+				under
+			secondary_surfaces (list)
+				under
+				depth
+		`overworld/cave`
+			id
+			weight
+			depth
+			floor_blocks
+				surface
+				subsurface
+			ceiling_blocks
+				surface
+				subsurface
+			floor_decorator
+			ceiling_decorator
+		`overworld/cavern`
+			id
+			weight
+			padding
+			fluid
+			floor_decorator
+			ceiling_decorator
+			fluid_decorator
+			has_ancient_cities
+		`overworld/skyland`
+			id
+			weight
+			surface
+				primary
+				primary_depth
+				secondary (list)
+					under
+					depth
+			floor_decorator
+			ceiling_decorator
+		`nether/biome`
+			id
+			weight
+			biome
+			caverns
+				min_y
+				max_y
+				lower_padding
+				upper_padding
+				edge_padding
+				floor_surface
+					top_state
+					under_state
+					depth
+				ceiling_surface
+					top_state
+					under_state
+					depth
+			caves
+				lower_padding
+				floor_surface
+					top_state
+					under_state
+					depth
+				ceiling_surface
+					top_state
+					under_state
+					depth
 	nested multi-line comment ;(example ;(text) here)
 	more invoke syntaxes:
 		nullable invoke.
@@ -84,6 +155,7 @@ scripting:
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
+	ability to iterate over an Iterator or Stream (whenever stream support is added).
 
 features:
 	general:

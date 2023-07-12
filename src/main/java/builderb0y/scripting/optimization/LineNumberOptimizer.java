@@ -12,9 +12,9 @@ removes useless line number nodes.
 a line number node is considered useless if it is followed by another line number node,
 or one or more label nodes which themselves are followed by another line number node.
 */
-public class LineNumberFlattenerOptimizer implements MethodOptimizer {
+public class LineNumberOptimizer implements MethodOptimizer {
 
-	public static final LineNumberFlattenerOptimizer INSTANCE = new LineNumberFlattenerOptimizer();
+	public static final LineNumberOptimizer INSTANCE = new LineNumberOptimizer();
 
 	@Override
 	public boolean optimize(MethodNode method) {

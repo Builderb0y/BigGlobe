@@ -12,10 +12,17 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
 removes instructions which are unreachable, and can never be executed.
-*/
-public class UnreachableCodeRemover implements MethodOptimizer {
 
-	public static final UnreachableCodeRemover INSTANCE = new UnreachableCodeRemover();
+example code to generate unreachable code: {@code
+	block (
+		return(1)
+	)
+	return(2)
+}
+*/
+public class UnreachableCodeOptimizer implements MethodOptimizer {
+
+	public static final UnreachableCodeOptimizer INSTANCE = new UnreachableCodeOptimizer();
 
 	@Override
 	public boolean optimize(MethodNode method) {
@@ -23,14 +30,16 @@ public class UnreachableCodeRemover implements MethodOptimizer {
 		Set<AbstractInsnNode> visited = Collections.newSetFromMap(new IdentityHashMap<>(method.instructions.size()));
 		collectAt(method.instructions.getFirst(), visited);
 		if (visited.size() == method.instructions.size()) return false;
+		boolean changed = false;
 		for (AbstractInsnNode node = method.instructions.getFirst(); node != null;) {
 			AbstractInsnNode next = node.getNext();
 			if (!(node instanceof LabelNode || visited.contains(node))) {
 				method.instructions.remove(node);
+				changed = true;
 			}
 			node = next;
 		}
-		return true;
+		return changed;
 	}
 
 	public static void collectAt(AbstractInsnNode node, Set<AbstractInsnNode> visited) {
