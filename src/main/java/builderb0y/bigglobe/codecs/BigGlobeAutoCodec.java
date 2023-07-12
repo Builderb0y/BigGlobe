@@ -60,7 +60,7 @@ import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
+import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.TagOrObject;
@@ -106,7 +106,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<EndBiomeLayout>                  END_BIOME_LAYOUT_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(EndBiomeLayout                        .class), BigGlobeDynamicRegistries.END_BIOME_LAYOUT_REGISTRY_KEY);
 	public static final RegistryCoders<LocalSkylandSettings>            LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(LocalSkylandSettings                  .class), BigGlobeDynamicRegistries.LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<LocalOverworldCaveSettings>      LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(LocalOverworldCaveSettings            .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<LocalCavernSettings>             LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalCavernSettings                   .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<LocalOverworldCavernSettings>    LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalOverworldCavernSettings          .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,

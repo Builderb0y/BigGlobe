@@ -42,8 +42,5 @@
 		}
 	},
 	"fluid": "minecraft:lava[level=0]",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_big_stalactites_lava",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_big_stalactites_lava",
-	"fluid_decorator": "bigglobe:overworld/caverns/fluid_big_stalactites_lava",
 	"has_ancient_cities": false
 }

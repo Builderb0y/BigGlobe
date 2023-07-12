@@ -22,8 +22,5 @@
 		]
 	},
 	"fluid": "minecraft:lava[level=0]",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_medium_lava",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_medium_lava",
-	"fluid_decorator": "bigglobe:overworld/caverns/fluid_medium_lava",
 	"has_ancient_cities": false
 }

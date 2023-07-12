@@ -413,7 +413,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			OverworldColumn column = columns.getColumn(index);
 			CavernCell cavernCell = column.getCavernCell();
 			BlockState fluid;
-			if (cavernCell == null || (fluid = cavernCell.settings.fluid()) == null || fluid.isAir()) {
+			if (cavernCell == null || (fluid = cavernCell.settings.fluid) == null || fluid.isAir()) {
 				continue;
 			}
 
@@ -769,9 +769,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 							double center = column.getCavernCenter();
 							double thickness = column.getCavernThickness();
 							if (!Double.isNaN(center) && thickness > 0.0D) {
-								this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator(), BigGlobeMath.floorI(center - thickness));
-								this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator(), BigGlobeMath.floorI(center + thickness));
-								this.runDecorators(world, pos, mojang, cavernCell.settings.fluid_decorator(), BigGlobeMath.ceilI(column.getCavernAverageCenter()));
+								this.runDecorators(world, pos, mojang, cavernCell.settings.floor_decorator, BigGlobeMath.floorI(center - thickness));
+								this.runDecorators(world, pos, mojang, cavernCell.settings.ceiling_decorator, BigGlobeMath.floorI(center + thickness));
+								this.runDecorators(world, pos, mojang, cavernCell.settings.fluid_decorator, BigGlobeMath.ceilI(column.getCavernAverageCenter()));
 							}
 						}
 						CaveCell caveCell = column.getCaveCell();
@@ -936,7 +936,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					if (centerX >> 4 == chunkX && centerZ >> 4 == chunkZ) {
 						OverworldColumn column = this.ancientCityColumn;
 						if (column == null) column = BigGlobeOverworldChunkGenerator.this.column(centerX, centerZ);
-						if (column.getCavernCell().settings.has_ancient_cities()) {
+						if (column.getCavernCell().settings.has_ancient_cities) {
 							return true;
 						}
 					}
@@ -974,7 +974,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				int centerZ = placement.getCenterZ(cellX, cellZ);
 				if (centerX >> 4 == chunkX && centerZ >> 4 == chunkZ) {
 					OverworldColumn column = this.column(centerX, centerZ);
-					if (column.getCavernCell().settings.has_ancient_cities()) {
+					if (column.getCavernCell().settings.has_ancient_cities) {
 						RegistryEntry<Structure> structure = registryManager.get(RegistryKeyVersions.structure()).getEntry(StructureKeys.ANCIENT_CITY).orElse(null);
 						if (structure != null) {
 							this.forceSetStructureStart(
