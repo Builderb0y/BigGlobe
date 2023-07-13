@@ -495,7 +495,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			//skyland
 			doneWithSkyland:
 			if (column.hasSkyland()) {
-				SkylandSurfaceSettings surfaceSettings = column.getSkylandCell().settings.surface();
+				SkylandSurfaceSettings surfaceSettings = column.getSkylandCell().settings.surface;
 				double maxY = column.getSkylandMaxY();
 				derivativeMagnitudeSquared = BigGlobeMath.squareD(
 					estimateSkylandDelta(columns, fallback, index, 1, maxY),
@@ -787,8 +787,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 					SkylandCell skylandCell = column.getSkylandCell();
 					if (skylandCell != null && column.hasSkyland()) {
-						this.runDecorators(world, pos, mojang, skylandCell.settings.floor_decorator(), BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
-						this.runDecorators(world, pos, mojang, skylandCell.settings.ceiling_decorator(), BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
+						this.runDecorators(world, pos, mojang, skylandCell.settings.top_decorator, BigGlobeMath.floorI(column.getSkylandMaxY()) + 1);
+						this.runDecorators(world, pos, mojang, skylandCell.settings.bottom_decorator, BigGlobeMath.floorI(column.getSkylandMinY()) - 1);
 					}
 				}
 			});

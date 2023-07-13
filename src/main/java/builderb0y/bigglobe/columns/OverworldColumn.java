@@ -598,7 +598,7 @@ public class OverworldColumn extends WorldColumn {
 		skylandCell.voronoiCell = voronoiCell;
 		LocalSkylandSettings local = globalSkylands.templates.getRandomElement(voronoiCell.center.getSeed(0x306A01988A92962CL));
 		skylandCell.settings = local;
-		skylandCell.averageCenter = local.average_center().get(voronoiCell.center.getSeed(0x7DE493A0E9989DA6L));
+		skylandCell.averageCenter = local.average_center.get(voronoiCell.center.getSeed(0x7DE493A0E9989DA6L));
 		return skylandCell;
 	}
 
@@ -641,7 +641,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandCenter() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.averageCenter + cell.settings.center().getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
+		return cell == null ? Double.NaN : cell.averageCenter + cell.settings.center.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandThickness() {
@@ -654,7 +654,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandThickness() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.thickness().getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
+		return cell == null ? Double.NaN : cell.settings.thickness.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandAuxiliaryNoise() {
@@ -668,7 +668,7 @@ public class OverworldColumn extends WorldColumn {
 	public double computeSkylandAuxiliaryNoise() {
 		SkylandCell cell = this.getSkylandCell();
 		if (cell == null) return Double.NaN;
-		Grid2D grid = cell.settings.auxiliary_noise();
+		Grid2D grid = cell.settings.auxiliary_noise;
 		if (grid == null) return Double.NaN;
 		return grid.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
@@ -704,7 +704,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandMinY() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.min_y().evaluate(this, cell.averageCenter);
+		return cell == null ? Double.NaN : cell.settings.min_y.evaluate(this, cell.averageCenter);
 	}
 
 	public double getSkylandMaxY() {
@@ -717,7 +717,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandMaxY() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.max_y().evaluate(this, cell.averageCenter);
+		return cell == null ? Double.NaN : cell.settings.max_y.evaluate(this, cell.averageCenter);
 	}
 
 	public boolean hasSkyland() {

@@ -4,7 +4,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -21,25 +20,23 @@ import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class NetherSettings {
+public class NetherSettings extends DecoratorTagHolder {
 	public final VoronoiDiagram2D biome_placement;
 	public final RegistryWrapper<LocalNetherSettings> localSettingsRegistry;
 	public final transient IRandomList<LocalNetherSettings> local_settings;
-	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatures;
 	public final @VerifyDivisibleBy16 int min_y;
 	public final @VerifyDivisibleBy16 int max_y;
 
 	public NetherSettings(
 		VoronoiDiagram2D biome_placement,
 		RegistryWrapper<LocalNetherSettings> localSettingsRegistry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatures,
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup,
 		int min_y,
 		int max_y
 	) {
+		super(configured_feature_lookup);
 		this.biome_placement = biome_placement;
-		this.configuredFeatures = configuredFeatures;
 		this.localSettingsRegistry = localSettingsRegistry;
 		this.local_settings = BigGlobeDynamicRegistries.sortAndCollect(localSettingsRegistry);
 		this.min_y = min_y;
@@ -47,28 +44,19 @@ public class NetherSettings {
 		localSettingsRegistry.streamEntries().sequential().forEach((RegistryEntry<LocalNetherSettings> localSettingsEntry) -> {
 			Identifier baseKey = UnregisteredObjectException.getKey(localSettingsEntry).getValue();
 			LocalNetherSettings localSettings = localSettingsEntry.value();
-			localSettings.caveCeilingsDecorator   = this.decoratorTag(baseKey, "cave_ceilings");
-			localSettings.caveFloorsDecorator     = this.decoratorTag(baseKey, "cave_floors");
-			localSettings.cavernCeilingsDecorator = this.decoratorTag(baseKey, "cavern_ceilings");
-			localSettings.cavernFloorsDecorator   = this.decoratorTag(baseKey, "cavern_floors");
-			localSettings.fluidDecorator          = this.decoratorTag(baseKey, "fluid");
-			localSettings.lowerBedrockDecorator   = this.decoratorTag(baseKey, "lower_bedrock");
-			localSettings.upperBedrockDecorator   = this.decoratorTag(baseKey, "upper_bedrock");
+			localSettings.caveCeilingsDecorator   = this.createDecoratorTag(baseKey, "cave_ceilings");
+			localSettings.caveFloorsDecorator     = this.createDecoratorTag(baseKey, "cave_floors");
+			localSettings.cavernCeilingsDecorator = this.createDecoratorTag(baseKey, "cavern_ceilings");
+			localSettings.cavernFloorsDecorator   = this.createDecoratorTag(baseKey, "cavern_floors");
+			localSettings.fluidDecorator          = this.createDecoratorTag(baseKey, "fluid");
+			localSettings.lowerBedrockDecorator   = this.createDecoratorTag(baseKey, "lower_bedrock");
+			localSettings.upperBedrockDecorator   = this.createDecoratorTag(baseKey, "upper_bedrock");
 		});
 	}
 
-	public SortedFeatureTag decoratorTag(Identifier baseKey, String suffix) {
-		return new SortedFeatureTag(
-			this.configuredFeatures.getOrThrow(
-				TagKey.of(
-					RegistryKeyVersions.configuredFeature(),
-					new Identifier(
-						baseKey.getNamespace(),
-						"nether/biomes/" + baseKey.getPath() + '/' + suffix
-					)
-				)
-			)
-		);
+	@Override
+	public String getDecoratorTagPrefix() {
+		return "nether/biomes";
 	}
 
 	public int height() {

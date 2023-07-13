@@ -17,13 +17,14 @@ testing:
 porting:
 
 where I left off:
-	hard-code LocalCavernSettings.floor/ceiling/fluid_decorator.
-	hard-code LocalSkylandSettings.floor/ceiling_decorator.
-	use column restrictions for ocean monuments to prevent them from spawning where it's too hilly.
 	add a config option to make spawn locations more random.
 		in other words, not always in a birch forest.
+		potentially make the existing column restrictions configurable?
 	change rock model so that some variants have fewer rocks.
 	make ocean monuments spawn one block lower.
+	add a single villager to small houses.
+		make sure WorldWrapper verifies that entities can't be summoned outside the Coordination's area.
+		make sure WorldWrapper transforms the summoned entity's coordinates according to the Coordination's rotation.
 
 changelog:
 	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.

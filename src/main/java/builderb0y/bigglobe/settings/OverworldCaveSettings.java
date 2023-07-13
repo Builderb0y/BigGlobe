@@ -4,7 +4,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
@@ -25,47 +24,35 @@ import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.AutoCodecVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class OverworldCaveSettings {
+public class OverworldCaveSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
 	public final RegistryWrapper<LocalOverworldCaveSettings> template_registry;
 	public final transient IRandomList<LocalOverworldCaveSettings> templates;
 	public final transient int maxDepth;
 
-	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup;
-
 	public OverworldCaveSettings(
 		VoronoiDiagram2D placement,
 		RegistryWrapper<LocalOverworldCaveSettings> template_registry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup
 	) {
+		super(configured_feature_lookup);
 		this.placement = placement;
 		this.template_registry = template_registry;
-		this.configuredFeatureLookup = configuredFeatureLookup;
 		this.templates = BigGlobeDynamicRegistries.sortAndCollect(template_registry);
 		this.maxDepth = this.templates.stream().mapToInt((LocalOverworldCaveSettings settings) -> settings.depth).max().orElse(0);
 		template_registry.streamEntries().sequential().forEach((RegistryEntry<LocalOverworldCaveSettings> entry) -> {
 			Identifier baseKey = UnregisteredObjectException.getKey(entry).getValue();
 			LocalOverworldCaveSettings settings = entry.value();
-			settings.floor_decorator = this.tag(baseKey, "floor");
-			settings.ceiling_decorator = this.tag(baseKey, "ceiling");
+			settings.floor_decorator   = this.createDecoratorTag(baseKey, "floor");
+			settings.ceiling_decorator = this.createDecoratorTag(baseKey, "ceiling");
 		});
 	}
 
-	public SortedFeatureTag tag(Identifier baseKey, String type) {
-		return new SortedFeatureTag(
-			this.configuredFeatureLookup.getOrThrow(
-				TagKey.of(
-					RegistryKeyVersions.configuredFeature(),
-					new Identifier(
-						baseKey.getNamespace(),
-						"overworld/caves/" + baseKey.getPath() + '/' + type
-					)
-				)
-			)
-		);
+	@Override
+	public String getDecoratorTagPrefix() {
+		return "overworld/caves";
 	}
 
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)

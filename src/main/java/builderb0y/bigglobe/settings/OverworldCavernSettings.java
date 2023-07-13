@@ -4,7 +4,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
@@ -19,46 +18,34 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class OverworldCavernSettings {
+public class OverworldCavernSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
 	public final RegistryWrapper<LocalOverworldCavernSettings> template_registry;
 	public final IRandomList<LocalOverworldCavernSettings> templates;
 
-	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup;
-
 	public OverworldCavernSettings(
 		VoronoiDiagram2D placement,
 		RegistryWrapper<LocalOverworldCavernSettings> template_registry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup
+		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup
 	) {
+		super(configured_feature_lookup);
 		this.placement = placement;
 		this.template_registry = template_registry;
-		this.configuredFeatureLookup = configuredFeatureLookup;
 		this.templates = BigGlobeDynamicRegistries.sortAndCollect(template_registry);
 		template_registry.streamEntries().sequential().forEach((RegistryEntry<LocalOverworldCavernSettings> entry) -> {
 			Identifier baseKey = UnregisteredObjectException.getKey(entry).getValue();
 			LocalOverworldCavernSettings settings = entry.value();
-			settings.floor_decorator = this.tag(baseKey, "floor");
-			settings.ceiling_decorator = this.tag(baseKey, "ceiling");
-			if (settings.fluid != null) settings.fluid_decorator = this.tag(baseKey, "fluid");
+			settings.floor_decorator   = this.createDecoratorTag(baseKey, "floor");
+			settings.ceiling_decorator = this.createDecoratorTag(baseKey, "ceiling");
+			if (settings.fluid != null) settings.fluid_decorator = this.createDecoratorTag(baseKey, "fluid");
 		});
 	}
 
-	public SortedFeatureTag tag(Identifier baseKey, String type) {
-		return new SortedFeatureTag(
-			this.configuredFeatureLookup.getOrThrow(
-				TagKey.of(
-					RegistryKeyVersions.configuredFeature(),
-					new Identifier(
-						baseKey.getNamespace(),
-						"overworld/caverns/" + baseKey.getPath() + '/' + type
-					)
-				)
-			)
-		);
+	@Override
+	public String getDecoratorTagPrefix() {
+		return "overworld/caverns";
 	}
 
 	public static class LocalOverworldCavernSettings implements IWeightedListElement {
