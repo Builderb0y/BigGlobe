@@ -58,14 +58,18 @@ public class BiomeLayout {
 
 	public static class OverworldBiomeLayout extends BiomeLayout {
 
+		public final @VerifyNullable Boolean player_spawn_friendly;
+
 		public OverworldBiomeLayout(
 			@VerifyNullable String parent,
 			ColumnRestriction restrictions,
 			RegistryEntry<Biome> biome,
 			@VerifyNullable PrimarySurface primary_surface,
-			SecondarySurface @VerifyNullable [] secondary_surfaces
+			SecondarySurface @VerifyNullable [] secondary_surfaces,
+			@VerifyNullable Boolean player_spawn_friendly
 		) {
 			super(parent, restrictions, biome, primary_surface, secondary_surfaces);
+			this.player_spawn_friendly = player_spawn_friendly;
 		}
 	}
 

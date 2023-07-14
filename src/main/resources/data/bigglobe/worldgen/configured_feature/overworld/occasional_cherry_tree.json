@@ -9,7 +9,7 @@
 			"double distance = 4.0 * `overworld/height_adjusted_temperature` ^ 2",
 			"if (`overworld/foliage` < 0.0: distance += 4.0 * `overworld/height_adjusted_foliage` ^ 2)",
 			"double chance = max(1.0 - distance, 0.0) ^ 2",
-			"(random.nextBoolean(chance / 2048.0) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/trees/natural/cherry')).if (",
+			"(random.nextBoolean(chance / 4096.0) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/trees/natural/cherry')).if (",
 				"for (int attempt = 0, attempt < 256, ++attempt:",
 					"double angle = random.nextDouble(tau)",
 					"double radius = random.nextDouble(16.0L)",
