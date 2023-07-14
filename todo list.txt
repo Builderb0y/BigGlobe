@@ -17,11 +17,6 @@ testing:
 porting:
 
 where I left off:
-	change rock model so that some variants have fewer rocks.
-	make ocean monuments spawn one block lower.
-	add a single villager to small houses.
-		make sure WorldWrapper verifies that entities can't be summoned outside the Coordination's area.
-		make sure WorldWrapper transforms the summoned entity's coordinates according to the Coordination's rotation.
 	make big globe duplicates of all vanilla structures and structure sets.
 
 changelog:
@@ -30,10 +25,13 @@ changelog:
 	* Fixed nether quartz geodes and nether pockets being able to spawn intersecting bedrock.
 		* I *think* existing ones should survive this change as-is? New ones might spawn in a different location than they did previously, even with the same seed.
 	* Sped up distant horizons chunk generation in the nether slightly.
-	* Miscellaneous scripting improvements.
 	* Lush and mushroom caves no longer have dungeons or spider pits by default.
 	* Reduced the number of cherry trees that spawn in the world.
 	* The rock model now ranges from 1 to 6 rocks per block instead of being always 6.
+	* Restricted ocean monuments to only spawning in flat-ish areas.
+	* Fixed ocean monuments being empty in rare edge cases.
+	* Small houses now have a villager inside.
+	* Miscellaneous scripting improvements.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -52,7 +50,7 @@ AutoCodec:
 		DontEncode could be useful for backwards compatibility.
 		maybe DontDecode could be used to add comments or something to encoded data?
 			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
-	AutoDecoder.decode() should return regular T_Decoded, not @Nullable T_Decoded.
+	AutoCodec.decode() should return regular T_Decoded, not @Nullable T_Decoded.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.

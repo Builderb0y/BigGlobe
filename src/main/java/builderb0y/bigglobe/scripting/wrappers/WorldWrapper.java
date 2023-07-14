@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -238,11 +239,16 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void summon(String entityType, double x, double y, double z) {
+		Vector3d newPos = this.coordination.modifyVec(new Vector3d(x, y, z));
+		if (newPos == null) return;
+		double newX = newPos.x;
+		double newY = newPos.y;
+		double newZ = newPos.z;
 		Identifier identifier = new Identifier(entityType);
 		if (RegistryVersions.entityType().containsId(identifier)) {
 			Entity entity = RegistryVersions.entityType().get(identifier).create(this.world.toServerWorld());
 			if (entity != null) {
-				entity.refreshPositionAndAngles(x, y, z, entity.getYaw(), entity.getPitch());
+				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 				this.world.spawnEntityAndPassengers(entity);
 			}
 			else {
@@ -255,10 +261,15 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void summon(String entityType, double x, double y, double z, NbtCompound nbt) {
+		Vector3d newPos = this.coordination.modifyVec(new Vector3d(x, y, z));
+		if (newPos == null) return;
+		double newX = newPos.x;
+		double newY = newPos.y;
+		double newZ = newPos.z;
 		NbtCompound copy = nbt.copy();
 		copy.putString("id", entityType);
 		Entity entity = EntityType.loadEntityWithPassengers(copy, this.world.toServerWorld(), entity1 -> {
-			entity1.refreshPositionAndAngles(x, y, z, entity1.getYaw(), entity1.getPitch());
+			entity1.refreshPositionAndAngles(newX, newY, newZ, entity1.getYaw(), entity1.getPitch());
 			return entity1;
 		});
 		if (entity != null) this.world.spawnEntityAndPassengers(entity);
@@ -276,10 +287,10 @@ public class WorldWrapper implements ColumnLookup {
 			int z1 = pos.getZ() - centerZ;
 			int x2, z2;
 			switch (rotation) {
-				case NONE -> { x2 = x1; z2 = z1; }
-				case CLOCKWISE_90 -> { x2 = -z1; z2 = x1; }
-				case CLOCKWISE_180 -> { x2 = -x1; z2 = -z1; }
-				case COUNTERCLOCKWISE_90 -> { x2 = z1; z2 = -x1; }
+				case NONE                -> { x2 =  x1; z2 =  z1; }
+				case CLOCKWISE_90        -> { x2 = -z1; z2 =  x1; }
+				case CLOCKWISE_180       -> { x2 = -x1; z2 = -z1; }
+				case COUNTERCLOCKWISE_90 -> { x2 =  z1; z2 = -x1; }
 				default -> throw new AssertionError(rotation);
 			}
 			int x3 = x2 + centerX;
@@ -293,6 +304,40 @@ public class WorldWrapper implements ColumnLookup {
 
 		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
 			return this.area.contains(this.modifyPosUnbounded(pos)) ? pos : null;
+		}
+
+		public static Vector3d rotate(Vector3d vector, double centerX, double centerZ, BlockRotation rotation) {
+			double x1 = vector.x - centerX;
+			double z1 = vector.z - centerZ;
+			double x2, z2;
+			switch (rotation) {
+				case NONE                -> { x2 =  x1; z2 =  z1; }
+				case CLOCKWISE_90        -> { x2 = -z1; z2 =  x1; }
+				case CLOCKWISE_180       -> { x2 = -x1; z2 = -z1; }
+				case COUNTERCLOCKWISE_90 -> { x2 =  z1; z2 = -x1; }
+				default -> throw new AssertionError(rotation);
+			}
+			vector.x = x2 + centerX;
+			vector.z = z2 + centerZ;
+			return vector;
+		}
+
+		public Vector3d modifyVecUnbounded(Vector3d vector) {
+			return rotate(vector, this.x + 0.5D, this.z + 0.5D, this.rotation);
+		}
+
+		public @Nullable Vector3d modifyVec(Vector3d vector) {
+			this.modifyVecUnbounded(vector);
+			if (
+				vector.x >= this.area.getMinX() && vector.x <= this.area.getMaxX() + 1 &&
+				vector.y >= this.area.getMinY() && vector.y <= this.area.getMaxY() + 1 &&
+				vector.z >= this.area.getMinZ() && vector.z <= this.area.getMaxZ() + 1
+			) {
+				return vector;
+			}
+			else {
+				return null;
+			}
 		}
 
 		public BlockState modifyState(BlockState state) {
