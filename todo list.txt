@@ -33,6 +33,7 @@ changelog:
 	* Miscellaneous scripting improvements.
 	* Lush and mushroom caves no longer have dungeons or spider pits by default.
 	* Reduced the number of cherry trees that spawn in the world.
+	* The rock model now ranges from 1 to 6 rocks per block instead of being always 6.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

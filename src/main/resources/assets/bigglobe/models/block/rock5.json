@@ -1,0 +1,70 @@
+{
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "minecraft:block/stone",
+		"particle": "minecraft:block/stone"
+	},
+	"elements": [
+		{
+			"from": [5, 0, 1],
+			"to": [8, 2, 4],
+			"faces": {
+				"north": {"uv": [8, 14, 11, 16], "texture": "#0"},
+				"east": {"uv": [12, 14, 15, 16], "texture": "#0"},
+				"south": {"uv": [5, 14, 8, 16], "texture": "#0"},
+				"west": {"uv": [1, 14, 4, 16], "texture": "#0"},
+				"up": {"uv": [5, 1, 8, 4], "texture": "#0"},
+				"down": {"uv": [5, 12, 8, 15], "texture": "#0"}
+			}
+		},
+		{
+			"from": [12, 0, 5],
+			"to": [15, 2, 9],
+			"faces": {
+				"north": {"uv": [1, 14, 4, 16], "texture": "#0"},
+				"east": {"uv": [7, 14, 11, 16], "texture": "#0"},
+				"south": {"uv": [12, 14, 15, 16], "texture": "#0"},
+				"west": {"uv": [5, 14, 9, 16], "texture": "#0"},
+				"up": {"uv": [12, 5, 15, 9], "texture": "#0"},
+				"down": {"uv": [12, 7, 15, 11], "texture": "#0"}
+			}
+		},
+		{
+			"from": [1, 0, 7],
+			"to": [4, 1, 12],
+			"faces": {
+				"north": {"uv": [12, 15, 15, 16], "texture": "#0"},
+				"east": {"uv": [4, 15, 9, 16], "texture": "#0"},
+				"south": {"uv": [1, 15, 4, 16], "texture": "#0"},
+				"west": {"uv": [7, 15, 12, 16], "texture": "#0"},
+				"up": {"uv": [1, 7, 4, 12], "texture": "#0"},
+				"down": {"uv": [1, 4, 4, 9], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 0, 12],
+			"to": [10, 2, 15],
+			"faces": {
+				"north": {"uv": [6, 14, 9, 16], "texture": "#0"},
+				"east": {"uv": [1, 14, 4, 16], "texture": "#0"},
+				"south": {"uv": [7, 14, 10, 16], "texture": "#0"},
+				"west": {"uv": [12, 14, 15, 16], "texture": "#0"},
+				"up": {"uv": [7, 12, 10, 15], "texture": "#0"},
+				"down": {"uv": [7, 1, 10, 4], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0, 6],
+			"to": [10, 1, 10],
+			"faces": {
+				"north": {"uv": [6, 15, 10, 16], "texture": "#0"},
+				"east": {"uv": [6, 15, 10, 16], "texture": "#0"},
+				"south": {"uv": [6, 15, 10, 16], "texture": "#0"},
+				"west": {"uv": [6, 15, 10, 16], "texture": "#0"},
+				"up": {"uv": [6, 6, 10, 10], "texture": "#0"},
+				"down": {"uv": [6, 6, 10, 10], "texture": "#0"}
+			}
+		}
+	]
+}
