@@ -33,6 +33,11 @@ public class BigGlobeArgumentTypes {
 			LocateNoiseLazyScript.Argument.class,
 			ConstantArgumentSerializer.of(LocateNoiseLazyScript.Argument::new)
 		);
+		ArgumentTypeRegistry.registerArgumentType(
+			BigGlobeMod.modID("locate_area_script"),
+			LocateAreaLazyScript.Argument.class,
+			ConstantArgumentSerializer.of(LocateAreaLazyScript.Argument::new)
+		);
 		BigGlobeMod.LOGGER.debug("Done registering command argument types.");
 	}
 }

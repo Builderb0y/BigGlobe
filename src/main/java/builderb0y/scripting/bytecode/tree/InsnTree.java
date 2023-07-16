@@ -148,14 +148,14 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			this.constructor = constructor;
 		}
 
-		public InsnTree createUpdater(ExpressionParser parser, TypeInfo leftType, InsnTree rightValue) {
+		public InsnTree createUpdater(ExpressionParser parser, TypeInfo leftType, InsnTree rightValue) throws ScriptParsingException {
 			return this.constructor.construct(parser, getFromStack(leftType), rightValue).cast(parser, leftType, CastMode.IMPLICIT_THROW);
 		}
 
 		@FunctionalInterface
 		public static interface UpdateConstructor {
 
-			public abstract InsnTree construct(ExpressionParser parser, InsnTree oldValue, InsnTree newValue);
+			public abstract InsnTree construct(ExpressionParser parser, InsnTree oldValue, InsnTree newValue) throws ScriptParsingException;
 		}
 	}
 

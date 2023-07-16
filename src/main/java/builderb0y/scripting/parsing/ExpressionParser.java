@@ -36,6 +36,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
@@ -1099,11 +1100,6 @@ public class ExpressionParser {
 			}
 		}
 
-		ExpressionParser newParser = new ExpressionParser(this, newMethod);
-		userVariablesEnvironment.parser = newParser;
-		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
-		InsnTree result = newParser.parseRemainingInput(true);
-
 		MethodInfo newMethodInfo = newMethod.info;
 		InsnTree[] implicitParameters = (
 			Stream.concat(
@@ -1119,7 +1115,7 @@ public class ExpressionParser {
 			.map(UserParameter::type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
-		this.environment.user().addFunction(methodName, (parser, name, arguments) -> {
+		FunctionHandler handler = (parser, name, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, expectedTypes, CastMode.IMPLICIT_THROW, arguments);
 			InsnTree[] concatenatedArguments = ObjectArrays.concat(implicitParameters, castArguments, InsnTree.class);
 			if (this.method.info.isStatic()) {
@@ -1128,7 +1124,15 @@ public class ExpressionParser {
 			else {
 				return new CastResult(invokeInstance(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
-		});
+		};
+		this.environment.user().addFunction(methodName, handler);
+		userVariablesEnvironment.addFunction(methodName, handler);
+
+		ExpressionParser newParser = new ExpressionParser(this, newMethod);
+		userVariablesEnvironment.parser = newParser;
+		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
+		InsnTree result = newParser.parseRemainingInput(true);
+
 		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 

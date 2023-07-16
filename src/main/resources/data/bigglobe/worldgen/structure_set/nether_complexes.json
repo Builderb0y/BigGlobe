@@ -1,0 +1,14 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "bigglobe:nether_complexes",
+			"variation": 8,
+			"spacing": 24
+		}
+	},
+	"structures": [
+		{ "weight": 2, "structure": "bigglobe:nether_fortress" },
+		{ "weight": 3, "structure": "bigglobe:bastion_remnant" }
+	]
+}

@@ -210,7 +210,7 @@ public class InsnTrees implements ExtendedOpcodes {
 		return reduceWithParser(parser, MultiplyInsnTree::create, operands);
 	}
 
-	public static InsnTree div(ExpressionParser parser, InsnTree left, InsnTree right) {
+	public static InsnTree div(ExpressionParser parser, InsnTree left, InsnTree right) throws ScriptParsingException {
 		return DivideInsnTree.create(parser, left, right);
 	}
 

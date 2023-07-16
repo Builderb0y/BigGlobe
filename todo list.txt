@@ -30,7 +30,9 @@ changelog:
 	* The rock model now ranges from 1 to 6 rocks per block instead of being always 6.
 	* Restricted ocean monuments to only spawning in flat-ish areas.
 	* Fixed ocean monuments being empty in rare edge cases.
+	* Fixed bigger desert pyramids generating completely broken in rare edge cases.
 	* Small houses now have a villager inside.
+	* Added /bigglobe:locateArea command, for finding large areas which match some property.
 	* Miscellaneous scripting improvements.
 
 AutoCodec:

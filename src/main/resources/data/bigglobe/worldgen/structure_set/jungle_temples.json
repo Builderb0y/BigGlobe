@@ -1,0 +1,13 @@
+{
+	"placement": {
+		"type": "bigglobe:restricted",
+		"value": {
+			"salt": "jungle_temples",
+			"variation": 8,
+			"spacing": 16
+		}
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:jungle_temple" }
+	]
+}
