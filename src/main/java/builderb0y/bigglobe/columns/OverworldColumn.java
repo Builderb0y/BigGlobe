@@ -400,7 +400,8 @@ public class OverworldColumn extends WorldColumn {
 			return caveCell;
 		}
 		caveCell.voronoiCell = voronoiCell;
-		caveCell.settings = globalCaves.templates.getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.entry = globalCaves.templates.getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.settings = caveCell.entry.value();
 		return caveCell;
 	}
 
@@ -467,9 +468,10 @@ public class OverworldColumn extends WorldColumn {
 			return cavernCell;
 		}
 		cavernCell.voronoiCell = voronoiCell;
-		LocalOverworldCavernSettings local = globalCaverns.templates.getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
-		cavernCell.settings = local;
-		cavernCell.averageCenter = local.average_center.get(voronoiCell.center.getSeed(0x649B8B0255A6DB63L));
+		RegistryEntry<LocalOverworldCavernSettings> local = globalCaverns.templates.getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
+		cavernCell.entry = local;
+		cavernCell.settings = local.value();
+		cavernCell.averageCenter = cavernCell.settings.average_center.get(voronoiCell.center.getSeed(0x649B8B0255A6DB63L));
 		return cavernCell;
 	}
 
@@ -596,9 +598,14 @@ public class OverworldColumn extends WorldColumn {
 			return skylandCell;
 		}
 		skylandCell.voronoiCell = voronoiCell;
-		LocalSkylandSettings local = globalSkylands.templates.getRandomElement(voronoiCell.center.getSeed(0x306A01988A92962CL));
-		skylandCell.settings = local;
-		skylandCell.averageCenter = local.average_center.get(voronoiCell.center.getSeed(0x7DE493A0E9989DA6L));
+		RegistryEntry<LocalSkylandSettings> local = globalSkylands.templates.getRandomElement(
+			voronoiCell.center.getSeed(0x306A01988A92962CL)
+		);
+		skylandCell.entry = local;
+		skylandCell.settings = local.value();
+		skylandCell.averageCenter = skylandCell.settings.average_center.get(
+			voronoiCell.center.getSeed(0x7DE493A0E9989DA6L)
+		);
 		return skylandCell;
 	}
 
@@ -776,6 +783,7 @@ public class OverworldColumn extends WorldColumn {
 	public static class CaveCell {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
+		public RegistryEntry<LocalOverworldCaveSettings> entry;
 		public LocalOverworldCaveSettings settings;
 	}
 
@@ -783,6 +791,7 @@ public class OverworldColumn extends WorldColumn {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
 		public double averageCenter;
+		public RegistryEntry<LocalOverworldCavernSettings> entry;
 		public LocalOverworldCavernSettings settings;
 	}
 
@@ -790,6 +799,7 @@ public class OverworldColumn extends WorldColumn {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
 		public double averageCenter;
+		public RegistryEntry<LocalSkylandSettings> entry;
 		public LocalSkylandSettings settings;
 	}
 }

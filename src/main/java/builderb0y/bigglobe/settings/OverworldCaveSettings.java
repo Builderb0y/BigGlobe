@@ -29,7 +29,7 @@ public class OverworldCaveSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
 	public final RegistryWrapper<LocalOverworldCaveSettings> template_registry;
-	public final transient IRandomList<LocalOverworldCaveSettings> templates;
+	public final transient IRandomList<RegistryEntry<LocalOverworldCaveSettings>> templates;
 	public final transient int maxDepth;
 
 	public OverworldCaveSettings(
@@ -41,7 +41,7 @@ public class OverworldCaveSettings extends DecoratorTagHolder {
 		this.placement = placement;
 		this.template_registry = template_registry;
 		this.templates = BigGlobeDynamicRegistries.sortAndCollect(template_registry);
-		this.maxDepth = this.templates.stream().mapToInt((LocalOverworldCaveSettings settings) -> settings.depth).max().orElse(0);
+		this.maxDepth = this.templates.stream().mapToInt((RegistryEntry<LocalOverworldCaveSettings> settings) -> settings.value().depth).max().orElse(0);
 		template_registry.streamEntries().sequential().forEach((RegistryEntry<LocalOverworldCaveSettings> entry) -> {
 			Identifier baseKey = UnregisteredObjectException.getKey(entry).getValue();
 			LocalOverworldCaveSettings settings = entry.value();

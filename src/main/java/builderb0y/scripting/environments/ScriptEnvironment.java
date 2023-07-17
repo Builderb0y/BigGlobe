@@ -207,10 +207,4 @@ public interface ScriptEnvironment {
 		}
 		return arguments[0].cast(parser, type, mode);
 	}
-
-	public static void checkArgumentCount(ExpressionParser parser, String name, int count, InsnTree[] arguments) throws ScriptParsingException {
-		if (arguments.length != count) {
-			throw new ScriptParsingException("Wrong number of arguments for " + name + ": expected 1, got " + arguments.length, parser.input);
-		}
-	}
 }

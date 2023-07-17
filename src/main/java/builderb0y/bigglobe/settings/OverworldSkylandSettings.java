@@ -25,7 +25,7 @@ public class OverworldSkylandSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
 	public final RegistryWrapper<LocalSkylandSettings> templates_registry;
-	public final transient IRandomList<LocalSkylandSettings> templates;
+	public final transient IRandomList<RegistryEntry<LocalSkylandSettings>> templates;
 
 	public OverworldSkylandSettings(
 		VoronoiDiagram2D placement,

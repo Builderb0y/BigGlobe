@@ -87,7 +87,11 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	) {
 		super(
 			new ColumnBiomeSource(
-				settings.local_settings.stream().map((LocalNetherSettings localSettings) -> localSettings.biome)
+				settings.local_settings.stream().map(
+					(RegistryEntry<LocalNetherSettings> localSettings) -> (
+						localSettings.value().biome
+					)
+				)
 			),
 			configuredFeatures
 		);

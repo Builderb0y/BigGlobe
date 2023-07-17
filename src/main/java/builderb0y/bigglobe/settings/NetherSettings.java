@@ -24,7 +24,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 public class NetherSettings extends DecoratorTagHolder {
 	public final VoronoiDiagram2D biome_placement;
 	public final RegistryWrapper<LocalNetherSettings> localSettingsRegistry;
-	public final transient IRandomList<LocalNetherSettings> local_settings;
+	public final transient IRandomList<RegistryEntry<LocalNetherSettings>> local_settings;
 	public final @VerifyDivisibleBy16 int min_y;
 	public final @VerifyDivisibleBy16 int max_y;
 

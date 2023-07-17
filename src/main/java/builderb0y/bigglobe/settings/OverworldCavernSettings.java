@@ -23,7 +23,7 @@ public class OverworldCavernSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
 	public final RegistryWrapper<LocalOverworldCavernSettings> template_registry;
-	public final IRandomList<LocalOverworldCavernSettings> templates;
+	public final IRandomList<RegistryEntry<LocalOverworldCavernSettings>> templates;
 
 	public OverworldCavernSettings(
 		VoronoiDiagram2D placement,

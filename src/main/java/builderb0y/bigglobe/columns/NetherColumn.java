@@ -376,7 +376,8 @@ public class NetherColumn extends WorldColumn {
 			return localCell;
 		}
 		localCell.voronoiCell = voronoiCell;
-		localCell.settings = this.settings.local_settings.getRandomElement(voronoiCell.center.getSeed(0x3609EABAE4B4765CL));
+		localCell.entry = this.settings.local_settings.getRandomElement(voronoiCell.center.getSeed(0x3609EABAE4B4765CL));
+		localCell.settings = localCell.entry.value();
 		localCell.lavaLevel = BigGlobeMath.ceilI(localCell.settings.fluid_level.get(voronoiCell.center.getSeed(0xEAC12131FA3753DEL)));
 		return localCell;
 	}
@@ -419,6 +420,7 @@ public class NetherColumn extends WorldColumn {
 	public static class LocalCell {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
+		public RegistryEntry<LocalNetherSettings> entry;
 		public LocalNetherSettings settings;
 		public int lavaLevel;
 	}

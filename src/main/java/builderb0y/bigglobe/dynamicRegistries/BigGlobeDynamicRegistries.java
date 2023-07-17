@@ -4,13 +4,16 @@ import java.util.Comparator;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.registry.*;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryLoader;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.randomLists.ConstantContainedRandomList;
+import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
@@ -69,8 +72,14 @@ public class BigGlobeDynamicRegistries {
 		throw new IllegalStateException(before + " not in DYNAMIC_REGISTRIES");
 	}
 
-	public static <T extends IWeightedListElement> IRandomList<T> sortAndCollect(RegistryWrapper<T> registry) {
-		ConstantContainedRandomList<T> list = new ConstantContainedRandomList<>();
+	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(RegistryWrapper<T> registry) {
+		ConstantComputedRandomList<RegistryEntry<T>> list = new ConstantComputedRandomList<>() {
+
+			@Override
+			public double getWeightOfElement(RegistryEntry<T> element) {
+				return element.value().getWeight();
+			}
+		};
 		registry
 		.streamEntries()
 		.sorted(
@@ -83,7 +92,6 @@ public class BigGlobeDynamicRegistries {
 				.thenComparing(Identifier::getPath)
 			)
 		)
-		.map(RegistryEntry::value)
 		.forEachOrdered(list::add);
 		if (list.isEmpty()) throw new IllegalStateException((registry instanceof RegistryWrapper.Impl<T> impl ? RegistryVersions.getRegistryKey(impl).getValue() : registry) + " is empty");
 		return list;
