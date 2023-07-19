@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "geodes",
+			"salt": "bigglobe:geodes",
 			"variation": 3,
 			"spacing": 6,
 			"restrictions": { "type": "skip_distant_horizons" }

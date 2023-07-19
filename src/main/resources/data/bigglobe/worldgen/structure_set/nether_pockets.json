@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "nether_pockets",
+			"salt": "bigglobe:nether_pockets",
 			"variation": 3,
 			"spacing": 6,
 			"restrictions": { "type": "skip_distant_horizons" }

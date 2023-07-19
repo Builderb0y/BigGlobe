@@ -1,7 +1,0 @@
-{
-	"type": "minecraft:woodland_mansion",
-	"biomes": "#bigglobe:has_structure/woodland_mansion",
-	"spawn_overrides": {},
-	"step": "surface_structures",
-	"terrain_adaptation": "beard_thin"
-}

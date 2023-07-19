@@ -3,6 +3,9 @@
 	"config": {
 		"script": [
 			"if (start.structure.type == StructureType('minecraft:ocean_monument'):",
+				"unless (`overworld/hilliness`(start.midX, start.midZ) < 0.375:",
+					"return(false)",
+				")",
 				"int fromY = start.minY",
 				"int toY = max(",
 					"int(max_y(start.minX, start.minZ)),",

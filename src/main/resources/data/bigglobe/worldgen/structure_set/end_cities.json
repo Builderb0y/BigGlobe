@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "end_cities",
+			"salt": "bigglobe:end_cities",
 			"variation": 20,
 			"spacing": 40
 		}

@@ -345,6 +345,9 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 		this.profiler.run("Features", () -> {
 			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
+			ChunkOfColumns<EndColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(EndColumn.class);
+
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
 					for (GenerationStep.Feature step : FEATURE_STEPS) {
@@ -352,12 +355,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					}
 				});
 			}
-			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
-			ChunkOfColumns<EndColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(EndColumn.class);
+
 			this.profiler.run("Feature placement", () -> {
-				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-				Permuter permuter = new Permuter(0L);
-				MojangPermuter mojang = permuter.mojang();
+				BlockPos.Mutable    mutablePos          = new BlockPos.Mutable();
+				Permuter            permuter            = new Permuter(0L);
+				MojangPermuter      mojang              = permuter.mojang();
 				RingCloudSettings   ringCloudSettings   = this.settings.ring_clouds;
 				BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 				for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
@@ -394,11 +396,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		EndColumn column = this.column(0, 0);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) {
+			if (!overrider.override(wrapper, column, permuter, distantHorizons)) {
 				return false;
 			}
 		}

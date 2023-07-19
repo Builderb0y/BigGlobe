@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "lakes",
+			"salt": "bigglobe:lakes",
 			"variation": 24,
 			"spacing": 32,
 			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.25, "max": 0.5 }

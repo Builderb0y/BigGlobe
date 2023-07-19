@@ -343,6 +343,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 		this.profiler.run("Features", () -> {
 			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
+			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
+
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
 					for (GenerationStep.Feature step : FEATURE_STEPS) {
@@ -351,8 +354,6 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
-			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
 			this.profiler.run("Feature placement", () -> {
 				BlockPos.Mutable pos = new BlockPos.Mutable();
 				Permuter permuter = new Permuter(0L);
@@ -375,11 +376,11 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		NetherColumn column = this.column(0, 0);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) {
+			if (!overrider.override(wrapper, column, permuter, distantHorizons)) {
 				return false;
 			}
 		}

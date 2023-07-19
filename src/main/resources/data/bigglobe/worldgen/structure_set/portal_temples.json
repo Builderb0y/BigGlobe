@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "portal_temples",
+			"salt": "bigglobe:portal_temples",
 			"variation": 8,
 			"spacing": 16
 		}

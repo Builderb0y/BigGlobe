@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "soul_campfires",
+			"salt": "bigglobe:soul_campfires",
 			"variation": 4,
 			"spacing": 8
 		}

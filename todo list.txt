@@ -7,6 +7,8 @@ bugs:
 	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
 		this is caused by distant horizons constructing a new chunk every time you request one.
 	immersive portals places the end portal inside the end nest.
+		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
+		this is fixed in a later version of immersive portals.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -17,13 +19,16 @@ testing:
 porting:
 
 where I left off:
-	make big globe duplicates of all vanilla structures and structure sets.
+	possibly deprecate RestrictedStructurePlacement entirely.
+		use scripts to prevent structures from spawning instead.
 
 changelog:
 	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
-	* "decorator" configured feature tags now have hard-coded locations.
-	* Fixed nether quartz geodes and nether pockets being able to spawn intersecting bedrock.
-		* I *think* existing ones should survive this change as-is? New ones might spawn in a different location than they did previously, even with the same seed.
+	* "decorator" configured feature tags now have automatic locations.
+	* Changed lots of structure spawn conditions.
+		* Existing structures *should* survive this change as-is, but new worlds might not have structures in the same locations as old worlds, even with the same seed.
+	* Changed the seed of "decorator" features, by making the same feature always have the same seed regardless of what other decorators might try to decorate at the same location.
+		* Like structures, existing features will survive as-is, but new worlds might have different features at the same locations even with the same seed.
 	* Sped up distant horizons chunk generation in the nether slightly.
 	* Lush and mushroom caves no longer have dungeons or spider pits by default.
 	* Reduced the number of cherry trees that spawn in the world.
@@ -32,7 +37,7 @@ changelog:
 	* Fixed ocean monuments being empty in rare edge cases.
 	* Fixed bigger desert pyramids generating completely broken in rare edge cases.
 	* Small houses now have a villager inside.
-	* Added /bigglobe:locateArea command, for finding large areas which match some property.
+	* Added /bigglobe:locateArea command, for finding large areas which match some predicate.
 	* Miscellaneous scripting improvements.
 
 AutoCodec:
@@ -53,6 +58,17 @@ AutoCodec:
 		maybe DontDecode could be used to add comments or something to encoded data?
 			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
 	AutoCodec.decode() should return regular T_Decoded, not @Nullable T_Decoded.
+	move build location to ~/.m2/repository.
+		> If you just use mavenLocal() by itself (no path specified) it'll automatically publish to ~/.m2/repository
+		> (and likewise, gradle will pick up dependencies from there)
+	build using java 17 in toolchain.
+		java() {
+			toolchain() {
+				languageVersion = JavaLanguageVersion.of(17)
+			}
+		}
+	enable junit on build if it's not already enabled.
+	built-in backwards compatibility for DFU Supplier<String> vs. String in DataResult.error().
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -145,6 +161,7 @@ features:
 			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 		make lilypads renewable?
+		sandstone small house variant.
 	nether:
 		replace bedrock with configured feature.
 			may need sorted feature tags for min_y_decorator and max_y_decorator.

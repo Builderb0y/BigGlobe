@@ -403,7 +403,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		IntList yLevels
 	) {
 		if (decorator != null && yLevels != null && !yLevels.isEmpty()) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures();
+			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
 				this.profiler.run(decorator.list.getTagKey().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
@@ -412,8 +412,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 						pos.setY(y);
 						long blockSeed = Permuter.permute(columnSeed, y);
 						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-							features[featureIndex].generate(world, this, permuter, pos);
+							permuter.setSeed(Permuter.permute(blockSeed, UnregisteredObjectException.getID(features[featureIndex]).hashCode()));
+							features[featureIndex].value().generate(world, this, permuter, pos);
 						}
 					}
 					permuter.setSeed(columnSeed);
@@ -430,15 +430,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		int yLevel
 	) {
 		if (decorator != null && yLevel != Integer.MIN_VALUE) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures();
+			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
 				this.profiler.run(decorator.list.getTagKey().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					pos.setY(yLevel);
 					long blockSeed = Permuter.permute(columnSeed, yLevel);
 					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-						features[featureIndex].generate(world, this, permuter, pos);
+						permuter.setSeed(Permuter.permute(blockSeed, UnregisteredObjectException.getID(features[featureIndex]).hashCode()));
+						features[featureIndex].value().generate(world, this, permuter, pos);
 					}
 					permuter.setSeed(columnSeed);
 				});
@@ -600,7 +600,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 						),
 						chunk.getPos()
 					)
-				)
+				),
+				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		) {
 			//expand structure bounding boxes so that overriders
@@ -618,7 +619,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		return false;
 	}
 
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		return true;
 	}
 

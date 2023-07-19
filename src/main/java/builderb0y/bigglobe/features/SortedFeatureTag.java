@@ -14,16 +14,16 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 @Wrapper
 public class SortedFeatureTag {
 
-	public static final ObjectArrayFactory<ConfiguredFeature<?, ?>> CONFIGURED_FEATURE_ARRAY_FACTORY = new ObjectArrayFactory<>(ConfiguredFeature.class).generic();
+	public static final ObjectArrayFactory<RegistryEntry<ConfiguredFeature<?, ?>>> CONFIGURED_FEATURE_REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 
 	public final RegistryEntryList<ConfiguredFeature<?, ?>> list;
-	public transient ConfiguredFeature<?, ?>[] sortedFeatures;
+	public transient RegistryEntry<ConfiguredFeature<?, ?>>[] sortedFeatures;
 
 	public SortedFeatureTag(RegistryEntryList<ConfiguredFeature<?, ?>> list) {
 		this.list = list;
 	}
 
-	public ConfiguredFeature<?, ?>[] getSortedFeatures() {
+	public RegistryEntry<ConfiguredFeature<?, ?>>[] getSortedFeatures() {
 		if (this.sortedFeatures == null) {
 			this.sortedFeatures = (
 				this
@@ -37,8 +37,7 @@ public class SortedFeatureTag {
 						.thenComparing(Identifier::getPath)
 					)
 				)
-				.map(RegistryEntry::value)
-				.toArray(CONFIGURED_FEATURE_ARRAY_FACTORY)
+				.toArray(CONFIGURED_FEATURE_REGISTRY_ENTRY_ARRAY_FACTORY)
 			);
 		}
 		return this.sortedFeatures;

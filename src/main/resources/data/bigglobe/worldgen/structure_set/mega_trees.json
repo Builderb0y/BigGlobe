@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "mega_trees",
+			"salt": "bigglobe:mega_trees",
 			"variation": 16,
 			"spacing": 32,
 			"restrictions": { "type": "range", "property": "overworld/surface_foliage", "min": 0.0 }

@@ -1,0 +1,13 @@
+{
+	"replace": false,
+	"values": [
+		"minecraft:buried_treasure",
+		"minecraft:mineshaft",
+		"minecraft:stronghold",
+		"bigglobe:geode",
+		"bigglobe:small_dungeon",
+		"bigglobe:medium_dungeon",
+		"bigglobe:large_dungeon",
+		"bigglobe:underground_pocket"
+	]
+}

@@ -2,7 +2,7 @@
 	"placement": {
 		"type": "bigglobe:restricted",
 		"value": {
-			"salt": "nether_pillars",
+			"salt": "bigglobe:nether_pillars",
 			"variation": 1,
 			"spacing": 1
 		}

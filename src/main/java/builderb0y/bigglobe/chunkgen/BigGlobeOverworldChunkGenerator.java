@@ -740,6 +740,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 		this.profiler.run("Features", () -> {
 			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
+			ChunkOfColumns<OverworldColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(OverworldColumn.class);
+
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
 					for (GenerationStep.Feature step : FEATURE_STEPS) {
@@ -748,8 +751,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
-			ChunkOfColumns<OverworldColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(OverworldColumn.class);
 			BlockPos.Mutable pos = new BlockPos.Mutable();
 			Permuter permuter = new Permuter(0L);
 			this.profiler.run("flowers", () -> {
@@ -994,7 +995,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	@Override
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		OverworldColumn column = this.column(0, 0);
 		if (
 			//given the size of mega trees, it is *overwhelmingly* likely
@@ -1019,7 +1020,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) {
+			if (!overrider.override(wrapper, column, permuter, distantHorizons)) {
 				return false;
 			}
 		}
