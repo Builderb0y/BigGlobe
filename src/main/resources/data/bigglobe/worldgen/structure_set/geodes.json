@@ -1,12 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:geodes",
-			"variation": 3,
-			"spacing": 6,
-			"restrictions": { "type": "skip_distant_horizons" }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 1443587765,
+		"separation": 5,
+		"spacing": 8
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:geodes/amethyst" },

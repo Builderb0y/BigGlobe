@@ -1,12 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:nether_pockets",
-			"variation": 3,
-			"spacing": 6,
-			"restrictions": { "type": "skip_distant_horizons" }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 1845368023,
+		"separation": 5,
+		"spacing": 6
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:underground_pockets/nether_lava" },

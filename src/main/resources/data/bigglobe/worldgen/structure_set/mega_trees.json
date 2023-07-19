@@ -1,12 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:mega_trees",
-			"variation": 16,
-			"spacing": 32,
-			"restrictions": { "type": "range", "property": "overworld/surface_foliage", "min": 0.0 }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 600892967,
+		"separation": 8,
+		"spacing": 32
 	},
 	"structures": [
 		{ "weight": 3, "structure": "bigglobe:mega_trees/oak"      },

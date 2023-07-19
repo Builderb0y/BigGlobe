@@ -1,11 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:end_cities",
-			"variation": 20,
-			"spacing": 40
-		}
+		"type": "minecraft:random_spread",
+		"salt": 10387313,
+		"separation": 20,
+		"spacing": 40
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:end_city" }

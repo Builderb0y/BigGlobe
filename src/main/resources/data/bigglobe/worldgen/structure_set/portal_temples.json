@@ -1,11 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:portal_temples",
-			"variation": 8,
-			"spacing": 16
-		}
+		"type": "minecraft:random_spread",
+		"salt": 1669365714,
+		"separation": 8,
+		"spacing": 16
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:portal_temple" },

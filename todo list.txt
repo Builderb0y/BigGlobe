@@ -19,8 +19,6 @@ testing:
 porting:
 
 where I left off:
-	possibly deprecate RestrictedStructurePlacement entirely.
-		use scripts to prevent structures from spawning instead.
 
 changelog:
 	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
@@ -28,7 +26,7 @@ changelog:
 	* Changed lots of structure spawn conditions.
 		* Existing structures *should* survive this change as-is, but new worlds might not have structures in the same locations as old worlds, even with the same seed.
 	* Changed the seed of "decorator" features, by making the same feature always have the same seed regardless of what other decorators might try to decorate at the same location.
-		* Like structures, existing features will survive as-is, but new worlds might have different features at the same locations even with the same seed.
+		* Like structures, existing features will survive as-is, but new worlds might not have different features at the same locations even with the same seed.
 	* Sped up distant horizons chunk generation in the nether slightly.
 	* Lush and mushroom caves no longer have dungeons or spider pits by default.
 	* Reduced the number of cherry trees that spawn in the world.

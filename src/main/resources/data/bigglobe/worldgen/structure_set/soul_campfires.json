@@ -1,11 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "bigglobe:soul_campfires",
-			"variation": 4,
-			"spacing": 8
-		}
+		"type": "minecraft:random_spread",
+		"salt": 2036419800,
+		"separation": 4,
+		"spacing": 8
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:soul_campfire" }

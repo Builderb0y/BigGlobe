@@ -88,7 +88,6 @@ import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
-import builderb0y.bigglobe.mixinInterfaces.StructurePlacementCalculatorWithChunkGenerator;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
@@ -207,9 +206,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	@Override
 	public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
 		this.setSeed(seed);
-		StructurePlacementCalculator calculator = super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
-		((StructurePlacementCalculatorWithChunkGenerator)(calculator)).bigglobe_setChunkGenerator(this);
-		return calculator;
+		return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
 	}
 
 	public abstract WorldColumn column(int x, int z);
