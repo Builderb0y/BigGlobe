@@ -7,9 +7,10 @@ import org.objectweb.asm.tree.MethodNode;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
+import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
@@ -46,10 +47,10 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 				throw new ScriptParsingException("Unknown type: " + input.type, null);
 			}
 			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
-			VariableDeclarationInsnTree declaration = this.environment.user().newVariable(input.name, type);
-			InsnTree initializer = seq(declaration, store(declaration.loader.variable, inputTree));
+			VarInfo declaration = this.environment.user().newVariable(input.name, type);
+			InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
 			this.environment.mutable()
-			.addVariable(input.name, load(declaration.loader.variable))
+			.addVariable(input.name, load(declaration))
 			.addVariable('$' + input.name, inputTree);
 			initializers.add(initializer);
 		}

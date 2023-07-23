@@ -38,8 +38,5 @@
 		}
 	},
 	"fluid": "minecraft:water[level=0]",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_medium_stalactites_water",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_medium_stalactites_water",
-	"fluid_decorator": "bigglobe:overworld/caverns/fluid_medium_stalactites_water",
 	"has_ancient_cities": false
 }

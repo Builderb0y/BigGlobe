@@ -73,7 +73,5 @@
 		]
 	},
 	"floor_blocks": { "surface": "minecraft:blackstone", "subsurface": "minecraft:blackstone" },
-	"ceiling_blocks": { "surface": "minecraft:basalt[axis=y]", "subsurface": "minecraft:basalt[axis=y]" },
-	"floor_decorator": "bigglobe:overworld/caves/floor_molten",
-	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_molten"
+	"ceiling_blocks": { "surface": "minecraft:basalt[axis=y]", "subsurface": "minecraft:basalt[axis=y]" }
 }

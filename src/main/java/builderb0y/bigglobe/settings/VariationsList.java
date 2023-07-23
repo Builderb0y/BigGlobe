@@ -31,6 +31,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 @UseEncoder  (name = "new", in = VariationsList.Encoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public class VariationsList<T> {
 
+	@SuppressWarnings("deprecation")
 	public static final Consumer<String> THROW_DECODE = (String s) -> {
 		throw AutoCodecUtil.rethrow(new DecodeException(s));
 	};

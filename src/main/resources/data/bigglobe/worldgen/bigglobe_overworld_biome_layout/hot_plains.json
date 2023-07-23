@@ -9,5 +9,6 @@
 	"secondary_surfaces": {
 		"under": "minecraft:sandstone",
 		"depth": "random.nextDouble(16.0L, 33.0L)"
-	}
+	},
+	"player_spawn_friendly": false
 }

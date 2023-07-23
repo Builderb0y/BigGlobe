@@ -1,14 +1,12 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "mineshafts",
-			"variation": 4,
-			"spacing": 8,
-			"restrictions": { "type": "skip_distant_horizons" }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 43721726,
+		"separation": 5,
+		"spacing": 8
 	},
 	"structures": [
-		{ "structure": "bigglobe:mineshaft", "weight": 1 }
+		{ "weight": 1, "structure": "bigglobe:mineshaft" },
+		{ "weight": 1, "structure": "bigglobe:mineshaft_mesa" }
 	]
 }

@@ -73,7 +73,5 @@
 		]
 	},
 	"floor_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" },
-	"ceiling_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" },
-	"floor_decorator": "bigglobe:overworld/caves/floor_dripping",
-	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_dripping"
+	"ceiling_blocks": { "surface": "minecraft:dripstone_block", "subsurface": "minecraft:dripstone_block" }
 }

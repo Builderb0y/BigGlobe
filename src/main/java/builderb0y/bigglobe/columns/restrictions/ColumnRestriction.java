@@ -21,7 +21,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface ColumnRestriction extends CoderRegistryTyped {
+public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction> {
 
 	public static final ColumnRestriction EMPTY = new EmptyColumnRestriction();
 	public static final CoderRegistry<ColumnRestriction> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_restriction")) {

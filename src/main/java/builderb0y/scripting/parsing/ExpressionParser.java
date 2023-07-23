@@ -28,18 +28,15 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.*;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
-import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.VariableAssignPostUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
@@ -60,6 +57,7 @@ handles expressions, user-defined variables/methods/classes,
 order of operations, etc... and building an abstract syntax tree out of them.
 this abstract syntax tree is represented with {@link InsnTree}.
 */
+@SuppressWarnings("ErrorNotRethrown")
 public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY;
@@ -378,7 +376,7 @@ public class ExpressionParser {
 			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
-				left = left.update(this, op, order, this.nextSingleExpression());
+				left = left.update(this, op, order, this.nextVariableInitializer(left.getTypeInfo(), false));
 			}
 			return left;
 		}
@@ -412,6 +410,12 @@ public class ExpressionParser {
 		}
 	}
 
+	public void checkBoolean(InsnTree left, String operator) throws ScriptParsingException {
+		if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
+			throw new ScriptParsingException("Expected boolean before " + operator, this.input);
+		}
+	}
+
 	public InsnTree nextBoolean() throws ScriptParsingException {
 		try {
 			InsnTree left = this.nextCompare();
@@ -420,24 +424,33 @@ public class ExpressionParser {
 				switch (operator) {
 					case "&&" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before &&", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = and(this, left, this.nextCompare());
 					}
 					case "||" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before ||", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = or(this, left, this.nextCompare());
 					}
 					case "##" -> {
 						this.input.onCharsRead(operator);
-						if (left.getTypeInfo().getSort() != Sort.BOOLEAN) {
-							throw new ScriptParsingException("Expected boolean before ##", this.input);
-						}
+						this.checkBoolean(left, operator);
 						left = xor(this, left, this.nextCompare());
+					}
+					case "!&&" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, and(this, left, this.nextCompare()));
+					}
+					case "!||" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, or(this, left, this.nextCompare()));
+					}
+					case "!##" -> {
+						this.input.onCharsRead(operator);
+						this.checkBoolean(left, operator);
+						left = not(this, xor(this, left, this.nextCompare()));
 					}
 					default -> {
 						return left;
@@ -459,12 +472,16 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "<"  -> { this.input.onCharsRead(operator); left = bool(lt(this, left, this.nextSum())); }
-					case "<=" -> { this.input.onCharsRead(operator); left = bool(le(this, left, this.nextSum())); }
-					case ">"  -> { this.input.onCharsRead(operator); left = bool(gt(this, left, this.nextSum())); }
-					case ">=" -> { this.input.onCharsRead(operator); left = bool(ge(this, left, this.nextSum())); }
-					case "==" -> { this.input.onCharsRead(operator); left = bool(eq(this, left, this.nextSum())); }
-					case "!=" -> { this.input.onCharsRead(operator); left = bool(ne(this, left, this.nextSum())); }
+					case "<"   -> { this.input.onCharsRead(operator); left = bool(    lt(this, left, this.nextSum()) ); }
+					case "<="  -> { this.input.onCharsRead(operator); left = bool(    le(this, left, this.nextSum()) ); }
+					case ">"   -> { this.input.onCharsRead(operator); left = bool(    gt(this, left, this.nextSum()) ); }
+					case ">="  -> { this.input.onCharsRead(operator); left = bool(    ge(this, left, this.nextSum()) ); }
+					case "=="  -> { this.input.onCharsRead(operator); left = bool(    eq(this, left, this.nextSum()) ); }
+					case "!="  -> { this.input.onCharsRead(operator); left = bool(    ne(this, left, this.nextSum()) ); }
+					case "!>"  -> { this.input.onCharsRead(operator); left = bool(not(gt(this, left, this.nextSum()))); }
+					case "!<"  -> { this.input.onCharsRead(operator); left = bool(not(lt(this, left, this.nextSum()))); }
+					case "!>=" -> { this.input.onCharsRead(operator); left = bool(not(ge(this, left, this.nextSum()))); }
+					case "!<=" -> { this.input.onCharsRead(operator); left = bool(not(le(this, left, this.nextSum()))); }
 					default   -> { return left; }
 				}
 			}
@@ -942,12 +959,11 @@ public class ExpressionParser {
 				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
 				else throw new ScriptParsingException("Expected '=' or ':='", this.input);
 				InsnTree initializer = this.nextSingleExpression();
-				VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return seq(
-					declaration,
+				VarInfo variable = this.environment.user().newVariable(varName, initializer.getTypeInfo());
+				return (
 					reuse
-					? new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer)
-					: store(declaration.loader.variable, initializer)
+					? new VariableDeclarePostAssignInsnTree(variable, initializer)
+					: new VariableDeclareAssignInsnTree(variable, initializer)
 				);
 			}
 			else if (name.equals("class")) {
@@ -968,15 +984,15 @@ public class ExpressionParser {
 						if (!varName.isEmpty()) { //variable or method declaration.
 							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
-								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return seq(declaration, store(declaration.loader.variable, initializer));
+								InsnTree initializer = this.nextVariableInitializer(type, true);
+								VarInfo variable = this.environment.user().newVariable(varName, type);
+								return new VariableDeclareAssignInsnTree(variable, initializer);
 							}
 							else if (this.input.hasOperatorAfterWhitespace(":=")) {
 								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW);
-								VariableDeclarationInsnTree declaration = this.environment.user().newVariable(varName, type);
-								return seq(declaration, new VariableAssignPostUpdateInsnTree(declaration.loader.variable, initializer));
+								InsnTree initializer = this.nextVariableInitializer(type, true);
+								VarInfo variable = this.environment.user().newVariable(varName, type);
+								return new VariableDeclarePostAssignInsnTree(variable, initializer);
 							}
 							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
 								this.verifyName(varName, "method");
@@ -1011,6 +1027,24 @@ public class ExpressionParser {
 		}
 		catch (StackOverflowError error) {
 			throw new ScriptParsingException("Script too long or too complex", error, this.input);
+		}
+	}
+
+	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {
+		if (this.input.hasIdentifierAfterWhitespace("new")) {
+			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", arguments.arguments());
+			if (expression == null) {
+				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
+			}
+			return arguments.maybeWrap(expression);
+		}
+		else {
+			InsnTree tree = this.nextSingleExpression();
+			if (cast) {
+				tree = tree.cast(this, variableType, CastMode.IMPLICIT_THROW);
+			}
+			return tree;
 		}
 	}
 
@@ -1066,11 +1100,6 @@ public class ExpressionParser {
 			}
 		}
 
-		ExpressionParser newParser = new ExpressionParser(this, newMethod);
-		userVariablesEnvironment.parser = newParser;
-		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
-		InsnTree result = newParser.parseRemainingInput(true);
-
 		MethodInfo newMethodInfo = newMethod.info;
 		InsnTree[] implicitParameters = (
 			Stream.concat(
@@ -1086,7 +1115,7 @@ public class ExpressionParser {
 			.map(UserParameter::type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
-		this.environment.user().addFunction(methodName, (parser, name, arguments) -> {
+		FunctionHandler handler = (parser, name, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, expectedTypes, CastMode.IMPLICIT_THROW, arguments);
 			InsnTree[] concatenatedArguments = ObjectArrays.concat(implicitParameters, castArguments, InsnTree.class);
 			if (this.method.info.isStatic()) {
@@ -1095,7 +1124,15 @@ public class ExpressionParser {
 			else {
 				return new CastResult(invokeInstance(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
 			}
-		});
+		};
+		this.environment.user().addFunction(methodName, handler);
+		userVariablesEnvironment.addFunction(methodName, handler);
+
+		ExpressionParser newParser = new ExpressionParser(this, newMethod);
+		userVariablesEnvironment.parser = newParser;
+		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
+		InsnTree result = newParser.parseRemainingInput(true);
+
 		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 

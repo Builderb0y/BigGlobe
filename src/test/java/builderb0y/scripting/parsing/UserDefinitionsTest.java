@@ -300,6 +300,20 @@ public class UserDefinitionsTest extends TestCommon {
 			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
 			"""
 		);
+		assertSuccess(2,
+			"""
+			class One ( int x = 2 )
+			One one = new ( )
+			one . x
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class One ( int x = 1 )
+			One one = new ( 2 )
+			one . x
+			"""
+		);
 	}
 
 	@Test
@@ -371,6 +385,29 @@ public class UserDefinitionsTest extends TestCommon {
 				return(x)
 			)
 			return(get())
+			"""
+		);
+	}
+
+	@Test
+	public void testRecursion() throws ScriptParsingException {
+		assertSuccess(5 * 4 * 3 * 2 * 1,
+			"""
+			int factorial(int x:
+				return(x <= 0 ? 1 : x * factorial(x - 1))
+			)
+			factorial(5)
+			"""
+		);
+		assertSuccess(5 + 4 + 3 + 2 + 1,
+			"""
+			int main(int counter:
+				int sub(:
+					return(main(counter - 1))
+				)
+				return(counter > 0 ? counter + sub() : 0)
+			)
+			main(5)
 			"""
 		);
 	}

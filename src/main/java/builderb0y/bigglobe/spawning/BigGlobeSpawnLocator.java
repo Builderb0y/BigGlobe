@@ -2,12 +2,9 @@ package builderb0y.bigglobe.spawning;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
@@ -19,13 +16,11 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeSpawnLocator {
-
-	public static final TagKey<Biome> PLAYER_SPAWN_FRIENDLY = TagKey.of(RegistryKeyVersions.biome(), BigGlobeMod.modID("player_spawn_friendly"));
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
@@ -85,32 +80,22 @@ public class BigGlobeSpawnLocator {
 	}
 
 	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
-		RegistryEntry<Biome> biome = column.getSurfaceBiome();
-		if (
-			!biome.isIn(PLAYER_SPAWN_FRIENDLY) ||
-			column.getSurfaceFoliage() > 0.0D ||
-			column.getHilliness() > 0.5D
-		) {
+		if (!column.settings.biomes.root.search(column, column.getFinalTopHeightD(), column.seed, layout -> ((OverworldBiomeLayout)(layout)).player_spawn_friendly)) {
 			return false;
 		}
 		int restoreX = column.x, restoreZ = column.z;
 		try {
-			boolean haveForest = false;
 			for (
 				GoldenSpiralIterator spiral = new GoldenSpiralIterator(column.x, column.z, 4.0D, startAngle);
 				spiral.radius <= 64.0D;
 				spiral.next()
 			) {
 				column.setPos(spiral.floorX(), spiral.floorY());
-				biome = column.getSurfaceBiome();
-				if (!biome.isIn(PLAYER_SPAWN_FRIENDLY)) {
-					return false;
-				}
-				if (!haveForest && column.getSurfaceFoliage() > 0.0D) {
-					haveForest = true;
+				if (column.getSurfaceFoliage() > 0.0D) {
+					return true;
 				}
 			}
-			return haveForest;
+			return false;
 		}
 		finally {
 			column.setPos(restoreX, restoreZ);

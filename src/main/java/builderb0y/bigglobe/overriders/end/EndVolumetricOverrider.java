@@ -22,7 +22,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 			column,
 			column.getLowerRingCloudSampleStartY(),
 			column.getLowerRingCloudNoise(),
-			-column.settings.ring_clouds().noise().maxValue()
+			-column.settings.ring_clouds.noise().maxValue()
 		);
 	}
 
@@ -32,7 +32,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 			column,
 			column.getUpperRingCloudSampleStartY(),
 			column.getUpperRingCloudNoise(),
-			-column.settings.ring_clouds().noise().maxValue()
+			-column.settings.ring_clouds.noise().maxValue()
 		);
 	}
 
@@ -42,7 +42,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 			column,
 			column.getLowerBridgeCloudSampleStartY(),
 			column.getLowerBridgeCloudNoise(),
-			-column.settings.bridge_clouds().noise().maxValue()
+			-column.settings.bridge_clouds.noise().maxValue()
 		);
 	}
 
@@ -52,7 +52,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 			column,
 			column.getUpperBridgeCloudSampleStartY(),
 			column.getUpperBridgeCloudNoise(),
-			-column.settings.bridge_clouds().noise().maxValue()
+			-column.settings.bridge_clouds.noise().maxValue()
 		);
 	}
 

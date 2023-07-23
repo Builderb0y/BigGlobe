@@ -25,8 +25,5 @@
 		]
 	},
 	"fluid": "minecraft:water[level=0]",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_big_water",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_big_water",
-	"fluid_decorator": "bigglobe:overworld/caverns/fluid_big_water",
 	"has_ancient_cities": false
 }

@@ -1,12 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "desert_pyramids",
-			"variation": 16,
-			"spacing": 32,
-			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 14357617,
+		"separation": 8,
+		"spacing": 32
 	},
 	"structures": [
 		{ "weight": 2, "structure": "bigglobe:desert_pyramid" },

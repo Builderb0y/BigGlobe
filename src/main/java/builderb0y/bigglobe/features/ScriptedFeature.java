@@ -18,6 +18,7 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnValue;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
@@ -117,7 +118,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				wrapper,
 				origin.getX(),
 				origin.getY(),
-				origin.getZ()
+				origin.getZ(),
+				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		) {
 			if (context.getConfig().queueType != QueueType.NONE) {
@@ -164,7 +166,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			WorldWrapper world,
 			int originX,
 			int originY,
-			int originZ
+			int originZ,
+			boolean distantHorizons
 		)
 		throws EarlyFeatureExitException;
 
@@ -193,6 +196,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						.addVariableLoad("originX", 2, TypeInfos.INT)
 						.addVariableLoad("originY", 3, TypeInfos.INT)
 						.addVariableLoad("originZ", 4, TypeInfos.INT)
+						.addVariableLoad("distantHorizons", 5, TypeInfos.BOOLEAN)
 						.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 						.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" ))))
 					)
@@ -223,9 +227,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			}
 
 			@Override
-			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
+			public boolean generate(WorldWrapper world, int originX, int originY, int originZ, boolean distantHorizons) {
 				try {
-					return this.script.generate(world, originX, originY, originZ);
+					return this.script.generate(world, originX, originY, originZ, distantHorizons);
 				}
 				catch (EarlyFeatureExitException exit) {
 					return exit.placeBlocks;

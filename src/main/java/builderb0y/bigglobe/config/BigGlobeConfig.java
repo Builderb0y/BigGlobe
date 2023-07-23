@@ -11,6 +11,7 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Excluded;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
+import builderb0y.autocodec.annotations.Alias;
 import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -46,9 +47,10 @@ public class BigGlobeConfig {
 	public boolean bigGlobeTreesInOtherWorlds = false;
 
 	@Tooltip(count = 3)
-	@UseName("Print overworld biome layout tree")
+	@UseName("Print biome layout trees")
+	@Alias("Print overworld biome layout tree")
 	@DefaultIgnore
-	public boolean printOverworldBiomeLayoutTree = false;
+	public boolean printBiomeLayoutTrees = false;
 
 	@Tooltip(count = 2)
 	@UseName("Distant Horizons Integration")

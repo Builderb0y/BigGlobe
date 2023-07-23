@@ -23,6 +23,7 @@ public class TypeInfos {
 		CLASS           = TypeInfo.of(Class     .class),
 		ITERABLE        = TypeInfo.of(Iterable  .class),
 		ITERATOR        = TypeInfo.of(Iterator  .class),
+		MAP             = TypeInfo.of(Map       .class),
 		VOID            = TypeInfo.of(void      .class),
 		BOOLEAN         = TypeInfo.of(boolean   .class),
 		BYTE            = TypeInfo.of(byte      .class),

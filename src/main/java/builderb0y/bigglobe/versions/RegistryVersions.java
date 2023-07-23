@@ -12,10 +12,7 @@ import net.minecraft.loot.function.LootFunctionType;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.registry.DefaultedRegistry;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -45,5 +42,10 @@ public class RegistryVersions {
 	@SuppressWarnings("unchecked")
 	public static <T> RegistryKey<Registry<T>> getRegistryKey(Registry<T> registry) {
 		return (RegistryKey<Registry<T>>)(registry.getKey());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> RegistryKey<Registry<T>> getRegistryKey(RegistryWrapper.Impl<T> registry) {
+		return (RegistryKey<Registry<T>>)(registry.getRegistryKey());
 	}
 }

@@ -29,12 +29,12 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 	}
 
 	public static Context caveContext(ScriptStructures structures, OverworldColumn column) {
-		ColumnYToDoubleScript.Holder noiseThreshold = column.getCaveCell().settings.noise_threshold();
-		double noiseMin = column.getCaveCell().settings.noise().minValue();
+		ColumnYToDoubleScript.Holder noiseThreshold = column.getCaveCell().settings.noise_threshold;
+		double noiseMin = column.getCaveCell().settings.noise.minValue();
 		return new Context(
 			structures,
 			column,
-			column.getFinalTopHeightI() - column.getCaveCell().settings.depth(),
+			column.getFinalTopHeightI() - column.getCaveCell().settings.depth,
 			column.getCaveNoise()
 		) {
 

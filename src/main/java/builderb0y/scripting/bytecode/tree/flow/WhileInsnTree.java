@@ -3,9 +3,9 @@ package builderb0y.scripting.bytecode.tree.flow;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InvalidOperandException;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
+import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
@@ -25,10 +25,8 @@ public class WhileInsnTree implements InsnTree {
 	}
 
 	public static InsnTree createRepeat(ExpressionParser parser, String loopName, InsnTree times, InsnTree body) {
-		if (!times.getTypeInfo().isSingleWidthInt()) {
-			throw new InvalidOperandException("Number of times to repeat is not an int");
-		}
-		VariableDeclarationInsnTree counter = new VariableDeclarationInsnTree("counter", TypeInfos.INT);
+		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+		VarInfo counter = new VarInfo("counter", -1, TypeInfos.INT);
 		InsnTree init, loadLimit;
 		if (times.getConstantValue().isConstant()) {
 			//var counter = 0
@@ -36,7 +34,7 @@ public class WhileInsnTree implements InsnTree {
 			//	body
 			//	++counter
 			//)
-			init = seq(counter, store(counter.loader.variable, ldc(0)));
+			init = new VariableDeclareAssignInsnTree(counter, ldc(0));
 			loadLimit = times;
 		}
 		else {
@@ -46,12 +44,14 @@ public class WhileInsnTree implements InsnTree {
 			//	body
 			//	++counter
 			//)
-			VariableDeclarationInsnTree limit = new VariableDeclarationInsnTree("limit", TypeInfos.INT);
-			init = seq(limit, store(limit.loader.variable, times), counter, store(counter.loader.variable, ldc(0)));
-			//init = limit.then(store(limit.loader.variable, times)).then(counter).then(store(counter.loader.variable, ldc(0)));
-			loadLimit = limit.loader;
+			VarInfo limit = new VarInfo("limit", -1, TypeInfos.INT);
+			init = seq(
+				new VariableDeclareAssignInsnTree(limit, times),
+				new VariableDeclareAssignInsnTree(counter, ldc(0))
+			);
+			loadLimit = load(limit);
 		}
-		return for_(loopName, init, lt(parser, counter.loader, loadLimit), inc(counter.loader.variable, 1), body);
+		return for_(loopName, init, lt(parser, load(counter), loadLimit), inc(counter, 1), body);
 	}
 
 	@Override

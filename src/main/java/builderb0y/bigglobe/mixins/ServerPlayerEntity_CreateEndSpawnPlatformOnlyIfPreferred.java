@@ -19,7 +19,7 @@ public abstract class ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred {
 		BlockPos downPos;
 		if (
 			world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator &&
-			!generator.settings.nest().spawn_obsidian_platform() &&
+			!generator.settings.nest.spawn_obsidian_platform() &&
 			world.getBlockState(downPos = centerPos.down()).isOpaqueFullCube(world, downPos)
 		) {
 			callback.cancel();

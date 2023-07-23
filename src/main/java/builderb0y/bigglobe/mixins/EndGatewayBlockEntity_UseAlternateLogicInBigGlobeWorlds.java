@@ -80,9 +80,12 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 			bigglobe_exitPosition = null;
 			if (world.getChunkManager() instanceof ServerChunkManager manager && manager.getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
 				EndColumn column = generator.column(0, 0);
-				GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.random.nextLong());
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-				for (int attempt = 0; attempt < 32; attempt++) {
+				for (
+					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.random.nextLong());
+					iterator.radius <= 64.0D;
+					iterator.next()
+				) {
 					column.setPosUnchecked(iterator.floorX(), iterator.floorY());
 					if (column.hasTerrain()) {
 						int topY = column.getFinalTopHeightI();
@@ -97,7 +100,6 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 							return;
 						}
 					}
-					iterator.next();
 				}
 				callback.setReturnValue(null);
 				return;

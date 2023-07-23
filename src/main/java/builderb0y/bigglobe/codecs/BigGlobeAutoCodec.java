@@ -60,7 +60,7 @@ import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
+import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.TagOrObject;
@@ -79,6 +79,32 @@ public class BigGlobeAutoCodec {
 		"Identifier::toString", HandlerMapper.nullSafe(Identifier::toString),
 		"Identifier::new",      HandlerMapper.nullSafe(Identifier::new)
 	);
+
+	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
+		return PrimitiveCoders.STRING.mapCoder(
+			ReifiedType.from(Identifier.class),
+			"BigGlobeAutoCodec::toString(id, " + namespace + ')', HandlerMapper.nullSafe(id -> toString(id, namespace)),
+			"BigGlobeAutoCodec::toID(string, " + namespace + ')', HandlerMapper.nullSafe(string -> toID(string, namespace))
+		);
+	}
+
+	public static Identifier toID(String string, String defaultNamespace) {
+		String namespace, path;
+		int colon = string.indexOf(':');
+		if (colon >= 0) {
+			namespace = string.substring(0, colon);
+			path = string.substring(colon + 1);
+		}
+		else {
+			namespace = defaultNamespace;
+			path = string;
+		}
+		return new Identifier(namespace, path);
+	}
+
+	public static String toString(Identifier identifier, String defaultNamespace) {
+		return identifier.getNamespace().equals(defaultNamespace) ? identifier.getPath() : identifier.toString();
+	}
 
 	public static final RegistryCoders<Block>                           BLOCK_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryVersions.block());
 	public static final RegistryCoders<Item>                            ITEM_REGISTRY_CODERS                          = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryVersions.item());
@@ -106,7 +132,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<EndBiomeLayout>                  END_BIOME_LAYOUT_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(EndBiomeLayout                        .class), BigGlobeDynamicRegistries.END_BIOME_LAYOUT_REGISTRY_KEY);
 	public static final RegistryCoders<LocalSkylandSettings>            LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(LocalSkylandSettings                  .class), BigGlobeDynamicRegistries.LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<LocalOverworldCaveSettings>      LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(LocalOverworldCaveSettings            .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<LocalCavernSettings>             LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalCavernSettings                   .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<LocalOverworldCavernSettings>    LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalOverworldCavernSettings          .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,

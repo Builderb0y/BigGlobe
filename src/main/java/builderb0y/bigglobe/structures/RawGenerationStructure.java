@@ -17,7 +17,7 @@ public interface RawGenerationStructure {
 
 	public static void generateAll(ScriptStructures structures, long seed, Chunk chunk, ChunkOfColumns<? extends WorldColumn> columns, boolean distantHorizons) {
 		RawGenerationStructurePiece.Context rawGenerationContext = null;
-		for (StructureStartWrapper start : structures.starts) {
+		for (StructureStartWrapper start : structures.elements) {
 			if (start.structure().entry.value() instanceof RawGenerationStructure) {
 				for (StructurePiece piece : start.pieces()) {
 					if (piece instanceof RawGenerationStructurePiece raw) {

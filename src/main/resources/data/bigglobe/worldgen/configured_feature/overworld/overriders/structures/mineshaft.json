@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:overworld_structure_overrider",
+	"config": {
+		"script": [
+			"if (start.structure.type == StructureType('minecraft:mineshaft'):",
+				"int minSurface = min(",
+					"int(max_y(start.minX, start.minZ)),",
+					"int(max_y(start.minX, start.maxZ)),",
+					"int(max_y(start.maxX, start.minZ)),",
+					"int(max_y(start.maxX, start.maxZ))",
+				")",
+				"double caveDepth = `overworld/cave_depth`(start.midX, start.midZ)",
+				"int chosenY = minSurface - (",
+					"caveDepth >= 1.0L",
+					"? random.nextInt(int(caveDepth))",
+					": random.nextInt(512)",
+				")",
+				"start.move(chosenY - start.maxY)",
+			")",
+			"return(true)"
+		]
+	}
+}

@@ -14,7 +14,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
+import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldHeightSettings.OverworldCliffSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
@@ -288,7 +288,7 @@ public class OverworldColumn extends WorldColumn {
 			this.caveCeilings = new IntArrayList(8);
 			double[] noise = this.caveNoise;
 			assert noise != null;
-			int depth = cell.settings.depth();
+			int depth = cell.settings.depth;
 			int minY = this.getFinalTopHeightI() - depth;
 			boolean previousCave = false;
 			for (int index = 0; index < depth; index++) {
@@ -341,6 +341,11 @@ public class OverworldColumn extends WorldColumn {
 		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
 	}
 
+	public double getCaveDepth() {
+		CaveCell cell = this.getCaveCell();
+		return cell == null ? Double.NaN : cell.settings.depth;
+	}
+
 	public double getCaveNoiseThreshold(double y) {
 		CaveCell cell = this.getCaveCell();
 		return cell == null ? Double.NaN : cell.settings.getNoiseThreshold(this, y);
@@ -368,7 +373,7 @@ public class OverworldColumn extends WorldColumn {
 	public double computeCaveSurfaceDepth() {
 		CaveCell cell = this.getCaveCell();
 		if (cell == null) return Double.NaN;
-		Grid2D noise = cell.settings.surface_depth_noise();
+		Grid2D noise = cell.settings.surface_depth_noise;
 		if (noise == null) return Double.NaN;
 		return noise.getValue(this.seed, this.x, this.z);
 	}
@@ -376,7 +381,7 @@ public class OverworldColumn extends WorldColumn {
 	public double getNormalizedCaveSurfaceDepth() {
 		double depth = this.getCaveSurfaceDepth();
 		if (Double.isNaN(depth)) return Double.NaN;
-		return depth / this.getCaveCell().settings.surface_depth_noise().maxValue();
+		return depth / this.getCaveCell().settings.surface_depth_noise.maxValue();
 	}
 
 	public @Nullable CaveCell getCaveCell() {
@@ -395,7 +400,8 @@ public class OverworldColumn extends WorldColumn {
 			return caveCell;
 		}
 		caveCell.voronoiCell = voronoiCell;
-		caveCell.settings = globalCaves.templates.getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.entry = globalCaves.templates.getRandomElement(voronoiCell.center.getSeed(0x1E5D30AEB917D0BFL));
+		caveCell.settings = caveCell.entry.value();
 		return caveCell;
 	}
 
@@ -462,9 +468,10 @@ public class OverworldColumn extends WorldColumn {
 			return cavernCell;
 		}
 		cavernCell.voronoiCell = voronoiCell;
-		LocalCavernSettings local = globalCaverns.templates.getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
-		cavernCell.settings = local;
-		cavernCell.averageCenter = local.average_center().get(voronoiCell.center.getSeed(0x649B8B0255A6DB63L));
+		RegistryEntry<LocalOverworldCavernSettings> local = globalCaverns.templates.getRandomElement(voronoiCell.center.getSeed(0x4E68064756FB1FB7L));
+		cavernCell.entry = local;
+		cavernCell.settings = local.value();
+		cavernCell.averageCenter = cavernCell.settings.average_center.get(voronoiCell.center.getSeed(0x649B8B0255A6DB63L));
 		return cavernCell;
 	}
 
@@ -529,7 +536,7 @@ public class OverworldColumn extends WorldColumn {
 	public double computeCavernCenter() {
 		CavernCell cell = this.getCavernCell();
 		if (cell == null) return Double.NaN;
-		return cell.averageCenter + cell.settings.center().getValue(this.seed, this.x, this.z);
+		return cell.averageCenter + cell.settings.center.getValue(this.seed, this.x, this.z);
 	}
 
 	public double getCavernThicknessSquared() {
@@ -543,23 +550,23 @@ public class OverworldColumn extends WorldColumn {
 	public double computeCavernThicknessSquared() {
 		CavernCell cell = this.getCavernCell();
 		if (cell == null) return Double.NaN;
-		double thickness = cell.settings.thickness().getValue(this.seed, this.x, this.z);
+		double thickness = cell.settings.thickness.getValue(this.seed, this.x, this.z);
 		OverworldCavernSettings settings = this.settings.underground.deep_caverns();
 		assert settings != null : "Have cell, but no settings?";
 
 		double progress = cell.voronoiCell.progressToEdgeD(this.x, this.z);
-		double threshold = 1.0D - cell.settings.padding() / (settings.placement.distance * 0.5D);
+		double threshold = 1.0D - cell.settings.padding / (settings.placement.distance * 0.5D);
 		double fraction = Interpolator.unmixLinear(threshold, 1.0D, progress);
 		if (fraction > 0.0D) {
-			thickness -= BigGlobeMath.squareD(fraction) * cell.settings.thickness().maxValue();
+			thickness -= BigGlobeMath.squareD(fraction) * cell.settings.thickness.maxValue();
 		}
 
 		OverworldCaveSettings caves = this.settings.underground.caves();
 		if (caves != null) {
-			double maxY = this.getCavernCenter() + cell.settings.sqrtMaxThickness();
+			double maxY = this.getCavernCenter() + cell.settings.sqrtMaxThickness;
 			double space = this.getFinalTopHeightD() - caves.maxDepth;
-			double verticalPenalty = BigGlobeMath.squareD(Math.max(Interpolator.unmixLinear(maxY + cell.settings.padding(), maxY, space), 0.0D));
-			thickness -= verticalPenalty * cell.settings.thickness().maxValue();
+			double verticalPenalty = BigGlobeMath.squareD(Math.max(Interpolator.unmixLinear(maxY + cell.settings.padding, maxY, space), 0.0D));
+			thickness -= verticalPenalty * cell.settings.thickness.maxValue();
 		}
 
 		return thickness;
@@ -591,9 +598,14 @@ public class OverworldColumn extends WorldColumn {
 			return skylandCell;
 		}
 		skylandCell.voronoiCell = voronoiCell;
-		LocalSkylandSettings local = globalSkylands.templates.getRandomElement(voronoiCell.center.getSeed(0x306A01988A92962CL));
-		skylandCell.settings = local;
-		skylandCell.averageCenter = local.average_center().get(voronoiCell.center.getSeed(0x7DE493A0E9989DA6L));
+		RegistryEntry<LocalSkylandSettings> local = globalSkylands.templates.getRandomElement(
+			voronoiCell.center.getSeed(0x306A01988A92962CL)
+		);
+		skylandCell.entry = local;
+		skylandCell.settings = local.value();
+		skylandCell.averageCenter = skylandCell.settings.average_center.get(
+			voronoiCell.center.getSeed(0x7DE493A0E9989DA6L)
+		);
 		return skylandCell;
 	}
 
@@ -636,7 +648,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandCenter() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.averageCenter + cell.settings.center().getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
+		return cell == null ? Double.NaN : cell.averageCenter + cell.settings.center.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandThickness() {
@@ -649,7 +661,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandThickness() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.thickness().getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
+		return cell == null ? Double.NaN : cell.settings.thickness.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandAuxiliaryNoise() {
@@ -663,7 +675,7 @@ public class OverworldColumn extends WorldColumn {
 	public double computeSkylandAuxiliaryNoise() {
 		SkylandCell cell = this.getSkylandCell();
 		if (cell == null) return Double.NaN;
-		Grid2D grid = cell.settings.auxiliary_noise();
+		Grid2D grid = cell.settings.auxiliary_noise;
 		if (grid == null) return Double.NaN;
 		return grid.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
@@ -699,7 +711,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandMinY() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.min_y().evaluate(this, cell.averageCenter);
+		return cell == null ? Double.NaN : cell.settings.min_y.evaluate(this, cell.averageCenter);
 	}
 
 	public double getSkylandMaxY() {
@@ -712,7 +724,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSkylandMaxY() {
 		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.max_y().evaluate(this, cell.averageCenter);
+		return cell == null ? Double.NaN : cell.settings.max_y.evaluate(this, cell.averageCenter);
 	}
 
 	public boolean hasSkyland() {
@@ -771,6 +783,7 @@ public class OverworldColumn extends WorldColumn {
 	public static class CaveCell {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
+		public RegistryEntry<LocalOverworldCaveSettings> entry;
 		public LocalOverworldCaveSettings settings;
 	}
 
@@ -778,13 +791,15 @@ public class OverworldColumn extends WorldColumn {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
 		public double averageCenter;
-		public LocalCavernSettings settings;
+		public RegistryEntry<LocalOverworldCavernSettings> entry;
+		public LocalOverworldCavernSettings settings;
 	}
 
 	public static class SkylandCell {
 
 		public VoronoiDiagram2D.Cell voronoiCell;
 		public double averageCenter;
+		public RegistryEntry<LocalSkylandSettings> entry;
 		public LocalSkylandSettings settings;
 	}
 }

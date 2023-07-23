@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"if (distantHorizons: return(false))",
 			"for (int count = 0, count < 2, ++count:",
 				"int y = random.nextInt(int(min_y), int(`nether/lava_level`))",
 				"double fraction = unmixLinear(min_y, int(`nether/lava_level`), y)",

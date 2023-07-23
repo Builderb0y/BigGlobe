@@ -62,7 +62,5 @@
 		}
 	},
 	"noise_threshold": "0.5L",
-	"effective_width": "mixLinear(24.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))",
-	"floor_decorator": "bigglobe:overworld/caves/floor_generic",
-	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_generic"
+	"effective_width": "mixLinear(24.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))"
 }

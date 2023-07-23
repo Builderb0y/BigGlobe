@@ -100,7 +100,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 					this.imprintAsObjectTag(context, id);
 				}
 				else {
-					throw new ImprintException("Must specify " + State.NAME + " or Tag.");
+					throw new ImprintException(() -> "Must specify " + State.NAME + " or Tag: " + context.input);
 				}
 			}
 		}
@@ -114,7 +114,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 
 	public <T_Encoded> void imprintAsObjectName(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier id) throws DecodeException {
 		if (!RegistryVersions.block().containsId(id)) {
-			throw new DecodeException("Unknown block: " + id);
+			throw new DecodeException(() -> "Unknown block: " + id);
 		}
 		Block block = RegistryVersions.block().get(id);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
@@ -132,7 +132,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	public <T_Encoded> void imprintAsObjectTag(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier tagID) throws DecodeException {
 		TagKey<Block> tagKey = TagKey.of(RegistryKeyVersions.block(), tagID);
 		RegistryEntryList<Block> tagEntries = RegistryVersions.block().getEntryList(tagKey).orElse(null);
-		if (tagEntries == null) throw new ImprintException("No such tag " + tagID + " in registry " + RegistryKeyVersions.block().getValue());
+		if (tagEntries == null) throw new ImprintException(() -> "No such tag " + tagID + " in registry " + RegistryKeyVersions.block().getValue());
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		this.filterAndAdd(context.object, tagEntries, stringProperties);
 	}

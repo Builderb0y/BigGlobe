@@ -9,7 +9,6 @@ import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.AbstractBlock.AbstractBlockState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -43,12 +42,12 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature.Config;
 import builderb0y.bigglobe.mixins.PlantBlock_CanPlantOnTopAccess;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class SingleBlockFeature extends Feature<Config> {
 
 	public static final Predicate<BlockState>
-		IS_REPLACEABLE  = AbstractBlockState::isReplaceable,
+		IS_REPLACEABLE  = BlockStateVersions::isReplaceable,
 		IS_AIR          = BlockState::isAir,
 		IS_SOURCE_WATER = state -> state == BlockStates.WATER,
 		HAS_WATER       = state -> state.getFluidState().getFluid() == Fluids.WATER;
@@ -197,7 +196,7 @@ public class SingleBlockFeature extends Feature<Config> {
 			return (
 				this.replace != null
 				? this.replace.contains(state)
-				: MaterialVersions.isReplaceable(state)
+				: BlockStateVersions.isReplaceable(state)
 			);
 		}
 	}

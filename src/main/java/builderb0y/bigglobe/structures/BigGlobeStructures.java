@@ -24,8 +24,10 @@ public class BigGlobeStructures {
 
 	static { BigGlobeMod.LOGGER.debug("Registering structures..."); }
 
-	public static final StructurePlacementType<RestrictedStructurePlacement>
-		RESTRICTED_PLACEMENT_TYPE = registerPlacement("restricted", RestrictedStructurePlacement.CODEC);
+	//////////////// delegating ////////////////
+
+	public static final StructureType<DelegatingStructure>
+		DELEGATING_TYPE = registerType("delegating", DelegatingStructure.CODEC);
 
 	//////////////// common dungeon ////////////////
 

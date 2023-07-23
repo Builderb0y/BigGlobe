@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import com.mojang.serialization.Codec;
@@ -34,7 +33,6 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.perSection.BedrockReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.OreReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.AbstractChunkOfColumns;
@@ -89,7 +87,11 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	) {
 		super(
 			new ColumnBiomeSource(
-				settings.local_settings.stream().map(LocalNetherSettings::biome)
+				settings.local_settings.stream().map(
+					(RegistryEntry<LocalNetherSettings> localSettings) -> (
+						localSettings.value().biome
+					)
+				)
 			),
 			configuredFeatures
 		);
@@ -147,13 +149,13 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				int caveLowerY = column.settings.min_y;
 				double[] cavernNoise = column.getCavernNoise();
 				LocalNetherSettings localSettings = column.getLocalCell().settings;
-				int cavernLowerY = localSettings.caverns().min_y();
-				int cavernUpperY = localSettings.caverns().max_y();
-				ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
+				int cavernLowerY = localSettings.caverns.min_y();
+				int cavernUpperY = localSettings.caverns.max_y();
+				ColumnYToDoubleScript.Holder widthScript = localSettings.caves.noise_threshold();
 				int lavaLevel = column.getLocalCell().lavaLevel;
-				if (localSettings.filler() != previousFiller || localSettings.fluid_state() != previousFluid) {
-					previousFiller = localSettings.filler();
-					previousFluid = localSettings.fluid_state();
+				if (localSettings.filler != previousFiller || localSettings.fluid_state != previousFluid) {
+					previousFiller = localSettings.filler;
+					previousFluid = localSettings.fluid_state;
 					fillerID = context.id(previousFiller);
 					fluidID = context.id(previousFluid);
 					if (storage != (storage = context.storage())) { //resize
@@ -211,7 +213,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				pos,
 				permuter,
 				columnSeed,
-				localSettings.caverns().floor_surface(),
+				localSettings.caverns.floor_surface(),
 				-1,
 				column.cavernFloors
 			);
@@ -221,7 +223,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				pos,
 				permuter,
 				columnSeed,
-				localSettings.caverns().ceiling_surface(),
+				localSettings.caverns.ceiling_surface(),
 				1,
 				column.cavernCeilings
 			);
@@ -231,7 +233,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				pos,
 				permuter,
 				columnSeed,
-				localSettings.caves().floor_surface(),
+				localSettings.caves.floor_surface(),
 				-1,
 				column.caveFloors
 			);
@@ -241,7 +243,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				pos,
 				permuter,
 				columnSeed,
-				localSettings.caves().ceiling_surface(),
+				localSettings.caves.ceiling_surface(),
 				1,
 				column.caveCeilings
 			);
@@ -281,7 +283,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void runCaveOverriders(ScriptStructures structures, NetherColumn column) {
 		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.caveContext(structures, column);
-		for (StructureStartWrapper start : structures.starts) {
+		for (StructureStartWrapper start : structures.elements) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
 					((NetherPillarStructure.Piece)(piece)).runCaveExclusions(context);
@@ -295,7 +297,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void runCavernOverriders(ScriptStructures structures, NetherColumn column) {
 		NetherVolumetricOverrider.Context context = NetherVolumetricOverrider.cavernContext(structures, column);
-		for (StructureStartWrapper start : structures.starts) {
+		for (StructureStartWrapper start : structures.elements) {
 			if (start.structure().entry.value().getType() == BigGlobeStructures.NETHER_PILLAR) {
 				for (StructurePiece piece : start.pieces()) {
 					((NetherPillarStructure.Piece)(piece)).runCaveExclusions(context);
@@ -313,12 +315,6 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
 		this.profiler.run("set raw terrain blocks", () -> {
 			this.generateRawSections(chunk, columns, structures, distantHorizons);
-		});
-		this.profiler.run("Bedrock", () -> {
-			CompletableFuture<Void> lower = CompletableFuture.runAsync(() -> BedrockReplacer.generateBottom(new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.min_y     )), this.settings.min_y,      this.seed, columns)));
-			CompletableFuture<Void> upper = CompletableFuture.runAsync(() -> BedrockReplacer.generateTop   (new SectionGenerationContext(chunk, chunk.getSection(chunk.getSectionIndex(this.settings.max_y - 16)), this.settings.max_y - 16, this.seed, columns)));
-			lower.join();
-			upper.join();
 		});
 		this.profiler.run("Recount", () -> {
 			this.generateSectionsParallelSimple(
@@ -347,6 +343,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 		this.profiler.run("Features", () -> {
 			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
+			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
+
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
 					for (GenerationStep.Feature step : FEATURE_STEPS) {
@@ -355,8 +354,6 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 				});
 			}
 
-			ScriptStructures structures = this.preGenerateFeatureColumns(world, chunk.getPos(), structureAccessor, distantHorizons);
-			ChunkOfColumns<NetherColumn> columns = this.getChunkOfColumns(chunk, structures, distantHorizons).asType(NetherColumn.class);
 			this.profiler.run("Feature placement", () -> {
 				BlockPos.Mutable pos = new BlockPos.Mutable();
 				Permuter permuter = new Permuter(0L);
@@ -366,22 +363,24 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					pos.setX(column.x).setZ(column.z);
 					permuter.setSeed(Permuter.permute(this.seed ^ 0xC4D38782789D95FDL, column.x, column.z));
 					LocalNetherSettings localSettings = column.getLocalCell().settings;
-					this.runDecorators(world, pos, mojang, localSettings.caverns().floor_decorator(), column.cavernFloors);
-					this.runDecorators(world, pos, mojang, localSettings.caverns().ceiling_decorator(), column.cavernCeilings);
-					this.runDecorators(world, pos, mojang, localSettings.caves().floor_decorator(), column.caveFloors);
-					this.runDecorators(world, pos, mojang, localSettings.caves().ceiling_decorator(), column.caveCeilings);
-					this.runDecorators(world, pos, mojang, localSettings.fluid_decorator(), column.getLocalCell().lavaLevel);
+					this.runDecorators(world, pos, mojang, localSettings.lowerBedrockDecorator, column.getFinalBottomHeightI() - 1);
+					this.runDecorators(world, pos, mojang, localSettings.upperBedrockDecorator, column.getFinalTopHeightI());
+					this.runDecorators(world, pos, mojang, localSettings.cavernFloorsDecorator, column.cavernFloors);
+					this.runDecorators(world, pos, mojang, localSettings.cavernCeilingsDecorator, column.cavernCeilings);
+					this.runDecorators(world, pos, mojang, localSettings.caveFloorsDecorator, column.caveFloors);
+					this.runDecorators(world, pos, mojang, localSettings.caveCeilingsDecorator, column.caveCeilings);
+					this.runDecorators(world, pos, mojang, localSettings.fluidDecorator, column.getLocalCell().lavaLevel);
 				}
 			});
 		});
 	}
 
 	@Override
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		NetherColumn column = this.column(0, 0);
 		for (ScriptStructureOverrider.Holder overrider : this.structureOverriders) {
-			if (!overrider.override(wrapper, column, permuter)) {
+			if (!overrider.override(wrapper, column, permuter, distantHorizons)) {
 				return false;
 			}
 		}
@@ -426,11 +425,11 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 		return new VerticalBlockSample(worldMinY, Util.make(new BlockState[worldMaxY - worldMinY], states -> {
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
 			int lavaLevel = column.getLocalCell().lavaLevel;
-			ColumnYToDoubleScript.Holder widthScript = localSettings.caves().noise_threshold();
+			ColumnYToDoubleScript.Holder widthScript = localSettings.caves.noise_threshold();
 			double[] caveNoise = column.getCaveNoise();
 			double[] cavernNoise = column.getCavernNoise();
-			int cavernLowerY = localSettings.caverns().min_y();
-			int cavernUpperY = localSettings.caverns().max_y();
+			int cavernLowerY = localSettings.caverns.min_y();
+			int cavernUpperY = localSettings.caverns.max_y();
 			for (int index = 0, length = states.length; index < length; index++) {
 				int y = index + worldMinY;
 				double caveWidth = widthScript.evaluate(column, y);
@@ -444,7 +443,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					states[index] = y < lavaLevel ? BlockStates.LAVA : BlockStates.AIR;
 				}
 				else {
-					states[index] = localSettings.filler();
+					states[index] = localSettings.filler;
 				}
 			}
 		}));

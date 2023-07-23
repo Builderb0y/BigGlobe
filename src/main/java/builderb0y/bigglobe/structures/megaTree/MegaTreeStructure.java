@@ -61,7 +61,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		);
 		double y = column.getFinalTopHeightD();
 		double foliage = ColumnValue.OVERWORLD_SURFACE_FOLIAGE.getValueWithoutY(column);
-		if (Double.isNaN(foliage)) foliage = Permuter.nextPositiveFloat(seed);
+		if (Double.isNaN(foliage)) foliage = Permuter.nextPositiveDouble(seed);
 		double foliage_ = foliage; //lambdas -_-
 		return Optional.of(
 			new StructurePosition(

@@ -21,8 +21,5 @@
 			{ "type": "cubic", "scaleX":  4, "scaleY":  4, "amplitude":  16.0 }
 		]
 	},
-	"fluid": "minecraft:air",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_medium_empty",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_medium_empty",
 	"has_ancient_cities": true
 }

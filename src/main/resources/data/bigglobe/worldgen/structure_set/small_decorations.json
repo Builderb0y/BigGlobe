@@ -1,18 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "campfires",
-			"variation": 8,
-			"spacing": 16,
-			"restrictions": {
-				"type": "or",
-				"restrictions": [
-					{ "type": "range", "property": "overworld/hilliness", "mid": 0.0, "max": 0.5 },
-					{ "type": "range", "property": "overworld/cliffiness", "min": 0.0, "mid": 1.0, "smooth": false }
-				]
-			}
-		}
+		"type": "minecraft:random_spread",
+		"salt": 54723766,
+		"separation": 8,
+		"spacing": 16
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:campfire" },

@@ -78,7 +78,5 @@
 			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 1.0 }
 		]
 	},
-	"floor_blocks": { "surface": "minecraft:mycelium[snowy=false]", "subsurface": "minecraft:dirt" },
-	"floor_decorator": "bigglobe:overworld/caves/floor_mushrooms",
-	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_mushrooms"
+	"floor_blocks": { "surface": "minecraft:mycelium[snowy=false]", "subsurface": "minecraft:dirt" }
 }

@@ -52,7 +52,14 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "/" && right == 0) ||
 						(operator == "^" && left == 0 && right < 0)
 					);
-					Object a = get(expectFail, () -> new ScriptParser<>(IntSupplier.class, left + " " + operator + " " + right).parse().getAsInt());
+					Object a = get(expectFail, () -> {
+						if (operator == "/" && left / right * right != left) {
+							return Math.floorDiv(left, right);
+						}
+						else {
+							return new ScriptParser<>(IntSupplier.class, left + " " + operator + " " + right).parse().getAsInt();
+						}
+					});
 					Object b = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.INT)).parse().applyAsInt(left));
 					Object c = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, left + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.INT)).parse().applyAsInt(right));
 					Object d = get(expectFail, () -> varVar.applyAsInt(left, right));
@@ -76,7 +83,14 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "/" && right == 0L) ||
 						(operator == "^" && left == 0 && right < 0)
 					);
-					Object a = get(expectFail, () -> new ScriptParser<>(LongSupplier.class, left + "L " + operator + " " + right + "L").parse().getAsLong());
+					Object a = get(expectFail, () -> {
+						if (operator == "/" && left / right * right != left) {
+							return Math.floorDiv(left, right);
+						}
+						else {
+							return new ScriptParser<>(LongSupplier.class, left + "L " + operator + " " + right + "L").parse().getAsLong();
+						}
+					});
 					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right + "L").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG)).parse().applyAsLong(left));
 					Object c = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, left + "L " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.LONG)).parse().applyAsLong(right));
 					Object d = get(expectFail, () -> varVar.applyAsLong(left, right));
