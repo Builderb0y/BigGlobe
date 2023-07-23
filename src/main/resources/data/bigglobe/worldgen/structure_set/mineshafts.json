@@ -1,0 +1,12 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 43721726,
+		"separation": 5,
+		"spacing": 8
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:mineshaft" },
+		{ "weight": 1, "structure": "bigglobe:mineshaft_mesa" }
+	]
+}

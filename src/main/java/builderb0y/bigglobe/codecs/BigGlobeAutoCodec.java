@@ -80,6 +80,32 @@ public class BigGlobeAutoCodec {
 		"Identifier::new",      HandlerMapper.nullSafe(Identifier::new)
 	);
 
+	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
+		return PrimitiveCoders.STRING.mapCoder(
+			ReifiedType.from(Identifier.class),
+			"BigGlobeAutoCodec::toString(id, " + namespace + ')', HandlerMapper.nullSafe(id -> toString(id, namespace)),
+			"BigGlobeAutoCodec::toID(string, " + namespace + ')', HandlerMapper.nullSafe(string -> toID(string, namespace))
+		);
+	}
+
+	public static Identifier toID(String string, String defaultNamespace) {
+		String namespace, path;
+		int colon = string.indexOf(':');
+		if (colon >= 0) {
+			namespace = string.substring(0, colon);
+			path = string.substring(colon + 1);
+		}
+		else {
+			namespace = defaultNamespace;
+			path = string;
+		}
+		return new Identifier(namespace, path);
+	}
+
+	public static String toString(Identifier identifier, String defaultNamespace) {
+		return identifier.getNamespace().equals(defaultNamespace) ? identifier.getPath() : identifier.toString();
+	}
+
 	public static final RegistryCoders<Block>                           BLOCK_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryVersions.block());
 	public static final RegistryCoders<Item>                            ITEM_REGISTRY_CODERS                          = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryVersions.item());
 	public static final RegistryCoders<Fluid>                           FLUID_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Fluid                                 .class), RegistryVersions.fluid());

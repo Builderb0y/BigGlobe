@@ -40,33 +40,8 @@ changelog:
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
-	logging for Field/MethodPredicate?
-	better handling of default objects:
-		@DefaultGet: gets an object from a field or method.
-			field can be of type T_Decoded or AutoDecoder<T_Decoded>.
-			method can have a return type of T_Decoded or AutoDecoder<T_Decoded>.
-			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
-			this could also target a constructor.
-	builtin framework for key dispatching.
-	VerifyNullable.INSTANCE should override toString().
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
-	@DontEncode and @DontDecode
-		DontEncode could be useful for backwards compatibility.
-		maybe DontDecode could be used to add comments or something to encoded data?
-			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
-	AutoCodec.decode() should return regular T_Decoded, not @Nullable T_Decoded.
-	move build location to ~/.m2/repository.
-		> If you just use mavenLocal() by itself (no path specified) it'll automatically publish to ~/.m2/repository
-		> (and likewise, gradle will pick up dependencies from there)
-	build using java 17 in toolchain.
-		java() {
-			toolchain() {
-				languageVersion = JavaLanguageVersion.of(17)
-			}
-		}
-	enable junit on build if it's not already enabled.
-	built-in backwards compatibility for DFU Supplier<String> vs. String in DataResult.error().
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -127,7 +102,7 @@ features:
 		ice spikes.
 		glaciers.
 		log cabin structure?
-		slightly larger house structure?
+		medium and large house structures?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -158,11 +133,10 @@ features:
 				maybe just put blackstone inside lava pockets?
 			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
+			add "center" noise?
 		make lilypads renewable?
 		sandstone small house variant.
 	nether:
-		replace bedrock with configured feature.
-			may need sorted feature tags for min_y_decorator and max_y_decorator.
 	end:
 		block of void?
 			void ingots?

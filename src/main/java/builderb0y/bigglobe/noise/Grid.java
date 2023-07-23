@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.util.SemiThreadLocal;
 
 /**
@@ -25,7 +24,7 @@ so, that's what we provide here.
 the minimum and maximum values of a grid could be used to apply dynamic bias to those values in
 such a way that the "real" minimum or maximum value never exceeds a certain hard-coded value.
 */
-public interface Grid extends CoderRegistryTyped {
+public interface Grid {
 
 	/**
 	enabled by JUnit. MUST NOT BE ENABLED FROM ANYWHERE ELSE!

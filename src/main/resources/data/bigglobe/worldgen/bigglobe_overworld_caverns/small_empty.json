@@ -19,6 +19,5 @@
 			{ "type": "cubic", "scaleX":  4, "scaleY":  4, "amplitude": 24.0 }
 		]
 	},
-	"fluid": "minecraft:air",
 	"has_ancient_cities": false
 }

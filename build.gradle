@@ -13,13 +13,7 @@ repositories() {
 	//See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	//for more information about repositories.
 
-	mavenLocal() {
-		//todo: figure out how to load AutoCodec in a more convenient way for other developers.
-		url("file:///home/builderb0y/Documents/Projects/AutoCodec/releases")
-		content() {
-			includeGroup('builderb0y')
-		}
-	}
+	mavenLocal()
 
 	maven() {
 		name('Modrinth')
@@ -39,7 +33,7 @@ dependencies() {
 	testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.0-M1')
 	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
 
-	String AUTO_CODEC_VERSION = '4.9.8'
+	String AUTO_CODEC_VERSION = '4.10.0'
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 

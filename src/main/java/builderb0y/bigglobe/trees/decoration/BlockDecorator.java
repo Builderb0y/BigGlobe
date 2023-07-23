@@ -11,7 +11,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.trees.TreeGenerator;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface BlockDecorator extends CoderRegistryTyped {
+public interface BlockDecorator extends CoderRegistryTyped<BlockDecorator> {
 
 	public static final CoderRegistry<BlockDecorator> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("tree_block_decorators"));
 	public static final Object INITIALIZER = new Object() {{

@@ -36,8 +36,6 @@
 				]
 			}
 		}
-	}
-,
-	"fluid": "minecraft:air",
+	},
 	"has_ancient_cities": true
 }

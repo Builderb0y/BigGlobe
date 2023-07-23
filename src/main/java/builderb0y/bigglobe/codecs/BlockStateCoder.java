@@ -71,7 +71,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			throw new DecodeException(exception);
 		}
 		else {
-			return context.logger().unwrap(
+			return context.logger().unwrapLazy(
 				BlockState.CODEC.parse(context.ops, context.input),
 				true,
 				DecodeException::new
@@ -86,7 +86,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		StringBuilder builder = new StringBuilder(64);
 		Optional<RegistryKey<Block>> key = state.getRegistryEntry().getKey();
 		if (key.isPresent()) builder.append(key.get().getValue());
-		else throw new EncodeException("Unregistered block.");
+		else throw new EncodeException(() -> "Unregistered block: " + state);
 		Collection<Property<?>> properties = state.getProperties();
 		if (!properties.isEmpty()) {
 			builder.append('[');
