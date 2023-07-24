@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;

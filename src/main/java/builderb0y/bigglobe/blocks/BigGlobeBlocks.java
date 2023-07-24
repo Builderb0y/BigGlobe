@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.object.builder.v1.sign.SignTypeRegistry;
 import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
@@ -347,7 +348,7 @@ public class BigGlobeBlocks {
 				overridden in big globe worlds by {@link SaplingGrowHandler}.
 				*/
 				@Override
-				public RegistryEntry<? extends ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
+				public @Nullable RegistryEntry<? extends ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
 					return BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.configuredFeature()).getEntry(KEY).orElse(null);
 				}
 			},

@@ -15,14 +15,15 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.registry.*;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
@@ -60,7 +61,7 @@ import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
+import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.TagOrObject;
@@ -79,6 +80,32 @@ public class BigGlobeAutoCodec {
 		"Identifier::toString", HandlerMapper.nullSafe(Identifier::toString),
 		"Identifier::new",      HandlerMapper.nullSafe(Identifier::new)
 	);
+
+	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
+		return PrimitiveCoders.STRING.mapCoder(
+			ReifiedType.from(Identifier.class),
+			"BigGlobeAutoCodec::toString(id, " + namespace + ')', HandlerMapper.nullSafe(id -> toString(id, namespace)),
+			"BigGlobeAutoCodec::toID(string, " + namespace + ')', HandlerMapper.nullSafe(string -> toID(string, namespace))
+		);
+	}
+
+	public static Identifier toID(String string, String defaultNamespace) {
+		String namespace, path;
+		int colon = string.indexOf(':');
+		if (colon >= 0) {
+			namespace = string.substring(0, colon);
+			path = string.substring(colon + 1);
+		}
+		else {
+			namespace = defaultNamespace;
+			path = string;
+		}
+		return new Identifier(namespace, path);
+	}
+
+	public static String toString(Identifier identifier, String defaultNamespace) {
+		return identifier.getNamespace().equals(defaultNamespace) ? identifier.getPath() : identifier.toString();
+	}
 
 	public static final RegistryCoders<Block>                           BLOCK_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryVersions.block());
 	public static final RegistryCoders<Item>                            ITEM_REGISTRY_CODERS                          = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryVersions.item());
@@ -106,7 +133,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<EndBiomeLayout>                  END_BIOME_LAYOUT_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(EndBiomeLayout                        .class), BigGlobeDynamicRegistries.END_BIOME_LAYOUT_REGISTRY_KEY);
 	public static final RegistryCoders<LocalSkylandSettings>            LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(LocalSkylandSettings                  .class), BigGlobeDynamicRegistries.LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<LocalOverworldCaveSettings>      LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(LocalOverworldCaveSettings            .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<LocalCavernSettings>             LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalCavernSettings                   .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<LocalOverworldCavernSettings>    LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalOverworldCavernSettings          .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -266,32 +293,32 @@ public class BigGlobeAutoCodec {
 		public final @NotNull TagOrObjectKeyCoder<T> tagOrObjectKeyCoder;
 
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull RegistryKey<Registry<T>> registryKey) {
-			this.                    registryKey = registryKey;
-			this.                       registry = null;
+			this.                registryKey = registryKey;
+			this.                   registry = null;
 
-			this.                     objectType = objectType;
-			this.                   registryType = ReifiedType.parameterize(            Registry.class, objectType);
-			this.                registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
-			this.              registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
-			this.                     tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
-			this.                        tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
-			this.                tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
-			this.             tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
+			this.                 objectType = objectType;
+			this.               registryType = ReifiedType.parameterize(            Registry.class, objectType);
+			this.            registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
+			this.          registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
+			this.                 tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
+			this.                    tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
+			this.            tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
+			this.         tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
 
-			this.           dynamicRegistryCoder = new DynamicRegistryCoder<>(registryKey);
-			this.      dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.dynamicRegistryCoder);
-			this.                dynamicTagCoder = new DynamicTagCoder<>(this.dynamicRegistryCoder);
-			this.           hardCodedObjectCoder = null;
-			this.    hardCodedRegistryEntryCoder = null;
-			this.              hardCodedTagCoder = null;
-			this.               registryKeyCoder = new RegistryKeyCoder<>(registryKey);
-			this.                    tagKeyCoder = new TagKeyCoder<>(registryKey);
-			this.               tagOrObjectCoder = new TagOrObjectCoder<>(registryKey, this.dynamicTagCoder, this.dynamicRegistryEntryCoder);
-			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
+			this.       dynamicRegistryCoder = new DynamicRegistryCoder<>(registryKey);
+			this.  dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.dynamicRegistryCoder);
+			this.            dynamicTagCoder = new DynamicTagCoder<>(this.dynamicRegistryCoder);
+			this.       hardCodedObjectCoder = null;
+			this.hardCodedRegistryEntryCoder = null;
+			this.          hardCodedTagCoder = null;
+			this.           registryKeyCoder = new RegistryKeyCoder<>(registryKey);
+			this.                tagKeyCoder = new TagKeyCoder<>(registryKey);
+			this.           tagOrObjectCoder = new TagOrObjectCoder<>(registryKey, this.dynamicTagCoder, this.dynamicRegistryEntryCoder);
+			this.        tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
 		}
 
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull Registry<T> registry) {
-			this.                registryKey = RegistryVersions.getRegistryKey(registry);
+			this.                    registryKey = RegistryVersions.getRegistryKey(registry);
 			this.                   registry = registry;
 
 			this.                 objectType = objectType;

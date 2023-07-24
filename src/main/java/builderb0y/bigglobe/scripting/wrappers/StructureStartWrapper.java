@@ -8,6 +8,7 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.gen.structure.Structure;
 
+import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public record StructureStartWrapper(StructureEntry entry, StructureStart start, BlockBox box) {
@@ -33,6 +34,9 @@ public record StructureStartWrapper(StructureEntry entry, StructureStart start, 
 			maxX = Math.max(maxX, box.getMaxX());
 			maxY = Math.max(maxY, box.getMaxY());
 			maxZ = Math.max(maxZ, box.getMaxZ());
+		}
+		if (start.getStructure() instanceof DelegatingStructure delegating) {
+			entry = delegating.delegate;
 		}
 		return new StructureStartWrapper(new StructureEntry(entry), start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
 	}

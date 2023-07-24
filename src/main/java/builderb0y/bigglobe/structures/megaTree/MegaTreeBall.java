@@ -28,7 +28,7 @@ import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -203,7 +203,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	}
 
 	public boolean canLogReplace(BlockState state) {
-		return MaterialVersions.isReplaceableOrPlant(state);
+		return BlockStateVersions.isReplaceableOrPlant(state);
 	}
 
 	public boolean canLeavesReplace(BlockState state) {

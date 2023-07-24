@@ -34,6 +34,7 @@ public class ExpressionParserTest extends TestCommon {
 		assertSuccess(8, "2 * 2 * 2");
 		assertSuccess(8, "( 2 + 2 ) * 2");
 		assertSuccess(8, "2 * ( 2 + 2 )");
+		assertFail("3 / 4 cannot be represented exactly as an int. Try doing 3.0 / 4.0 instead", "3 / 4");
 		assertFail("Unexpected end of input", "(");
 		assertFail("Expected ')'", "(2");
 		assertFail("Unexpected end of input", "(2 +");
@@ -46,9 +47,9 @@ public class ExpressionParserTest extends TestCommon {
 		assertFail("Unexpected trailing character: )", "(2 + 2))");
 		assertSuccess(256, "2 ^ 2 ^ 3");
 		assertSuccess(1, "4 / 2 ^ 2");
-		assertSuccess(-1, "-1 / 4"); //assert rounding towards -∞.
+		assertSuccess(-1, "int x = -1 int y = 4 x / y"); //assert rounding towards -∞.
 		assertSuccess(5, "sqrt ( 3 ^ 2 + 4 ^ 2 )");
-		assertSuccess(5, "`sqrt` ( 3 ^ 2 + 4 ^ 2)");
+		assertSuccess(5, "`sqrt` ( 3 ^ 2 + 4 ^ 2 )");
 		assertFail(
 			"""
 			Unknown variable: sqrt

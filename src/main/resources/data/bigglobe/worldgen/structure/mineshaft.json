@@ -3,6 +3,5 @@
 	"biomes": "#bigglobe:has_structure/mineshaft",
 	"mineshaft_type": "normal",
 	"spawn_overrides": {},
-	"step": "underground_structures",
-	"terrain_adaptation": "bury"
+	"step": "underground_structures"
 }

@@ -101,7 +101,7 @@ public class StringEntity extends Entity {
 
 	public void applyGravity() {
 		this.move(MovementType.SELF, new Vec3d(0.0D, -0.04D, 0.0D));
-		if (this.onGround) {
+		if (EntityVersions.isOnGround(this)) {
 			this.setVelocity(Vec3d.ZERO);
 		}
 	}

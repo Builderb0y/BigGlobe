@@ -1,8 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"#bigglobe:overworld/caves/ceiling_all",
-		"bigglobe:overworld/caves/occasional_spore_blossom",
-		"bigglobe:overworld/caves/vines"
-	]
-}

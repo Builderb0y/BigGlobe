@@ -39,7 +39,7 @@
 		"NetherrackBlock_GrowProperly",
 		"NoiseChunkGenerator_DisplayVanillaColumnValues",
 		"OceanMonumentGeneratorBase_VanillaBugFixes",
-		"OceanMonumentStructure_DontModifyPiecesOnLoad",
+		"OceanMonumentStructure_MovePiecesOnReCreate",
 		"OceanRuinGeneratorPiece_UseGeneratorHeight",
 		"PalettedContainer_DataAccess",
 		"PlantBlock_CanPlantOnTopAccess",

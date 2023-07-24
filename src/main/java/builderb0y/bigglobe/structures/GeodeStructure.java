@@ -27,7 +27,8 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
+import builderb0y.bigglobe.math.pointSequences.PointIterator3D;
+import builderb0y.bigglobe.math.pointSequences.SphericalPointIterator;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
@@ -44,7 +45,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 	public final Grid3D noise;
 	public final RandomSource radius;
-	public final BlocksConfig @VerifySizeRange(min = 1) @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
+	public final BlocksConfig @VerifyNotEmpty @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
 	public final SpikesConfig spikes;
 	public final GrowthConfig @VerifyNullable @SingletonArray [] growth;
 
@@ -101,14 +102,6 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource crookedness
 	) {}
 
-	public static void nextUnitVector(HaltonIterator2D iterator, Vector3d vector) {
-		iterator.next();
-		double x = iterator.x;
-		double y = iterator.y * BigGlobeMath.TAU;
-		double r = Math.sqrt(1.0D - x * x);
-		vector.set(Math.cos(y) * r, Math.sin(y) * r, x);
-	}
-
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		double radius = this.radius.get(context.random().nextLong());
@@ -136,10 +129,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						this.growth
 					);
 					collector.addPiece(mainPiece);
-					//Grid3D grid = this.noise;
-					//double rcpRadiusSquared = grid.max() / (radius * radius);
 					Permuter permuter = new Permuter(seed);
-					HaltonIterator2D iterator = new HaltonIterator2D(-1.0D, 0.0D, 1.0D, 1.0D, permuter.nextInt() & 0xFFFF);
+					PointIterator3D iterator = SphericalPointIterator.halton(permuter.nextInt() & 0xFFFF, 1.0D);
 					BlocksConfig lastConfig = this.blocks[this.blocks.length - 1];
 					double secondLastThreshold = this.blocks.length > 1 ? this.blocks[this.blocks.length - 2].threshold : 0.0D;
 					Vector3d
@@ -149,7 +140,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					int spikeCount = (int)(radius * radius * this.spikes.commonness.get(permuter));
 					spikeLoop:
 					for (int spikeIndex = 0; spikeIndex < spikeCount; spikeIndex++) {
-						nextUnitVector(iterator, unit);
+						iterator.next();
+						unit.set(iterator.x(), iterator.y(), iterator.z());
 						binarySearch: {
 							double minRadius = 0.0D, maxRadius = radius;
 							for (int refine = 0; refine < 8; refine++) {

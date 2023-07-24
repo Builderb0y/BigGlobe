@@ -109,6 +109,9 @@
 		"setBlockState(midX + flip, minY + 1, midZ, BlockState(bed, facing: 'south', part: 'foot', occupied: false))",
 		"setBlockState(midX + flip, minY + 1, midZ + 1, BlockState(bed, facing: 'south', part: 'head', occupied: false))",
 		"setBlockState(midX - flip, minY + 1, midZ + 1, 'minecraft:crafting_table')",
-		"setBlockState(midX, minY + 3, midZ - 1, 'minecraft:wall_torch[facing=south]')"
+		"setBlockState(midX, minY + 3, midZ - 1, 'minecraft:wall_torch[facing=south]')",
+
+		";summon villager",
+		"summon('minecraft:villager', midX + 0.5L, minY + 1.0L, midZ + 0.5L)"
 	]
 }

@@ -6,6 +6,9 @@ bugs:
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
 	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
 		this is caused by distant horizons constructing a new chunk every time you request one.
+	immersive portals places the end portal inside the end nest.
+		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
+		this is fixed in a later version of immersive portals.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -18,24 +21,27 @@ porting:
 where I left off:
 
 changelog:
+	* Bedrock is now a configured feature in the overworld and nether, which means it can now be tweaked by data packs.
+	* "decorator" configured feature tags now have automatic locations.
+	* Changed lots of structure spawn conditions.
+		* Existing structures *should* survive this change as-is, but new worlds might not have structures in the same locations as old worlds, even with the same seed.
+	* Changed the seed of "decorator" features, by making the same feature always have the same seed regardless of what other decorators might try to decorate at the same location.
+		* Like structures, existing features will survive as-is, but new worlds might not have different features at the same locations even with the same seed.
+	* Sped up distant horizons chunk generation in the nether slightly.
+	* Lush and mushroom caves no longer have dungeons or spider pits by default.
+	* Reduced the number of cherry trees that spawn in the world.
+	* The rock model now ranges from 1 to 6 rocks per block instead of being always 6.
+	* Restricted ocean monuments to only spawning in flat-ish areas.
+	* Fixed ocean monuments being empty in rare edge cases.
+	* Fixed bigger desert pyramids generating completely broken in rare edge cases.
+	* Small houses now have a villager inside.
+	* Added /bigglobe:locateArea command, for finding large areas which match some predicate.
+	* Miscellaneous scripting improvements.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
-	logging for Field/MethodPredicate?
-	better handling of default objects:
-		@DefaultGet: gets an object from a field or method.
-			field can be of type T_Decoded or AutoDecoder<T_Decoded>.
-			method can have a return type of T_Decoded or AutoDecoder<T_Decoded>.
-			method can take a DecodeContext<T_Encoded> as a parameter, or nothing as a parameter.
-			this could also target a constructor.
-	builtin framework for key dispatching.
-	VerifyNullable.INSTANCE should override toString().
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
-	@EncodeOnly and @DecodeOnly
-		DecodeOnly could be useful for backwards compatibility.
-		maybe EncodeOnly could be used to add comments or something to encoded data?
-			maybe this can be combined with pseudo-fields to not store the comment in an actual field per-object?
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -43,11 +49,7 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
-	expose voronoi information.
-		include cave systems, cavern systems, skylands, and nether biome.
 	nested multi-line comment ;(example ;(text) here)
-	operators for !> !< !>= and !<= to negate the normal compare operators.
-		semantics differ from inverting for NaN handling.
 	more invoke syntaxes:
 		nullable invoke.
 			foo.?bar()
@@ -65,13 +67,20 @@ scripting:
 	lambdas?
 		Stream API?
 	List.shuffle()
-	add dedicated wrappers for BlockEntity, BlockEntityType, BlockEntityTagKey.
-	add dedicated wrappers for Entity, EntityType, EntityTypeTagKey.
 	add copy constructor and clone() for user-defined classes.
+		clone() is deep copy, constructor is shallow copy?
+			this is the more intuitive option, but it is more difficult semantically
+			due to the fact that you can't assign to final fields inside clone().
+			not that I have final fields yet, but still.
 	cache scripts.
-	expose dx/dz for height overriders.
-		I honestly want to try sine wave erosion as an overrider ngl.
-		would need to be populated in columns before overriders are run.
+	for (int x in [0, 10) % step: body)
+		how to handle descending iteration?
+		maybe for (int x in -[0, 10) % step: body)?
+		should step be auto-negated in this case?
+	smarter detection of which variables are captured by methods.
+		don't capture variables which aren't used.
+	user-defined methods (not functions) in user-defined classes.
+	ability to iterate over an Iterator or Stream (whenever stream support is added).
 
 features:
 	general:
@@ -84,6 +93,8 @@ features:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		configurable bedrock amount.
+			remove fast logic, replace with configured feature.
+			may need sorted feature tag for min_y_decorator.
 		desert fossils.
 		fallen logs.
 		column values for cliff frac and cliff bias.
@@ -91,7 +102,7 @@ features:
 		ice spikes.
 		glaciers.
 		log cabin structure?
-		slightly larger house structure?
+		medium and large house structures?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -119,9 +130,12 @@ features:
 			occasional "big rooms".
 		underground pockets:
 			molten? (match molten caves)
+				maybe just put blackstone inside lava pockets?
 			frozen?
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
+			add "center" noise?
 		make lilypads renewable?
+		sandstone small house variant.
 	nether:
 	end:
 		block of void?
@@ -145,7 +159,7 @@ porting:
 	see if CactusBlock uses BlockTags.SAND for placement logic.
 		if it does, remove mixin for making it placeable on overgrown sand.
 
-back-porting:
+back-porting from 1.20 to 1.19.4:
 	re-enable lighting update suppression in BlockQueue.
 	spelunking rope block needs to override getPistonBehavior() to return DESTROY.
 	rope anchor block needs to override getPistonBehavior() to return BLOCK.
@@ -156,3 +170,21 @@ back-porting:
 	re-enable lighting in SectionGenerationContext.
 	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
 	remove hanging signs and cherry stuff.
+		remove hanging signs in WoodPalette.
+	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
+	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
+	remove tags/worldgen/biome/has_structure/trail_ruins.
+	revert minecraft version dependency in fabric.mod.json.
+
+back-porting from 1.19.4 to 1.19.2:
+	remove BiomeDownfallAccessor.
+	remove BigGlobeGameRules.SOUL_LAVA_CONVERSION.
+	re-add call to BigGlobeDynamicRegistries.addBuiltin() in mod initializer.
+	fix SlimeEntity_AllowSpawningFromSpawner.
+	fix OceanMonumentGeneratorBase_VanillaBugFixes.
+	re-add structureSetRegistry pseudo-field to BigGlobeChunkGenerator.
+	revert biomes to re-add precipitation field.
+	check which fabric version adds SignTypeRegistry, and mark
+	that as the minimum compatible version in fabric.mod.json.
+	ensure ball of string adds correct NBT variants to creative menu.
+	revert minecraft version dependency in fabric.mod.json.

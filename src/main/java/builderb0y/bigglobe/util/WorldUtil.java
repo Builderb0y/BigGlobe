@@ -18,7 +18,7 @@ import net.minecraft.world.chunk.Chunk;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class WorldUtil {
@@ -58,7 +58,7 @@ public class WorldUtil {
 		}
 		while (true) {
 			if (world.isOutOfHeightLimit(mutablePos)) return null;
-			if (!MaterialVersions.isReplaceable(world.getBlockState(mutablePos))) return mutablePos;
+			if (!BlockStateVersions.isReplaceable(world.getBlockState(mutablePos))) return mutablePos;
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 	}
@@ -137,7 +137,7 @@ public class WorldUtil {
 	}
 
 	public static boolean isReplaceableNonFluid(BlockState state) {
-		return MaterialVersions.isReplaceable(state) && state.getFluidState().isEmpty();
+		return BlockStateVersions.isReplaceable(state) && state.getFluidState().isEmpty();
 	}
 
 	public static boolean isReplaceableNonFluid(BlockView world, BlockPos pos) {

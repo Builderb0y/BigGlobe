@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"if (distantHorizons: return(false))",
 			"for (int base = int(min_y), base < int(max_y), base += 64:",
 				"int y = base + random.nextInt(64)",
 				"double fraction = unmixLinear(min_y, max_y, y)",

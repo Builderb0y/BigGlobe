@@ -14,18 +14,20 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ScriptStructureOverrider extends Overrider {
 
-	public static final MutableScriptEnvironment START_MOVE_ENVIRONMENT = (
+	public static final MutableScriptEnvironment START_MOVE_DH_ENVIRONMENT = (
 		new MutableScriptEnvironment()
 		.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
 		.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
+		.addVariableLoad("distantHorizons", 4, TypeInfos.BOOLEAN)
 	);
 
-	public abstract boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random);
+	public abstract boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random, boolean distantHorizons);
 
 	@SuppressWarnings("deprecation")
 	public static void move(StructureStartWrapper start, int yOffset) {
@@ -42,7 +44,7 @@ public interface ScriptStructureOverrider extends Overrider {
 		public Holder(String script) throws ScriptParsingException {
 			super(
 				new ScriptParser<>(ScriptStructureOverrider.class, script)
-				.addEnvironment(START_MOVE_ENVIRONMENT)
+				.addEnvironment(START_MOVE_DH_ENVIRONMENT)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
@@ -58,9 +60,9 @@ public interface ScriptStructureOverrider extends Overrider {
 		}
 
 		@Override
-		public boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random) {
+		public boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random, boolean distantHorizons) {
 			try {
-				return this.script.override(start, column, random);
+				return this.script.override(start, column, random, distantHorizons);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

@@ -27,6 +27,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class RespawnCommand {
@@ -147,8 +148,8 @@ public class RespawnCommand {
 			WorldProperties properties = world.getLevelProperties();
 			if (
 				force || (
-					world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ())).getBlock().canMobSpawnInside() &&
-					world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ())).getBlock().canMobSpawnInside()
+					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ()))) &&
+					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ())))
 				)
 			) {
 				player.teleport(world, properties.getSpawnX() + 0.5D, properties.getSpawnY(), properties.getSpawnZ() + 0.5D, properties.getSpawnAngle(), 0.0F);
@@ -211,8 +212,8 @@ public class RespawnCommand {
 			if (
 				force
 				|| (
-					world.getBlockState(position).getBlock().canMobSpawnInside() &&
-					world.getBlockState(position.up()).getBlock().canMobSpawnInside()
+					BlockStateVersions.canSpawnInside(world.getBlockState(position)) &&
+					BlockStateVersions.canSpawnInside(world.getBlockState(position.up()))
 				)
 			) {
 				float yaw = player.getSpawnAngle();

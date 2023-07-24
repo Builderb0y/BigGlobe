@@ -8,6 +8,7 @@ import org.joml.Vector3d;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockBox;
@@ -36,6 +37,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.BlockPosVersions;
 
 public class LakeStructure extends BigGlobeStructure implements RawGenerationStructure {
@@ -224,7 +226,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			SortedFeatureTag featureEntry = this.data.fluid_surface_feature;
 			if (featureEntry == null) return;
 
-			ConfiguredFeature<?, ?>[] features = featureEntry.getSortedFeatures(world);
+			RegistryEntry<ConfiguredFeature<?, ?>>[] features = featureEntry.getSortedFeatures();
 			int featureCount = features.length;
 			if (featureCount == 0) return;
 
@@ -238,8 +240,8 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			for (int z = minZ; z <= maxZ; z++) {
 				for (int x = minX; x <= maxX; x++) {
 					for (int index = 0; index < featureCount; index++) {
-						permuter.setSeed(Permuter.permute(world.getSeed() ^ 0xA8E28B8E72CA658DL, x, z, index));
-						features[index].generate(
+						permuter.setSeed(Permuter.permute(world.getSeed() ^ 0xA8E28B8E72CA658DL, x, z, UnregisteredObjectException.getID(features[index]).hashCode()));
+						features[index].value().generate(
 							world,
 							chunkGenerator,
 							permuter.mojang(),

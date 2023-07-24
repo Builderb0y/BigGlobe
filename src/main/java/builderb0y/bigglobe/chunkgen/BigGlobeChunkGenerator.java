@@ -28,6 +28,7 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -284,14 +285,18 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			try {
 				SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
 				generator.accept(context);
+				//*
 				if (context.hasLights()) {
 					lights.add(context.lights());
 				}
+				//*/
+
 			}
 			finally {
 				section.unlock();
 			}
 		});
+		//*
 		if (lights != null) {
 			ProtoChunk protoChunk = (ProtoChunk)(chunk);
 			for (LightPositionCollector collector; (collector = lights.poll()) != null; ) {
@@ -300,6 +305,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				}
 			}
 		}
+		//*/
 	}
 
 	public void setHeightmaps(Chunk chunk, HeightmapSupplier heightGetter) {
@@ -393,17 +399,17 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		IntList yLevels
 	) {
 		if (decorator != null && yLevels != null && !yLevels.isEmpty()) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
+				this.profiler.run(decorator.list.getStorage().left().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
 						int y = yLevels.getInt(yIndex);
 						pos.setY(y);
 						long blockSeed = Permuter.permute(columnSeed, y);
 						for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-							permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-							features[featureIndex].generate(world, this, permuter, pos);
+							permuter.setSeed(Permuter.permute(blockSeed, UnregisteredObjectException.getID(features[featureIndex]).hashCode()));
+							features[featureIndex].value().generate(world, this, permuter, pos);
 						}
 					}
 					permuter.setSeed(columnSeed);
@@ -420,15 +426,15 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		int yLevel
 	) {
 		if (decorator != null && yLevel != Integer.MIN_VALUE) {
-			ConfiguredFeature<?, ?>[] features = decorator.getSortedFeatures(world);
+			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.key.id(), () -> {
+				this.profiler.run(decorator.list.getStorage().left().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					pos.setY(yLevel);
 					long blockSeed = Permuter.permute(columnSeed, yLevel);
 					for (int featureIndex = 0, featureCount = features.length; featureIndex < featureCount; featureIndex++) {
-						permuter.setSeed(Permuter.permute(blockSeed, featureIndex));
-						features[featureIndex].generate(world, this, permuter, pos);
+						permuter.setSeed(Permuter.permute(blockSeed, UnregisteredObjectException.getID(features[featureIndex]).hashCode()));
+						features[featureIndex].value().generate(world, this, permuter, pos);
 					}
 					permuter.setSeed(columnSeed);
 				});
@@ -594,7 +600,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 						),
 						chunk.getPos()
 					)
-				)
+				),
+				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		) {
 			//expand structure bounding boxes so that overriders
@@ -612,7 +619,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		return false;
 	}
 
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter) {
+	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
 		return true;
 	}
 

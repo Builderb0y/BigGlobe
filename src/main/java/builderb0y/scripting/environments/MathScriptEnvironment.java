@@ -36,7 +36,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
 		.addFunction("mod", (parser, name, arguments) -> {
-			ScriptEnvironment.checkArgumentCount(parser, name, 2, arguments);
+			if (arguments.length != 2) return null;
 			return new CastResult(mod(parser, arguments[0], arguments[1]), false);
 		})
 		.addFunction("isNaN", createNaN(true))
@@ -64,7 +64,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 
 	public static FunctionHandler createNaN(boolean nan) {
 		return (parser, name, arguments) -> {
-			ScriptEnvironment.checkArgumentCount(parser, name, 1, arguments);
+			if (arguments.length != 1) return null;
 			if (arguments[0].getTypeInfo().isFloat()) {
 				return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
 			}

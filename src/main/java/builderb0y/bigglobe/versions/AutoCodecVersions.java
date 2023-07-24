@@ -11,22 +11,22 @@ import builderb0y.autocodec.verifiers.VerifyException;
 public class AutoCodecVersions {
 
 	public static EncodeException newEncodeException(Supplier<String> message) {
-		return new EncodeException(message.get());
+		return new EncodeException(message);
 	}
 
 	public static DecodeException newDecodeExceptions(Supplier<String> message) {
-		return new DecodeException(message.get());
+		return new DecodeException(message);
 	}
 
 	public static ConstructException newConstructException(Supplier<String> message) {
-		return new ConstructException(message.get());
+		return new ConstructException(message);
 	}
 
 	public static ImprintException newImprintException(Supplier<String> message) {
-		return new ImprintException(message.get());
+		return new ImprintException(message);
 	}
 
 	public static VerifyException newVerifyException(Supplier<String> message) {
-		return new VerifyException(message.get());
+		return new VerifyException(message);
 	}
 }

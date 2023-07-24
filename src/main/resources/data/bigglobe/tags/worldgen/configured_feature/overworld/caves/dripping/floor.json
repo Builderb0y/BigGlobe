@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/caves/occasional_dungeon",
+		"bigglobe:overworld/caves/stalagmite"
+	]
+}

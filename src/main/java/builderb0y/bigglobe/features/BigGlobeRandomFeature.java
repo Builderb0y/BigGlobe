@@ -9,7 +9,7 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.VerifySizeRange;
+import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -42,7 +42,7 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 	}
 
 	public static record Config(
-		@VerifySizeRange(min = 1) RandomList<
+		@VerifyNotEmpty RandomList<
 			@UseName("feature") RegistryEntry<
 				ConfiguredFeature<?, ?>
 			>

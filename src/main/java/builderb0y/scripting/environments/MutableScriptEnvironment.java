@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -498,22 +498,6 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	public MutableScriptEnvironment addFunctionRenamedMagicInvokeStatic(String exposedName, Class<?> in, String internalName, Object... args) {
-		Arguments parsedArgs = Argument.parse(args);
-		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
-		return this.addFunction(exposedName, new FunctionHandler.Named(parsedArgs.toString(), (parser, name, providedArgs) -> {
-			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
-			if (builtArgs == null) return null;
-			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
-			if (castArgs == null) return null;
-			return new CastResult(invokeStatic(method, castArgs), builtArgs != castArgs);
-		}));
-	}
-
-	public MutableScriptEnvironment addFunctionMagicInvokeStatic(Class<?> in, String name, Object... args) {
-		return this.addFunctionRenamedMagicInvokeStatic(name, in, name, args);
-	}
-
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
@@ -554,22 +538,6 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			this.addFunctionMultiInvoke(receiver, in, name);
 		}
 		return this;
-	}
-
-	public MutableScriptEnvironment addFunctionRenamedMagicInvoke(String exposedName, Class<?> in, String internalName, InsnTree receiver, Object... args) {
-		Arguments parsedArgs = Argument.parse(args);
-		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
-		return this.addFunction(exposedName, new FunctionHandler.Named(parsedArgs.toString(), (parser, name, providedArgs) -> {
-			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
-			if (builtArgs == null) return null;
-			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
-			if (castArgs == null) return null;
-			return new CastResult(invokeInstance(receiver, method, castArgs), builtArgs != castArgs);
-		}));
-	}
-
-	public MutableScriptEnvironment addFunctionMagicInvoke(Class<?> in, String name, InsnTree receiver, Object... args) {
-		return this.addFunctionRenamedMagicInvoke(name, in, name, receiver, args);
 	}
 
 	//////////////////////////////// methods ////////////////////////////////
@@ -627,22 +595,6 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addMethodInvokeSpecific(Class<?> in, String name, Class<?> returnType, Class<?>... paramTypes) {
 		return this.addMethodInvoke(name, MethodInfo.findMethod(in, name, returnType, paramTypes));
-	}
-
-	public MutableScriptEnvironment addMethodRenamedMagicInvoke(TypeInfo owner, String exposedName, Class<?> in, String internalName, Object... args) {
-		Arguments parsedArgs = Argument.parse(args);
-		MethodInfo method = parsedArgs.getMethodInfo(in, internalName);
-		return this.addMethod(owner, exposedName, new MethodHandler.Named(parsedArgs.toString(), (parser, receiver, name, providedArgs) -> {
-			InsnTree[] builtArgs = parsedArgs.buildTrees(providedArgs);
-			if (builtArgs == null) return null;
-			InsnTree[] castArgs = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, builtArgs);
-			if (castArgs == null) return null;
-			return new CastResult(invokeInstance(receiver, method, castArgs), builtArgs != castArgs);
-		}));
-	}
-
-	public MutableScriptEnvironment addMethodMagicInvoke(TypeInfo owner, Class<?> in, String name, Object... args) {
-		return this.addMethodRenamedMagicInvoke(owner, name, in, name, args);
 	}
 
 	//////////////// invokeStatic ////////////////
@@ -1405,118 +1357,6 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				value = caster.cast(parser, value, caster.to, implicit);
 			}
 			return value;
-		}
-	}
-
-	public static interface Argument extends Typeable {
-
-		public abstract Class<?> getArgumentClass();
-
-		public abstract int requiredIndex();
-
-		public default InsnTree getFrom(InsnTree[] providedArgs) {
-			return providedArgs[this.requiredIndex()];
-		}
-
-		public static Arguments parse(Object... args) {
-			int length = args.length;
-			Argument[] arguments = new Argument[length];
-			int requiredIndex = 0;
-			for (int index = 0; index < length; index++) {
-				Object arg = args[index];
-				if (arg instanceof Class<?> clazz) {
-					arguments[index] = new ClassArgument(clazz, requiredIndex++);
-				}
-				else if (arg instanceof TypeInfo type) {
-					arguments[index] = new TypeArgument(type, requiredIndex++);
-				}
-				else if (arg instanceof InsnTree tree) {
-					arguments[index] = new ImplicitArgument(tree);
-				}
-				else {
-					throw new IllegalArgumentException("Unexpected argument " + arg + " at index " + index);
-				}
-			}
-			return new Arguments(requiredIndex, arguments);
-		}
-	}
-
-	public static record ClassArgument(Class<?> clazz, int requiredIndex) implements Argument {
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return type(this.clazz);
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.clazz;
-		}
-	}
-
-	public static record TypeArgument(TypeInfo type, int requiredIndex) implements Argument {
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return this.type;
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.type.toClass();
-		}
-	}
-
-	public static record ImplicitArgument(InsnTree tree) implements Argument {
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return this.tree.getTypeInfo();
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.tree.getTypeInfo().toClass();
-		}
-
-		@Override
-		public int requiredIndex() {
-			return -1;
-		}
-
-		@Override
-		public InsnTree getFrom(InsnTree[] providedArgs) {
-			return this.tree;
-		}
-	}
-
-	public static record Arguments(int requiredCount, Argument... arguments) {
-
-		public MethodInfo getMethodInfo(Class<?> owner, String name, Class<?> returnType) {
-			return MethodInfo.findMethod(owner, name, returnType, Arrays.stream(this.arguments).map(Argument::getArgumentClass).toArray(Class<?>[]::new));
-		}
-
-		public MethodInfo getMethodInfo(Class<?> owner, String name) {
-			MethodInfo method = MethodInfo.getMethod(owner, name);
-			if (this.arguments.length != method.paramTypes.length) {
-				throw new IllegalArgumentException("Invalid arguments for found method: this.arguments: " + Arrays.toString(this.arguments) + ", found: " + Arrays.toString(method.paramTypes));
-			}
-			for (int index = 0, length = this.arguments.length; index < length; index++) {
-				if (!this.arguments[index].getTypeInfo().equals(method.paramTypes[index])) {
-					throw new IllegalArgumentException("Invalid arguments for found method: this.arguments: " + Arrays.toString(this.arguments) + ", found: " + Arrays.toString(method.paramTypes));
-				}
-			}
-			return method;
-		}
-
-		public InsnTree @Nullable [] buildTrees(InsnTree[] providedArgs) {
-			int length = providedArgs.length;
-			if (this.requiredCount != length) return null;
-			InsnTree[] trees = new InsnTree[length];
-			for (int index = 0; index < length; index++) {
-				trees[index] = this.arguments[index].getFrom(providedArgs);
-			}
-			return trees;
 		}
 	}
 }

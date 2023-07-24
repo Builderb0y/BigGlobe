@@ -28,7 +28,7 @@ import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalCavernSettings;
+import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -78,7 +78,7 @@ public class LocateVoronoiCommand {
 
 	public static abstract class VoronoiType<T_Settings> {
 
-		public static final VoronoiType<LocalCavernSettings> CAVERN = new VoronoiType<>("cavern", BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY) {
+		public static final VoronoiType<LocalOverworldCavernSettings> CAVERN = new VoronoiType<>("cavern", BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY) {
 
 			@Override
 			public @Nullable VoronoiDiagram2D getDiagram(WorldColumn column) {
@@ -87,7 +87,7 @@ public class LocateVoronoiCommand {
 			}
 
 			@Override
-			public @Nullable LocalCavernSettings getSettings(WorldColumn column) {
+			public @Nullable OverworldCavernSettings.LocalOverworldCavernSettings getSettings(WorldColumn column) {
 				OverworldColumn.CavernCell cell;
 				return column instanceof OverworldColumn overworld && (cell = overworld.getCavernCell()) != null ? cell.settings : null;
 			}

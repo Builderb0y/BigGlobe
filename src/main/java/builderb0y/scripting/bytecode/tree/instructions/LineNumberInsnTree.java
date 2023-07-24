@@ -1,7 +1,9 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
 
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -24,15 +26,21 @@ public class LineNumberInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		Label label;
-		if (method.node.instructions.getLast() instanceof LabelNode labelNode) {
-			label = labelNode.getLabel(); //might populate label field without visiting it.
-			label.info = labelNode; //ensure it gets "visited".
+		AbstractInsnNode last = method.node.instructions.getLast();
+		if (last instanceof LineNumberNode lineNumberNode) {
+			lineNumberNode.line = this.lineNumber;
 		}
 		else {
-			method.node.visitLabel(label = label());
+			Label label;
+			if (last instanceof LabelNode labelNode) {
+				label = labelNode.getLabel(); //might populate label field without visiting it.
+				label.info = labelNode; //ensure it gets "visited".
+			}
+			else {
+				method.node.visitLabel(label = label());
+			}
+			method.node.visitLineNumber(this.lineNumber, label);
 		}
-		method.node.visitLineNumber(this.lineNumber, label);
 		this.content.emitBytecode(method);
 	}
 

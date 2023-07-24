@@ -9,7 +9,7 @@
 			"int z",
 		")",
 
-		"List queue = ArrayList.new(SIZE)",
+		"ArrayList queue = new(SIZE)",
 		"queue.add(Pos.new(originX, originY, originZ))",
 		"setBlockState(originX, originY, originZ, STATE)",
 		"for (int loop = 0, loop < SIZE, ++loop:",

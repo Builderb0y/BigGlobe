@@ -4,7 +4,6 @@
 	"filler": "minecraft:netherrack",
 	"fluid_state": "minecraft:lava[level=0]",
 	"fluid_level": { "type": "uniform", "min": 48, "max": 64 },
-	"fluid_decorator": "bigglobe:nether/ashen_wastes_fluid",
 	"caverns": {
 		"noise": {
 			"type": "sum",
@@ -25,9 +24,7 @@
 			"top_state": "bigglobe:ashen_netherrack",
 			"under_state": "minecraft:netherrack",
 			"depth": "1.0"
-		},
-		"floor_decorator": "bigglobe:nether/ashen_wastes_cavern_floors",
-		"ceiling_decorator": "bigglobe:nether/ashen_wastes_cavern_ceilings"
+		}
 	},
 	"caves": {
 		"noise": {
@@ -62,8 +59,6 @@
 			}
 		},
 		"noise_threshold": "(2 ^ (y / -128.0L) * 512.0L + 8.0L) ^ 2",
-		"effective_width": "2 ^ (y / -128.0L) * 512.0L + 8.0L",
-		"floor_decorator": "bigglobe:nether/ashen_wastes_cave_floors",
-		"ceiling_decorator": "bigglobe:nether/ashen_wastes_cave_ceilings"
+		"effective_width": "2 ^ (y / -128.0L) * 512.0L + 8.0L"
 	}
 }

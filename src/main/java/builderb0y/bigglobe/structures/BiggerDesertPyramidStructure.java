@@ -92,10 +92,13 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 		public MainPiece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
+			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
 		}
 
 		@Override
-		public void writeNbt(StructureContext context, NbtCompound nbt) {}
+		public void writeNbt(StructureContext context, NbtCompound nbt) {
+			nbt.putByte("rot", (byte)(this.getRotation().ordinal()));
+		}
 
 		public Coordinator coordinator(StructureWorldAccess world, BlockBox chunkBox) {
 			return (

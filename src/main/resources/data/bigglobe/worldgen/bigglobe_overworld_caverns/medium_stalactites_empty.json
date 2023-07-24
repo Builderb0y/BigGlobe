@@ -36,10 +36,6 @@
 				]
 			}
 		}
-	}
-,
-	"fluid": "minecraft:air",
-	"floor_decorator": "bigglobe:overworld/caverns/floor_medium_stalactites_empty",
-	"ceiling_decorator": "bigglobe:overworld/caverns/ceiling_medium_stalactites_empty",
+	},
 	"has_ancient_cities": true
 }

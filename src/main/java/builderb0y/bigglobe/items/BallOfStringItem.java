@@ -8,12 +8,14 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -103,5 +105,14 @@ public class BallOfStringItem extends Item implements DynamicMaxDamageItem {
 		}
 		nbt.putInt(ItemStack.DAMAGE_KEY, damage);
 		nbt.putInt(MAX_DAMAGE_KEY, maxDamage);
+	}
+
+	@Override
+	public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
+		if (this.isIn(group)) {
+			stacks.add(BigGlobeItems.string(16));
+			stacks.add(BigGlobeItems.string(64));
+			stacks.add(BigGlobeItems.string(256));
+		}
 	}
 }

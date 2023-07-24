@@ -9,5 +9,6 @@
 	"secondary_surfaces": {
 		"under": "minecraft:gravel",
 		"depth": "random.nextDouble(3.0L, 7.0L)"
-	}
+	},
+	"player_spawn_friendly": false
 }

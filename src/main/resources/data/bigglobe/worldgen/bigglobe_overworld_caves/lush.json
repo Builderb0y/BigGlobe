@@ -79,7 +79,5 @@
 		]
 	},
 	"floor_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
-	"ceiling_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" },
-	"floor_decorator": "bigglobe:overworld/caves/floor_lush",
-	"ceiling_decorator": "bigglobe:overworld/caves/ceiling_lush"
+	"ceiling_blocks": { "surface": "minecraft:moss_block", "subsurface": "minecraft:moss_block" }
 }

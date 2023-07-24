@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.overriders;
 
-import java.util.AbstractList;
 import java.util.List;
 
 import com.google.common.base.Predicates;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.registry.Registry;
 import net.minecraft.structure.StructureStart;
@@ -17,17 +17,17 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 
-public class ScriptStructures extends AbstractList<StructureStartWrapper> {
+public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 
 	public static final StructureStartWrapper[] EMPTY_STRUCTURE_START_ARRAY = {};
 	public static final ScriptStructures EMPTY_SCRIPT_STRUCTURES = new ScriptStructures(EMPTY_STRUCTURE_START_ARRAY);
 
-	public final StructureStartWrapper[] starts;
-	public final LakeStructure.Piece lake; //used frequently in other hard-coded areas, so might as well cache it.
+	public final LakeStructure.@Nullable Piece lake; //used frequently in other hard-coded areas, so might as well cache it.
 
 	public ScriptStructures(StructureStartWrapper[] starts) {
-		this.starts = starts;
+		super(starts);
 		this.lake = this.findLake();
 	}
 
@@ -56,18 +56,8 @@ public class ScriptStructures extends AbstractList<StructureStartWrapper> {
 		);
 	}
 
-	@Override
-	public StructureStartWrapper get(int index) {
-		return this.starts[index];
-	}
-
-	@Override
-	public int size() {
-		return this.starts.length;
-	}
-
-	public LakeStructure.Piece findLake() {
-		for (StructureStartWrapper start : this.starts) {
+	public LakeStructure.@Nullable Piece findLake() {
+		for (StructureStartWrapper start : this.elements) {
 			if (start.structure().entry.value() instanceof LakeStructure) {
 				return ((LakeStructure.Piece)(start.pieces().get(0)));
 			}

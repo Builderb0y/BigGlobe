@@ -8,7 +8,7 @@ import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 

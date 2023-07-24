@@ -7,7 +7,7 @@ import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.scripting.ConstantFactory;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 

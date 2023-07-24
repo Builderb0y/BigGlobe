@@ -16,7 +16,7 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TwistedTrunkConfig;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface TrunkFactory extends CoderRegistryTyped {
+public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 
 	public static final CoderRegistry<TrunkFactory> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("tree_trunk_type"));
 	public static final Object INITIALIZER = new Object() {{

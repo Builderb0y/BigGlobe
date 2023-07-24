@@ -17,7 +17,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.math.Interpolator;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface RandomSource extends CoderRegistryTyped {
+public interface RandomSource extends CoderRegistryTyped<RandomSource> {
 
 	public static final CoderRegistry<RandomSource> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("random_source")) {
 

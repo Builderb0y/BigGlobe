@@ -16,17 +16,17 @@
 			"int z",
 		")",
 
-		"Set positions = HashSet.new(COUNT << 1)",
-		"List growing = ArrayList.new(COUNT << 1)",
+		"HashSet positions = new(COUNT << 1)",
+		"ArrayList growing = new(COUNT << 1)",
 
 		"void addIfValid(int x, int z:",
 			"if (isValid(x, z):",
-				"Pos pos = Pos.new(x, z)",
+				"Pos pos = new(x, z)",
 				"if (positions.add(pos): growing.add(pos))",
 			")",
 		")",
 
-		"Pos origin = Pos.new(originX, originZ)",
+		"Pos origin = new(originX, originZ)",
 		"positions.add(origin)",
 		"growing.add(origin)",
 

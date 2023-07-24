@@ -146,7 +146,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public void updateLevels() {
-		CloudLevelUpdater.NEST        .update(this, this.settings.nest().min_y());
+		CloudLevelUpdater.NEST        .update(this, this.settings.nest.min_y());
 		CloudLevelUpdater.LOWER_RING  .update(this, this.getLowerRingCloudSampleStartY());
 		CloudLevelUpdater.UPPER_RING  .update(this, this.getUpperRingCloudSampleStartY());
 		CloudLevelUpdater.LOWER_BRIDGE.update(this, this.getLowerBridgeCloudSampleStartY());
@@ -160,7 +160,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(WARP_X)
 			? this.warpX = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				(EndColumn self) -> self.settings.warp_x().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.warp_x.getValue(self.seed, self.x, self.z)
 			)
 			: this.warpX
 		);
@@ -171,7 +171,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(WARP_Z)
 			? this.warpZ = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				(EndColumn self) -> self.settings.warp_z().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.warp_z.getValue(self.seed, self.x, self.z)
 			)
 			: this.warpZ
 		);
@@ -200,15 +200,15 @@ public class EndColumn extends WorldColumn {
 	//////////////////////////////// nest ////////////////////////////////
 
 	public double[] getNestNoise() {
-		if (this.getDistanceToOrigin() >= this.settings.nest().max_radius()) return null;
+		if (this.getDistanceToOrigin() >= this.settings.nest.max_radius()) return null;
 		double[] nestNoise = this.nestNoise;
 		if (nestNoise == null) {
-			nestNoise = this.nestNoise = new double[this.settings.nest().verticalSamples()];
+			nestNoise = this.nestNoise = new double[this.settings.nest.verticalSamples()];
 		}
 		if (this.setFlag(NEST_NOISE)) {
-			int startY = this.settings.nest().min_y();
+			int startY = this.settings.nest.min_y();
 			ScriptedGrid.SECRET_COLUMN.accept(this, nestNoise, (double[] noise) -> {
-				this.settings.nest().shape().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+				this.settings.nest.shape().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
 			});
 		}
 		return nestNoise;
@@ -220,7 +220,7 @@ public class EndColumn extends WorldColumn {
 
 	public double getNestNoise(int y) {
 		return ScriptedGrid.SECRET_COLUMN.apply(this, (EndColumn self) -> {
-			return self.settings.nest().shape().getValue(self.seed, self.x, y, self.z);
+			return self.settings.nest.shape().getValue(self.seed, self.x, y, self.z);
 		});
 	}
 
@@ -231,7 +231,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(MOUNTAIN_CENTER_Y)
 			? this.mountainCenterY = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				(EndColumn self) -> self.settings.mountains().center_y().getValue(self.seed, self.x, self.z)
+				(EndColumn self) -> self.settings.mountains.center_y().getValue(self.seed, self.x, self.z)
 			)
 			: this.mountainCenterY
 		);
@@ -242,7 +242,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(MOUNTAIN_THICKNESS)
 			? this.mountainThickness = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				(EndColumn self) -> self.settings.mountains().thickness().evaluate(self, self.getMountainCenterY())
+				(EndColumn self) -> self.settings.mountains.thickness().evaluate(self, self.getMountainCenterY())
 			)
 			: this.mountainThickness
 		);
@@ -253,7 +253,7 @@ public class EndColumn extends WorldColumn {
 			this.setFlag(FOLIAGE)
 			? this.foliage = ScriptedGrid.SECRET_COLUMN.apply(
 				this,
-				(EndColumn self) -> self.settings.mountains().foliage().getValue(this.seed, this.x, this.z)
+				(EndColumn self) -> self.settings.mountains.foliage().getValue(this.seed, this.x, this.z)
 			)
 			: this.foliage
 		);
@@ -281,7 +281,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double computeRingCloudHorizontalBias() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		double mid       = (ringCloudSettings.max_radius() + ringCloudSettings.min_radius()) * 0.5D;
 		double halfRange = (ringCloudSettings.max_radius() - ringCloudSettings.min_radius()) * 0.5D;
@@ -293,7 +293,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getRingCloudRawNoise(int y) {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		return ringCloudSettings.noise().getValue(this.seed, this.x, y, this.z);
 	}
@@ -301,40 +301,40 @@ public class EndColumn extends WorldColumn {
 	//////////////// lower ////////////////
 
 	public double getLowerRingCloudCenterY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		double mountainCenterY = this.getMountainCenterY();
 		return mountainCenterY - ringCloudSettings.center_y().evaluate(this, mountainCenterY);
 	}
 
 	public double getLowerRingCloudVerticalBias(double y) {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		double centerY = this.getLowerRingCloudCenterY();
 		return BigGlobeMath.squareD((y - centerY) / ringCloudSettings.vertical_thickness());
 	}
 
 	public double getLowerRingCloudBias(double y) {
-		if (this.settings.ring_clouds() == null) return Double.NaN;
+		if (this.settings.ring_clouds == null) return Double.NaN;
 		return this.getRingCloudHorizontalBias() + this.getLowerRingCloudVerticalBias(y);
 	}
 
 	public int getLowerRingCloudSampleStartY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getLowerRingCloudCenterY();
 		return BigGlobeMath.ceilI(centerY - ringCloudSettings.vertical_thickness());
 	}
 
 	public int getLowerRingCloudSampleEndY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getLowerRingCloudCenterY();
 		return BigGlobeMath.ceilI(centerY + ringCloudSettings.vertical_thickness());
 	}
 
 	public double @Nullable [] getLowerRingCloudNoise() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return null;
 		double horizontalBias = this.getRingCloudHorizontalBias();
 		if (horizontalBias <= -ringCloudSettings.noise().maxValue()) return null;
@@ -360,7 +360,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getLowerRingCloudBiasedNoise(int y) {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		return (
 			ringCloudSettings.noise().getValue(this.seed, this.x, y, this.z)
@@ -372,40 +372,40 @@ public class EndColumn extends WorldColumn {
 	//////////////// upper ////////////////
 
 	public double getUpperRingCloudCenterY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		double mountainCenterY = this.getMountainCenterY();
 		return mountainCenterY + ringCloudSettings.center_y().evaluate(this, mountainCenterY);
 	}
 
 	public double getUpperRingCloudVerticalBias(double y) {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		double centerY = this.getUpperRingCloudCenterY();
 		return BigGlobeMath.squareD((y - centerY) / ringCloudSettings.vertical_thickness());
 	}
 
 	public double getUpperRingCloudBias(double y) {
-		if (this.settings.ring_clouds() == null) return Double.NaN;
+		if (this.settings.ring_clouds == null) return Double.NaN;
 		return this.getRingCloudHorizontalBias() + this.getUpperRingCloudVerticalBias(y);
 	}
 
 	public int getUpperRingCloudSampleStartY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getUpperRingCloudCenterY();
 		return BigGlobeMath.ceilI(centerY - ringCloudSettings.vertical_thickness());
 	}
 
 	public int getUpperRingCloudSampleEndY() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getUpperRingCloudCenterY();
 		return BigGlobeMath.ceilI(centerY + ringCloudSettings.vertical_thickness());
 	}
 
 	public double @Nullable [] getUpperRingCloudNoise() {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return null;
 		double horizontalBias = this.getRingCloudHorizontalBias();
 		if (horizontalBias <= -ringCloudSettings.noise().maxValue()) return null;
@@ -431,7 +431,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getUpperRingCloudBiasedNoise(int y) {
-		RingCloudSettings ringCloudSettings = this.settings.ring_clouds();
+		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return Double.NaN;
 		return (
 			ringCloudSettings.noise().getValue(this.seed, this.x, y, this.z)
@@ -447,7 +447,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double computeBridgeCloudArchness() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		return bridgeCloudSettings.center_y().evaluate(this, this.getMountainCenterY());
 	}
@@ -457,7 +457,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double computeBridgeCloudRadialBias() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		double radius = this.getWarpRadius();
 		if (radius >= bridgeCloudSettings.mid_radius()) return 0.0D;
@@ -470,7 +470,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double computeBridgeCloudAngularBias() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		double angle = this.getWarpAngle() * bridgeCloudSettings.count();
 		angle += Permuter.nextPositiveDouble(this.seed ^ 0x39BF90041EA9E0D0L) * BigGlobeMath.TAU;
@@ -486,7 +486,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getBridgeCloudRawNoise(int y) {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		return bridgeCloudSettings.noise().getValue(this.seed, this.x, y, this.z);
 	}
@@ -498,7 +498,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getLowerBridgeCloudVerticalBias(double y) {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		double centerY = this.getLowerBridgeCloudCenterY();
 		return BigGlobeMath.squareD((y - centerY) / bridgeCloudSettings.vertical_thickness());
@@ -509,21 +509,21 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public int getLowerBridgeCloudSampleStartY() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getLowerBridgeCloudCenterY();
 		return BigGlobeMath.ceilI(centerY - bridgeCloudSettings.vertical_thickness());
 	}
 
 	public int getLowerBridgeCloudSampleEndY() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getLowerBridgeCloudCenterY();
 		return BigGlobeMath.ceilI(centerY + bridgeCloudSettings.vertical_thickness());
 	}
 
 	public double @Nullable [] getLowerBridgeCloudNoise() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return null;
 		double horizontalBias = this.getBridgeCloudHorizontalBias();
 		if (horizontalBias >= 1.0D) return null;
@@ -548,7 +548,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getLowerBridgeCloudBiasedNoise(int y) {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		return (
 			bridgeCloudSettings.noise().getValue(this.seed, this.x, y, this.z)
@@ -564,7 +564,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getUpperBridgeCloudVerticalBias(double y) {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		double centerY = this.getUpperBridgeCloudCenterY();
 		return BigGlobeMath.squareD((y - centerY) / bridgeCloudSettings.vertical_thickness());
@@ -575,21 +575,21 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public int getUpperBridgeCloudSampleStartY() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getUpperBridgeCloudCenterY();
 		return BigGlobeMath.ceilI(centerY - bridgeCloudSettings.vertical_thickness());
 	}
 
 	public int getUpperBridgeCloudSampleEndY() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Integer.MIN_VALUE;
 		double centerY = this.getUpperBridgeCloudCenterY();
 		return BigGlobeMath.ceilI(centerY + bridgeCloudSettings.vertical_thickness());
 	}
 
 	public double @Nullable [] getUpperBridgeCloudNoise() {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return null;
 		double horizontalBias = this.getBridgeCloudHorizontalBias();
 		if (horizontalBias >= 1.0D) return null;
@@ -614,7 +614,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getUpperBridgeCloudBiasedNoise(int y) {
-		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds();
+		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return Double.NaN;
 		return (
 			bridgeCloudSettings.noise().getValue(this.seed, this.x, y, this.z)
@@ -627,7 +627,7 @@ public class EndColumn extends WorldColumn {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
-		return this.settings.biomes().getBiome(this, y, this.seed);
+		return this.settings.biomes.getBiome(this, y, this.seed);
 	}
 
 	@Override

@@ -1,12 +1,9 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "lakes",
-			"variation": 24,
-			"spacing": 32,
-			"restrictions": { "type": "range", "property": "overworld/hilliness", "mid": 0.25, "max": 0.5 }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 1772046710,
+		"separation": 8,
+		"spacing": 32
 	},
 	"structures": [
 		{ "weight": 2, "structure": "bigglobe:lakes/water" },

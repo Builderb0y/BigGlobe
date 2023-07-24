@@ -23,7 +23,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.versions.MaterialVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 /**
 vanilla logic likes to place you on the surface of the lava ocean,
@@ -96,7 +96,7 @@ public class PortalForcer_PlaceInNetherCaverns {
 		for (int offsetY = 1; offsetY <= 4; offsetY++) {
 			pos.setY(pos.getY() + 1);
 			BlockState state = this.world.getBlockState(pos);
-			if (!(MaterialVersions.isReplaceable(state) && state.getFluidState().isEmpty())) {
+			if (!(BlockStateVersions.isReplaceable(state) && state.getFluidState().isEmpty())) {
 				return false;
 			}
 		}

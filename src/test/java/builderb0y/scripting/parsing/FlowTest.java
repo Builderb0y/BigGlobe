@@ -145,6 +145,52 @@ public class FlowTest extends TestCommon {
 	}
 
 	@Test
+	void testEnhancedLoops() throws ScriptParsingException {
+		assertSuccess(1 + 2 + 3 + 4 + 5,
+			"""
+			ArrayList list = new ( 5 )
+			list . add ( 1 )
+			list . add ( 2 )
+			list . add ( 3 )
+			list . add ( 4 )
+			list . add ( 5 )
+			int sum = 0
+			for ( byte value in list :
+				sum += value
+			)
+			sum
+			"""
+		);
+		assertSuccess(1 + 2 + 3 + 4 + 5,
+			"""
+			ArrayList list = new ( 5 )
+			list . add ( 1 )
+			list . add ( 2 )
+			list . add ( 3 )
+			list . add ( 4 )
+			list . add ( 5 )
+			int sum = 0
+			for ( byte value in Iterable ( list ) :
+				sum += value
+			)
+			sum
+			"""
+		);
+		assertSuccess(1 * 2 + 3 * 4,
+			"""
+			HashMap map = new ( 2 )
+			map . put ( 1 , 2 )
+			map . put ( 3 , 4 )
+			int sum = 0
+			for ( byte key , byte value in map :
+				sum += key * value
+			)
+			sum
+			"""
+		);
+	}
+
+	@Test
 	public void testSwitch() throws ScriptParsingException {
 		assertSuccess(11,
 			"""

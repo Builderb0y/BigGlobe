@@ -14,4 +14,8 @@ public class EntityVersions {
 	public static ServerWorld getServerWorld(ServerPlayerEntity player) {
 		return player.getWorld();
 	}
+
+	public static boolean isOnGround(Entity entity) {
+		return entity.isOnGround();
+	}
 }

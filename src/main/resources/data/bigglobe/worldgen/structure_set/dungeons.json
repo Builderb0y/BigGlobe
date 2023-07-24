@@ -1,12 +1,10 @@
 {
 	"placement": {
-		"type": "bigglobe:restricted",
-		"value": {
-			"salt": "dungeons",
-			"variation": 4,
-			"spacing": 8,
-			"restrictions": { "type": "skip_distant_horizons" }
-		}
+		"type": "minecraft:random_spread",
+		"salt": 1995849322,
+		"separation": 4,
+		"spacing": 8,
+		"spread_type": "triangular"
 	},
 	"structures": [
 		{ "structure": "bigglobe:dungeons/small",  "weight": 1 },

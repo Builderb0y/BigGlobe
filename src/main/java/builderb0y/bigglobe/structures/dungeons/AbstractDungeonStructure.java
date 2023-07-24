@@ -40,8 +40,8 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
+import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.annotations.VerifySizeRange;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -69,8 +69,8 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
 	public final @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators;
-	public final @VerifySizeRange(min = 1) IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
-	public final @VerifySizeRange(min = 1) List<Palette> palettes;
+	public final @VerifyNotEmpty IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
+	public final @VerifyNotEmpty List<Palette> palettes;
 
 	public AbstractDungeonStructure(
 		Config config,

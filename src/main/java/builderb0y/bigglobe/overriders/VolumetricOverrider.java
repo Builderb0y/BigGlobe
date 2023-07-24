@@ -84,7 +84,7 @@ public interface VolumetricOverrider extends Overrider {
 		}
 
 		public void _excludeCuboid(BlockBox box, double padding) {
-			this.excludeCuboid(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), padding);
+			this.excludeCuboid(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX() + 1, box.getMaxY() + 1, box.getMaxZ() + 1, padding);
 		}
 
 		public void excludeCuboid(StructureStartWrapper start, double padding) {

@@ -6,9 +6,10 @@ import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
+import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface Grid3D extends Grid {
+public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 
 	@UnknownNullability
 	@SuppressWarnings("TestOnlyProblems")
