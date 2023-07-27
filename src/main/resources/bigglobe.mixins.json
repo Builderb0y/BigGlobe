@@ -25,6 +25,7 @@
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"Heightmap_StorageAccess",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
+		"ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds",
 		"Items_PlaceableFlint",
 		"Items_PlaceableSticks",
 		"ItemStack_DynamicMaxDamage",
@@ -68,6 +69,7 @@
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"MinecraftClient_ResetOverworldSettingsHook"
 	],
 	"injectors": {

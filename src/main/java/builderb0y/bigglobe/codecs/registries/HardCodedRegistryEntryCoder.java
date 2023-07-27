@@ -14,7 +14,6 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
@@ -36,7 +35,7 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 			return entry;
 		}
 		else {
-			throw AutoCodecVersions.newDecodeExceptions(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain ID " + identifier);
+			throw new DecodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain ID " + identifier);
 		}
 	}
 
@@ -49,7 +48,7 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 			return context.input(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw AutoCodecVersions.newEncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + input);
+			throw new EncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + input);
 		}
 	}
 }

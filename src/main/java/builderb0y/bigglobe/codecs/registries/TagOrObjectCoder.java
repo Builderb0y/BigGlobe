@@ -16,7 +16,6 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.util.TagOrObject;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class TagOrObjectCoder<T> extends NamedCoder<TagOrObject<T>> {
 
@@ -44,6 +43,6 @@ public class TagOrObjectCoder<T> extends NamedCoder<TagOrObject<T>> {
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, TagOrObject<T>> context) throws EncodeException {
 		if (context.input == null) return context.empty();
-		return context.input(context.input.toString(AutoCodecVersions::newEncodeException)).encodeWith(PrimitiveCoders.STRING);
+		return context.input(context.input.toString(EncodeException::new)).encodeWith(PrimitiveCoders.STRING);
 	}
 }

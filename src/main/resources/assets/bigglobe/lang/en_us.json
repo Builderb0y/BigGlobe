@@ -131,6 +131,11 @@
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
 
+	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType": "Make Big Globe the default world type",
+	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[0]": "If true, Big Globe will be the default world type.",
+	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[1]": "If false, vanilla will be the default world type.",
+	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[2]": "This config option can be useful if you like to create lots of worlds, or you're making a modpack featuring Big Globe.",
+
 	"text.autoconfig.bigglobe.option.reloadGenerators": "Reload Big Globe chunk generators from mod jar",
 	"text.autoconfig.bigglobe.option.reloadGenerators.@Tooltip[0]": "If true, Big Globe chunk generators will be read from the mod jar file.",
 	"text.autoconfig.bigglobe.option.reloadGenerators.@Tooltip[1]": "If false, Big Globe chunk generators will be read from level.dat.",

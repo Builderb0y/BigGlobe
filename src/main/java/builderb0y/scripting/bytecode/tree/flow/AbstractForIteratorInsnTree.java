@@ -13,7 +13,7 @@ public abstract class AbstractForIteratorInsnTree implements InsnTree {
 
 	public static final MethodInfo
 		ITERATOR      = MethodInfo.getMethod(Iterable .class, "iterator"    ),
-		HAS_NEXT      = MethodInfo.getMethod(Iterator.class, "hasNext"     ),
+		HAS_NEXT      = MethodInfo.getMethod(Iterator .class, "hasNext"     ),
 		NEXT          = MethodInfo.getMethod(Iterator .class, "next"        ),
 		BYTE_VALUE    = MethodInfo.getMethod(Byte     .class, "byteValue"   ),
 		SHORT_VALUE   = MethodInfo.getMethod(Short    .class, "shortValue"  ),

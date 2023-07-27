@@ -38,14 +38,10 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
 import builderb0y.autocodec.common.LookupFactory;
+import builderb0y.autocodec.decoders.*;
 import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
-import builderb0y.autocodec.decoders.DecoderFactoryList;
-import builderb0y.autocodec.decoders.EnumDecoder;
-import builderb0y.autocodec.decoders.LookupDecoderFactory;
+import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
-import builderb0y.autocodec.encoders.EncoderFactoryList;
-import builderb0y.autocodec.encoders.EnumEncoder;
-import builderb0y.autocodec.encoders.LookupEncoderFactory;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.imprinters.MapImprinter;
@@ -265,6 +261,21 @@ public class BigGlobeAutoCodec {
 			};
 		}
 	};
+
+	public static <T> AutoCoder<@Nullable T> forceNullable(AutoCoder<@NotNull T> coder) {
+		return new AutoCoder<>() {
+
+			@Override
+			public <T_Encoded> @Nullable T decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				return context.isEmpty() ? null : context.decodeWith(coder);
+			}
+
+			@Override
+			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
+				return context.input == null ? context.empty() : context.encodeWith(coder);
+			}
+		};
+	}
 
 	public static class RegistryCoders<T> {
 

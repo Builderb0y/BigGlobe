@@ -640,10 +640,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.snowHeight += dip;
 			}
 		}
-		column.populateInLake(lakePiece);
 		for (OverworldHeightOverrider.Holder overrider : this.heightOverriders) {
 			overrider.override(structures, column);
 		}
+		column.populateInLake(lakePiece);
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures) {
@@ -1007,7 +1007,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			start.getStructure().getFeatureGenerationStep() == GenerationStep.Feature.SURFACE_STRUCTURES
 		) {
 			//stay inside your own biome!
-			RegistryEntryList<Biome> validBiomes = start.getStructure().getValidBiomes();
+			RegistryEntryList<Biome> validBiomes = entry.value().getValidBiomes();
 			BlockBox box = start.getBoundingBox();
 			for (int x = box.getMinX(); x <= box.getMaxX(); x += 4) {
 				if (wrongBiome(validBiomes, column, x, box.getMinZ())) return false;

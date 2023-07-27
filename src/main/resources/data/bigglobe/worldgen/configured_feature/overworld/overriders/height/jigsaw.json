@@ -10,7 +10,6 @@
 							"double radius = diameter * 0.5L",
 							"double distance = distanceToCircle(piece, radius)",
 							"double mixLevel = smooth(1.0 - distance / min(radius, 16.0L))",
-							"double oldY = terrainY",
 							"double newY = piece.preferredTerrainHeight - 0.5L",
 							"terrainY = mixLinear(terrainY, newY, mixLevel)",
 							"snowY = mixLinear(snowY, newY - 1.0L, mixLevel)",

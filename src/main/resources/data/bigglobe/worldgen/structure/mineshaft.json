@@ -1,7 +1,7 @@
 {
-	"type": "minecraft:mineshaft",
-	"biomes": "#bigglobe:has_structure/mineshaft",
-	"mineshaft_type": "normal",
-	"spawn_overrides": {},
-	"step": "underground_structures"
+	"type": "bigglobe:delegating",
+	"value": {
+		"delegate": "minecraft:mineshaft",
+		"biomes": "#bigglobe:has_structure/mineshaft"
+	}
 }

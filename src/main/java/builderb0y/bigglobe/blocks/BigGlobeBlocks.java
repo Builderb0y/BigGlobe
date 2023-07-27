@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.enums.Instrument;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.block.sapling.SaplingGenerator;
 import net.minecraft.client.color.world.BiomeColors;
@@ -492,10 +493,11 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.BLACK)
+			.solid()
+			.instrument(Instrument.BASS)
 			.noCollision()
-			.nonOpaque()
 			.strength(1.0F)
-			.sounds(BlockSoundGroup.WOOD),
+			.burnable(),
 			CHARRED_WOOD_TYPE
 		)
 	);
@@ -505,10 +507,12 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.BLACK)
+			.solid()
+			.instrument(Instrument.BASS)
 			.noCollision()
-			.nonOpaque()
 			.strength(1.0F)
-			.sounds(BlockSoundGroup.WOOD),
+			.burnable()
+			.dropsLike(CHARRED_HANGING_SIGN),
 			CHARRED_WOOD_TYPE
 		)
 	);

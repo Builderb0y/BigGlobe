@@ -14,7 +14,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
 public class DynamicTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 
@@ -36,19 +36,19 @@ public class DynamicTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 			return tag;
 		}
 		else {
-			throw AutoCodecVersions.newDecodeExceptions(() -> "Tag " + tagID + " not present in registry " + lookup);
+			throw new DecodeException(() -> "Tag " + tagID + " not present in registry " + lookup);
 		}
 	}
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntryList<T>> context) throws EncodeException {
 		if (context.input == null) return context.empty();
-		TagKey<T> key = context.input.getTagKey().orElse(null);
+		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(context.input);
 		if (key != null) {
 			return context.input(key.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw AutoCodecVersions.newEncodeException(() -> "Tag " + context.input + " is missing a key");
+			throw new EncodeException(() -> "Tag " + context.input + " is missing a key");
 		}
 	}
 }

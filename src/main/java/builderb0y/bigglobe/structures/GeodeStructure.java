@@ -37,7 +37,6 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectList;
 import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectSet;
 import builderb0y.bigglobe.util.Vectors;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -82,7 +81,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			for (int index = 1, length = array.length; index < length; index++) {
 				double newThreshold = array[index].threshold;
 				if (newThreshold > threshold) threshold = newThreshold;
-				else throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
+				else throw new VerifyException(() -> context.pathToStringBuilder().append(" must be sorted by threshold in ascending order.").toString());
 			}
 		}
 

@@ -7,6 +7,8 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
+
 /**
 sometimes thrown when the {@link Identifier} or {@link RegistryKey} is
 queried for an object which has not been registered to a {@link Registry}.
@@ -44,7 +46,7 @@ public class UnregisteredObjectException extends RuntimeException {
 	}
 
 	public static <T> TagKey<T> getTagKey(RegistryEntryList<T> list) {
-		TagKey<T> key = list.getTagKey().orElse(null);
+		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(list);
 		if (key != null) return key;
 		else throw new UnregisteredObjectException("Unregistered tag key: " + list);
 	}

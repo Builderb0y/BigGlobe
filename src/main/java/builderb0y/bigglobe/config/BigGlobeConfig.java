@@ -32,6 +32,11 @@ public class BigGlobeConfig {
 	}
 
 	@Tooltip(count = 3)
+	@UseName("Make Big Globe the default world type")
+	@DefaultIgnore
+	public boolean makeBigGlobeDefaultWorldType = false;
+
+	@Tooltip(count = 3)
 	@UseName("Reload Big Globe chunk generators from mod jar")
 	@DefaultIgnore
 	public boolean reloadGenerators = false;

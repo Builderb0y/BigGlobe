@@ -8,7 +8,6 @@ import builderb0y.autocodec.decoders.DecodeContext.ObjectDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 @UseCoder(name = "code", usage = MemberUsage.METHOD_IS_HANDLER)
 public abstract class Seed {
@@ -40,7 +39,7 @@ public abstract class Seed {
 		if (number != null) return new NumberSeed(number.longValue());
 		String string = context.tryAsString();
 		if (string != null) return new StringSeed(string);
-		throw AutoCodecVersions.newDecodeExceptions(() -> context.pathToStringBuilder().append(" must be empty, a number, or a string. Was: ").append(context.input).toString());
+		throw new DecodeException(() -> context.pathToStringBuilder().append(" must be empty, a number, or a string. Was: ").append(context.input).toString());
 	}
 
 	public static long computeSeedFromPath(DecodeContext<?> context) {

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry.Reference;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 
@@ -37,7 +37,7 @@ public class TagOrObjectKey<T> {
 			}
 			else {
 				RegistryKey<Registry<T>> registryKey = RegistryKey.ofRegistry(this.objectKey.getRegistry());
-				Reference<T> object = registryManager.get(registryKey).getEntry(this.objectKey).orElse(null);
+				RegistryEntry<T> object = registryManager.get(registryKey).getEntry(this.objectKey).orElse(null);
 				this.resolution = object != null ? new TagOrObject<>(object) : missingResolver.resolveMissing(() -> "No such object " + this.objectKey.getValue() + " in registry " + registryKey.getValue());
 			}
 		}
