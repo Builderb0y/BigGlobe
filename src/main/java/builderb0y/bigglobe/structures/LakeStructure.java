@@ -252,7 +252,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			}
 		}
 
-		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures)}. */
+		/** used by {@link BigGlobeOverworldChunkGenerator#runHeightOverrides(OverworldColumn, ScriptStructures, boolean)}. */
 		public double getDip(int x, int z, double distance) {
 			double distanceFraction = distance / this.data.horizontal_radius;
 			double angle = Math.atan2(z - this.data.z, x - this.data.x) * (1.0D / BigGlobeMath.TAU) + 0.5D;

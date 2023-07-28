@@ -12,12 +12,13 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.tag.TagKey;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.tag.TagKey;
 
 import builderb0y.bigglobe.noise.MojangPermuter;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
 public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 
@@ -32,6 +33,10 @@ public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 	public TagOrObject(@NotNull RegistryEntry<T> object) {
 		this.tag = null;
 		this.object = object;
+	}
+
+	public RegistryEntryList<T> toRegistryEntryList() {
+		return this.tag != null ? this.tag : RegistryEntryList.of(this.object);
 	}
 
 	public boolean contains(RegistryEntry<T> entry) {
@@ -68,7 +73,7 @@ public class TagOrObject<T> implements Iterable<RegistryEntry<T>> {
 
 	public <X extends Throwable> String toString(Function<Supplier<String>, X> exceptionFactory) throws X {
 		if (this.tag != null) {
-			TagKey<T> key = this.tag.getStorage().left().orElse(null);
+			TagKey<T> key = RegistryEntryListVersions.getKeyNullable(this.tag);
 			if (key != null) {
 				return "#" + key.id();
 			}

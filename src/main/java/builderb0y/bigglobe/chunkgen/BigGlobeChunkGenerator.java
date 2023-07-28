@@ -77,6 +77,7 @@ import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -88,8 +89,10 @@ import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @AddPseudoField("structureSetRegistry")
@@ -120,10 +123,10 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	@Wrapper
 	public static class SortedFeatures {
 
-		public final Registry<ConfiguredFeature<?, ?>> registry;
+		public final BetterRegistry<ConfiguredFeature<?, ?>> registry;
 		public final transient Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
-		public SortedFeatures(Registry<ConfiguredFeature<?, ?>> registry) {
+		public SortedFeatures(BetterRegistry<ConfiguredFeature<?, ?>> registry) {
 			this.registry = registry;
 			Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(128);
 			registry.streamEntries().forEach(entry -> {
@@ -401,7 +404,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		if (decorator != null && yLevels != null && !yLevels.isEmpty()) {
 			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.list.getStorage().left().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
+				this.profiler.run(RegistryEntryListVersions.getKeyOptional(decorator.list).<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					for (int yIndex = 0, size = yLevels.size(); yIndex < size; yIndex++) {
 						int y = yLevels.getInt(yIndex);
@@ -428,7 +431,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		if (decorator != null && yLevel != Integer.MIN_VALUE) {
 			RegistryEntry<ConfiguredFeature<?, ?>>[] features = decorator.getSortedFeatures();
 			if (features.length != 0) {
-				this.profiler.run(decorator.list.getStorage().left().<Object>map(TagKey::id).orElse("<unknown>"), () -> {
+				this.profiler.run(RegistryEntryListVersions.getKeyOptional(decorator.list).<Object>map(TagKey::id).orElse("<unknown>"), () -> {
 					long columnSeed = permuter.getSeed();
 					pos.setY(yLevel);
 					long blockSeed = Permuter.permute(columnSeed, yLevel);
@@ -569,9 +572,12 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	) {
 		ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk);
 		Structure structure = weightedEntry.structure().value();
+		Predicate<RegistryEntry<Biome>> predicate = force ? Predicates.alwaysTrue() : structure.getValidBiomes()::contains;
+		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
+			structure = delegating.delegate.value();
+		}
 		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
 		int references = existingStart != null ? existingStart.getReferences() : 0;
-		Predicate<RegistryEntry<Biome>> predicate = force ? Predicates.alwaysTrue() : structure.getValidBiomes()::contains;
 		StructureStart newStart = structure.createStructureStart(
 			dynamicRegistryManager,
 			this,
@@ -763,12 +769,19 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			return false;
 		}
 
+		public RegistryEntry<Structure> unwrap(RegistryEntry<Structure> entry) {
+			while (entry.value() instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
+				entry = delegating.delegate;
+			}
+			return entry;
+		}
+
 		public boolean update(int chunkX, int chunkZ) {
 			if (this.structure == null) {
 				for (RegistryEntry<Structure> structure : this.structures) {
 					if (this.canPossiblyGenerate(chunkX, chunkZ, structure)) {
 						//match logic from ChunkGenerator.locateStructure().
-						StructurePresence presence = this.structureAccessor.getStructurePresence(new ChunkPos(chunkX, chunkZ), structure.value(), this.skipReferencedStructures);
+						StructurePresence presence = this.structureAccessor.getStructurePresence(new ChunkPos(chunkX, chunkZ), this.unwrap(structure).value(), this.skipReferencedStructures);
 						if (presence == StructurePresence.START_NOT_PRESENT) continue;
 						if (!this.skipReferencedStructures && presence == StructurePresence.START_PRESENT) {
 							this.chunkX = chunkX;
@@ -777,7 +790,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 							break;
 						}
 						Chunk chunk = this.world.getChunk(chunkX, chunkZ, ChunkStatus.STRUCTURE_STARTS);
-						StructureStart start = this.structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), structure.value(), chunk);
+						StructureStart start = this.structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), this.unwrap(structure).value(), chunk);
 						if (start == null || !start.hasChildren() || this.skipReferencedStructures && !checkNotReferenced(this.structureAccessor, start)) continue;
 						this.chunkX = chunkX;
 						this.chunkZ = chunkZ;

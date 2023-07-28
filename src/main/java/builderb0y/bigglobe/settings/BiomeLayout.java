@@ -10,10 +10,9 @@ import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.autocodec.annotations.SingletonArray;
@@ -24,10 +23,10 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BiomeLayout {
 
@@ -105,18 +104,18 @@ public class BiomeLayout {
 
 	public static record SecondarySurface(BlockState under, SurfaceDepthWithSlopeScript.Holder depth) {}
 
-	public static <T_Layout extends BiomeLayout> RegistryKey<T_Layout> key(Registry<T_Layout> registry, Identifier id) {
-		return RegistryKey.of(RegistryVersions.getRegistryKey(registry), id);
+	public static <T_Layout extends BiomeLayout> RegistryKey<T_Layout> key(BetterRegistry<T_Layout> registry, Identifier id) {
+		return RegistryKey.of(registry.getKey(), id);
 	}
 
 	@Wrapper
 	public static class Holder<T_Layout extends BiomeLayout> {
 
-		public final Registry<T_Layout> registry;
+		public final BetterRegistry<T_Layout> registry;
 		public final transient T_Layout root;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(Registry<T_Layout> registry) {
+		public Holder(BetterRegistry<T_Layout> registry) {
 			this.registry = registry;
 			this.usedValues = new HashSet<>();
 			registry.streamEntries().sequential().forEachOrdered(entry -> {
@@ -135,7 +134,7 @@ public class BiomeLayout {
 					if (parentName == null) throw new IllegalStateException(key + " must have a parent.");
 					boolean negated = !parentName.isEmpty() && parentName.charAt(0) == '!';
 					if (negated) parentName = parentName.substring(1);
-					T_Layout parent = registry.getOrThrow(key(registry, new Identifier(parentName)));
+					T_Layout parent = registry.getOrCreateEntry(key(registry, new Identifier(parentName))).value();
 					if (negated) {
 						if (parent.unlessMatch != null && parent.unlessMatch != layout) {
 							throw new IllegalStateException(parentName + " already has a non-matching child.");
@@ -150,9 +149,9 @@ public class BiomeLayout {
 					}
 				}
 			});
-			this.root = registry.getOrThrow(key(registry, ROOT_IDENTIFIER));
+			this.root = registry.getOrCreateEntry(key(registry, ROOT_IDENTIFIER)).value();
 			if (BigGlobeConfig.INSTANCE.get().printBiomeLayoutTrees) {
-				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(RegistryVersions.getRegistryKey(registry).getValue()).append(" tree:\n")).toString());
+				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getKey().getValue()).append(" tree, as requested in Big Globe's config file:\n")).toString());
 			}
 		}
 
@@ -186,7 +185,7 @@ public class BiomeLayout {
 			this.name = name;
 		}
 
-		public static <T_Layout extends BiomeLayout> Printer parse(Registry<T_Layout> registry) {
+		public static <T_Layout extends BiomeLayout> Printer parse(BetterRegistry<T_Layout> registry) {
 			Map<BiomeLayout, Printer> map = new IdentityHashMap<>();
 			//map all the layouts to printers.
 			registry.streamEntries().sequential().forEachOrdered((RegistryEntry<? extends BiomeLayout> entry) -> {
@@ -200,7 +199,7 @@ public class BiomeLayout {
 				if (layout.unlessMatch != null) printer.unlessMatch = map.get(layout.unlessMatch);
 			});
 			//assemble metadata based on hierarchy.
-			Printer root = map.get(registry.getOrThrow(key(registry, ROOT_IDENTIFIER)));
+			Printer root = map.get(registry.getOrCreateEntry(key(registry, ROOT_IDENTIFIER)).value());
 			root.updateDepthSize(0, BigInteger.ZERO);
 			return root;
 		}

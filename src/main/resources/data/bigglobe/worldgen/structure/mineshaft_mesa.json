@@ -1,7 +1,7 @@
 {
-	"type": "minecraft:mineshaft",
-	"biomes": "#bigglobe:has_structure/mineshaft_mesa",
-	"mineshaft_type": "mesa",
-	"spawn_overrides": {},
-	"step": "underground_structures"
+	"type": "bigglobe:delegating",
+	"value": {
+		"delegate": "minecraft:mineshaft_mesa",
+		"biomes": "#bigglobe:has_structure/mineshaft_mesa"
+	}
 }

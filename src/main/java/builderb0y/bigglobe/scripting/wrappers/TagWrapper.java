@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.tag.TagKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.Permuter;

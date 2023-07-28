@@ -2,9 +2,9 @@ package builderb0y.bigglobe.features;
 
 import java.util.Comparator;
 
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.Wrapper;

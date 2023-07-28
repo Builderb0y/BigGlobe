@@ -72,7 +72,7 @@ public class BigGlobeDynamicRegistries {
 		BigGlobeMod.LOGGER.debug("Done adding " + BigGlobeMod.MODNAME + " objects to builtin registries.");
 	}
 
-	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(Registry<T> registry) {
+	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(BetterRegistry<T> registry) {
 		ConstantComputedRandomList<RegistryEntry<T>> list = new ConstantComputedRandomList<>() {
 
 			@Override

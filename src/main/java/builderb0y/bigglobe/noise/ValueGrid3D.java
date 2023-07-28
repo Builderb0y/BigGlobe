@@ -304,12 +304,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesX_None(long seed, int startX, int y, int z, final double[] samples, final int sampleCount) {
-		int   scaleX    = this.scaleX;
+		int    scaleX    = this.scaleX;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(startX, scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
+		int    relativeX = Math.floorDiv(startX, scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
 		double value0    = this.getValue_None(seed,   relativeX, relativeY, relativeZ) * amplitude;
 		double value1    = this.getValue_None(seed, ++relativeX, relativeY, relativeZ) * amplitude;
 		double diff      = value1 - value0;
@@ -341,12 +341,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesX_Y(long seed, int startX, int y, int z, double fracY, final double[] samples, final int sampleCount) {
-		int   scaleX    = this.scaleX;
+		int    scaleX    = this.scaleX;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(startX, scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
+		int    relativeX = Math.floorDiv(startX, scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
 		double value0    = this.getValue_Y(seed,   relativeX, relativeY, relativeZ, fracY) * amplitude;
 		double value1    = this.getValue_Y(seed, ++relativeX, relativeY, relativeZ, fracY) * amplitude;
 		double diff      = value1 - value0;
@@ -378,12 +378,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesX_Z(long seed, int startX, int y, int z, double fracZ, final double[] samples, final int sampleCount) {
-		int   scaleX    = this.scaleX;
+		int    scaleX    = this.scaleX;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(startX, scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
+		int    relativeX = Math.floorDiv(startX, scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
 		double value0    = this.getValue_Z(seed,   relativeX, relativeY, relativeZ, fracZ) * amplitude;
 		double value1    = this.getValue_Z(seed, ++relativeX, relativeY, relativeZ, fracZ) * amplitude;
 		double diff      = value1 - value0;
@@ -415,12 +415,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesX_YZ(long seed, int startX, int y, int z, double fracY, double fracZ, final double[] samples, final int sampleCount) {
-		int   scaleX    = this.scaleX;
+		int    scaleX    = this.scaleX;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(startX, scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
+		int    relativeX = Math.floorDiv(startX, scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
 		double value0    = this.getValue_YZ(seed,   relativeX, relativeY, relativeZ, fracY, fracZ) * amplitude;
 		double value1    = this.getValue_YZ(seed, ++relativeX, relativeY, relativeZ, fracY, fracZ) * amplitude;
 		double diff      = value1 - value0;
@@ -452,12 +452,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesY_None(long seed, int x, int startY, int z, final double[] samples, final int sampleCount) {
-		int   scaleY    = this.scaleY;
+		int    scaleY    = this.scaleY;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(startY, scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(startY, scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
 		double value0    = this.getValue_None(seed, relativeX,   relativeY, relativeZ) * amplitude;
 		double value1    = this.getValue_None(seed, relativeX, ++relativeY, relativeZ) * amplitude;
 		double diff      = value1 - value0;
@@ -489,12 +489,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesY_X(long seed, int x, int startY, int z, double fracX, final double[] samples, final int sampleCount) {
-		int   scaleY    = this.scaleY;
+		int    scaleY    = this.scaleY;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(startY, scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(startY, scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
 		double value0    = this.getValue_X(seed, relativeX,   relativeY, relativeZ, fracX) * amplitude;
 		double value1    = this.getValue_X(seed, relativeX, ++relativeY, relativeZ, fracX) * amplitude;
 		double diff      = value1 - value0;
@@ -526,12 +526,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesY_Z(long seed, int x, int startY, int z, double fracZ, final double[] samples, final int sampleCount) {
-		int   scaleY    = this.scaleY;
+		int    scaleY    = this.scaleY;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(startY, scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(startY, scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
 		double value0    = this.getValue_Z(seed, relativeX,   relativeY, relativeZ, fracZ) * amplitude;
 		double value1    = this.getValue_Z(seed, relativeX, ++relativeY, relativeZ, fracZ) * amplitude;
 		double diff      = value1 - value0;
@@ -563,12 +563,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesY_XZ(long seed, int x, int startY, int z, double fracX, double fracZ, final double[] samples, final int sampleCount) {
-		int   scaleY    = this.scaleY;
+		int    scaleY    = this.scaleY;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(startY, scaleY);
-		int   relativeZ = Math.floorDiv(z, this.scaleZ);
-		int   fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(startY, scaleY);
+		int    relativeZ = Math.floorDiv(z, this.scaleZ);
+		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
 		double value0    = this.getValue_XZ(seed, relativeX,   relativeY, relativeZ, fracX, fracZ) * amplitude;
 		double value1    = this.getValue_XZ(seed, relativeX, ++relativeY, relativeZ, fracX, fracZ) * amplitude;
 		double diff      = value1 - value0;
@@ -600,12 +600,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesZ_None(long seed, int x, int y, int startZ, final double[] samples, final int sampleCount) {
-		int   scaleZ    = this.scaleZ;
+		int    scaleZ    = this.scaleZ;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(startZ, scaleZ);
-		int   fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(startZ, scaleZ);
+		int    fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
 		double value0    = this.getValue_None(seed, relativeX, relativeY,   relativeZ) * amplitude;
 		double value1    = this.getValue_None(seed, relativeX, relativeY, ++relativeZ) * amplitude;
 		double diff      = value1 - value0;
@@ -637,12 +637,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesZ_X(long seed, int x, int y, int startZ, double fracX, final double[] samples, final int sampleCount) {
-		int   scaleZ    = this.scaleZ;
+		int    scaleZ    = this.scaleZ;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(startZ, scaleZ);
-		int   fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(startZ, scaleZ);
+		int    fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
 		double value0    = this.getValue_X(seed, relativeX, relativeY,   relativeZ, fracX) * amplitude;
 		double value1    = this.getValue_X(seed, relativeX, relativeY, ++relativeZ, fracX) * amplitude;
 		double diff      = value1 - value0;
@@ -674,12 +674,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesZ_Y(long seed, int x, int y, int startZ, double fracY, final double[] samples, final int sampleCount) {
-		int   scaleZ    = this.scaleZ;
+		int    scaleZ    = this.scaleZ;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(startZ, scaleZ);
-		int   fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(startZ, scaleZ);
+		int    fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
 		double value0    = this.getValue_Y(seed, relativeX, relativeY,   relativeZ, fracY) * amplitude;
 		double value1    = this.getValue_Y(seed, relativeX, relativeY, ++relativeZ, fracY) * amplitude;
 		double diff      = value1 - value0;
@@ -711,12 +711,12 @@ public abstract class ValueGrid3D extends AbstractGrid3D {
 	*/
 	@Override
 	public void getValuesZ_XY(long seed, int x, int y, int startZ, double fracX, double fracY, final double[] samples, final int sampleCount) {
-		int   scaleZ    = this.scaleZ;
+		int    scaleZ    = this.scaleZ;
 		double amplitude = this.amplitude;
-		int   relativeX = Math.floorDiv(x, this.scaleX);
-		int   relativeY = Math.floorDiv(y, this.scaleY);
-		int   relativeZ = Math.floorDiv(startZ, scaleZ);
-		int   fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
+		int    relativeX = Math.floorDiv(x, this.scaleX);
+		int    relativeY = Math.floorDiv(y, this.scaleY);
+		int    relativeZ = Math.floorDiv(startZ, scaleZ);
+		int    fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
 		double value0    = this.getValue_XY(seed, relativeX, relativeY,   relativeZ, fracX, fracY) * amplitude;
 		double value1    = this.getValue_XY(seed, relativeX, relativeY, ++relativeZ, fracX, fracY) * amplitude;
 		double diff      = value1 - value0;

@@ -31,45 +31,48 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
 		Map<String, Boolean> defaults = new HashMap<>(64);
-		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                           Boolean.TRUE);
-		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                        Boolean.TRUE);
-		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                       Boolean.TRUE);
-		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                            Boolean.TRUE);
-		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                        Boolean.TRUE);
-		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                  Boolean.TRUE); //unnecessary in 1.20.1.
-		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                      Boolean.FALSE);
-		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",    Boolean.TRUE);
-		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",     Boolean.TRUE);
-		defaults.put(mixinPackage + ".ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",   Boolean.TRUE);
-		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",           Boolean.TRUE);
-		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                              Boolean.FALSE);
-		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                        Boolean.TRUE);
-		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",          Boolean.TRUE);
-		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",    Boolean.TRUE);
-		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                    Boolean.TRUE);
-		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",               Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                       Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                      Boolean.TRUE);
-		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                       Boolean.FALSE);
-		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                             Boolean.TRUE);
-		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                               Boolean.TRUE);
-		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",             Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanMonumentStructure_MovePiecesOnReCreate",                Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                         Boolean.TRUE);
-		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                          Boolean.TRUE);
-		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                          Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",   Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",         Boolean.TRUE);
-		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                       Boolean.TRUE);
-		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                      Boolean.TRUE);
-		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                             Boolean.TRUE);
-		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",              Boolean.TRUE);
+		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                                    Boolean.TRUE);
+		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                        Boolean.TRUE);
+		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                                    Boolean.TRUE);
+		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                              Boolean.TRUE); //unnecessary in 1.20.1.
+		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                                  Boolean.FALSE);
+		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",                 Boolean.TRUE);
+		defaults.put(mixinPackage + ".ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",               Boolean.TRUE);
+		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".CommandBlockExecutor_Optimize",                                          Boolean.FALSE);
+		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                    Boolean.TRUE);
+		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",             Boolean.TRUE);
+		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",                Boolean.TRUE);
+		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                                Boolean.TRUE);
+		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",                           Boolean.TRUE);
+		//defaults.put(mixinPackage + ".ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds", Boolean.TRUE); //the version of immersive portals that works with big globe hasn't been back-ported to versions older than 1.20 yet.
+		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                                  Boolean.TRUE);
+		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                                   Boolean.FALSE);
+		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                                           Boolean.TRUE);
+		defaults.put(mixinPackage + ".NoiseChunkGenerator_DisplayVanillaColumnValues",                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanMonumentStructure_MovePiecesOnReCreate",                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",               Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                  Boolean.TRUE);
+		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                          Boolean.TRUE);
+		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                          Boolean.TRUE);
 		return defaults;
 	}
 

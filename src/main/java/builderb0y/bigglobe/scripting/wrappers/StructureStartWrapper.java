@@ -35,7 +35,7 @@ public record StructureStartWrapper(StructureEntry entry, StructureStart start, 
 			maxY = Math.max(maxY, box.getMaxY());
 			maxZ = Math.max(maxZ, box.getMaxZ());
 		}
-		if (start.getStructure() instanceof DelegatingStructure delegating) {
+		if (entry.value() instanceof DelegatingStructure delegating) {
 			entry = delegating.delegate;
 		}
 		return new StructureStartWrapper(new StructureEntry(entry), start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));

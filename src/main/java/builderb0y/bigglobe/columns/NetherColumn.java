@@ -132,7 +132,7 @@ public class NetherColumn extends WorldColumn {
 		double[] array = cache ? this.getCaveNoise() : this.caveNoise;
 		if (array != null) {
 			int index = y - this.settings.min_y;
-			if (index >= 0 && index <= array.length) {
+			if (index >= 0 && index < array.length) {
 				return array[index];
 			}
 		}

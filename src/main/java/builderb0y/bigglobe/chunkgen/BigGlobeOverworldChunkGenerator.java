@@ -145,13 +145,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.  skylandOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  OVERWORLD_SKYLAND_OVERRIDER);
 		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER);
 
-		this.  surfaceDecorators = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
-		this.  bedrockDecorators = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
-		this. seaLevelDecorators = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
+		this.  surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
+		this.  bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
+		this. seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
 	}
 
-	public SortedFeatureTag getFeatures(SortedFeatures configuredFeatures, TagKey<ConfiguredFeature<?, ?>> key) {
-		return new SortedFeatureTag(configuredFeatures.registry.getOrCreateEntryList(key));
+	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
+		return new SortedFeatureTag(this.configuredFeatures.registry.getOrCreateTag(key));
 	}
 
 	public static void init() {
@@ -638,10 +638,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.snowHeight += dip;
 			}
 		}
-		column.populateInLake(lakePiece);
 		for (OverworldHeightOverrider.Holder overrider : this.heightOverriders) {
 			overrider.override(structures, column);
 		}
+		column.populateInLake(lakePiece);
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures) {
@@ -1006,7 +1006,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			start.getStructure().getFeatureGenerationStep() == GenerationStep.Feature.SURFACE_STRUCTURES
 		) {
 			//stay inside your own biome!
-			RegistryEntryList<Biome> validBiomes = start.getStructure().getValidBiomes();
+			RegistryEntryList<Biome> validBiomes = entry.value().getValidBiomes();
 			BlockBox box = start.getBoundingBox();
 			for (int x = box.getMinX(); x <= box.getMaxX(); x += 4) {
 				if (wrongBiome(validBiomes, column, x, box.getMinZ())) return false;

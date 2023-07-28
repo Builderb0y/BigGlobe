@@ -61,13 +61,14 @@
 		"StructureStart_BoundingBoxSetter",
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
-		"WoodlandMansionStructure_DontHardCodeSeaLevel"
+		"WoodlandMansionStructure_DontHardCodeSeaLevel", "WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [
 		"BackgroundRenderer_SoulLavaFogColor",
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"MinecraftClient_ResetOverworldSettingsHook"
 	],
 	"injectors": {

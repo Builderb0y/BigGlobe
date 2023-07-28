@@ -127,22 +127,22 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		this.upperBridgeCloudOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_UPPER_BRIDGE_CLOUD_OVERRIDER);
 		this.structureOverriders               = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.         END_STRUCTURE_OVERRIDER);
 
-		this.bridgeCloudLowerCeilingDecorators = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_CEILING);
-		this.bridgeCloudLowerFloorDecorators   = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_FLOOR);
-		this.bridgeCloudUpperCeilingDecorators = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_CEILING);
-		this.bridgeCloudUpperFloorDecorators   = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_FLOOR);
-		this.mountainCeilingDecorators         = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_CEILING);
-		this.mountainFloorDecorators           = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_FLOOR);
-		this.nestCeilingDecorators             = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_NEST_CEILING);
-		this.nestFloorDecorators               = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_NEST_FLOOR);
-		this.ringCloudLowerCeilingDecorators   = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_CEILING);
-		this.ringCloudLowerFloorDecorators     = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_FLOOR);
-		this.ringCloudUpperCeilingDecorators   = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_CEILING);
-		this.ringCloudUpperFloorDecorators     = this.getFeatures(configuredFeatures, BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_FLOOR);
+		this.bridgeCloudLowerCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_CEILING);
+		this.bridgeCloudLowerFloorDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_FLOOR);
+		this.bridgeCloudUpperCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_CEILING);
+		this.bridgeCloudUpperFloorDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_FLOOR);
+		this.mountainCeilingDecorators         = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_CEILING);
+		this.mountainFloorDecorators           = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_MOUNTAIN_FLOOR);
+		this.nestCeilingDecorators             = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_NEST_CEILING);
+		this.nestFloorDecorators               = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_NEST_FLOOR);
+		this.ringCloudLowerCeilingDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_CEILING);
+		this.ringCloudLowerFloorDecorators     = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_LOWER_FLOOR);
+		this.ringCloudUpperCeilingDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_CEILING);
+		this.ringCloudUpperFloorDecorators     = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_RING_CLOUD_UPPER_FLOOR);
 	}
 
-	public SortedFeatureTag getFeatures(SortedFeatures configuredFeatures, TagKey<ConfiguredFeature<?, ?>> key) {
-		return new SortedFeatureTag(configuredFeatures.registry.getOrCreateEntryList(key));
+	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
+		return new SortedFeatureTag(this.configuredFeatures.registry.getOrCreateTag(key));
 	}
 
 	public static void init() {

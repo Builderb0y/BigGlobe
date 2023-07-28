@@ -20,6 +20,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.world.gen.WorldPreset;
 import net.minecraft.world.level.storage.LevelStorage;
 
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
@@ -47,6 +48,7 @@ import builderb0y.bigglobe.particles.BigGlobeParticles;
 import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.parsing.ExpressionParser;
 
 public class BigGlobeMod implements ModInitializer {
@@ -57,6 +59,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean REGEN_WORLDS = Boolean.getBoolean(MODID + ".regenWorlds");
+	public static final RegistryKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = RegistryKey.of(RegistryKeyVersions.worldPreset(), modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
 

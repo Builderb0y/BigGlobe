@@ -1,15 +1,15 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid3D;
@@ -22,15 +22,15 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class NetherSettings extends DecoratorTagHolder {
 	public final VoronoiDiagram2D biome_placement;
-	public final Registry<LocalNetherSettings> localSettingsRegistry;
+	public final BetterRegistry<LocalNetherSettings> localSettingsRegistry;
 	public final transient IRandomList<RegistryEntry<LocalNetherSettings>> local_settings;
 	public final @VerifyDivisibleBy16 int min_y;
 	public final @VerifyDivisibleBy16 int max_y;
 
 	public NetherSettings(
 		VoronoiDiagram2D biome_placement,
-		Registry<LocalNetherSettings> localSettingsRegistry,
-		Registry<ConfiguredFeature<?, ?>> configured_feature_lookup,
+		BetterRegistry<LocalNetherSettings> localSettingsRegistry,
+		BetterRegistry<ConfiguredFeature<?, ?>> configured_feature_lookup,
 		int min_y,
 		int max_y
 	) {

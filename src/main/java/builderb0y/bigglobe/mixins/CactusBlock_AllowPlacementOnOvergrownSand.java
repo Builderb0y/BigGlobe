@@ -27,8 +27,8 @@ public class CactusBlock_AllowPlacementOnOvergrownSand {
 		locals = LocalCapture.CAPTURE_FAILSOFT
 	)
 	private void bigglobe_allowPlacementOnOvergrownSand(BlockState state, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> callback, BlockState downState) {
-		//I hope mojang some day replaces this logic with BlockTags.SAND
-		//instead of explicitly checking for Blocks.SAND and Blocks.RED_SAND.
+		//only necessary in old versions, because in 1.20 and later,
+		//cactus checks for BlockTags.SAND instead of hard-coding the blocks it can be placed on..
 		if (downState.getBlock() == BigGlobeBlocks.OVERGROWN_SAND) {
 			callback.setReturnValue(!world.getBlockState(pos.up()).getMaterial().isLiquid()); //match vanilla logic.
 		}

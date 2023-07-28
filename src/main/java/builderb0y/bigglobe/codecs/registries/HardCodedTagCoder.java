@@ -3,10 +3,10 @@ package builderb0y.bigglobe.codecs.registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.tag.TagKey;
+import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
@@ -14,7 +14,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
@@ -36,19 +36,19 @@ public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 			return tag;
 		}
 		else {
-			throw AutoCodecVersions.newDecodeExceptions(() -> "No such tag " + tagID + " in registry " + RegistryVersions.getRegistryKey(this.registry));
+			throw new DecodeException(() -> "No such tag " + tagID + " in registry " + RegistryVersions.getRegistryKey(this.registry));
 		}
 	}
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntryList<T>> context) throws EncodeException {
 		if (context.input == null) return context.empty();
-		TagKey<T> key = context.input.getStorage().left().orElse(null);
+		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(context.input);
 		if (key != null) {
 			return context.input(key.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw AutoCodecVersions.newEncodeException(() -> "Tag " + context.input + " is missing a key");
+			throw new EncodeException(() -> "Tag " + context.input + " is missing a key");
 		}
 	}
 }

@@ -25,7 +25,6 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
@@ -48,7 +47,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 			ColumnValue<?> value = context.input;
 			if (value == null) return context.empty();
 			Identifier id = REGISTRY.getId(value);
-			if (id == null) throw AutoCodecVersions.newEncodeException(() -> "Unregistered ColumnValue: " + value);
+			if (id == null) throw new EncodeException(() -> "Unregistered ColumnValue: " + value);
 			return context.createString(id.getNamespace().equals(BigGlobeMod.MODID) ? id.getPath() : id.toString());
 		}
 	};

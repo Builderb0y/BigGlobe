@@ -12,6 +12,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil.MultiNoiseSampler;
 
+import builderb0y.autocodec.util.Compatibility;
 import builderb0y.bigglobe.columns.WorldColumn;
 
 public class ColumnBiomeSource extends BiomeSource {
@@ -20,12 +21,12 @@ public class ColumnBiomeSource extends BiomeSource {
 
 		@Override
 		public <T> DataResult<Pair<ColumnBiomeSource, T>> decode(DynamicOps<T> ops, T input) {
-			return DataResult.error("Should not decode ColumnBiomeSource directly.");
+			return Compatibility.createErrorDataResult(() -> "Should not decode ColumnBiomeSource directly.");
 		}
 
 		@Override
 		public <T> DataResult<T> encode(ColumnBiomeSource input, DynamicOps<T> ops, T prefix) {
-			return DataResult.error("Should not encode ColumnBiomeSource directly.");
+			return Compatibility.createErrorDataResult(() -> "Should not encode ColumnBiomeSource directly.");
 		}
 
 		@Override
