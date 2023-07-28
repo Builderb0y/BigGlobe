@@ -93,23 +93,33 @@ public class StringEntity extends Entity {
 	}
 
 	public void tickMovement(Entity prevEntity, Entity nextEntity) {
-		this.adjustToNeighbors(prevEntity, nextEntity);
-		this.applyGravity();
+		Vec3d gravity = this.applyGravity();
+		Vec3d motion = gravity;
+		Vec3d adjustment = this.adjustToNeighbors(prevEntity, nextEntity);
+		if (adjustment != null) {
+			gravity = new Vec3d(0.0D, Math.min(Math.max(gravity.y, adjustment.y), -0.04D), 0.0D);
+			this.setVelocity(gravity);
+			motion = gravity.add(adjustment);
+		}
+		this.setVelocity(this.getVelocity().multiply(0.95D));
+		this.move(MovementType.SELF, motion);
 	}
 
-	public void applyGravity() {
-		this.move(MovementType.SELF, new Vec3d(0.0D, -0.04D, 0.0D));
+	public Vec3d applyGravity() {
+		this.addVelocity(0.0D, -0.04D, 0.0D);
 		if (EntityVersions.isOnGround(this)) {
 			this.setVelocity(Vec3d.ZERO);
 		}
+		return this.getVelocity();
 	}
 
-	public void adjustToNeighbors(Entity prevEntity, Entity nextEntity) {
+	public @Nullable Vec3d adjustToNeighbors(Entity prevEntity, Entity nextEntity) {
 		if (prevEntity != null && nextEntity != null) {
 			Vec3d currentPos = this.getPos();
 			Vec3d idealPos = this.tryToCenterSelfBetweenNeighbors(prevEntity, nextEntity);
-			this.move(MovementType.SELF, idealPos.subtract(currentPos));
+			return idealPos.subtract(currentPos);
 		}
+		return null;
 	}
 
 	public Vec3d tryToCenterSelfBetweenNeighbors(Entity prev, Entity next) {
@@ -296,7 +306,7 @@ public class StringEntity extends Entity {
 			}
 			else {
 				UUID uuid = this.uuid;
-				entity = uuid == null ? null : ((ServerWorld)world).getEntity(uuid);
+				entity = uuid == null ? null : ((ServerWorld)(world)).getEntity(uuid);
 			}
 			if (entity != null) {
 				if (entity.squaredDistanceTo(StringEntity.this) > 256.0D) {

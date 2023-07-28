@@ -162,6 +162,7 @@ back-porting from 1.20 to 1.19.4:
 	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
 	re-enable lighting in SectionGenerationContext.
+	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
 	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
 	remove hanging signs and cherry stuff.
 		remove hanging signs in WoodPalette.
@@ -170,7 +171,7 @@ back-porting from 1.20 to 1.19.4:
 			data/bigglobe/bigglobe_wood_palettes/charred.json
 			data/minecraft/bigglobe_wood_palettes/*
 			data/bigglobe/recipes/charred_hanging_sign.json
-			data/bigglobe/loot_tables/charred_hanging_sign.json
+			data/bigglobe/loot_tables/blocks/charred_hanging_sign.json
 		list of places where cherry trees appear:
 			honestly just double-shift search for "cherry".
 			and then search in src for "cherry".
@@ -178,8 +179,6 @@ back-porting from 1.20 to 1.19.4:
 		data/bigglobe/worldgen/configured_feature/overworld/overriders/structures/trail_ruins.json
 		data/bigglobe/worldgen/configured_feature/overworld/overriders/caves/trail_ruins.json
 		data/minecraft/tags/worldgen/biome/has_structure/trail_ruins.json
-	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
-	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
 	remove immersive portals mixin until immersive portals back-ports to 1.19.4.
 	revert minecraft version dependency in fabric.mod.json.
 
@@ -194,4 +193,4 @@ back-porting from 1.19.4 to 1.19.2:
 	revert biomes to re-add precipitation field.
 	ensure ball of string adds correct NBT variants to creative menu.
 		and doesn't add itself to the wrong tabs.
-	that as the minimum compatible version in fabric.mod.json.
+	revert minecraft version dependency in fabric.mod.json.
