@@ -18,7 +18,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	lakes and underground pockets still need automatic decorator locations.
 
 changelog:
 	* Fixed charred hanging signs not dropping as an item when broken.
@@ -88,8 +87,8 @@ features:
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
-		re-add BetterRegistry, but better this time.
 	overworld:
+		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		desert fossils.
