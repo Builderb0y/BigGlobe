@@ -69,6 +69,7 @@
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"MinecraftClient_ResetOverworldSettingsHook"
 	],
 	"injectors": {

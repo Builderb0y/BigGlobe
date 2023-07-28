@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureStart;
@@ -86,8 +85,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient EndVolumetricOverrider.Holder[] lowerRingCloudOverriders, upperRingCloudOverriders, lowerBridgeCloudOverriders, upperBridgeCloudOverriders;
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
-	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup;
-
 	public final transient SortedFeatureTag
 		bridgeCloudLowerCeilingDecorators,
 		bridgeCloudLowerFloorDecorators,
@@ -102,7 +99,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		ringCloudUpperCeilingDecorators,
 		ringCloudUpperFloorDecorators;
 
-	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures, RegistryEntryLookup<ConfiguredFeature<?, ?>> configuredFeatureLookup) {
+	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
 		super(
 			new ColumnBiomeSource(
 				settings
@@ -124,7 +121,6 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		this.upperBridgeCloudOverriders        = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.END_UPPER_BRIDGE_CLOUD_OVERRIDER);
 		this.structureOverriders               = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.         END_STRUCTURE_OVERRIDER);
 
-		this.configuredFeatureLookup           = configuredFeatureLookup;
 		this.bridgeCloudLowerCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_CEILING);
 		this.bridgeCloudLowerFloorDecorators   = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_LOWER_FLOOR);
 		this.bridgeCloudUpperCeilingDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.END_BRIDGE_CLOUD_UPPER_CEILING);
@@ -140,7 +136,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
-		return new SortedFeatureTag(this.configuredFeatureLookup.getOrThrow(key));
+		return new SortedFeatureTag(this.configuredFeatures.registry.getOrCreateTag(key));
 	}
 
 	public static void init() {

@@ -38,14 +38,10 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
 import builderb0y.autocodec.common.LookupFactory;
+import builderb0y.autocodec.decoders.*;
 import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
-import builderb0y.autocodec.decoders.DecoderFactoryList;
-import builderb0y.autocodec.decoders.EnumDecoder;
-import builderb0y.autocodec.decoders.LookupDecoderFactory;
+import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
-import builderb0y.autocodec.encoders.EncoderFactoryList;
-import builderb0y.autocodec.encoders.EnumEncoder;
-import builderb0y.autocodec.encoders.LookupEncoderFactory;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.imprinters.MapImprinter;
@@ -54,6 +50,7 @@ import builderb0y.autocodec.reflection.ReflectionManager;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
@@ -266,6 +263,21 @@ public class BigGlobeAutoCodec {
 		}
 	};
 
+	public static <T> AutoCoder<@Nullable T> forceNullable(AutoCoder<@NotNull T> coder) {
+		return new AutoCoder<>() {
+
+			@Override
+			public <T_Encoded> @Nullable T decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				return context.isEmpty() ? null : context.decodeWith(coder);
+			}
+
+			@Override
+			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
+				return context.input == null ? context.empty() : context.encodeWith(coder);
+			}
+		};
+	}
+
 	public static class RegistryCoders<T> {
 
 		public final @NotNull RegistryKey<Registry<T>> registryKey;
@@ -273,20 +285,17 @@ public class BigGlobeAutoCodec {
 
 		public final @NotNull ReifiedType<T> objectType;
 		public final @NotNull ReifiedType<Registry<T>> registryType;
-		public final @NotNull ReifiedType<RegistryEntryLookup<T>> registryEntryLookupType;
-		public final @NotNull ReifiedType<RegistryWrapper<T>> registryWrapperType;
-		public final @NotNull ReifiedType<RegistryWrapper.Impl<T>> registryWrapperImplType;
 		public final @NotNull ReifiedType<RegistryKey<T>> registryKeyType;
 		public final @NotNull ReifiedType<RegistryEntry<T>> registryEntryType;
 		public final @NotNull ReifiedType<TagKey<T>> tagKeyType;
 		public final @NotNull ReifiedType<RegistryEntryList<T>> tagType;
 		public final @NotNull ReifiedType<TagOrObject<T>> tagOrObjectType;
 		public final @NotNull ReifiedType<TagOrObjectKey<T>> tagOrObjectKeyType;
+		public final @NotNull ReifiedType<BetterRegistry<T>> betterRegistryType;
 
-		public final @Nullable DynamicRegistryCoder<T> dynamicRegistryCoder;
+		public final @Nullable BetterDynamicRegistryCoder<T> betterDynamicRegistryCoder;
+		public final @Nullable BetterHardCodedRegistryCoder<T> betterHardCodedRegistryCoder;
 		public final @Nullable DynamicRegistryEntryCoder<T> dynamicRegistryEntryCoder;
-		public final @Nullable DynamicRegistryWrapperCoder<T> dynamicRegistryWrapperCoder;
-		public final @Nullable DynamicRegistryWrapperImplCoder<T> dynamicRegistryWrapperImplCoder;
 		public final @Nullable DynamicTagCoder<T> dynamicTagCoder;
 		public final @Nullable HardCodedObjectCoder<T> hardCodedObjectCoder;
 		public final @Nullable HardCodedRegistryEntryCoder<T> hardCodedRegistryEntryCoder;
@@ -302,21 +311,18 @@ public class BigGlobeAutoCodec {
 
 			this.                     objectType = objectType;
 			this.                   registryType = ReifiedType.parameterize(            Registry.class, objectType);
-			this.        registryEntryLookupType = ReifiedType.parameterize( RegistryEntryLookup.class, objectType);
-			this.            registryWrapperType = ReifiedType.parameterize(     RegistryWrapper.class, objectType);
-			this.        registryWrapperImplType = ReifiedType.parameterize(RegistryWrapper.Impl.class, objectType);
 			this.                registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
 			this.              registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
 			this.                     tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
 			this.                        tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
 			this.                tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
 			this.             tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
+			this.             betterRegistryType = ReifiedType.parameterize(      BetterRegistry.class, objectType);
 
-			this.           dynamicRegistryCoder = new DynamicRegistryCoder<>(registryKey);
-			this.      dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.dynamicRegistryCoder);
-			this.    dynamicRegistryWrapperCoder = new DynamicRegistryWrapperCoder<>(registryKey);
-			this.dynamicRegistryWrapperImplCoder = new DynamicRegistryWrapperImplCoder<>(registryKey);
-			this.                dynamicTagCoder = new DynamicTagCoder<>(this.dynamicRegistryCoder);
+			this.     betterDynamicRegistryCoder = new BetterDynamicRegistryCoder<>(registryKey);
+			this.   betterHardCodedRegistryCoder = null;
+			this.      dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.betterDynamicRegistryCoder);
+			this.                dynamicTagCoder = new DynamicTagCoder<>(this.betterDynamicRegistryCoder);
 			this.           hardCodedObjectCoder = null;
 			this.    hardCodedRegistryEntryCoder = null;
 			this.              hardCodedTagCoder = null;
@@ -332,20 +338,17 @@ public class BigGlobeAutoCodec {
 
 			this.                     objectType = objectType;
 			this.                   registryType = ReifiedType.parameterize(            Registry.class, objectType);
-			this.        registryEntryLookupType = ReifiedType.parameterize( RegistryEntryLookup.class, objectType);
-			this.            registryWrapperType = ReifiedType.parameterize(     RegistryWrapper.class, objectType);
-			this.        registryWrapperImplType = ReifiedType.parameterize(RegistryWrapper.Impl.class, objectType);
 			this.                registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
 			this.              registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
 			this.                     tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
 			this.                        tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
 			this.                tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
 			this.             tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
+			this.             betterRegistryType = ReifiedType.parameterize(      BetterRegistry.class, objectType);
 
-			this.           dynamicRegistryCoder = null;
+			this.     betterDynamicRegistryCoder = null;
+			this.   betterHardCodedRegistryCoder = new BetterHardCodedRegistryCoder<>(registry);
 			this.      dynamicRegistryEntryCoder = null;
-			this.    dynamicRegistryWrapperCoder = null;
-			this.dynamicRegistryWrapperImplCoder = null;
 			this.                dynamicTagCoder = null;
 			this.           hardCodedObjectCoder = new HardCodedObjectCoder<>(registry);
 			this.    hardCodedRegistryEntryCoder = new HardCodedRegistryEntryCoder<>(registry);
@@ -357,10 +360,7 @@ public class BigGlobeAutoCodec {
 		}
 
 		public void addAllTo(LookupFactory<? super AutoCoder<?>> factory) {
-			addTo(factory, this.registryEntryLookupType, this.           dynamicRegistryCoder);
 			addTo(factory, this.      registryEntryType, this.      dynamicRegistryEntryCoder);
-			addTo(factory, this.    registryWrapperType, this.    dynamicRegistryWrapperCoder);
-			addTo(factory, this.registryWrapperImplType, this.dynamicRegistryWrapperImplCoder);
 			addTo(factory, this.                tagType, this.                dynamicTagCoder);
 			addTo(factory, this.             objectType, this.           hardCodedObjectCoder);
 			addTo(factory, this.      registryEntryType, this.    hardCodedRegistryEntryCoder);
@@ -369,6 +369,8 @@ public class BigGlobeAutoCodec {
 			addTo(factory, this.             tagKeyType, this.                    tagKeyCoder);
 			addTo(factory, this.        tagOrObjectType, this.               tagOrObjectCoder);
 			addTo(factory, this.     tagOrObjectKeyType, this.            tagOrObjectKeyCoder);
+			addTo(factory, this.     betterRegistryType, this.     betterDynamicRegistryCoder);
+			addTo(factory, this.     betterRegistryType, this.   betterHardCodedRegistryCoder);
 		}
 
 		public static <T> void addTo(LookupFactory<? super AutoCoder<?>> factory, ReifiedType<T> type, AutoCoder<T> coder) {

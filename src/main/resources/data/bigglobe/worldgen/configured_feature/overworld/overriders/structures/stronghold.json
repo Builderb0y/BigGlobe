@@ -3,6 +3,7 @@
 	"config": {
 		"script": [
 			"if (start.structure.type == StructureType('minecraft:stronghold'):",
+				"if (distantHorizons: return(false))",
 				"int minSurface = min(",
 					"int(max_y(start.minX, start.minZ)),",
 					"int(max_y(start.minX, start.maxZ)),",

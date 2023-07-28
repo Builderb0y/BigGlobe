@@ -12,7 +12,6 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class RangeColumnRestriction implements ColumnRestriction {
@@ -87,7 +86,7 @@ public class RangeColumnRestriction implements ColumnRestriction {
 
 	public static <T_Encoded> void verify(VerifyContext<T_Encoded, RangeColumnRestriction> context) throws VerifyException {
 		if (context.object != null && context.object.impl == null) {
-			throw AutoCodecVersions.newVerifyException(() -> context.pathToStringBuilder().append(" must specify min or max (or both), and optionally, mid.").toString());
+			throw new VerifyException(() -> context.pathToStringBuilder().append(" must specify min or max (or both), and optionally, mid.").toString());
 		}
 	}
 

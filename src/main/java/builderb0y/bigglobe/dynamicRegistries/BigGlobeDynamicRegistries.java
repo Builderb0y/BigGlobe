@@ -7,7 +7,6 @@ import com.mojang.serialization.Codec;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryLoader;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
@@ -25,7 +24,6 @@ import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSetting
 import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
@@ -72,7 +70,7 @@ public class BigGlobeDynamicRegistries {
 		throw new IllegalStateException(before + " not in DYNAMIC_REGISTRIES");
 	}
 
-	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(RegistryWrapper<T> registry) {
+	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(BetterRegistry<T> registry) {
 		ConstantComputedRandomList<RegistryEntry<T>> list = new ConstantComputedRandomList<>() {
 
 			@Override
@@ -93,7 +91,7 @@ public class BigGlobeDynamicRegistries {
 			)
 		)
 		.forEachOrdered(list::add);
-		if (list.isEmpty()) throw new IllegalStateException((registry instanceof RegistryWrapper.Impl<T> impl ? RegistryVersions.getRegistryKey(impl).getValue() : registry) + " is empty");
+		if (list.isEmpty()) throw new IllegalStateException(registry.getKey().getValue() + " is empty");
 		return list;
 	}
 }

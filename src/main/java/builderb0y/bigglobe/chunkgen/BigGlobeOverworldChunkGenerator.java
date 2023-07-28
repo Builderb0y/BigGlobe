@@ -13,7 +13,6 @@ import net.minecraft.block.SnowBlock;
 import net.minecraft.block.SnowyBlock;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -112,7 +111,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient OverworldSkylandOverrider.Holder[] skylandOverriders;
 	public final transient ScriptStructureOverrider.Holder[] structureOverriders;
 
-	public final RegistryEntryLookup<ConfiguredFeature<?, ?>> featureLookup;
 	public final transient SortedFeatureTag
 		surfaceDecorators,
 		bedrockDecorators,
@@ -120,8 +118,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
-		SortedFeatures configuredFeatures,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> featureLookup
+		SortedFeatures configuredFeatures
 	) {
 		super(
 			new ColumnBiomeSource(
@@ -146,14 +143,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.  skylandOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  OVERWORLD_SKYLAND_OVERRIDER);
 		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER);
 
-		this.      featureLookup = featureLookup;
 		this.  surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
 		this.  bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
 		this. seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
 	}
 
 	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
-		return new SortedFeatureTag(this.featureLookup.getOrThrow(key));
+		return new SortedFeatureTag(this.configuredFeatures.registry.getOrCreateTag(key));
 	}
 
 	public static void init() {
@@ -640,10 +636,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.snowHeight += dip;
 			}
 		}
-		column.populateInLake(lakePiece);
 		for (OverworldHeightOverrider.Holder overrider : this.heightOverriders) {
 			overrider.override(structures, column);
 		}
+		column.populateInLake(lakePiece);
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures) {
@@ -1007,7 +1003,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			start.getStructure().getFeatureGenerationStep() == GenerationStep.Feature.SURFACE_STRUCTURES
 		) {
 			//stay inside your own biome!
-			RegistryEntryList<Biome> validBiomes = start.getStructure().getValidBiomes();
+			RegistryEntryList<Biome> validBiomes = entry.value().getValidBiomes();
 			BlockBox box = start.getBoundingBox();
 			for (int x = box.getMinX(); x <= box.getMaxX(); x += 4) {
 				if (wrongBiome(validBiomes, column, x, box.getMinZ())) return false;

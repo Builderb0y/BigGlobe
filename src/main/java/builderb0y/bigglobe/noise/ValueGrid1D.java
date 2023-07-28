@@ -48,20 +48,20 @@ public abstract class ValueGrid1D extends AbstractGrid1D {
 	public void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
 		if (sampleCount <= 0) return;
 		seed ^= this.salt.value;
-		final int scaleX = this.scaleX;
-		int relativeX = Math.floorDiv(startX, scaleX);
-		int fracX = BigGlobeMath.modulus_BP(startX, scaleX);
-		double value0 = this.getValue_None(seed,   relativeX);
-		double value1 = this.getValue_None(seed, ++relativeX);
-		double diff = value1 - value0;
+		int    scaleX    = this.scaleX;
+		int    relativeX = Math.floorDiv(startX, scaleX);
+		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
+		double value0    = this.getValue_None(seed,   relativeX);
+		double value1    = this.getValue_None(seed, ++relativeX);
+		double diff      = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples[index] = fracX == 0 ? value0 : this.fracX(fracX) * diff + value0;
 			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
-				fracX = 0;
+				fracX  = 0;
 				value0 = value1;
 				value1 = this.getValue_None(seed, ++relativeX);
-				diff = value1 - value0;
+				diff   = value1 - value0;
 			}
 		}
 		this.scale(samples, sampleCount);

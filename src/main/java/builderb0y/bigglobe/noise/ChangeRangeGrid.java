@@ -4,7 +4,6 @@ import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.versions.AutoCodecVersions;
 
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER, strict = false)
 public abstract class ChangeRangeGrid implements UnaryGrid {
@@ -34,7 +33,7 @@ public abstract class ChangeRangeGrid implements UnaryGrid {
 				!Double.isFinite(grid.adder)
 			)
 		) {
-			throw AutoCodecVersions.newVerifyException(() ->
+			throw new VerifyException(() ->
 				context
 				.pathToStringBuilder()
 				.append(" cannot change range from [")
