@@ -83,6 +83,7 @@ import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -123,10 +124,10 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	@Wrapper
 	public static class SortedFeatures {
 
-		public final RegistryWrapper<ConfiguredFeature<?, ?>> registry;
+		public final BetterRegistry<ConfiguredFeature<?, ?>> registry;
 		public final transient Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map;
 
-		public SortedFeatures(RegistryWrapper<ConfiguredFeature<?, ?>> registry) {
+		public SortedFeatures(BetterRegistry<ConfiguredFeature<?, ?>> registry) {
 			this.registry = registry;
 			Map<Feature<?>, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>(128);
 			registry.streamEntries().forEach(entry -> {

@@ -1,8 +1,6 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -15,6 +13,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -27,14 +26,14 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 public class OverworldCaveSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
-	public final RegistryWrapper<LocalOverworldCaveSettings> template_registry;
+	public final BetterRegistry<LocalOverworldCaveSettings> template_registry;
 	public final transient IRandomList<RegistryEntry<LocalOverworldCaveSettings>> templates;
 	public final transient int maxDepth;
 
 	public OverworldCaveSettings(
 		VoronoiDiagram2D placement,
-		RegistryWrapper<LocalOverworldCaveSettings> template_registry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup
+		BetterRegistry<LocalOverworldCaveSettings> template_registry,
+		BetterRegistry<ConfiguredFeature<?, ?>> configured_feature_lookup
 	) {
 		super(configured_feature_lookup);
 		this.placement = placement;

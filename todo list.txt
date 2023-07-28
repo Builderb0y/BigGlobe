@@ -17,8 +17,6 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 
-porting:
-
 where I left off:
 	lakes and underground pockets still need automatic decorator locations.
 
@@ -35,6 +33,7 @@ changelog:
 	* Added config option to make Big Globe the default world type.
 	* Fixed crash when flying above the nether roof with your F3 menu open.
 	* Immersive portals now places nether portals at the intended location.
+	* Distant horizons 2.0 is now detected properly.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -93,9 +92,6 @@ features:
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
-		configurable bedrock amount.
-			remove fast logic, replace with configured feature.
-			may need sorted feature tag for min_y_decorator.
 		desert fossils.
 		fallen logs.
 		column values for cliff frac and cliff bias.
@@ -157,8 +153,6 @@ porting:
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
-	see if CactusBlock uses BlockTags.SAND for placement logic.
-		if it does, remove mixin for making it placeable on overgrown sand.
 
 back-porting from 1.20 to 1.19.4:
 	re-enable lighting update suppression in BlockQueue.

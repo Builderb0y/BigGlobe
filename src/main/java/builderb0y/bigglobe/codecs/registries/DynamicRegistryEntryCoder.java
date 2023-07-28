@@ -3,7 +3,6 @@ package builderb0y.bigglobe.codecs.registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
@@ -14,12 +13,13 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 
 public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 
-	public final DynamicRegistryCoder<T> registryCoder;
+	public final BetterDynamicRegistryCoder<T> registryCoder;
 
-	public DynamicRegistryEntryCoder(DynamicRegistryCoder<T> registryCoder) {
+	public DynamicRegistryEntryCoder(BetterDynamicRegistryCoder<T> registryCoder) {
 		super("DynamicRegistryEntryCoder<" + registryCoder.registryKey.getValue() + '>');
 		this.registryCoder = registryCoder;
 	}
@@ -27,10 +27,10 @@ public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 	@Override
 	public <T_Encoded> @Nullable RegistryEntry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		RegistryEntryLookup<T> lookup = context.decodeWith(this.registryCoder);
+		BetterRegistry<T> lookup = context.decodeWith(this.registryCoder);
 		Identifier id = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		RegistryKey<T> key = RegistryKey.of(this.registryCoder.registryKey, id);
-		RegistryEntry<T> entry = lookup.getOptional(key).orElse(null);
+		RegistryEntry<T> entry = lookup.getOrCreateEntry(key);
 		if (entry != null) {
 			return entry;
 		}

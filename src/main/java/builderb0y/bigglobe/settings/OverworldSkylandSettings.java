@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.settings;
 
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -9,6 +7,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -24,13 +23,13 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 public class OverworldSkylandSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
-	public final RegistryWrapper<LocalSkylandSettings> templates_registry;
+	public final BetterRegistry<LocalSkylandSettings> templates_registry;
 	public final transient IRandomList<RegistryEntry<LocalSkylandSettings>> templates;
 
 	public OverworldSkylandSettings(
 		VoronoiDiagram2D placement,
-		RegistryWrapper<LocalSkylandSettings> templates_registry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup
+		BetterRegistry<LocalSkylandSettings> templates_registry,
+		BetterRegistry<ConfiguredFeature<?, ?>> configured_feature_lookup
 	) {
 		super(configured_feature_lookup);
 		this.placement = placement;

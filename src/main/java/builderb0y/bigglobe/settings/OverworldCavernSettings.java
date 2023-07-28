@@ -1,8 +1,6 @@
 package builderb0y.bigglobe.settings;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -11,6 +9,7 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -22,13 +21,13 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 public class OverworldCavernSettings extends DecoratorTagHolder {
 
 	public final VoronoiDiagram2D placement;
-	public final RegistryWrapper<LocalOverworldCavernSettings> template_registry;
+	public final BetterRegistry<LocalOverworldCavernSettings> template_registry;
 	public final IRandomList<RegistryEntry<LocalOverworldCavernSettings>> templates;
 
 	public OverworldCavernSettings(
 		VoronoiDiagram2D placement,
-		RegistryWrapper<LocalOverworldCavernSettings> template_registry,
-		RegistryEntryLookup<ConfiguredFeature<?, ?>> configured_feature_lookup
+		BetterRegistry<LocalOverworldCavernSettings> template_registry,
+		BetterRegistry<ConfiguredFeature<?, ?>> configured_feature_lookup
 	) {
 		super(configured_feature_lookup);
 		this.placement = placement;
