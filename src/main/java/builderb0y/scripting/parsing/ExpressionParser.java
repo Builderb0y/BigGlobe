@@ -765,7 +765,7 @@ public class ExpressionParser {
 		Object[].class
 	);
 
-	public InsnTree nextString(char end) throws ScriptParsingException {
+	public InsnTree nextString(char quote) throws ScriptParsingException {
 		StringBuilder string = new StringBuilder();
 		ArrayBuilder<InsnTree> arguments = new ArrayBuilder<>();
 		while (true) {
@@ -774,7 +774,7 @@ public class ExpressionParser {
 			if (c == 0) {
 				throw new ScriptParsingException("Un-terminated string", this.input);
 			}
-			else if (c == end) {
+			else if (c == quote) {
 				if (arguments.isEmpty()) {
 					return ldc(string.toString());
 				}
@@ -799,43 +799,45 @@ public class ExpressionParser {
 				}
 			}
 			else if (c == '$') {
-				char escaped = this.input.peek();
-				if (escaped == '$') {
-					this.input.onCharRead('$');
+				if (this.input.has('$')) {
 					string.append('$');
 				}
-				else if (escaped == '.') {
-					this.input.onCharRead('.');
-					string.append((char)(1));
-					arguments.add(this.nextMember());
-					//see below.
-					int skippedWhitespace = this.input.cursor - 1;
-					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
-						skippedWhitespace--;
-					}
-					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
+				else if (this.input.has(':')) {
+					boolean member = this.input.has('.');
+					this.input.skipWhitespace();
+					int start = this.input.cursor;
+					arguments.add(member ? this.nextMember() : this.nextTerm());
+					int end = this.input.cursor;
+					while (Character.isWhitespace(this.input.input.charAt(end - 1))) end--;
+					string.append(this.input.input, start, end).append(": ").append((char)(1));
+					this.addSkippedWhitespace(string);
 				}
 				else {
+					boolean member = this.input.has('.');
 					string.append((char)(1));
-					arguments.add(this.nextTerm());
-					//in some cases, input.skipWhitespace() may
-					//be called after the next term has ended.
-					//this is problematic because if the input
-					//is, for example, "String a = 'a',, '$a b'",
-					//then the output would be "ab", without
-					//a space between. so, here we add any
-					//whitespace which got skipped over.
-					int skippedWhitespace = this.input.cursor - 1;
-					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
-						skippedWhitespace--;
-					}
-					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
+					arguments.add(member ? this.nextMember() : this.nextTerm());
+					this.addSkippedWhitespace(string);
 				}
 			}
 			else {
 				string.append(c);
 			}
 		}
+	}
+
+	public void addSkippedWhitespace(StringBuilder builder) {
+		//in some cases, input.skipWhitespace() may
+		//be called after the next term has ended.
+		//this is problematic because if the input
+		//is, for example, "String a = 'a',, '$a b'",
+		//then the output would be "ab", without
+		//a space between. so, here we add any
+		//whitespace which got skipped over.
+		int skippedWhitespace = this.input.cursor - 1;
+		while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
+			skippedWhitespace--;
+		}
+		builder.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
 	}
 
 	public InsnTree nextNumber(boolean negated) throws ScriptParsingException {
@@ -1146,7 +1148,7 @@ public class ExpressionParser {
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
-		List<FieldCompileContext> fields = new ArrayList<>();
+		List<FieldCompileContext> fields = new ArrayList<>(8);
 		while (!this.input.hasAfterWhitespace(')')) {
 			String typeName = this.input.expectIdentifier();
 			TypeInfo type = this.environment.getType(this, typeName);

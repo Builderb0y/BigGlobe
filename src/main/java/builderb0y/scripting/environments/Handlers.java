@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -296,7 +297,7 @@ public class Handlers {
 
 		@Override
 		public String toString() {
-			return "Handlers.Builder: { in: " + this.in + ", name: " + this.name + ", arguments: " + this.arguments + " }";
+			return this.in.getName() + '.' + this.name + this.arguments.stream().map(Object::toString).collect(Collectors.joining(", ", "(", ")"));
 		}
 	}
 
@@ -366,7 +367,7 @@ public class Handlers {
 
 		@Override
 		public String toString() {
-			return "RequiredArgument: { type: " + this.type + ", index: " + this.requiredIndex + " }";
+			return "Required: " + this.type;
 		}
 	}
 
@@ -412,7 +413,7 @@ public class Handlers {
 
 		@Override
 		public String toString() {
-			return "ImplicitArgument: " + this.tree.describe();
+			return "Implicit: " + this.tree.describe();
 		}
 	}
 
@@ -465,7 +466,7 @@ public class Handlers {
 
 		@Override
 		public String toString() {
-			return "ReceiverArgument: { type: " + this.type + " }";
+			return "Receiver: " + this.type;
 		}
 	}
 }

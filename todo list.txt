@@ -20,19 +20,8 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed charred hanging signs not dropping as an item when broken.
-	* Fixed bigger desert pyramids potentially spawning with snow around them if they spawned on the side of a cliff.
-	* Made delegating structure a bit more useful.
-		* biomes, spawn_overrides, step, and terrain_adaptation can now be absent.
-			* If they are absent, they default to the structure being delegated to.
-		* If spawn_overrides, step, and terrain_adaptation are all absent AND you are in a Big Globe world, then the structure being delegated to will be placed in the world as-is, without being copied.
-			* This means that if those 3 properties are absent (and you are in a Big Globe world), then advancements which require you to be inside the structure being delegated to will work as expected.
-	* Lakes now behave themselves slightly better when other height-overriding structures intersect with them.
-	* Flint, rocks, and sticks no longer spawn in lava lakes.
-	* Added config option to make Big Globe the default world type.
-	* Fixed crash when flying above the nether roof with your F3 menu open.
-	* Immersive portals now places nether portals at the intended location.
-	* Distant horizons 2.0 is now detected properly.
+	* Fixed recently added "make big globe the default world type" config option not working properly.
+	* Improved physics of string slightly.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -45,7 +34,6 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
-	nested multi-line comment ;(example ;(text) here)
 	more invoke syntaxes:
 		nullable invoke.
 			foo.?bar()
@@ -77,7 +65,6 @@ scripting:
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	ability to iterate over an Iterator or Stream (whenever stream support is added).
-	$: in scripts, substitutes $:foo for 'foo: $foo'
 
 features:
 	general:
