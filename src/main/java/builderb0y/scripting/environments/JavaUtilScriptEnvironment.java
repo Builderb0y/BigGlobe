@@ -3,6 +3,7 @@ package builderb0y.scripting.environments;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -100,6 +101,8 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
 		.addType("List", List.class)
 		.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
+		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
+		.addMethodInvokeStatic(Collections.class, "reverse")
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
 		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, mode, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
@@ -127,6 +130,74 @@ public class JavaUtilScriptEnvironment {
 		.addType("RandomArrayList", RandomList.class)
 		.addQualifiedMultiConstructor(RandomList.class)
 	);
+
+	public static MutableScriptEnvironment withRandom(InsnTree loadRandom) {
+		return new MutableScriptEnvironment().addAll(ALL).addAll(randomOnly(loadRandom));
+	}
+
+	public static MutableScriptEnvironment randomOnly(InsnTree loadRandom) {
+		return new MutableScriptEnvironment().addMethod(
+			type(List.class),
+			"shuffle",
+			Handlers
+			.builder(JavaUtilScriptEnvironment.class, "shuffle")
+			.addReceiverArgument(List.class)
+			.addImplicitArgument(loadRandom)
+			.buildMethod()
+		);
+	}
+
+	public static void swap(Object[] array, int index1, int index2) {
+		Object tmp = array[index1];
+		array[index1] = array[index2];
+		array[index2] = tmp;
+	}
+
+	/**
+	mostly a copy-paste of {@link Collections#shuffle(List, Random)},
+	but adapted to work with a {@link RandomGenerator} instead of a {@link Random}.
+	*/
+	public static <T> void shuffle(List<T> list, RandomGenerator random) {
+		int size = list.size();
+		if (size < 5 || list instanceof RandomAccess) {
+			for (int index = size; index > 1; index--) {
+				Collections.swap(list, index - 1, random.nextInt(index));
+			}
+		}
+		else {
+			@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+			T[] array = (T[])(list.toArray());
+			for (int index = size; index > 1; index--) {
+				swap(array, index - 1, random.nextInt(index));
+			}
+			ListIterator<T> iterator = list.listIterator();
+			for (T element : array) {
+				iterator.next();
+				iterator.set(element);
+			}
+		}
+	}
+
+	public static <T> void shuffle(List<T> list, long seed) {
+		int size = list.size();
+		if (size < 5 || list instanceof RandomAccess) {
+			for (int index = size; index > 1; index--) {
+				Collections.swap(list, index - 1, Permuter.nextBoundedInt(seed += Permuter.PHI64, index));
+			}
+		}
+		else {
+			@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+			T[] array = (T[])(list.toArray());
+			for (int index = size; index > 1; index--) {
+				swap(array, index - 1, Permuter.nextBoundedInt(seed += Permuter.PHI64, index));
+			}
+			ListIterator<T> iterator = list.listIterator();
+			for (T element : array) {
+				iterator.next();
+				iterator.set(element);
+			}
+		}
+	}
 
 	public static class CommonGetterInsnTree extends InvokeBaseInsnTree {
 

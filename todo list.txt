@@ -35,8 +35,6 @@ scripting:
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
 	more invoke syntaxes:
-		nullable invoke.
-			foo.?bar()
 		receiver invoke.
 			foo.<bar() returns foo, not the return value of bar().
 			add setters to user-defined classes. they could make use of this.
@@ -50,7 +48,7 @@ scripting:
 				if foo is non-null, then bar() is invoked and is required to return a non-null value.
 	lambdas?
 		Stream API?
-	List.shuffle()
+			ability to iterate over a Stream (whenever Stream support is added).
 	add copy constructor and clone() for user-defined classes.
 		clone() is deep copy, constructor is shallow copy?
 			this is the more intuitive option, but it is more difficult semantically
@@ -64,7 +62,6 @@ scripting:
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
-	ability to iterate over an Iterator or Stream (whenever stream support is added).
 
 features:
 	general:

@@ -37,7 +37,7 @@ public interface CommandScript extends Script {
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
 			this
-			.addEnvironment(JavaUtilScriptEnvironment.ALL)
+			.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
 				load("world", 1, WorldWrapper.TYPE)
