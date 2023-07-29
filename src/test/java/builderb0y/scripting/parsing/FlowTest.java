@@ -188,6 +188,25 @@ public class FlowTest extends TestCommon {
 			sum
 			"""
 		);
+		assertSuccess(List.of(4, 5),
+			"""
+			ArrayList firstList = new()
+			firstList.add(1i)
+			firstList.add(2i)
+			firstList.add(3i)
+			firstList.add(4i)
+			firstList.add(5i)
+			ArrayList secondList = new()
+			Iterator iterator = firstList.iterator()
+			for (int element in iterator:
+				if (element == 3: break())
+			)
+			for (int element in iterator:
+				secondList.add(element)
+			)
+			secondList
+			"""
+		);
 	}
 
 	@Test
