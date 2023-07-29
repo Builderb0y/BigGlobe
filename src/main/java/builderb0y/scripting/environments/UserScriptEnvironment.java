@@ -96,18 +96,18 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public void addClassFunction(TypeInfo type, String name, MethodInfo method) {
-		this.addClassFunction(name, (parser, receiver, name1, arguments) -> {
+		this.addClassFunction(name, (parser, receiver, name1, mode, arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
+				if (castArguments != null) return new CastResult(mode.makeStaticInvoker(parser, method, castArguments), castArguments != arguments);
 			}
 			return null;
 		});
 	}
 
 	public void addConstructor(TypeInfo type, MethodInfo method) {
-		this.addClassFunction("new", (parser, receiver, name1, arguments) -> {
+		this.addClassFunction("new", (parser, receiver, name1, mode, arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
@@ -154,7 +154,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
+	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
 		NamedType query = new NamedType();
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
@@ -163,7 +163,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			if (handlers != null) {
 				InsnTree result = null;
 				for (int index = 0, size = handlers.size(); index < size; index++) {
-					CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
+					CastResult casted = handlers.get(index).create(parser, receiver, name, mode, arguments);
 					if (casted != null) {
 						if (!casted.requiredCasting()) return casted.tree();
 						else if (result == null) result = casted.tree();

@@ -40,6 +40,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandle
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
@@ -593,7 +594,7 @@ public class ExpressionParser {
 					if (result == null) {
 						if (this.input.peekAfterWhitespace() == '(') {
 							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-							result = this.environment.getMethod(this, left, memberName, arguments.arguments());
+							result = this.environment.getMethod(this, left, memberName, GetMethodMode.NORMAL, arguments.arguments());
 							if (result == null) {
 								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 							}
@@ -610,13 +611,19 @@ public class ExpressionParser {
 				}
 				else if (this.input.hasOperatorAfterWhitespace(".?")) {
 					String memberName = this.input.readIdentifierAfterWhitespace();
+					InsnTree result;
 					if (this.input.peekAfterWhitespace() == '(') {
-						//todo: implement this.
-						throw new ScriptParsingException("Nullable method calls are not yet implemented.", this.input);
+						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+						result = this.environment.getMethod(this, left, memberName, GetMethodMode.NULLABLE, arguments.arguments());
+						if (result == null) {
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + ".?" + memberName + "(", ")"))), this.input);
+						}
 					}
-					InsnTree result = this.environment.getField(this, left, memberName, GetFieldMode.NULLABLE);
-					if (result == null) {
-						throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + ".?" + memberName), this.input);
+					else {
+						result = this.environment.getField(this, left, memberName, GetFieldMode.NULLABLE);
+						if (result == null) {
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + ".?" + memberName), this.input);
+						}
 					}
 					left = result;
 				}
@@ -1035,7 +1042,7 @@ public class ExpressionParser {
 	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {
 		if (this.input.hasIdentifierAfterWhitespace("new")) {
 			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", arguments.arguments());
+			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", GetMethodMode.NORMAL, arguments.arguments());
 			if (expression == null) {
 				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
 			}

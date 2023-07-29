@@ -1,12 +1,14 @@
 package builderb0y.scripting.environments;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.ConstantFactory;
@@ -15,10 +17,11 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeBaseInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.ReflectionData;
 
@@ -70,7 +73,13 @@ public class Handlers {
 						return false;
 					}
 					Class<?>[] actualTypes = method.getParameterTypes();
+					if (!Modifier.isStatic(method.getModifiers())) {
+						actualTypes = ObjectArrays.concat(method.getDeclaringClass(), actualTypes);
+					}
 					List<Argument> arguments = this.arguments;
+					if (actualTypes.length != arguments.size()) {
+						return false;
+					}
 					for (int index = 0, size = arguments.size(); index < size; index++) {
 						if (actualTypes[index] != arguments.get(index).getArgumentClass()) {
 							return false;
@@ -109,22 +118,20 @@ public class Handlers {
 		}
 
 		public Builder addReceiverArgument(Class<?> clazz) {
-			if (this.arguments.isEmpty()) {
-				this.arguments.add(new ReceiverArgument(clazz));
+			if (this.usesArguments() || this.usesReceiver()) {
+				throw new IllegalArgumentException("Receiver argument must be the first argument.");
 			}
 			else {
-				throw new IllegalArgumentException("Receiver argument must be the first argument.");
+				this.arguments.add(new ReceiverArgument(clazz));
 			}
 			return this.invalidateCache();
 		}
 
 		public Builder addReceiverArgument(TypeInfo type) {
-			if (this.arguments.isEmpty()) {
-				this.arguments.add(new ReceiverArgument(type));
-			}
-			else {
+			if (this.usesArguments() || this.usesReceiver()) {
 				throw new IllegalArgumentException("Receiver argument must be the first argument.");
 			}
+			this.arguments.add(new ReceiverArgument(type));
 			return this.invalidateCache();
 		}
 
@@ -185,6 +192,7 @@ public class Handlers {
 			if (this.usesReceiver() || this.usesArguments()) {
 				throw new IllegalStateException("Can't build variable when builder requires receiver or arguments.");
 			}
+			this.resolve();
 			return new VariableHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, String name) -> {
@@ -198,19 +206,18 @@ public class Handlers {
 			if (this.usesArguments()) {
 				throw new IllegalStateException("Can't build field when builder requires arguments.");
 			}
+			this.resolve();
 			return new FieldHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 					CastResult result = this.getFrom(parser, receiver, InsnTree.ARRAY_FACTORY.empty());
 					if (result == null) return null;
-					InvokeStaticInsnTree staticInvoker = (InvokeStaticInsnTree)(result.tree());
-					if (staticInvoker instanceof InvokeInsnTree invoker) {
+					InvokeBaseInsnTree staticInvoker = (InvokeBaseInsnTree)(result.tree());
+					if (staticInvoker instanceof InvokeInstanceInsnTree invoker) {
 						return mode.makeInstanceGetter(parser, invoker.receiver, invoker.method, invoker.args);
 					}
 					else {
-						InsnTree runtimeReceiver = staticInvoker.args[0];
-						InsnTree[] runtimeArgs = Arrays.copyOfRange(staticInvoker.args, 1, staticInvoker.args.length);
-						return mode.makeStaticGetter(parser, runtimeReceiver, staticInvoker.method, runtimeArgs);
+						return mode.makeStaticGetter(parser, staticInvoker.method, staticInvoker.args);
 					}
 				}
 			);
@@ -220,6 +227,7 @@ public class Handlers {
 			if (this.usesReceiver()) {
 				throw new IllegalStateException("Can't build function when builder requires receiver.");
 			}
+			this.resolve();
 			return new FunctionHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, String name, InsnTree... arguments) -> {
@@ -229,10 +237,19 @@ public class Handlers {
 		}
 
 		public MethodHandler buildMethod() {
+			this.resolve();
 			return new MethodHandler.Named(
 				this.toString(),
-				(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) -> {
-					return this.getFrom(parser, receiver, arguments);
+				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					CastResult result = this.getFrom(parser, receiver, arguments);
+					if (result == null) return null;
+					InvokeBaseInsnTree staticInvoker = (InvokeBaseInsnTree)(result.tree());
+					if (staticInvoker instanceof InvokeInstanceInsnTree invoker) {
+						return new CastResult(mode.makeInstanceInvoker(parser, invoker.receiver, invoker.method, invoker.args), result.requiredCasting());
+					}
+					else {
+						return new CastResult(mode.makeStaticInvoker(parser, staticInvoker.method, staticInvoker.args), result.requiredCasting());
+					}
 				}
 			);
 		}

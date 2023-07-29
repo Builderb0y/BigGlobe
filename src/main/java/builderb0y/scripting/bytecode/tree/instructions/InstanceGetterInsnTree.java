@@ -6,7 +6,7 @@ import builderb0y.scripting.bytecode.tree.instructions.update.InstanceGetterSett
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
-public class InstanceGetterInsnTree extends InvokeInsnTree {
+public class InstanceGetterInsnTree extends InvokeInstanceInsnTree {
 
 	public MethodInfo setter;
 

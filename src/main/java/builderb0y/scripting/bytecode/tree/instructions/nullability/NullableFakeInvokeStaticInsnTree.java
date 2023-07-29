@@ -5,14 +5,15 @@ import org.objectweb.asm.Label;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeBaseInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NullableFakeInvokeStaticInsnTree extends InvokeStaticInsnTree {
+public class NullableFakeInvokeStaticInsnTree extends InvokeBaseInsnTree {
 
 	public NullableFakeInvokeStaticInsnTree(MethodInfo method, InsnTree[] args) {
 		super(method, args);
+		checkArguments(method.paramTypes, args);
 	}
 
 	@Override

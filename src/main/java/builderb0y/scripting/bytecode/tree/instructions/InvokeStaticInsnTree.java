@@ -8,31 +8,30 @@ import java.util.Arrays;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.util.ArrayFactories;
-import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class InvokeStaticInsnTree implements InsnTree {
-
-	public MethodInfo method;
-	public InsnTree[] args;
+public class InvokeStaticInsnTree extends InvokeBaseInsnTree {
 
 	public InvokeStaticInsnTree(MethodInfo method, InsnTree... args) {
-		this.args = args;
-		this.method = method;
+		super(method, args);
+		checkArguments(this.method.paramTypes, this.args);
+	}
+
+	public InvokeStaticInsnTree(MethodInfo method, InsnTree[] args, boolean dummy) {
+		super(method, args);
 	}
 
 	public static InsnTree create(MethodInfo method, InsnTree... args) {
 		if (!method.isStatic()) {
 			throw new IllegalArgumentException("Non-static method: " + method);
 		}
-		checkTypes(args, method.paramTypes);
+		checkArguments(method.paramTypes, args);
 		notPure:
 		if (method.isPure() && isPrimitive(method.returnType)) {
 			Object[] constantArgs = getConstantArgs(args);
@@ -48,7 +47,7 @@ public class InvokeStaticInsnTree implements InsnTree {
 				throwable.printStackTrace();
 			}
 		}
-		return new InvokeStaticInsnTree(method, args);
+		return new InvokeStaticInsnTree(method, args, true);
 	}
 
 	public static boolean isPrimitive(TypeInfo type) {
@@ -83,39 +82,5 @@ public class InvokeStaticInsnTree implements InsnTree {
 			.map(TypeInfo::toClass)
 			.toArray(ArrayFactories.CLASS)
 		);
-	}
-
-	public static void checkTypes(Typeable[] arguments, TypeInfo[] requirements) {
-		int length = arguments.length;
-		if (requirements.length != length) {
-			throw new IllegalArgumentException("Wrong number of arguments: expected " + requirements.length + ", got " + arguments.length);
-		}
-		for (int index = 0; index < length; index++) {
-			if (!arguments[index].getTypeInfo().extendsOrImplements(requirements[index])) {
-				throw new IllegalArgumentException("Argument " + index + " is of the wrong type: expected " + requirements[index] + ", got " + arguments[index].getTypeInfo());
-			}
-		}
-	}
-
-	public int opcode() {
-		return this.method.getInvokeOpcode();
-	}
-
-	@Override
-	public void emitBytecode(MethodCompileContext method) {
-		for (InsnTree arg : this.args) {
-			arg.emitBytecode(method);
-		}
-		this.method.emit(method, this.opcode());
-	}
-
-	@Override
-	public TypeInfo getTypeInfo() {
-		return this.method.returnType;
-	}
-
-	@Override
-	public boolean canBeStatement() {
-		return true;
 	}
 }

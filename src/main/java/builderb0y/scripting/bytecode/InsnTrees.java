@@ -283,7 +283,7 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree invokeInstance(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(receiver, method, args);
+		return new InvokeInstanceInsnTree(receiver, method, args);
 	}
 
 	public static InsnTree invokeDynamic(MethodInfo bootstrapMethod, MethodInfo runtimeMethod, ConstantValue[] bootstrapArgs, InsnTree[] runtimeArgs) {

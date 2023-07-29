@@ -103,16 +103,16 @@ public class NbtScriptEnvironment {
 		})
 
 		.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
-		.addMethod(NBT_ELEMENT_TYPE, "", (parser, receiver, name, arguments) -> {
+		.addMethod(NBT_ELEMENT_TYPE, "", (parser, receiver, name, mode, arguments) -> {
 			if (arguments.length != 1) {
 				throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 			}
 			InsnTree nameOrIndex = arguments[0];
 			if (nameOrIndex.getTypeInfo().simpleEquals(TypeInfos.STRING)) {
-				return new CastResult(new CommonGetterInsnTree(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement"), false);
+				return new CastResult(CommonGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(new CommonGetterInsnTree(receiver, GET_ELEMENT, nameOrIndex, SET_ELEMENT, "NbtElement"), false);
+				return new CastResult(CommonGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex, SET_ELEMENT, "NbtElement", mode), false);
 			}
 			else {
 				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);

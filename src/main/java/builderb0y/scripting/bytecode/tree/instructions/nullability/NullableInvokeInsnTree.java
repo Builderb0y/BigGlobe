@@ -5,13 +5,13 @@ import org.objectweb.asm.Label;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NullableInvokeInsnTree extends InvokeInsnTree {
+public class NullableInvokeInsnTree extends InvokeInstanceInsnTree {
 
-	public NullableInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree[] args) {
+	public NullableInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
 		super(receiver, method, args);
 	}
 

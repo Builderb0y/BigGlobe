@@ -5,10 +5,15 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class NewInsnTree extends InvokeStaticInsnTree {
+public class NewInsnTree extends InvokeBaseInsnTree {
 
 	public NewInsnTree(MethodInfo constructor, InsnTree... args) {
 		super(constructor, args);
+		checkConstructor(constructor);
+		checkArguments(constructor.paramTypes, args);
+	}
+
+	public static void checkConstructor(MethodInfo constructor) {
 		if (constructor.isStatic() || !constructor.name.equals("<init>") || !constructor.returnType.isVoid()) {
 			throw new IllegalArgumentException(constructor.toString());
 		}
@@ -31,13 +36,12 @@ public class NewInsnTree extends InvokeStaticInsnTree {
 		return new UnusedNewInsnTree(this.method, this.args);
 	}
 
-	public static class UnusedNewInsnTree extends InvokeStaticInsnTree {
+	public static class UnusedNewInsnTree extends InvokeBaseInsnTree {
 
-		public UnusedNewInsnTree(MethodInfo method, InsnTree... args) {
-			super(method, args);
-			if (method.isStatic() || !method.name.equals("<init>") || !method.returnType.isVoid()) {
-				throw new IllegalArgumentException(method.toString());
-			}
+		public UnusedNewInsnTree(MethodInfo constructor, InsnTree... args) {
+			super(constructor, args);
+			checkConstructor(constructor);
+			checkArguments(constructor.paramTypes, args);
 		}
 
 		@Override

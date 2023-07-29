@@ -54,10 +54,10 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
+	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree method = environments.get(index).getMethod(parser, receiver, name, arguments);
+			InsnTree method = environments.get(index).getMethod(parser, receiver, name, mode, arguments);
 			if (method != null) return method;
 		}
 		return null;

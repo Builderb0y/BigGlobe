@@ -15,6 +15,8 @@ import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -45,7 +47,8 @@ public class RandomScriptEnvironment {
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
 			.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble", "nextGaussian", "nextExponential")
-			.addMethod(type(RandomGenerator.class), "switch", (parser, receiver, name, arguments) -> {
+			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
+				if (mode != GetMethodMode.NORMAL) return null;
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
 				}
@@ -77,7 +80,7 @@ public class RandomScriptEnvironment {
 					),
 					false
 				);
-			})
+			}))
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)
 			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, float.class)

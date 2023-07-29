@@ -20,7 +20,7 @@ public interface OverworldFlatOverrider extends FlatOverrider {
 	public static class Holder<T_Overrider extends OverworldFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements OverworldFlatOverrider {
 
 		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
-			super(parser, OverworldColumn.class);
+			super(parser);
 		}
 
 		@Override

@@ -21,20 +21,18 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class MinecraftScriptEnvironment {
-
-	public static final MethodInfo BLOCK_GET_RANDOM_STATE = MethodInfo.getMethod(BlockWrapper.class, "getRandomState");
 
 	public static MutableScriptEnvironment createWithRandom(InsnTree loadRandom) {
 		return (
@@ -49,15 +47,10 @@ public class MinecraftScriptEnvironment {
 			.addFieldInvoke(EntryWrapper.class, "id")
 			.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
 			.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "getRandomState", "isIn")
-			.addMethod(BlockWrapper.TYPE, "getRandomState", (parser, receiver, name, arguments) -> {
-				if (arguments.length == 0) {
-					return new CastResult(invokeStatic(BLOCK_GET_RANDOM_STATE, receiver, loadRandom), false);
-				}
-				return null;
-			})
+			.addMethod(BlockWrapper.TYPE, "getRandomState", Handlers.builder(BlockWrapper.class, "getRandomState").addReceiverArgument(BlockWrapper.TYPE).addImplicitArgument(loadRandom).buildMethod())
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
-			.addMethod(BlockTagKey.TYPE, "random", randomFromWorld(loadRandom, BlockTagKey.class, Block.class))
+			.addMethod(BlockTagKey.TYPE, "random", tagRandom(loadRandom, BlockTagKey.class, Block.class))
 			.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
 			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
 				return mode.makeStaticGetter(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
@@ -65,11 +58,11 @@ public class MinecraftScriptEnvironment {
 			.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
-			.addMethod(BiomeTagKey.TYPE, "random", randomFromWorld(loadRandom, BiomeTagKey.class, BiomeEntry.class))
+			.addMethod(BiomeTagKey.TYPE, "random", tagRandom(loadRandom, BiomeTagKey.class, BiomeEntry.class))
 			.addMethodInvokeSpecific(ConfiguredFeatureEntry.class, "isIn", boolean.class, ConfiguredFeatureTagKey.class)
 			.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, long.class)
-			.addMethod(ConfiguredFeatureTagKey.TYPE, "random", randomFromWorld(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
+			.addMethod(ConfiguredFeatureTagKey.TYPE, "random", tagRandom(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
 
 			//casting
 
@@ -86,17 +79,14 @@ public class MinecraftScriptEnvironment {
 	}
 
 	public static MutableScriptEnvironment createWithWorld(InsnTree loadWorld) {
-		InsnTree loadRandom = getField(loadWorld, FieldInfo.getField(WorldWrapper.class, "permuter"));
+		InsnTree loadRandom = new IdentityCastInsnTree(getField(loadWorld, FieldInfo.getField(WorldWrapper.class, "permuter")), type(RandomGenerator.class));
 
 		return (
 			createWithRandom(loadRandom)
 			.addVariableRenamedInvoke(loadWorld, "worldSeed", method(ACC_PUBLIC | ACC_PURE, WorldWrapper.TYPE, "getSeed", TypeInfos.LONG))
 			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "placeBlockState", "fillBlockState", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")
-			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", (parser, receiver, name, arguments) -> {
-				InsnTree[] position = ScriptEnvironment.castArguments(parser, "canPlaceAt", types("III"), CastMode.IMPLICIT_NULL, arguments);
-				return position == null ? null : new CastResult(invokeStatic(MethodInfo.getMethod(BlockStateWrapper.class, "canPlaceAt"), loadWorld, receiver, position[0], position[1], position[2]), position != arguments);
-			})
+			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", Handlers.builder(BlockStateWrapper.class, "canPlaceAt").addImplicitArgument(loadWorld).addReceiverArgument(BlockStateWrapper.TYPE).addArguments("III").buildMethod())
 		);
 	}
 
@@ -181,14 +171,8 @@ public class MinecraftScriptEnvironment {
 		};
 	}
 
-	public static MethodHandler randomFromWorld(InsnTree loadRandom, Class<?> owner, Class<?> returnType) {
-		MethodInfo randomFunction = MethodInfo.findMethod(owner, "random", returnType, RandomGenerator.class);
-		return (parser, receiver, name, arguments) -> {
-			if (arguments.length == 0) {
-				return new CastResult(invokeInstance(receiver, randomFunction, loadRandom), false);
-			}
-			return null;
-		};
+	public static MethodHandler tagRandom(InsnTree loadRandom, Class<?> owner, Class<?> returnType) {
+		return Handlers.builder(owner, "random").returnClass(returnType).addReceiverArgument(owner).addImplicitArgument(loadRandom).buildMethod();
 	}
 
 	public static final MethodInfo BOOTSTRAP_CONSTANT_STATE = MethodInfo.getMethod(MinecraftScriptEnvironment.class, "bootstrapConstantState");

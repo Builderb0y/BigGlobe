@@ -11,7 +11,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableFakeInvokeStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableGetFieldInsnTree;
@@ -64,12 +64,12 @@ public interface ScriptEnvironment {
 
 			@Override
 			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
-				return new InvokeInsnTree(receiver, getter, arguments);
+				return new InvokeInstanceInsnTree(receiver, getter, arguments);
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
-				return new InvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new InvokeStaticInsnTree(getter, extraArguments);
 			}
 		},
 
@@ -86,8 +86,8 @@ public interface ScriptEnvironment {
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
-				return new NullableFakeInvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(getter, extraArguments);
 			}
 		};
 
@@ -95,7 +95,11 @@ public interface ScriptEnvironment {
 
 		public abstract InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments);
 
-		public abstract InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments);
+		public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
+			return this.makeStaticGetter(parser, getter, ObjectArrays.concat(receiver, extraArguments));
+		}
+
+		public abstract InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments);
 	}
 
 	/**
@@ -126,8 +130,57 @@ public interface ScriptEnvironment {
 	for example, if the length of the arguments array does not
 	match the number of parameters in the underlying method.
 	*/
-	public default @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
+	public default @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
 		return null;
+	}
+
+	public static enum GetMethodMode {
+
+		NORMAL {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new GetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new InvokeInstanceInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new InvokeStaticInsnTree(method, extraArguments);
+			}
+		},
+
+		NULLABLE {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new NullableGetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new NullableInvokeInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(method, extraArguments);
+			}
+		};
+
+		public abstract InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field);
+
+		public abstract InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments);
+
+		public InsnTree makeStaticInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... extraArguments) {
+			return this.makeStaticInvoker(parser, method, ObjectArrays.concat(receiver, extraArguments));
+		}
+
+		public abstract InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments);
 	}
 
 	/**

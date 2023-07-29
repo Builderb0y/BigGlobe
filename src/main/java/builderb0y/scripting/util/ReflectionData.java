@@ -182,7 +182,9 @@ public class ReflectionData {
 				else throw new IllegalArgumentException("More than one constructor which matches " + predicate + " in " + this.clazz);
 			}
 		}
-		if (found == null) throw new IllegalArgumentException("No constructors which match " + predicate + " in " + this.clazz);
+		if (found == null) {
+			throw new IllegalArgumentException("No constructors which match " + predicate + " in " + this.clazz);
+		}
 		return found;
 	}
 
@@ -194,7 +196,9 @@ public class ReflectionData {
 				else throw new IllegalArgumentException("More than one " + type + " with name " + name + " which matches " + predicate + " in " + this.clazz);
 			}
 		}
-		if (found == null) throw new IllegalArgumentException("No " + type + "s with name " + name + " which match " + predicate + " in " + this.clazz);
+		if (found == null) {
+			throw new IllegalArgumentException("No " + type + "s with name " + name + " which match " + predicate + " in " + this.clazz);
+		}
 		return found;
 	}
 
