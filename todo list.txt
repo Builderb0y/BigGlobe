@@ -18,10 +18,12 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	nullable member keywords for scripts.
 
 changelog:
 	* Fixed recently added "make big globe the default world type" config option not working properly.
 	* Improved physics of string slightly.
+	* Added a couple new pieces of syntax for scripting.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

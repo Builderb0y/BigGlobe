@@ -11,12 +11,12 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullMapperInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -48,7 +48,6 @@ public class RandomScriptEnvironment {
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
 			.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble", "nextGaussian", "nextExponential")
 			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
-				if (mode != GetMethodMode.NORMAL) return null;
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
 				}
@@ -68,18 +67,35 @@ public class RandomScriptEnvironment {
 						)
 					)
 				);
-				return new CastResult(
-					switch_(
-						parser,
-						invokeInstance(
-							loader,
-							NEXT_INT_1,
-							ldc(arguments.length)
+				return switch (mode) {
+					case NORMAL -> new CastResult(
+						switch_(
+							parser,
+							invokeInstance(
+								loader,
+								NEXT_INT_1,
+								ldc(arguments.length)
+							),
+							cases
 						),
-						cases
-					),
-					false
-				);
+						false
+					);
+					case NULLABLE -> new CastResult(
+						new NullMapperInsnTree(
+							loader,
+							switch_(
+								parser,
+								invokeInstance(
+									getFromStack(loader.getTypeInfo()),
+									NEXT_INT_1,
+									ldc(arguments.length)
+								),
+								cases
+							)
+						),
+						false
+					);
+				};
 			}))
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)

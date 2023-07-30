@@ -6,6 +6,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -22,9 +23,25 @@ public class ElvisInsnTree implements InsnTree {
 	}
 
 	public static InsnTree create(ExpressionParser parser, InsnTree value, InsnTree alternative) {
-		TypeInfo commonType = TypeMerger.computeMostSpecificType(value.getTypeInfo(), alternative.getTypeInfo());
-		value = value.cast(parser, commonType, CastMode.IMPLICIT_THROW);
-		alternative = alternative.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+		TypeInfo commonType;
+		if (value.jumpsUnconditionally()) {
+			if (alternative.jumpsUnconditionally()) {
+				commonType = TypeInfos.VOID;
+			}
+			else {
+				commonType = alternative.getTypeInfo();
+			}
+		}
+		else {
+			if (alternative.jumpsUnconditionally()) {
+				commonType = value.getTypeInfo();
+			}
+			else {
+				commonType = TypeMerger.computeMostSpecificType(value.getTypeInfo(), alternative.getTypeInfo());
+				value = value.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+				alternative = alternative.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+			}
+		}
 		return new ElvisInsnTree(value, alternative, commonType);
 	}
 

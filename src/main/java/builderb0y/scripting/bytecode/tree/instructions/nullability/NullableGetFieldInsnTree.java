@@ -28,10 +28,10 @@ public class NullableGetFieldInsnTree extends GetFieldInsnTree {
 
 		method.node.visitLabel(get);
 		this.field.emitGet(method);
-		method.node.visitInsn(this.field.type.isDoubleWidth() ? DUP2 : DUP);
-		ElvisInsnTree.jumpIfNonNull(method, this.field.type, end);
-		method.node.visitInsn(this.field.type.isDoubleWidth() ? POP2 : POP);
-		constantAbsent(this.getTypeInfo()).emitBytecode(method);
+		//method.node.visitInsn(this.field.type.isDoubleWidth() ? DUP2 : DUP);
+		//ElvisInsnTree.jumpIfNonNull(method, this.field.type, end);
+		//method.node.visitInsn(this.field.type.isDoubleWidth() ? POP2 : POP);
+		//constantAbsent(this.getTypeInfo()).emitBytecode(method);
 
 		method.node.visitLabel(end);
 	}

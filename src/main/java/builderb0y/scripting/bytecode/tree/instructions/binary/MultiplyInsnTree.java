@@ -26,10 +26,10 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
 		ConstantValue leftConstant  = left .getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
-		if (leftConstant.isConstant() &&rightConstant.isConstant()) {
+		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(leftConstant.   asInt() * rightConstant.   asInt());
-				case LONG   -> ldc(leftConstant.  asLong() * rightConstant.  asLong());
+				case INT    -> ldc(Math.multiplyExact(leftConstant. asInt(), rightConstant. asInt()));
+				case LONG   -> ldc(Math.multiplyExact(leftConstant.asLong(), rightConstant.asLong()));
 				case FLOAT  -> ldc(leftConstant. asFloat() * rightConstant. asFloat());
 				case DOUBLE -> ldc(leftConstant.asDouble() * rightConstant.asDouble());
 				default     -> throw new AssertionError(type);

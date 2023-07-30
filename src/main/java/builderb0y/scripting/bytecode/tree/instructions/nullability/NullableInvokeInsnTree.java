@@ -31,10 +31,10 @@ public class NullableInvokeInsnTree extends InvokeInstanceInsnTree {
 			arg.emitBytecode(method);
 		}
 		this.method.emit(method, this.opcode());
-		method.node.visitInsn(this.method.returnType.isDoubleWidth() ? DUP2 : DUP);
-		ElvisInsnTree.jumpIfNonNull(method, this.method.returnType, end);
-		method.node.visitInsn(this.method.returnType.isDoubleWidth() ? POP2 : POP);
-		constantAbsent(this.getTypeInfo()).emitBytecode(method);
+		//method.node.visitInsn(this.method.returnType.isDoubleWidth() ? DUP2 : DUP);
+		//ElvisInsnTree.jumpIfNonNull(method, this.method.returnType, end);
+		//method.node.visitInsn(this.method.returnType.isDoubleWidth() ? POP2 : POP);
+		//constantAbsent(this.getTypeInfo()).emitBytecode(method);
 
 		method.node.visitLabel(end);
 	}
