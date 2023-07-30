@@ -40,7 +40,7 @@
 						")",
 						"else if (y >= surface:",
 							"if ((x == minX || x == maxX) && (z == minZ || z == maxZ):",
-								"woodPalette != null ? woodPalette.fenceState() : 'minecraft:air'",
+								"woodPalette.?fenceState() ?: 'minecraft:air'",
 							")",
 							"else if (y == surface && (x == minX || x == maxX || z == minZ || z == maxZ):",
 								"maybeMossy()",

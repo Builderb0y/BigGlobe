@@ -1054,17 +1054,17 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
 		NamedType query = new NamedType();
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
 			MemberKeywordHandler handler = this.memberKeywords.get(query);
-			if (handler != null) return handler.create(parser, receiver, name);
+			if (handler != null) return handler.create(parser, receiver, name, mode);
 		}
 		query.owner = null;
 		MemberKeywordHandler handler = this.memberKeywords.get(query);
-		if (handler != null) return handler.create(parser, receiver, name);
+		if (handler != null) return handler.create(parser, receiver, name, mode);
 		return null;
 	}
 
@@ -1182,13 +1182,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface MemberKeywordHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException;
+		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException;
 
 		public static record Named(String name, MemberKeywordHandler handler) implements MemberKeywordHandler {
 
 			@Override
-			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-				return this.handler.create(parser, receiver, name);
+			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
+				return this.handler.create(parser, receiver, name, mode);
 			}
 
 			@Override

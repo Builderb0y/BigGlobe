@@ -74,10 +74,10 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree memberKeyword = environments.get(index).parseMemberKeyword(parser, receiver, name);
+			InsnTree memberKeyword = environments.get(index).parseMemberKeyword(parser, receiver, name, mode);
 			if (memberKeyword != null) return memberKeyword;
 		}
 		return null;

@@ -13,17 +13,26 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ElvisInsnTree implements InsnTree {
 
-	public InsnTree value, alternative;
+	public InsnTree compileValue, compileAlternative, runtimeValue, runtimeAlternative;
 	public TypeInfo type;
 
-	public ElvisInsnTree(InsnTree value, InsnTree alternative, TypeInfo type) {
-		this.value = value;
-		this.alternative = alternative;
-		this.type = type;
+	public ElvisInsnTree(
+		InsnTree compileValue,
+		InsnTree compileAlternative,
+		InsnTree runtimeValue,
+		InsnTree runtimeAlternative,
+		TypeInfo type
+	) {
+		this.compileValue       = compileValue;
+		this.compileAlternative = compileAlternative;
+		this.runtimeValue       = runtimeValue;
+		this.runtimeAlternative = runtimeAlternative;
+		this.type               = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, InsnTree value, InsnTree alternative) {
 		TypeInfo commonType;
+		InsnTree runtimeValue = value, runtimeAlternative = alternative;
 		if (value.jumpsUnconditionally()) {
 			if (alternative.jumpsUnconditionally()) {
 				commonType = TypeInfos.VOID;
@@ -38,21 +47,21 @@ public class ElvisInsnTree implements InsnTree {
 			}
 			else {
 				commonType = TypeMerger.computeMostSpecificType(value.getTypeInfo(), alternative.getTypeInfo());
-				value = value.cast(parser, commonType, CastMode.IMPLICIT_THROW);
-				alternative = alternative.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+				runtimeValue = value.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+				runtimeAlternative = alternative.cast(parser, commonType, CastMode.IMPLICIT_THROW);
 			}
 		}
-		return new ElvisInsnTree(value, alternative, commonType);
+		return new ElvisInsnTree(value, alternative, runtimeValue, runtimeAlternative, commonType);
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Label end = label();
-		this.value.emitBytecode(method);
-		method.node.visitInsn(this.value.getTypeInfo().isDoubleWidth() ? DUP2 : DUP); //2 copies of the value.
-		jumpIfNonNull(method, this.value.getTypeInfo(), end);
-		method.node.visitInsn(this.value.getTypeInfo().isDoubleWidth() ? POP2 : POP); //value is still on stack, and guaranteed to be null. pop it.
-		this.alternative.emitBytecode(method);
+		this.runtimeValue.emitBytecode(method);
+		method.node.visitInsn(this.runtimeValue.getTypeInfo().isDoubleWidth() ? DUP2 : DUP); //2 copies of the value.
+		jumpIfNonNull(method, this.runtimeValue.getTypeInfo(), end);
+		method.node.visitInsn(this.runtimeValue.getTypeInfo().isDoubleWidth() ? POP2 : POP); //value is still on stack, and guaranteed to be null. pop it.
+		this.runtimeAlternative.emitBytecode(method);
 		method.node.visitLabel(end);
 	}
 
@@ -103,6 +112,10 @@ public class ElvisInsnTree implements InsnTree {
 
 	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		return new ElvisInsnTree(this.value.cast(parser, type, mode), this.alternative.cast(parser, type, mode), type);
+		InsnTree value = this.compileValue.cast(parser, type, mode);
+		if (value == null) return null;
+		InsnTree alternative = this.compileAlternative.cast(parser, type, mode);
+		if (alternative == null) return null;
+		return new ElvisInsnTree(value, alternative, value, alternative, type);
 	}
 }

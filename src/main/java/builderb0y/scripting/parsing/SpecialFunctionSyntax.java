@@ -385,10 +385,9 @@ public class SpecialFunctionSyntax {
 		public static record NamedValue(String name, InsnTree value) {}
 
 		public static NamedValues parse(ExpressionParser parser, @Nullable TypeInfo valueType) throws ScriptParsingException {
-			parser.input.expectAfterWhitespace('(');
-			parser.environment.user().push();
+			parser.beginCodeBlock();
 			List<NamedValue> namedValues = new ArrayList<>(8);
-			if (!parser.input.hasAfterWhitespace(')')) {
+			if (parser.input.peekAfterWhitespace() != ')') {
 				while (true) {
 					String name = parser.input.expectIdentifierAfterWhitespace();
 					parser.input.expectOperatorAfterWhitespace(":");
@@ -398,12 +397,11 @@ public class SpecialFunctionSyntax {
 					}
 					namedValues.add(new NamedValue(name, value));
 					if (parser.input.hasOperatorAfterWhitespace(",")) continue;
-					else if (parser.input.hasAfterWhitespace(')')) break;
+					else if (parser.input.peekAfterWhitespace() == ')') break;
 					else throw new ScriptParsingException("Expected ',' or ')'", parser.input);
 				}
 			}
-			boolean hasNewVariables = parser.environment.user().hasNewVariables();
-			parser.environment.user().pop();
+			boolean hasNewVariables = parser.endCodeBlock();
 			return new NamedValues(namedValues.toArray(new NamedValue[namedValues.size()]), hasNewVariables);
 		}
 	}

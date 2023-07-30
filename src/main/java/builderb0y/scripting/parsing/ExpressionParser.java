@@ -41,6 +41,7 @@ import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
@@ -584,52 +585,33 @@ public class ExpressionParser {
 		try {
 			InsnTree left = this.nextPrefixOperator();
 			while (true) {
-				if (this.input.hasOperatorAfterWhitespace(".")) {
-					//note: can be the empty String, "".
-					//this is intentional to support array/list-lookup syntax:
-					//array.(index)
-					String memberName = this.input.readIdentifierAfterWhitespace();
+				boolean nullable;
+				if (this.input.hasOperatorAfterWhitespace(".")) nullable = false;
+				else if (this.input.hasOperatorAfterWhitespace(".?")) nullable = true;
+				else return left;
 
-					InsnTree result = this.environment.parseMemberKeyword(this, left, memberName);
-					if (result == null) {
-						if (this.input.peekAfterWhitespace() == '(') {
-							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-							result = this.environment.getMethod(this, left, memberName, GetMethodMode.NORMAL, arguments.arguments());
-							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
-							}
-							result = arguments.maybeWrap(result);
-						}
-						else {
-							result = this.environment.getField(this, left, memberName, GetFieldMode.NORMAL);
-							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
-							}
-						}
-					}
-					left = result;
-				}
-				else if (this.input.hasOperatorAfterWhitespace(".?")) {
-					String memberName = this.input.readIdentifierAfterWhitespace();
-					InsnTree result;
+				//note: can be the empty String, "".
+				//this is intentional to support array/list-lookup syntax:
+				//array.(index)
+				String memberName = this.input.readIdentifierAfterWhitespace();
+				InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, nullable ? MemberKeywordMode.NULLABLE : MemberKeywordMode.NORMAL);
+				if (result == null) {
 					if (this.input.peekAfterWhitespace() == '(') {
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-						result = this.environment.getMethod(this, left, memberName, GetMethodMode.NULLABLE, arguments.arguments());
+						result = this.environment.getMethod(this, left, memberName, nullable ? GetMethodMode.NULLABLE : GetMethodMode.NORMAL, arguments.arguments());
 						if (result == null) {
-							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + ".?" + memberName + "(", ")"))), this.input);
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 						}
+						result = arguments.maybeWrap(result);
 					}
 					else {
-						result = this.environment.getField(this, left, memberName, GetFieldMode.NULLABLE);
+						result = this.environment.getField(this, left, memberName, nullable ? GetFieldMode.NULLABLE : GetFieldMode.NORMAL);
 						if (result == null) {
-							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + ".?" + memberName), this.input);
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 						}
 					}
-					left = result;
 				}
-				else {
-					return left;
-				}
+				left = result;
 			}
 		}
 		catch (RuntimeException exception) {

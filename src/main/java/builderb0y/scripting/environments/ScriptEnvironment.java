@@ -11,13 +11,17 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.GetFromStackInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.nullability.NullMapperInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableFakeInvokeStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableGetFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ScriptEnvironment {
 
@@ -201,8 +205,44 @@ public interface ScriptEnvironment {
 
 	if no special method exists with the given name, this method returns null.
 	*/
-	public default @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public default @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
 		return null;
+	}
+
+	public static enum MemberKeywordMode {
+
+		NORMAL {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return function.apply(receiver);
+			}
+		},
+
+		NULLABLE {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return new NullMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
+			}
+		};
+
+		/**
+		creates an InsnTree from the provided receiver and function.
+		the function is expected to transform the receiver into some other InsnTree.
+		if this is the normal mode, then the function is called on the provided receiver.
+		but for the nullable mode it's a bit more complex: a {@link NullMapperInsnTree}
+		is created using the provided receiver, and the function is called on a
+		{@link GetFromStackInsnTree} instead. this works because {@link NullMapperInsnTree}
+		leaves a copy of the receiver on the stack when emitting bytecode for its mapper.
+		*/
+		public abstract InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException;
+
+		@FunctionalInterface
+		public static interface MemberKeywordFunction {
+
+			public abstract InsnTree apply(InsnTree receiver) throws ScriptParsingException;
+		}
 	}
 
 	/**

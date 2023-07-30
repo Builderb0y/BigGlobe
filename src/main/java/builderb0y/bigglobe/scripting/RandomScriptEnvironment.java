@@ -17,6 +17,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -101,11 +102,11 @@ public class RandomScriptEnvironment {
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)
 			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, double.class)
-			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name) -> {
-				return randomIf(parser, receiver, false);
+			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name, mode) -> {
+				return wrapRandomIf(parser, receiver, false, mode);
 			})
-			.addMemberKeyword(type(RandomGenerator.class), "unless", (parser, receiver, name) -> {
-				return randomIf(parser, receiver, true);
+			.addMemberKeyword(type(RandomGenerator.class), "unless", (parser, receiver, name, mode) -> {
+				return wrapRandomIf(parser, receiver, true, mode);
 			})
 		);
 	}
@@ -119,6 +120,10 @@ public class RandomScriptEnvironment {
 			seed = invokeStatic(PERMUTE_INT, seed, next);
 		}
 		return new CastResult(seed, needCasting);
+	}
+
+	public static InsnTree wrapRandomIf(ExpressionParser parser, InsnTree receiver, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {
+		return mode.apply(receiver, actualReceiver -> randomIf(parser, actualReceiver, negate));
 	}
 
 	public static InsnTree randomIf(ExpressionParser parser, InsnTree receiver, boolean negate) throws ScriptParsingException {

@@ -119,8 +119,8 @@ public class BuiltinScriptEnvironment {
 
 		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
 		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name) -> nextIfElse(receiver, parser, false))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name) -> nextIfElse(receiver, parser, true))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, false))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, true))
 		.addKeyword("while", (parser, name) -> {
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			ConditionBody whileStatement = ConditionBody.parse(parser);
@@ -178,21 +178,21 @@ public class BuiltinScriptEnvironment {
 
 		//////////////// member keywords ////////////////
 
-		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name, mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 			}
 			return instanceOf(receiver, type);
 		})
-		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name, mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 			}
 			return not(parser, instanceOf(receiver, type));
 		})
-		.addMemberKeyword(null, "as", (parser, receiver, name) -> {
+		.addMemberKeyword(null, "as", (parser, receiver, name, mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
 		})
 

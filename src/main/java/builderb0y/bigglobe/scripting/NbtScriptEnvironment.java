@@ -112,7 +112,7 @@ public class NbtScriptEnvironment {
 				return new CastResult(CommonGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(CommonGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex, SET_ELEMENT, "NbtElement", mode), false);
+				return new CastResult(CommonGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
 			}
 			else {
 				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);

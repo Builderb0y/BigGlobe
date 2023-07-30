@@ -53,11 +53,32 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> {
-						if (operator == "/" && left / right * right != left) {
-							return Math.floorDiv(left, right);
-						}
-						else {
+						try {
+							//if we're able to constant fold without overflow or precision loss...
+							switch (operator) {
+								case "+" -> Math.addExact(left, right);
+								case "-" -> Math.subtractExact(left, right);
+								case "*" -> Math.multiplyExact(left, right);
+								case "/" -> {
+									if (left / right * right != left) {
+										throw new ArithmeticException();
+									}
+								}
+							}
+							//...then make sure the script parser can do so too.
 							return new ScriptParser<>(IntSupplier.class, left + " " + operator + " " + right).parse().getAsInt();
+						}
+						catch (ArithmeticException ignored) {
+							//otherwise, do the operation the lossy overflowy way,
+							//and make sure the script parser gets the same result
+							//when one of the operands isn't constant.
+							return switch (operator) {
+								case "+" -> left + right;
+								case "-" -> left - right;
+								case "*" -> left * right;
+								case "/" -> Math.floorDiv(left, right);
+								default -> throw new AssertionError(operator);
+							};
 						}
 					});
 					Object b = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.INT)).parse().applyAsInt(left));
@@ -84,11 +105,32 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> {
-						if (operator == "/" && left / right * right != left) {
-							return Math.floorDiv(left, right);
-						}
-						else {
+						try {
+							//if we're able to constant fold without overflow or precision loss...
+							switch (operator) {
+								case "+" -> Math.addExact(left, right);
+								case "-" -> Math.subtractExact(left, right);
+								case "*" -> Math.multiplyExact(left, right);
+								case "/" -> {
+									if (left / right * right != left) {
+										throw new ArithmeticException();
+									}
+								}
+							}
+							//...then make sure the script parser can do so too.
 							return new ScriptParser<>(LongSupplier.class, left + "L " + operator + " " + right + "L").parse().getAsLong();
+						}
+						catch (ArithmeticException ignored) {
+							//otherwise, do the operation the lossy overflowy way,
+							//and make sure the script parser gets the same result
+							//when one of the operands isn't constant.
+							return switch (operator) {
+								case "+" -> left + right;
+								case "-" -> left - right;
+								case "*" -> left * right;
+								case "/" -> Math.floorDiv(left, right);
+								default -> throw new AssertionError(operator);
+							};
 						}
 					});
 					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right + "L").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG)).parse().applyAsLong(left));
