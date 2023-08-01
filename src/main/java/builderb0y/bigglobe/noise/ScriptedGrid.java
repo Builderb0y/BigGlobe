@@ -157,13 +157,11 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 	public static abstract class Parser extends ExpressionParser {
 
-		public static final MethodInfo CHECK_NAN = method(
-			ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-			TypeInfo.of(Parser.class),
-			"checkNaN",
-			TypeInfos.DOUBLE,
-			TypeInfos.DOUBLE
-		);
+		public static final MethodInfo
+			CHECK_NAN = MethodInfo.getMethod(Parser.class, "checkNaN"),
+			GET_SCRATCH_ARRAY = MethodInfo.getMethod(Grid.class, "getScratchArray"),
+			RECLAIM_SCRATCH_ARRAY = MethodInfo.getMethod(Grid.class, "reclaimScratchArray"),
+			OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class);
 
 		public LinkedHashMap<String, Input> inputs;
 		public GridTypeInfo gridTypeInfo;
@@ -259,11 +257,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			.scopes
 			.withScope((MethodCompileContext constructor) -> {
 				VarInfo thisVar = constructor.addThis();
-				invokeInstance(
-					load(thisVar),
-					constructor(ACC_PUBLIC, Object.class)
-				)
-				.emitBytecode(constructor);
+				invokeInstance(load(thisVar), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
 				constructor.node.visitLabel(label());
 				for (Input input : this.inputs.values()) {
 					VarInfo parameter = input.newGridParameter(constructor);
@@ -304,7 +298,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 							load(thisVar),
 							input.fieldInfo(getValue)
 						),
-						method(
+						new MethodInfo(
 							ACC_PUBLIC | ACC_INTERFACE,
 							this.gridTypeInfo.type,
 							"getValue",

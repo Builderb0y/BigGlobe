@@ -101,30 +101,6 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new VarInfo(name, index, type(type));
 	}
 
-	public static MethodInfo method(int access, TypeInfo owner, String name, TypeInfo returnType, TypeInfo... paramTypes) {
-		return new MethodInfo(access, owner, name, returnType, paramTypes);
-	}
-
-	public static MethodInfo method(int access, Class<?> owner, String name, Class<?> returnType, Class<?>... paramTypes) {
-		return new MethodInfo(access, type(owner), name, type(returnType), types(paramTypes));
-	}
-
-	public static MethodInfo constructor(int access, TypeInfo owner, TypeInfo... paramTypes) {
-		return new MethodInfo(access, owner, "<init>", TypeInfos.VOID, paramTypes);
-	}
-
-	public static MethodInfo constructor(int access, Class<?> owner, Class<?>... paramTypes) {
-		return new MethodInfo(access, type(owner), "<init>", TypeInfos.VOID, types(paramTypes));
-	}
-
-	public static FieldInfo field(int access, TypeInfo owner, String name, TypeInfo type) {
-		return new FieldInfo(access, owner, name, type);
-	}
-
-	public static FieldInfo field(int access, Class<?> owner, String name, Class<?> type) {
-		return new FieldInfo(access, type(owner), name, type(type));
-	}
-
 	public static ConstantValue constant(boolean  value) { return ConstantValue.of(value); }
 	public static ConstantValue constant(byte     value) { return ConstantValue.of(value); }
 	public static ConstantValue constant(char     value) { return ConstantValue.of(value); }

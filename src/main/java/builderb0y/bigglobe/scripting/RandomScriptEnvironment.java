@@ -26,12 +26,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class RandomScriptEnvironment {
 
 	public static final MethodInfo
-		CONSTRUCTOR = MethodInfo.findConstructor(Permuter.class, long.class),
-		PERMUTE_INT = MethodInfo.findMethod(Permuter.class, "permute", long.class, long.class, int.class).pure(),
-		NEXT_INT_1  = MethodInfo.findMethod(RandomGenerator.class, "nextInt", int.class, int.class),
-		NEXT_BOOLEAN = MethodInfo.findMethod(RandomGenerator.class, "nextBoolean", boolean.class),
-		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class),
-		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class);
+		CONSTRUCTOR            = MethodInfo.findConstructor(Permuter       .class,                       long   .class                                     ),
+		PERMUTE_INT            = MethodInfo.findMethod     (Permuter       .class, "permute",            long   .class,            long.class, int   .class).pure(),
+		NEXT_INT_1             = MethodInfo.findMethod     (RandomGenerator.class, "nextInt",            int    .class,            int .class              ),
+		NEXT_BOOLEAN           = MethodInfo.findMethod     (RandomGenerator.class, "nextBoolean",        boolean.class                                     ),
+		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float .class),
+		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class),
+		ASSERT_FAIL            = MethodInfo.findConstructor(AssertionError .class,                       String .class                                     );
 
 	public static MutableScriptEnvironment create(InsnTree loader) {
 		return (
@@ -58,11 +59,7 @@ public class RandomScriptEnvironment {
 				cases.defaultReturnValue(
 					throw_(
 						newInstance(
-							constructor(
-								ACC_PUBLIC,
-								AssertionError.class,
-								String.class
-							),
+							ASSERT_FAIL,
 							ldc("Random returned value out of range")
 						)
 					)

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -19,6 +20,40 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ArrayExtensions {
 
 	public static final Set<TypeInfo> ARRAY_CLASSES = Set.of(TypeInfos.OBJECT, TypeInfo.of(Cloneable.class), TypeInfo.of(Serializable.class));
+
+	public static final MethodInfo
+		BYTE_ARRAY_EQUALS       = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, byte   [].class, byte   [].class).pure(),
+		SHORT_ARRAY_EQUALS      = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, short  [].class, short  [].class).pure(),
+		INT_ARRAY_EQUALS        = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, int    [].class, int    [].class).pure(),
+		LONG_ARRAY_EQUALS       = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, long   [].class, long   [].class).pure(),
+		FLOAT_ARRAY_EQUALS      = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, float  [].class, float  [].class).pure(),
+		DOUBLE_ARRAY_EQUALS     = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, double [].class, double [].class).pure(),
+		CHAR_ARRAY_EQUALS       = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, char   [].class, char   [].class).pure(),
+		BOOLEAN_ARRAY_EQUALS    = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, boolean[].class, boolean[].class).pure(),
+		OBJECT_EQUALS           = MethodInfo.findMethod(ArrayExtensions.class, "equals",            boolean.class, Object   .class, Object   .class).pure(),
+		OBJECTS_EQUALS          = MethodInfo.findMethod(Objects        .class, "equals",            boolean.class, Object   .class, Object   .class).pure(),
+		OBJECT_ARRAY_EQUALS     = MethodInfo.findMethod(ArrayExtensions.class, "objectArrayEquals", boolean.class, Object [].class, Object [].class).pure(),
+		OBJECT_ARRAYS_EQUALS    = MethodInfo.findMethod(Arrays         .class, "equals",            boolean.class, Object [].class, Object [].class).pure(),
+		BYTE_HASH_CODE          = MethodInfo.findMethod(Byte           .class, "hashCode",              int.class, byte     .class                 ).pure(),
+		SHORT_HASH_CODE         = MethodInfo.findMethod(Short          .class, "hashCode",              int.class, short    .class                 ).pure(),
+		INT_HASH_CODE           = MethodInfo.findMethod(Integer        .class, "hashCode",              int.class, int      .class                 ).pure(),
+		LONG_HASH_CODE          = MethodInfo.findMethod(Long           .class, "hashCode",              int.class, long     .class                 ).pure(),
+		FLOAT_HASH_CODE         = MethodInfo.findMethod(Float          .class, "hashCode",              int.class, float    .class                 ).pure(),
+		DOUBLE_HASH_CODE        = MethodInfo.findMethod(Double         .class, "hashCode",              int.class, double   .class                 ).pure(),
+		CHAR_HASH_CODE          = MethodInfo.findMethod(Character      .class, "hashCode",              int.class, char     .class                 ).pure(),
+		BOOLEAN_HASH_CODE       = MethodInfo.findMethod(Boolean        .class, "hashCode",              int.class, boolean  .class                 ).pure(),
+		OBJECT_HASH_CODE        = MethodInfo.findMethod(ArrayExtensions.class, "hashCode",              int.class, Object   .class                 ).pure(),
+		OBJECTS_HASH_CODE       = MethodInfo.findMethod(Objects        .class, "hashCode",              int.class, Object   .class                 ).pure(),
+		BYTE_ARRAY_HASH_CODE    = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, byte   [].class                 ).pure(),
+		SHORT_ARRAY_HASH_CODE   = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, short  [].class                 ).pure(),
+		INT_ARRAY_HASH_CODE     = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, int    [].class                 ).pure(),
+		LONG_ARRAY_HASH_CODE    = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, long   [].class                 ).pure(),
+		FLOAT_ARRAY_HASH_CODE   = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, float  [].class                 ).pure(),
+		DOUBLE_ARRAY_HASH_CODE  = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, double [].class                 ).pure(),
+		CHAR_ARRAY_HASH_CODE    = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, char   [].class                 ).pure(),
+		BOOLEAN_ARRAY_HASH_CODE = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, boolean[].class                 ).pure(),
+		OBJECT_ARRAY_HASH_CODE  = MethodInfo.findMethod(ArrayExtensions.class, "objectArrayHashCode",   int.class, Object [].class                 ).pure(),
+		OBJECT_ARRAYS_HASH_CODE = MethodInfo.findMethod(Arrays         .class, "hashCode",              int.class, Object [].class                 ).pure();
 
 	public static InsnTree computeEquals(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo leftType = left.getTypeInfo(), rightType = right.getTypeInfo();
@@ -37,34 +72,29 @@ public class ArrayExtensions {
 			case BOOLEAN -> bool(   IntCompareConditionTree.equal(left, right));
 			case OBJECT  -> {
 				if (ARRAY_CLASSES.contains(commonType)) {
-					yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "equals", boolean.class, Object.class, Object.class), left, right);
+					yield invokeStatic(OBJECT_EQUALS, left, right);
 				}
 				else {
-					yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Objects.class, "equals", boolean.class, Object.class, Object.class), left, right);
+					yield invokeStatic(OBJECTS_EQUALS, left, right);
 				}
 			}
 			case ARRAY -> {
 				TypeInfo componentType = commonType.componentType;
 				yield switch (componentType.getSort()) {
 					case VOID    -> throw new IllegalArgumentException("Array of voids");
-					case BYTE    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, byte   [].class, byte   [].class), left, right);
-					case SHORT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, short  [].class, short  [].class), left, right);
-					case INT     -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, int    [].class, int    [].class), left, right);
-					case LONG    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, long   [].class, long   [].class), left, right);
-					case FLOAT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, float  [].class, float  [].class), left, right);
-					case DOUBLE  -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, double [].class, double [].class), left, right);
-					case CHAR    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, char   [].class, char   [].class), left, right);
-					case BOOLEAN -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, boolean[].class, boolean[].class), left, right);
+					case BYTE    -> invokeStatic(   BYTE_ARRAY_EQUALS, left, right);
+					case SHORT   -> invokeStatic(  SHORT_ARRAY_EQUALS, left, right);
+					case INT     -> invokeStatic(    INT_ARRAY_EQUALS, left, right);
+					case LONG    -> invokeStatic(   LONG_ARRAY_EQUALS, left, right);
+					case FLOAT   -> invokeStatic(  FLOAT_ARRAY_EQUALS, left, right);
+					case DOUBLE  -> invokeStatic( DOUBLE_ARRAY_EQUALS, left, right);
+					case CHAR    -> invokeStatic(   CHAR_ARRAY_EQUALS, left, right);
+					case BOOLEAN -> invokeStatic(BOOLEAN_ARRAY_EQUALS, left, right);
 					case OBJECT  -> {
-						if (ARRAY_CLASSES.contains(componentType)) {
-							yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "equals", boolean.class, Object[].class, Object[].class), left, right);
-						}
-						else {
-							yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "equals", boolean.class, Object[].class, Object[].class), left, right);
-						}
+						yield invokeStatic(ARRAY_CLASSES.contains(componentType) ? OBJECT_ARRAY_EQUALS : OBJECT_ARRAYS_EQUALS, left, right);
 					}
 					case ARRAY -> {
-						yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "equals", boolean.class, Object[].class, Object[].class), left, right);
+						yield invokeStatic(OBJECT_ARRAY_EQUALS, left, right);
 					}
 				};
 			}
@@ -141,44 +171,34 @@ public class ArrayExtensions {
 		TypeInfo type = object.getTypeInfo();
 		return switch (type.getSort()) {
 			case VOID    -> throw new IllegalArgumentException("Hash code of void");
-			case BYTE    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Byte     .class, "hashCode", int.class, byte   .class), object);
-			case SHORT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Short    .class, "hashCode", int.class, short  .class), object);
-			case INT     -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Integer  .class, "hashCode", int.class, int    .class), object);
-			case LONG    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Long     .class, "hashCode", int.class, long   .class), object);
-			case FLOAT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Float    .class, "hashCode", int.class, float  .class), object);
-			case DOUBLE  -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Double   .class, "hashCode", int.class, double .class), object);
-			case CHAR    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Character.class, "hashCode", int.class, char   .class), object);
-			case BOOLEAN -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Boolean  .class, "hashCode", int.class, boolean.class), object);
+			case BYTE    -> invokeStatic(   BYTE_HASH_CODE, object);
+			case SHORT   -> invokeStatic(  SHORT_HASH_CODE, object);
+			case INT     -> invokeStatic(    INT_HASH_CODE, object);
+			case LONG    -> invokeStatic(   LONG_HASH_CODE, object);
+			case FLOAT   -> invokeStatic(  FLOAT_HASH_CODE, object);
+			case DOUBLE  -> invokeStatic( DOUBLE_HASH_CODE, object);
+			case CHAR    -> invokeStatic(   CHAR_HASH_CODE, object);
+			case BOOLEAN -> invokeStatic(BOOLEAN_HASH_CODE, object);
 			case OBJECT  -> {
-				if (ARRAY_CLASSES.contains(type)) {
-					yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "hashCode", int.class, Object.class), object);
-				}
-				else {
-					yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Objects.class, "hashCode", int.class, Object.class), object);
-				}
+				yield invokeStatic(ARRAY_CLASSES.contains(type) ? OBJECT_HASH_CODE : OBJECTS_HASH_CODE, object);
 			}
 			case ARRAY -> {
 				TypeInfo componentType = type.componentType;
 				yield switch (componentType.getSort()) {
 					case VOID    -> throw new IllegalArgumentException("Array of voids");
-					case BYTE    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, byte   [].class), object);
-					case SHORT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, short  [].class), object);
-					case INT     -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, int    [].class), object);
-					case LONG    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, long   [].class), object);
-					case FLOAT   -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, float  [].class), object);
-					case DOUBLE  -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, double [].class), object);
-					case CHAR    -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, char   [].class), object);
-					case BOOLEAN -> invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, boolean[].class), object);
+					case BYTE    -> invokeStatic(   BYTE_ARRAY_HASH_CODE, object);
+					case SHORT   -> invokeStatic(  SHORT_ARRAY_HASH_CODE, object);
+					case INT     -> invokeStatic(    INT_ARRAY_HASH_CODE, object);
+					case LONG    -> invokeStatic(   LONG_ARRAY_HASH_CODE, object);
+					case FLOAT   -> invokeStatic(  FLOAT_ARRAY_HASH_CODE, object);
+					case DOUBLE  -> invokeStatic( DOUBLE_ARRAY_HASH_CODE, object);
+					case CHAR    -> invokeStatic(   CHAR_ARRAY_HASH_CODE, object);
+					case BOOLEAN -> invokeStatic(BOOLEAN_ARRAY_HASH_CODE, object);
 					case OBJECT  -> {
-						if (ARRAY_CLASSES.contains(componentType)) {
-							yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "objectArrayHashCode", int.class, Object[].class), object);
-						}
-						else {
-							yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, Arrays.class, "hashCode", int.class, Object[].class), object);
-						}
+						yield invokeStatic(ARRAY_CLASSES.contains(componentType) ? OBJECT_ARRAY_HASH_CODE : OBJECT_ARRAYS_HASH_CODE, object);
 					}
 					case ARRAY -> {
-						yield invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, ArrayExtensions.class, "objectArrayHashCode", int.class, Object[].class), object);
+						yield invokeStatic(OBJECT_ARRAY_HASH_CODE, object);
 					}
 				};
 			}

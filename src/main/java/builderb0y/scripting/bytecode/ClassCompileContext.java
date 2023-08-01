@@ -112,7 +112,7 @@ public class ClassCompileContext {
 				invokeInstance(
 					load(thisVar),
 					//super constructor access doesn't actually matter for this use case.
-					constructor(ACC_PUBLIC, this.info.superClass)
+					new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
 				)
 			)
 			.emitBytecode(method);
@@ -128,10 +128,13 @@ public class ClassCompileContext {
 
 	public MethodCompileContext newMethod(int access, String name, TypeInfo returnType, TypeInfo... paramTypes) {
 		access |= this.node.access & ACC_INTERFACE;
-		return this.newMethod(method(access, this.info, name, returnType, paramTypes));
+		return this.newMethod(new MethodInfo(access, this.info, name, returnType, paramTypes));
 	}
 
 	public MethodCompileContext newMethod(MethodInfo info) {
+		if (!info.owner.equals(this.info)) {
+			throw new IllegalArgumentException("Attempt to add method from a different class: Expected " + this.info + ", got " + info.owner);
+		}
 		MethodNode method = new MethodNode(info.access(), info.name, info.getDescriptor(), null, null);
 		this.node.methods.add(method);
 		return new MethodCompileContext(this, method, info);

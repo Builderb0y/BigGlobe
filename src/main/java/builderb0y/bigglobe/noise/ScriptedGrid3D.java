@@ -77,6 +77,14 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 	public static class Parser extends ScriptedGrid.Parser {
 
+		@SuppressWarnings("MultipleVariablesInDeclaration")
+		public static final MethodInfo
+			GET_BULK_X = MethodInfo.getMethod(Grid3D.class, "getBulkX"),
+			GET_BULK_Y = MethodInfo.getMethod(Grid3D.class, "getBulkY"),
+			GET_BULK_Z = MethodInfo.getMethod(Grid3D.class, "getBulkZ"),
+			GET_BULK[] = { GET_BULK_X, GET_BULK_Y, GET_BULK_Z };
+
+
 		public Parser(String input, LinkedHashMap<String, Input> inputs) {
 			super(input, inputs, GRID_3D_TYPE_INFO);
 		}
@@ -88,24 +96,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
-			String methodName = switch (methodDimension) {
-				case 0 -> "getBulkX";
-				case 1 -> "getBulkY";
-				case 2 -> "getBulkZ";
-				default -> throw new IllegalArgumentException("Invalid methodDimension: " + methodDimension);
-			};
-			this.clazz.newMethod(
-				ACC_PUBLIC,
-				methodName,
-				TypeInfos.VOID, //returnType
-				TypeInfos.LONG, //seed
-				TypeInfos.INT, //x
-				TypeInfos.INT, //y
-				TypeInfos.INT, //z
-				type(double[].class), //samples
-				TypeInfos.INT //sampleCount
-			)
-			.scopes.withScope((MethodCompileContext getBulk) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
 				Input input = this.inputs.values().iterator().next();
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
@@ -130,18 +122,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 						load(thisVar),
 						input.fieldInfo(getBulk)
 					),
-					method(
-						ACC_PUBLIC | ACC_INTERFACE,
-						GRID_3D_TYPE_INFO.type,
-						methodName,
-						TypeInfos.VOID, //returnType
-						TypeInfos.LONG, //seed
-						TypeInfos.INT, //x
-						TypeInfos.INT, //y
-						TypeInfos.INT, //z
-						type(double[].class), //samples
-						TypeInfos.INT //sampleCount
-					),
+					methodInfo,
 					load(seed),
 					load(x),
 					load(y),
@@ -163,7 +144,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | ACC_STATIC,
 									getBulk_.clazz.info,
 									"evaluate",
@@ -187,24 +168,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 		@Override
 		public void addGetBulkMany(int methodDimension) {
-			String methodName = switch (methodDimension) {
-				case 0 -> "getBulkX";
-				case 1 -> "getBulkY";
-				case 2 -> "getBulkZ";
-				default -> throw new IllegalArgumentException("Invalid methodDimension: " + methodDimension);
-			};
-			this.clazz.newMethod(
-				ACC_PUBLIC,
-				methodName,
-				TypeInfos.VOID, //returnType
-				TypeInfos.LONG, //seed
-				TypeInfos.INT, //x
-				TypeInfos.INT, //y
-				TypeInfos.INT, //z
-				type(double[].class), //samples
-				TypeInfos.INT //sampleCount
-			)
-			.scopes.withScope((MethodCompileContext getBulk) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
@@ -232,13 +197,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					store(
 						scratches[input.index],
 						invokeStatic(
-							method(
-								ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-								type(Grid.class),
-								"getScratchArray",
-								type(double[].class),
-								TypeInfos.INT
-							),
+							GET_SCRATCH_ARRAY,
 							load(sampleCount)
 						)
 					)
@@ -252,18 +211,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 							load(thisVar),
 							input.fieldInfo(getBulk)
 						),
-						method(
-							ACC_PUBLIC | ACC_INTERFACE,
-							GRID_3D_TYPE_INFO.type,
-							methodName,
-							TypeInfos.VOID, //returnType
-							TypeInfos.LONG, //seed
-							TypeInfos.INT, //x
-							TypeInfos.INT, //y
-							TypeInfos.INT, //z
-							type(double[].class), //samples
-							TypeInfos.INT //sampleCount
-						),
+						methodInfo,
 						load(seed),
 						load(x),
 						load(y),
@@ -286,7 +234,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | ACC_STATIC,
 									getBulk_.clazz.info,
 									"evaluate",
@@ -316,13 +264,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				//reclaim scratch arrays.
 				for (Input input : this.inputs.values()) {
 					invokeStatic(
-						new MethodInfo(
-							ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-							type(Grid.class),
-							"reclaimScratchArray",
-							TypeInfos.VOID,
-							type(double[].class)
-						),
+						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])
 					)
 					.emitBytecode(getBulk);

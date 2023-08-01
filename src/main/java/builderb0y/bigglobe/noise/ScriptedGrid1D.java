@@ -9,6 +9,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -59,6 +60,10 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 	public static class Parser extends ScriptedGrid.Parser {
 
+		@SuppressWarnings("MultipleVariablesInDeclaration")
+		public static final MethodInfo
+			GET_BULK_X = MethodInfo.getMethod(Grid1D.class, "getBulkX"),
+			GET_BULK[] = { GET_BULK_X };
 
 		public Parser(String source, LinkedHashMap<String, Input> inputs) {
 			super(source, inputs, GRID_1D_TYPE_INFO);
@@ -71,13 +76,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
-			this.clazz.newMethod(
-				ACC_PUBLIC,
-				"getBulkX",
-				TypeInfos.VOID,
-				types("JI[DI")
-			)
-			.scopes.withScope((MethodCompileContext getBulkX) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulkX) -> {
 				Input input = this.inputs.values().iterator().next();
 				VarInfo thisVar     = getBulkX.addThis();
 				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
@@ -104,13 +104,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						load(thisVar),
 						input.fieldInfo(getBulkX)
 					),
-					method(
-						ACC_PUBLIC | ACC_INTERFACE,
-						GRID_1D_TYPE_INFO.type,
-						"getBulkX",
-						TypeInfos.VOID,
-						types("LI[DI")
-					),
+					methodInfo,
 					load(seed),
 					load(startX),
 					load(samples),
@@ -130,7 +124,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | INVOKESTATIC,
 									getBulkX_.clazz.info,
 									"evaluate",
@@ -152,7 +146,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 		@Override
 		public void addGetBulkMany(int methodDimension) {
-			this.clazz.newMethod(ACC_PUBLIC, "getBulkX", TypeInfos.VOID, types("JI[DI")).scopes.withScope((MethodCompileContext getBulkX) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulkX) -> {
 				VarInfo thisVar     = getBulkX.addThis();
 				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
@@ -182,13 +177,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					store(
 						scratches[input.index],
 						invokeStatic(
-							method(
-								ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-								type(Grid.class),
-								"getScratchArray",
-								DOUBLE_ARRAY,
-								TypeInfos.INT
-							),
+							GET_SCRATCH_ARRAY,
 							load(sampleCount)
 						)
 					)
@@ -199,13 +188,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				for (Input input : this.inputs.values()) {
 					invokeInstance(
 						getField(load(thisVar), input.fieldInfo(getBulkX)),
-						method(
-							ACC_PUBLIC | ACC_INTERFACE,
-							GRID_1D_TYPE_INFO.type,
-							"getBulkX",
-							TypeInfos.VOID,
-							types("JI[DI")
-						),
+						methodInfo,
 						load(seed),
 						load(startX),
 						load(scratches[input.index]),
@@ -226,7 +209,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | ACC_STATIC,
 									getBulkX_.clazz.info,
 									"evaluate",
@@ -251,13 +234,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				//reclaim scratch arrays.
 				for (Input input : this.inputs.values()) {
 					invokeStatic(
-						method(
-							ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-							type(Grid.class),
-							"reclaimScratchArray",
-							TypeInfos.VOID,
-							DOUBLE_ARRAY
-						),
+						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])
 					)
 					.emitBytecode(getBulkX);

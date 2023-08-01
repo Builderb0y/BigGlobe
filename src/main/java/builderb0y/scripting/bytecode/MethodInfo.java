@@ -45,6 +45,29 @@ public class MethodInfo {
 		return !this.isPure() ? this : new MethodInfo(this.access & ~PURE, this.owner, this.name, this.returnType, this.paramTypes);
 	}
 
+	public MethodInfo changeOwner(TypeInfo owner) {
+		return this.owner == owner ? this : new MethodInfo(this.access, owner, this.name, this.returnType, this.paramTypes);
+	}
+
+	public MethodInfo rename(String name) {
+		return this.name.equals(name) ? this : new MethodInfo(this.access, this.owner, name, this.returnType, this.paramTypes);
+	}
+
+	public MethodInfo changeReturnType(TypeInfo returnType) {
+		return this.returnType == returnType ? this : new MethodInfo(this.access, this.owner, this.name, returnType, this.paramTypes);
+	}
+
+	public MethodInfo changeParamTypes(TypeInfo... paramTypes) {
+		return this.paramTypes == paramTypes ? this : new MethodInfo(this.access, this.owner, this.name, this.returnType, paramTypes);
+	}
+
+	public MethodInfo changeParamType(int index, TypeInfo paramType) {
+		if (this.paramTypes[index] == paramType) return this;
+		TypeInfo[] paramTypes = this.paramTypes.clone();
+		paramTypes[index] = paramType;
+		return new MethodInfo(this.access, this.owner, this.name, this.returnType, paramTypes);
+	}
+
 	public String getDescriptor() {
 		StringBuilder builder = new StringBuilder(128).append('(');
 		for (TypeInfo paramType : this.paramTypes) {

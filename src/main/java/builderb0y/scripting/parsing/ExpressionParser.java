@@ -1,9 +1,6 @@
 package builderb0y.scripting.parsing;
 
 import java.io.IOException;
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -102,6 +99,11 @@ public class ExpressionParser {
 		CLASS_DUMP_DIRECTORY = classDumpDirectory;
 		ScriptLogger.LOGGER.info("Class dumping is " + (classDumpDirectory != null ? "enabled" : "disabled") + '.');
 	}
+
+	public static final MethodInfo
+		OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
+		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants"),
+		HASH_MIX = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
 
 	public static void clinit() {}
 
@@ -750,17 +752,6 @@ public class ExpressionParser {
 		}
 	}
 
-	public static final MethodInfo STRING_CONCAT_FACTORY = method(
-		ACC_PUBLIC | ACC_STATIC,
-		StringConcatFactory.class,
-		"makeConcatWithConstants",
-		CallSite.class,
-		MethodHandles.Lookup.class,
-		String.class,
-		MethodType.class,
-		String.class,
-		Object[].class
-	);
 
 	public InsnTree nextString(char quote) throws ScriptParsingException {
 		StringBuilder string = new StringBuilder();
@@ -777,8 +768,8 @@ public class ExpressionParser {
 				}
 				else {
 					return invokeDynamic(
-						STRING_CONCAT_FACTORY,
-						method(
+						MAKE_CONCAT_WITH_CONSTANTS,
+						new MethodInfo(
 							ACC_PUBLIC | ACC_STATIC,
 							TypeInfos.OBJECT, //ignored
 							"concat",
@@ -1135,8 +1126,6 @@ public class ExpressionParser {
 		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 
-	public static final MethodInfo OBJECT_CONSTRUCTOR = method(ACC_PUBLIC, TypeInfos.OBJECT, "<init>", TypeInfos.VOID);
-
 	public InsnTree nextUserDefinedClass(String className) throws ScriptParsingException {
 		this.input.expectAfterWhitespace('(');
 		ClassCompileContext innerClass = this.clazz.newInnerClass(
@@ -1184,7 +1173,7 @@ public class ExpressionParser {
 				if (field.initializer != null) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						ldc(field.initializer)
 					)
 					.emitBytecode(constructor);
@@ -1199,7 +1188,7 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						load(constructor.newParameter(field.name(), field.info.type))
 					)
 					.emitBytecode(constructor);
@@ -1215,7 +1204,7 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClassType, field.info.name, field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.info.name, field.info.type),
 						field.initializer != null ? ldc(field.initializer) : load(constructor.newParameter(field.name(), field.info.type))
 					)
 					.emitBytecode(constructor);
@@ -1234,8 +1223,14 @@ public class ExpressionParser {
 			pattern.append(')');
 			return_(
 				invokeDynamic(
-					method(ACC_PUBLIC | ACC_STATIC, StringConcatFactory.class, "makeConcatWithConstants", CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, String.class, Object[].class),
-					method(ACC_PUBLIC | ACC_STATIC, TypeInfos.OBJECT, "toString", TypeInfos.STRING, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)),
+					MAKE_CONCAT_WITH_CONSTANTS,
+					new MethodInfo(
+						ACC_PUBLIC | ACC_STATIC,
+						TypeInfos.OBJECT,
+						"toString",
+						TypeInfos.STRING,
+						fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)
+					),
 					new ConstantValue[] {
 						constant(pattern.toString())
 					},
@@ -1314,18 +1309,16 @@ public class ExpressionParser {
 		//setup user definitions.
 		this.checkType(className);
 		this.environment.user().types.put(className, innerClassType);
-		this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID));
+		this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID));
 		if (!fields.isEmpty()) {
-			this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			if (nonDefaulted.size() != fields.size()) {
-				this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+				this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			}
 		}
 		fields.stream().map(field -> field.info).forEach(this.environment.user()::addFieldGetterAndSetter);
 		return noop;
 	}
-
-	public static final MethodInfo HASH_MIX = method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, HashCommon.class, "mix", int.class, int.class);
 
 	public TypeInfo getMainReturnType() {
 		return this.method.info.returnType;

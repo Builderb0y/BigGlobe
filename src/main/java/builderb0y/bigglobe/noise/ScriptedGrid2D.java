@@ -9,6 +9,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -64,6 +65,12 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 	public static class Parser extends ScriptedGrid.Parser {
 
+		@SuppressWarnings("MultipleVariablesInDeclaration")
+		public static final MethodInfo
+			GET_BULK_X = MethodInfo.getMethod(Grid2D.class, "getBulkX"),
+			GET_BULK_Y = MethodInfo.getMethod(Grid2D.class, "getBulkY"),
+			GET_BULK[] = { GET_BULK_X, GET_BULK_Y };
+
 		public Parser(String input, LinkedHashMap<String, Input> inputs) {
 			super(input, inputs, GRID_2D_TYPE_INFO);
 		}
@@ -75,18 +82,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
-			String methodName = methodDimension == 0 ? "getBulkX" : "getBulkY";
-			this.clazz.newMethod(
-				ACC_PUBLIC,
-				methodName,
-				TypeInfos.VOID, //returnType
-				TypeInfos.LONG, //seed
-				TypeInfos.INT, //x
-				TypeInfos.INT, //y
-				type(double[].class), //samples
-				TypeInfos.INT //sampleCount
-			)
-			.scopes.withScope((MethodCompileContext getBulk) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
 				Input firstInput = this.inputs.values().iterator().next();
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
@@ -114,17 +111,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						load(thisVar),
 						firstInput.fieldInfo(getBulk)
 					),
-					method(
-						ACC_PUBLIC | ACC_INTERFACE,
-						GRID_2D_TYPE_INFO.type,
-						methodName,
-						TypeInfos.VOID, //returnType
-						TypeInfos.LONG, //seed
-						TypeInfos.INT, //x
-						TypeInfos.INT, //y
-						type(double[].class), //samples
-						TypeInfos.INT //sampleCount
-					),
+					methodInfo,
 					load(seed),
 					load(x),
 					load(y),
@@ -149,7 +136,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | ACC_STATIC,
 									getBulk_.clazz.info,
 									"evaluate",
@@ -172,18 +159,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 		@Override
 		public void addGetBulkMany(int methodDimension) {
-			String methodName = methodDimension == 0 ? "getBulkX" : "getBulkY";
-			this.clazz.newMethod(
-				ACC_PUBLIC,
-				methodName,
-				TypeInfos.VOID, //returnType
-				TypeInfos.LONG, //seed
-				TypeInfos.INT, //x
-				TypeInfos.INT, //z
-				type(double[].class), //samples
-				TypeInfos.INT //sampleCount
-			)
-			.scopes.withScope((MethodCompileContext getBulk) -> {
+			MethodInfo methodInfo = GET_BULK[methodDimension];
+			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
@@ -210,13 +187,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					store(
 						scratches[input.index],
 						invokeStatic(
-							method(
-								ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-								type(Grid.class),
-								"getScratchArray",
-								type(double[].class),
-								TypeInfos.INT
-							),
+							GET_SCRATCH_ARRAY,
 							load(sampleCount)
 						)
 					)
@@ -230,17 +201,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							load(thisVar),
 							input.fieldInfo(getBulk)
 						),
-						method(
-							ACC_PUBLIC | ACC_INTERFACE,
-							GRID_2D_TYPE_INFO.type,
-							methodName,
-							TypeInfos.VOID, //returnType
-							TypeInfos.LONG, //seed
-							TypeInfos.INT, //x
-							TypeInfos.INT, //z
-							type(double[].class), //samples
-							TypeInfos.INT //sampleCount
-						),
+						methodInfo,
 						load(seed),
 						load(x),
 						load(y),
@@ -262,7 +223,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							load(samples),
 							load(index),
 							invokeStatic(
-								method(
+								new MethodInfo(
 									ACC_PUBLIC | ACC_STATIC,
 									getBulk_.clazz.info,
 									"evaluate",
@@ -288,13 +249,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				//reclaim scratch arrays.
 				for (Input input : this.inputs.values()) {
 					invokeStatic(
-						method(
-							ACC_PUBLIC | ACC_STATIC | ACC_INTERFACE,
-							type(Grid.class),
-							"reclaimScratchArray",
-							TypeInfos.VOID,
-							type(double[].class)
-						),
+						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])
 					)
 					.emitBytecode(getBulk);
