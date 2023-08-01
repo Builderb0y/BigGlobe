@@ -21,7 +21,7 @@ public class DistantHorizonsCompat {
 				try {
 					Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment");
 					handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
-					BigGlobeMod.LOGGER.info("Distant horizons compatibility enabled.");
+					BigGlobeMod.LOGGER.info("Distant horizons 1.6 compatibility enabled.");
 					break got;
 				}
 				catch (Exception ignored) {}
@@ -29,7 +29,7 @@ public class DistantHorizonsCompat {
 				try {
 					Class<?> environment = Class.forName("loaderCommon.fabric.com.seibel.distanthorizons.common.wrappers.worldGeneration.BatchGenerationEnvironment");
 					handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
-					BigGlobeMod.LOGGER.info("Distant horizons compatibility enabled.");
+					BigGlobeMod.LOGGER.info("Distant horizons 2.0 compatibility enabled.");
 					break got;
 				}
 				catch (Exception ignored) {}

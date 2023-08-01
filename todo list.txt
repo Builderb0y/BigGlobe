@@ -51,15 +51,14 @@ scripting:
 			due to the fact that you can't assign to final fields inside clone().
 			not that I have final fields yet, but still.
 	cache scripts.
-	for (int x in [0, 10) % step: body)
+	for (int x in range[0, 10) % step: body)
 		how to handle descending iteration?
-		maybe for (int x in -[0, 10) % step: body)?
+		maybe for (int x in -range[0, 10) % step: body)?
 		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
-	deprecate InsnTrees.method() and field().
 
 features:
 	general:

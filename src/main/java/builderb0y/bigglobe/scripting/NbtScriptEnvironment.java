@@ -198,7 +198,7 @@ public class NbtScriptEnvironment {
 	public static class ListBuilderInsnTree implements InsnTree {
 
 		public static final MethodInfo
-			CONSTRUCT = MethodInfo.getConstructor(NbtList.class),
+			CONSTRUCT = MethodInfo.findConstructor(NbtList.class),
 			BUILD_LIST = MethodInfo.getMethod(ListBuilderInsnTree.class, "buildList");
 
 		public InsnTree[] values;
