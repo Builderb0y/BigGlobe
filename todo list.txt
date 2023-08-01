@@ -36,11 +36,6 @@ scripting:
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
 	more invoke syntaxes:
-		receiver invoke.
-			foo.<bar() returns foo, not the return value of bar().
-			add setters to user-defined classes. they could make use of this.
-		nullable receiver invoke?
-			foo.?<bar() or foo.<?bar()? should both be accepted?
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.
 		nullable non-null invoke?
@@ -63,6 +58,8 @@ scripting:
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
+	inline getters and setters for user-defined classes.
+	deprecate InsnTrees.method() and field().
 
 features:
 	general:
@@ -117,6 +114,7 @@ features:
 			add "center" noise?
 		make lilypads renewable?
 		sandstone small house variant.
+		surface mineshaft structure.
 	nether:
 	end:
 		block of void?

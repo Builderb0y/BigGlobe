@@ -39,6 +39,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
@@ -474,17 +475,19 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "<"   -> { this.input.onCharsRead(operator); left = bool(    lt(this, left, this.nextSum()) ); }
-					case "<="  -> { this.input.onCharsRead(operator); left = bool(    le(this, left, this.nextSum()) ); }
-					case ">"   -> { this.input.onCharsRead(operator); left = bool(    gt(this, left, this.nextSum()) ); }
-					case ">="  -> { this.input.onCharsRead(operator); left = bool(    ge(this, left, this.nextSum()) ); }
-					case "=="  -> { this.input.onCharsRead(operator); left = bool(    eq(this, left, this.nextSum()) ); }
-					case "!="  -> { this.input.onCharsRead(operator); left = bool(    ne(this, left, this.nextSum()) ); }
-					case "!>"  -> { this.input.onCharsRead(operator); left = bool(not(gt(this, left, this.nextSum()))); }
-					case "!<"  -> { this.input.onCharsRead(operator); left = bool(not(lt(this, left, this.nextSum()))); }
-					case "!>=" -> { this.input.onCharsRead(operator); left = bool(not(ge(this, left, this.nextSum()))); }
-					case "!<=" -> { this.input.onCharsRead(operator); left = bool(not(le(this, left, this.nextSum()))); }
-					default   -> { return left; }
+					case "<"   -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum()) ); }
+					case "<="  -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum()) ); }
+					case ">"   -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum()) ); }
+					case ">="  -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum()) ); }
+					case "=="  -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum()) ); }
+					case "!="  -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum()) ); }
+					case "===" -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum()) ); }
+					case "!==" -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum()) ); }
+					case "!>"  -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum()))); }
+					case "!<"  -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum()))); }
+					case "!>=" -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum()))); }
+					case "!<=" -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum()))); }
+					default    -> { return left; }
 				}
 			}
 		}
@@ -585,27 +588,32 @@ public class ExpressionParser {
 		try {
 			InsnTree left = this.nextPrefixOperator();
 			while (true) {
-				boolean nullable;
-				if (this.input.hasOperatorAfterWhitespace(".")) nullable = false;
-				else if (this.input.hasOperatorAfterWhitespace(".?")) nullable = true;
-				else return left;
+				String operator = this.input.peekOperatorAfterWhitespace();
+				CommonMode mode = switch (operator) {
+					case "."  -> { this.input.onCharsRead(operator); yield CommonMode.NORMAL; }
+					case ".?" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE; }
+					case ".$" -> { this.input.onCharsRead(operator); yield CommonMode.RECEIVER; }
+					case ".$?", ".?$" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE_RECEIVER; }
+					default -> null;
+				};
+				if (mode == null) return left;
 
-				//note: can be the empty String, "".
+				//note: memberName can be the empty String, "".
 				//this is intentional to support array/list-lookup syntax:
 				//array.(index)
 				String memberName = this.input.readIdentifierAfterWhitespace();
-				InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, nullable ? MemberKeywordMode.NULLABLE : MemberKeywordMode.NORMAL);
+				InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, MemberKeywordMode.from(mode));
 				if (result == null) {
 					if (this.input.peekAfterWhitespace() == '(') {
 						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-						result = this.environment.getMethod(this, left, memberName, nullable ? GetMethodMode.NULLABLE : GetMethodMode.NORMAL, arguments.arguments());
+						result = this.environment.getMethod(this, left, memberName, GetMethodMode.from(mode), arguments.arguments());
 						if (result == null) {
 							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 						}
 						result = arguments.maybeWrap(result);
 					}
 					else {
-						result = this.environment.getField(this, left, memberName, nullable ? GetFieldMode.NULLABLE : GetFieldMode.NORMAL);
+						result = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
 						if (result == null) {
 							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 						}
@@ -1137,6 +1145,7 @@ public class ExpressionParser {
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
+		TypeInfo innerClassType = innerClass.info;
 		List<FieldCompileContext> fields = new ArrayList<>(8);
 		while (!this.input.hasAfterWhitespace(')')) {
 			String typeName = this.input.expectIdentifier();
@@ -1156,6 +1165,14 @@ public class ExpressionParser {
 					throw new ScriptParsingException("Field initializer must be constant", this.input);
 				}
 			}
+			FieldInfo fieldInfo = field.info;
+			innerClass.newMethod(ACC_PUBLIC, fieldName, type).scopes.withScope((MethodCompileContext getter) -> {
+				return_(getField(load("this", 0, innerClassType), fieldInfo)).emitBytecode(getter);
+			});
+			innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, fieldInfo.type).scopes.withScope((MethodCompileContext setter) -> {
+				putField(load("this", 0, innerClassType), fieldInfo, load(fieldInfo.name, 1, fieldInfo.type)).emitBytecode(setter);
+				return_(noop).emitBytecode(setter);
+			});
 
 			this.input.hasOperatorAfterWhitespace(",,");
 		}
@@ -1167,7 +1184,7 @@ public class ExpressionParser {
 				if (field.initializer != null) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.name(), field.info.type),
+						field(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						ldc(field.initializer)
 					)
 					.emitBytecode(constructor);
@@ -1182,10 +1199,10 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.name(), field.info.type),
+						field(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						load(constructor.newParameter(field.name(), field.info.type))
 					)
-						.emitBytecode(constructor);
+					.emitBytecode(constructor);
 				}
 				return_(noop).emitBytecode(constructor);
 			});
@@ -1198,7 +1215,7 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.info.name, field.info.type),
+						field(ACC_PUBLIC, innerClassType, field.info.name, field.info.type),
 						field.initializer != null ? ldc(field.initializer) : load(constructor.newParameter(field.name(), field.info.type))
 					)
 					.emitBytecode(constructor);
@@ -1265,16 +1282,16 @@ public class ExpressionParser {
 			VarInfo methodThis = method.addThis();
 			VarInfo object = method.newParameter("object", TypeInfos.OBJECT);
 			if (fields.isEmpty()) {
-				return_(instanceOf(load(object), innerClass.info)).emitBytecode(method);
+				return_(instanceOf(load(object), innerClassType)).emitBytecode(method);
 			}
 			else {
-				VarInfo that = method.newVariable("that", innerClass.info);
+				VarInfo that = method.newVariable("that", innerClassType);
 				ifThen(
-					not(condition(this, instanceOf(load(object), innerClass.info))),
+					not(condition(this, instanceOf(load(object), innerClassType))),
 					return_(ldc(false))
 				)
 				.emitBytecode(method);
-				store(that, load(object).cast(this, innerClass.info, CastMode.EXPLICIT_THROW)).emitBytecode(method);
+				store(that, load(object).cast(this, innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(method);
 				for (FieldCompileContext field : fields) {
 					ifThen(
 						not(
@@ -1296,15 +1313,15 @@ public class ExpressionParser {
 		});
 		//setup user definitions.
 		this.checkType(className);
-		this.environment.user().types.put(className, innerClass.info);
-		this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID));
+		this.environment.user().types.put(className, innerClassType);
+		this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID));
 		if (!fields.isEmpty()) {
-			this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			if (nonDefaulted.size() != fields.size()) {
-				this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+				this.environment.user().addConstructor(innerClassType, method(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			}
 		}
-		fields.stream().map(field -> field.info).forEach(this.environment.user()::addField);
+		fields.stream().map(field -> field.info).forEach(this.environment.user()::addFieldGetterAndSetter);
 		return noop;
 	}
 

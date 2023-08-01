@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.tree.instructions;
 
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.StaticGetterSetterUpdateInsnTree.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;

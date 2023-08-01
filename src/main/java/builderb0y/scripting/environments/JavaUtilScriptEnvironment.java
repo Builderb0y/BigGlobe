@@ -11,9 +11,7 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeBaseInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PostUpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PreUpdateInsnTree;
@@ -227,6 +225,8 @@ public class JavaUtilScriptEnvironment {
 			return switch (mode) {
 				case NORMAL -> new CommonGetterInsnTree(receiver, getter, key, replacer, type);
 				case NULLABLE -> new NullableInvokeInsnTree(receiver, getter, key);
+				case RECEIVER -> new InvokeInstanceReceiverInsnTree(receiver, getter, key);
+				case NULLABLE_RECEIVER -> new NullableInvokeInstanceReceiverInsnTree(receiver, getter, key);
 			};
 		}
 

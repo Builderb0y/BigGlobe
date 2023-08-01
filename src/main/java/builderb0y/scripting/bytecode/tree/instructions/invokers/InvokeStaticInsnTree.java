@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.invokers;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -23,7 +23,12 @@ public class InvokeStaticInsnTree extends InvokeBaseInsnTree {
 		checkArguments(this.method.paramTypes, this.args);
 	}
 
-	public InvokeStaticInsnTree(MethodInfo method, InsnTree[] args, boolean dummy) {
+	/**
+	alternate constructor used by {@link #create(MethodInfo, InsnTree...)}.
+	that factory method already performs argument checking before calling this constructor,
+	so it makes no sense to check the arguments twice.
+	*/
+	public InvokeStaticInsnTree(MethodInfo method, InsnTree[] args, boolean ignored) {
 		super(method, args);
 	}
 

@@ -108,7 +108,7 @@ public class NbtScriptEnvironment {
 				throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 			}
 			InsnTree nameOrIndex = arguments[0];
-			if (nameOrIndex.getTypeInfo().simpleEquals(TypeInfos.STRING)) {
+			if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
 				return new CastResult(CommonGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
@@ -186,7 +186,7 @@ public class NbtScriptEnvironment {
 			return new CastResult(
 				invokeStatic(
 					method,
-					arguments.length == 1 && arguments[0].getTypeInfo().simpleEquals(method.paramTypes[0])
+					arguments.length == 1 && arguments[0].getTypeInfo().equals(method.paramTypes[0])
 					? arguments
 					: new InsnTree[] { newArrayWithContents(parser, method.paramTypes[0], arguments) }
 				),

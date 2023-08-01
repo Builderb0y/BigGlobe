@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions.nullability;
+package builderb0y.scripting.bytecode.tree.instructions;
 
 import org.objectweb.asm.Label;
 

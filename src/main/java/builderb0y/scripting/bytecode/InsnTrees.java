@@ -17,6 +17,14 @@ import builderb0y.scripting.bytecode.tree.conditions.*;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.instructions.*;
 import builderb0y.scripting.bytecode.tree.instructions.binary.*;
+import builderb0y.scripting.bytecode.tree.instructions.fields.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.GetStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.PutStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeDynamicInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeInstanceInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NewInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.InstanceOfInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.NegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.SquareInsnTree;
@@ -307,23 +315,23 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree getStatic(FieldInfo field) {
-		return GetStaticInsnTree.create(field);
+		return new GetStaticInsnTree(field);
 	}
 
 	public static InsnTree getStatic(int access, TypeInfo owner, String name, TypeInfo desc) {
-		return GetStaticInsnTree.create(new FieldInfo(access, owner, name, desc));
+		return new GetStaticInsnTree(new FieldInfo(access, owner, name, desc));
 	}
 
 	public static InsnTree putStatic(FieldInfo field, InsnTree value) {
-		return PutStaticInsnTree.create(field, value);
+		return new PutStaticInsnTree(field, value);
 	}
 
 	public static InsnTree getField(InsnTree receiver, FieldInfo field) {
-		return GetFieldInsnTree.create(receiver, field);
+		return new GetFieldInsnTree(receiver, field);
 	}
 
 	public static InsnTree putField(InsnTree receiver, FieldInfo field, InsnTree value) {
-		return PutFieldInsnTree.create(receiver, field, value);
+		return new PutFieldInsnTree(receiver, field, value);
 	}
 
 	public static ConditionTree condition(ExpressionParser parser, InsnTree bool) {
@@ -382,6 +390,14 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static ConditionTree ne(ExpressionParser parser, InsnTree left, InsnTree right) {
 		return CompareConditionTree.notEqual(parser, left, right);
+	}
+
+	public static ConditionTree identityEq(ExpressionParser parser, InsnTree left, InsnTree right) {
+		return CompareConditionTree.identityEqual(parser, left, right);
+	}
+
+	public static ConditionTree identityNe(ExpressionParser parser, InsnTree left, InsnTree right) {
+		return CompareConditionTree.identityNotEqual(parser, left, right);
 	}
 
 	public static ConditionTree gt(ExpressionParser parser, InsnTree left, InsnTree right) {

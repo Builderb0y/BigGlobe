@@ -1,7 +1,7 @@
 package builderb0y.scripting.bytecode.tree.instructions.binary;
 
-import builderb0y.scripting.bytecode.ExtendedOpcodes;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -12,6 +12,13 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class SignedRightShiftInsnTree extends BinaryInsnTree {
+
+	public static final MethodInfo
+		INT_SHIFT = MethodInfo.findMethod(SignedRightShiftInsnTree.class, "shift", int.class, int.class, int.class).pure(),
+		LONG_SHIFT = MethodInfo.findMethod(SignedRightShiftInsnTree.class, "shift", long.class, long.class, int.class).pure(),
+		FLOAT_SHIFT = MethodInfo.findMethod(Math.class, "scalb", float.class, float.class, int.class).pure(),
+		DOUBLE_SHIFT = MethodInfo.findMethod(Math.class, "scalb", double.class, double.class, int.class).pure(),
+		NEGATE = MethodInfo.getMethod(SignedRightShiftInsnTree.class, "negate");
 
 	public SignedRightShiftInsnTree(InsnTree left, InsnTree right, int opcode) {
 		super(left, right, opcode);
@@ -38,6 +45,7 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 			};
 		}
 		left = left.cast(parser, type, CastMode.IMPLICIT_THROW);
+		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
 		return new SignedRightShiftInsnTree(left, right, switch (type.getSort()) {
 			case INT -> ISHR;
 			case LONG -> LSHR;
@@ -81,14 +89,7 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 			}
 			else {
 				invokeStatic(
-					method(
-						ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-						type(SignedRightShiftInsnTree.class),
-						"shift",
-						leftType,
-						leftType,
-						TypeInfos.INT
-					),
+					leftType.isDoubleWidth() ? LONG_SHIFT : INT_SHIFT,
 					this.left,
 					this.right
 				)
@@ -117,25 +118,9 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 				}
 			}
 			invokeStatic(
-				method(
-					ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-					type(Math.class),
-					"scalb",
-					leftType,
-					leftType,
-					TypeInfos.INT
-				),
+				leftType.isDoubleWidth() ? DOUBLE_SHIFT : FLOAT_SHIFT,
 				this.left,
-				invokeStatic(
-					method(
-						ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-						type(SignedRightShiftInsnTree.class),
-						"negate",
-						TypeInfos.INT,
-						TypeInfos.INT
-					),
-					this.right
-				)
+				invokeStatic(NEGATE, this.right)
 			)
 			.emitBytecode(method);
 		}

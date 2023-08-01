@@ -1,25 +1,26 @@
-package builderb0y.scripting.bytecode.tree.instructions.nullability;
+package builderb0y.scripting.bytecode.tree.instructions.invokers;
 
 import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInstanceInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NullableInvokeInsnTree extends InvokeInstanceInsnTree {
+public class NullableFakeInvokeStaticInsnTree extends InvokeBaseInsnTree {
 
-	public NullableInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		super(receiver, method, args);
+	public NullableFakeInvokeStaticInsnTree(MethodInfo method, InsnTree[] args) {
+		super(method, args);
+		checkArguments(method.paramTypes, args);
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
+		InsnTree[] args = this.args;
 		Label get = label(), end = label();
 
-		this.receiver.emitBytecode(method);
+		args[0].emitBytecode(method);
 		method.node.visitInsn(DUP);
 		method.node.visitJumpInsn(IFNONNULL, get);
 		method.node.visitInsn(POP);
@@ -27,8 +28,8 @@ public class NullableInvokeInsnTree extends InvokeInstanceInsnTree {
 		method.node.visitJumpInsn(GOTO, end);
 
 		method.node.visitLabel(get);
-		for (InsnTree arg : this.args) {
-			arg.emitBytecode(method);
+		for (int index = 1, length = args.length; index < length; index++) {
+			args[index].emitBytecode(method);
 		}
 		this.method.emit(method, this.opcode());
 		//method.node.visitInsn(this.method.returnType.isDoubleWidth() ? DUP2 : DUP);

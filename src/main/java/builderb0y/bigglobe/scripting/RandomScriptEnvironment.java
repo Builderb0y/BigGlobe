@@ -11,7 +11,6 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullMapperInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
@@ -68,35 +67,28 @@ public class RandomScriptEnvironment {
 						)
 					)
 				);
-				return switch (mode) {
-					case NORMAL -> new CastResult(
-						switch_(
+				return new CastResult(
+					(
+						switch (mode) {
+							case NORMAL -> MemberKeywordMode.NORMAL;
+							case NULLABLE -> MemberKeywordMode.NULLABLE;
+							case RECEIVER -> MemberKeywordMode.RECEIVER;
+							case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+						}
+					)
+					.apply(loader, actualReceiver -> {
+						return switch_(
 							parser,
 							invokeInstance(
-								loader,
+								actualReceiver,
 								NEXT_INT_1,
 								ldc(arguments.length)
 							),
 							cases
-						),
-						false
-					);
-					case NULLABLE -> new CastResult(
-						new NullMapperInsnTree(
-							loader,
-							switch_(
-								parser,
-								invokeInstance(
-									getFromStack(loader.getTypeInfo()),
-									NEXT_INT_1,
-									ldc(arguments.length)
-								),
-								cases
-							)
-						),
-						false
-					);
-				};
+						);
+					}),
+					false
+				);
 			}))
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)

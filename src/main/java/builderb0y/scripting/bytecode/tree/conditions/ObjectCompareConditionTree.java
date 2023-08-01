@@ -75,12 +75,12 @@ public class ObjectCompareConditionTree implements ConditionTree {
 				return new ConstantConditionTree(equal);
 			}
 			else {
-				return new ObjectCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
 			}
 		}
 		else {
 			if (rightConstant.isConstant() && rightConstant.asJavaObject() == null) {
-				return new ObjectCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
 			}
 			else {
 				if (

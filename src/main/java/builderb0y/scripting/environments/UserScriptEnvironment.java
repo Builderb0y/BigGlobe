@@ -1,9 +1,6 @@
 package builderb0y.scripting.environments;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -83,12 +80,29 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		this.functions.computeIfAbsent(name, $ -> new ArrayList<>(4)).add(functionHandler);
 	}
 
-	public void addField(String name, FieldInfo field) {
-		this.fields.put(new NamedType(field.owner, name), field);
-	}
-
-	public void addField(FieldInfo field) {
-		this.addField(field.name, field);
+	public void addFieldGetterAndSetter(FieldInfo field) {
+		NamedType namedType = new NamedType(field.owner, field.name);
+		this.fields.put(namedType, field);
+		List<MethodHandler> handlers = this.methods.computeIfAbsent(namedType, $ -> new ArrayList<>(2));
+		MethodInfo getter = new MethodInfo(ACC_PUBLIC, field.owner, field.name, field.type);
+		MethodInfo setter = new MethodInfo(ACC_PUBLIC, field.owner, field.name, TypeInfos.VOID, field.type);
+		handlers.add(
+			(parser, receiver, name, mode, arguments) -> {
+				return switch (arguments.length) {
+					case 0 -> {
+						yield new CastResult(mode.makeInstanceInvoker(parser, receiver, getter), false);
+					}
+					case 1 -> {
+						InsnTree argument = arguments[0].cast(parser, field.type, CastMode.IMPLICIT_NULL);
+						if (argument == null) yield null;
+						yield new CastResult(mode.makeInstanceInvoker(parser, receiver, setter, argument), argument != arguments[0]);
+					}
+					default -> {
+						yield null;
+					}
+				};
+			}
+		);
 	}
 
 	public void addClassFunction(String name, MethodHandler methodHandler) {

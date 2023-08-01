@@ -1,13 +1,12 @@
-package builderb0y.scripting.bytecode.tree.instructions.nullability;
+package builderb0y.scripting.bytecode.tree.instructions;
 
 import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.util.TypeInfos;
-import builderb0y.scripting.util.TypeMerger;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -31,27 +30,8 @@ public class ElvisInsnTree implements InsnTree {
 	}
 
 	public static InsnTree create(ExpressionParser parser, InsnTree value, InsnTree alternative) {
-		TypeInfo commonType;
-		InsnTree runtimeValue = value, runtimeAlternative = alternative;
-		if (value.jumpsUnconditionally()) {
-			if (alternative.jumpsUnconditionally()) {
-				commonType = TypeInfos.VOID;
-			}
-			else {
-				commonType = alternative.getTypeInfo();
-			}
-		}
-		else {
-			if (alternative.jumpsUnconditionally()) {
-				commonType = value.getTypeInfo();
-			}
-			else {
-				commonType = TypeMerger.computeMostSpecificType(value.getTypeInfo(), alternative.getTypeInfo());
-				runtimeValue = value.cast(parser, commonType, CastMode.IMPLICIT_THROW);
-				runtimeAlternative = alternative.cast(parser, commonType, CastMode.IMPLICIT_THROW);
-			}
-		}
-		return new ElvisInsnTree(value, alternative, runtimeValue, runtimeAlternative, commonType);
+		IfElseInsnTree.Operands operands = IfElseInsnTree.Operands.of(parser, value, alternative);
+		return new ElvisInsnTree(operands.compileTrue(), operands.compileFalse(), operands.runtimeTrue(), operands.runtimeFalse(), operands.type());
 	}
 
 	@Override
@@ -81,6 +61,7 @@ public class ElvisInsnTree implements InsnTree {
 				method.node.visitJumpInsn(IFEQ, ifNonNull);
 			}
 			default -> {
+				method.node.visitInsn(type.isDoubleWidth() ? POP2 : POP);
 				method.node.visitJumpInsn(GOTO, ifNonNull);
 			}
 		}

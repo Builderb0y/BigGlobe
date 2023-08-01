@@ -346,7 +346,7 @@ public class ExpressionReader {
 	*/
 	public static boolean isOperatorSymbol(char c) {
 		return switch (c) {
-			case '!', '#', '%', '&', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
+			case '!', '#', '$', '%', '&', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
 			default -> false;
 		};
 	}

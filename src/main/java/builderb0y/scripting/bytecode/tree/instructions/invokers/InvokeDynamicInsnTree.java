@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.invokers;
 
 import java.util.Arrays;
 
