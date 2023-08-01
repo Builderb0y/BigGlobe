@@ -110,31 +110,31 @@ public class UpdaterTest extends TestCommon {
 
 	@Test
 	public void testFailedUpdaters() throws ScriptParsingException {
-		assertFail("Cannot bitwise and primitive I and primitive D", "int x = 3 ,, x &= 6.0L ,, x");
-		assertFail("Cannot bitwise or primitive I and primitive D", "int x = 3 ,, x |= 6.0L ,, x");
-		assertFail("Cannot bitwise xor primitive I and primitive D", "int x = 3 ,, x #= 6.0L ,, x");
-		assertFail("Cannot bitwise and primitive D and primitive B", "double x = 3 ,, x &= 6 ,, x");
-		assertFail("Cannot bitwise or primitive D and primitive B", "double x = 3 ,, x |= 6 ,, x");
-		assertFail("Cannot bitwise xor primitive D and primitive B", "double x = 3 ,, x #= 6 ,, x");
-		assertFail("Cannot bitwise and primitive D and primitive D", "double x = 3 ,, x &= 6.0L ,, x");
-		assertFail("Cannot bitwise or primitive D and primitive D", "double x = 3 ,, x |= 6.0L ,, x");
-		assertFail("Cannot bitwise xor primitive D and primitive D", "double x = 3 ,, x #= 6.0L ,, x");
+		assertFail("Cannot bitwise and primitive int and primitive double", "int x = 3 ,, x &= 6.0L ,, x");
+		assertFail("Cannot bitwise or primitive int and primitive double", "int x = 3 ,, x |= 6.0L ,, x");
+		assertFail("Cannot bitwise xor primitive int and primitive double", "int x = 3 ,, x #= 6.0L ,, x");
+		assertFail("Cannot bitwise and primitive double and primitive byte", "double x = 3 ,, x &= 6 ,, x");
+		assertFail("Cannot bitwise or primitive double and primitive byte", "double x = 3 ,, x |= 6 ,, x");
+		assertFail("Cannot bitwise xor primitive double and primitive byte", "double x = 3 ,, x #= 6 ,, x");
+		assertFail("Cannot bitwise and primitive double and primitive double", "double x = 3 ,, x &= 6.0L ,, x");
+		assertFail("Cannot bitwise or primitive double and primitive double", "double x = 3 ,, x |= 6.0L ,, x");
+		assertFail("Cannot bitwise xor primitive double and primitive double", "double x = 3 ,, x #= 6.0L ,, x");
 
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x &&= 0 ,, x");
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x &&= false ,, x");
-		assertFail("Can't implicitly cast primitive B to primitive Z", "boolean x = false ,, x &&= 0 ,, x");
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x ||= 0 ,, x");
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x ||= false ,, x");
-		assertFail("Can't implicitly cast primitive B to primitive Z", "boolean x = false ,, x ||= 0 ,, x");
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x ##= 0 ,, x");
-		assertFail("Can't implicitly cast primitive I to primitive Z", "int x = 0 ,, x ##= false ,, x");
-		assertFail("Can't implicitly cast primitive B to primitive Z", "boolean x = false ,, x ##= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x &&= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x &&= false ,, x");
+		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x &&= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ||= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ||= false ,, x");
+		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x ||= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ##= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ##= false ,, x");
+		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x ##= 0 ,, x");
 
-		assertFail("Cannot bitwise and primitive I and primitive Z", "int x = 0 ,, x &= false ,, x");
-		assertFail("Cannot bitwise and primitive Z and primitive B", "boolean x = false ,, x &= 0 ,, x");
-		assertFail("Cannot bitwise or primitive I and primitive Z", "int x = 0 ,, x |= false ,, x");
-		assertFail("Cannot bitwise or primitive Z and primitive B", "boolean x = false ,, x |= 0 ,, x");
-		assertFail("Cannot bitwise xor primitive I and primitive Z", "int x = 0 ,, x #= false ,, x");
-		assertFail("Cannot bitwise xor primitive Z and primitive B", "boolean x = false ,, x #= 0 ,, x");
+		assertFail("Cannot bitwise and primitive int and primitive boolean", "int x = 0 ,, x &= false ,, x");
+		assertFail("Cannot bitwise and primitive boolean and primitive byte", "boolean x = false ,, x &= 0 ,, x");
+		assertFail("Cannot bitwise or primitive int and primitive boolean", "int x = 0 ,, x |= false ,, x");
+		assertFail("Cannot bitwise or primitive boolean and primitive byte", "boolean x = false ,, x |= 0 ,, x");
+		assertFail("Cannot bitwise xor primitive int and primitive boolean", "int x = 0 ,, x #= false ,, x");
+		assertFail("Cannot bitwise xor primitive boolean and primitive byte", "boolean x = false ,, x #= 0 ,, x");
 	}
 }

@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.fields;
 
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -13,22 +13,22 @@ public class PutFieldInsnTree implements InsnTree {
 	public InsnTree value;
 
 	public PutFieldInsnTree(InsnTree object, FieldInfo field, InsnTree value) {
+		check(object, field, value);
 		this.object = object;
 		this.value = value;
 		this.field = field;
 	}
 
-	public static PutFieldInsnTree create(InsnTree receiver, FieldInfo field, InsnTree value) {
+	public static void check(InsnTree object, FieldInfo field, InsnTree value) {
 		if (field.isStatic()) {
 			throw new IllegalArgumentException("Static field: " + field);
 		}
-		if (!receiver.getTypeInfo().extendsOrImplements(field.owner)) {
-			throw new IllegalArgumentException("Can't put field " + field + " in object of type " + receiver.getTypeInfo());
+		if (!object.getTypeInfo().extendsOrImplements(field.owner)) {
+			throw new IllegalArgumentException("Can't put field " + field + " in object of type " + object.getTypeInfo());
 		}
 		if (!value.getTypeInfo().extendsOrImplements(field.type)) {
 			throw new IllegalArgumentException("Can't put " + value.getTypeInfo() + " in field of type " + field.type);
 		}
-		return new PutFieldInsnTree(receiver, field, value);
 	}
 
 	@Override

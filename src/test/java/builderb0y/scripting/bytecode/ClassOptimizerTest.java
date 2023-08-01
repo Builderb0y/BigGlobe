@@ -96,6 +96,17 @@ public class ClassOptimizerTest extends TestCommon {
 		);
 	}
 
+	@Test
+	@Disabled
+	public void testJumpToReturn() throws ScriptParsingException {
+		dumpBytecode(
+			"""
+			boolean condition = true
+			return(condition ? 'a' : 'b')
+			"""
+		);
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void dumpBytecode(String script) throws ScriptParsingException {
 		ScriptParser<Supplier<Object>> parser = new ScriptParser<>((Class)(Supplier.class), script);

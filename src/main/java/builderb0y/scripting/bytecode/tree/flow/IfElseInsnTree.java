@@ -39,28 +39,40 @@ public class IfElseInsnTree implements InsnTree {
 	}
 
 	public static InsnTree create(ExpressionParser parser, ConditionTree condition, InsnTree trueBody, InsnTree falseBody) throws ScriptParsingException {
-		InsnTree runtimeTrueBody = trueBody;
-		InsnTree runtimeFalseBody = falseBody;
-		TypeInfo type;
-		if (trueBody.jumpsUnconditionally()) {
-			if (falseBody.jumpsUnconditionally()) {
-				type = TypeInfos.VOID;
+		Operands operands = Operands.of(parser, trueBody, falseBody);
+		return new IfElseInsnTree(condition, operands.compileTrue, operands.compileFalse, operands.runtimeTrue, operands.runtimeFalse, operands.type);
+	}
+
+	public static record Operands(
+		InsnTree compileTrue,
+		InsnTree compileFalse,
+		InsnTree runtimeTrue,
+		InsnTree runtimeFalse,
+		TypeInfo type
+	) {
+
+		public static Operands of(ExpressionParser parser, InsnTree trueBody, InsnTree falseBody) {
+			TypeInfo type;
+			if (trueBody.jumpsUnconditionally()) {
+				if (falseBody.jumpsUnconditionally()) {
+					type = TypeInfos.VOID;
+				}
+				else {
+					type = falseBody.getTypeInfo();
+				}
 			}
 			else {
-				type = falseBody.getTypeInfo();
+				if (falseBody.jumpsUnconditionally()) {
+					type = trueBody.getTypeInfo();
+				}
+				else {
+					type = TypeMerger.computeMostSpecificType(trueBody.getTypeInfo(), falseBody.getTypeInfo());
+				}
 			}
+			InsnTree runtimeTrueBody = trueBody.cast(parser, type, CastMode.IMPLICIT_THROW);
+			InsnTree runtimeFalseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW);
+			return new Operands(trueBody, falseBody, runtimeTrueBody, runtimeFalseBody, type);
 		}
-		else {
-			if (falseBody.jumpsUnconditionally()) {
-				type = trueBody.getTypeInfo();
-			}
-			else {
-				type = TypeMerger.computeMostSpecificType(trueBody.getTypeInfo(), falseBody.getTypeInfo());
-				runtimeTrueBody  = trueBody .cast(parser, type, CastMode.IMPLICIT_THROW);
-				runtimeFalseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW);
-			}
-		}
-		return new IfElseInsnTree(condition, trueBody, falseBody, runtimeTrueBody, runtimeFalseBody, type);
 	}
 
 	@Override

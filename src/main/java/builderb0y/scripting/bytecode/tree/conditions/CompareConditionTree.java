@@ -56,6 +56,39 @@ public class CompareConditionTree {
 		};
 	}
 
+	public static Operands identityOperands(ExpressionParser parser, InsnTree left, InsnTree right) {
+		TypeInfo leftType = left.getTypeInfo();
+		TypeInfo rightType = right.getTypeInfo();
+		if (leftType.isNumber() && rightType.isNumber()) {
+			return Operands.of(parser, left, right, TypeInfos.widenUntilSameInt(leftType, rightType));
+		}
+		return Operands.of(parser, left, right, TypeInfos.OBJECT);
+	}
+
+	public static ConditionTree identityEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
+		Operands operands = identityOperands(parser, left, right);
+		return switch (operands.type.getSort()) {
+			case INT    ->            IntCompareConditionTree.equal(operands.left, operands.right);
+			case LONG   ->           LongCompareConditionTree.equal(operands.left, operands.right);
+			case FLOAT  ->  BitwiseFloatEqualityConditionTree.equal(operands.left, operands.right);
+			case DOUBLE -> BitwiseDoubleEqualityConditionTree.equal(operands.left, operands.right);
+			case OBJECT ->      IdentityEqualityConditionTree.equal(parser, left, right);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
+		};
+	}
+
+	public static ConditionTree identityNotEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
+		Operands operands = identityOperands(parser, left, right);
+		return switch (operands.type.getSort()) {
+			case INT    ->            IntCompareConditionTree.notEqual(operands.left, operands.right);
+			case LONG   ->           LongCompareConditionTree.notEqual(operands.left, operands.right);
+			case FLOAT  ->  BitwiseFloatEqualityConditionTree.notEqual(operands.left, operands.right);
+			case DOUBLE -> BitwiseDoubleEqualityConditionTree.notEqual(operands.left, operands.right);
+			case OBJECT ->      IdentityEqualityConditionTree.notEqual(parser, left, right);
+			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
+		};
+	}
+
 	public static ConditionTree lessThan(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {

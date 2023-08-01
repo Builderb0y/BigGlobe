@@ -17,6 +17,14 @@ import builderb0y.scripting.bytecode.tree.conditions.*;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.instructions.*;
 import builderb0y.scripting.bytecode.tree.instructions.binary.*;
+import builderb0y.scripting.bytecode.tree.instructions.fields.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.GetStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.PutStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeDynamicInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeInstanceInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NewInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.InstanceOfInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.NegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.SquareInsnTree;
@@ -91,30 +99,6 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static VarInfo variable(String name, int index, Class<?> type) {
 		return new VarInfo(name, index, type(type));
-	}
-
-	public static MethodInfo method(int access, TypeInfo owner, String name, TypeInfo returnType, TypeInfo... paramTypes) {
-		return new MethodInfo(access, owner, name, returnType, paramTypes);
-	}
-
-	public static MethodInfo method(int access, Class<?> owner, String name, Class<?> returnType, Class<?>... paramTypes) {
-		return new MethodInfo(access, type(owner), name, type(returnType), types(paramTypes));
-	}
-
-	public static MethodInfo constructor(int access, TypeInfo owner, TypeInfo... paramTypes) {
-		return new MethodInfo(access, owner, "<init>", TypeInfos.VOID, paramTypes);
-	}
-
-	public static MethodInfo constructor(int access, Class<?> owner, Class<?>... paramTypes) {
-		return new MethodInfo(access, type(owner), "<init>", TypeInfos.VOID, types(paramTypes));
-	}
-
-	public static FieldInfo field(int access, TypeInfo owner, String name, TypeInfo type) {
-		return new FieldInfo(access, owner, name, type);
-	}
-
-	public static FieldInfo field(int access, Class<?> owner, String name, Class<?> type) {
-		return new FieldInfo(access, type(owner), name, type(type));
 	}
 
 	public static ConstantValue constant(boolean  value) { return ConstantValue.of(value); }
@@ -283,7 +267,7 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree invokeInstance(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInsnTree(receiver, method, args);
+		return new InvokeInstanceInsnTree(receiver, method, args);
 	}
 
 	public static InsnTree invokeDynamic(MethodInfo bootstrapMethod, MethodInfo runtimeMethod, ConstantValue[] bootstrapArgs, InsnTree[] runtimeArgs) {
@@ -307,23 +291,23 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree getStatic(FieldInfo field) {
-		return GetStaticInsnTree.create(field);
+		return new GetStaticInsnTree(field);
 	}
 
 	public static InsnTree getStatic(int access, TypeInfo owner, String name, TypeInfo desc) {
-		return GetStaticInsnTree.create(new FieldInfo(access, owner, name, desc));
+		return new GetStaticInsnTree(new FieldInfo(access, owner, name, desc));
 	}
 
 	public static InsnTree putStatic(FieldInfo field, InsnTree value) {
-		return PutStaticInsnTree.create(field, value);
+		return new PutStaticInsnTree(field, value);
 	}
 
 	public static InsnTree getField(InsnTree receiver, FieldInfo field) {
-		return GetFieldInsnTree.create(receiver, field);
+		return new GetFieldInsnTree(receiver, field);
 	}
 
 	public static InsnTree putField(InsnTree receiver, FieldInfo field, InsnTree value) {
-		return PutFieldInsnTree.create(receiver, field, value);
+		return new PutFieldInsnTree(receiver, field, value);
 	}
 
 	public static ConditionTree condition(ExpressionParser parser, InsnTree bool) {
@@ -382,6 +366,14 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static ConditionTree ne(ExpressionParser parser, InsnTree left, InsnTree right) {
 		return CompareConditionTree.notEqual(parser, left, right);
+	}
+
+	public static ConditionTree identityEq(ExpressionParser parser, InsnTree left, InsnTree right) {
+		return CompareConditionTree.identityEqual(parser, left, right);
+	}
+
+	public static ConditionTree identityNe(ExpressionParser parser, InsnTree left, InsnTree right) {
+		return CompareConditionTree.identityNotEqual(parser, left, right);
 	}
 
 	public static ConditionTree gt(ExpressionParser parser, InsnTree left, InsnTree right) {

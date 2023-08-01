@@ -28,8 +28,8 @@ public class AddInsnTree extends BinaryInsnTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(leftConstant.   asInt() + rightConstant.   asInt());
-				case LONG   -> ldc(leftConstant.  asLong() + rightConstant.  asLong());
+				case INT    -> ldc(Math.addExact(leftConstant. asInt(), rightConstant. asInt()));
+				case LONG   -> ldc(Math.addExact(leftConstant.asLong(), rightConstant.asLong()));
 				case FLOAT  -> ldc(leftConstant. asFloat() + rightConstant. asFloat());
 				case DOUBLE -> ldc(leftConstant.asDouble() + rightConstant.asDouble());
 				default     -> throw new AssertionError(type);

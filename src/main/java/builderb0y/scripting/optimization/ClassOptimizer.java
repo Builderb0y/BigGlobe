@@ -10,6 +10,7 @@ public interface ClassOptimizer {
 			LineNumberOptimizer.INSTANCE,
 			UnreachableCodeOptimizer.INSTANCE,
 			DoubleJumpOptimizer.INSTANCE,
+			JumpToReturnOptimizer.INSTANCE,
 			JumpToNextInstructionOptimizer.INSTANCE
 		)
 	);

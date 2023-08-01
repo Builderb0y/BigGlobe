@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.fields;
 
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -12,18 +12,18 @@ public class PutStaticInsnTree implements InsnTree {
 	public FieldInfo field;
 
 	public PutStaticInsnTree(FieldInfo field, InsnTree value) {
+		check(field, value);
 		this.field = field;
 		this.value = value;
 	}
 
-	public static PutStaticInsnTree create(FieldInfo field, InsnTree value) {
+	public static void check(FieldInfo field, InsnTree value) {
 		if (!field.isStatic()) {
 			throw new IllegalArgumentException("Non-static field: " + field);
 		}
 		if (!value.getTypeInfo().extendsOrImplements(field.type)) {
 			throw new IllegalArgumentException("Can't store " + value.getTypeInfo() + " in field of type " + field.type);
 		}
-		return new PutStaticInsnTree(field, value);
 	}
 
 	@Override

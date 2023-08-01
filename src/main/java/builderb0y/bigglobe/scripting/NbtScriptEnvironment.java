@@ -103,16 +103,16 @@ public class NbtScriptEnvironment {
 		})
 
 		.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
-		.addMethod(NBT_ELEMENT_TYPE, "", (parser, receiver, name, arguments) -> {
+		.addMethod(NBT_ELEMENT_TYPE, "", (parser, receiver, name, mode, arguments) -> {
 			if (arguments.length != 1) {
 				throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 			}
 			InsnTree nameOrIndex = arguments[0];
-			if (nameOrIndex.getTypeInfo().simpleEquals(TypeInfos.STRING)) {
-				return new CastResult(new CommonGetterInsnTree(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement"), false);
+			if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
+				return new CastResult(CommonGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(new CommonGetterInsnTree(receiver, GET_ELEMENT, nameOrIndex, SET_ELEMENT, "NbtElement"), false);
+				return new CastResult(CommonGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
 			}
 			else {
 				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
@@ -186,7 +186,7 @@ public class NbtScriptEnvironment {
 			return new CastResult(
 				invokeStatic(
 					method,
-					arguments.length == 1 && arguments[0].getTypeInfo().simpleEquals(method.paramTypes[0])
+					arguments.length == 1 && arguments[0].getTypeInfo().equals(method.paramTypes[0])
 					? arguments
 					: new InsnTree[] { newArrayWithContents(parser, method.paramTypes[0], arguments) }
 				),
@@ -198,8 +198,8 @@ public class NbtScriptEnvironment {
 	public static class ListBuilderInsnTree implements InsnTree {
 
 		public static final MethodInfo
-			CONSTRUCT = method(ACC_PUBLIC, NbtList.class, "<init>", void.class),
-			BUILD_LIST = method(ACC_PUBLIC | ACC_STATIC, ListBuilderInsnTree.class, "buildList", NbtList.class, NbtList.class, NbtElement.class);
+			CONSTRUCT = MethodInfo.findConstructor(NbtList.class),
+			BUILD_LIST = MethodInfo.getMethod(ListBuilderInsnTree.class, "buildList");
 
 		public InsnTree[] values;
 

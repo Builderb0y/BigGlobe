@@ -20,19 +20,9 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed charred hanging signs not dropping as an item when broken.
-	* Fixed bigger desert pyramids potentially spawning with snow around them if they spawned on the side of a cliff.
-	* Made delegating structure a bit more useful.
-		* biomes, spawn_overrides, step, and terrain_adaptation can now be absent.
-			* If they are absent, they default to the structure being delegated to.
-		* If spawn_overrides, step, and terrain_adaptation are all absent AND you are in a Big Globe world, then the structure being delegated to will be placed in the world as-is, without being copied.
-			* This means that if those 3 properties are absent (and you are in a Big Globe world), then advancements which require you to be inside the structure being delegated to will work as expected.
-	* Lakes now behave themselves slightly better when other height-overriding structures intersect with them.
-	* Flint, rocks, and sticks no longer spawn in lava lakes.
-	* Added config option to make Big Globe the default world type.
-	* Fixed crash when flying above the nether roof with your F3 menu open.
-	* Immersive portals now places nether portals at the intended location.
-	* Distant horizons 2.0 is now detected properly.
+	* Fixed recently added "make big globe the default world type" config option not working properly.
+	* Improved physics of string slightly.
+	* Added a couple new pieces of syntax for scripting.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -45,15 +35,7 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
-	nested multi-line comment ;(example ;(text) here)
 	more invoke syntaxes:
-		nullable invoke.
-			foo.?bar()
-		receiver invoke.
-			foo.<bar() returns foo, not the return value of bar().
-			add setters to user-defined classes. they could make use of this.
-		nullable receiver invoke?
-			foo.?<bar() or foo.<?bar()? should both be accepted?
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.
 		nullable non-null invoke?
@@ -62,22 +44,21 @@ scripting:
 				if foo is non-null, then bar() is invoked and is required to return a non-null value.
 	lambdas?
 		Stream API?
-	List.shuffle()
+			ability to iterate over a Stream (whenever Stream support is added).
 	add copy constructor and clone() for user-defined classes.
 		clone() is deep copy, constructor is shallow copy?
 			this is the more intuitive option, but it is more difficult semantically
 			due to the fact that you can't assign to final fields inside clone().
 			not that I have final fields yet, but still.
 	cache scripts.
-	for (int x in [0, 10) % step: body)
+	for (int x in range[0, 10) % step: body)
 		how to handle descending iteration?
-		maybe for (int x in -[0, 10) % step: body)?
+		maybe for (int x in -range[0, 10) % step: body)?
 		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
-	ability to iterate over an Iterator or Stream (whenever stream support is added).
-	$: in scripts, substitutes $:foo for 'foo: $foo'
+	inline getters and setters for user-defined classes.
 
 features:
 	general:
@@ -132,6 +113,7 @@ features:
 			add "center" noise?
 		make lilypads renewable?
 		sandstone small house variant.
+		surface mineshaft structure.
 	nether:
 	end:
 		block of void?
@@ -171,7 +153,7 @@ back-porting from 1.20 to 1.19.4:
 			data/bigglobe/bigglobe_wood_palettes/charred.json
 			data/minecraft/bigglobe_wood_palettes/*
 			data/bigglobe/recipes/charred_hanging_sign.json
-			data/bigglobe/loot_tables/charred_hanging_sign.json
+			data/bigglobe/loot_tables/blocks/charred_hanging_sign.json
 		list of places where cherry trees appear:
 			honestly just double-shift search for "cherry".
 			and then search in src for "cherry".
@@ -193,4 +175,4 @@ back-porting from 1.19.4 to 1.19.2:
 	revert biomes to re-add precipitation field.
 	ensure ball of string adds correct NBT variants to creative menu.
 		and doesn't add itself to the wrong tabs.
-	that as the minimum compatible version in fabric.mod.json.
+	revert minecraft version dependency in fabric.mod.json.

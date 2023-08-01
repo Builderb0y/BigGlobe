@@ -94,7 +94,7 @@ public class ExpressionReader {
 			char c = this.input.charAt(this.cursor);
 			this.onCharRead(c);
 			if (c == 0) {
-				throw new ScriptParsingException("Encountered NUL character in input stream", this);
+				throw new ScriptParsingException("Encountered NUL character in input", this);
 			}
 			return c;
 		}
@@ -247,9 +247,17 @@ public class ExpressionReader {
 		while (true) {
 			this.skipWhile(Character::isWhitespace);
 			if (this.has(';')) {
-				boolean multiline = this.has(';');
 				int end;
-				if (multiline) {
+				if (this.has('(')) {
+					int depth = 1;
+					while (depth > 0) {
+						char read = this.read();
+						if (read == '(') depth++; else
+						if (read == ')') depth--; else
+						if (read ==  0 ) throw new ScriptParsingException("Mismatched parentheses in comment", this);
+					}
+				}
+				else if (this.has(';')) {
 					end = this.input.indexOf(";;", this.cursor);
 					if (end < 0) throw new ScriptParsingException("Un-terminated multi-line comment", this);
 					this.skip(end + 2 - this.cursor);
@@ -338,7 +346,7 @@ public class ExpressionReader {
 	*/
 	public static boolean isOperatorSymbol(char c) {
 		return switch (c) {
-			case '!', '#', '%', '&', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
+			case '!', '#', '$', '%', '&', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
 			default -> false;
 		};
 	}

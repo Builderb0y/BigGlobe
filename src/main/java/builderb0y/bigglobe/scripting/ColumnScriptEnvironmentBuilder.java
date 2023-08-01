@@ -281,10 +281,12 @@ public class ColumnScriptEnvironmentBuilder {
 
 		for (SpecialGetter getter : SPECIAL_GETTERS) {
 			for (String name : getter.exposedNames) {
-				this.mutable.addVariableRenamedInvoke(
-					this.loadColumn,
+				this.mutable.addVariable(
 					name,
-					getter.fixedPositionGetter
+					Handlers
+					.builder(ColumnScriptEnvironmentBuilder.class, getter.fixedPositionInternalName)
+					.addImplicitArgument(this.loadColumn)
+					.buildVariable()
 				);
 			}
 		}

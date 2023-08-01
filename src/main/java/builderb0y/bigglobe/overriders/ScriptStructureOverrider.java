@@ -11,6 +11,7 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -53,6 +54,9 @@ public interface ScriptStructureOverrider extends Overrider {
 					.build()
 				)
 				.addEnvironment(RandomScriptEnvironment.create(
+					load("random", 3, type(RandomGenerator.class))
+				))
+				.addEnvironment(JavaUtilScriptEnvironment.randomOnly(
 					load("random", 3, type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)

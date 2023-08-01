@@ -4,8 +4,6 @@ import org.objectweb.asm.tree.FieldNode;
 
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
-
 public class FieldCompileContext {
 
 	public ClassCompileContext clazz;
@@ -15,7 +13,7 @@ public class FieldCompileContext {
 
 	public FieldCompileContext(ClassCompileContext clazz, int access, String name, TypeInfo type) {
 		this.clazz = clazz;
-		this.info = field(access, clazz.info, name, type);
+		this.info = new FieldInfo(access, clazz.info, name, type);
 		this.node = new FieldNode(access, name, type.getDescriptor(), null, null);
 	}
 

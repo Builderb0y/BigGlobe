@@ -11,7 +11,8 @@ public class StatelessRandomScriptEnvironment {
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
-		.addMethod(type(long.class), "newSeed", new MethodHandler.Named("long.newSeed(int...)", (parser, receiver, name, arguments) -> {
+		.addMethod(type(long.class), "newSeed", new MethodHandler.Named("long.newSeed(int...)", (parser, receiver, name, mode, arguments) -> {
+			//primitive long will never be null, so I don't need to check the mode here.
 			if (arguments.length == 0) {
 				return new CastResult(add(parser, receiver, ldc(Permuter.PHI64)), false);
 			}

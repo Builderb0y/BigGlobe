@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:saplings",
+		"#minecraft:flowers",
+		"#minecraft:crops",
+		"minecraft:pink_petals",
+		"bigglobe:tall_chorus_spores"
+	]
+}

@@ -2,6 +2,7 @@ package builderb0y.scripting.environments;
 
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -65,7 +66,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				//is IntNbt, for example.
 				TypeInfo boxed = from.box();
 				if (boxed.extendsOrImplements(to)) {
-					return invokeStatic(method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, boxed, "valueOf", boxed, from), value);
+					return invokeStatic(new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, boxed, "valueOf", boxed, from), value);
 				}
 			}
 		}
