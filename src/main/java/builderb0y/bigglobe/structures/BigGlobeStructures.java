@@ -2,8 +2,8 @@ package builderb0y.bigglobe.structures;
 
 import com.mojang.serialization.Codec;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import net.minecraft.world.gen.structure.Structure;

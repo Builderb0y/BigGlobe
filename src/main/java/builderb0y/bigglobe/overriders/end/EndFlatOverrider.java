@@ -20,7 +20,7 @@ public interface EndFlatOverrider extends FlatOverrider {
 	public static class Holder<T_Overrider extends EndFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements EndFlatOverrider {
 
 		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
-			super(parser, EndColumn.class);
+			super(parser);
 		}
 
 		@Override

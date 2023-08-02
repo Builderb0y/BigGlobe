@@ -11,14 +11,14 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -50,6 +50,7 @@ import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.BigGlobeConfiguredFeatureTagKeys;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.OverrideFeature;
@@ -101,7 +102,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		ringCloudUpperFloorDecorators;
 
 	public BigGlobeEndChunkGenerator(
-		Registry<StructureSet> structureSetRegistry,
+		BetterRegistry<StructureSet> structureSetRegistry,
 		EndSettings settings,
 		SortedFeatures configuredFeatures
 	) {

@@ -2,9 +2,9 @@ package builderb0y.bigglobe.versions;
 
 import net.minecraft.block.Block;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.TagKey;
 
 public class TagsVersions {
 

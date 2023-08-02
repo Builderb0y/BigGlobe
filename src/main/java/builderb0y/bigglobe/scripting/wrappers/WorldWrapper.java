@@ -32,6 +32,7 @@ import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.WorldVersions;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -39,6 +40,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class WorldWrapper implements ColumnLookup {
 
 	public static final TypeInfo TYPE = type(WorldWrapper.class);
+	public static final MethodInfo GET_SEED = MethodInfo.getMethod(WorldWrapper.class, "getSeed").pure();
 
 	public final StructureWorldAccess world;
 	public final Coordination coordination;

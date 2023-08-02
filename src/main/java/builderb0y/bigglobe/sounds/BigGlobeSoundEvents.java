@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.sounds;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 

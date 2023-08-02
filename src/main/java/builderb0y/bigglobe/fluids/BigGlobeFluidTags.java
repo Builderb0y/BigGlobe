@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.fluids;
 
 import net.minecraft.fluid.Fluid;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.TagKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;

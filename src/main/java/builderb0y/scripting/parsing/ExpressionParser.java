@@ -1,9 +1,6 @@
 package builderb0y.scripting.parsing;
 
 import java.io.IOException;
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,7 +36,10 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
@@ -99,6 +99,11 @@ public class ExpressionParser {
 		CLASS_DUMP_DIRECTORY = classDumpDirectory;
 		ScriptLogger.LOGGER.info("Class dumping is " + (classDumpDirectory != null ? "enabled" : "disabled") + '.');
 	}
+
+	public static final MethodInfo
+		OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
+		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants"),
+		HASH_MIX = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
 
 	public static void clinit() {}
 
@@ -472,17 +477,19 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "<"   -> { this.input.onCharsRead(operator); left = bool(    lt(this, left, this.nextSum()) ); }
-					case "<="  -> { this.input.onCharsRead(operator); left = bool(    le(this, left, this.nextSum()) ); }
-					case ">"   -> { this.input.onCharsRead(operator); left = bool(    gt(this, left, this.nextSum()) ); }
-					case ">="  -> { this.input.onCharsRead(operator); left = bool(    ge(this, left, this.nextSum()) ); }
-					case "=="  -> { this.input.onCharsRead(operator); left = bool(    eq(this, left, this.nextSum()) ); }
-					case "!="  -> { this.input.onCharsRead(operator); left = bool(    ne(this, left, this.nextSum()) ); }
-					case "!>"  -> { this.input.onCharsRead(operator); left = bool(not(gt(this, left, this.nextSum()))); }
-					case "!<"  -> { this.input.onCharsRead(operator); left = bool(not(lt(this, left, this.nextSum()))); }
-					case "!>=" -> { this.input.onCharsRead(operator); left = bool(not(ge(this, left, this.nextSum()))); }
-					case "!<=" -> { this.input.onCharsRead(operator); left = bool(not(le(this, left, this.nextSum()))); }
-					default   -> { return left; }
+					case "<"   -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum()) ); }
+					case "<="  -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum()) ); }
+					case ">"   -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum()) ); }
+					case ">="  -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum()) ); }
+					case "=="  -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum()) ); }
+					case "!="  -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum()) ); }
+					case "===" -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum()) ); }
+					case "!==" -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum()) ); }
+					case "!>"  -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum()))); }
+					case "!<"  -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum()))); }
+					case "!>=" -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum()))); }
+					case "!<=" -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum()))); }
+					default    -> { return left; }
 				}
 			}
 		}
@@ -583,46 +590,38 @@ public class ExpressionParser {
 		try {
 			InsnTree left = this.nextPrefixOperator();
 			while (true) {
-				if (this.input.hasOperatorAfterWhitespace(".")) {
-					//note: can be the empty String, "".
-					//this is intentional to support array/list-lookup syntax:
-					//array.(index)
-					String memberName = this.input.readIdentifierAfterWhitespace();
+				String operator = this.input.peekOperatorAfterWhitespace();
+				CommonMode mode = switch (operator) {
+					case "."  -> { this.input.onCharsRead(operator); yield CommonMode.NORMAL; }
+					case ".?" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE; }
+					case ".$" -> { this.input.onCharsRead(operator); yield CommonMode.RECEIVER; }
+					case ".$?", ".?$" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE_RECEIVER; }
+					default -> null;
+				};
+				if (mode == null) return left;
 
-					InsnTree result = this.environment.parseMemberKeyword(this, left, memberName);
-					if (result == null) {
-						if (this.input.peekAfterWhitespace() == '(') {
-							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-							result = this.environment.getMethod(this, left, memberName, arguments.arguments());
-							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
-							}
-							result = arguments.maybeWrap(result);
-						}
-						else {
-							result = this.environment.getField(this, left, memberName, GetFieldMode.NORMAL);
-							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
-							}
-						}
-					}
-					left = result;
-				}
-				else if (this.input.hasOperatorAfterWhitespace(".?")) {
-					String memberName = this.input.readIdentifierAfterWhitespace();
+				//note: memberName can be the empty String, "".
+				//this is intentional to support array/list-lookup syntax:
+				//array.(index)
+				String memberName = this.input.readIdentifierAfterWhitespace();
+				InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, MemberKeywordMode.from(mode));
+				if (result == null) {
 					if (this.input.peekAfterWhitespace() == '(') {
-						//todo: implement this.
-						throw new ScriptParsingException("Nullable method calls are not yet implemented.", this.input);
+						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+						result = this.environment.getMethod(this, left, memberName, GetMethodMode.from(mode), arguments.arguments());
+						if (result == null) {
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
+						}
+						result = arguments.maybeWrap(result);
 					}
-					InsnTree result = this.environment.getField(this, left, memberName, GetFieldMode.NULLABLE);
-					if (result == null) {
-						throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + ".?" + memberName), this.input);
+					else {
+						result = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
+						if (result == null) {
+							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
+						}
 					}
-					left = result;
 				}
-				else {
-					return left;
-				}
+				left = result;
 			}
 		}
 		catch (RuntimeException exception) {
@@ -753,19 +752,8 @@ public class ExpressionParser {
 		}
 	}
 
-	public static final MethodInfo STRING_CONCAT_FACTORY = method(
-		ACC_PUBLIC | ACC_STATIC,
-		StringConcatFactory.class,
-		"makeConcatWithConstants",
-		CallSite.class,
-		MethodHandles.Lookup.class,
-		String.class,
-		MethodType.class,
-		String.class,
-		Object[].class
-	);
 
-	public InsnTree nextString(char end) throws ScriptParsingException {
+	public InsnTree nextString(char quote) throws ScriptParsingException {
 		StringBuilder string = new StringBuilder();
 		ArrayBuilder<InsnTree> arguments = new ArrayBuilder<>();
 		while (true) {
@@ -774,14 +762,14 @@ public class ExpressionParser {
 			if (c == 0) {
 				throw new ScriptParsingException("Un-terminated string", this.input);
 			}
-			else if (c == end) {
+			else if (c == quote) {
 				if (arguments.isEmpty()) {
 					return ldc(string.toString());
 				}
 				else {
 					return invokeDynamic(
-						STRING_CONCAT_FACTORY,
-						method(
+						MAKE_CONCAT_WITH_CONSTANTS,
+						new MethodInfo(
 							ACC_PUBLIC | ACC_STATIC,
 							TypeInfos.OBJECT, //ignored
 							"concat",
@@ -799,43 +787,45 @@ public class ExpressionParser {
 				}
 			}
 			else if (c == '$') {
-				char escaped = this.input.peek();
-				if (escaped == '$') {
-					this.input.onCharRead('$');
+				if (this.input.has('$')) {
 					string.append('$');
 				}
-				else if (escaped == '.') {
-					this.input.onCharRead('.');
-					string.append((char)(1));
-					arguments.add(this.nextMember());
-					//see below.
-					int skippedWhitespace = this.input.cursor - 1;
-					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
-						skippedWhitespace--;
-					}
-					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
+				else if (this.input.has(':')) {
+					boolean member = this.input.has('.');
+					this.input.skipWhitespace();
+					int start = this.input.cursor;
+					arguments.add(member ? this.nextMember() : this.nextTerm());
+					int end = this.input.cursor;
+					while (Character.isWhitespace(this.input.input.charAt(end - 1))) end--;
+					string.append(this.input.input, start, end).append(": ").append((char)(1));
+					this.addSkippedWhitespace(string);
 				}
 				else {
+					boolean member = this.input.has('.');
 					string.append((char)(1));
-					arguments.add(this.nextTerm());
-					//in some cases, input.skipWhitespace() may
-					//be called after the next term has ended.
-					//this is problematic because if the input
-					//is, for example, "String a = 'a',, '$a b'",
-					//then the output would be "ab", without
-					//a space between. so, here we add any
-					//whitespace which got skipped over.
-					int skippedWhitespace = this.input.cursor - 1;
-					while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
-						skippedWhitespace--;
-					}
-					string.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
+					arguments.add(member ? this.nextMember() : this.nextTerm());
+					this.addSkippedWhitespace(string);
 				}
 			}
 			else {
 				string.append(c);
 			}
 		}
+	}
+
+	public void addSkippedWhitespace(StringBuilder builder) {
+		//in some cases, input.skipWhitespace() may
+		//be called after the next term has ended.
+		//this is problematic because if the input
+		//is, for example, "String a = 'a',, '$a b'",
+		//then the output would be "ab", without
+		//a space between. so, here we add any
+		//whitespace which got skipped over.
+		int skippedWhitespace = this.input.cursor - 1;
+		while (Character.isWhitespace(this.input.getChar(skippedWhitespace))) {
+			skippedWhitespace--;
+		}
+		builder.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
 	}
 
 	public InsnTree nextNumber(boolean negated) throws ScriptParsingException {
@@ -1033,7 +1023,7 @@ public class ExpressionParser {
 	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {
 		if (this.input.hasIdentifierAfterWhitespace("new")) {
 			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", arguments.arguments());
+			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", GetMethodMode.NORMAL, arguments.arguments());
 			if (expression == null) {
 				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
 			}
@@ -1136,8 +1126,6 @@ public class ExpressionParser {
 		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 
-	public static final MethodInfo OBJECT_CONSTRUCTOR = method(ACC_PUBLIC, TypeInfos.OBJECT, "<init>", TypeInfos.VOID);
-
 	public InsnTree nextUserDefinedClass(String className) throws ScriptParsingException {
 		this.input.expectAfterWhitespace('(');
 		ClassCompileContext innerClass = this.clazz.newInnerClass(
@@ -1146,7 +1134,8 @@ public class ExpressionParser {
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
-		List<FieldCompileContext> fields = new ArrayList<>();
+		TypeInfo innerClassType = innerClass.info;
+		List<FieldCompileContext> fields = new ArrayList<>(8);
 		while (!this.input.hasAfterWhitespace(')')) {
 			String typeName = this.input.expectIdentifier();
 			TypeInfo type = this.environment.getType(this, typeName);
@@ -1165,6 +1154,14 @@ public class ExpressionParser {
 					throw new ScriptParsingException("Field initializer must be constant", this.input);
 				}
 			}
+			FieldInfo fieldInfo = field.info;
+			innerClass.newMethod(ACC_PUBLIC, fieldName, type).scopes.withScope((MethodCompileContext getter) -> {
+				return_(getField(load("this", 0, innerClassType), fieldInfo)).emitBytecode(getter);
+			});
+			innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, fieldInfo.type).scopes.withScope((MethodCompileContext setter) -> {
+				putField(load("this", 0, innerClassType), fieldInfo, load(fieldInfo.name, 1, fieldInfo.type)).emitBytecode(setter);
+				return_(noop).emitBytecode(setter);
+			});
 
 			this.input.hasOperatorAfterWhitespace(",,");
 		}
@@ -1176,7 +1173,7 @@ public class ExpressionParser {
 				if (field.initializer != null) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.name(), field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						ldc(field.initializer)
 					)
 					.emitBytecode(constructor);
@@ -1191,10 +1188,10 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.name(), field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
 						load(constructor.newParameter(field.name(), field.info.type))
 					)
-						.emitBytecode(constructor);
+					.emitBytecode(constructor);
 				}
 				return_(noop).emitBytecode(constructor);
 			});
@@ -1207,7 +1204,7 @@ public class ExpressionParser {
 				for (FieldCompileContext field : fields) {
 					putField(
 						load(constructorThis),
-						field(ACC_PUBLIC, innerClass.info, field.info.name, field.info.type),
+						new FieldInfo(ACC_PUBLIC, innerClassType, field.info.name, field.info.type),
 						field.initializer != null ? ldc(field.initializer) : load(constructor.newParameter(field.name(), field.info.type))
 					)
 					.emitBytecode(constructor);
@@ -1226,8 +1223,14 @@ public class ExpressionParser {
 			pattern.append(')');
 			return_(
 				invokeDynamic(
-					method(ACC_PUBLIC | ACC_STATIC, StringConcatFactory.class, "makeConcatWithConstants", CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, String.class, Object[].class),
-					method(ACC_PUBLIC | ACC_STATIC, TypeInfos.OBJECT, "toString", TypeInfos.STRING, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)),
+					MAKE_CONCAT_WITH_CONSTANTS,
+					new MethodInfo(
+						ACC_PUBLIC | ACC_STATIC,
+						TypeInfos.OBJECT,
+						"toString",
+						TypeInfos.STRING,
+						fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)
+					),
 					new ConstantValue[] {
 						constant(pattern.toString())
 					},
@@ -1274,16 +1277,16 @@ public class ExpressionParser {
 			VarInfo methodThis = method.addThis();
 			VarInfo object = method.newParameter("object", TypeInfos.OBJECT);
 			if (fields.isEmpty()) {
-				return_(instanceOf(load(object), innerClass.info)).emitBytecode(method);
+				return_(instanceOf(load(object), innerClassType)).emitBytecode(method);
 			}
 			else {
-				VarInfo that = method.newVariable("that", innerClass.info);
+				VarInfo that = method.newVariable("that", innerClassType);
 				ifThen(
-					not(condition(this, instanceOf(load(object), innerClass.info))),
+					not(condition(this, instanceOf(load(object), innerClassType))),
 					return_(ldc(false))
 				)
 				.emitBytecode(method);
-				store(that, load(object).cast(this, innerClass.info, CastMode.EXPLICIT_THROW)).emitBytecode(method);
+				store(that, load(object).cast(this, innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(method);
 				for (FieldCompileContext field : fields) {
 					ifThen(
 						not(
@@ -1305,19 +1308,17 @@ public class ExpressionParser {
 		});
 		//setup user definitions.
 		this.checkType(className);
-		this.environment.user().types.put(className, innerClass.info);
-		this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID));
+		this.environment.user().types.put(className, innerClassType);
+		this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID));
 		if (!fields.isEmpty()) {
-			this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			if (nonDefaulted.size() != fields.size()) {
-				this.environment.user().addConstructor(innerClass.info, method(ACC_PUBLIC, innerClass.info, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+				this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
 			}
 		}
-		fields.stream().map(field -> field.info).forEach(this.environment.user()::addField);
+		fields.stream().map(field -> field.info).forEach(this.environment.user()::addFieldGetterAndSetter);
 		return noop;
 	}
-
-	public static final MethodInfo HASH_MIX = method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, HashCommon.class, "mix", int.class, int.class);
 
 	public TypeInfo getMainReturnType() {
 		return this.method.info.returnType;

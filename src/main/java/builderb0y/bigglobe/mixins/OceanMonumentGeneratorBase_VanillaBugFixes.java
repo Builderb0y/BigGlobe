@@ -19,7 +19,7 @@ import net.minecraft.util.math.Direction;
 public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMonumentGenerator.Piece {
 
 	@Shadow
-	private @Final List<Piece> field_14465;
+	private @Final List<Piece> children;
 
 	public OceanMonumentGeneratorBase_VanillaBugFixes(StructurePieceType type, Direction orientation, int length, BlockBox box) {
 		super(type, orientation, length, box);
@@ -56,7 +56,7 @@ public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMo
 	@Override
 	public void translate(int x, int y, int z) {
 		super.translate(x, y, z);
-		for (Piece child : this.field_14465) {
+		for (Piece child : this.children) {
 			child.translate(x, y, z);
 		}
 	}

@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -281,10 +281,12 @@ public class ColumnScriptEnvironmentBuilder {
 
 		for (SpecialGetter getter : SPECIAL_GETTERS) {
 			for (String name : getter.exposedNames) {
-				this.mutable.addVariableRenamedInvoke(
-					this.loadColumn,
+				this.mutable.addVariable(
 					name,
-					getter.fixedPositionGetter
+					Handlers
+					.builder(ColumnScriptEnvironmentBuilder.class, getter.fixedPositionInternalName)
+					.addImplicitArgument(this.loadColumn)
+					.buildVariable()
 				);
 			}
 		}

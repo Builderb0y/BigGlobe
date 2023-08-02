@@ -15,6 +15,8 @@ import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -24,12 +26,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class RandomScriptEnvironment {
 
 	public static final MethodInfo
-		CONSTRUCTOR = MethodInfo.findConstructor(Permuter.class, long.class),
-		PERMUTE_INT = MethodInfo.findMethod(Permuter.class, "permute", long.class, long.class, int.class).pure(),
-		NEXT_INT_1  = MethodInfo.findMethod(RandomGenerator.class, "nextInt", int.class, int.class),
-		NEXT_BOOLEAN = MethodInfo.findMethod(RandomGenerator.class, "nextBoolean", boolean.class),
-		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class),
-		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod(Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class);
+		CONSTRUCTOR            = MethodInfo.findConstructor(Permuter       .class,                       long   .class                                     ),
+		PERMUTE_INT            = MethodInfo.findMethod     (Permuter       .class, "permute",            long   .class,            long.class, int   .class).pure(),
+		NEXT_INT_1             = MethodInfo.findMethod     (RandomGenerator.class, "nextInt",            int    .class,            int .class              ),
+		NEXT_BOOLEAN           = MethodInfo.findMethod     (RandomGenerator.class, "nextBoolean",        boolean.class                                     ),
+		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float .class),
+		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class),
+		ASSERT_FAIL            = MethodInfo.findConstructor(AssertionError .class,                       String .class                                     );
 
 	public static MutableScriptEnvironment create(InsnTree loader) {
 		return (
@@ -45,7 +48,7 @@ public class RandomScriptEnvironment {
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
 			.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble", "nextGaussian", "nextExponential")
-			.addMethod(type(RandomGenerator.class), "switch", (parser, receiver, name, arguments) -> {
+			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
 				}
@@ -56,37 +59,43 @@ public class RandomScriptEnvironment {
 				cases.defaultReturnValue(
 					throw_(
 						newInstance(
-							constructor(
-								ACC_PUBLIC,
-								AssertionError.class,
-								String.class
-							),
+							ASSERT_FAIL,
 							ldc("Random returned value out of range")
 						)
 					)
 				);
 				return new CastResult(
-					switch_(
-						parser,
-						invokeInstance(
-							loader,
-							NEXT_INT_1,
-							ldc(arguments.length)
-						),
-						cases
-					),
+					(
+						switch (mode) {
+							case NORMAL -> MemberKeywordMode.NORMAL;
+							case NULLABLE -> MemberKeywordMode.NULLABLE;
+							case RECEIVER -> MemberKeywordMode.RECEIVER;
+							case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+						}
+					)
+					.apply(loader, actualReceiver -> {
+						return switch_(
+							parser,
+							invokeInstance(
+								actualReceiver,
+								NEXT_INT_1,
+								ldc(arguments.length)
+							),
+							cases
+						);
+					}),
 					false
 				);
-			})
+			}))
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)
 			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, float.class)
 			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, double.class)
-			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name) -> {
-				return randomIf(parser, receiver, false);
+			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name, mode) -> {
+				return wrapRandomIf(parser, receiver, false, mode);
 			})
-			.addMemberKeyword(type(RandomGenerator.class), "unless", (parser, receiver, name) -> {
-				return randomIf(parser, receiver, true);
+			.addMemberKeyword(type(RandomGenerator.class), "unless", (parser, receiver, name, mode) -> {
+				return wrapRandomIf(parser, receiver, true, mode);
 			})
 		);
 	}
@@ -100,6 +109,10 @@ public class RandomScriptEnvironment {
 			seed = invokeStatic(PERMUTE_INT, seed, next);
 		}
 		return new CastResult(seed, needCasting);
+	}
+
+	public static InsnTree wrapRandomIf(ExpressionParser parser, InsnTree receiver, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {
+		return mode.apply(receiver, actualReceiver -> randomIf(parser, actualReceiver, negate));
 	}
 
 	public static InsnTree randomIf(ExpressionParser parser, InsnTree receiver, boolean negate) throws ScriptParsingException {

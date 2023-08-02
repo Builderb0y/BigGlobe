@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Locale;
+import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
 
@@ -174,9 +175,12 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		@Wrapper
 		public static class Holder extends ScriptHolder<FeatureScript> implements FeatureScript {
 
-			public static final InsnTree LOAD_RANDOM = getField(
-				load("world", 1, WorldWrapper.TYPE),
-				FieldInfo.getField(WorldWrapper.class, "permuter")
+			public static final InsnTree LOAD_RANDOM = new IdentityCastInsnTree(
+				getField(
+					load("world", 1, WorldWrapper.TYPE),
+					FieldInfo.getField(WorldWrapper.class, "permuter")
+				),
+				type(RandomGenerator.class)
 			);
 
 			public final SerializableScriptInputs inputs;
@@ -184,7 +188,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
 				super(
 					new TemplateScriptParser<>(FeatureScript.class, inputs.buildScriptInputs())
-					.addEnvironment(JavaUtilScriptEnvironment.ALL)
+					.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
 					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
 						load("world", 1, WorldWrapper.TYPE)

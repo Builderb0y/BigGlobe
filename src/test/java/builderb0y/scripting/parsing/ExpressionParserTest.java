@@ -77,7 +77,7 @@ public class ExpressionParserTest extends TestCommon {
 			"""
 			Unknown function or incorrect arguments: e
 			Candidates:
-				Variable e: ConstantInsnTree of type primitive D (constant: 2.718281828459045 of type primitive D)
+				Variable e: ConstantInsnTree of type primitive double (constant: 2.718281828459045 of type primitive double)
 			Actual form: e()""",
 			"e ( )"
 		);
@@ -85,16 +85,16 @@ public class ExpressionParserTest extends TestCommon {
 			"""
 			Unknown field: getKey
 			Candidates:
-				Method interface java/util/Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).getKey""",
+				Method interface java.util.Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
+			Actual form: LoadInsnTree of type interface java.util.Map$Entry extends java/lang/Object (not constant).getKey""",
 			"MapEntry entry = null ,, entry . getKey"
 		);
 		assertFail(
 			"""
 			Unknown method or incorrect arguments: key
 			Candidates:
-				Field interface java/util/Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type interface java/util/Map$Entry extends java/lang/Object (not constant).key()""",
+				Field interface java.util.Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
+			Actual form: LoadInsnTree of type interface java.util.Map$Entry extends java/lang/Object (not constant).key()""",
 			"MapEntry entry = null ,, entry . key ( )"
 		);
 	}
@@ -110,5 +110,57 @@ public class ExpressionParserTest extends TestCommon {
 		assertSuccess("a: 1, b: 2", "int a = 1 ,, int b = 2 ,, 'a: $a, b: $b'");
 		assertSuccess("2^2 = 4", "int square ( int x : x * x ) ,, int x = 2 ,, '$x^2 = $square ( x )'");
 		assertSuccess("a 42 b", "class X(int x) 'a $.X.new(42).x b'");
+		assertSuccess("a: 1, b: 2", "int a = 1 int b = 2 '$:a, $:b'");
+		assertSuccess("box.value: 42", "class Box(int value) Box box = new(42) '$:.box.value'");
+	}
+
+	@Test
+	public void testComments() throws ScriptParsingException {
+		assertSuccess(2, "2 ;comment");
+		assertSuccess(2, "2 ; comment");
+		assertSuccess(2,
+			"""
+			int identity(int x: x)
+			identity ( 3 ) ;comment
+			2
+			"""
+		);
+		assertSuccess(2,
+			"""
+			int identity(int x: x)
+			identity ( 3 ) ; comment
+			2
+			"""
+		);
+		assertSuccess(2,
+			"""
+			int identity(int x: x)
+			identity ( 3 )
+			;comment
+			2
+			"""
+		);
+		assertSuccess(2,
+			"""
+			int identity(int x: x)
+			identity ( 3 )
+			; comment
+			2
+			"""
+		);
+		assertSuccess(2, ";;3;; 2");
+		assertSuccess(2, ";; 3 ;; 2");
+		assertSuccess(2, ";;;; 2");
+		assertFail("Un-terminated multi-line comment", ";;");
+		assertFail("Un-terminated multi-line comment", ";;comment");
+		assertSuccess(2, ";() 2");
+		assertSuccess(2, ";(comment) 2");
+		assertSuccess(2, ";((comment)) 2");
+		assertSuccess(2, ";((comment)(more comments)) 2");
+		assertSuccess(2, ";(fakeFunction(fakeArgument)) 2");
+		assertFail("Mismatched parentheses in comment", ";(");
+		assertFail("Mismatched parentheses in comment", ";(comment");
+		assertFail("Mismatched parentheses in comment", ";(()");
+		assertFail("Mismatched parentheses in comment", ";((comment)");
 	}
 }

@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.trees.decoration;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;

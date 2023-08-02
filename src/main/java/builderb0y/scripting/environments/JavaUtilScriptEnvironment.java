@@ -3,6 +3,7 @@ package builderb0y.scripting.environments;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -10,13 +11,13 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PostUpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PreUpdateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.VoidUpdateInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -43,9 +44,12 @@ public class JavaUtilScriptEnvironment {
 		.addType("Map", Map.class)
 		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, arguments) -> {
+		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, mode, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(new CommonGetterInsnTree(receiver, MAP_GET, key, MAP_PUT, "Map"), key != arguments[0]);
+			return new CastResult(
+				CommonGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
+				key != arguments[0]
+			);
 		})
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
@@ -95,10 +99,15 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
 		.addType("List", List.class)
 		.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
+		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
+		.addMethodInvokeStatic(Collections.class, "reverse")
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
-		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, arguments) -> {
+		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, mode, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(new CommonGetterInsnTree(receiver, LIST_GET, index, LIST_SET, "List"), index != arguments[0]);
+			return new CastResult(
+				CommonGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
+				index != arguments[0]
+			);
 		})
 		.addType("LinkedList", LinkedList.class)
 		.addQualifiedMultiConstructor(LinkedList.class)
@@ -120,7 +129,75 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(RandomList.class)
 	);
 
-	public static class CommonGetterInsnTree extends InvokeInsnTree {
+	public static MutableScriptEnvironment withRandom(InsnTree loadRandom) {
+		return new MutableScriptEnvironment().addAll(ALL).addAll(randomOnly(loadRandom));
+	}
+
+	public static MutableScriptEnvironment randomOnly(InsnTree loadRandom) {
+		return new MutableScriptEnvironment().addMethod(
+			type(List.class),
+			"shuffle",
+			Handlers
+			.builder(JavaUtilScriptEnvironment.class, "shuffle")
+			.addReceiverArgument(List.class)
+			.addImplicitArgument(loadRandom)
+			.buildMethod()
+		);
+	}
+
+	public static void swap(Object[] array, int index1, int index2) {
+		Object tmp = array[index1];
+		array[index1] = array[index2];
+		array[index2] = tmp;
+	}
+
+	/**
+	mostly a copy-paste of {@link Collections#shuffle(List, Random)},
+	but adapted to work with a {@link RandomGenerator} instead of a {@link Random}.
+	*/
+	public static <T> void shuffle(List<T> list, RandomGenerator random) {
+		int size = list.size();
+		if (size < 5 || list instanceof RandomAccess) {
+			for (int index = size; index > 1; index--) {
+				Collections.swap(list, index - 1, random.nextInt(index));
+			}
+		}
+		else {
+			@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+			T[] array = (T[])(list.toArray());
+			for (int index = size; index > 1; index--) {
+				swap(array, index - 1, random.nextInt(index));
+			}
+			ListIterator<T> iterator = list.listIterator();
+			for (T element : array) {
+				iterator.next();
+				iterator.set(element);
+			}
+		}
+	}
+
+	public static <T> void shuffle(List<T> list, long seed) {
+		int size = list.size();
+		if (size < 5 || list instanceof RandomAccess) {
+			for (int index = size; index > 1; index--) {
+				Collections.swap(list, index - 1, Permuter.nextBoundedInt(seed += Permuter.PHI64, index));
+			}
+		}
+		else {
+			@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+			T[] array = (T[])(list.toArray());
+			for (int index = size; index > 1; index--) {
+				swap(array, index - 1, Permuter.nextBoundedInt(seed += Permuter.PHI64, index));
+			}
+			ListIterator<T> iterator = list.listIterator();
+			for (T element : array) {
+				iterator.next();
+				iterator.set(element);
+			}
+		}
+	}
+
+	public static class CommonGetterInsnTree extends InvokeBaseInsnTree {
 
 		public MethodInfo replacer;
 		public String type;
@@ -132,9 +209,25 @@ public class JavaUtilScriptEnvironment {
 			MethodInfo replacer,
 			String type
 		) {
-			super(receiver, getter, key);
+			super(getter, receiver, key);
 			this.replacer = replacer;
 			this.type = type;
+			if (getter.isStatic()) {
+				checkArguments(getter.paramTypes, this.args);
+			}
+			else {
+				checkArguments(getter.paramTypes, new InsnTree[] { key });
+				InvokeInstanceInsnTree.checkReceiver(getter.owner, receiver);
+			}
+		}
+
+		public static InsnTree from(InsnTree receiver, MethodInfo getter, InsnTree key, MethodInfo replacer, String type, GetMethodMode mode) {
+			return switch (mode) {
+				case NORMAL -> new CommonGetterInsnTree(receiver, getter, key, replacer, type);
+				case NULLABLE -> new NullableInvokeInsnTree(receiver, getter, key);
+				case RECEIVER -> new InvokeInstanceReceiverInsnTree(receiver, getter, key);
+				case NULLABLE_RECEIVER -> new NullableInvokeInstanceReceiverInsnTree(receiver, getter, key);
+			};
 		}
 
 		@Override
@@ -142,9 +235,9 @@ public class JavaUtilScriptEnvironment {
 			if (op == UpdateOp.ASSIGN) {
 				InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
 				return switch (order) {
-					case VOID -> new CommonVoidUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
-					case PRE  -> new  CommonPreUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
-					case POST -> new CommonPostUpdateInsnTree(this.receiver, this.args[0], cast, this.replacer);
+					case VOID -> new CommonVoidUpdateInsnTree(this.args[0], this.args[1], cast, this.replacer);
+					case PRE  -> new  CommonPreUpdateInsnTree(this.args[0], this.args[1], cast, this.replacer);
+					case POST -> new CommonPostUpdateInsnTree(this.args[0], this.args[1], cast, this.replacer);
 				};
 			}
 			else {
@@ -254,7 +347,7 @@ public class JavaUtilScriptEnvironment {
 		}
 	}
 
-	public static class MapEntryValueInsnTree extends InvokeInsnTree {
+	public static class MapEntryValueInsnTree extends InvokeInstanceInsnTree {
 
 		public MapEntryValueInsnTree(InsnTree entry) {
 			super(entry, MAP_ENTRY_GET);

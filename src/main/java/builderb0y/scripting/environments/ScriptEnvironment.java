@@ -10,16 +10,24 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.InvokeStaticInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableFakeInvokeStaticInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableGetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.nullability.NullableInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.*;
+import builderb0y.scripting.bytecode.tree.instructions.fields.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
+import builderb0y.scripting.bytecode.tree.instructions.NullMapperInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NullableGetFieldInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public interface ScriptEnvironment {
+
+	public static enum CommonMode {
+		NORMAL,
+		NULLABLE,
+		RECEIVER,
+		NULLABLE_RECEIVER;
+	}
 
 	/**
 	returns an InsnTree which will load the variable
@@ -64,12 +72,12 @@ public interface ScriptEnvironment {
 
 			@Override
 			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
-				return new InvokeInsnTree(receiver, getter, arguments);
+				return new InvokeInstanceInsnTree(receiver, getter, arguments);
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
-				return new InvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new InvokeStaticInsnTree(getter, extraArguments);
 			}
 		},
 
@@ -86,16 +94,29 @@ public interface ScriptEnvironment {
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
-				return new NullableFakeInvokeStaticInsnTree(getter, ObjectArrays.concat(receiver, extraArguments));
+			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(getter, extraArguments);
 			}
 		};
+
+		public static GetFieldMode from(CommonMode mode) {
+			return switch (mode) {
+				case NORMAL -> NORMAL;
+				case NULLABLE -> NULLABLE;
+				case RECEIVER -> throw new IllegalArgumentException("Can't use receiver syntax for fields");
+				case NULLABLE_RECEIVER -> throw new IllegalArgumentException("Can't use nullable receiver syntax for fields");
+			};
+		}
 
 		public abstract InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field);
 
 		public abstract InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments);
 
-		public abstract InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments);
+		public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
+			return this.makeStaticGetter(parser, getter, ObjectArrays.concat(receiver, extraArguments));
+		}
+
+		public abstract InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments);
 	}
 
 	/**
@@ -126,8 +147,80 @@ public interface ScriptEnvironment {
 	for example, if the length of the arguments array does not
 	match the number of parameters in the underlying method.
 	*/
-	public default @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
+	public default @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
 		return null;
+	}
+
+	public static enum GetMethodMode {
+
+		NORMAL {
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new InvokeInstanceInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new InvokeStaticInsnTree(method, extraArguments);
+			}
+		},
+
+		NULLABLE {
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new NullableInvokeInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(method, extraArguments);
+			}
+		},
+
+		RECEIVER {
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new InvokeInstanceReceiverInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new InvokeStaticReceiverInsnTree(method, extraArguments);
+			}
+		},
+
+		NULLABLE_RECEIVER {
+
+			@Override
+			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
+				return new NullableInvokeInstanceReceiverInsnTree(receiver, method, arguments);
+			}
+
+			@Override
+			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NullableFakeInvokeStaticInsnTree(method, extraArguments);
+			}
+		};
+
+		public static GetMethodMode from(CommonMode mode) {
+			return switch (mode) {
+				case NORMAL -> NORMAL;
+				case NULLABLE -> NULLABLE;
+				case RECEIVER -> RECEIVER;
+				case NULLABLE_RECEIVER -> NULLABLE_RECEIVER;
+			};
+		}
+
+		public abstract InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments);
+
+		public InsnTree makeStaticInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... extraArguments) {
+			return this.makeStaticInvoker(parser, method, ObjectArrays.concat(receiver, extraArguments));
+		}
+
+		public abstract InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments);
 	}
 
 	/**
@@ -148,8 +241,69 @@ public interface ScriptEnvironment {
 
 	if no special method exists with the given name, this method returns null.
 	*/
-	public default @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public default @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
 		return null;
+	}
+
+	public static enum MemberKeywordMode {
+
+		NORMAL {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return function.apply(receiver);
+			}
+		},
+
+		NULLABLE {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return new NullMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
+			}
+		},
+
+		RECEIVER {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return new ReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
+			}
+		},
+
+		NULLABLE_RECEIVER {
+
+			@Override
+			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
+				return new NullableReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
+			}
+		};
+
+		public static MemberKeywordMode from(CommonMode mode) {
+			return switch (mode) {
+				case NORMAL -> NORMAL;
+				case NULLABLE -> NULLABLE;
+				case RECEIVER -> RECEIVER;
+				case NULLABLE_RECEIVER -> NULLABLE_RECEIVER;
+			};
+		}
+
+		/**
+		creates an InsnTree from the provided receiver and function.
+		the function is expected to transform the receiver into some other InsnTree.
+		if this is the normal mode, then the function is called on the provided receiver.
+		but for the nullable and receiver modes it's a bit more complex: a {@link NullMapperInsnTree}
+		is created using the provided receiver, and the function is called on a
+		{@link GetFromStackInsnTree} instead. this works because {@link NullMapperInsnTree}
+		leaves a copy of the receiver on the stack when emitting bytecode for its mapper.
+		*/
+		public abstract InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException;
+
+		@FunctionalInterface
+		public static interface MemberKeywordFunction {
+
+			public abstract InsnTree apply(InsnTree receiver) throws ScriptParsingException;
+		}
 	}
 
 	/**

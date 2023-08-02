@@ -44,7 +44,7 @@ public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler
 	}
 
 	public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
-		if (argument.getTypeInfo().simpleEquals(this.variableMethod.paramTypes[0])) {
+		if (argument.getTypeInfo().equals(this.variableMethod.paramTypes[0])) {
 			if (argument.getConstantValue().isConstant()) {
 				return new CastResult(ldc(this.constantMethod, argument.getConstantValue()), true);
 			}
@@ -53,7 +53,7 @@ public class ConstantFactory implements MutableScriptEnvironment.FunctionHandler
 				return new CastResult(invokeStatic(this.variableMethod, argument), true);
 			}
 		}
-		else if (argument.getTypeInfo().simpleEquals(this.type)) {
+		else if (argument.getTypeInfo().equals(this.type)) {
 			return new CastResult(argument, false);
 		}
 		else {

@@ -550,9 +550,9 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
-		return this.addMethod(method.owner, name, new MethodHandler.Named("methodInvoke: " + method, (parser, receiver, name1, arguments) -> {
+		return this.addMethod(method.owner, name, new MethodHandler.Named("methodInvoke: " + method, (parser, receiver, name1, mode, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeInstance(receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(mode.makeInstanceInvoker(parser, receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -600,10 +600,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addMethodInvokeStatic(String name, MethodInfo method) {
-		return this.addMethod(method.paramTypes[0], name, new MethodHandler.Named("methodInvokeStatic: " + method, (parser, receiver, name1, arguments) -> {
+		return this.addMethod(method.paramTypes[0], name, new MethodHandler.Named("methodInvokeStatic: " + method, (parser, receiver, name1, mode, arguments) -> {
 			InsnTree[] concatArguments = ObjectArrays.concat(receiver, arguments);
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, concatArguments);
-			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != concatArguments);
+			return castArguments == null ? null : new CastResult(mode.makeStaticInvoker(parser, method, castArguments), castArguments != concatArguments);
 		}));
 	}
 
@@ -759,7 +759,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////////////////////// qualified functions ////////////////////////////////
 
 	public MutableScriptEnvironment addQualifiedFunction(TypeInfo owner, String name, FunctionHandler functionHandler) {
-		return this.addMethod(TypeInfos.CLASS, name, new MethodHandler.Named("qualifiedFunction on " + owner + ": " + functionHandler, (parser, receiver, name1, arguments) -> {
+		return this.addMethod(TypeInfos.CLASS, name, new MethodHandler.Named("qualifiedFunction on " + owner + ": " + functionHandler, (parser, receiver, name1, mode, arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
 				return functionHandler.create(parser, name1, arguments);
@@ -1005,7 +1005,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
+	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
 		class Accumulator {
 
 			public final NamedType query = new NamedType();
@@ -1017,7 +1017,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				List<MethodHandler> handlers = MutableScriptEnvironment.this.methods.get(this.query);
 				if (handlers != null) {
 					for (int index = 0, size = handlers.size(); index < size; index++) {
-						CastResult casted = handlers.get(index).create(parser, receiver, name, arguments);
+						CastResult casted = handlers.get(index).create(parser, receiver, name, mode, arguments);
 						if (casted != null) {
 							if (!casted.requiredCasting) {
 								this.result = casted.tree;
@@ -1054,17 +1054,17 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
+	public @Nullable InsnTree parseMemberKeyword(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
 		NamedType query = new NamedType();
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
 			MemberKeywordHandler handler = this.memberKeywords.get(query);
-			if (handler != null) return handler.create(parser, receiver, name);
+			if (handler != null) return handler.create(parser, receiver, name, mode);
 		}
 		query.owner = null;
 		MemberKeywordHandler handler = this.memberKeywords.get(query);
-		if (handler != null) return handler.create(parser, receiver, name);
+		if (handler != null) return handler.create(parser, receiver, name, mode);
 		return null;
 	}
 
@@ -1144,13 +1144,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface MethodHandler {
 
-		public abstract @Nullable CastResult create(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException;
+		public abstract @Nullable CastResult create(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException;
 
 		public static record Named(String name, MethodHandler handler) implements MethodHandler {
 
 			@Override
-			public @Nullable CastResult create(ExpressionParser parser, InsnTree receiver, String name, InsnTree... arguments) throws ScriptParsingException {
-				return this.handler.create(parser, receiver, name, arguments);
+			public @Nullable CastResult create(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
+				return this.handler.create(parser, receiver, name, mode, arguments);
 			}
 
 			@Override
@@ -1182,13 +1182,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface MemberKeywordHandler {
 
-		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException;
+		public abstract @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException;
 
 		public static record Named(String name, MemberKeywordHandler handler) implements MemberKeywordHandler {
 
 			@Override
-			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name) throws ScriptParsingException {
-				return this.handler.create(parser, receiver, name);
+			public @Nullable InsnTree create(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) throws ScriptParsingException {
+				return this.handler.create(parser, receiver, name, mode);
 			}
 
 			@Override

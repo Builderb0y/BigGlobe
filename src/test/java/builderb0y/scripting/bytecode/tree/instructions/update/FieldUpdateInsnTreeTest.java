@@ -13,14 +13,14 @@ public class FieldUpdateInsnTreeTest {
 
 	@Test
 	public void testDeclarations() throws ScriptParsingException {
-		test("class Int(int x) Int a  = Int b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) Int a  = var b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) var a  = Int b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) var a  = var b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) Int a := Int b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) Int a := var b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) var a := Int b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
-		test("class Int(int x) var a := var b := Int.new(2),, a == b && a.x == 2 && b.x == 2");
+		test("class Int(int x) Int a  = Int b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) Int a  = var b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) var a  = Int b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) var a  = var b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) Int a := Int b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) Int a := var b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) var a := Int b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
+		test("class Int(int x) var a := var b := Int.new(2),, a === b && a.x == 2 && b.x == 2");
 	}
 
 	@Test

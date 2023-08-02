@@ -23,12 +23,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -36,7 +41,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.*;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructurePresence;
@@ -78,6 +82,7 @@ import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -111,13 +116,17 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public final transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
 
-	public BigGlobeChunkGenerator(Registry<StructureSet> structureSetRegistry, BiomeSource biomeSource, SortedFeatures configuredFeatures) {
-		super(structureSetRegistry, Optional.empty(), biomeSource);
+	public BigGlobeChunkGenerator(
+		BetterRegistry<StructureSet> structureSetRegistry,
+		BiomeSource biomeSource,
+		SortedFeatures configuredFeatures
+	) {
+		super(((BetterHardCodedRegistry<StructureSet>)(structureSetRegistry)).registry, Optional.empty(), biomeSource);
 		this.configuredFeatures = configuredFeatures;
 	}
 
-	public Registry<StructureSet> structureSetRegistry() {
-		return this.structureSetRegistry;
+	public BetterRegistry<StructureSet> structureSetRegistry() {
+		return new BetterHardCodedRegistry<>(this.structureSetRegistry);
 	}
 
 	@Wrapper

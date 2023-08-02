@@ -99,15 +99,15 @@ public class BuiltinScriptEnvironment {
 			InsnTree loadOut = getStatic(SYSTEM_OUT);
 			InsnTree concat = invokeDynamic(
 				STRING_CONCAT_FACTORY,
-				method(
+				new MethodInfo(
 					ACC_PUBLIC | ACC_STATIC,
 					TypeInfos.OBJECT, //ignored
 					"concat",
 					TypeInfos.STRING,
 					Arrays
-						.stream(arguments)
-						.map(InsnTree::getTypeInfo)
-						.toArray(TypeInfo.ARRAY_FACTORY)
+					.stream(arguments)
+					.map(InsnTree::getTypeInfo)
+					.toArray(TypeInfo.ARRAY_FACTORY)
 				),
 				ConstantValue.ARRAY_FACTORY.empty(),
 				arguments
@@ -119,8 +119,8 @@ public class BuiltinScriptEnvironment {
 
 		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
 		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name) -> nextIfElse(receiver, parser, false))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name) -> nextIfElse(receiver, parser, true))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, false))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, true))
 		.addKeyword("while", (parser, name) -> {
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			ConditionBody whileStatement = ConditionBody.parse(parser);
@@ -178,21 +178,21 @@ public class BuiltinScriptEnvironment {
 
 		//////////////// member keywords ////////////////
 
-		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name, mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 			}
 			return instanceOf(receiver, type);
 		})
-		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name, mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 			}
 			return not(parser, instanceOf(receiver, type));
 		})
-		.addMemberKeyword(null, "as", (parser, receiver, name) -> {
+		.addMemberKeyword(null, "as", (parser, receiver, name, mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
 		})
 
@@ -272,14 +272,14 @@ public class BuiltinScriptEnvironment {
 		.addCastInvokeStatic(Character.class, "valueOf", true, Character.class, char     .class)
 		.addCastInvokeStatic(Boolean  .class, "valueOf", true, Boolean  .class, boolean  .class)
 		//unboxing
-		.addCast(TypeInfos.BYTE_WRAPPER,    TypeInfos.BYTE,            true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   BYTE_WRAPPER, "byteValue",    TypeInfos.BYTE)))
-		.addCast(TypeInfos.SHORT_WRAPPER,   TypeInfos.SHORT,           true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.  SHORT_WRAPPER, "shortValue",   TypeInfos.SHORT)))
-		.addCast(TypeInfos.INT_WRAPPER,     TypeInfos.INT,             true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.    INT_WRAPPER, "intValue",     TypeInfos.INT)))
-		.addCast(TypeInfos.LONG_WRAPPER,    TypeInfos.LONG,            true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   LONG_WRAPPER, "longValue",    TypeInfos.LONG)))
-		.addCast(TypeInfos.FLOAT_WRAPPER,   TypeInfos.FLOAT,           true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.  FLOAT_WRAPPER, "floatValue",   TypeInfos.FLOAT)))
-		.addCast(TypeInfos.DOUBLE_WRAPPER,  TypeInfos.DOUBLE,          true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos. DOUBLE_WRAPPER, "doubleValue",  TypeInfos.DOUBLE)))
-		.addCast(TypeInfos.CHAR_WRAPPER,    TypeInfos.CHAR,            true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.   CHAR_WRAPPER, "charValue",    TypeInfos.CHAR)))
-		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN,         true, CastingSupport.invokeVirtual(method(ACC_PUBLIC | ExtendedOpcodes.ACC_PURE, TypeInfos.BOOLEAN_WRAPPER, "booleanValue", TypeInfos.BOOLEAN)))
+		.addCast(TypeInfos.BYTE_WRAPPER,    TypeInfos.BYTE,            true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Byte     .class,    "byteValue")))
+		.addCast(TypeInfos.SHORT_WRAPPER,   TypeInfos.SHORT,           true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Short    .class,   "shortValue")))
+		.addCast(TypeInfos.INT_WRAPPER,     TypeInfos.INT,             true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Integer  .class,     "intValue")))
+		.addCast(TypeInfos.LONG_WRAPPER,    TypeInfos.LONG,            true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Long     .class,    "longValue")))
+		.addCast(TypeInfos.FLOAT_WRAPPER,   TypeInfos.FLOAT,           true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Float    .class,   "floatValue")))
+		.addCast(TypeInfos.DOUBLE_WRAPPER,  TypeInfos.DOUBLE,          true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Double   .class,  "doubleValue")))
+		.addCast(TypeInfos.CHAR_WRAPPER,    TypeInfos.CHAR,            true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Character.class,    "charValue")))
+		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN,         true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Boolean  .class, "booleanValue")))
 		//toString
 		.addCast(TypeInfos.BYTE,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Byte     .class, "toString", String.class, byte   .class)))
 		.addCast(TypeInfos.SHORT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Short    .class, "toString", String.class, short  .class)))

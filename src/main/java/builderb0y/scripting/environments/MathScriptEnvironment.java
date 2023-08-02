@@ -80,7 +80,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
 			return new CastResult(
 				new ReduceInsnTree(
-					method(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
+					new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
 					Arrays.stream(arguments).map(argument -> {
 						return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
 					})

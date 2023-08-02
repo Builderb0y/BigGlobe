@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.fields;
 
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -14,16 +14,18 @@ public class GetFieldInsnTree implements InsnTree {
 	public FieldInfo field;
 
 	public GetFieldInsnTree(InsnTree object, FieldInfo field) {
+		check(object, field);
 		this.object = object;
 		this.field = field;
 	}
 
-	public static GetFieldInsnTree create(InsnTree receiver, FieldInfo field) {
-		if (field.isStatic()) throw new IllegalArgumentException("Static field: " + field);
-		if (!receiver.getTypeInfo().extendsOrImplements(field.owner)) {
-			throw new IllegalArgumentException("Can't get field " + field + " from object of type " + receiver.getTypeInfo());
+	public static void check(InsnTree object, FieldInfo field) {
+		if (field.isStatic()) {
+			throw new IllegalArgumentException("Static field: " + field);
 		}
-		return new GetFieldInsnTree(receiver, field);
+		if (!object.getTypeInfo().extendsOrImplements(field.owner)) {
+			throw new IllegalArgumentException("Can't get field " + field + " from object of type " + object.getTypeInfo());
+		}
 	}
 
 	@Override

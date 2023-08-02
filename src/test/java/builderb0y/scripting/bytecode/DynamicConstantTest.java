@@ -31,32 +31,14 @@ public class DynamicConstantTest {
 		);
 
 		clazz.node.visit(V17, ACC_PUBLIC, clazz.info.getInternalName(), null, superClass.getInternalName(), null);
-		MethodCompileContext constructor = clazz.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID);
-		constructor.scopes.pushScope();
-		VarInfo constructorThis = constructor.addThis();
-		return_(
-			invokeInstance(
-				load(constructorThis),
-				constructor(ACC_PUBLIC, superClass)
-			)
-		)
-		.emitBytecode(constructor);
-		constructor.scopes.popScope();
+		clazz.addNoArgConstructor(ACC_PUBLIC);
 
 		MethodCompileContext getConstant = clazz.newMethod(ACC_PUBLIC, "getConstant", TypeInfos.INT);
 		getConstant.scopes.pushScope();
 		getConstant.addThis();
 		return_(
 			ldc(
-				method(
-					ACC_PUBLIC | ACC_STATIC,
-					DynamicConstantTest.class,
-					"getConstant",
-					int.class,
-					MethodHandles.Lookup.class,
-					String.class,
-					Object.class
-				)
+				MethodInfo.getMethod(DynamicConstantTest.class, "getConstant")
 			)
 		)
 		.emitBytecode(getConstant);

@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.Wrapper;

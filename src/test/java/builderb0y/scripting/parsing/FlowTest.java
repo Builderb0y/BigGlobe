@@ -149,11 +149,7 @@ public class FlowTest extends TestCommon {
 		assertSuccess(1 + 2 + 3 + 4 + 5,
 			"""
 			ArrayList list = new ( 5 )
-			list . add ( 1 )
-			list . add ( 2 )
-			list . add ( 3 )
-			list . add ( 4 )
-			list . add ( 5 )
+			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
 			for ( byte value in list :
 				sum += value
@@ -164,11 +160,7 @@ public class FlowTest extends TestCommon {
 		assertSuccess(1 + 2 + 3 + 4 + 5,
 			"""
 			ArrayList list = new ( 5 )
-			list . add ( 1 )
-			list . add ( 2 )
-			list . add ( 3 )
-			list . add ( 4 )
-			list . add ( 5 )
+			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
 			for ( byte value in Iterable ( list ) :
 				sum += value
@@ -179,13 +171,31 @@ public class FlowTest extends TestCommon {
 		assertSuccess(1 * 2 + 3 * 4,
 			"""
 			HashMap map = new ( 2 )
-			map . put ( 1 , 2 )
-			map . put ( 3 , 4 )
+			map .$ put ( 1 , 2 ) .$ put ( 3 , 4 )
 			int sum = 0
 			for ( byte key , byte value in map :
 				sum += key * value
 			)
 			sum
+			"""
+		);
+		assertSuccess(List.of(4, 5),
+			"""
+			ArrayList firstList = new()
+			firstList.add(1i)
+			firstList.add(2i)
+			firstList.add(3i)
+			firstList.add(4i)
+			firstList.add(5i)
+			ArrayList secondList = new()
+			Iterator iterator = firstList.iterator()
+			for (int element in iterator:
+				if (element == 3: break())
+			)
+			for (int element in iterator:
+				secondList.add(element)
+			)
+			secondList
 			"""
 		);
 	}
@@ -276,11 +286,7 @@ public class FlowTest extends TestCommon {
 		assertSuccess(true,
 			"""
 			List list = ArrayList . new ( 5 )
-			list . add ( 1 )
-			list . add ( 2 )
-			list . add ( 3 )
-			list . add ( 4 )
-			list . add ( 5 )
+			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			for ( byte value in list :
 				if ( value == 3 : return ( true ) )
 			)

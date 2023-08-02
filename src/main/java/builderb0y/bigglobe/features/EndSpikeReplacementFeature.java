@@ -6,7 +6,7 @@ import com.google.common.base.Predicates;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.ConfiguredFeature;

@@ -3,9 +3,9 @@ package builderb0y.bigglobe.codecs.registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
@@ -30,7 +30,7 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 		if (context.isEmpty()) return null;
 		Identifier identifier = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		RegistryKey<T> key = RegistryKey.of(RegistryVersions.getRegistryKey(this.registry), identifier);
-		RegistryEntry<T> entry = this.registry.getEntry(key).orElse(null);
+		RegistryEntry<T> entry = this.registry.getOrCreateEntry(key);
 		if (entry != null) {
 			return entry;
 		}

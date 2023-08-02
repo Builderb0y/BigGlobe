@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.columns;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;

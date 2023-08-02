@@ -15,7 +15,7 @@ import net.minecraft.world.WorldAccess;
 @Mixin(SlimeEntity.class)
 public class SlimeEntity_AllowSpawningFromSpawner {
 
-	@Inject(method = "canSpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/registry/RegistryEntry;"), cancellable = true)
+	@Inject(method = "canSpawn", at = @At(value = "INVOKE", target = "net/minecraft/world/WorldAccess.getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/registry/entry/RegistryEntry;"), cancellable = true)
 	private static void bigglobe_allowSpawningFromSpawner(EntityType<SlimeEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> callback) {
 		if (spawnReason == SpawnReason.SPAWNER) {
 			callback.setReturnValue(Boolean.TRUE);

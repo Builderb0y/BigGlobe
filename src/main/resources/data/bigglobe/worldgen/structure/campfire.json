@@ -7,13 +7,11 @@
 		"layout": {
 			"script": [
 				"String randomColor(:",
-					"return(",
-						"random.switch (",
-							"'white',      'orange', 'magenta', 'light_blue',",
-							"'yellow',     'lime',   'pink',    'gray',",
-							"'light_gray', 'cyan',   'purple',  'blue',",
-							"'brown',      'green',  'red',     'black'",
-						")",
+					"random.switch (",
+						"'white',      'orange', 'magenta', 'light_blue',",
+						"'yellow',     'lime',   'pink',    'gray',",
+						"'light_gray', 'cyan',   'purple',  'blue',",
+						"'brown',      'green',  'red',     'black'",
 					")",
 				")",
 

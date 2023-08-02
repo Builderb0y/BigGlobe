@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.dimensionTypes;
 
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.dimension.DimensionType;
 
 import builderb0y.bigglobe.BigGlobeMod;

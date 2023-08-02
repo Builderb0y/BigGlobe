@@ -2,11 +2,12 @@ package builderb0y.scripting.bytecode.tree.instructions;
 
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeInstanceInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.InstanceGetterSetterUpdateInsnTree.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
-public class InstanceGetterInsnTree extends InvokeInsnTree {
+public class InstanceGetterInsnTree extends InvokeInstanceInsnTree {
 
 	public MethodInfo setter;
 

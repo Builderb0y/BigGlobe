@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.features;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import net.minecraft.world.gen.feature.Feature;
 
 import builderb0y.bigglobe.BigGlobeMod;

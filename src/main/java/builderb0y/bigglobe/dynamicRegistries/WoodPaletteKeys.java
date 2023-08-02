@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;

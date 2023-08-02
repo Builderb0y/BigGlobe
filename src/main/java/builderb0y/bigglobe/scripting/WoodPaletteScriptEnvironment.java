@@ -16,6 +16,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -64,25 +66,20 @@ public class WoodPaletteScriptEnvironment {
 					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
 				);
 			});
-			environment.addMemberKeyword(type(WoodPaletteEntry.class), baseName + "State", (parser, receiver, name) -> {
-				parser.beginCodeBlock();
-				InsnTree tree = invokeInstance(
-					receiver,
-					MethodInfo.getMethod(WoodPaletteEntry.class, "getState"),
-					loadRandom,
-					getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
-				);
-				if (parser.input.peekAfterWhitespace() != ')') {
-					do {
-						String property = parser.input.expectIdentifierAfterWhitespace();
-						parser.input.expectOperatorAfterWhitespace(":");
-						InsnTree value = parser.nextScript().cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW);
-						tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(property), value);
+			environment.addMemberKeyword(type(WoodPaletteEntry.class), baseName + "State", (parser, receiver, name, mode) -> {
+				return mode.apply(receiver, actualReceiver -> {
+					InsnTree tree = invokeInstance(
+						actualReceiver,
+						MethodInfo.getMethod(WoodPaletteEntry.class, "getState"),
+						loadRandom,
+						getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
+					);
+					NamedValues namedValues = NamedValues.parse(parser, TypeInfos.COMPARABLE);
+					for (NamedValue value : namedValues.values()) {
+						tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
 					}
-					while (parser.input.hasOperatorAfterWhitespace(","));
-				}
-				parser.endCodeBlock();
-				return tree;
+					return namedValues.maybeWrap(tree);
+				});
 			});
 		}
 		return environment;

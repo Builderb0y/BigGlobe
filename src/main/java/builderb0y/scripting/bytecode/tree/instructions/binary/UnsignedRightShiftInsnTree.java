@@ -1,7 +1,7 @@
 package builderb0y.scripting.bytecode.tree.instructions.binary;
 
-import builderb0y.scripting.bytecode.ExtendedOpcodes;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -13,6 +13,9 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 
+	public static final MethodInfo
+		INT_SHIFT = MethodInfo.findMethod(UnsignedRightShiftInsnTree.class, "shift", int.class, int.class, int.class).pure(),
+		LONG_SHIFT = MethodInfo.findMethod(UnsignedRightShiftInsnTree.class, "shift", long.class, long.class, int.class).pure();
 	public UnsignedRightShiftInsnTree(InsnTree left, InsnTree right, int opcode) {
 		super(left, right, opcode);
 	}
@@ -36,6 +39,7 @@ public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 			};
 		}
 		left = left.cast(parser, type, CastMode.IMPLICIT_THROW);
+		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
 		return new UnsignedRightShiftInsnTree(left, right, type.getOpcode(IUSHR));
 	}
 
@@ -71,14 +75,7 @@ public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 		}
 		else {
 			invokeStatic(
-				method(
-					ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-					type(UnsignedRightShiftInsnTree.class),
-					"shift",
-					leftType,
-					leftType,
-					TypeInfos.INT
-				),
+				leftType.isDoubleWidth() ? LONG_SHIFT : INT_SHIFT,
 				this.left,
 				this.right
 			)

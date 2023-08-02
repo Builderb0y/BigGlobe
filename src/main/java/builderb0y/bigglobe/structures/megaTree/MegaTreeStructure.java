@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 import org.joml.Vector3d;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.world.gen.structure.StructureType;
 

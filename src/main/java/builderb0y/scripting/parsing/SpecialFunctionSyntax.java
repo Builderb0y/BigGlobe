@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
@@ -207,19 +208,31 @@ public class SpecialFunctionSyntax {
 					VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 					VarInfo userVar = parser.environment.user().newVariable(firstVarName, firstType);
 					InsnTree rawIterable = parser.nextScript();
-					boolean useFastIteration = rawIterable.getTypeInfo().extendsOrImplements(type(List.class)) && rawIterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class));
-					InsnTree iterable = useFastIteration ? rawIterable : rawIterable.cast(parser, TypeInfos.ITERABLE, CastMode.IMPLICIT_THROW);
+					InsnTree iterable;
+					ForEachLoop.Mode mode;
+					if (rawIterable.getTypeInfo().extendsOrImplements(type(List.class)) && rawIterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class))) {
+						iterable = rawIterable;
+						mode = ForEachLoop.Mode.RANDOM_ACCESS_LIST;
+					}
+					else if (rawIterable.getTypeInfo().extendsOrImplements(type(Iterable.class))) {
+						iterable = invokeInstance(rawIterable, AbstractForIteratorInsnTree.ITERATOR);
+						mode = ForEachLoop.Mode.ITERABLE;
+					}
+					else if (rawIterable.getTypeInfo().extendsOrImplements(type(Iterator.class))) {
+						iterable = rawIterable;
+						mode = ForEachLoop.Mode.ITERATOR;
+					}
+					else {
+						throw new ScriptParsingException("in clause must implement Iterable or Iterator", parser.input);
+					}
 					parser.input.expectOperatorAfterWhitespace(":");
 					InsnTree body = parser.nextScript();
 					parser.input.expectAfterWhitespace(')');
 					parser.environment.user().pop();
 					return new ForEachLoop(
 						loopName,
-						new VariableDeclareAssignInsnTree(
-							iterator,
-							useFastIteration ? iterable : invokeInstance(iterable, AbstractForIteratorInsnTree.ITERATOR)
-						),
-						useFastIteration,
+						new VariableDeclareAssignInsnTree(iterator, iterable),
+						mode,
 						new VariableDeclarationInsnTree(userVar),
 						body.asStatement()
 					);
@@ -307,7 +320,7 @@ public class SpecialFunctionSyntax {
 	public static record ForEachLoop(
 		String loopName,
 		VariableDeclareAssignInsnTree iteratorOrList,
-		boolean useFastIteration,
+		Mode mode,
 		VariableDeclarationInsnTree userVar,
 		InsnTree body
 	)
@@ -316,10 +329,16 @@ public class SpecialFunctionSyntax {
 		@Override
 		public InsnTree buildLoop(ExpressionParser parser) {
 			return (
-				this.useFastIteration
+				this.mode == Mode.RANDOM_ACCESS_LIST
 				? new ForRandomAccessListInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
 				: new ForIteratorInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
 			);
+		}
+
+		public static enum Mode {
+			RANDOM_ACCESS_LIST,
+			ITERABLE,
+			ITERATOR;
 		}
 	}
 
@@ -366,10 +385,9 @@ public class SpecialFunctionSyntax {
 		public static record NamedValue(String name, InsnTree value) {}
 
 		public static NamedValues parse(ExpressionParser parser, @Nullable TypeInfo valueType) throws ScriptParsingException {
-			parser.input.expectAfterWhitespace('(');
-			parser.environment.user().push();
+			parser.beginCodeBlock();
 			List<NamedValue> namedValues = new ArrayList<>(8);
-			if (!parser.input.hasAfterWhitespace(')')) {
+			if (parser.input.peekAfterWhitespace() != ')') {
 				while (true) {
 					String name = parser.input.expectIdentifierAfterWhitespace();
 					parser.input.expectOperatorAfterWhitespace(":");
@@ -379,12 +397,11 @@ public class SpecialFunctionSyntax {
 					}
 					namedValues.add(new NamedValue(name, value));
 					if (parser.input.hasOperatorAfterWhitespace(",")) continue;
-					else if (parser.input.hasAfterWhitespace(')')) break;
+					else if (parser.input.peekAfterWhitespace() == ')') break;
 					else throw new ScriptParsingException("Expected ',' or ')'", parser.input);
 				}
 			}
-			boolean hasNewVariables = parser.environment.user().hasNewVariables();
-			parser.environment.user().pop();
+			boolean hasNewVariables = parser.endCodeBlock();
 			return new NamedValues(namedValues.toArray(new NamedValue[namedValues.size()]), hasNewVariables);
 		}
 	}

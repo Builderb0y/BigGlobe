@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.util.UnregisteredObjectException;

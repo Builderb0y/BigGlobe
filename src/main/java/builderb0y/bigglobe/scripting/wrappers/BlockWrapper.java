@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -55,5 +56,10 @@ public class BlockWrapper {
 	public static BlockState getRandomState(Block block, RandomGenerator random) {
 		ImmutableList<BlockState> states = block.getStateManager().getStates();
 		return states.get(random.nextInt(states.size()));
+	}
+
+	public BlockState getRandomState(Block block, long seed) {
+		ImmutableList<BlockState> states = block.getStateManager().getStates();
+		return states.get(Permuter.nextBoundedInt(seed, states.size()));
 	}
 }

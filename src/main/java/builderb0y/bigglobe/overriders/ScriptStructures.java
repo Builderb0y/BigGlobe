@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.base.Predicates;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.gen.StructureAccessor;

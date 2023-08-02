@@ -3,7 +3,7 @@ package builderb0y.bigglobe.columns;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;

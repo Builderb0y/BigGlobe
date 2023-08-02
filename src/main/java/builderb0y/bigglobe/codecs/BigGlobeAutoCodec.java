@@ -15,15 +15,14 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
+import net.minecraft.registry.*;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
@@ -39,10 +38,10 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
 import builderb0y.autocodec.common.LookupFactory;
-import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
 import builderb0y.autocodec.decoders.*;
-import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
+import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
 import builderb0y.autocodec.encoders.*;
+import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.imprinters.MapImprinter;
@@ -294,7 +293,6 @@ public class BigGlobeAutoCodec {
 		public final @NotNull ReifiedType<TagOrObjectKey<T>> tagOrObjectKeyType;
 		public final @NotNull ReifiedType<BetterRegistry<T>> betterRegistryType;
 
-		public final @Nullable DynamicRegistryCoder<T> dynamicRegistryCoder;
 		public final @Nullable BetterDynamicRegistryCoder<T> betterDynamicRegistryCoder;
 		public final @Nullable BetterHardCodedRegistryCoder<T> betterHardCodedRegistryCoder;
 		public final @Nullable DynamicRegistryEntryCoder<T> dynamicRegistryEntryCoder;
@@ -323,7 +321,6 @@ public class BigGlobeAutoCodec {
 
 			this.     betterDynamicRegistryCoder = new BetterDynamicRegistryCoder<>(registryKey);
 			this.   betterHardCodedRegistryCoder = null;
-			this.           dynamicRegistryCoder = new DynamicRegistryCoder<>(registryKey);
 			this.      dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.betterDynamicRegistryCoder);
 			this.                dynamicTagCoder = new DynamicTagCoder<>(this.betterDynamicRegistryCoder);
 			this.           hardCodedObjectCoder = null;
@@ -351,7 +348,6 @@ public class BigGlobeAutoCodec {
 
 			this.     betterDynamicRegistryCoder = null;
 			this.   betterHardCodedRegistryCoder = new BetterHardCodedRegistryCoder<>(registry);
-			this.           dynamicRegistryCoder = null;
 			this.      dynamicRegistryEntryCoder = null;
 			this.                dynamicTagCoder = null;
 			this.           hardCodedObjectCoder = new HardCodedObjectCoder<>(registry);
@@ -364,7 +360,6 @@ public class BigGlobeAutoCodec {
 		}
 
 		public void addAllTo(LookupFactory<? super AutoCoder<?>> factory) {
-			addTo(factory, this.           registryType, this.           dynamicRegistryCoder);
 			addTo(factory, this.      registryEntryType, this.      dynamicRegistryEntryCoder);
 			addTo(factory, this.                tagType, this.                dynamicTagCoder);
 			addTo(factory, this.             objectType, this.           hardCodedObjectCoder);

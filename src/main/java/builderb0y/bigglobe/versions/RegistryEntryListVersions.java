@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 
 public class RegistryEntryListVersions {
 

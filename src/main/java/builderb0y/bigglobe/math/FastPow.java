@@ -109,6 +109,8 @@ public class FastPow {
 		LONG_METHOD_TYPE   = MethodType.methodType(  long.class,   long.class),
 		FLOAT_METHOD_TYPE  = MethodType.methodType( float.class,  float.class),
 		DOUBLE_METHOD_TYPE = MethodType.methodType(double.class, double.class);
+	public static final MethodInfo
+		MATH_POW = MethodInfo.getMethod(Math.class, "pow");
 
 	/**
 	returns a CallSite whose {@link CallSite#getTarget()} performs the same
@@ -360,14 +362,7 @@ public class FastPow {
 	public static InsnTree fallback(VarInfo operand, int power) {
 		return CastingSupport.primitiveCast(
 			invokeStatic(
-				method(
-					ACC_PUBLIC | ACC_STATIC | ExtendedOpcodes.ACC_PURE,
-					type(Math.class),
-					"pow",
-					TypeInfos.DOUBLE,
-					TypeInfos.DOUBLE,
-					TypeInfos.DOUBLE
-				),
+				MATH_POW,
 				CastingSupport.primitiveCast(
 					load(operand),
 					TypeInfos.DOUBLE

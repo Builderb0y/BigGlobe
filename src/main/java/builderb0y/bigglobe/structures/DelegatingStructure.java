@@ -7,8 +7,8 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.world.StructureSpawns;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStep;

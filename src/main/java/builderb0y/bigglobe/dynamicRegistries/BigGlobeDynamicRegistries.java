@@ -8,9 +8,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 
+import net.minecraft.registry.*;
+import net.minecraft.registry.DynamicRegistryManager.Info;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.*;
-import net.minecraft.util.registry.DynamicRegistryManager.Info;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;

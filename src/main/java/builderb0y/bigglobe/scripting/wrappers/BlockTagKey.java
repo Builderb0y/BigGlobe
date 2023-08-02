@@ -4,8 +4,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.block.Block;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.scripting.bytecode.ConstantFactory;

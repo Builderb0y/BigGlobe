@@ -4,10 +4,10 @@ import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.math.BlockBox;
 
 import builderb0y.autocodec.coders.AutoCoder;

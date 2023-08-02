@@ -12,15 +12,12 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
-import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -36,25 +33,21 @@ public interface StructureLayoutScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
 
+		public static final InsnTree LOAD_RANDOM = load("random", 3, type(RandomGenerator.class));
+
 		public final SerializableScriptInputs inputs;
 
 		public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
 			super(
 				new TemplateScriptParser<>(StructureLayoutScript.class, inputs.buildScriptInputs())
-				.addEnvironment(JavaUtilScriptEnvironment.ALL)
+				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(RandomScriptEnvironment.create(
-					load("random", 3, type(RandomGenerator.class))
-				))
+				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
-				.addEnvironment(WoodPaletteScriptEnvironment.create(
-					load("random", 3, type(RandomGenerator.class))
-				))
-				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(
-					load("random", 3, type(RandomGenerator.class))
-				))
+				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
+				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
@@ -73,20 +66,11 @@ public interface StructureLayoutScript extends Script {
 						"getBiome",
 						new FunctionHandler.Named(
 							"getBiomeFromColumn(int x, int y, int z)",
-							(parser, name, arguments) -> {
-								InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_NULL, arguments);
-								if (castArguments == null) return null;
-								return new CastResult(
-									invokeStatic(
-										MethodInfo.getMethod(Holder.class, "getBiome"),
-										load("column", 4, type(WorldColumn.class)),
-										castArguments[0],
-										castArguments[1],
-										castArguments[2]
-									),
-									castArguments != arguments
-								);
-							}
+							Handlers
+							.builder(Holder.class, "getBiome")
+							.addImplicitArgument(load("column", 4, type(WorldColumn.class)))
+							.addArguments("III")
+							.buildFunction()
 						)
 					)
 
