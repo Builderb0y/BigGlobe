@@ -62,6 +62,15 @@ public class Directions {
 		};
 	}
 
+	public static int reverseScriptRotation(BlockRotation rotation) {
+		return switch (rotation) {
+			case NONE -> 0;
+			case CLOCKWISE_90 -> 90;
+			case CLOCKWISE_180 -> 180;
+			case COUNTERCLOCKWISE_90 -> 270;
+		};
+	}
+
 	public static BlockMirror scriptMirror(String axis) {
 		if (axis.length() == 1) {
 			char c = axis.charAt(0);

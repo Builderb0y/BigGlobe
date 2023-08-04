@@ -28,6 +28,7 @@ import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -73,11 +74,11 @@ public class WorldWrapper implements ColumnLookup {
 		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 	}
 
-	public @Nullable BlockPos pos(int x, int y, int z) {
+	public @Nullable BlockPos.Mutable pos(int x, int y, int z) {
 		return this.coordination.modifyPos(this.pos.set(x, y, z));
 	}
 
-	public BlockPos unboundedPos(int x, int y, int z) {
+	public BlockPos.Mutable unboundedPos(int x, int y, int z) {
 		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
 	}
 
@@ -131,7 +132,7 @@ public class WorldWrapper implements ColumnLookup {
 		BlockPos pos = this.pos(x, y, z);
 		if (pos != null) {
 			state = this.coordination.modifyState(state);
-			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_ALL);
+			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 			if (!state.getFluidState().isEmpty()) {
 				WorldVersions.scheduleFluidTick(
 					this.world,
@@ -149,26 +150,39 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
+		BlockPos.Mutable pos = this.unboundedPos(minX, minY, minZ);
+		minX = pos.getX(); minY = pos.getY(); minZ = pos.getZ();
+		pos = this.unboundedPos(maxX, maxY, maxZ);
+		maxX = pos.getX(); maxY = pos.getY(); maxZ = pos.getZ();
 		int tmp;
-		if (maxX < minX) {
-			tmp  = minX;
-			minX = maxX;
-			maxX = tmp;
-		}
-		if (maxY < minY) {
-			tmp  = minY;
-			minY = maxY;
-			maxY = tmp;
-		}
-		if (maxZ < minZ) {
-			tmp  = minZ;
-			minZ = maxZ;
-			maxZ = tmp;
-		}
+		if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
+		if (maxY < minY) { tmp = minY; minY = maxY; maxY = tmp; }
+		if (maxZ < minZ) { tmp = minZ; minZ = maxZ; maxZ = tmp; }
+		minX = Math.max(minX, this.coordination.area.getMinX());
+		minY = Math.max(minY, this.coordination.area.getMinY());
+		minZ = Math.max(minZ, this.coordination.area.getMinZ());
+		maxX = Math.min(maxX, this.coordination.area.getMaxX());
+		maxY = Math.min(maxY, this.coordination.area.getMaxY());
+		maxZ = Math.min(maxZ, this.coordination.area.getMaxZ());
+		state = this.coordination.modifyState(state);
 		for (int z = minZ; z <= maxZ; z++) {
 			for (int x = minX; x <= maxX; x++) {
 				for (int y = minY; y <= maxY; y++) {
-					this.setBlockState(x, y, z, state);
+					WorldUtil.setBlockState(this.world, pos.set(x, y, z), state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+				}
+			}
+		}
+		if (!state.getFluidState().isEmpty()) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int x = minX; x <= maxX; x++) {
+					for (int y = minY; y <= maxY; y++) {
+						WorldVersions.scheduleFluidTick(
+							this.world,
+							pos.set(x, y, z),
+							state.getFluidState().getFluid(),
+							state.getFluidState().getFluid().getTickRate(this.world)
+						);
+					}
 				}
 			}
 		}
@@ -282,50 +296,32 @@ public class WorldWrapper implements ColumnLookup {
 		return this.getClass().getSimpleName() + ": { " + this.world + " }";
 	}
 
-	public static record Coordination(int x, int z, BlockRotation rotation, BlockBox area) {
+	public static record Coordination(Rotation2D rotation, BlockBox area) {
 
-		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, int centerX, int centerZ, BlockRotation rotation) {
-			int x1 = pos.getX() - centerX;
-			int z1 = pos.getZ() - centerZ;
-			int x2, z2;
-			switch (rotation) {
-				case NONE                -> { x2 =  x1; z2 =  z1; }
-				case CLOCKWISE_90        -> { x2 = -z1; z2 =  x1; }
-				case CLOCKWISE_180       -> { x2 = -x1; z2 = -z1; }
-				case COUNTERCLOCKWISE_90 -> { x2 =  z1; z2 = -x1; }
-				default -> throw new AssertionError(rotation);
-			}
-			int x3 = x2 + centerX;
-			int z3 = z2 + centerZ;
-			return pos.setX(x3).setZ(z3);
+		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, Rotation2D rotation) {
+			int x = rotation.getX(pos.getX(), pos.getZ());
+			int z = rotation.getZ(pos.getX(), pos.getZ());
+			return pos.setX(x).setZ(z);
 		}
 
 		public BlockPos.Mutable modifyPosUnbounded(BlockPos.Mutable pos) {
-			return rotate(pos, this.x, this.z, this.rotation);
+			return rotate(pos, this.rotation);
 		}
 
 		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
 			return this.area.contains(this.modifyPosUnbounded(pos)) ? pos : null;
 		}
 
-		public static Vector3d rotate(Vector3d vector, double centerX, double centerZ, BlockRotation rotation) {
-			double x1 = vector.x - centerX;
-			double z1 = vector.z - centerZ;
-			double x2, z2;
-			switch (rotation) {
-				case NONE                -> { x2 =  x1; z2 =  z1; }
-				case CLOCKWISE_90        -> { x2 = -z1; z2 =  x1; }
-				case CLOCKWISE_180       -> { x2 = -x1; z2 = -z1; }
-				case COUNTERCLOCKWISE_90 -> { x2 =  z1; z2 = -x1; }
-				default -> throw new AssertionError(rotation);
-			}
-			vector.x = x2 + centerX;
-			vector.z = z2 + centerZ;
+		public static Vector3d rotate(Vector3d vector, Rotation2D rotation) {
+			double x = rotation.getX(vector.x - 0.5D, vector.z - 0.5D) + 0.5D;
+			double z = rotation.getZ(vector.x - 0.5D, vector.z - 0.5D) + 0.5D;
+			vector.x = x;
+			vector.z = z;
 			return vector;
 		}
 
 		public Vector3d modifyVecUnbounded(Vector3d vector) {
-			return rotate(vector, this.x + 0.5D, this.z + 0.5D, this.rotation);
+			return rotate(vector, this.rotation);
 		}
 
 		public @Nullable Vector3d modifyVec(Vector3d vector) {
@@ -343,11 +339,11 @@ public class WorldWrapper implements ColumnLookup {
 		}
 
 		public BlockState modifyState(BlockState state) {
-			return state.rotate(this.rotation);
+			return state.rotate(this.rotation.rotation());
 		}
 
 		public BlockState unmodifyState(BlockState state) {
-			return state.rotate(switch (this.rotation) {
+			return state.rotate(switch (this.rotation.rotation()) {
 				case NONE -> BlockRotation.NONE;
 				case CLOCKWISE_90 -> BlockRotation.COUNTERCLOCKWISE_90;
 				case CLOCKWISE_180 -> BlockRotation.CLOCKWISE_180;

@@ -18,11 +18,16 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	add more decorations to surface mineshafts:
+		cave-ins.
+		loot chests.
+		furnaces.
+		minecarts with loot chests and furnaces.
+	raw generation for scripted structures.
+	edit NBT data on move for scripted structures.
 
 changelog:
-	* Fixed recently added "make big globe the default world type" config option not working properly.
-	* Improved physics of string slightly.
-	* Added a couple new pieces of syntax for scripting.
+	* Added surface mineshaft structure.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -59,6 +64,9 @@ scripting:
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
+	x.isBetween[lowerBound, upperBound)
+	ability for scripted structures to edit their NBT on move.
+	ability for scripted structures to hook into raw generation.
 
 features:
 	general:
@@ -123,6 +131,7 @@ features:
 		asteroids in the void biome.
 		ender clam?
 			source of ender pearls.
+		holes in the surface?
 
 before release:
 	make sure nothing in test package is used.
@@ -137,15 +146,16 @@ porting:
 
 back-porting from 1.20 to 1.19.4:
 	re-enable lighting update suppression in BlockQueue.
+	re-enable lighting in SectionGenerationContext.
+	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
+	@VerifyNormal needs to verify that the block does not emit light.
 	SpelunkingRopeBlock block needs to override getPistonBehavior() to return DESTROY.
 	RopeAnchorBlock needs to override getPistonBehavior() to return BLOCK.
 	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
 	loot tables for wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
-	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
-	re-enable lighting in SectionGenerationContext.
-	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
-	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
+	remove replaceable_plants block tag.
+	use Material.PLANT in BlockStateVersions instead.
 	remove hanging signs and cherry stuff.
 		remove hanging signs in WoodPalette.
 		list of places where hanging signs appear:
@@ -175,4 +185,5 @@ back-porting from 1.19.4 to 1.19.2:
 	revert biomes to re-add precipitation field.
 	ensure ball of string adds correct NBT variants to creative menu.
 		and doesn't add itself to the wrong tabs.
+	fix WorldPresets_MakeBigGlobeTheDefaultWorldType2.
 	revert minecraft version dependency in fabric.mod.json.

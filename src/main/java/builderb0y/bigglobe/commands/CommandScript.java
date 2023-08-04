@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.commands;
 
 import java.lang.reflect.Method;
+import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +12,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -29,9 +31,12 @@ public interface CommandScript extends Script {
 	public static class Parser extends ScriptParser<CommandScript> {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
-		public static final InsnTree LOAD_RANDOM = getField(
-			load("world", 1, WorldWrapper.TYPE),
-			FieldInfo.getField(WorldWrapper.class, "permuter")
+		public static final InsnTree LOAD_RANDOM = new IdentityCastInsnTree(
+			getField(
+				load("world", 1, WorldWrapper.TYPE),
+				FieldInfo.getField(WorldWrapper.class, "permuter")
+			),
+			type(RandomGenerator.class)
 		);
 
 		public Parser(String input) {

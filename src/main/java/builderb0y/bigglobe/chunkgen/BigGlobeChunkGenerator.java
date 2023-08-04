@@ -824,7 +824,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		int centerChunkX = center.getX() >> 4;
 		int centerChunkZ = center.getZ() >> 4;
 		StructureFinder finder = this.structureFinder(world, structures, skipReferencedStructures);
-		if (finder.tryStrongholds(centerChunkX, centerChunkZ)) return finder.toPair();
 		if (finder.update(centerChunkX, centerChunkZ)) return finder.toPair();
 		for (int radius = 1; radius <= maxRadius; radius++) {
 			if (finder.update(centerChunkX + radius, centerChunkZ)) return finder.toPair();
@@ -846,6 +845,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			if (finder.update(centerChunkX - radius, centerChunkZ + radius)) return finder.toPair();
 			if (finder.update(centerChunkX - radius, centerChunkZ - radius)) return finder.toPair();
 		}
+		if (finder.tryStrongholds(centerChunkX, centerChunkZ)) return finder.toPair();
 		return null;
 	}
 

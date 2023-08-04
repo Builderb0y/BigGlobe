@@ -74,10 +74,10 @@ public interface StructureLayoutScript extends Script {
 						)
 					)
 
-					.addType("ScriptStructurePiece", ScriptedStructure.Piece.class)
 					.addQualifiedSpecificConstructor(ScriptedStructure.Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
-					.addMethodInvoke(ScriptedStructure.Piece.class, "withRotation")
-					.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
+					.addMethodInvokes(ScriptedStructure.Piece.class, "withRotation", "rotateAround", "offset")
+					.addFieldGet(ScriptedStructure.Piece.class, "data")
+					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
 					.addVariableLoad("pieces", 5, type(List.class))
 				)

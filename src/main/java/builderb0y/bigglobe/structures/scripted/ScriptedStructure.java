@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
@@ -22,10 +23,10 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -33,6 +34,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.bigglobe.util.WorldUtil;
 
 public class ScriptedStructure extends BigGlobeStructure {
@@ -74,7 +76,8 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 	public static class Piece extends StructurePiece {
 
-		public final BlockBox originalBoundingBox;
+		public BlockBox originalBoundingBox;
+		public Rotation2D transformation;
 		public final StructurePlacementScriptEntry placement;
 		public final NbtCompound data;
 
@@ -83,6 +86,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 			this.originalBoundingBox = boundingBox;
 			this.placement = placement;
 			this.data = data;
+			this.transformation = Rotation2D.IDENTITY;
 		}
 
 		/** this is the constructor that the layout script uses. */
@@ -93,33 +97,90 @@ public class ScriptedStructure extends BigGlobeStructure {
 		public Piece(StructurePieceType type, NbtCompound nbt) {
 			super(type, nbt);
 			this.originalBoundingBox = BlockBox.CODEC.parse(NbtOps.INSTANCE, nbt.get("OBB")).getOrThrow(true, BigGlobeMod.LOGGER::error);
+			NbtElement transform = nbt.get("transform");
+			if (transform != null) try {
+				this.transformation = BigGlobeAutoCodec.AUTO_CODEC.decode(Rotation2D.CODER, transform, NbtOps.INSTANCE);
+			}
+			catch (DecodeException exception) {
+				throw new RuntimeException(exception);
+			}
+			else {
+				this.transformation = Rotation2D.IDENTITY;
+			}
+			BlockRotation legacyRotation = Directions.ROTATIONS[nbt.getByte("rot")];
+			if (legacyRotation != BlockRotation.NONE) {
+				this.transformation = this.transformation.rotateAround(
+					(this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1,
+					(this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1,
+					legacyRotation
+				);
+				this.updateBoundingBox();
+			}
 			this.placement = StructurePlacementScriptEntry.of(nbt.getString("script"));
 			this.data = nbt.getCompound("data");
-			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
 		}
 
 		@Override
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
-			nbt.putByte("rot", (byte)(this.getRotation().ordinal()));
+			nbt.put("transform", BigGlobeAutoCodec.AUTO_CODEC.encode(Rotation2D.CODER, this.transformation, NbtOps.INSTANCE));
 			nbt.put("OBB", BlockBox.CODEC.encodeStart(NbtOps.INSTANCE, this.originalBoundingBox).getOrThrow(true, BigGlobeMod.LOGGER::error));
 		}
 
 		public Piece withRotation(int rotation) {
-			BlockRotation blockRotation = Directions.scriptRotation(rotation);
-			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(blockRotation);
-			int midX = (this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1;
-			int midZ = (this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1;
+			return this.rotateAround(
+				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
+				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1,
+				rotation
+			);
+		}
+
+		public Piece rotateAround(int x, int z, int rotation) {
+			this.setTransformation(this.transformation.rotateAround(x, z, Directions.scriptRotation(rotation)));
+			return this;
+		}
+
+		public Piece offset(int x, int y, int z) {
+			this.translate(x, y, z);
+			return this;
+		}
+
+		@Override
+		public void translate(int x, int y, int z) {
+			this.originalBoundingBox = this.originalBoundingBox.offset(0, y, 0);
+			this.setTransformation(this.transformation.offset(x, z));
+		}
+
+		public int rotation() {
+			return Directions.reverseScriptRotation(this.transformation.rotation());
+		}
+
+		public int offsetX() {
+			return this.transformation.offsetX();
+		}
+
+		public int offsetZ() {
+			return this.transformation.offsetZ();
+		}
+
+		public StructurePlacementScriptEntry placement() {
+			return this.placement;
+		}
+
+		public void setTransformation(Rotation2D transformation) {
+			this.transformation = transformation;
+			this.updateBoundingBox();
+		}
+
+		public void updateBoundingBox() {
 			BlockPos.Mutable pos1 = Coordination.rotate(
 				new BlockPos.Mutable(
 					this.originalBoundingBox.getMinX(),
 					this.originalBoundingBox.getMinY(),
 					this.originalBoundingBox.getMinZ()
 				),
-				midX,
-				midZ,
-				blockRotation
+				this.transformation
 			);
 			BlockPos.Mutable pos2 = Coordination.rotate(
 				new BlockPos.Mutable(
@@ -127,12 +188,9 @@ public class ScriptedStructure extends BigGlobeStructure {
 					this.originalBoundingBox.getMaxY(),
 					this.originalBoundingBox.getMaxZ()
 				),
-				midX,
-				midZ,
-				blockRotation
+				this.transformation
 			);
 			this.boundingBox = WorldUtil.createBlockBox(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX(), pos2.getY(), pos2.getZ());
-			return this;
 		}
 
 		@Override
@@ -169,9 +227,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 					world,
 					permuter,
 					new Coordination(
-						midX,
-						midZ,
-						this.getRotation(),
+						this.transformation,
 						new BlockBox(
 							effectiveMinX,
 							effectiveMinY,
@@ -192,8 +248,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 		@Override
 		public BlockRotation getRotation() {
-			BlockRotation rotation = super.getRotation();
-			return rotation != null ? rotation : BlockRotation.NONE;
+			return this.transformation.rotation();
 		}
 	}
 }

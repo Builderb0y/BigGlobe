@@ -27,6 +27,7 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLooku
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
@@ -82,7 +83,10 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				((chunkZ + 1) << 4) | 15
 			)
 		);
-		Coordination coordination = new Coordination(origin.getX(), origin.getZ(), rotation, box);
+		Coordination coordination = new Coordination(
+			Rotation2D.fromCenter(origin.getX(), origin.getZ(), rotation),
+			box
+		);
 		StructureWorldAccess world = switch (context.getConfig().queueType) {
 			case NONE -> context.getWorld();
 			case BASIC -> new BlockQueueStructureWorldAccess(

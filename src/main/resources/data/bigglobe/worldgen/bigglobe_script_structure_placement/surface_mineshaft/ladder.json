@@ -1,0 +1,22 @@
+{
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+		"fillBlockState(midX - 2, minY + 1, midZ - 2, midX + 2, maxY - 5, midZ + 2, 'minecraft:air')",
+		"fillBlockState(midX - 2, maxY - 3, midZ - 2, midX + 2, maxY - 1, midZ + 2, 'minecraft:air')",
+		"for (int x = midX - 2, x <= midX + 2, ++x:",
+			"for (int z = midZ - 2, z <= midZ + 2, ++z:",
+				"if (getBlockState(x, minY, z).isReplaceable():",
+					"setBlockState(x, minY, z, palette.planksState())",
+				")",
+				"if (getBlockState(x, maxY - 4, z).isReplaceable():",
+					"setBlockState(x, maxY - 4, z, palette.planksState())",
+				")",
+			")",
+		")",
+		"fillBlockState(midX, minY + 1, midZ, midX, maxY - 1, midZ, palette.logState(axis: 'y'))",
+		"fillBlockState(midX - 1, minY + 1, midZ, midX - 1, maxY - 1, midZ, 'minecraft:ladder[facing=west,waterlogged=false]')",
+		"fillBlockState(midX + 1, minY + 1, midZ, midX + 1, maxY - 1, midZ, 'minecraft:ladder[facing=east,waterlogged=false]')",
+		"fillBlockState(midX, minY + 1, midZ - 1, midX, maxY - 1, midZ - 1, 'minecraft:ladder[facing=north,waterlogged=false]')",
+		"fillBlockState(midX, minY + 1, midZ + 1, midX, maxY - 1, midZ + 1, 'minecraft:ladder[facing=south,waterlogged=false]')"
+	]
+}

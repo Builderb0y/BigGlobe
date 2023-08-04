@@ -1,0 +1,13 @@
+{
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+		"fillBlockState(minX + 1, minY + 1, minZ + 1, maxX - 1, maxY - 1, maxZ - 1, 'minecraft:air')",
+		"for (int x = minX + 1, x <= maxX - 1, ++x:",
+			"for (int z = minZ + 1, z <= maxZ - 1, ++z:",
+				"if (getBlockState(x, minY, z).isReplaceable():",
+					"setBlockState(x, minY, z, palette.planksState())",
+				")",
+			")",
+		")"
+	]
+}

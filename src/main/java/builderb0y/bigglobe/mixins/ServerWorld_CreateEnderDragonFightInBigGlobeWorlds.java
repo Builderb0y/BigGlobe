@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage.Session;
+import net.minecraft.world.spawner.Spawner;
 
 import builderb0y.bigglobe.dimensionTypes.BigGlobeDimensionTypeKeys;
 
@@ -43,7 +44,7 @@ public abstract class ServerWorld_CreateEnderDragonFightInBigGlobeWorlds extends
 		WorldGenerationProgressListener worldGenerationProgressListener,
 		boolean debugWorld,
 		long seed,
-		List spawners,
+		List<Spawner> spawners,
 		boolean shouldTickTime,
 		RandomSequencesState randomSequencesState,
 		CallbackInfo callback
