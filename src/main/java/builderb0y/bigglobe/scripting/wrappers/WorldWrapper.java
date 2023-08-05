@@ -9,12 +9,10 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -23,16 +21,13 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
-import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
-import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.bigglobe.util.Tripwire;
-import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.bigglobe.versions.WorldVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -43,7 +38,7 @@ public class WorldWrapper implements ColumnLookup {
 	public static final TypeInfo TYPE = type(WorldWrapper.class);
 	public static final MethodInfo GET_SEED = MethodInfo.getMethod(WorldWrapper.class, "getSeed").pure();
 
-	public final StructureWorldAccess world;
+	public final WorldOrChunk world;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final Permuter permuter;
@@ -61,16 +56,13 @@ public class WorldWrapper implements ColumnLookup {
 	public final boolean checkForColumns;
 	public final boolean distantHorizons;
 
-	public WorldWrapper(StructureWorldAccess world, Permuter permuter, Coordination coordination) {
+	public WorldWrapper(WorldOrChunk world, Permuter permuter, Coordination coordination) {
 		this.world = world;
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
 		this.permuter = permuter;
-		this.randomColumn = WorldColumn.forWorld(world, 0, 0);
-		while (world instanceof BlockQueueStructureWorldAccess queue) {
-			world = queue.world;
-		}
-		this.checkForColumns = !(world instanceof World);
+		this.randomColumn = world.createColumn(0, 0);
+		this.checkForColumns = !world.isLive();
 		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 	}
 
@@ -132,21 +124,16 @@ public class WorldWrapper implements ColumnLookup {
 		BlockPos pos = this.pos(x, y, z);
 		if (pos != null) {
 			state = this.coordination.modifyState(state);
-			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			this.world.setBlockState(pos, state);
 			if (!state.getFluidState().isEmpty()) {
-				WorldVersions.scheduleFluidTick(
-					this.world,
-					pos,
-					state.getFluidState().getFluid(),
-					state.getFluidState().getFluid().getTickRate(this.world)
-				);
+				this.world.scheduleFluidTick(pos, state.getFluidState());
 			}
 		}
 	}
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
 		BlockPos pos = this.pos(x, y, z);
-		return pos != null && SingleBlockFeature.place(this.world, pos, this.coordination.modifyState(state), SingleBlockFeature.IS_REPLACEABLE);
+		return pos != null && this.world.placeBlockState(pos, this.coordination.modifyState(state));
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
@@ -166,22 +153,21 @@ public class WorldWrapper implements ColumnLookup {
 		maxZ = Math.min(maxZ, this.coordination.area.getMaxZ());
 		state = this.coordination.modifyState(state);
 		for (int z = minZ; z <= maxZ; z++) {
+			pos.setZ(z);
 			for (int x = minX; x <= maxX; x++) {
+				pos.setX(x);
 				for (int y = minY; y <= maxY; y++) {
-					WorldUtil.setBlockState(this.world, pos.set(x, y, z), state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+					this.world.setBlockState(pos.setY(y), state);
 				}
 			}
 		}
 		if (!state.getFluidState().isEmpty()) {
 			for (int z = minZ; z <= maxZ; z++) {
+				pos.setZ(z);
 				for (int x = minX; x <= maxX; x++) {
+					pos.setX(x);
 					for (int y = minY; y <= maxY; y++) {
-						WorldVersions.scheduleFluidTick(
-							this.world,
-							pos.set(x, y, z),
-							state.getFluidState().getFluid(),
-							state.getFluidState().getFluid().getTickRate(this.world)
-						);
+						this.world.scheduleFluidTick(pos.setY(y), state.getFluidState());
 					}
 				}
 			}
@@ -190,12 +176,7 @@ public class WorldWrapper implements ColumnLookup {
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.pos(x, y, z);
-		return pos != null && feature.object().generate(
-			this.world,
-			((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
-			this.permuter.mojang(),
-			pos
-		);
+		return pos != null && this.world.placeFeature(pos, feature.object(), this.permuter.mojang());
 	}
 
 	public BiomeEntry getBiome(int x, int y, int z) {
@@ -262,14 +243,16 @@ public class WorldWrapper implements ColumnLookup {
 		double newZ = newPos.z;
 		Identifier identifier = new Identifier(entityType);
 		if (RegistryVersions.entityType().containsId(identifier)) {
-			Entity entity = RegistryVersions.entityType().get(identifier).create(this.world.toServerWorld());
-			if (entity != null) {
-				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
-				this.world.spawnEntityAndPassengers(entity);
-			}
-			else {
-				throw new IllegalArgumentException("Entity type " + entityType + " is not enabled in this world's feature flags.");
-			}
+			this.world.spawnEntity(serverWorld -> {
+				Entity entity = RegistryVersions.entityType().get(identifier).create(serverWorld);
+				if (entity != null) {
+					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
+					return entity;
+				}
+				else {
+					throw new IllegalArgumentException("Entity type " + entityType + " is not enabled in this world's feature flags.");
+				}
+			});
 		}
 		else {
 			throw new IllegalArgumentException("Unknown entity type: " + entityType);
@@ -284,11 +267,12 @@ public class WorldWrapper implements ColumnLookup {
 		double newZ = newPos.z;
 		NbtCompound copy = nbt.copy();
 		copy.putString("id", entityType);
-		Entity entity = EntityType.loadEntityWithPassengers(copy, this.world.toServerWorld(), entity1 -> {
-			entity1.refreshPositionAndAngles(newX, newY, newZ, entity1.getYaw(), entity1.getPitch());
-			return entity1;
+		this.world.spawnEntity(serverWorld -> {
+			return EntityType.loadEntityWithPassengers(copy, serverWorld, entity -> {
+				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
+				return entity;
+			});
 		});
-		if (entity != null) this.world.spawnEntityAndPassengers(entity);
 	}
 
 	@Override
@@ -299,9 +283,10 @@ public class WorldWrapper implements ColumnLookup {
 	public static record Coordination(Rotation2D rotation, BlockBox area) {
 
 		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, Rotation2D rotation) {
-			int x = rotation.getX(pos.getX(), pos.getZ());
-			int z = rotation.getZ(pos.getX(), pos.getZ());
-			return pos.setX(x).setZ(z);
+			int x = rotation.getX(pos.getX(), pos.getY(), pos.getZ());
+			int y = rotation.getY(pos.getX(), pos.getY(), pos.getZ());
+			int z = rotation.getZ(pos.getX(), pos.getY(), pos.getZ());
+			return pos.set(x, y, z);
 		}
 
 		public BlockPos.Mutable modifyPosUnbounded(BlockPos.Mutable pos) {
@@ -313,10 +298,12 @@ public class WorldWrapper implements ColumnLookup {
 		}
 
 		public static Vector3d rotate(Vector3d vector, Rotation2D rotation) {
-			double x = rotation.getX(vector.x - 0.5D, vector.z - 0.5D) + 0.5D;
-			double z = rotation.getZ(vector.x - 0.5D, vector.z - 0.5D) + 0.5D;
-			vector.x = x;
-			vector.z = z;
+			double x = vector.x - 0.5D;
+			double y = vector.y;
+			double z = vector.z - 0.5D;
+			vector.x = rotation.getX(x, y, z) + 0.5D;
+			vector.y = rotation.getY(x, y, z);
+			vector.z = rotation.getZ(x, y, z) + 0.5D;
 			return vector;
 		}
 

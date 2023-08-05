@@ -61,6 +61,7 @@
 		"StairsBlock_MirrorProperly",
 		"StructurePiece_DirectRotationSetter",
 		"StructureStart_BoundingBoxSetter",
+		"StructureStart_ChildrenGetter",
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",

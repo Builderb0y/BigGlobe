@@ -28,6 +28,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
@@ -117,7 +118,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				}
 			);
 		};
-		WorldWrapper wrapper = new WorldWrapper(world, permuter, coordination);
+		WorldWrapper wrapper = new WorldWrapper(new WorldDelegator(world), permuter, coordination);
 		if (
 			context.getConfig().script.generate(
 				wrapper,

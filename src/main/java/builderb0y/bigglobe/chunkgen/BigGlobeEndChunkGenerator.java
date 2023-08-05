@@ -23,7 +23,6 @@ import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
@@ -68,7 +67,6 @@ import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.EndSettings;
 import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;
-import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -99,7 +97,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		ringCloudUpperCeilingDecorators,
 		ringCloudUpperFloorDecorators;
 
-	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures) {
+	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures, SortedStructures sortedStructures) {
 		super(
 			new ColumnBiomeSource(
 				settings
@@ -110,7 +108,8 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				.map(BiomeLayout::biome)
 				.filter(Objects::nonNull)
 			),
-			configuredFeatures
+			configuredFeatures,
+			sortedStructures
 		);
 		this.settings                          = settings;
 		this.heightOverriders                  = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.            END_HEIGHT_OVERRIDER);
@@ -324,7 +323,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 			});
 		});
 		this.profiler.run("Raw structure generation", () -> {
-			RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
+			this.generateRawStructures(chunk, structureAccessor, columns);
 		});
 		this.profiler.run("Surface", () -> {
 			this.generateSurface(chunk, columns);
@@ -346,9 +345,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
-					for (GenerationStep.Feature step : FEATURE_STEPS) {
-						this.generateStructuresInStage(world, chunk, structureAccessor, step);
-					}
+					this.generateStructures(world, chunk, structureAccessor);
 				});
 			}
 

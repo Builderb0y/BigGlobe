@@ -23,6 +23,8 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -33,11 +35,14 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
+import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.util.WorldUtil;
 
-public class ScriptedStructure extends BigGlobeStructure {
+public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 
 	public static final Codec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptedStructure.class);
 
@@ -74,9 +79,14 @@ public class ScriptedStructure extends BigGlobeStructure {
 		return BigGlobeStructures.SCRIPTED;
 	}
 
-	public static class Piece extends StructurePiece {
+	public static record CombinedStructureScripts(
+		StructurePlacementScript.@EncodeInline /* backwards-compatibility */ Holder placement,
+		StructurePlacementScript.@VerifyNullable Holder raw_placement
+	) {}
 
-		public BlockBox originalBoundingBox;
+	public static class Piece extends StructurePiece implements RawGenerationStructurePiece {
+
+		public final BlockBox originalBoundingBox;
 		public Rotation2D transformation;
 		public final StructurePlacementScriptEntry placement;
 		public final NbtCompound data;
@@ -148,8 +158,7 @@ public class ScriptedStructure extends BigGlobeStructure {
 
 		@Override
 		public void translate(int x, int y, int z) {
-			this.originalBoundingBox = this.originalBoundingBox.offset(0, y, 0);
-			this.setTransformation(this.transformation.offset(x, z));
+			this.setTransformation(this.transformation.offset(x, y, z));
 		}
 
 		public int rotation() {
@@ -194,6 +203,54 @@ public class ScriptedStructure extends BigGlobeStructure {
 		}
 
 		@Override
+		public void generateRaw(Context context) {
+			StructurePlacementScript.Holder rawPlacement = this.placement.entry().value().raw_placement;
+			if (rawPlacement == null) return;
+			int minX = this.originalBoundingBox.getMinX();
+			int minY = this.originalBoundingBox.getMinY();
+			int minZ = this.originalBoundingBox.getMinZ();
+			int maxX = this.originalBoundingBox.getMaxX();
+			int maxY = this.originalBoundingBox.getMaxY();
+			int maxZ = this.originalBoundingBox.getMaxZ();
+			int midX = (minX + maxX + 1) >> 1;
+			int midY = (minY + maxY + 1) >> 1;
+			int midZ = (minZ + maxZ + 1) >> 1;
+			BlockBox chunkBox = WorldUtil.chunkBox(context.chunk);
+			int effectiveMinX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
+			int effectiveMinY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
+			int effectiveMinZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
+			int effectiveMaxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
+			int effectiveMaxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
+			int effectiveMaxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
+			rawPlacement.place(
+				new WorldWrapper(
+					new ChunkDelegator(
+						context.chunk,
+						context.generator::column,
+						context.worldSeed
+					),
+					new Permuter(context.pieceSeed),
+					new Coordination(
+						this.transformation,
+						new BlockBox(
+							effectiveMinX,
+							effectiveMinY,
+							effectiveMinZ,
+							effectiveMaxX,
+							effectiveMaxY,
+							effectiveMaxZ
+						)
+					)
+				),
+				context.generator.column(0, 0),
+				minX, minY, minZ,
+				maxX, maxY, maxZ,
+				midX, midY, midZ,
+				this.data
+			);
+		}
+
+		@Override
 		public void generate(
 			StructureWorldAccess world,
 			StructureAccessor structureAccessor,
@@ -222,9 +279,9 @@ public class ScriptedStructure extends BigGlobeStructure {
 			Permuter permuter = Permuter.from(random);
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
 
-			this.placement.object().place(
+			this.placement.object().placement.place(
 				new WorldWrapper(
-					world,
+					new WorldDelegator(world),
 					permuter,
 					new Coordination(
 						this.transformation,

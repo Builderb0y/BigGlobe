@@ -1,7 +1,11 @@
 {
+	"raw_placement": {
+		"script": [
+			"fillBlockState(minX, midY - 1, midZ - 1, maxX, midY + 1, midZ + 1, 'minecraft:air')"
+		]
+	},
 	"script": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
-		"fillBlockState(minX, midY - 1, midZ - 1, maxX, midY + 1, midZ + 1, 'minecraft:air')",
 		"for (int x = minX, x <= maxX, ++x:",
 			"for (int z = midZ - 1, z <= midZ + 1, ++z:",
 				"if (getBlockState(x, midY - 2, z).isReplaceable():",

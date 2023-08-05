@@ -230,7 +230,7 @@ public class UndergroundPocketStructure extends BigGlobeStructure implements Raw
 			for (int z = minZ; z <= maxZ; z++) {
 				pos.setZ(z);
 				double offsetZ2 = BigGlobeMath.squareD(z - this.data.z);
-				this.data.noise.getBulkX(context.seed, minX, z, thicknessSamples, 16);
+				this.data.noise.getBulkX(context.pieceSeed, minX, z, thicknessSamples, 16);
 				for (int x = minX; x <= maxX; x++) {
 					pos.setX(x);
 					double offsetXZ2 = offsetZ2 + BigGlobeMath.squareD(x - this.data.x);

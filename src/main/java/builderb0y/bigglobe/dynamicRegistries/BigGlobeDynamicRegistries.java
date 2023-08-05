@@ -21,7 +21,7 @@ import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
-import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.parsing.ScriptTemplate;
@@ -29,7 +29,7 @@ import builderb0y.scripting.parsing.ScriptTemplate;
 public class BigGlobeDynamicRegistries {
 
 	public static final RegistryKey<Registry<ScriptTemplate>>                  SCRIPT_TEMPLATE_REGISTRY_KEY                 = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_script_templates"));
-	public static final RegistryKey<Registry<StructurePlacementScript.Holder>> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
+	public static final RegistryKey<Registry<CombinedStructureScripts>>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
 	public static final RegistryKey<Registry<WoodPalette>>                     WOOD_PALETTE_REGISTRY_KEY                    = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 	public static final RegistryKey<Registry<LocalNetherSettings>>             LOCAL_NETHER_SETTINGS_REGISTRY_KEY           = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_nether_biome"));
 	public static final RegistryKey<Registry<OverworldBiomeLayout>>            OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY          = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_overworld_biome_layout"));
@@ -40,14 +40,14 @@ public class BigGlobeDynamicRegistries {
 
 	public static void init() {
 		RegistryLoader.DYNAMIC_REGISTRIES.add(0, new RegistryLoader.Entry<>(SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate.class)));
-		addBefore(RegistryKeyVersions.structure(),              SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,      BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(StructurePlacementScript.Holder.class));
-		addBefore(RegistryKeyVersions.configuredCarver(),       WOOD_PALETTE_REGISTRY_KEY,                    BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette                    .class));
-		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_NETHER_SETTINGS_REGISTRY_KEY,           BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalNetherSettings            .class));
-		addAfter (RegistryKeyVersions.biome(),                  END_BIOME_LAYOUT_REGISTRY_KEY,                BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(EndBiomeLayout                 .class));
-		addAfter (RegistryKeyVersions.biome(),                  OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,          BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OverworldBiomeLayout           .class));
-		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY,   BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalOverworldCaveSettings     .class));
+		addBefore(RegistryKeyVersions.structure(),              SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,      BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts    .class));
+		addBefore(RegistryKeyVersions.configuredCarver(),       WOOD_PALETTE_REGISTRY_KEY,                    BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette                 .class));
+		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_NETHER_SETTINGS_REGISTRY_KEY,           BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalNetherSettings         .class));
+		addAfter (RegistryKeyVersions.biome(),                  END_BIOME_LAYOUT_REGISTRY_KEY,                BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(EndBiomeLayout              .class));
+		addAfter (RegistryKeyVersions.biome(),                  OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,          BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OverworldBiomeLayout        .class));
+		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY,   BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalOverworldCaveSettings  .class));
 		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalOverworldCavernSettings.class));
-		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,          BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalSkylandSettings           .class));
+		addBefore(RegistryKeyVersions.chunkGeneratorSettings(), LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,          BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LocalSkylandSettings        .class));
 	}
 
 	public static <T> void addBefore(RegistryKey<? extends Registry<?>> after, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {

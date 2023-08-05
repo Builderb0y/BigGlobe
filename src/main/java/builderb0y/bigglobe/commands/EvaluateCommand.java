@@ -16,6 +16,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class EvaluateCommand {
@@ -32,7 +33,7 @@ public class EvaluateCommand {
 					CommandScript script = context.getArgument("script", LazyCommandScript.class);
 					try {
 						WorldWrapper world = new WorldWrapper(
-							context.getSource().getWorld(),
+							new WorldDelegator(context.getSource().getWorld()),
 							Permuter.from(context.getSource().getWorld().random),
 							new Coordination(Rotation2D.IDENTITY, BlockBox.infinite())
 						);

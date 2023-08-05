@@ -83,7 +83,6 @@ import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
-import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -118,7 +117,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeOverworldChunkGenerator(
 		OverworldSettings settings,
-		SortedFeatures configuredFeatures
+		SortedFeatures configuredFeatures,
+		SortedStructures sortedStructures
 	) {
 		super(
 			new ColumnBiomeSource(
@@ -130,7 +130,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				.map(BiomeLayout::biome)
 				.filter(Objects::nonNull)
 			),
-			configuredFeatures
+			configuredFeatures,
+			sortedStructures
 		);
 		this.           settings = settings;
 		this.         rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
@@ -724,7 +725,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.generateSnow(chunk, columns, distantHorizons);
 		});
 		this.profiler.run("Raw structure generation", () -> {
-			RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
+			this.generateRawStructures(chunk, structureAccessor, columns);
 		});
 	}
 
@@ -741,9 +742,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
-					for (GenerationStep.Feature step : FEATURE_STEPS) {
-						this.generateStructuresInStage(world, chunk, structureAccessor, step);
-					}
+					this.generateStructures(world, chunk, structureAccessor);
 				});
 			}
 

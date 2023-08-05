@@ -18,6 +18,7 @@ because minecraft itself has coordinates reversed for the x and z axes.
 */
 public record Rotation2D(
 	@UseName("x") int offsetX,
+	@UseName("y") int offsetY,
 	@UseName("z") int offsetZ,
 	@UseName("r") @UseCoder(name = "RAW_ROTATION_CODER", in = Rotation2D.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) BlockRotation rotation
 ) {
@@ -47,7 +48,7 @@ public record Rotation2D(
 	@UnknownNullability
 	public static final AutoCoder<Rotation2D> CODER = Testing.enabled ? null : BigGlobeAutoCodec.AUTO_CODEC.createCoder(Rotation2D.class);
 
-	public static final Rotation2D IDENTITY = new Rotation2D(0, 0, BlockRotation.NONE);
+	public static final Rotation2D IDENTITY = new Rotation2D(0, 0, 0, BlockRotation.NONE);
 
 	public static Rotation2D fromCenter(int centerX, int centerZ, BlockRotation rotation) {
 		return IDENTITY.rotateAround(centerX, centerZ, rotation);
@@ -56,21 +57,21 @@ public record Rotation2D(
 	public Rotation2D rotate(BlockRotation rotation) {
 		return switch (rotation) {
 			case NONE -> this;
-			case COUNTERCLOCKWISE_90 -> new Rotation2D(this.offsetZ, -this.offsetX, this.rotation.rotate(rotation));
-			case CLOCKWISE_180 -> new Rotation2D(-this.offsetX, -this.offsetZ, this.rotation.rotate(rotation));
-			case CLOCKWISE_90 -> new Rotation2D(-this.offsetZ, this.offsetX, this.rotation.rotate(rotation));
+			case COUNTERCLOCKWISE_90 -> new Rotation2D(this.offsetZ, this.offsetY, -this.offsetX, this.rotation.rotate(rotation));
+			case CLOCKWISE_180 -> new Rotation2D(-this.offsetX, this.offsetY, -this.offsetZ, this.rotation.rotate(rotation));
+			case CLOCKWISE_90 -> new Rotation2D(-this.offsetZ, this.offsetY, this.offsetX, this.rotation.rotate(rotation));
 		};
 	}
 
-	public Rotation2D offset(int deltaX, int deltaZ) {
-		return deltaX == 0 && deltaZ == 0 ? this : new Rotation2D(this.offsetX + deltaX, this.offsetZ + deltaZ, this.rotation);
+	public Rotation2D offset(int deltaX, int deltaY, int deltaZ) {
+		return deltaX == 0 && deltaY == 0 && deltaZ == 0 ? this : new Rotation2D(this.offsetX + deltaX, this.offsetY + deltaY, this.offsetZ + deltaZ, this.rotation);
 	}
 
 	public Rotation2D rotateAround(int x, int z, BlockRotation rotation) {
-		return this.offset(-x, -z).rotate(rotation).offset(x, z);
+		return this.offset(-x, 0, -z).rotate(rotation).offset(x, 0, z);
 	}
 
-	public int getX(int x, int z) {
+	public int getX(int x, int y, int z) {
 		return this.offsetX + switch (this.rotation) {
 			case NONE -> x;
 			case COUNTERCLOCKWISE_90 -> z;
@@ -79,7 +80,11 @@ public record Rotation2D(
 		};
 	}
 
-	public int getZ(int x, int z) {
+	public int getY(int x, int y, int z) {
+		return this.offsetY + y;
+	}
+
+	public int getZ(int x, int y, int z) {
 		return this.offsetZ + switch (this.rotation) {
 			case NONE -> z;
 			case COUNTERCLOCKWISE_90 -> -x;
@@ -88,7 +93,7 @@ public record Rotation2D(
 		};
 	}
 
-	public double getX(double x, double z) {
+	public double getX(double x, double y, double z) {
 		return this.offsetX + switch (this.rotation) {
 			case NONE -> x;
 			case COUNTERCLOCKWISE_90 -> z;
@@ -97,7 +102,11 @@ public record Rotation2D(
 		};
 	}
 
-	public double getZ(double x, double z) {
+	public double getY(double x, double y, double z) {
+		return this.offsetY + y;
+	}
+
+	public double getZ(double x, double y, double z) {
 		return this.offsetZ + switch (this.rotation) {
 			case NONE -> z;
 			case COUNTERCLOCKWISE_90 -> -x;

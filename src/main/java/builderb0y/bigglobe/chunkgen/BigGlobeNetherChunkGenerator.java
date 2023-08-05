@@ -19,7 +19,6 @@ import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
@@ -60,7 +59,6 @@ import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.NetherPillarStructure;
-import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -83,7 +81,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 	public BigGlobeNetherChunkGenerator(
 		NetherSettings settings,
-		SortedFeatures configuredFeatures
+		SortedFeatures configuredFeatures,
+		SortedStructures sortedStructures
 	) {
 		super(
 			new ColumnBiomeSource(
@@ -93,7 +92,8 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					)
 				)
 			),
-			configuredFeatures
+			configuredFeatures,
+			sortedStructures
 		);
 		this.settings            = settings;
 		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.NETHER_STRUCTURE_OVERRIDER);
@@ -333,7 +333,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			this.generateSurface(chunk, columns);
 		});
 		this.profiler.run("Raw structure generation", () -> {
-			RawGenerationStructure.generateAll(structures, this.seed, chunk, columns, distantHorizons);
+			this.generateRawStructures(chunk, structureAccessor, columns);
 		});
 	}
 
@@ -348,9 +348,7 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 
 			if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures)) {
 				this.profiler.run("Structures", () -> {
-					for (GenerationStep.Feature step : FEATURE_STEPS) {
-						this.generateStructuresInStage(world, chunk, structureAccessor, step);
-					}
+					this.generateStructures(world, chunk, structureAccessor);
 				});
 			}
 

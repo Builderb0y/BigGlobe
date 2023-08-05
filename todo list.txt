@@ -20,14 +20,17 @@ testing:
 where I left off:
 	add more decorations to surface mineshafts:
 		cave-ins.
+		strip mines.
 		loot chests.
 		furnaces.
 		minecarts with loot chests and furnaces.
-	raw generation for scripted structures.
-	edit NBT data on move for scripted structures.
+	make piece placement for surface mineshafts biased towards extending pieces that are closer to the center.
+	allow scripted structures to have a post-placement phase.
 
 changelog:
 	* Added surface mineshaft structure.
+	* Potentially fixed some structures failing to be located correctly.
+	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

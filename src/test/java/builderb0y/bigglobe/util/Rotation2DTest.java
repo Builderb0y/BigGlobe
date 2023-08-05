@@ -17,7 +17,7 @@ public class Rotation2DTest {
 	@Test
 	public void testRotation() {
 		for (BlockRotation base : Directions.ROTATIONS) {
-			Rotation2D rotation = new Rotation2D(123, 456, base);
+			Rotation2D rotation = new Rotation2D(123, 456, 789, base);
 			for (BlockRotation second : Directions.ROTATIONS) {
 				assertEquals(rotation, rotation.rotate(second).rotate(switch (second) {
 					case NONE -> BlockRotation.NONE;
