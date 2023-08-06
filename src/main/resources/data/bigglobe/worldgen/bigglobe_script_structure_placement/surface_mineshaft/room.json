@@ -42,7 +42,7 @@
 					"(",
 						"setBlockState(x, minY + 1, z, BlockState('minecraft:chest', facing: direction))",
 						"mergeBlockData(x, minY + 1, z, nbtCompound(",
-							"LootTable: 'minecraft:chests/abandoned_mineshaft',",
+							"LootTable: 'bigglobe:chests/surface_mineshaft',",
 							"LootTableSeed: random.nextLong()",
 						"))",
 					")",

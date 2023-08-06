@@ -18,12 +18,8 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	add ash to c:dusts.
-	add rough quartz/buds to relevant c: tags.
-		include both blocks and items.
 	add more decorations to surface mineshafts:
 	allow scripted structures to have a post-placement phase.
-	custom loot table for surface mineshafts containing ores, raw materials, ingots, pickaxes, shovels, etc.
 
 changelog:
 	* Added surface mineshaft structure.

@@ -1,0 +1,134 @@
+{
+	"type": "minecraft:chest",
+	"pools": [
+		{
+			"rolls": 2,
+			"bonus_rolls": 1,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 6, "name": "minecraft:coal_ore" },
+					{ "type": "minecraft:item", "weight": 5, "name": "minecraft:copper_ore" },
+					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:iron_ore" }
+				],
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 1, "max": 4 }
+				}]
+			}]
+		},
+		{
+			"rolls": 2,
+			"bonus_rolls": 1,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 6, "name": "minecraft:coal" },
+					{ "type": "minecraft:item", "weight": 5, "name": "minecraft:raw_copper" },
+					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:raw_iron" }
+				],
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 1, "max": 4 }
+				}]
+			}]
+		},
+		{
+			"rolls": 2,
+			"bonus_rolls": 1,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 6, "name": "minecraft:coal" },
+					{ "type": "minecraft:item", "weight": 5, "name": "minecraft:copper_ingot" },
+					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:iron_ingot" }
+				],
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 1, "max": 4 }
+				}]
+			}]
+		},
+		{
+			"rolls": 1,
+			"bonus_rolls": 0,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:wooden_pickaxe" },
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:stone_pickaxe" },
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:iron_pickaxe" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:wooden_shovel" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:stone_shovel" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:iron_shovel" }
+				],
+				"functions": [{
+					"function": "minecraft:set_damage",
+					"damage": { "min": 0.0, "max": 1.0 }
+				}]
+			}]
+		},
+		{
+			"rolls": 2,
+			"bonus_rolls": 0,
+			"entries": [
+				{
+					"type": "bigglobe:group",
+					"children": [
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:stone" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:cobblestone" }
+					],
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 1, "max": 12 }
+					}]
+				},
+				{
+					"type": "bigglobe:group",
+					"children": [
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:granite" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:diorite" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:andesite" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:calcite" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:tuff" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:dripstone_block" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:dirt" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:gravel" }
+					],
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 1, "max": 6 }
+					}]
+				}
+			]
+		},
+		{
+			"rolls": 1,
+			"bonus_rolls": 1,
+			"entries": [
+				{
+					"type": "bigglobe:group",
+					"children": [
+						{ "type": "minecraft:item", "weight": 2, "name": "minecraft:rail" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:powered_rail" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:detector_rail" },
+						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:activator_rail" }
+					],
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 1, "max": 4 }
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"weight": 4,
+					"name": "minecraft:torch",
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 2, "max": 8 }
+					}]
+				}
+			]
+		}
+	]
+}

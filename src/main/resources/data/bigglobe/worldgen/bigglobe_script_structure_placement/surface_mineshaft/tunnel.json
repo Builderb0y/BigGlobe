@@ -25,7 +25,7 @@
 			"random.switch (",
 				"summon('minecraft:minecart', x, y, z),",
 				"summon('minecraft:chest_minecart', x, y, z, nbtCompound(",
-					"LootTable: 'minecraft:chests/abandoned_mineshaft',",
+					"LootTable: 'bigglobe:chests/surface_mineshaft',",
 					"LootTableSeed: random.nextLong()",
 				")),",
 				"summon('minecraft:furnace_minecart', x, y, z)",
