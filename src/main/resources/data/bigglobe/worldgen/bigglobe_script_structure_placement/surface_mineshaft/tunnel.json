@@ -1,18 +1,68 @@
 {
 	"raw_placement": {
 		"script": [
-			"fillBlockState(minX, midY - 1, midZ - 1, maxX, midY + 1, midZ + 1, 'minecraft:air')"
+			"fillBlockState(minX, minY + 1, midZ - 1, maxX, minY + 3, midZ + 1, 'minecraft:air')"
 		]
 	},
 	"script": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"for (int x = minX, x <= maxX, ++x:",
 			"for (int z = midZ - 1, z <= midZ + 1, ++z:",
-				"if (getBlockState(x, midY - 2, z).isReplaceable():",
-					"setBlockState(x, midY - 2, z, palette.planksState())",
+				"if (getBlockState(x, minY, z).isReplaceable():",
+					"setBlockState(x, minY, z, palette.planksState())",
 				")",
 			")",
 		")",
-		"fillBlockState(minX, midY - 1, midZ, maxX, midY - 1, midZ, 'minecraft:rail[shape=east_west,waterlogged=false]')"
+		"fillBlockState(minX, minY + 1, midZ, maxX, minY + 1, midZ, 'minecraft:rail[shape=east_west,waterlogged=false]')",
+
+		"boolean hasMinecart = random.nextBoolean()",
+		"boolean hasSupports = random.nextBoolean()",
+
+		"if (hasMinecart:",
+			"double x = random.nextInt(minX, maxX) + 0.5L",
+			"double y = minY + 1",
+			"double z = midZ + 0.5L",
+			"random.switch (",
+				"summon('minecraft:minecart', x, y, z),",
+				"summon('minecraft:chest_minecart', x, y, z, nbtCompound(",
+					"LootTable: 'minecraft:chests/abandoned_mineshaft',",
+					"LootTableSeed: random.nextLong()",
+				")),",
+				"summon('minecraft:furnace_minecart', x, y, z)",
+			")",
+		")",
+
+		"if (hasSupports:",
+			"int x = (random.nextInt(minX, maxX + 1) + random.nextInt(minX, maxX + 1)) >> 1",
+			"fillBlockState(x, minY + 1, midZ - 1, x, minY + 2, midZ - 1, palette.fenceState(north: false, south: false, east: false, west: false, waterlogged: false))",
+			"fillBlockState(x, minY + 1, midZ + 1, x, minY + 2, midZ + 1, palette.fenceState(north: false, south: false, east: false, west: false, waterlogged: false))",
+			"fillBlockState(x, minY + 3, midZ - 1, x, minY + 3, midZ + 1, palette.planksState())",
+		")",
+
+		"if (!hasMinecart && !hasSupports:",
+			"int centerX = random.nextInt(minX + 2, maxX - 1)",
+			"class ColumnPos(int x int z)",
+			"class ColumnData(int y1 int y2 boolean done = false)",
+			"ColumnPos columnPos = new()",
+			"HashMap map = new(5 * 3)",
+			"while collapseLoop (true:",
+				"int x = centerX + bitCount(random.nextInt() & 2x1111) - 2",
+				"int z = midZ + bitCount(random.nextInt() & 2x11) - 1",
+				"ColumnData columnData = map.get(columnPos.$x(x).$z(z))",
+				"if (columnData == null: map.put(columnPos =: new(x, z), columnData := new(minY, 4 - 1)))",
+				"if (++columnData.y2 :++columnData.y1 >= 4: break(collapseLoop))",
+				"if (!columnData.done && isPositionValid(x, columnData.y1, z):",
+					"BlockState lower = getBlockState(x, columnData.y1, z)",
+					"BlockState upper = getBlockState(x, columnData.y2, z)",
+					"if ((lower.isAir() || lower.getBlock() == Block('minecraft:rail')) && upper.hasFullCubeOutline():",
+						"setBlockState(x, columnData.y1, z, upper)",
+						"setBlockState(x, columnData.y2, z, 'minecraft:air')",
+					")",
+					"else (",
+						"columnData.done = true",
+					")",
+				")",
+			")",
+		")"
 	]
 }

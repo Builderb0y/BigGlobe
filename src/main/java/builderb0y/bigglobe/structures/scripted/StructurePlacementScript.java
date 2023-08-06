@@ -31,7 +31,8 @@ public interface StructurePlacementScript extends Script {
 		int minX, int minY, int minZ,
 		int maxX, int maxY, int maxZ,
 		int midX, int midY, int midZ,
-		NbtCompound data
+		NbtCompound data,
+		boolean distantHorizons
 	);
 
 	@Wrapper
@@ -69,6 +70,7 @@ public interface StructurePlacementScript extends Script {
 					.addVariableLoad("midY", 10, TypeInfos.INT)
 					.addVariableLoad("midZ", 11, TypeInfos.INT)
 					.addVariableLoad("data", 12, NbtScriptEnvironment.NBT_COMPOUND_TYPE)
+					.addVariableLoad("distantHorizons", 13, TypeInfos.BOOLEAN)
 				)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
@@ -91,7 +93,8 @@ public interface StructurePlacementScript extends Script {
 			int minX, int minY, int minZ,
 			int maxX, int maxY, int maxZ,
 			int midX, int midY, int midZ,
-			NbtCompound data
+			NbtCompound data,
+			boolean distantHorizons
 		) {
 			try {
 				this.script.place(
@@ -100,7 +103,8 @@ public interface StructurePlacementScript extends Script {
 					minX, minY, minZ,
 					maxX, maxY, maxZ,
 					midX, midY, midZ,
-					data
+					data,
+					distantHorizons
 				);
 			}
 			catch (Throwable throwable) {

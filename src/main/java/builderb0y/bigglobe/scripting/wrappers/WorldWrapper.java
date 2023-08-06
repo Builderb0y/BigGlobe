@@ -66,12 +66,16 @@ public class WorldWrapper implements ColumnLookup {
 		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 	}
 
-	public @Nullable BlockPos.Mutable pos(int x, int y, int z) {
-		return this.coordination.modifyPos(this.pos.set(x, y, z));
-	}
-
 	public BlockPos.Mutable unboundedPos(int x, int y, int z) {
 		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
+	}
+
+	public BlockPos.@Nullable Mutable mutablePos(int x, int y, int z) {
+		return this.coordination.filterPosMutable(this.unboundedPos(x, y, z));
+	}
+
+	public BlockPos.@Nullable Mutable immutablePos(int x, int y, int z) {
+		return this.coordination.filterPosImmutable(this.unboundedPos(x, y, z));
 	}
 
 	public long getSeed() {
@@ -80,9 +84,9 @@ public class WorldWrapper implements ColumnLookup {
 
 	@Override
 	public WorldColumn lookupColumn(int x, int z) {
-		BlockPos pos = this.unboundedPos(x, this.coordination.area.getMinY(), z);
+		BlockPos pos = this.unboundedPos(x, this.coordination.immutableArea.getMinY(), z);
 		if (this.checkForColumns) {
-			if (this.coordination.area.contains(pos)) {
+			if (this.coordination.immutableArea.contains(pos)) {
 				Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
 				if (chunk instanceof ChunkOfColumnsHolder holder) {
 					ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
@@ -108,7 +112,7 @@ public class WorldWrapper implements ColumnLookup {
 				}
 			}
 			else if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.area);
+				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.immutableArea);
 			}
 		}
 		this.randomColumn.setPos(pos.getX(), pos.getZ());
@@ -116,12 +120,12 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.immutablePos(x, y, z);
 		return pos == null ? BlockStates.AIR : this.coordination.unmodifyState(this.world.getBlockState(pos));
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
 			state = this.coordination.modifyState(state);
 			this.world.setBlockState(pos, state);
@@ -132,7 +136,7 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.mutablePos(x, y, z);
 		return pos != null && this.world.placeBlockState(pos, this.coordination.modifyState(state));
 	}
 
@@ -145,12 +149,12 @@ public class WorldWrapper implements ColumnLookup {
 		if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
 		if (maxY < minY) { tmp = minY; minY = maxY; maxY = tmp; }
 		if (maxZ < minZ) { tmp = minZ; minZ = maxZ; maxZ = tmp; }
-		minX = Math.max(minX, this.coordination.area.getMinX());
-		minY = Math.max(minY, this.coordination.area.getMinY());
-		minZ = Math.max(minZ, this.coordination.area.getMinZ());
-		maxX = Math.min(maxX, this.coordination.area.getMaxX());
-		maxY = Math.min(maxY, this.coordination.area.getMaxY());
-		maxZ = Math.min(maxZ, this.coordination.area.getMaxZ());
+		minX = Math.max(minX, this.coordination.mutableArea.getMinX());
+		minY = Math.max(minY, this.coordination.mutableArea.getMinY());
+		minZ = Math.max(minZ, this.coordination.mutableArea.getMinZ());
+		maxX = Math.min(maxX, this.coordination.mutableArea.getMaxX());
+		maxY = Math.min(maxY, this.coordination.mutableArea.getMaxY());
+		maxZ = Math.min(maxZ, this.coordination.mutableArea.getMaxZ());
 		state = this.coordination.modifyState(state);
 		for (int z = minZ; z <= maxZ; z++) {
 			pos.setZ(z);
@@ -175,7 +179,7 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.mutablePos(x, y, z);
 		return pos != null && this.world.placeFeature(pos, feature.object(), this.permuter.mojang());
 	}
 
@@ -188,11 +192,11 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public boolean isPositionValid(int x, int y, int z) {
-		return this.isYLevelValid(y) && this.pos(x, y, z) != null;
+		return this.isYLevelValid(y) && this.mutablePos(x, y, z) != null;
 	}
 
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.immutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
@@ -203,7 +207,7 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void setBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
@@ -213,7 +217,7 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
-		BlockPos pos = this.pos(x, y, z);
+		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
@@ -236,7 +240,11 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void summon(String entityType, double x, double y, double z) {
-		Vector3d newPos = this.coordination.modifyVec(new Vector3d(x, y, z));
+		Vector3d newPos = this.coordination.filterVecMutable(
+			this.coordination.modifyVecUnbounded(
+				new Vector3d(x, y, z)
+			)
+		);
 		if (newPos == null) return;
 		double newX = newPos.x;
 		double newY = newPos.y;
@@ -260,7 +268,11 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void summon(String entityType, double x, double y, double z, NbtCompound nbt) {
-		Vector3d newPos = this.coordination.modifyVec(new Vector3d(x, y, z));
+		Vector3d newPos = this.coordination.filterVecMutable(
+			this.coordination.modifyVecUnbounded(
+				new Vector3d(x, y, z)
+			)
+		);
 		if (newPos == null) return;
 		double newX = newPos.x;
 		double newY = newPos.y;
@@ -280,7 +292,7 @@ public class WorldWrapper implements ColumnLookup {
 		return this.getClass().getSimpleName() + ": { " + this.world + " }";
 	}
 
-	public static record Coordination(Rotation2D rotation, BlockBox area) {
+	public static record Coordination(Rotation2D rotation, BlockBox mutableArea, BlockBox immutableArea) {
 
 		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, Rotation2D rotation) {
 			int x = rotation.getX(pos.getX(), pos.getY(), pos.getZ());
@@ -293,8 +305,12 @@ public class WorldWrapper implements ColumnLookup {
 			return rotate(pos, this.rotation);
 		}
 
-		public BlockPos.@Nullable Mutable modifyPos(BlockPos.Mutable pos) {
-			return this.area.contains(this.modifyPosUnbounded(pos)) ? pos : null;
+		public BlockPos.@Nullable Mutable filterPosMutable(BlockPos.Mutable pos) {
+			return this.mutableArea.contains(pos) ? pos : null;
+		}
+
+		public BlockPos.@Nullable Mutable filterPosImmutable(BlockPos.Mutable pos) {
+			return this.immutableArea.contains(pos) ? pos : null;
 		}
 
 		public static Vector3d rotate(Vector3d vector, Rotation2D rotation) {
@@ -311,18 +327,20 @@ public class WorldWrapper implements ColumnLookup {
 			return rotate(vector, this.rotation);
 		}
 
-		public @Nullable Vector3d modifyVec(Vector3d vector) {
-			this.modifyVecUnbounded(vector);
-			if (
-				vector.x >= this.area.getMinX() && vector.x <= this.area.getMaxX() + 1 &&
-				vector.y >= this.area.getMinY() && vector.y <= this.area.getMaxY() + 1 &&
-				vector.z >= this.area.getMinZ() && vector.z <= this.area.getMaxZ() + 1
-			) {
-				return vector;
-			}
-			else {
-				return null;
-			}
+		public static boolean contains(BlockBox area, double x, double y, double z) {
+			return (
+				x >= area.getMinX() && x <= area.getMaxX() + 1 &&
+				y >= area.getMinY() && y <= area.getMaxY() + 1 &&
+				z >= area.getMinZ() && z <= area.getMaxZ() + 1
+			);
+		}
+
+		public @Nullable Vector3d filterVecMutable(Vector3d vector) {
+			return contains(this.mutableArea, vector.x, vector.y, vector.z) ? vector : null;
+		}
+
+		public @Nullable Vector3d filterVecImmutable(Vector3d vector) {
+			return contains(this.immutableArea, vector.x, vector.y, vector.z) ? vector : null;
 		}
 
 		public BlockState modifyState(BlockState state) {

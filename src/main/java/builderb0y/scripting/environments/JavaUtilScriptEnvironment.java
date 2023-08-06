@@ -261,6 +261,13 @@ public class JavaUtilScriptEnvironment {
 			this.key = key;
 			this.value = value;
 			this.replacer = replacer;
+			if (replacer.isStatic()) {
+				InvokeBaseInsnTree.checkArguments(this.replacer.paramTypes, new InsnTree[] { receiver, key, value });
+			}
+			else {
+				InvokeBaseInsnTree.checkArguments(this.replacer.paramTypes, new InsnTree[] { key, value });
+				InvokeInstanceInsnTree.checkReceiver(this.replacer.owner, receiver);
+			}
 		}
 	}
 

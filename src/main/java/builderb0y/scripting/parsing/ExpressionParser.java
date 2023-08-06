@@ -265,7 +265,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "--", "!" -> {} //indicates that there's another statement to read.
+					case "", "++", "++:", ":++", "--", "--:", ":--", "!" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -1259,10 +1259,10 @@ public class ExpressionParser {
 				for (int index = 1, size = fields.size(); index < size; index++) {
 					invokeStatic(
 						HASH_MIX,
-						ArrayExtensions.computeHashCode(
-							add(
-								this,
-								getFromStack(TypeInfos.INT),
+						add(
+							this,
+							getFromStack(TypeInfos.INT),
+							ArrayExtensions.computeHashCode(
 								getField(load(methodThis), fields.get(index).info)
 							)
 						)

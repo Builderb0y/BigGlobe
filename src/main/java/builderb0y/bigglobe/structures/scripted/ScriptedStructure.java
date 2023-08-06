@@ -29,6 +29,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -60,12 +61,13 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
 		WorldColumn column = WorldColumn.forGenerator(context.seed(), context.chunkGenerator(), context.noiseConfig(), x, z);
 		int y = column.getFinalTopHeightI();
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		return Optional.of(
 			new StructurePosition(
 				new BlockPos(x, y, z),
 				collector -> {
 					List<StructurePiece> pieces = Collections.checkedList(new ArrayList<>(), StructurePiece.class);
-					this.layout.layout(x, z, permuter, column, pieces);
+					this.layout.layout(x, z, permuter, column, pieces, distantHorizons);
 					for (StructurePiece piece : pieces) {
 						collector.addPiece(piece);
 					}
@@ -239,14 +241,16 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 							effectiveMaxX,
 							effectiveMaxY,
 							effectiveMaxZ
-						)
+						),
+						chunkBox
 					)
 				),
 				context.generator.column(0, 0),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				this.data
+				this.data,
+				context.distantHorizons
 			);
 		}
 
@@ -292,14 +296,16 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 							effectiveMaxX,
 							effectiveMaxY,
 							effectiveMaxZ
-						)
+						),
+						WorldUtil.surroundingChunkBox(chunkPos, world)
 					)
 				),
 				column,
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				this.data
+				this.data,
+				DistantHorizonsCompat.isOnDistantHorizonThread()
 			);
 		}
 

@@ -2,9 +2,9 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"(random.nextBoolean(1.0L / 16.0L) && getBlockState(originX, originY, originZ).isReplaceable()).if (",
+			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline(): return(false))",
+			"random.nextBoolean(1.0L / 16.0L).if (",
 				"placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]')",
-				"return(true)",
 			")"
 		]
 	}

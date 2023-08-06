@@ -53,7 +53,7 @@
 				"int x = 0",
 				"int z = 0",
 				"String direction = null",
-				"random.switch(",
+				"random.switch (",
 					"(direction = 'south',, z = 1 - radiusZ,, x = random.nextInt(1 - radiusX, radiusX)),",
 					"(direction = 'north',, z = radiusZ - 1,, x = random.nextInt(1 - radiusX, radiusX)),",
 					"(direction = 'east',,  x = 1 - radiusX,, z = random.nextInt(1 - radiusZ, radiusZ)),",

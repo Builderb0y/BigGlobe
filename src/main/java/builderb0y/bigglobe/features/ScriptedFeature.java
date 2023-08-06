@@ -86,6 +86,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		);
 		Coordination coordination = new Coordination(
 			Rotation2D.fromCenter(origin.getX(), origin.getZ(), rotation),
+			box,
 			box
 		);
 		StructureWorldAccess world = switch (context.getConfig().queueType) {

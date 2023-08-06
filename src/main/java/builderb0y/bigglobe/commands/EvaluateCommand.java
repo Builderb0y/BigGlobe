@@ -35,7 +35,7 @@ public class EvaluateCommand {
 						WorldWrapper world = new WorldWrapper(
 							new WorldDelegator(context.getSource().getWorld()),
 							Permuter.from(context.getSource().getWorld().random),
-							new Coordination(Rotation2D.IDENTITY, BlockBox.infinite())
+							new Coordination(Rotation2D.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
 						);
 						Vec3d position = context.getSource().getPosition();
 						WorldColumn column = WorldColumn.forWorld(

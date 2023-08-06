@@ -18,19 +18,17 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	add ash to c:dusts.
+	add rough quartz/buds to relevant c: tags.
+		include both blocks and items.
 	add more decorations to surface mineshafts:
-		cave-ins.
-		strip mines.
-		loot chests.
-		furnaces.
-		minecarts with loot chests and furnaces.
-	make piece placement for surface mineshafts biased towards extending pieces that are closer to the center.
 	allow scripted structures to have a post-placement phase.
+	custom loot table for surface mineshafts containing ores, raw materials, ingots, pickaxes, shovels, etc.
 
 changelog:
 	* Added surface mineshaft structure.
 	* Potentially fixed some structures failing to be located correctly.
-	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks.
+	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
