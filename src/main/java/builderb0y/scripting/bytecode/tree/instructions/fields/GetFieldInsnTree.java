@@ -42,7 +42,7 @@ public class GetFieldInsnTree implements InsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (this.field.isFinal()) {
-			throw new ScriptParsingException("Can't write to final field: " + this.field, parser.input);
+			throw new ScriptParsingException("Can't modify final field: " + this.field, parser.input);
 		}
 		if (op == UpdateOp.ASSIGN) {
 			InsnTree cast = rightValue.cast(parser, this.field.type, CastMode.IMPLICIT_THROW);

@@ -161,9 +161,8 @@
 					".rotateAround(0, 0, random.nextInt(4) * 90)",
 					".offset(x, y, z)",
 				")",
-				"if (distantHorizons: return())",
 
-				"int desiredPieces = int(exp(random.nextDouble(log(16.0L), log(256.0L))))",
+				"int desiredPieces = distantHorizons ? 2 : int(exp(random.nextDouble(log(16.0L), log(256.0L))))",
 				"for (int attempt = 0, attempt < 1024 && pieces.size < desiredPieces, ++attempt:",
 					"ScriptStructurePiece from = pieces.(random.nextInt(pieces.size))",
 					"random.if (((from.midX - x) ^ 2 + (from.midZ - z) ^ 2) / 96.0L ^ 2: continue())",
@@ -172,7 +171,8 @@
 					"addPiece(from, toAdd)",
 				")",
 
-				"if (pieces.size == 1: pieces.removeIndex(0))"
+				"if (pieces.size == 1: pieces.removeIndex(0))",
+				"else if (distantHorizons: pieces.removeIndex(1))"
 			]
 		}
 	}

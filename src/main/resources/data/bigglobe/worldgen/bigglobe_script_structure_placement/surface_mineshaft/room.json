@@ -6,13 +6,7 @@
 	},
 	"script": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
-		"for (int x = minX + 1, x <= maxX - 1, ++x:",
-			"for (int z = minZ + 1, z <= maxZ - 1, ++z:",
-				"if (getBlockState(x, minY, z).isReplaceable():",
-					"setBlockState(x, minY, z, palette.planksState())",
-				")",
-			")",
-		")",
+		"fillBlockStateReplaceable(minX + 1, minY, minZ + 1, maxX - 1, minY, maxZ - 1, palette.planksState())",
 
 		";chests, crafting tables, and furnaces.",
 		"random.if (",
@@ -76,6 +70,9 @@
 					")",
 				")",
 			")",
-		")"
+		")",
+
+		";cobweb.",
+		"setBlockStateReplaceable(random.if (minX + 1) else (maxX - 1), minY + 3, random.if (minZ + 1) else (maxZ - 1), 'minecraft:cobweb')"
 	]
 }

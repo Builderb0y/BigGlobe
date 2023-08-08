@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
+import java.util.function.Predicate;
+
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -21,6 +23,7 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
@@ -125,8 +128,20 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
+		this.setBlockStateConditional(x, y, z, state, null);
+	}
+
+	public void setBlockStateReplaceable(int x, int y, int z, BlockState state) {
+		this.setBlockStateConditional(x, y, z, state, SingleBlockFeature.IS_REPLACEABLE);
+	}
+
+	public void setBlockStateNonReplaceable(int x, int y, int z, BlockState state) {
+		this.setBlockStateConditional(x, y, z, state, SingleBlockFeature.NOT_REPLACEABLE);
+	}
+
+	public void setBlockStateConditional(int x, int y, int z, BlockState state, Predicate<BlockState> predicate) {
 		BlockPos pos = this.mutablePos(x, y, z);
-		if (pos != null) {
+		if (pos != null && (predicate == null || predicate.test(this.world.getBlockState(pos)))) {
 			state = this.coordination.modifyState(state);
 			this.world.setBlockState(pos, state);
 			if (!state.getFluidState().isEmpty()) {
@@ -141,6 +156,18 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
+		this.fillBlockStateConditionally(minX, minY, minZ, maxX, maxY, maxZ, state, null);
+	}
+
+	public void fillBlockStateReplaceable(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
+		this.fillBlockStateConditionally(minX, minY, minZ, maxX, maxY, maxZ, state, SingleBlockFeature.IS_REPLACEABLE);
+	}
+
+	public void fillBlockStateNonReplaceable(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
+		this.fillBlockStateConditionally(minX, minY, minZ, maxX, maxY, maxZ, state, SingleBlockFeature.NOT_REPLACEABLE);
+	}
+
+	public void fillBlockStateConditionally(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Predicate<BlockState> predicate) {
 		BlockPos.Mutable pos = this.unboundedPos(minX, minY, minZ);
 		minX = pos.getX(); minY = pos.getY(); minZ = pos.getZ();
 		pos = this.unboundedPos(maxX, maxY, maxZ);
@@ -161,17 +188,12 @@ public class WorldWrapper implements ColumnLookup {
 			for (int x = minX; x <= maxX; x++) {
 				pos.setX(x);
 				for (int y = minY; y <= maxY; y++) {
-					this.world.setBlockState(pos.setY(y), state);
-				}
-			}
-		}
-		if (!state.getFluidState().isEmpty()) {
-			for (int z = minZ; z <= maxZ; z++) {
-				pos.setZ(z);
-				for (int x = minX; x <= maxX; x++) {
-					pos.setX(x);
-					for (int y = minY; y <= maxY; y++) {
-						this.world.scheduleFluidTick(pos.setY(y), state.getFluidState());
+					pos.setY(y);
+					if (predicate == null || predicate.test(this.world.getBlockState(pos))) {
+						this.world.setBlockState(pos, state);
+						if (!state.getFluidState().isEmpty()) {
+							this.world.scheduleFluidTick(pos, state.getFluidState());
+						}
 					}
 				}
 			}

@@ -2,8 +2,8 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 1534766875,
-		"separation": 6,
-		"spacing": 16
+		"separation": 8,
+		"spacing": 24
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:surface_mineshaft" }

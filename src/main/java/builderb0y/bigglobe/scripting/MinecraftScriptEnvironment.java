@@ -84,7 +84,7 @@ public class MinecraftScriptEnvironment {
 		return (
 			createWithRandom(loadRandom)
 			.addVariableRenamedInvoke(loadWorld, "worldSeed", WorldWrapper.GET_SEED)
-			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "placeBlockState", "fillBlockState", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
+			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")
 			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", Handlers.builder(BlockStateWrapper.class, "canPlaceAt").addImplicitArgument(loadWorld).addReceiverArgument(BlockStateWrapper.TYPE).addArguments("III").buildMethod())
 		);
@@ -118,12 +118,12 @@ public class MinecraftScriptEnvironment {
 							InsnTree value = parser.nextScript();
 							ConstantValue constantValue = value.getConstantValue();
 							if (constantValue.isConstantOrDynamic()) {
-								//BlockState('a': b: true)
+								//BlockState('a', b: true)
 								constantProperties.add(constant(property));
 								constantProperties.add(constantValue);
 							}
 							else {
-								//BlockState('a': b: c)
+								//BlockState('a', b: c)
 								nonConstantProperties.add(new NonConstantProperty(property, value.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)));
 							}
 						}

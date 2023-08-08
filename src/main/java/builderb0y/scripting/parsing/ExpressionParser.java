@@ -255,8 +255,9 @@ public class ExpressionParser {
 				if (!this.input.canReadAfterWhitespace()) {
 					return left;
 				}
-				if (this.input.peek() == ')') {
-					return left;
+				switch (this.input.peek()) {
+					case ')', ']', '}' -> { return left; }
+					default -> {}
 				}
 				//another operator (except ++ and --) indicates that said
 				//operator didn't get processed sooner when it should have.

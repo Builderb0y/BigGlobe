@@ -193,7 +193,7 @@ public class VoronoiDiagram2D {
 	why 20? because 20 is the minimum number sufficient
 	to GUARANTEE that all the points we want are in there.
 	however, there may be some points that we don't want too.
-	so, we then remove all the points which does NOT belong in the list.
+	so, we then remove all the points which do NOT belong in the list.
 	the test for whether or not a point belongs in the list depends on its
 	neighboring points in the list AFTER the list has been sorted by angle.
 	as such, the act of removing a point from the list
@@ -221,8 +221,8 @@ public class VoronoiDiagram2D {
 
 	well, first you'll need to keep the list sorted every time
 	it's modified. that's easy to do with a TreeSet or similar,
-	but then access time becomes O(log(N)) instead of O(1), so
-	it's debatable whether this actually improves performance or not.
+	but then access time becomes O(log(N)) instead of O(1), so it's
+	debatable whether this actually improves performance or not.
 	however, the real issue here is more subtle than that.
 	imagine the reverse of the earlier example, where C is added, not removed.
 	it is entirely possible for isInsideCircumCircle(A, B, D) to

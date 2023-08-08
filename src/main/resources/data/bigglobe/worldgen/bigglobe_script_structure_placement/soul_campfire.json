@@ -21,7 +21,7 @@
 			"random.if (2.0L / 3.0L:",
 				"BlockState state = BlockState('bigglobe:charred_log', axis: axis)",
 				"int distance = random.nextInt(3, 5)",
-				"for (int offset = -1, offset <= 1, ++offset:",
+				"for (int offset in range[-1, 1]:",
 					"setBlockState(",
 						"distance * frontX + offset * sideX + midX,",
 						"maxY,",

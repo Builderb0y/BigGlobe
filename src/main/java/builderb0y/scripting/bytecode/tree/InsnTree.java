@@ -175,7 +175,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			new StringBuilder(64)
 			.append(className, className.lastIndexOf('.') + 1, className.length())
 			.append(" of type ")
-			.append(this.getTypeInfo())
+			.append(this.getTypeInfo().getClassName())
 		);
 		ConstantValue constant = this.getConstantValue();
 		if (constant.isConstantOrDynamic()) {

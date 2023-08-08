@@ -6,20 +6,14 @@
 	},
 	"script": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
-		"for (int x = minX, x <= maxX, ++x:",
-			"for (int z = midZ - 1, z <= midZ + 1, ++z:",
-				"if (getBlockState(x, minY, z).isReplaceable():",
-					"setBlockState(x, minY, z, palette.planksState())",
-				")",
-			")",
-		")",
+		"fillBlockStateReplaceable(minX, minY, midZ - 1, maxX, minY, midZ + 1, palette.planksState())",
 		"fillBlockState(minX, minY + 1, midZ, maxX, minY + 1, midZ, 'minecraft:rail[shape=east_west,waterlogged=false]')",
 
 		"boolean hasMinecart = random.nextBoolean()",
 		"boolean hasSupports = random.nextBoolean()",
 
 		"if (hasMinecart:",
-			"double x = random.nextInt(minX, maxX) + 0.5L",
+			"double x = random.nextDouble(minX, maxX) + 0.5L",
 			"double y = minY + 1",
 			"double z = midZ + 0.5L",
 			"random.switch (",
@@ -63,6 +57,9 @@
 					")",
 				")",
 			")",
-		")"
+		")",
+
+		";cobweb.",
+		"setBlockStateReplaceable(random.nextInt(minX, maxX + 1), minY + 3, midZ + random.if (-1) else (1), 'minecraft:cobweb')"
 	]
 }

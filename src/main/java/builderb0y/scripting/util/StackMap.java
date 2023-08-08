@@ -1,5 +1,7 @@
 package builderb0y.scripting.util;
 
+import java.util.NoSuchElementException;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
@@ -47,6 +49,22 @@ public class StackMap<K, V> extends Object2ObjectLinkedOpenHashMap<K, V> {
 		while (this.size() > size) {
 			this.removeLast();
 		}
+	}
+
+	/** default implementation is bugged and does not fix pointers correctly. */
+	@Override
+	public V removeLast() {
+		if (this.size == 0) throw new NoSuchElementException();
+		int pos = this.last;
+		V value = this.value[pos];
+		this.value[pos] = null;
+		this.size--;
+		this.fixPointers(pos);
+		this.shiftKeys(pos);
+		if (this.n > this.minN && this.size < this.maxFill >> 2 && this.n > DEFAULT_INITIAL_SIZE) {
+			this.rehash(this.n >> 1);
+		}
+		return value;
 	}
 
 	/**

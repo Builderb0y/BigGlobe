@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -19,10 +20,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.flow.AbstractForIteratorInsnTree;
-import builderb0y.scripting.bytecode.tree.flow.ForIteratorInsnTree;
-import builderb0y.scripting.bytecode.tree.flow.ForMapIteratorInsnTree;
-import builderb0y.scripting.bytecode.tree.flow.ForRandomAccessListInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
@@ -203,10 +201,59 @@ public class SpecialFunctionSyntax {
 					}
 					CursorPos afterIn = parser.input.getCursor();
 					parser.input.setCursor(firstVarRevert);
-					parser.verifyName(firstTypeName, "variable");
+					parser.verifyName(firstVarName, "variable");
 					parser.input.setCursor(afterIn);
-					VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 					VarInfo userVar = parser.environment.user().newVariable(firstVarName, firstType);
+
+					boolean hasMinus = parser.input.hasOperatorAfterWhitespace("-");
+					if (parser.input.hasIdentifierAfterWhitespace("range")) {
+						if (firstType.getSort() != Sort.INT) {
+							throw new ScriptParsingException("Iteration over range requires variable to be of type int", parser.input);
+						}
+						userVar.isFinal = true;
+						boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
+							case '[' -> true;
+							case '(' -> false;
+							default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
+						};
+						parser.environment.user().push();
+						InsnTree lowerBound = parser.nextScript().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+						parser.input.expectOperatorAfterWhitespace(",");
+						InsnTree upperBound = parser.nextScript().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+						boolean upperBoundInclusive = switch (parser.input.readAfterWhitespace()) {
+							case ']' -> true;
+							case ')' -> false;
+							default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
+						};
+						parser.environment.user().pop();
+						InsnTree step;
+						if (parser.input.hasOperatorAfterWhitespace("%")) {
+							step = parser.nextExponent().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+						}
+						else {
+							step = ldc(1);
+						}
+						parser.input.expectOperatorAfterWhitespace(":");
+						InsnTree body = parser.nextScript().asStatement();
+						parser.input.expectAfterWhitespace(')');
+						parser.environment.user().pop();
+						return new ForRangeLoop(
+							loopName,
+							new VariableDeclarationInsnTree(userVar),
+							!hasMinus,
+							lowerBound,
+							lowerBoundInclusive,
+							upperBound,
+							upperBoundInclusive,
+							step,
+							body
+						);
+					}
+					else {
+						parser.input.setCursor(afterIn);
+					}
+
+					VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 					InsnTree rawIterable = parser.nextScript();
 					InsnTree iterable;
 					ForEachLoop.Mode mode;
@@ -354,6 +401,25 @@ public class SpecialFunctionSyntax {
 		@Override
 		public InsnTree buildLoop(ExpressionParser parser) {
 			return new ForMapIteratorInsnTree(this.loopName, this.keyVar, this.valueVar, this.iterator, this.body);
+		}
+	}
+
+	public static record ForRangeLoop(
+		String loopName,
+		VariableDeclarationInsnTree variable,
+		boolean ascending,
+		InsnTree lowerBound,
+		boolean lowerBoundInclusive,
+		InsnTree upperBound,
+		boolean upperBoundInclusive,
+		InsnTree step,
+		InsnTree body
+	)
+	implements ForLoop {
+
+		@Override
+		public InsnTree buildLoop(ExpressionParser parser) {
+			return new RangeLoopInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
 		}
 	}
 

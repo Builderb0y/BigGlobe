@@ -77,7 +77,7 @@ public class ExpressionParserTest extends TestCommon {
 			"""
 			Unknown function or incorrect arguments: e
 			Candidates:
-				Variable e: ConstantInsnTree of type primitive double (constant: 2.718281828459045 of type primitive double)
+				Variable e: ConstantInsnTree of type double (constant: 2.718281828459045 of type double)
 			Actual form: e()""",
 			"e ( )"
 		);
@@ -86,7 +86,7 @@ public class ExpressionParserTest extends TestCommon {
 			Unknown field: getKey
 			Candidates:
 				Method interface java.util.Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type interface java.util.Map$Entry extends java/lang/Object (not constant).getKey""",
+			Actual form: LoadInsnTree of type java.util.Map$Entry (not constant).getKey""",
 			"MapEntry entry = null ,, entry . getKey"
 		);
 		assertFail(
@@ -94,7 +94,7 @@ public class ExpressionParserTest extends TestCommon {
 			Unknown method or incorrect arguments: key
 			Candidates:
 				Field interface java.util.Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type interface java.util.Map$Entry extends java/lang/Object (not constant).key()""",
+			Actual form: LoadInsnTree of type java.util.Map$Entry (not constant).key()""",
 			"MapEntry entry = null ,, entry . key ( )"
 		);
 	}
