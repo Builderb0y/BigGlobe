@@ -1,0 +1,22 @@
+{
+	"pools": [{
+		"rolls": 4,
+		"entries": [
+			{ "type": "minecraft:item", "weight": 4, "name": "minecraft:bread" },
+			{ "type": "minecraft:item", "weight": 2, "name": "minecraft:cake" },
+			{ "type": "minecraft:item", "weight": 2, "name": "minecraft:pumpkin_pie" },
+			{ "type": "minecraft:item", "weight": 1, "name": "minecraft:mushroom_stew" },
+			{ "type": "minecraft:item", "weight": 1, "name": "minecraft:beetroot_soup" },
+			{ "type": "minecraft:item", "weight": 1, "name": "minecraft:rabbit_stew" },
+			{
+				"type": "minecraft:item",
+				"weight": 4,
+				"name": "minecraft:cookie",
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 2, "max": 4 }
+				}]
+			}
+		]
+	}]
+}

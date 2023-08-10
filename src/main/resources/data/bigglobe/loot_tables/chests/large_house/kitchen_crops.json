@@ -1,0 +1,18 @@
+{
+	"pools": [{
+		"rolls": 4,
+		"entries": [{
+			"type": "bigglobe:group",
+			"children": [
+				{ "type": "minecraft:item", "weight": 2, "name": "minecraft:wheat" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:carrot" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:potato" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:beetroot" }
+			],
+			"functions": [{
+				"function": "minecraft:set_count",
+				"count": { "min": 2, "max": 4 }
+			}]
+		}]
+	}]
+}

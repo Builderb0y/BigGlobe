@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -15,7 +14,6 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 
@@ -30,6 +28,7 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup
 import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldOrChunk;
+import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -233,7 +232,8 @@ public class WorldWrapper implements ColumnLookup {
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
-				this.doSetBlockData(pos, blockEntity, nbt);
+				blockEntity.readNbt(nbt);
+				blockEntity.markDirty();
 			}
 		}
 	}
@@ -246,18 +246,10 @@ public class WorldWrapper implements ColumnLookup {
 				NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
 				NbtCompound newData = oldData.copy().copyFrom(nbt);
 				if (!oldData.equals(newData)) {
-					this.doSetBlockData(pos, blockEntity, newData);
+					blockEntity.readNbt(newData);
+					blockEntity.markDirty();
 				}
 			}
-		}
-	}
-
-	public void doSetBlockData(BlockPos pos, BlockEntity blockEntity, NbtCompound nbt) {
-		blockEntity.readNbt(nbt);
-		blockEntity.markDirty();
-		if (this.world instanceof World world) {
-			BlockState state = this.world.getBlockState(pos);
-			world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
 		}
 	}
 
@@ -307,6 +299,21 @@ public class WorldWrapper implements ColumnLookup {
 				return entity;
 			});
 		});
+	}
+
+	public Coordinator coordinator() {
+		return (
+			this
+			.world
+			.coordinator()
+			.inBox(this.coordination.mutableArea, false)
+			.translate(
+				this.coordination.rotation.offsetX(),
+				this.coordination.rotation.offsetY(),
+				this.coordination.rotation.offsetZ()
+			)
+			.rotate1x(this.coordination.rotation.rotation())
+		);
 	}
 
 	@Override

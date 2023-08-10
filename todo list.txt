@@ -18,11 +18,11 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	add more decorations to surface mineshafts:
 	allow scripted structures to have a post-placement phase.
 
 changelog:
 	* Added surface mineshaft structure.
+	* Added medium and large house structures.
 	* Potentially fixed some structures failing to be located correctly.
 	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
 
@@ -53,17 +53,12 @@ scripting:
 			due to the fact that you can't assign to final fields inside clone().
 			not that I have final fields yet, but still.
 	cache scripts.
-	for (int x in range[0, 10) % step: body)
-		how to handle descending iteration?
-		maybe for (int x in -range[0, 10) % step: body)?
-		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
 	x.isBetween[lowerBound, upperBound)
-	ability for scripted structures to edit their NBT on move.
-	ability for scripted structures to hook into raw generation.
+	remove loops from locate commands.
 
 features:
 	general:
@@ -84,7 +79,6 @@ features:
 		ice spikes.
 		glaciers.
 		log cabin structure?
-		medium and large house structures?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -118,7 +112,7 @@ features:
 			add "center" noise?
 		make lilypads renewable?
 		sandstone small house variant.
-		surface mineshaft structure.
+		more decorations for surface mineshafts?
 	nether:
 	end:
 		block of void?

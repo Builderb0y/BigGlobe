@@ -1,0 +1,31 @@
+{
+	"pools": [
+		{
+			"rolls": 4,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:cod" },
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:salmon" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:tropical_fish" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:pufferfish" }
+				],
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 1, "max": 3 }
+				}]
+			}]
+		},
+		{
+			"rolls": 1,
+			"entries": [{
+				"type": "minecraft:item",
+				"name": "minecraft:ice",
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 8, "max": 16 }
+				}]
+			}]
+		}
+	]
+}

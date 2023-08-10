@@ -1,0 +1,20 @@
+{
+	"pools": [{
+		"rolls": 6,
+		"entries": [{
+			"type": "bigglobe:group",
+			"children": [
+				{ "type": "minecraft:item", "weight": 2, "name": "minecraft:apple" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:melon" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:melon_slice" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:pumpkin" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:sweet_berries" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:glow_berries" }
+			],
+			"functions": [{
+				"function": "minecraft:set_count",
+				"count": { "min": 2, "max": 4 }
+			}]
+		}]
+	}]
+}

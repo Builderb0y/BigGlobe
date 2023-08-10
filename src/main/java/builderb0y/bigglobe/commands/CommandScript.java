@@ -47,6 +47,9 @@ public interface CommandScript extends Script {
 			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
 				load("world", 1, WorldWrapper.TYPE)
 			))
+			.addEnvironment(CoordinatorScriptEnvironment.create(
+				load("world", 1, WorldWrapper.TYPE)
+			))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(

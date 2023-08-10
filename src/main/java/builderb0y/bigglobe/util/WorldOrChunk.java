@@ -25,6 +25,7 @@ import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
+import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.WorldVersions;
 
 /**
@@ -54,6 +55,8 @@ public interface WorldOrChunk extends BlockView {
 	public abstract void spawnEntity(Function<ServerWorld, Entity> entitySupplier);
 
 	public abstract WorldColumn createColumn(int x, int z);
+
+	public abstract Coordinator coordinator();
 
 	public static class WorldDelegator implements WorldOrChunk {
 
@@ -146,6 +149,11 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public WorldColumn createColumn(int x, int z) {
 			return WorldColumn.forWorld(this.world, x, z);
+		}
+
+		@Override
+		public Coordinator coordinator() {
+			return Coordinator.forWorld(this.world, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 		}
 	}
 
@@ -242,6 +250,11 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public WorldColumn createColumn(int x, int z) {
 			return this.columnFactory.create(x, z);
+		}
+
+		@Override
+		public Coordinator coordinator() {
+			return Coordinator.forChunk(this.chunk, this.columnFactory::create);
 		}
 	}
 }

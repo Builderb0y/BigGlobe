@@ -31,8 +31,8 @@
 			";place stairs and rails if applicable.",
 			"boolean flat = x == minX || ideal != startY",
 			"unless (flat:",
-				"setBlockState(x, startY, midZ - 1, 'minecraft:stone_stairs[facing=west,shape=straight,waterlogged=false]')",
-				"setBlockState(x, startY, midZ + 1, 'minecraft:stone_stairs[facing=west,shape=straight,waterlogged=false]')",
+				"setBlockState(x, startY, midZ - 1, 'minecraft:stone_stairs[half=bottom,facing=west,shape=straight,waterlogged=false]')",
+				"setBlockState(x, startY, midZ + 1, 'minecraft:stone_stairs[half=bottom,facing=west,shape=straight,waterlogged=false]')",
 			")",
 			"setBlockState(x, startY, midZ, BlockState('minecraft:rail', waterlogged: false, shape: flat ? 'east_west' : 'ascending_west'))",
 
