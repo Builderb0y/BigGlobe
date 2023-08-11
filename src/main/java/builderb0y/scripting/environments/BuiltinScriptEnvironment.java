@@ -7,7 +7,10 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.CastingSupport;
+import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -18,6 +21,7 @@ import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax;
@@ -44,7 +48,7 @@ public class BuiltinScriptEnvironment {
 		.addVariable("false", ldc(false))
 		.addVariable("no",    ldc(false))
 		.addVariable("noop",  noop)
-		.addVariable("null",  ldc(null, TypeInfos.OBJECT))
+		.addVariable("null",  ldc(null, TypeInfos.OBJECT.generic()))
 
 		//////////////// types ////////////////
 
@@ -195,6 +199,13 @@ public class BuiltinScriptEnvironment {
 		.addMemberKeyword(null, "as", (parser, receiver, name, mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
 		})
+		.addMemberKeyword(TypeInfos.BYTE,   "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.SHORT,  "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.INT,    "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.LONG,   "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.FLOAT,  "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.DOUBLE, "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.CHAR,   "isBetween", makeBetween())
 
 		//////////////// casting ////////////////
 
@@ -316,6 +327,19 @@ public class BuiltinScriptEnvironment {
 		if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 		parser.input.expectAfterWhitespace(')');
 		return type;
+	}
+
+	public static MemberKeywordHandler makeBetween() {
+		return (parser, receiver, name, mode) -> {
+			return switch (mode) {
+				case NORMAL, NULLABLE -> {
+					yield SpecialFunctionSyntax.IsBetween.parse(parser, receiver).toTree(parser);
+				}
+				case RECEIVER, NULLABLE_RECEIVER -> {
+					throw new ScriptParsingException("Can't use isBetween() with nullable syntax.", parser.input);
+				}
+			};
+		};
 	}
 
 	public static InsnTree nextIfElse(ExpressionParser parser, boolean negate) throws ScriptParsingException {

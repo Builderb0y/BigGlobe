@@ -18,13 +18,14 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	allow scripted structures to have a post-placement phase.
+	print() needs to not concat arguments if there is only one string argument.
 
 changelog:
 	* Added surface mineshaft structure.
 	* Added medium and large house structures.
 	* Potentially fixed some structures failing to be located correctly.
 	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
+	* Miscellaneous changes and improvements for scripting, as usual.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -37,6 +38,9 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
+		more sophisticated flow analysis to see what values could be where at any given time.
+			could help with more advanced constant jumps.
+		more sophisticated back-tracking algorithm for pop removal.
 	more invoke syntaxes:
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.
@@ -52,13 +56,10 @@ scripting:
 			this is the more intuitive option, but it is more difficult semantically
 			due to the fact that you can't assign to final fields inside clone().
 			not that I have final fields yet, but still.
-	cache scripts.
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
-	x.isBetween[lowerBound, upperBound)
-	remove loops from locate commands.
 
 features:
 	general:

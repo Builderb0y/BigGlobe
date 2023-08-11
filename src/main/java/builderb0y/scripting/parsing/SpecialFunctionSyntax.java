@@ -22,6 +22,7 @@ import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
+import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
@@ -575,6 +576,36 @@ public class SpecialFunctionSyntax {
 				case OBJECT -> new ObjectCompareInsnTree(this.left, this.right, this.lessThan, this.equal, this.greaterThan, this.incomparable, this.outputType);
 				case BOOLEAN, VOID, ARRAY -> throw new IllegalStateException(this.inputType.toString());
 			};
+		}
+	}
+
+	public static record IsBetween(InsnTree value, InsnTree min, boolean minInclusive, InsnTree max, boolean maxInclusive) {
+
+		public static IsBetween parse(ExpressionParser parser, InsnTree receiver) throws ScriptParsingException {
+			TypeInfo expectedType = TypeInfos.widenToInt(receiver.getTypeInfo());
+			if (!expectedType.isNumber()) {
+				throw new ScriptParsingException("Value must be numeric", parser.input);
+			}
+			boolean minInclusive = switch (parser.input.readAfterWhitespace()) {
+				case '[' -> true;
+				case '(' -> false;
+				default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
+			};
+			parser.environment.user().push();
+			InsnTree min = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW);
+			parser.input.expectOperatorAfterWhitespace(",");
+			InsnTree max = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW);
+			boolean maxInclusive = switch (parser.input.readAfterWhitespace()) {
+				case ']' -> true;
+				case ')' -> false;
+				default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
+			};
+			parser.environment.user().pop();
+			return new IsBetween(receiver, min, minInclusive, max, maxInclusive);
+		}
+
+		public InsnTree toTree(ExpressionParser parser) {
+			return BetweenInsnTree.create(parser, this.value, this.min, this.minInclusive, this.max, this.maxInclusive);
 		}
 	}
 }

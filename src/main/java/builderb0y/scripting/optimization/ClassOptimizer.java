@@ -11,7 +11,9 @@ public interface ClassOptimizer {
 			UnreachableCodeOptimizer.INSTANCE,
 			DoubleJumpOptimizer.INSTANCE,
 			JumpToReturnOptimizer.INSTANCE,
-			JumpToNextInstructionOptimizer.INSTANCE
+			JumpToNextInstructionOptimizer.INSTANCE,
+			ConstantJumpOptimizer.INSTANCE,
+			PopOptimizer.INSTANCE
 		)
 	);
 

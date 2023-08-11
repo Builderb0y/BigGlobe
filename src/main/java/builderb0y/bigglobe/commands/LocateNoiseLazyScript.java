@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.commands;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.mojang.brigadier.StringReader;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
@@ -20,6 +22,15 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
 		this.parser = new ColumnYToDoubleScript.Parser(script);
+		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
+		keywords.remove("while");
+		keywords.remove("until");
+		keywords.remove("do");
+		keywords.remove("repeat");
+		keywords.remove("for");
+		keywords.remove("block");
+		keywords.remove("break");
+		keywords.remove("continue");
 		this.parser.toBytecode();
 		this.usedValues = this.parser.builder.usedValues;
 	}

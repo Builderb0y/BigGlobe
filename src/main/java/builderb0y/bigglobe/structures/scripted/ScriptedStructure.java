@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.structures.scripted;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +35,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.util.CheckedList;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Rotation2D;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
@@ -66,7 +65,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			new StructurePosition(
 				new BlockPos(x, y, z),
 				collector -> {
-					List<StructurePiece> pieces = Collections.checkedList(new ArrayList<>(), StructurePiece.class);
+					List<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
 					this.layout.layout(x, z, permuter, column, pieces, distantHorizons);
 					for (StructurePiece piece : pieces) {
 						collector.addPiece(piece);
