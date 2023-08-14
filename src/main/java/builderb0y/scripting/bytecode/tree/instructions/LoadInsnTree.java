@@ -6,7 +6,9 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdateInsnTree.*;
+import builderb0y.scripting.bytecode.tree.instructions.update2.IncrementUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.VariableUpdaterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.VariableUpdaterInsnTree.VariableUpdaterEmitters;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -25,11 +27,7 @@ public class LoadInsnTree implements InsnTree {
 		}
 		if (op == UpdateOp.ASSIGN) {
 			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW);
-			return switch (order) {
-				case VOID -> new VariableAssignVoidUpdateInsnTree(this.variable, cast);
-				case PRE  -> new  VariableAssignPreUpdateInsnTree(this.variable, cast);
-				case POST -> new VariableAssignPostUpdateInsnTree(this.variable, cast);
-			};
+			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forVariable(this.variable, cast));
 		}
 		if ((op == UpdateOp.ADD || op == UpdateOp.SUBTRACT) && this.getTypeInfo().getSort() == Sort.INT) {
 			ConstantValue constant = rightValue.getConstantValue();
@@ -39,19 +37,11 @@ public class LoadInsnTree implements InsnTree {
 				constant.getTypeInfo().isSingleWidthInt() &&
 				(increment = op == UpdateOp.ADD ? constant.asInt() : -constant.asInt()) == (short)(increment)
 			) {
-				return switch (order) {
-					case VOID -> new VariableIncrementVoidUpdateInsnTree(this.variable, increment);
-					case PRE  -> new  VariableIncrementPreUpdateInsnTree(this.variable, increment);
-					case POST -> new VariableIncrementPostUpdateInsnTree(this.variable, increment);
-				};
+				return new IncrementUpdateInsnTree(order, this.variable, increment);
 			}
 		}
 		InsnTree updater = op.createUpdater(parser, this.getTypeInfo(), rightValue);
-		return switch (order) {
-			case VOID -> new VariableVoidUpdateInsnTree(this.variable, updater);
-			case PRE  -> new  VariablePreUpdateInsnTree(this.variable, updater);
-			case POST -> new VariablePostUpdateInsnTree(this.variable, updater);
-		};
+		return new VariableUpdaterInsnTree(order, false, VariableUpdaterEmitters.forVariable(this.variable, updater));
 	}
 
 	@Override

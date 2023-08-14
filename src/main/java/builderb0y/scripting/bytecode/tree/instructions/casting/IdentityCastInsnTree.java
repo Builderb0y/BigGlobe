@@ -15,6 +15,11 @@ public class IdentityCastInsnTree extends UnaryInsnTree {
 	}
 
 	@Override
+	public boolean jumpsUnconditionally() {
+		return this.operand.jumpsUnconditionally();
+	}
+
+	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		this.operand.emitBytecode(method);
 	}
@@ -22,5 +27,15 @@ public class IdentityCastInsnTree extends UnaryInsnTree {
 	@Override
 	public TypeInfo getTypeInfo() {
 		return this.type;
+	}
+
+	@Override
+	public boolean canBeStatement() {
+		return this.operand.canBeStatement();
+	}
+
+	@Override
+	public InsnTree asStatement() {
+		return this.operand.asStatement();
 	}
 }

@@ -5,6 +5,8 @@ import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.util.math.BlockBox;
+
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
@@ -26,7 +28,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface CommandScript extends Script {
 
-	public abstract Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z);
+	public abstract Object evaluate(WorldWrapper world, WorldColumn column, int originX, int originY, int originZ);
 
 	public static class Parser extends ScriptParser<CommandScript> {
 
@@ -66,7 +68,8 @@ public interface CommandScript extends Script {
 				.addVariableLoad("originZ", 5, TypeInfos.INT)
 			)
 			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+			.addEnvironment(StructureTemplateScriptEnvironment.create(ldc(null, type(BlockBox.class))));
 		}
 
 		@Override
@@ -98,9 +101,9 @@ public interface CommandScript extends Script {
 		}
 
 		@Override
-		public Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z) {
+		public Object evaluate(WorldWrapper world, WorldColumn column, int originX, int originY, int originZ) {
 			try {
-				return this.getScript().evaluate(world, column, x, y, z);
+				return this.getScript().evaluate(world, column, originX, originY, originZ);
 			}
 			catch (Throwable throwable) {
 				ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);

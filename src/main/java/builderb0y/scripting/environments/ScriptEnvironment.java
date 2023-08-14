@@ -10,11 +10,15 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.*;
-import builderb0y.scripting.bytecode.tree.instructions.fields.GetFieldInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
+import builderb0y.scripting.bytecode.tree.instructions.GetFromStackInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.NullMapperInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.fields.NullableGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.NullableReceiverMapperInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ReceiverMapperInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NormalInstanceGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NullableInstanceGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NullableReceiverInstanceGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.ReceiverInstanceGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -67,17 +71,22 @@ public interface ScriptEnvironment {
 
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
-				return new GetFieldInsnTree(receiver, field);
+				return new NormalInstanceGetFieldInsnTree(receiver, field);
 			}
 
 			@Override
-			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
-				return new InvokeInstanceInsnTree(receiver, getter, arguments);
+			public InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+				return new NormalInvokeInsnTree(receiver, getter, arguments);
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
-				return new InvokeStaticInsnTree(getter, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new StaticInvokeInsnTree(getter, extraArguments);
+			}
+
+			@Override
+			public InsnTree makeGetterSetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, MethodInfo setter) {
+				return new GetterSetterInsnTree(receiver, getter, setter);
 			}
 		},
 
@@ -85,17 +94,68 @@ public interface ScriptEnvironment {
 
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
-				return new NullableGetFieldInsnTree(receiver, field);
+				return new NullableInstanceGetFieldInsnTree(receiver, field);
 			}
 
 			@Override
-			public InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+			public InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
 				return new NullableInvokeInsnTree(receiver, getter, arguments);
 			}
 
 			@Override
-			public InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
-				return new NullableFakeInvokeStaticInsnTree(getter, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new NullableInvokeInsnTree(getter, extraArguments);
+			}
+
+			@Override
+			public InsnTree makeGetterSetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, MethodInfo setter) {
+				return new NullableGetterSetterInsnTree(receiver, getter, setter);
+			}
+		},
+
+		RECEIVER {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new ReceiverInstanceGetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+				return new ReceiverInvokeInsnTree(receiver, getter, arguments);
+			}
+
+			@Override
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new ReceiverInvokeInsnTree(getter, extraArguments);
+			}
+
+			@Override
+			public InsnTree makeGetterSetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, MethodInfo setter) {
+				return new ReceiverGetterSetterInsnTree(receiver, getter, setter);
+			}
+		},
+
+		NULLABLE_RECEIVER {
+
+			@Override
+			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
+				return new NullableReceiverInstanceGetFieldInsnTree(receiver, field);
+			}
+
+			@Override
+			public InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments) {
+				return new NullableReceiverInvokeInsnTree(receiver, getter, arguments);
+			}
+
+			@Override
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments) {
+				return new NullableReceiverInvokeInsnTree(getter, extraArguments);
+			}
+
+			@Override
+			public InsnTree makeGetterSetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, MethodInfo setter) {
+				return new NullableReceiverGetterSetterInsnTree(receiver, getter, setter);
 			}
 		};
 
@@ -103,20 +163,18 @@ public interface ScriptEnvironment {
 			return switch (mode) {
 				case NORMAL -> NORMAL;
 				case NULLABLE -> NULLABLE;
-				case RECEIVER -> throw new IllegalArgumentException("Can't use receiver syntax for fields");
-				case NULLABLE_RECEIVER -> throw new IllegalArgumentException("Can't use nullable receiver syntax for fields");
+				case RECEIVER -> RECEIVER;
+				case NULLABLE_RECEIVER -> NULLABLE_RECEIVER;
 			};
 		}
 
 		public abstract InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field);
 
-		public abstract InsnTree makeInstanceGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments);
+		public abstract InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... arguments);
 
-		public InsnTree makeStaticGetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, InsnTree... extraArguments) {
-			return this.makeStaticGetter(parser, getter, ObjectArrays.concat(receiver, extraArguments));
-		}
+		public abstract InsnTree makeInvoker(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments);
 
-		public abstract InsnTree makeStaticGetter(ExpressionParser parser, MethodInfo getter, InsnTree... extraArguments);
+		public abstract InsnTree makeGetterSetter(ExpressionParser parser, InsnTree receiver, MethodInfo getter, MethodInfo setter);
 	}
 
 	/**
@@ -156,52 +214,32 @@ public interface ScriptEnvironment {
 		NORMAL {
 
 			@Override
-			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
-				return new InvokeInstanceInsnTree(receiver, method, arguments);
-			}
-
-			@Override
-			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
-				return new InvokeStaticInsnTree(method, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NormalInvokeInsnTree(method, extraArguments);
 			}
 		},
 
 		NULLABLE {
 
 			@Override
-			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
-				return new NullableInvokeInsnTree(receiver, method, arguments);
-			}
-
-			@Override
-			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
-				return new NullableFakeInvokeStaticInsnTree(method, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NullableInvokeInsnTree(method, extraArguments);
 			}
 		},
 
 		RECEIVER {
 
 			@Override
-			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
-				return new InvokeInstanceReceiverInsnTree(receiver, method, arguments);
-			}
-
-			@Override
-			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
-				return new InvokeStaticReceiverInsnTree(method, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new ReceiverInvokeInsnTree(method, extraArguments);
 			}
 		},
 
 		NULLABLE_RECEIVER {
 
 			@Override
-			public InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments) {
-				return new NullableInvokeInstanceReceiverInsnTree(receiver, method, arguments);
-			}
-
-			@Override
-			public InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
-				return new NullableFakeInvokeStaticInsnTree(method, extraArguments);
+			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
+				return new NullableReceiverInvokeInsnTree(method, extraArguments);
 			}
 		};
 
@@ -214,13 +252,11 @@ public interface ScriptEnvironment {
 			};
 		}
 
-		public abstract InsnTree makeInstanceInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... arguments);
-
-		public InsnTree makeStaticInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... extraArguments) {
-			return this.makeStaticInvoker(parser, method, ObjectArrays.concat(receiver, extraArguments));
+		public InsnTree makeInvoker(ExpressionParser parser, InsnTree receiver, MethodInfo method, InsnTree... extraArguments) {
+			return this.makeInvoker(parser, method, ObjectArrays.concat(receiver, extraArguments));
 		}
 
-		public abstract InsnTree makeStaticInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments);
+		public abstract InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments);
 	}
 
 	/**

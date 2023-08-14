@@ -34,7 +34,15 @@ public class BuiltinScriptEnvironment {
 
 	public static final MethodInfo
 		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
-		PRINTLN = MethodInfo.findMethod(PrintStream.class, "println", void.class, String.class);
+		PRINTLN_VOID          = MethodInfo.findMethod(PrintStream.class, "println", void.class),
+		PRINTLN_BOOLEAN       = MethodInfo.findMethod(PrintStream.class, "println", void.class, boolean.class),
+		PRINTLN_CHAR          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    char.class),
+		PRINTLN_INT           = MethodInfo.findMethod(PrintStream.class, "println", void.class,     int.class),
+		PRINTLN_LONG          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    long.class),
+		PRINTLN_FLOAT         = MethodInfo.findMethod(PrintStream.class, "println", void.class,   float.class),
+		PRINTLN_DOUBLE        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  double.class),
+		PRINTLN_STRING        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  String.class),
+		PRINTLN_OBJECT        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  Object.class);
 	public static final FieldInfo
 		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
 
@@ -101,22 +109,42 @@ public class BuiltinScriptEnvironment {
 		*/
 		.addFunction("print", (parser, name, arguments) -> {
 			InsnTree loadOut = getStatic(SYSTEM_OUT);
-			InsnTree concat = invokeDynamic(
-				STRING_CONCAT_FACTORY,
-				new MethodInfo(
-					ACC_PUBLIC | ACC_STATIC,
-					TypeInfos.OBJECT, //ignored
-					"concat",
-					TypeInfos.STRING,
-					Arrays
-					.stream(arguments)
-					.map(InsnTree::getTypeInfo)
-					.toArray(TypeInfo.ARRAY_FACTORY)
-				),
-				ConstantValue.ARRAY_FACTORY.empty(),
-				arguments
+			return new CastResult(
+				switch (arguments.length) {
+					case 0 -> invokeInstance(loadOut, PRINTLN_VOID);
+					case 1 -> switch (arguments[0].getTypeInfo().getSort()) {
+						case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
+						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+						case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
+						case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
+						case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);
+						case DOUBLE        -> invokeInstance(loadOut, PRINTLN_DOUBLE,  arguments);
+						case CHAR          -> invokeInstance(loadOut, PRINTLN_CHAR,    arguments);
+						case BOOLEAN       -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
+						case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT,  arguments);
+					};
+					default -> invokeInstance(
+						loadOut,
+						PRINTLN_STRING,
+						invokeDynamic(
+							STRING_CONCAT_FACTORY,
+							new MethodInfo(
+								ACC_PUBLIC | ACC_STATIC,
+								TypeInfos.OBJECT, //ignored
+								"concat",
+								TypeInfos.STRING,
+								Arrays
+								.stream(arguments)
+								.map(InsnTree::getTypeInfo)
+								.toArray(TypeInfo.ARRAY_FACTORY)
+							),
+							ConstantValue.ARRAY_FACTORY.empty(),
+							arguments
+						)
+					);
+				},
+				false
 			);
-			return new CastResult(invokeInstance(loadOut, PRINTLN, concat), false);
 		})
 
 		//////////////// keywords ////////////////

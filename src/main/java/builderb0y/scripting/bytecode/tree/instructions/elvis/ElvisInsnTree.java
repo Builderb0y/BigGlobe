@@ -1,10 +1,11 @@
-package builderb0y.scripting.bytecode.tree.instructions;
+package builderb0y.scripting.bytecode.tree.instructions.elvis;
 
 import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 
@@ -38,51 +39,36 @@ public class ElvisInsnTree implements InsnTree {
 	public void emitBytecode(MethodCompileContext method) {
 		Label end = label();
 		this.runtimeValue.emitBytecode(method);
-		method.node.visitInsn(this.runtimeValue.getTypeInfo().isDoubleWidth() ? DUP2 : DUP); //2 copies of the value.
-		jumpIfNonNull(method, this.runtimeValue.getTypeInfo(), end);
+		dupAndJumpIfNonNull(this.runtimeValue.getTypeInfo(), end, method);
 		method.node.visitInsn(this.runtimeValue.getTypeInfo().isDoubleWidth() ? POP2 : POP); //value is still on stack, and guaranteed to be null. pop it.
 		this.runtimeAlternative.emitBytecode(method);
 		method.node.visitLabel(end);
 	}
 
-	public static void jumpIfNonNull(MethodCompileContext method, TypeInfo type, Label ifNonNull) {
+	public static void dupAndJumpIfNonNull(TypeInfo type, Label ifNonNull, MethodCompileContext method) {
 		switch (type.getSort()) {
-			case OBJECT, ARRAY -> {
-				method.node.visitJumpInsn(IFNONNULL, ifNonNull);
-			}
-			case FLOAT -> {
-				method.node.visitInsn(DUP);
-				method.node.visitInsn(FCMPL);
-				method.node.visitJumpInsn(IFEQ, ifNonNull);
-			}
-			case DOUBLE -> {
-				method.node.visitInsn(DUP2);
-				method.node.visitInsn(DCMPL);
-				method.node.visitJumpInsn(IFEQ, ifNonNull);
-			}
-			default -> {
-				method.node.visitInsn(type.isDoubleWidth() ? POP2 : POP);
+			case BOOLEAN, BYTE, CHAR, SHORT, INT, LONG -> {
 				method.node.visitJumpInsn(GOTO, ifNonNull);
 			}
-		}
-	}
-
-	public static void jumpIfNull(MethodCompileContext method, TypeInfo type, Label ifNull) {
-		switch (type.getSort()) {
-			case OBJECT, ARRAY -> {
-				method.node.visitJumpInsn(IFNULL, ifNull);
-			}
 			case FLOAT -> {
 				method.node.visitInsn(DUP);
+				method.node.visitInsn(DUP);
 				method.node.visitInsn(FCMPL);
-				method.node.visitJumpInsn(IFNE, ifNull);
+				method.node.visitJumpInsn(IFEQ, ifNonNull);
 			}
 			case DOUBLE -> {
 				method.node.visitInsn(DUP2);
+				method.node.visitInsn(DUP2);
 				method.node.visitInsn(DCMPL);
-				method.node.visitJumpInsn(IFNE, ifNull);
+				method.node.visitJumpInsn(IFEQ, ifNonNull);
 			}
-			default -> {}
+			case OBJECT, ARRAY -> {
+				method.node.visitInsn(DUP);
+				method.node.visitJumpInsn(IFNONNULL, ifNonNull);
+			}
+			case VOID -> {
+				throw new InvalidOperandException("Attempt to check if void is non-null");
+			}
 		}
 	}
 

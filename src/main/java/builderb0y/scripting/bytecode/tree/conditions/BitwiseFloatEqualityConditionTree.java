@@ -39,9 +39,9 @@ public class BitwiseFloatEqualityConditionTree implements ConditionTree {
 	public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {
 		ConditionTree.checkLabels(ifTrue, ifFalse);
 		this.left.emitBytecode(method);
-		FLOAT_BITS_TO_INT.emit(method);
+		FLOAT_BITS_TO_INT.emitBytecode(method);
 		this.right.emitBytecode(method);
-		FLOAT_BITS_TO_INT.emit(method);
+		FLOAT_BITS_TO_INT.emitBytecode(method);
 		if (ifTrue != null) {
 			method.node.visitJumpInsn(this.intOpCode, ifTrue);
 			if (ifFalse != null) {

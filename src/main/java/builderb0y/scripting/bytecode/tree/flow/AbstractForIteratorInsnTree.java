@@ -35,14 +35,14 @@ public abstract class AbstractForIteratorInsnTree implements InsnTree {
 		if (!variable.variable.type.equals(TypeInfos.OBJECT)) {
 			method.node.visitTypeInsn(CHECKCAST, variable.variable.type.box().getInternalName());
 			switch (variable.variable.type.getSort()) {
-				case BYTE    ->    BYTE_VALUE.emit(method);
-				case SHORT   ->   SHORT_VALUE.emit(method);
-				case INT     ->     INT_VALUE.emit(method);
-				case LONG    ->    LONG_VALUE.emit(method);
-				case FLOAT   ->   FLOAT_VALUE.emit(method);
-				case DOUBLE  ->  DOUBLE_VALUE.emit(method);
-				case CHAR    ->    CHAR_VALUE.emit(method);
-				case BOOLEAN -> BOOLEAN_VALUE.emit(method);
+				case BYTE    ->    BYTE_VALUE.emitBytecode(method);
+				case SHORT   ->   SHORT_VALUE.emitBytecode(method);
+				case INT     ->     INT_VALUE.emitBytecode(method);
+				case LONG    ->    LONG_VALUE.emitBytecode(method);
+				case FLOAT   ->   FLOAT_VALUE.emitBytecode(method);
+				case DOUBLE  ->  DOUBLE_VALUE.emitBytecode(method);
+				case CHAR    ->    CHAR_VALUE.emitBytecode(method);
+				case BOOLEAN -> BOOLEAN_VALUE.emitBytecode(method);
 				case OBJECT, ARRAY, VOID -> {}
 			}
 		}

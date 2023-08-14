@@ -51,7 +51,7 @@ public class MinecraftScriptEnvironment {
 				.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
 				.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
 				.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
-					return mode.makeStaticGetter(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
+					return mode.makeInvoker(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
 				}))
 				.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
 				.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)

@@ -9,7 +9,7 @@ bugs:
 	immersive portals places the end portal inside the end nest.
 		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
 		this is fixed in a later version of immersive portals.
-	try nightly build of distant horizons and see if I can debug any memory leaks or anything.
+	try nightly build of distant horizons again. apparently the server thread is stuck in an infinite loop.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -18,7 +18,17 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	print() needs to not concat arguments if there is only one string argument.
+	rename structure layout x/y/z to originX/originY/originZ for consistency with configured features.
+	foo.=bar(value) as syntax sugar for foo.bar = value.
+		stacks with .$= or .=$
+		also stacks with .?= or .=?
+		in fact all 6 combinations of .$=? .$?= .=$? .=?$ .?=$ .?$= are valid.
+		unit tests for this.
+	override elvis() for all nullable field and method insn trees.
+	possibly remove the distinction between compile and runtime bodies for IfElseInsnTree and ElvisInsnTree.
+	JavaUtilScriptEnvironment needs nullable variants of InsnTree's it declares.
+	still need to update updater for arrays.
+		when that's done, UpdateInsnTrees can be yote, since everything will just implements UpdateInsnTree instead.
 
 changelog:
 	* Added surface mineshaft structure.
@@ -38,9 +48,9 @@ scripting:
 	scriptable RandomSource?
 	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
-		more sophisticated flow analysis to see what values could be where at any given time.
-			could help with more advanced constant jumps.
-		more sophisticated back-tracking algorithm for pop removal.
+		more sophisticated flow analysis to see what values could be where at any given time?
+			could help with more advanced constant jumps?
+		more sophisticated back-tracking algorithm for pop removal?
 	more invoke syntaxes:
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.

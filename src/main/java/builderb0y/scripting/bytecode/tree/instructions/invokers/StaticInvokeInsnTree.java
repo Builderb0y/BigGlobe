@@ -16,11 +16,11 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class InvokeStaticInsnTree extends InvokeBaseInsnTree {
+public class StaticInvokeInsnTree extends InvokeBaseInsnTree {
 
-	public InvokeStaticInsnTree(MethodInfo method, InsnTree... args) {
+	public StaticInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		super(method, args);
-		checkArguments(this.method.paramTypes, this.args);
+		checkArguments(method.paramTypes, this.args);
 	}
 
 	/**
@@ -28,7 +28,7 @@ public class InvokeStaticInsnTree extends InvokeBaseInsnTree {
 	that factory method already performs argument checking before calling this constructor,
 	so it makes no sense to check the arguments twice.
 	*/
-	public InvokeStaticInsnTree(MethodInfo method, InsnTree[] args, boolean ignored) {
+	public StaticInvokeInsnTree(MethodInfo method, InsnTree[] args, boolean ignored) {
 		super(method, args);
 	}
 
@@ -52,7 +52,7 @@ public class InvokeStaticInsnTree extends InvokeBaseInsnTree {
 				throwable.printStackTrace();
 			}
 		}
-		return new InvokeStaticInsnTree(method, args, true);
+		return new StaticInvokeInsnTree(method, args, true);
 	}
 
 	public static boolean isPrimitive(TypeInfo type) {

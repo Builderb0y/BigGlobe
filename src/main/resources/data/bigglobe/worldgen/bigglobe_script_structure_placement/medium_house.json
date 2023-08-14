@@ -100,7 +100,7 @@
 		"setBlockState(-2, 1, 0, door)",
 		"setBlockState(-2, 2, 0, door.with('half', 'upper'))",
 		"flipZ.setBlockState(0, 4, 4, 'minecraft:lantern[hanging=true,waterlogged=false]')",
-		"fillBlockState(0, 1, -4, 0, 1, 4, 'minecraft:$randomColor()_carpet')",
+		"fillBlockState(0, 1, -4, 0, 1, 4, BlockState('minecraft:$randomColor()_carpet'))",
 
 		";interior",
 		"walls.shuffle()",

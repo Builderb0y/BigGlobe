@@ -79,4 +79,12 @@ public class Directions {
 		}
 		return BlockMirror.NONE;
 	}
+
+	public static String reverseScriptMirror(BlockMirror mirror) {
+		return switch (mirror) {
+			case FRONT_BACK -> "x";
+			case LEFT_RIGHT -> "z";
+			case NONE -> "none";
+		};
+	}
 }

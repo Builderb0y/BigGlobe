@@ -54,10 +54,10 @@ public class ForIteratorInsnTree extends AbstractForIteratorInsnTree {
 		this.iterator.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
 		this.iterator.variable.emitLoad(method);
-		HAS_NEXT.emit(method);
+		HAS_NEXT.emitBytecode(method);
 		method.node.visitJumpInsn(IFEQ, scope.end.getLabel());
 		this.iterator.variable.emitLoad(method);
-		NEXT.emit(method);
+		NEXT.emitBytecode(method);
 		castAndstore(this.variable, method);
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, continuePoint.getLabel());

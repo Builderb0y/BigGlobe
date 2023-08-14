@@ -50,7 +50,7 @@ public class WoodPaletteScriptEnvironment {
 		for (WoodPaletteType type : WoodPaletteType.VALUES) {
 			String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);
 			environment.addField(type(WoodPaletteEntry.class), baseName + "Blocks", (parser, receiver, name, mode) -> {
-				return mode.makeInstanceGetter(
+				return mode.makeInvoker(
 					parser,
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlocks"),
@@ -58,7 +58,7 @@ public class WoodPaletteScriptEnvironment {
 				);
 			});
 			environment.addField(type(WoodPaletteEntry.class), baseName + "Block", (parser, receiver, name, mode) -> {
-				return mode.makeInstanceGetter(
+				return mode.makeInvoker(
 					parser,
 					receiver,
 					MethodInfo.getMethod(WoodPaletteEntry.class, "getBlock"),

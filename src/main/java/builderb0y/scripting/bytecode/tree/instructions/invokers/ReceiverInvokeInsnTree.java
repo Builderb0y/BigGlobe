@@ -5,22 +5,22 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class InvokeStaticReceiverInsnTree extends InvokeBaseInsnTree {
+public class ReceiverInvokeInsnTree extends InvokeBaseInsnTree {
 
-	public InvokeStaticReceiverInsnTree(MethodInfo method, InsnTree... args) {
+	public ReceiverInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		super(method, args);
-		checkArguments(method.paramTypes, args);
+	}
+
+	public ReceiverInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
+		super(receiver, method, args);
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		InsnTree[] args = this.args;
-		args[0].emitBytecode(method);
-		method.node.visitInsn(args[0].getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
-		for (int index = 1, length = args.length; index < length; index++) {
-			args[index].emitBytecode(method);
-		}
-		this.method.emit(method);
+		this.emitFirstArg(method);
+		method.node.visitInsn(this.args[0].getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
+		this.emitAllArgsExceptFirst(method);
+		this.emitMethod(method);
 		switch (this.method.returnType.getSize()) {
 			case 0 -> {}
 			case 1 -> method.node.visitInsn(POP);
@@ -35,6 +35,13 @@ public class InvokeStaticReceiverInsnTree extends InvokeBaseInsnTree {
 
 	@Override
 	public InsnTree asStatement() {
-		return new InvokeStaticInsnTree(this.method, this.args).asStatement();
+		return (
+			(
+				this.method.isStatic()
+				? StaticInvokeInsnTree.create(this.method, this.args)
+				: new NormalInvokeInsnTree(this.method, this.args)
+			)
+			.asStatement()
+		);
 	}
 }

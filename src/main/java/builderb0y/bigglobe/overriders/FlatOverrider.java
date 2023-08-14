@@ -8,7 +8,7 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.FakeInstanceGetterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -34,7 +34,7 @@ public interface FlatOverrider extends Overrider {
 		MethodInfo setter = MethodInfo.getMethod(in, setterName);
 		InsnTree loadColumn = load("column", 2, type(columnClass));
 		return new VariableHandler.Named(getter + " <-> " + setter, (ExpressionParser parser, String name) -> {
-			return new FakeInstanceGetterInsnTree(getter, setter, loadColumn);
+			return new GetterSetterInsnTree(loadColumn, getter, setter);
 		});
 	}
 

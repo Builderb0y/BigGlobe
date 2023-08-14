@@ -3,9 +3,10 @@ package builderb0y.scripting.bytecode.tree.instructions.update;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PostUpdateInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.PreUpdateInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTrees.VoidUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.UpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.UpdateInsnTrees.PostUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.UpdateInsnTrees.PreUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update2.UpdateInsnTrees.VoidUpdateInsnTree;
 
 public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 
@@ -20,6 +21,16 @@ public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 		if (this.componentType == null) {
 			throw new IllegalArgumentException("Not an array: " + array);
 		}
+	}
+
+	@Override
+	public TypeInfo getPreType() {
+		return this.componentType;
+	}
+
+	@Override
+	public TypeInfo getPostType() {
+		return this.updater.getTypeInfo();
 	}
 
 	public static class ArrayVoidUpdateInsnTree extends ArrayUpdateInsnTree implements VoidUpdateInsnTree {
@@ -57,11 +68,6 @@ public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 		}
 
 		@Override
-		public TypeInfo getTypeInfo() {
-			return this.componentType;
-		}
-
-		@Override
 		public InsnTree asStatement() {
 			return new ArrayVoidUpdateInsnTree(this.array, this.index, this.updater);
 		}
@@ -82,11 +88,6 @@ public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 			this.updater.emitBytecode(method);
 			method.node.visitInsn(this.componentType.isDoubleWidth() ? DUP2_X2 : DUP_X2);
 			method.node.visitInsn(this.componentType.getOpcode(IASTORE));
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return this.updater.getTypeInfo();
 		}
 
 		@Override
@@ -129,11 +130,6 @@ public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 		}
 
 		@Override
-		public TypeInfo getTypeInfo() {
-			return this.componentType;
-		}
-
-		@Override
 		public InsnTree asStatement() {
 			return new ArrayAssignVoidUpdateInsnTree(this.array, this.index, this.updater);
 		}
@@ -152,11 +148,6 @@ public abstract class ArrayUpdateInsnTree implements UpdateInsnTree {
 			this.updater.emitBytecode(method);
 			method.node.visitInsn(this.componentType.isDoubleWidth() ? DUP2_X2 : DUP_X2);
 			method.node.visitInsn(this.componentType.getOpcode(IASTORE));
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return this.updater.getTypeInfo();
 		}
 
 		@Override

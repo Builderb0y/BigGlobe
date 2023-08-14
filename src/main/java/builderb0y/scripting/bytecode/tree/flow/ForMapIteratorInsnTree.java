@@ -67,14 +67,14 @@ public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 		this.iterator.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
 		this.iterator.variable.emitLoad(method);
-		ForIteratorInsnTree.HAS_NEXT.emit(method);
+		ForIteratorInsnTree.HAS_NEXT.emitBytecode(method);
 		method.node.visitJumpInsn(IFEQ, scope.end.getLabel());
 		this.iterator.variable.emitLoad(method);
-		ForIteratorInsnTree.NEXT.emit(method);
+		ForIteratorInsnTree.NEXT.emitBytecode(method);
 		method.node.visitInsn(DUP);
-		GET_KEY.emit(method);
+		GET_KEY.emitBytecode(method);
 		castAndstore(this.keyVariable, method);
-		GET_VALUE.emit(method);
+		GET_VALUE.emitBytecode(method);
 		castAndstore(this.valueVariable, method);
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, continuePoint.getLabel());

@@ -7,7 +7,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.ElvisInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
