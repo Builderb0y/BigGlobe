@@ -4,8 +4,8 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update2.VariableUpdaterInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update2.VariableUpdaterInsnTree.VariableUpdaterEmitters;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdaterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdaterInsnTree.VariableUpdaterEmitters;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 

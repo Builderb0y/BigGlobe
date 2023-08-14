@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.instructions.update2;
+package builderb0y.scripting.bytecode.tree.instructions.update;
 
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
