@@ -4,7 +4,7 @@ import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeBaseInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.BaseInvokeInsnTree;
 import builderb0y.scripting.util.TypeMerger;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -96,7 +96,7 @@ public class ElvisGetInsnTree implements InsnTree {
 		}
 
 		public static ElvisEmitters forMethod(
-			InvokeBaseInsnTree method,
+			BaseInvokeInsnTree method,
 			InsnTree alternative
 		) {
 			TypeInfo commonType = (

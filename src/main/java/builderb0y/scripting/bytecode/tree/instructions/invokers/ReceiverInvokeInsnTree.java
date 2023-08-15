@@ -5,7 +5,7 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class ReceiverInvokeInsnTree extends InvokeBaseInsnTree {
+public class ReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 
 	public ReceiverInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		super(method, args);

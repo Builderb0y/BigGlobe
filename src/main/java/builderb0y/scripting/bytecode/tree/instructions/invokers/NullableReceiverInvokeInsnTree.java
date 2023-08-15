@@ -9,7 +9,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NullableReceiverInvokeInsnTree extends InvokeBaseInsnTree {
+public class NullableReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 
 	public NullableReceiverInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
 		super(receiver, method, args);

@@ -16,7 +16,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class StaticInvokeInsnTree extends InvokeBaseInsnTree {
+public class StaticInvokeInsnTree extends BaseInvokeInsnTree {
 
 	public StaticInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		super(method, args);

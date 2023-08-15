@@ -12,7 +12,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NullableInvokeInsnTree extends InvokeBaseInsnTree {
+public class NullableInvokeInsnTree extends BaseInvokeInsnTree {
 
 	public NullableInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
 		super(receiver, method, args);

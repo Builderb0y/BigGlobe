@@ -106,7 +106,7 @@
 		"walls.shuffle()",
 		"Coordinator(walls.(0)).setBlockState(0, 1, 0, 'minecraft:cartography_table')",
 		"Coordinator(walls.(1)).setBlockState(0, 1, 0, 'minecraft:loom[facing=west]')",
-		"Coordinator(walls.(2)).setBlockState(0, 1, 0, 'minecraft:lectern[facing=west]')",
+		"Coordinator(walls.(2)).setBlockState(0, 1, 0, 'minecraft:lectern[facing=west,has_book=false,powered=false]')",
 		"Coordinator(walls.(3))",
 		".$setBlockState(1, 1, -1, northStairs)",
 		".$setBlockState(1, 1,  1, southStairs)",

@@ -73,7 +73,8 @@
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
-		"MinecraftClient_ResetOverworldSettingsHook"
+		"MinecraftClient_ResetOverworldSettingsHook",
+		"Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders"
 	],
 	"injectors": {
 		"defaultRequire": 1

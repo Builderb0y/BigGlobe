@@ -7,17 +7,17 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class InvokeBaseInsnTree implements InsnTree {
+public class BaseInvokeInsnTree implements InsnTree {
 
 	public MethodInfo method;
 	public InsnTree[] args;
 
-	public InvokeBaseInsnTree(MethodInfo method, InsnTree... args) {
+	public BaseInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		this.method = method;
 		this.args = args;
 	}
 
-	public InvokeBaseInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
+	public BaseInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
 		this.method = method;
 		this.args = ObjectArrays.concat(receiver, args);
 	}

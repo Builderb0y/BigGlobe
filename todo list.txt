@@ -24,11 +24,7 @@ where I left off:
 		also stacks with .?= or .=?
 		in fact all 6 combinations of .$=? .$?= .=$? .=?$ .?=$ .?$= are valid.
 		unit tests for this.
-	override elvis() for all nullable field and method insn trees.
 	possibly remove the distinction between compile and runtime bodies for IfElseInsnTree and ElvisInsnTree.
-	JavaUtilScriptEnvironment needs nullable variants of InsnTree's it declares.
-	still need to update updater for arrays.
-		when that's done, UpdateInsnTrees can be yote, since everything will just implements UpdateInsnTree instead.
 
 changelog:
 	* Added surface mineshaft structure.

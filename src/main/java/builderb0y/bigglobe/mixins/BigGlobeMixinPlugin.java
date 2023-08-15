@@ -68,6 +68,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders",    Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
@@ -181,13 +182,35 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		return null;
 	}
 
+	public static boolean checkMod(String mixinName, String modName) {
+		if (FabricLoader.getInstance().isModLoaded(modName)) {
+			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + " is present.");
+			return true;
+		}
+		else {
+			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + " is absent.");
+			return false;
+		}
+	}
+
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		if (mixinClassName.equals("builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData")) {
-			return FabricLoader.getInstance().isModLoaded("cloth-config");
-		}
 		Boolean enabled = this.settings.get(mixinClassName);
-		return enabled != null ? enabled.booleanValue() : true;
+		boolean defaultEnabled = enabled != null ? enabled.booleanValue() : true;
+		return switch (mixinClassName) {
+			case "builderb0y.bigglobe.mixins.Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders" -> {
+				yield defaultEnabled && checkMod(mixinClassName, "sodium");
+			}
+			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
+				yield checkMod(mixinClassName, "cloth-config");
+			}
+			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
+				yield defaultEnabled && checkMod(mixinClassName, "imm_ptl_core");
+			}
+			default -> {
+				yield defaultEnabled;
+			}
+		};
 	}
 
 	@Override

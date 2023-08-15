@@ -6,17 +6,12 @@ import java.util.random.RandomGenerator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
-import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.*;
-import builderb0y.scripting.bytecode.tree.instructions.update.UpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
-import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -27,7 +22,7 @@ public class JavaUtilScriptEnvironment {
 		MAP_GET       = MethodInfo.getMethod(Map      .class, "get"),
 		MAP_PUT       = MethodInfo.getMethod(Map      .class, "put"),
 		MAP_ENTRY_GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
-		MAP_ENTRY_SET = MethodInfo.getMethod(Map.Entry.class, "setValue"),
+		MAP_ENTRY_SET = MethodInfo.getMethod(JavaUtilScriptEnvironment.class, "setEntryValue"),
 		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
 		LIST_SET      = MethodInfo.getMethod(List     .class, "set");
 
@@ -44,21 +39,14 @@ public class JavaUtilScriptEnvironment {
 		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, mode, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
-				CommonGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
+				NormalListMapGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
 				key != arguments[0]
 			);
 		})
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 		.addFieldRenamedInvoke("key", Map.Entry.class, "getKey")
-		.addField(type(Map.Entry.class), "value", (parser, receiver, name, mode) -> {
-			return switch (mode) {
-				case NORMAL -> new MapEntryValueInsnTree(receiver);
-				case NULLABLE -> new NullableInvokeInsnTree(receiver, MAP_ENTRY_GET, InsnTree.ARRAY_FACTORY.empty());
-				case RECEIVER -> new ReceiverInvokeInsnTree(receiver, MAP_ENTRY_GET, InsnTree.ARRAY_FACTORY.empty());
-				case NULLABLE_RECEIVER -> new NullableReceiverInvokeInsnTree(receiver, MAP_ENTRY_GET, InsnTree.ARRAY_FACTORY.empty());
-			};
-		})
+		.addFieldGetterSetter(type(Map.Entry.class), "value", MAP_ENTRY_GET, MAP_ENTRY_SET)
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
 		.addType("NavigableMap", NavigableMap.class)
@@ -104,7 +92,7 @@ public class JavaUtilScriptEnvironment {
 		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, mode, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
-				CommonGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
+				NormalListMapGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
 				index != arguments[0]
 			);
 		})
@@ -196,183 +184,7 @@ public class JavaUtilScriptEnvironment {
 		}
 	}
 
-	public static class CommonGetterInsnTree extends InvokeBaseInsnTree {
-
-		public MethodInfo replacer;
-		public String type;
-
-		public CommonGetterInsnTree(
-			InsnTree receiver,
-			MethodInfo getter,
-			InsnTree key,
-			MethodInfo replacer,
-			String type
-		) {
-			super(getter, receiver, key);
-			this.replacer = replacer;
-			this.type = type;
-			checkArguments(getter.getInvokeTypes(), this.args);
-		}
-
-		public static InsnTree from(InsnTree receiver, MethodInfo getter, InsnTree key, MethodInfo replacer, String type, GetMethodMode mode) {
-			return switch (mode) {
-				case NORMAL -> new CommonGetterInsnTree(receiver, getter, key, replacer, type);
-				case NULLABLE -> new NullableInvokeInsnTree(receiver, getter, key);
-				case RECEIVER -> new ReceiverInvokeInsnTree(receiver, getter, key);
-				case NULLABLE_RECEIVER -> new NullableReceiverInvokeInsnTree(receiver, getter, key);
-			};
-		}
-
-		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
-			if (op == UpdateOp.ASSIGN) {
-				InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
-				return new ListMapUpdateInsnTree(this.args[0], this.args[1], cast, this.replacer, order);
-			}
-			else {
-				throw new ScriptParsingException("Updating " + this.type + " not yet implemented", parser.input);
-			}
-		}
-	}
-
-	public static class ListMapUpdateInsnTree implements UpdateInsnTree {
-
-		public InsnTree receiver, key, value;
-		public MethodInfo replacer;
-		public UpdateOrder order;
-
-		public ListMapUpdateInsnTree(
-			InsnTree receiver,
-			InsnTree key,
-			InsnTree value,
-			MethodInfo replacer,
-			UpdateOrder order
-		) {
-			this.receiver = receiver;
-			this.key = key;
-			this.value = value;
-			this.replacer = replacer;
-			this.order = order;
-			InvokeBaseInsnTree.checkArguments(this.replacer.getInvokeTypes(), new InsnTree[]{ receiver, key, value });
-		}
-
-		@Override
-		public void emitBytecode(MethodCompileContext method) {
-			this.receiver.emitBytecode(method);
-			this.key.emitBytecode(method);
-			this.value.emitBytecode(method);
-			switch (this.order) {
-				case VOID -> {
-					this.replacer.emitBytecode(method);
-					method.node.visitInsn(POP);
-				}
-				case PRE -> {
-					this.replacer.emitBytecode(method);
-				}
-				case POST -> {
-					method.node.visitInsn(DUP_X2);
-					this.replacer.emitBytecode(method);
-					method.node.visitInsn(POP);
-				}
-			}
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return switch (this.order) {
-				case VOID -> TypeInfos.VOID;
-				case PRE  -> this.getPreType();
-				case POST -> this.getPostType();
-			};
-		}
-
-		@Override
-		public TypeInfo getPreType() {
-			return this.replacer.returnType;
-		}
-
-		@Override
-		public TypeInfo getPostType() {
-			return this.value.getTypeInfo();
-		}
-
-		@Override
-		public InsnTree asStatement() {
-			return this.order == UpdateOrder.VOID ? this : new ListMapUpdateInsnTree(this.receiver, this.key, this.value, this.replacer, UpdateOrder.VOID);
-		}
-	}
-
-	public static class MapEntryValueInsnTree extends NormalInvokeInsnTree {
-
-		public MapEntryValueInsnTree(InsnTree entry) {
-			super(entry, MAP_ENTRY_GET);
-		}
-
-		@Override
-		public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
-			if (op == UpdateOp.ASSIGN) {
-				InsnTree cast = rightValue.cast(parser, MAP_ENTRY_GET.returnType, CastMode.IMPLICIT_THROW);
-				return new MapEntryUpdateInsnTree(this.args[0], cast, order);
-			}
-			else {
-				throw new ScriptParsingException("Updating MapEntry not yet implemented", parser.input);
-			}
-		}
-	}
-
-	public static class MapEntryUpdateInsnTree implements UpdateInsnTree {
-
-		public InsnTree entry, value;
-		public UpdateOrder order;
-
-		public MapEntryUpdateInsnTree(InsnTree entry, InsnTree value, UpdateOrder order) {
-			this.entry = entry;
-			this.value = value;
-			this.order = order;
-		}
-
-		@Override
-		public void emitBytecode(MethodCompileContext method) {
-			this.entry.emitBytecode(method);
-			this.value.emitBytecode(method);
-			switch (this.order) {
-				case VOID -> {
-					MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
-					method.node.visitInsn(POP);
-				}
-				case PRE -> {
-					MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
-				}
-				case POST -> {
-					method.node.visitInsn(DUP_X1);
-					MAP_ENTRY_SET.emit(method, INVOKEINTERFACE);
-					method.node.visitInsn(POP);
-				}
-			}
-		}
-
-		@Override
-		public TypeInfo getTypeInfo() {
-			return switch (this.order) {
-				case VOID -> TypeInfos.VOID;
-				case PRE  -> this.getPreType();
-				case POST -> this.getPostType();
-			};
-		}
-
-		@Override
-		public TypeInfo getPreType() {
-			return MAP_ENTRY_SET.returnType;
-		}
-
-		@Override
-		public TypeInfo getPostType() {
-			return this.value.getTypeInfo();
-		}
-
-		@Override
-		public InsnTree asStatement() {
-			return this.order == UpdateOrder.VOID ? this : new MapEntryUpdateInsnTree(this.entry, this.value, UpdateOrder.VOID);
-		}
+	public static <K, V> void setEntryValue(Map.Entry<K, V> entry, V value) {
+		entry.setValue(value);
 	}
 }
