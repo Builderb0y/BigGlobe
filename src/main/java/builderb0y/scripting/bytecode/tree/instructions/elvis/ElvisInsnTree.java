@@ -13,35 +13,27 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ElvisInsnTree implements InsnTree {
 
-	public InsnTree compileValue, compileAlternative, runtimeValue, runtimeAlternative;
+	public InsnTree value, alternative;
 	public TypeInfo type;
 
-	public ElvisInsnTree(
-		InsnTree compileValue,
-		InsnTree compileAlternative,
-		InsnTree runtimeValue,
-		InsnTree runtimeAlternative,
-		TypeInfo type
-	) {
-		this.compileValue       = compileValue;
-		this.compileAlternative = compileAlternative;
-		this.runtimeValue       = runtimeValue;
-		this.runtimeAlternative = runtimeAlternative;
-		this.type               = type;
+	public ElvisInsnTree(InsnTree value, InsnTree alternative, TypeInfo type) {
+		this.value       = value;
+		this.alternative = alternative;
+		this.type        = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, InsnTree value, InsnTree alternative) {
 		IfElseInsnTree.Operands operands = IfElseInsnTree.Operands.of(parser, value, alternative);
-		return new ElvisInsnTree(operands.compileTrue(), operands.compileFalse(), operands.runtimeTrue(), operands.runtimeFalse(), operands.type());
+		return new ElvisInsnTree(operands.trueBody(), operands.falseBody(), operands.type());
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Label end = label();
-		this.runtimeValue.emitBytecode(method);
-		dupAndJumpIfNonNull(this.runtimeValue.getTypeInfo(), end, method);
-		method.node.visitInsn(this.runtimeValue.getTypeInfo().isDoubleWidth() ? POP2 : POP); //value is still on stack, and guaranteed to be null. pop it.
-		this.runtimeAlternative.emitBytecode(method);
+		this.value.emitBytecode(method);
+		dupAndJumpIfNonNull(this.value.getTypeInfo(), end, method);
+		method.node.visitInsn(this.value.getTypeInfo().isDoubleWidth() ? POP2 : POP); //value is still on stack, and guaranteed to be null. pop it.
+		this.alternative.emitBytecode(method);
 		method.node.visitLabel(end);
 	}
 
@@ -79,10 +71,10 @@ public class ElvisInsnTree implements InsnTree {
 
 	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree value = this.compileValue.cast(parser, type, mode);
+		InsnTree value = this.value.cast(parser, type, mode);
 		if (value == null) return null;
-		InsnTree alternative = this.compileAlternative.cast(parser, type, mode);
+		InsnTree alternative = this.alternative.cast(parser, type, mode);
 		if (alternative == null) return null;
-		return new ElvisInsnTree(value, alternative, value, alternative, type);
+		return new ElvisInsnTree(value, alternative, type);
 	}
 }

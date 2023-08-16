@@ -49,7 +49,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			return this.asStatement();
 		}
 		if (this.jumpsUnconditionally()) {
-			return new IdentityCastInsnTree(this, type);
+			return wrapIdentityCast(this, type);
 		}
 		if (this.getTypeInfo().isGeneric || type.isGeneric) {
 			mode = mode.toExplicit();

@@ -19,12 +19,6 @@ testing:
 
 where I left off:
 	rename structure layout x/y/z to originX/originY/originZ for consistency with configured features.
-	foo.=bar(value) as syntax sugar for foo.bar = value.
-		stacks with .$= or .=$
-		also stacks with .?= or .=?
-		in fact all 6 combinations of .$=? .$?= .=$? .=?$ .?=$ .?$= are valid.
-		unit tests for this.
-	possibly remove the distinction between compile and runtime bodies for IfElseInsnTree and ElvisInsnTree.
 
 changelog:
 	* Added surface mineshaft structure.

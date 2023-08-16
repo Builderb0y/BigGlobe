@@ -74,7 +74,7 @@
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"MinecraftClient_ResetOverworldSettingsHook",
-		"Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders"
+		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -5,7 +5,6 @@ import org.objectweb.asm.Opcodes;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.D2ZInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.F2ZInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
@@ -36,7 +35,7 @@ public class CastingSupport {
 
 	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
 		if (value.getTypeInfo().equals(type)) {
-			return new IdentityCastInsnTree(value, type);
+			return value;
 		}
 		//passing in a null parser is NOT recommended, but in this case it is safe.
 		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(null, value, type, false);

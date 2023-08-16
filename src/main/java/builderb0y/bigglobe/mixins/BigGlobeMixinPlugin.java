@@ -10,11 +10,16 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+
+import builderb0y.autocodec.util.AutoCodecUtil;
 
 public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
@@ -68,7 +73,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                   Boolean.TRUE);
-		defaults.put(mixinPackage + ".Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders",    Boolean.TRUE);
+		defaults.put(mixinPackage + ".Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
@@ -193,13 +198,37 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		}
 	}
 
+	public static boolean checkMod(String mixinName, String modName, String version) {
+		if (
+			FabricLoader
+			.getInstance()
+			.getModContainer(modName)
+			.filter((ModContainer container) -> {
+				try {
+					return container.getMetadata().getVersion().compareTo(Version.parse(version)) >= 0;
+				}
+				catch (VersionParsingException exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
+			})
+			.isPresent()
+		) {
+			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is present.");
+			return true;
+		}
+		else {
+			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is absent.");
+			return false;
+		}
+	}
+
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
 		Boolean enabled = this.settings.get(mixinClassName);
 		boolean defaultEnabled = enabled != null ? enabled.booleanValue() : true;
 		return switch (mixinClassName) {
-			case "builderb0y.bigglobe.mixins.Sodium_ColorProviderRegistry_DontOverrideVanillaBlockColorProviders" -> {
-				yield defaultEnabled && checkMod(mixinClassName, "sodium");
+			case "builderb0y.bigglobe.mixins.Sodium_WorldSlice_UseNoiseInBigGlobeWorlds" -> {
+				yield defaultEnabled && checkMod(mixinClassName, "sodium", "0.5.0");
 			}
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");

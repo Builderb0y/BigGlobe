@@ -17,6 +17,8 @@ import builderb0y.scripting.bytecode.tree.conditions.*;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.instructions.*;
 import builderb0y.scripting.bytecode.tree.instructions.binary.*;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.WrappedCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.NormalInstanceGetFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.GetStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
@@ -456,6 +458,10 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static InsnTree getFromStack(TypeInfo type) {
 		return new GetFromStackInsnTree(type);
+	}
+
+	public static InsnTree wrapIdentityCast(InsnTree value, TypeInfo type) {
+		return new WrappedCastInsnTree(value, new IdentityCastInsnTree(value, type));
 	}
 
 	public static Label label() {
