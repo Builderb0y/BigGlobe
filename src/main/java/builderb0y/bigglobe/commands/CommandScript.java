@@ -5,8 +5,6 @@ import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.math.BlockBox;
-
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
@@ -33,25 +31,23 @@ public interface CommandScript extends Script {
 	public static class Parser extends ScriptParser<CommandScript> {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
-		public static final InsnTree LOAD_RANDOM = new IdentityCastInsnTree(
-			getField(
-				load("world", 1, WorldWrapper.TYPE),
-				FieldInfo.getField(WorldWrapper.class, "permuter")
-			),
-			type(RandomGenerator.class)
-		);
+		public static final InsnTree
+			LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+			LOAD_RANDOM = new IdentityCastInsnTree(
+				getField(
+					LOAD_WORLD,
+					FieldInfo.getField(WorldWrapper.class, "permuter")
+				),
+				type(RandomGenerator.class)
+			);
 
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
-				load("world", 1, WorldWrapper.TYPE)
-			))
-			.addEnvironment(CoordinatorScriptEnvironment.create(
-				load("world", 1, WorldWrapper.TYPE)
-			))
+			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
+			.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(
@@ -69,10 +65,7 @@ public interface CommandScript extends Script {
 			)
 			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(StructureTemplateScriptEnvironment.create(
-				load("world", 1, WorldWrapper.TYPE),
-				ldc(null, type(BlockBox.class))
-			));
+			.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD));
 		}
 
 		@Override

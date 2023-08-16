@@ -60,7 +60,6 @@ scripting:
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
-	allow Type name = new().method(...).method(...)
 
 features:
 	general:
