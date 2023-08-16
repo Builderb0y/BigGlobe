@@ -6,8 +6,8 @@
 		"step": "surface_structures",
 		"layout": {
 			"script": [
-				"int y = ceilInt(max_y(x, z))",
-				"Biome biome = getBiome(x, y, z)",
+				"int originY = ceilInt(max_y(originX, originZ))",
+				"Biome biome = getBiome(originX, originY, originZ)",
 				"WoodPalette woodPalette = (",
 					"biome.isIn('bigglobe:has_structure/mega_tree/cherry')",
 					"&& random.nextBoolean(0.25)",
@@ -25,7 +25,7 @@
 						")",
 					")",
 					".withRotation(random.nextInt(4) * 90)",
-					".offset(x, y, z)",
+					".offset(originX, originY, originZ)",
 				")"
 			]
 		}

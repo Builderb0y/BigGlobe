@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.util;
 
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -9,6 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
@@ -23,6 +26,7 @@ import builderb0y.bigglobe.columns.AbstractChunkOfColumns.ColumnFactory;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
 import builderb0y.bigglobe.features.SingleBlockFeature;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -57,6 +61,8 @@ public interface WorldOrChunk extends BlockView {
 	public abstract WorldColumn createColumn(int x, int z);
 
 	public abstract Coordinator coordinator();
+
+	public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random);
 
 	public static class WorldDelegator implements WorldOrChunk {
 
@@ -132,6 +138,18 @@ public interface WorldOrChunk extends BlockView {
 				((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
 				random,
 				pos
+			);
+		}
+
+		@Override
+		public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
+			template.place(
+				this.world,
+				data.getPosition(),
+				data.getPosition(),
+				data,
+				MojangPermuter.from(random),
+				Block.NOTIFY_LISTENERS | Block.FORCE_STATE
 			);
 		}
 
@@ -235,6 +253,11 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random) {
 			throw new UnsupportedOperationException("Can't place features during raw generation.");
+		}
+
+		@Override
+		public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
+			throw new UnsupportedOperationException("Can't place structure templates during raw generation.");
 		}
 
 		@Override

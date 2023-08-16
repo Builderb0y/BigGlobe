@@ -6,14 +6,13 @@ import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.StructureProcessorList;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -22,9 +21,6 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class StructureTemplateScriptEnvironment {
 
-	public static final TypeInfo
-		STRUCTURE_TEMPLATE_TYPE = type(StructureTemplate.class),
-		STRUCTURE_PLACEMENT_DATA_TYPE = type(StructurePlacementData.class);
 	public static final ConstantFactory
 		TEMPLATE_FACTORY = new ConstantFactory(StructureTemplateScriptEnvironment.class, "getTemplate", String.class, StructureTemplate.class),
 		PROCESSOR_FACTORY = new ConstantFactory(StructureTemplateScriptEnvironment.class, "getProcessorList", String.class, StructureProcessorList.class);
@@ -48,18 +44,29 @@ public class StructureTemplateScriptEnvironment {
 		.addCastConstant(PROCESSOR_FACTORY, true)
 	);
 
-	public static MutableScriptEnvironment create(InsnTree loadChunkBox) {
+	public static MutableScriptEnvironment create(InsnTree loadWorld) {
 		return (
 			new MutableScriptEnvironment()
 			.addAll(INSTANCE)
+			.addFunction(
+				"placeStructureTemplate",
+				Handlers.builder(
+					WorldWrapper.class,
+					"placeStructureTemplate"
+				)
+				.addImplicitArgument(loadWorld)
+				.addRequiredArgument(StructureTemplate.class)
+				.addRequiredArgument(StructurePlacementData.class)
+				.buildFunction()
+			)
 			.addQualifiedFunction(
 				type(StructurePlacementData.class),
 				"new",
 				Handlers.builder(
-					StructureTemplateScriptEnvironment.class,
+					WorldWrapper.class,
 					"newStructurePlacementData"
 				)
-				.addImplicitArgument(loadChunkBox)
+				.addImplicitArgument(loadWorld)
 				.buildFunction()
 			)
 		);
@@ -87,10 +94,6 @@ public class StructureTemplateScriptEnvironment {
 		StructureProcessorList template = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.processorList()).get(identifier);
 		if (template != null) return template;
 		else throw new IllegalArgumentException("Template not found: " + identifier);
-	}
-
-	public static StructurePlacementData newStructurePlacementDate(BlockBox chunkBox) {
-		return new StructurePlacementData().setBoundingBox(chunkBox);
 	}
 
 	public static String mirror(StructurePlacementData data) {

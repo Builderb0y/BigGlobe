@@ -58,8 +58,8 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
-					.addVariableLoad("x", 1, TypeInfos.INT)
-					.addVariableLoad("z", 2, TypeInfos.INT)
+					.addVariableLoad("originX", 1, TypeInfos.INT)
+					.addVariableLoad("originZ", 2, TypeInfos.INT)
 
 					.addVariable(
 						"worldSeed",

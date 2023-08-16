@@ -38,13 +38,15 @@ public interface StructurePlacementScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
 
-		public static final InsnTree LOAD_RANDOM = new IdentityCastInsnTree(
-			getField(
-				load("world", 1, WorldWrapper.TYPE),
-				FieldInfo.getField(WorldWrapper.class, "permuter")
-			),
-			type(RandomGenerator.class)
-		);
+		public static final InsnTree
+			LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+			LOAD_RANDOM = new IdentityCastInsnTree(
+				getField(
+					LOAD_WORLD,
+					FieldInfo.getField(WorldWrapper.class, "permuter")
+				),
+				type(RandomGenerator.class)
+			);
 
 		public final SerializableScriptInputs inputs;
 
@@ -53,12 +55,8 @@ public interface StructurePlacementScript extends Script {
 				new TemplateScriptParser<>(StructurePlacementScript.class, inputs.buildScriptInputs())
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
-					load("world", 1, WorldWrapper.TYPE)
-				))
-				.addEnvironment(CoordinatorScriptEnvironment.create(
-					load("world", 1, WorldWrapper.TYPE)
-				))
+				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
+				.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
@@ -84,6 +82,7 @@ public interface StructurePlacementScript extends Script {
 					)
 					.build()
 				)
+				.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 				.parse()
 			);
 			this.inputs = inputs;

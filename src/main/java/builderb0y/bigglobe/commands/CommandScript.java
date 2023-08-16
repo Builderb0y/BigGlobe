@@ -69,7 +69,10 @@ public interface CommandScript extends Script {
 			)
 			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(StructureTemplateScriptEnvironment.create(ldc(null, type(BlockBox.class))));
+			.addEnvironment(StructureTemplateScriptEnvironment.create(
+				load("world", 1, WorldWrapper.TYPE),
+				ldc(null, type(BlockBox.class))
+			));
 		}
 
 		@Override

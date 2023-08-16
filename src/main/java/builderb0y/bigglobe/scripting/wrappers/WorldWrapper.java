@@ -10,6 +10,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -202,6 +204,14 @@ public class WorldWrapper implements ColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		return pos != null && this.world.placeFeature(pos, feature.object(), this.permuter.mojang());
+	}
+
+	public StructurePlacementData newStructurePlacementData() {
+		return new StructurePlacementData().setBoundingBox(this.coordination.mutableArea);
+	}
+
+	public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data) {
+		this.world.placeStructureTemplate(template, data, this.permuter);
 	}
 
 	public BiomeEntry getBiome(int x, int y, int z) {
