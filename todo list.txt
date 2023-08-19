@@ -18,13 +18,14 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	rename structure layout x/y/z to originX/originY/originZ for consistency with configured features.
 
 changelog:
 	* Added surface mineshaft structure.
 	* Added medium and large house structures.
 	* Potentially fixed some structures failing to be located correctly.
+	* Sped up distant horizons chunk generation in the overworld slightly.
 	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
+	* Some scripts can now place structure templates.
 	* Miscellaneous changes and improvements for scripting, as usual.
 
 AutoCodec:
@@ -36,7 +37,6 @@ scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
 	scriptable RandomSource?
-	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
 		more sophisticated flow analysis to see what values could be where at any given time?
 			could help with more advanced constant jumps?
@@ -78,7 +78,23 @@ features:
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
-		glaciers.
+		glaciers:
+			snow on top.
+			packed snow under that.
+				can be broken by pickaxe or shovel, but not quickly.
+			packed ice under that.
+			then blue ice.
+			and lastly, regular ice.
+			2 types of glacier areas:
+				floating debris:
+					small boulders of various types of ice floating on the surface.
+				main island:
+					mostly flat-ish.
+					thickness determined by temperature.
+					thickness does not reach 0 where island starts.
+						instead, there is a cliff there.
+						cliff may be submerged, as there is another layer of noise which determines vertical center.
+					spikes on surface.
 		log cabin structure?
 		trees:
 			roots.

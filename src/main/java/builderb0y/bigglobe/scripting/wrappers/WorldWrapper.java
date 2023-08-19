@@ -210,8 +210,12 @@ public class WorldWrapper implements ColumnLookup {
 		return new StructurePlacementData().setBoundingBox(this.coordination.mutableArea);
 	}
 
-	public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data) {
-		this.world.placeStructureTemplate(template, data, this.permuter);
+	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template) {
+		this.world.placeStructureTemplate(x, y, z, template, new StructurePlacementData(), this.permuter);
+	}
+
+	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data) {
+		this.world.placeStructureTemplate(x, y, z, template, data, this.permuter);
 	}
 
 	public BiomeEntry getBiome(int x, int y, int z) {

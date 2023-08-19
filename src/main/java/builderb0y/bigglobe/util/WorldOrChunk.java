@@ -62,7 +62,7 @@ public interface WorldOrChunk extends BlockView {
 
 	public abstract Coordinator coordinator();
 
-	public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random);
+	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random);
 
 	public static class WorldDelegator implements WorldOrChunk {
 
@@ -142,10 +142,10 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
+		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
 			template.place(
 				this.world,
-				data.getPosition(),
+				new BlockPos(x, y, z),
 				data.getPosition(),
 				data,
 				MojangPermuter.from(random),
@@ -256,7 +256,7 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void placeStructureTemplate(StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
+		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
 			throw new UnsupportedOperationException("Can't place structure templates during raw generation.");
 		}
 

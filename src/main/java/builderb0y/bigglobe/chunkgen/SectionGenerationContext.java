@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen;
 
+import java.util.Arrays;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -11,7 +13,9 @@ import net.minecraft.world.chunk.*;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.util.Tripwire;
 
 public class SectionGenerationContext {
 
@@ -88,6 +92,28 @@ public class SectionGenerationContext {
 
 	public void setRandomTickingFluids(int nonEmptyFluids) {
 		SectionUtil.setRandomTickingFluids(this.section(), nonEmptyFluids);
+	}
+
+	public void setAllStates(BlockState state) {
+		if (this.palette() instanceof SingularPalette_EntryAccess singular) {
+			//how to set 4096 blocks in one operation.
+			singular.bigglobe_setEntry(state);
+		}
+		else {
+			//ideally, this method should only be called when the chunk section is empty.
+			//if for any reason the call happens at the wrong time,
+			//or another mod changes how palettes work,
+			//we should still handle those cases sanely.
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace(this + " does not have a SingularPalette.");
+			}
+			long payload = this.id(state);
+			PaletteStorage storage = this.storage();
+			for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
+				payload |= payload << bits;
+			}
+			Arrays.fill(storage.getData(), payload);
+		}
 	}
 
 	/**

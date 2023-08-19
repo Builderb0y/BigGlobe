@@ -32,10 +32,10 @@ public class StructureTemplateScriptEnvironment {
 
 		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "mirror", String.class)
 		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "rotation", int.class)
-		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "x", int.class)
-		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "y", int.class)
-		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "z", int.class)
-		.addMethodInvokeStatic(StructureTemplateScriptEnvironment.class, "pos")
+		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "pivotX", int.class)
+		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "pivotY", int.class)
+		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "pivotZ", int.class)
+		.addMethodInvokeStatic(StructureTemplateScriptEnvironment.class, "pivotPos")
 		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "spawnEntities", boolean.class)
 		.addFieldGetterSetterStatic(StructurePlacementData.class, StructureTemplateScriptEnvironment.class, "placeFluids", boolean.class)
 		.addMethodInvokeStatic(StructureTemplateScriptEnvironment.class, "addProcessors")
@@ -48,17 +48,7 @@ public class StructureTemplateScriptEnvironment {
 		return (
 			new MutableScriptEnvironment()
 			.addAll(INSTANCE)
-			.addFunction(
-				"placeStructureTemplate",
-				Handlers.builder(
-					WorldWrapper.class,
-					"placeStructureTemplate"
-				)
-				.addImplicitArgument(loadWorld)
-				.addRequiredArgument(StructureTemplate.class)
-				.addRequiredArgument(StructurePlacementData.class)
-				.buildFunction()
-			)
+			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "placeStructureTemplate")
 			.addQualifiedFunction(
 				type(StructurePlacementData.class),
 				"new",
@@ -112,31 +102,31 @@ public class StructureTemplateScriptEnvironment {
 		data.setRotation(Directions.scriptRotation(rotation));
 	}
 
-	public static int x(StructurePlacementData data) {
+	public static int pivotX(StructurePlacementData data) {
 		return data.getPosition().getX();
 	}
 
-	public static int y(StructurePlacementData data) {
+	public static int pivotY(StructurePlacementData data) {
 		return data.getPosition().getY();
 	}
 
-	public static int z(StructurePlacementData data) {
+	public static int pivotZ(StructurePlacementData data) {
 		return data.getPosition().getZ();
 	}
 
-	public static void x(StructurePlacementData data, int x) {
+	public static void pivotX(StructurePlacementData data, int x) {
 		data.setPosition(new BlockPos(x, data.getPosition().getY(), data.getPosition().getZ()));
 	}
 
-	public static void y(StructurePlacementData data, int y) {
+	public static void pivotY(StructurePlacementData data, int y) {
 		data.setPosition(new BlockPos(data.getPosition().getX(), y, data.getPosition().getZ()));
 	}
 
-	public static void z(StructurePlacementData data, int z) {
+	public static void pivotZ(StructurePlacementData data, int z) {
 		data.setPosition(new BlockPos(data.getPosition().getX(), data.getPosition().getY(), z));
 	}
 
-	public static void pos(StructurePlacementData data, int x, int y, int z) {
+	public static void pivotPos(StructurePlacementData data, int x, int y, int z) {
 		data.setPosition(new BlockPos(x, y, z));
 	}
 

@@ -245,7 +245,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			else initialState = BlockStates.AIR;
 
 			if (initialState != BlockStates.AIR) {
-				this.setAllStates(context, initialState);
+				context.setAllStates(initialState);
 			}
 
 			this.profiler.run("Place raw terrain blocks", () -> {
@@ -389,16 +389,19 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public void updatePostRawGenerationHeightmaps(Chunk chunk, ChunkOfColumns<OverworldColumn> columns) {
+	public void updatePostRawGenerationHeightmaps(Chunk chunk, ChunkOfColumns<OverworldColumn> columns, boolean distantHorizons) {
+		boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
 		this.setHeightmaps(chunk, (int index, boolean includeWater) -> {
 			OverworldColumn column = columns.getColumn(index);
 			int height = column.getFinalTopHeightI();
 			if (column.hasSkyland()) height = Math.max(height, BigGlobeMath.ceilI(column.getSkylandMaxY()));
-			if (height < 0 && includeWater) {
-				return 0;
+			if (height < this.settings.height.sea_level() && includeWater) {
+				return this.settings.height.sea_level();
 			}
 			else {
-				while (column.isCaveAt(height - 1, false)) height--;
+				if (!skipCaves) {
+					while (column.isCaveAt(height - 1, false)) height--;
+				}
 				return height;
 			}
 		});
@@ -713,7 +716,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			this.generateRawSectionsAndCaves(chunk, columns, structures, distantHorizons);
 		});
 		this.profiler.run("Init heightmaps", () -> {
-			this.updatePostRawGenerationHeightmaps(chunk, columns);
+			this.updatePostRawGenerationHeightmaps(chunk, columns, distantHorizons);
 		});
 		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground)) {
 			this.profiler.run("Cavern fluids", () -> {

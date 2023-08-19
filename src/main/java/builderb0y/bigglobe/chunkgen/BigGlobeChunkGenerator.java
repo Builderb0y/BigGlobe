@@ -21,7 +21,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -84,7 +83,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
-import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -354,26 +352,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public static interface HeightmapSupplier {
 
 		public abstract int getHeight(int index, boolean includeWater);
-	}
-
-	public void setAllStates(SectionGenerationContext context, BlockState state) {
-		if (context.palette() instanceof SingularPalette_EntryAccess singular) {
-			//how to set 4096 blocks in one operation.
-			singular.bigglobe_setEntry(state);
-		}
-		else {
-			//this shouldn't happen, but we should handle it sanely anyway.
-			if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace(context + " does not have a SingularPalette.");
-			}
-			int stoneID = context.id(state);
-			PaletteStorage storage = context.storage();
-			long payload = stoneID;
-			for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
-				payload |= payload << bits;
-			}
-			Arrays.fill(storage.getData(), payload);
-		}
 	}
 
 	public abstract void generateRawTerrain(
