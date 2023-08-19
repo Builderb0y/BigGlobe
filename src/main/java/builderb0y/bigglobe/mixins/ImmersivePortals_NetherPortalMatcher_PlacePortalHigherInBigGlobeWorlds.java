@@ -19,7 +19,7 @@ import builderb0y.bigglobe.util.NetherPortalUtil;
 @Mixin(NetherPortalMatcher.class)
 public class ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds {
 
-	@Inject(method = "findVerticalPortalPlacement", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "findVerticalPortalPlacement", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void bigglobe_movePortal(
 		BlockPos areaSize,
 		WorldAccess world,

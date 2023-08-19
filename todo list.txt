@@ -22,6 +22,7 @@ where I left off:
 changelog:
 	* Added surface mineshaft structure.
 	* Added medium and large house structures.
+	* Fixed foliage colors with sodium 0.5.0+.
 	* Potentially fixed some structures failing to be located correctly.
 	* Sped up distant horizons chunk generation in the overworld slightly.
 	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.

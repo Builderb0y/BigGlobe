@@ -19,7 +19,7 @@ so, I need a 2nd mixin to handle sodium's code path too.
 @Mixin(WorldSlice.class)
 public class Sodium_WorldSlice_UseNoiseInBigGlobeWorlds {
 
-	@Inject(method = "getColor(Lme/jellysquid/mods/sodium/client/world/biome/BiomeColorSource;III)I", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getColor(Lme/jellysquid/mods/sodium/client/world/biome/BiomeColorSource;III)I", at = @At("HEAD"), cancellable = true, remap = false)
 	private void bigglobe_useNoiseInBigGlobeWorlds(BiomeColorSource source, int x, int y, int z, CallbackInfoReturnable<Integer> callback) {
 		OverworldClientSettings.overrideColor(
 			x, y, z,
