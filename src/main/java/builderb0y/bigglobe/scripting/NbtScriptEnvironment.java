@@ -10,7 +10,7 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment.CommonGetterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -109,10 +109,10 @@ public class NbtScriptEnvironment {
 			}
 			InsnTree nameOrIndex = arguments[0];
 			if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
-				return new CastResult(CommonGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
+				return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
 			}
 			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(CommonGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
+				return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
 			}
 			else {
 				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
@@ -120,7 +120,7 @@ public class NbtScriptEnvironment {
 		})
 
 		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name, mode) -> {
-			return new CommonGetterInsnTree(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement");
+			return new NormalListMapGetterInsnTree(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement");
 		})
 	);
 

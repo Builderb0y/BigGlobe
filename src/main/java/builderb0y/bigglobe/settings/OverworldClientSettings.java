@@ -5,8 +5,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.ColorResolver;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -61,34 +59,34 @@ public record OverworldClientSettings(
 		);
 	}
 
-	public int getGrassColor(BlockPos pos) {
-		double temperature = this.getTemperature(pos.getX(), pos.getY(), pos.getZ());
-		double foliage = this.getFoliage(pos.getX(), pos.getY(), pos.getZ());
+	public int getGrassColor(int x, int y, int z) {
+		double temperature = this.getTemperature(x, y, z);
+		double foliage = this.getFoliage(x, y, z);
 		return GrassColors.getColor(temperature, foliage);
 	}
 
-	public int getFoliageColor(BlockPos pos) {
-		double temperature = this.getTemperature(pos.getX(), pos.getY(), pos.getZ());
-		double foliage = this.getFoliage(pos.getX(), pos.getY(), pos.getZ());
+	public int getFoliageColor(int x, int y, int z) {
+		double temperature = this.getTemperature(x, y, z);
+		double foliage = this.getFoliage(x, y, z);
 		return FoliageColors.getColor(temperature, foliage);
 	}
 
-	public int getWaterColor(BlockPos pos) {
-		double temperature = this.getTemperature(pos.getX(), pos.getY(), pos.getZ());
-		return MathHelper.packRgb(0.25F, (float)(temperature * 0.5D + 0.25D), 1.0F);
+	public int getWaterColor(int x, int y, int z) {
+		double temperature = this.getTemperature(x, y, z);
+		return 0xFF3F00FF | (((int)(temperature * 128.0D + 64.0D)) << 8);
 	}
 
-	public static void overrideColor(BlockPos pos, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
+	public static void overrideColor(int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
 		OverworldClientSettings settings = ClientState.settings;
 		if (settings != null) {
 			if (colorResolver == BiomeColors.GRASS_COLOR) {
-				callback.setReturnValue(settings.getGrassColor(pos));
+				callback.setReturnValue(settings.getGrassColor(x, y, z));
 			}
 			else if (colorResolver == BiomeColors.FOLIAGE_COLOR) {
-				callback.setReturnValue(settings.getFoliageColor(pos));
+				callback.setReturnValue(settings.getFoliageColor(x, y, z));
 			}
 			else if (colorResolver == BiomeColors.WATER_COLOR) {
-				callback.setReturnValue(settings.getWaterColor(pos));
+				callback.setReturnValue(settings.getWaterColor(x, y, z));
 			}
 		}
 	}

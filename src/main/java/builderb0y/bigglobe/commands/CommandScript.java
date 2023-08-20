@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.commands;
 
 import java.lang.reflect.Method;
+import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +12,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -24,24 +26,28 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface CommandScript extends Script {
 
-	public abstract Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z);
+	public abstract Object evaluate(WorldWrapper world, WorldColumn column, int originX, int originY, int originZ);
 
 	public static class Parser extends ScriptParser<CommandScript> {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
-		public static final InsnTree LOAD_RANDOM = getField(
-			load("world", 1, WorldWrapper.TYPE),
-			FieldInfo.getField(WorldWrapper.class, "permuter")
-		);
+		public static final InsnTree
+			LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+			LOAD_RANDOM = new IdentityCastInsnTree(
+				getField(
+					LOAD_WORLD,
+					FieldInfo.getField(WorldWrapper.class, "permuter")
+				),
+				type(RandomGenerator.class)
+			);
 
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input);
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
-				load("world", 1, WorldWrapper.TYPE)
-			))
+			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
+			.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
 			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(
@@ -58,7 +64,8 @@ public interface CommandScript extends Script {
 				.addVariableLoad("originZ", 5, TypeInfos.INT)
 			)
 			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+			.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD));
 		}
 
 		@Override
@@ -90,9 +97,9 @@ public interface CommandScript extends Script {
 		}
 
 		@Override
-		public Object evaluate(WorldWrapper world, WorldColumn column, int x, int y, int z) {
+		public Object evaluate(WorldWrapper world, WorldColumn column, int originX, int originY, int originZ) {
 			try {
-				return this.getScript().evaluate(world, column, x, y, z);
+				return this.getScript().evaluate(world, column, originX, originY, originZ);
 			}
 			catch (Throwable throwable) {
 				ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);

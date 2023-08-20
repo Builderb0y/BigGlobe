@@ -1,5 +1,7 @@
 package builderb0y.scripting.parsing;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -148,8 +150,7 @@ public class FlowTest extends TestCommon {
 	void testEnhancedLoops() throws ScriptParsingException {
 		assertSuccess(1 + 2 + 3 + 4 + 5,
 			"""
-			ArrayList list = new ( 5 )
-			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
+			ArrayList list = new ( 5 ) .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
 			for ( byte value in list :
 				sum += value
@@ -159,8 +160,7 @@ public class FlowTest extends TestCommon {
 		);
 		assertSuccess(1 + 2 + 3 + 4 + 5,
 			"""
-			ArrayList list = new ( 5 )
-			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
+			ArrayList list = new ( 5 ) .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
 			for ( byte value in Iterable ( list ) :
 				sum += value
@@ -170,8 +170,7 @@ public class FlowTest extends TestCommon {
 		);
 		assertSuccess(1 * 2 + 3 * 4,
 			"""
-			HashMap map = new ( 2 )
-			map .$ put ( 1 , 2 ) .$ put ( 3 , 4 )
+			HashMap map = new ( 2 ) .$ put ( 1 , 2 ) .$ put ( 3 , 4 )
 			int sum = 0
 			for ( byte key , byte value in map :
 				sum += key * value
@@ -181,12 +180,7 @@ public class FlowTest extends TestCommon {
 		);
 		assertSuccess(List.of(4, 5),
 			"""
-			ArrayList firstList = new()
-			firstList.add(1i)
-			firstList.add(2i)
-			firstList.add(3i)
-			firstList.add(4i)
-			firstList.add(5i)
+			ArrayList firstList = new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
 			ArrayList secondList = new()
 			Iterator iterator = firstList.iterator()
 			for (int element in iterator:
@@ -367,6 +361,84 @@ public class FlowTest extends TestCommon {
 			)
 			return ( list )
 			"""
+		);
+	}
+
+	@Test
+	public void testRangeLoop() throws ScriptParsingException {
+		boolean[] trueFalse = { true, false };
+		enum Step {
+			NONE,
+			CONSTANT,
+			VARIABLE;
+
+			public static final Step[] VALUES = values();
+		}
+		final int lowerBound = 5;
+		final int UpperBound = 15;
+		for (boolean descending : trueFalse) {
+			for (boolean lowerBoundInclusive : trueFalse) {
+				for (boolean lowerBoundVariable : trueFalse) {
+					for (boolean upperBoundInclusive : trueFalse) {
+						for (boolean upperBoundVariable : trueFalse) {
+							for (Step step : Step.VALUES) {
+								StringBuilder scriptBuilder = new StringBuilder(256);
+								scriptBuilder.append("ArrayList list = new()\n");
+								if (lowerBoundVariable) scriptBuilder.append("int lowerBound = " + lowerBound + '\n');
+								if (upperBoundVariable) scriptBuilder.append("int upperBound = " + UpperBound + '\n');
+								if (step == Step.VARIABLE) scriptBuilder.append("int step = 2\n");
+								scriptBuilder.append("for (int number in ");
+								if (descending) scriptBuilder.append('-');
+								scriptBuilder.append("range");
+								scriptBuilder.append(lowerBoundInclusive ? '[' : '(');
+								scriptBuilder.append(lowerBoundVariable ? "lowerBound" : "" + lowerBound);
+								scriptBuilder.append(", ");
+								scriptBuilder.append(upperBoundVariable ? "upperBound" : "" + UpperBound);
+								scriptBuilder.append(upperBoundInclusive ? ']' : ')');
+								if (step != Step.NONE) {
+									scriptBuilder.append(" % ");
+									scriptBuilder.append(step == Step.VARIABLE ? "step" : "2");
+								}
+								scriptBuilder.append(": list.add(number))\nlist");
+
+								List<Integer> expected = new ArrayList<>(10);
+								for (int number = lowerBound; upperBoundInclusive ? number <= UpperBound : number < UpperBound; number += step != Step.NONE ? 2 : 1) {
+									if (number == lowerBound && !lowerBoundInclusive) continue;
+									expected.add(number);
+								}
+								if (descending) Collections.reverse(expected);
+
+								assertSuccess(expected, scriptBuilder.toString());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testRangeLoopScopes() throws ScriptParsingException {
+		assertSuccess(List.of(1, 2, 3, 4),
+			"""
+			ArrayList list = new(4)
+			int a = 1
+			int b = 2
+			int c = 3
+			int d = 4
+			for (int x in range[a, b]: list.add(x))
+			for (int x in range[c, d]: list.add(x))
+			list
+			"""
+		);
+		assertFail("Variable 'x' is already defined in this scope", "for (int x in range[int x := 5, x + 5]: noop)");
+		assertFail(
+			"""
+			Unknown variable: x
+			Candidates:
+
+			Actual form: x""",
+			"for (int number in range[int x := 5, 10]: print(x))"
 		);
 	}
 }

@@ -200,7 +200,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return this.value + " of type " + this.getTypeInfo();
+			return this.value + " of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -242,7 +242,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return this.value + " of type " + this.getTypeInfo();
+			return this.value + " of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -287,7 +287,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return this.value + " of type " + this.getTypeInfo();
+			return this.value + " of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -329,7 +329,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return this.value + " of type " + this.getTypeInfo();
+			return this.value + " of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -377,7 +377,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return "null of type " + this.getTypeInfo();
+			return "null of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -421,7 +421,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return '"' + this.value + "\" of type " + this.getTypeInfo();
+			return '"' + this.value + "\" of type " + this.getTypeInfo().getClassName();
 		}
 	}
 
@@ -465,7 +465,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public String toString() {
-			return this.value.toString();
+			return this.value.getClassName();
 		}
 	}
 

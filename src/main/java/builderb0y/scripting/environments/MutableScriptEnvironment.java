@@ -388,7 +388,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvoke(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 0) throw new IllegalArgumentException("Getter requires parameters");
-		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1, mode) -> mode.makeInstanceGetter(parser, receiver, getter)));
+		return this.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (parser, receiver, name1, mode) -> mode.makeInvoker(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvoke(MethodInfo getter) {
@@ -414,7 +414,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addFieldInvokeStatic(String name, MethodInfo getter) {
 		if (getter.paramTypes.length != 1) throw new IllegalArgumentException("Static getter requires parameters");
-		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1, mode) -> mode.makeStaticGetter(parser, receiver, getter)));
+		return this.addField(getter.paramTypes[0], name, new FieldHandler.Named("fieldInvokeStatic: " + getter, (parser, receiver, name1, mode) -> mode.makeInvoker(parser, receiver, getter)));
 	}
 
 	public MutableScriptEnvironment addFieldInvokeStatic(MethodInfo getter) {
@@ -430,6 +430,37 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			this.addFieldInvokeStatic(in, name);
 		}
 		return this;
+	}
+
+	//////////////// getter setter ////////////////
+
+	public MutableScriptEnvironment addFieldGetterSetter(TypeInfo owner, String name, MethodInfo getter, MethodInfo setter) {
+		return this.addField(owner, name, new FieldHandler.Named(
+			"getter: " + getter + ", setter: " + setter,
+			(parser, receiver, name1, mode) -> {
+				return mode.makeGetterSetter(parser, receiver, getter, setter);
+			}
+		));
+	}
+
+	public MutableScriptEnvironment addFieldGetterSetterInstance(Class<?> in, String exposedName, String internalName, Class<?> type) {
+		MethodInfo getter = MethodInfo.findMethod(in, internalName, type);
+		MethodInfo setter = MethodInfo.findMethod(in, internalName, void.class, type);
+		return this.addFieldGetterSetter(type(in), exposedName, getter, setter);
+	}
+
+	public MutableScriptEnvironment addFieldGetterSetterInstance(Class<?> in, String name, Class<?> type) {
+		return this.addFieldGetterSetterInstance(in, name, name, type);
+	}
+
+	public MutableScriptEnvironment addFieldGetterSetterStatic(Class<?> owner, Class<?> in, String exposedName, String internalName, Class<?> type) {
+		MethodInfo getter = MethodInfo.findMethod(in, internalName, type, owner);
+		MethodInfo setter = MethodInfo.findMethod(in, internalName, void.class, owner, type);
+		return this.addFieldGetterSetter(type(owner), exposedName, getter, setter);
+	}
+
+	public MutableScriptEnvironment addFieldGetterSetterStatic(Class<?> owner, Class<?> in, String name, Class<?> type) {
+		return this.addFieldGetterSetterStatic(owner, in, name, name, type);
 	}
 
 	//////////////////////////////// functions ////////////////////////////////
@@ -552,7 +583,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, new MethodHandler.Named("methodInvoke: " + method, (parser, receiver, name1, mode, arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(mode.makeInstanceInvoker(parser, receiver, method, castArguments), castArguments != arguments);
+			return castArguments == null ? null : new CastResult(mode.makeInvoker(parser, receiver, method, castArguments), castArguments != arguments);
 		}));
 	}
 
@@ -603,7 +634,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addMethod(method.paramTypes[0], name, new MethodHandler.Named("methodInvokeStatic: " + method, (parser, receiver, name1, mode, arguments) -> {
 			InsnTree[] concatArguments = ObjectArrays.concat(receiver, arguments);
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, concatArguments);
-			return castArguments == null ? null : new CastResult(mode.makeStaticInvoker(parser, method, castArguments), castArguments != concatArguments);
+			return castArguments == null ? null : new CastResult(mode.makeInvoker(parser, method, castArguments), castArguments != concatArguments);
 		}));
 	}
 

@@ -14,40 +14,29 @@ import builderb0y.scripting.util.TypeMerger;
 public class IfElseInsnTree implements InsnTree {
 
 	public final ConditionTree condition;
-	/**
-	runtime bodies are guaranteed to have the same {@link InsnTree#getTypeInfo()}.
-	compile bodies are not. the runtime bodies will be used for emitting bytecode,
-	and the compile bodies will be used for casting {@link #cast(ExpressionParser, TypeInfo, CastMode)}.
-	*/
-	public final InsnTree compileTrueBody, compileFalseBody, runtimeTrueBody, runtimeFalseBody;
+	public final InsnTree trueBody, falseBody;
 	public final TypeInfo type;
 
 	public IfElseInsnTree(
 		ConditionTree condition,
-		InsnTree compileTrueBody,
-		InsnTree compileFalseBody,
-		InsnTree runtimeTrueBody,
-		InsnTree runtimeFalseBody,
+		InsnTree trueBody,
+		InsnTree falseBody,
 		TypeInfo type
 	) {
-		this.condition        = condition;
-		this.compileTrueBody  = compileTrueBody;
-		this.compileFalseBody = compileFalseBody;
-		this.runtimeTrueBody  = runtimeTrueBody;
-		this.runtimeFalseBody = runtimeFalseBody;
-		this.type             = type;
+		this.condition = condition;
+		this.trueBody  = trueBody;
+		this.falseBody = falseBody;
+		this.type      = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, ConditionTree condition, InsnTree trueBody, InsnTree falseBody) throws ScriptParsingException {
 		Operands operands = Operands.of(parser, trueBody, falseBody);
-		return new IfElseInsnTree(condition, operands.compileTrue, operands.compileFalse, operands.runtimeTrue, operands.runtimeFalse, operands.type);
+		return new IfElseInsnTree(condition, operands.trueBody, operands.falseBody, operands.type);
 	}
 
 	public static record Operands(
-		InsnTree compileTrue,
-		InsnTree compileFalse,
-		InsnTree runtimeTrue,
-		InsnTree runtimeFalse,
+		InsnTree trueBody,
+		InsnTree falseBody,
 		TypeInfo type
 	) {
 
@@ -67,11 +56,11 @@ public class IfElseInsnTree implements InsnTree {
 				}
 				else {
 					type = TypeMerger.computeMostSpecificType(trueBody.getTypeInfo(), falseBody.getTypeInfo());
+					trueBody = trueBody.cast(parser, type, CastMode.IMPLICIT_THROW);
+					falseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW);
 				}
 			}
-			InsnTree runtimeTrueBody = trueBody.cast(parser, type, CastMode.IMPLICIT_THROW);
-			InsnTree runtimeFalseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW);
-			return new Operands(trueBody, falseBody, runtimeTrueBody, runtimeFalseBody, type);
+			return new Operands(trueBody, falseBody, type);
 		}
 	}
 
@@ -79,11 +68,11 @@ public class IfElseInsnTree implements InsnTree {
 	public void emitBytecode(MethodCompileContext method) {
 		Scope scope = method.scopes.pushScope();
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
-		this.runtimeTrueBody.emitBytecode(method);
+		this.trueBody.emitBytecode(method);
 		scope.cycle();
 		method.node.visitJumpInsn(GOTO, scope.end.getLabel());
 		method.node.instructions.add(scope.start);
-		this.runtimeFalseBody.emitBytecode(method);
+		this.falseBody.emitBytecode(method);
 		method.scopes.popLoop();
 	}
 
@@ -95,29 +84,29 @@ public class IfElseInsnTree implements InsnTree {
 	@Override
 	public boolean jumpsUnconditionally() {
 		if (this.condition instanceof ConstantConditionTree constant) {
-			return (constant.value ? this.compileTrueBody : this.compileFalseBody).jumpsUnconditionally();
+			return (constant.value ? this.trueBody : this.falseBody).jumpsUnconditionally();
 		}
 		else {
-			return this.compileTrueBody.jumpsUnconditionally() && this.compileFalseBody.jumpsUnconditionally();
+			return this.trueBody.jumpsUnconditionally() && this.falseBody.jumpsUnconditionally();
 		}
 	}
 
 	@Override
 	public boolean canBeStatement() {
-		return this.compileTrueBody.canBeStatement() && this.compileFalseBody.canBeStatement();
+		return this.trueBody.canBeStatement() && this.falseBody.canBeStatement();
 	}
 
 	@Override
 	public InsnTree asStatement() {
-		return new IfElseInsnTree(this.condition, this.compileTrueBody, this.compileFalseBody, this.runtimeTrueBody.asStatement(), this.runtimeFalseBody.asStatement(), TypeInfos.VOID);
+		return new IfElseInsnTree(this.condition, this.trueBody.asStatement(), this.falseBody.asStatement(), TypeInfos.VOID);
 	}
 
 	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree trueBody = this.compileTrueBody.cast(parser, type, mode);
+		InsnTree trueBody = this.trueBody.cast(parser, type, mode);
 		if (trueBody == null) return null;
-		InsnTree falseBody = this.compileFalseBody.cast(parser, type, mode);
+		InsnTree falseBody = this.falseBody.cast(parser, type, mode);
 		if (falseBody == null) return null;
-		return new IfElseInsnTree(this.condition, trueBody, falseBody, trueBody, falseBody, type);
+		return new IfElseInsnTree(this.condition, trueBody, falseBody, type);
 	}
 }

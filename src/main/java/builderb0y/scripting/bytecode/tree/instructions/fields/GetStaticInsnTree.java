@@ -4,7 +4,8 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.StaticFieldUpdateInsnTree.*;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdaterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.VariableUpdaterInsnTree.VariableUpdaterEmitters;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -36,23 +37,15 @@ public class GetStaticInsnTree implements InsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (this.field.isFinal()) {
-			throw new ScriptParsingException("Can't write to final field: " + this.field, parser.input);
+			throw new ScriptParsingException("Can't modify final field: " + this.field, parser.input);
 		}
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.field.type, CastMode.IMPLICIT_THROW);
-			return switch (order) {
-				case VOID -> new StaticFieldAssignVoidUpdateInsnTree(this.field, cast);
-				case PRE  -> new  StaticFieldAssignPreUpdateInsnTree(this.field, cast);
-				case POST -> new StaticFieldAssignPostUpdateInsnTree(this.field, cast);
-			};
+			InsnTree cast = rightValue.cast(parser, this.getTypeInfo(), CastMode.IMPLICIT_THROW);
+			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forField(this.field, cast));
 		}
 		else {
 			InsnTree updater = op.createUpdater(parser, this.getTypeInfo(), rightValue);
-			return switch (order) {
-				case VOID -> new StaticFieldVoidUpdateInsnTree(this.field, updater);
-				case PRE  -> new  StaticFieldPreUpdateInsnTree(this.field, updater);
-				case POST -> new StaticFieldPostUpdateInsnTree(this.field, updater);
-			};
+			return new VariableUpdaterInsnTree(order, false, VariableUpdaterEmitters.forField(this.field, updater));
 		}
 	}
 }

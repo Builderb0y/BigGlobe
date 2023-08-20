@@ -69,7 +69,7 @@ public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 		index.emitStore(method);
 		VarInfo size = method.newVariable("size", TypeInfos.INT);
 		this.list.variable.emitLoad(method);
-		SIZE.emit(method);
+		SIZE.emitBytecode(method);
 		size.emitStore(method);
 		method.node.instructions.add(continuePoint);
 		index.emitLoad(method);
@@ -77,7 +77,7 @@ public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 		method.node.visitJumpInsn(IF_ICMPGE, scope.end.getLabel());
 		this.list.variable.emitLoad(method);
 		index.emitLoad(method);
-		GET.emit(method);
+		GET.emitBytecode(method);
 		castAndstore(this.variable, method);
 		this.body.emitBytecode(method);
 		method.node.visitIincInsn(index.index, 1);

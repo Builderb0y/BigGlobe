@@ -24,14 +24,14 @@ import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
-import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.parsing.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
 
 	public static final RegistryKey<Registry<ScriptTemplate>>                  SCRIPT_TEMPLATE_REGISTRY_KEY                 = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_script_templates"));
-	public static final RegistryKey<Registry<StructurePlacementScript.Holder>> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
+	public static final RegistryKey<Registry<CombinedStructureScripts>>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
 	public static final RegistryKey<Registry<WoodPalette>>                     WOOD_PALETTE_REGISTRY_KEY                    = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 	public static final RegistryKey<Registry<LocalNetherSettings>>             LOCAL_NETHER_SETTINGS_REGISTRY_KEY           = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_nether_biome"));
 	public static final RegistryKey<Registry<OverworldBiomeLayout>>            OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY          = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_overworld_biome_layout"));
@@ -42,15 +42,15 @@ public class BigGlobeDynamicRegistries {
 
 	public static final List<Info<?>> INFOS = new ArrayList<>(9);
 	static {
-		INFOS.add(info(SCRIPT_TEMPLATE_REGISTRY_KEY,                 ScriptTemplate                 .class, null));
-		INFOS.add(info(SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,      StructurePlacementScript.Holder.class, null));
-		INFOS.add(info(WOOD_PALETTE_REGISTRY_KEY,                    WoodPalette                    .class, null));
-		INFOS.add(info(OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,          OverworldBiomeLayout           .class, null));
-		INFOS.add(info(END_BIOME_LAYOUT_REGISTRY_KEY,                EndBiomeLayout                 .class, null));
-		INFOS.add(info(LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY,   LocalOverworldCaveSettings     .class, null));
-		INFOS.add(info(LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY, LocalOverworldCavernSettings   .class, null));
-		INFOS.add(info(LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,          LocalSkylandSettings           .class, null));
-		INFOS.add(info(LOCAL_NETHER_SETTINGS_REGISTRY_KEY,           LocalNetherSettings            .class, null));
+		INFOS.add(info(SCRIPT_TEMPLATE_REGISTRY_KEY,                 ScriptTemplate              .class, null));
+		INFOS.add(info(SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,      CombinedStructureScripts    .class, null));
+		INFOS.add(info(WOOD_PALETTE_REGISTRY_KEY,                    WoodPalette                 .class, null));
+		INFOS.add(info(OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,          OverworldBiomeLayout        .class, null));
+		INFOS.add(info(END_BIOME_LAYOUT_REGISTRY_KEY,                EndBiomeLayout              .class, null));
+		INFOS.add(info(LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY,   LocalOverworldCaveSettings  .class, null));
+		INFOS.add(info(LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY, LocalOverworldCavernSettings.class, null));
+		INFOS.add(info(LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,          LocalSkylandSettings        .class, null));
+		INFOS.add(info(LOCAL_NETHER_SETTINGS_REGISTRY_KEY,           LocalNetherSettings         .class, null));
 	}
 
 	public static <E> DynamicRegistryManager.Info<E> info(RegistryKey<Registry<E>> key, Class<E> clazz, Codec<E> networkCodec) {

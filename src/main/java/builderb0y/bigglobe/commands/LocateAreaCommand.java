@@ -124,7 +124,7 @@ public class LocateAreaCommand extends AsyncLocateCommand<LocateAreaCommand.Resu
 		column.setPosUnchecked(this.iterator.floorX(), this.iterator.floorY());
 		ColumnPredicate predicate = this.predicate;
 		if (!predicate.test(column)) return null;
-		GoldenSpiralIterator spiral = new GoldenSpiralIterator(this.iterator.x(), this.iterator.y(), 16.0D, 0.0D);
+		GoldenSpiralIterator spiral = new GoldenSpiralIterator(this.iterator.x(), this.iterator.y(), 4.0D, 0.0D);
 		while (true) {
 			spiral.next();
 			column.setPosUnchecked(spiral.floorX(), spiral.floorY());

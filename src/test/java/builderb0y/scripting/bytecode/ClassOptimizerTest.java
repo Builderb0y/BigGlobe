@@ -83,13 +83,23 @@ public class ClassOptimizerTest extends TestCommon {
 
 	@Test
 	@Disabled
-	public void testPop() throws ScriptParsingException {
+	public void testJumpToReturn() throws ScriptParsingException {
 		dumpBytecode(
 			"""
-			int a = 1
-			int b = 2
-			block (
-				if (a == b: break())
+			boolean condition = true
+			return(condition ? 'a' : 'b')
+			"""
+		);
+	}
+
+	@Test
+	@Disabled
+	public void testConstantJumpBoolean() throws ScriptParsingException {
+		dumpBytecode(
+			"""
+			boolean condition = true
+			if (condition ? false : true:
+				print('never!')
 			)
 			return(null)
 			"""
@@ -98,11 +108,12 @@ public class ClassOptimizerTest extends TestCommon {
 
 	@Test
 	@Disabled
-	public void testJumpToReturn() throws ScriptParsingException {
+	public void testPop() throws ScriptParsingException {
 		dumpBytecode(
 			"""
-			boolean condition = true
-			return(condition ? 'a' : 'b')
+			class A(int x)
+			A a = null
+			return(int(a.?x ?: 0))
 			"""
 		);
 	}

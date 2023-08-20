@@ -5,7 +5,7 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class NewInsnTree extends InvokeBaseInsnTree {
+public class NewInsnTree extends BaseInvokeInsnTree {
 
 	public NewInsnTree(MethodInfo constructor, InsnTree... args) {
 		super(constructor, args);
@@ -36,7 +36,7 @@ public class NewInsnTree extends InvokeBaseInsnTree {
 		return new UnusedNewInsnTree(this.method, this.args);
 	}
 
-	public static class UnusedNewInsnTree extends InvokeBaseInsnTree {
+	public static class UnusedNewInsnTree extends BaseInvokeInsnTree {
 
 		public UnusedNewInsnTree(MethodInfo constructor, InsnTree... args) {
 			super(constructor, args);

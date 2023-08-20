@@ -1,0 +1,20 @@
+{
+	"raw_placement": {
+		"script": [
+			"fillBlockState(minX + 1, minY + 1, minZ + 1, maxX - 1, maxY - 5, maxZ - 1, 'minecraft:air')",
+			"fillBlockState(minX + 1, maxY - 3, minZ + 1, maxX - 1, maxY - 1, maxZ - 1, 'minecraft:air')"
+		]
+	},
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+		"fillBlockStateReplaceable(minX + 1, minY, minZ + 1, maxX - 1, minY, maxZ - 1, palette.planksState())",
+		"fillBlockStateReplaceable(minX + 1, maxY - 4, minZ + 1, maxX - 1, maxY - 4, maxZ - 1, palette.planksState())",
+		"fillBlockState(midX, minY + 1, midZ, midX, maxY - 1, midZ, palette.logState(axis: 'y'))",
+		"fillBlockState(midX - 1, minY + 1, midZ, midX - 1, maxY - 1, midZ, 'minecraft:ladder[facing=west,waterlogged=false]')",
+		"fillBlockState(midX + 1, minY + 1, midZ, midX + 1, maxY - 1, midZ, 'minecraft:ladder[facing=east,waterlogged=false]')",
+		"fillBlockState(midX, minY + 1, midZ - 1, midX, maxY - 1, midZ - 1, 'minecraft:ladder[facing=north,waterlogged=false]')",
+		"fillBlockState(midX, minY + 1, midZ + 1, midX, maxY - 1, midZ + 1, 'minecraft:ladder[facing=south,waterlogged=false]')",
+		"setBlockStateReplaceable(random.if (minX + 1) else (maxX - 1), maxY - 5, random.if (minZ + 1) else (maxZ - 1), 'minecraft:cobweb')",
+		"setBlockStateReplaceable(random.if (minX + 1) else (maxX - 1), maxY - 1, random.if (minZ + 1) else (maxZ - 1), 'minecraft:cobweb')"
+	]
+}

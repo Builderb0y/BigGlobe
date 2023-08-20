@@ -6,8 +6,10 @@
 		"spacing": 16
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:campfire" },
-		{ "weight": 1, "structure": "bigglobe:well" },
-		{ "weight": 1, "structure": "bigglobe:small_house" }
+		{ "weight": 5, "structure": "bigglobe:well" },
+		{ "weight": 4, "structure": "bigglobe:campfire" },
+		{ "weight": 3, "structure": "bigglobe:small_house" },
+		{ "weight": 2, "structure": "bigglobe:medium_house" },
+		{ "weight": 1, "structure": "bigglobe:large_house" }
 	]
 }

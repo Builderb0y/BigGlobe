@@ -10,11 +10,16 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+
+import builderb0y.autocodec.util.AutoCodecUtil;
 
 public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
@@ -61,6 +66,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",               Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",                     Boolean.TRUE);
@@ -179,13 +185,53 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		return null;
 	}
 
+	public static boolean checkMod(String mixinName, String modName) {
+		if (FabricLoader.getInstance().isModLoaded(modName)) {
+			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + " is present.");
+			return true;
+		}
+		else {
+			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + " is absent.");
+			return false;
+		}
+	}
+
+	public static boolean checkMod(String mixinName, String modName, String version) {
+		if (
+			FabricLoader
+			.getInstance()
+			.getModContainer(modName)
+			.filter((ModContainer container) -> {
+				try {
+					return container.getMetadata().getVersion().compareTo(Version.parse(version)) >= 0;
+				}
+				catch (VersionParsingException exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
+			})
+			.isPresent()
+		) {
+			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is present.");
+			return true;
+		}
+		else {
+			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is absent.");
+			return false;
+		}
+	}
+
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		if (mixinClassName.equals("builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData")) {
-			return FabricLoader.getInstance().isModLoaded("cloth-config");
-		}
 		Boolean enabled = this.settings.get(mixinClassName);
-		return enabled != null ? enabled.booleanValue() : true;
+		boolean defaultEnabled = enabled != null ? enabled.booleanValue() : true;
+		return switch (mixinClassName) {
+			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
+				yield checkMod(mixinClassName, "cloth-config");
+			}
+			default -> {
+				yield defaultEnabled;
+			}
+		};
 	}
 
 	@Override

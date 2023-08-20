@@ -37,7 +37,7 @@ public class ReduceInsnTree implements InsnTree {
 		args[0].emitBytecode(method);
 		for (int index = 1, length = args.length; index < length; index++) {
 			args[index].emitBytecode(method);
-			this.method.emit(method);
+			this.method.emitBytecode(method);
 		}
 	}
 

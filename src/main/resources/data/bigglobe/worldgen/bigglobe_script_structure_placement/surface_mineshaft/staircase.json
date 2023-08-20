@@ -1,0 +1,50 @@
+{
+	"raw_placement": {
+		"script": [
+			"for (int x = minX, x <= maxX, ++x:",
+				"int ideal = (maxX - minX) - (x - minX) + minY - 1",
+				"int startY = max(minY + 1, ideal)",
+				"int endY = min(maxY - 1, ideal + 4)",
+				"fillBlockState(x, startY, midZ - 1, x, endY, midZ + 1, 'minecraft:air')",
+			")"
+		]
+	},
+	"script": [
+		"WoodPalette palette = WoodPalette(data.palette.asString())",
+		"boolean isStart = data.start.asBoolean()",
+		"int cobwebX = random.nextInt(minX, maxX + 1)",
+		"for (int x in range[minX, maxX]:",
+			"int ideal = (maxX - minX) - (x - minX) + minY - 1",
+			"int startY = max(minY + 1, ideal)",
+			"int endY = min(maxY - 1, ideal + 4)",
+
+			";roof and walls.",
+			"if (isStart:",
+				"fillBlockStateReplaceable(x, startY - 1, minZ, x, endY, minZ, x == minX ? palette.logState(axis: 'y') : palette.planksState())",
+				"fillBlockStateReplaceable(x, startY - 1, maxZ, x, endY, maxZ, x == minX ? palette.logState(axis: 'y') : palette.planksState())",
+				"fillBlockStateReplaceable(x, endY + 1, minZ, x, endY + 1, maxZ, x == minX ? palette.logState(axis: 'z') : palette.planksState())",
+			")",
+
+			";ensure we have solid ground below us.",
+			"fillBlockStateReplaceable(x, startY - 1, midZ - 1, x, startY - 1, midZ + 1, palette.planksState())",
+
+			";place stairs and rails if applicable.",
+			"boolean flat = x == minX || ideal != startY",
+			"unless (flat:",
+				"setBlockState(x, startY, midZ - 1, 'minecraft:stone_stairs[half=bottom,facing=west,shape=straight,waterlogged=false]')",
+				"setBlockState(x, startY, midZ + 1, 'minecraft:stone_stairs[half=bottom,facing=west,shape=straight,waterlogged=false]')",
+			")",
+			"setBlockState(x, startY, midZ, BlockState('minecraft:rail', waterlogged: false, shape: flat ? 'east_west' : 'ascending_west'))",
+
+			";board up entrance.",
+			"if (isStart && x == minX:",
+				"fillBlockState(x, startY, midZ - 1, x, endY, midZ + 1, palette.fenceState(north: true, south: true, east: false, west: false, waterlogged: false))",
+			")",
+
+			";cobweb.",
+			"if (x == cobwebX:",
+				"setBlockStateReplaceable(x, endY, midZ + random.if (1) else (-1), 'minecraft:cobweb')",
+			")",
+		")"
+	]
+}

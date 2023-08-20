@@ -5,6 +5,7 @@ import org.objectweb.asm.Label;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -22,8 +23,7 @@ public class NullableReceiverMapperInsnTree implements InsnTree {
 		Label apply = label(), end = label();
 
 		this.object.emitBytecode(method);
-		method.node.visitInsn(this.object.getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
-		ElvisInsnTree.jumpIfNonNull(method, this.object.getTypeInfo(), apply);
+		ElvisInsnTree.dupAndJumpIfNonNull(this.object.getTypeInfo(), apply, method);
 		method.node.visitInsn(this.object.getTypeInfo().isDoubleWidth() ? POP2 : POP);
 		if (this.getTypeInfo().isValue()) {
 			constantAbsent(this.getTypeInfo()).emitBytecode(method);

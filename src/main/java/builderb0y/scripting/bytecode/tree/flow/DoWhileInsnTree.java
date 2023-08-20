@@ -5,7 +5,6 @@ import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -35,12 +34,6 @@ public class DoWhileInsnTree implements InsnTree {
 	@Override
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.VOID;
-	}
-
-	@Override
-	public boolean jumpsUnconditionally() {
-		//while (true) doesn't need a return after it.
-		return this.condition instanceof ConstantConditionTree constant && constant.value;
 	}
 
 	@Override

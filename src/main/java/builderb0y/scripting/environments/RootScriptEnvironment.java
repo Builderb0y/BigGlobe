@@ -6,7 +6,6 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -42,7 +41,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				//can be direct-cast to which other types is so simple.
 				//so, we hard-code that logic here.
 				if (from.extendsOrImplements(to)) {
-					return new IdentityCastInsnTree(value, to);
+					return wrapIdentityCast(value, to);
 				}
 				if (!implicit && (to.extendsOrImplements(from) || to.type.isInterface)) {
 					return new DirectCastInsnTree(value, to);

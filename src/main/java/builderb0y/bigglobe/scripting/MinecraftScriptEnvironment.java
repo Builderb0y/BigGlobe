@@ -34,47 +34,53 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class MinecraftScriptEnvironment {
 
-	public static MutableScriptEnvironment createWithRandom(InsnTree loadRandom) {
+	public static MutableScriptEnvironment create() {
 		return (
 			new MutableScriptEnvironment()
-			.addType("Block",                BlockWrapper           .TYPE)
-			.addType("BlockTag",             BlockTagKey            .TYPE)
-			.addType("BlockState",           BlockStateWrapper      .TYPE)
-			.addType("Biome",                BiomeEntry             .TYPE)
-			.addType("BiomeTag",             BiomeTagKey            .TYPE)
-			.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
-			.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
-			.addFieldInvoke(EntryWrapper.class, "id")
-			.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
-			.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "getRandomState", "isIn")
+				.addType("Block",                BlockWrapper           .TYPE)
+				.addType("BlockTag",             BlockTagKey            .TYPE)
+				.addType("BlockState",           BlockStateWrapper      .TYPE)
+				.addType("Biome",                BiomeEntry             .TYPE)
+				.addType("BiomeTag",             BiomeTagKey            .TYPE)
+				.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
+				.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
+				.addFieldInvoke(EntryWrapper.class, "id")
+				.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
+				.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "getRandomState", "isIn", "getRandomState")
+				.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
+				.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
+				.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
+				.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
+					return mode.makeInvoker(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
+				}))
+				.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
+				.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
+				.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
+				.addMethodInvokeSpecific(ConfiguredFeatureEntry.class, "isIn", boolean.class, ConfiguredFeatureTagKey.class)
+				.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
+				.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, long.class)
+
+				//casting
+
+				.addCastConstant(BlockWrapper           .CONSTANT_FACTORY, true)
+				.addCastConstant(BlockStateWrapper      .CONSTANT_FACTORY, true)
+				.addCastConstant(BlockTagKey            .CONSTANT_FACTORY, true)
+				.addCastConstant(BiomeEntry             .CONSTANT_FACTORY, true)
+				.addCastConstant(BiomeTagKey            .CONSTANT_FACTORY, true)
+				.addCastConstant(ConfiguredFeatureEntry .CONSTANT_FACTORY, true)
+				.addCastConstant(ConfiguredFeatureTagKey.CONSTANT_FACTORY, true)
+
+				.addKeyword("BlockState", blockStateKeyword())
+		);
+	}
+
+	public static MutableScriptEnvironment createWithRandom(InsnTree loadRandom) {
+		return (
+			create()
 			.addMethod(BlockWrapper.TYPE, "getRandomState", Handlers.builder(BlockWrapper.class, "getRandomState").addReceiverArgument(BlockWrapper.TYPE).addImplicitArgument(loadRandom).buildMethod())
-			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
 			.addMethod(BlockTagKey.TYPE, "random", tagRandom(loadRandom, BlockTagKey.class, Block.class))
-			.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
-			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
-				return mode.makeStaticGetter(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
-			}))
-			.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
-			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
 			.addMethod(BiomeTagKey.TYPE, "random", tagRandom(loadRandom, BiomeTagKey.class, BiomeEntry.class))
-			.addMethodInvokeSpecific(ConfiguredFeatureEntry.class, "isIn", boolean.class, ConfiguredFeatureTagKey.class)
-			.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, long.class)
 			.addMethod(ConfiguredFeatureTagKey.TYPE, "random", tagRandom(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
-
-			//casting
-
-			.addCastConstant(BlockWrapper           .CONSTANT_FACTORY, true)
-			.addCastConstant(BlockStateWrapper      .CONSTANT_FACTORY, true)
-			.addCastConstant(BlockTagKey            .CONSTANT_FACTORY, true)
-			.addCastConstant(BiomeEntry             .CONSTANT_FACTORY, true)
-			.addCastConstant(BiomeTagKey            .CONSTANT_FACTORY, true)
-			.addCastConstant(ConfiguredFeatureEntry .CONSTANT_FACTORY, true)
-			.addCastConstant(ConfiguredFeatureTagKey.CONSTANT_FACTORY, true)
-
-			.addKeyword("BlockState", blockStateKeyword())
 		);
 	}
 
@@ -84,7 +90,7 @@ public class MinecraftScriptEnvironment {
 		return (
 			createWithRandom(loadRandom)
 			.addVariableRenamedInvoke(loadWorld, "worldSeed", WorldWrapper.GET_SEED)
-			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "placeBlockState", "fillBlockState", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
+			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "placeFeature", "getBiome", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")
 			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", Handlers.builder(BlockStateWrapper.class, "canPlaceAt").addImplicitArgument(loadWorld).addReceiverArgument(BlockStateWrapper.TYPE).addArguments("III").buildMethod())
 		);
@@ -118,12 +124,12 @@ public class MinecraftScriptEnvironment {
 							InsnTree value = parser.nextScript();
 							ConstantValue constantValue = value.getConstantValue();
 							if (constantValue.isConstantOrDynamic()) {
-								//BlockState('a': b: true)
+								//BlockState('a', b: true)
 								constantProperties.add(constant(property));
 								constantProperties.add(constantValue);
 							}
 							else {
-								//BlockState('a': b: c)
+								//BlockState('a', b: c)
 								nonConstantProperties.add(new NonConstantProperty(property, value.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)));
 							}
 						}
@@ -147,7 +153,7 @@ public class MinecraftScriptEnvironment {
 					//BlockState(name, b: c)
 					state = invokeStatic(
 						BlockWrapper.GET_DEFAULT_STATE,
-						BlockWrapper.CONSTANT_FACTORY.create(parser, state, true).tree()
+						BlockWrapper.CONSTANT_FACTORY.create(parser, state, false).tree()
 					);
 					Set<String> properties = new HashSet<>(8);
 					do {

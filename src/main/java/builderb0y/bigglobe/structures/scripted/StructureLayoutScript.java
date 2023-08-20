@@ -28,7 +28,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface StructureLayoutScript extends Script {
 
-	public abstract void layout(int x, int z, RandomGenerator random, WorldColumn column, List<StructurePiece> pieces);
+	public abstract void layout(
+		int x,
+		int z,
+		RandomGenerator random,
+		WorldColumn column,
+		List<StructurePiece> pieces,
+		boolean distantHorizons
+	);
 
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
@@ -51,8 +58,8 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
-					.addVariableLoad("x", 1, TypeInfos.INT)
-					.addVariableLoad("z", 2, TypeInfos.INT)
+					.addVariableLoad("originX", 1, TypeInfos.INT)
+					.addVariableLoad("originZ", 2, TypeInfos.INT)
 
 					.addVariable(
 						"worldSeed",
@@ -74,12 +81,14 @@ public interface StructureLayoutScript extends Script {
 						)
 					)
 
-					.addType("ScriptStructurePiece", ScriptedStructure.Piece.class)
 					.addQualifiedSpecificConstructor(ScriptedStructure.Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
-					.addMethodInvoke(ScriptedStructure.Piece.class, "withRotation")
-					.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
+					.addMethodInvokes(ScriptedStructure.Piece.class, "withRotation", "rotateAround", "offset")
+					.addFieldGet(ScriptedStructure.Piece.class, "data")
+					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
 					.addVariableLoad("pieces", 5, type(List.class))
+
+					.addVariableLoad("distantHorizons", 6, TypeInfos.BOOLEAN)
 				)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
@@ -94,9 +103,16 @@ public interface StructureLayoutScript extends Script {
 		}
 
 		@Override
-		public void layout(int x, int z, RandomGenerator random, WorldColumn column, List<StructurePiece> pieces) {
+		public void layout(
+			int x,
+			int z,
+			RandomGenerator random,
+			WorldColumn column,
+			List<StructurePiece> pieces,
+			boolean distantHorizons
+		) {
 			try {
-				this.script.layout(x, z, random, column, pieces);
+				this.script.layout(x, z, random, column, pieces, distantHorizons);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

@@ -52,7 +52,7 @@ public class DoubleJumpOptimizer implements MethodOptimizer {
 			AbstractInsnNode target = start;
 			do target = target.getNext();
 			while (target instanceof LabelNode || target instanceof LineNumberNode);
-			if (target.getOpcode() == Opcodes.GOTO) {
+			if (target != null && target.getOpcode() == Opcodes.GOTO) {
 				start = ((JumpInsnNode)(target)).label;
 			}
 			else {
