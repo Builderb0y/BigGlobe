@@ -100,7 +100,11 @@ public class NBTScriptEnvironmentTest {
 	public void testMemberAssignment() throws ScriptParsingException {
 		assertSuccess(
 			compound(c -> c.putByte("a", (byte)(1))),
-			"var c = nbtCompound ( ) ,, c . a = nbtByte ( 1 ) ,, c"
+			"""
+			var c = nbtCompound ( )
+			c . a = nbtByte ( 1 )
+			c
+			"""
 		);
 		assertSuccess(NbtByte.of((byte)(1)),
 			"""

@@ -13,6 +13,7 @@ public class VarInfo implements Typeable {
 	public String name;
 	public int index;
 	public TypeInfo type;
+	public boolean isFinal;
 
 	public VarInfo(String name, int index, TypeInfo type) {
 		this.name  = name;

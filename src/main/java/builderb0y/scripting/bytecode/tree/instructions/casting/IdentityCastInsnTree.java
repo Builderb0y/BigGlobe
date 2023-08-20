@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.tree.instructions.casting;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.UnaryInsnTree;
 
@@ -22,5 +23,15 @@ public class IdentityCastInsnTree extends UnaryInsnTree {
 	@Override
 	public TypeInfo getTypeInfo() {
 		return this.type;
+	}
+
+	@Override
+	public ConstantValue getConstantValue() {
+		return this.operand.getConstantValue();
+	}
+
+	@Override
+	public boolean jumpsUnconditionally() {
+		return this.operand.jumpsUnconditionally();
 	}
 }

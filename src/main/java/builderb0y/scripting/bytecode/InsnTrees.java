@@ -17,13 +17,15 @@ import builderb0y.scripting.bytecode.tree.conditions.*;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.instructions.*;
 import builderb0y.scripting.bytecode.tree.instructions.binary.*;
-import builderb0y.scripting.bytecode.tree.instructions.fields.GetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.WrappedCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NormalInstanceGetFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.GetStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeDynamicInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeInstanceInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NormalInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.StaticInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.NewInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.InstanceOfInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.NegateInsnTree;
@@ -263,11 +265,11 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree invokeStatic(MethodInfo method, InsnTree... args) {
-		return InvokeStaticInsnTree.create(method, args);
+		return StaticInvokeInsnTree.create(method, args);
 	}
 
 	public static InsnTree invokeInstance(InsnTree receiver, MethodInfo method, InsnTree... args) {
-		return new InvokeInstanceInsnTree(receiver, method, args);
+		return new NormalInvokeInsnTree(receiver, method, args);
 	}
 
 	public static InsnTree invokeDynamic(MethodInfo bootstrapMethod, MethodInfo runtimeMethod, ConstantValue[] bootstrapArgs, InsnTree[] runtimeArgs) {
@@ -303,7 +305,7 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree getField(InsnTree receiver, FieldInfo field) {
-		return new GetFieldInsnTree(receiver, field);
+		return new NormalInstanceGetFieldInsnTree(receiver, field);
 	}
 
 	public static InsnTree putField(InsnTree receiver, FieldInfo field, InsnTree value) {
@@ -456,6 +458,10 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static InsnTree getFromStack(TypeInfo type) {
 		return new GetFromStackInsnTree(type);
+	}
+
+	public static InsnTree wrapIdentityCast(InsnTree value, TypeInfo type) {
+		return new WrappedCastInsnTree(value, new IdentityCastInsnTree(value, type));
 	}
 
 	public static Label label() {

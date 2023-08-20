@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -29,16 +30,16 @@ public class ForInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.scopes.pushScope();
 		LabelNode continuePoint = labelNode();
-		this.initializer.emitBytecode(method);
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
+		this.initializer.emitBytecode(method);
+		Label startingPoint = label();
+		method.node.visitLabel(startingPoint);
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.body.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
 		this.step.emitBytecode(method);
-		method.node.visitJumpInsn(GOTO, scope.start.getLabel());
-		method.scopes.popScope();
+		method.node.visitJumpInsn(GOTO, startingPoint);
 		method.scopes.popScope();
 	}
 

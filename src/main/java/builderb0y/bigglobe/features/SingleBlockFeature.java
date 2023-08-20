@@ -48,6 +48,7 @@ public class SingleBlockFeature extends Feature<Config> {
 
 	public static final Predicate<BlockState>
 		IS_REPLACEABLE  = BlockStateVersions::isReplaceable,
+		NOT_REPLACEABLE = state -> !BlockStateVersions.isReplaceable(state),
 		IS_AIR          = BlockState::isAir,
 		IS_SOURCE_WATER = state -> state == BlockStates.WATER,
 		HAS_WATER       = state -> state.getFluidState().getFluid() == Fluids.WATER;

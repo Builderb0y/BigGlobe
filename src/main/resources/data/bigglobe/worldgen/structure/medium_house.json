@@ -1,0 +1,27 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/medium_house",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"int originY = ceilInt(max_y(originX, originZ))",
+				"Biome biome = getBiome(originX, originY, originZ)",
+				"WoodPalette woodPalette = WoodPalette.randomForBiome(biome) ?: return()",
+
+				"pieces.add(",
+					"ScriptStructurePiece.new(",
+						"-5, 0, -9, 5, 7, 9,",
+						"'bigglobe:medium_house',",
+						"nbtCompound(",
+							"palette: woodPalette.id",
+						")",
+					")",
+					".withRotation(random.nextInt(4) * 90)",
+					".offset(originX, originY, originZ)",
+				")"
+			]
+		}
+	}
+}

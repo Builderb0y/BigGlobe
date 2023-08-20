@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline(): return(false))",
 			"int height = 0",
 			"while (height < 8 && getBlockState(originX, originY + height, originZ).isReplaceable():",
 				"++height",

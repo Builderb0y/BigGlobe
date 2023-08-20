@@ -6,9 +6,9 @@
 		"step": "surface_structures",
 		"layout": {
 			"script": [
-				"int y = ceilInt(max_y(x, z))",
+				"int originY = ceilInt(max_y(originX, originZ))",
 
-				"Biome biome = getBiome(x, y, z)",
+				"Biome biome = getBiome(originX, originY, originZ)",
 				"WoodPalette palette = WoodPalette.randomForBiome(biome)",
 				"int type = 0",
 				"     if (biome == Biome('bigglobe:hot_plains'   ): type = 1)",
@@ -17,7 +17,7 @@
 				"random.if (palette = null)",
 
 				"pieces.add(ScriptStructurePiece.new(",
-					"x - 2, y - random.nextInt(8, 24), z - 2, x + 2, y + 4, z + 2,",
+					"originX - 2, originY - random.nextInt(8, 24), originZ - 2, originX + 2, originY + 4, originZ + 2,",
 					"'bigglobe:well',",
 					"nbtCompound(",
 						"palette: palette.?id,",

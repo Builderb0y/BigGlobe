@@ -17,8 +17,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeBaseInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeInstanceInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.BaseInvokeInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
@@ -212,13 +211,8 @@ public class Handlers {
 				(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 					CastResult result = this.getFrom(parser, receiver, InsnTree.ARRAY_FACTORY.empty());
 					if (result == null) return null;
-					InvokeBaseInsnTree staticInvoker = (InvokeBaseInsnTree)(result.tree());
-					if (staticInvoker instanceof InvokeInstanceInsnTree invoker) {
-						return mode.makeInstanceGetter(parser, invoker.receiver, invoker.method, invoker.args);
-					}
-					else {
-						return mode.makeStaticGetter(parser, staticInvoker.method, staticInvoker.args);
-					}
+					BaseInvokeInsnTree invoker = (BaseInvokeInsnTree)(result.tree());
+					return mode.makeInvoker(parser, invoker.method, invoker.args);
 				}
 			);
 		}
@@ -243,13 +237,8 @@ public class Handlers {
 				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					CastResult result = this.getFrom(parser, receiver, arguments);
 					if (result == null) return null;
-					InvokeBaseInsnTree staticInvoker = (InvokeBaseInsnTree)(result.tree());
-					if (staticInvoker instanceof InvokeInstanceInsnTree invoker) {
-						return new CastResult(mode.makeInstanceInvoker(parser, invoker.receiver, invoker.method, invoker.args), result.requiredCasting());
-					}
-					else {
-						return new CastResult(mode.makeStaticInvoker(parser, staticInvoker.method, staticInvoker.args), result.requiredCasting());
-					}
+					BaseInvokeInsnTree invoker = (BaseInvokeInsnTree)(result.tree());
+					return new CastResult(mode.makeInvoker(parser, invoker.method, invoker.args), result.requiredCasting());
 				}
 			);
 		}

@@ -39,9 +39,9 @@ public class BitwiseDoubleEqualityConditionTree implements ConditionTree {
 	public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {
 		ConditionTree.checkLabels(ifTrue, ifFalse);
 		this.left.emitBytecode(method);
-		DOUBLE_BITS_TO_LONG.emit(method);
+		DOUBLE_BITS_TO_LONG.emitBytecode(method);
 		this.right.emitBytecode(method);
-		DOUBLE_BITS_TO_LONG.emit(method);
+		DOUBLE_BITS_TO_LONG.emitBytecode(method);
 		method.node.visitInsn(LCMP);
 		if (ifTrue != null) {
 			method.node.visitJumpInsn(this.intOpCode, ifTrue);

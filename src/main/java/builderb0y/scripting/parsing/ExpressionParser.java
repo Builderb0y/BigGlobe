@@ -31,6 +31,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ScopedInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
@@ -255,8 +256,9 @@ public class ExpressionParser {
 				if (!this.input.canReadAfterWhitespace()) {
 					return left;
 				}
-				if (this.input.peek() == ')') {
-					return left;
+				switch (this.input.peek()) {
+					case ')', ']', '}' -> { return left; }
+					default -> {}
 				}
 				//another operator (except ++ and --) indicates that said
 				//operator didn't get processed sooner when it should have.
@@ -265,7 +267,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "--", "!" -> {} //indicates that there's another statement to read.
+					case "", "++", "++:", ":++", "--", "--:", ":--", "!" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -568,15 +570,10 @@ public class ExpressionParser {
 	public InsnTree nextElvis() throws ScriptParsingException {
 		try {
 			InsnTree left = this.nextMember();
-			while (true) {
-				if (this.input.hasOperatorAfterWhitespace("?:")) {
-					InsnTree right = this.nextMember();
-					left = left.elvis(this, right);
-				}
-				else {
-					return left;
-				}
+			if (this.input.hasOperatorAfterWhitespace("?:")) {
+				left = left.elvis(this, this.nextElvis());
 			}
+			return left;
 		}
 		catch (RuntimeException exception) {
 			throw new ScriptParsingException(exception, this.input);
@@ -588,47 +585,85 @@ public class ExpressionParser {
 
 	public InsnTree nextMember() throws ScriptParsingException {
 		try {
-			InsnTree left = this.nextPrefixOperator();
-			while (true) {
-				String operator = this.input.peekOperatorAfterWhitespace();
-				CommonMode mode = switch (operator) {
-					case "."  -> { this.input.onCharsRead(operator); yield CommonMode.NORMAL; }
-					case ".?" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE; }
-					case ".$" -> { this.input.onCharsRead(operator); yield CommonMode.RECEIVER; }
-					case ".$?", ".?$" -> { this.input.onCharsRead(operator); yield CommonMode.NULLABLE_RECEIVER; }
-					default -> null;
-				};
-				if (mode == null) return left;
-
-				//note: memberName can be the empty String, "".
-				//this is intentional to support array/list-lookup syntax:
-				//array.(index)
-				String memberName = this.input.readIdentifierAfterWhitespace();
-				InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, MemberKeywordMode.from(mode));
-				if (result == null) {
-					if (this.input.peekAfterWhitespace() == '(') {
-						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-						result = this.environment.getMethod(this, left, memberName, GetMethodMode.from(mode), arguments.arguments());
-						if (result == null) {
-							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
-						}
-						result = arguments.maybeWrap(result);
-					}
-					else {
-						result = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
-						if (result == null) {
-							throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
-						}
-					}
-				}
-				left = result;
-			}
+			return this.finishNextMember(this.nextPrefixOperator());
 		}
 		catch (RuntimeException exception) {
 			throw new ScriptParsingException(exception, this.input);
 		}
 		catch (StackOverflowError error) {
 			throw new ScriptParsingException("Script too long or too complex", error, this.input);
+		}
+	}
+
+	public InsnTree finishNextMember(InsnTree left) throws ScriptParsingException {
+		while (true) {
+			String operator = this.input.peekOperatorAfterWhitespace();
+			if (!operator.isEmpty() && operator.charAt(0) == '.') {
+				this.input.onCharsRead(operator);
+				boolean isAssign   = false;
+				boolean isNullable = false;
+				boolean isReceiver = false;
+				for (int index = 1, length = operator.length(); index < length; index++) {
+					switch (operator.charAt(index)) {
+						case '=' -> {
+							if (isAssign) throw new ScriptParsingException("Duplicate assignment character", this.input);
+							isAssign = true;
+						}
+						case '?' -> {
+							if (isNullable) throw new ScriptParsingException("Duplicate nullable character", this.input);
+							isNullable = true;
+						}
+						case '$' -> {
+							if (isReceiver) throw new ScriptParsingException("Duplicate receiver character", this.input);
+							isReceiver = true;
+						}
+						default -> {
+							throw new ScriptParsingException("Unrecognized character in member lookup operator", this.input);
+						}
+					}
+				}
+				//note: memberName can be the empty String, "".
+				//this is intentional to support array/list-lookup syntax:
+				//array.(index)
+				String memberName = this.input.readIdentifierAfterWhitespace();
+				CommonMode mode = isNullable ? (isReceiver ? CommonMode.NULLABLE_RECEIVER : CommonMode.NULLABLE) : (isReceiver ? CommonMode.RECEIVER : CommonMode.NORMAL);
+				if (isAssign) {
+					InsnTree assignable = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
+					if (assignable == null) {
+						throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
+					}
+					this.beginCodeBlock();
+					InsnTree value = this.nextScript();
+					if (this.endCodeBlock()) {
+						value = new ScopedInsnTree(value);
+					}
+					left = assignable.update(this, UpdateOp.ASSIGN, UpdateOrder.VOID, value);
+				}
+				else {
+					InsnTree result = this.environment.parseMemberKeyword(this, left, memberName, MemberKeywordMode.from(mode));
+					if (result == null) {
+						if (this.input.peekAfterWhitespace() == '(') {
+							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+							result = this.environment.getMethod(this, left, memberName, GetMethodMode.from(mode), arguments.arguments());
+							if (result == null) {
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
+							}
+							result = arguments.maybeWrap(result);
+						}
+						else {
+							result = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
+							if (result == null) {
+								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
+							}
+						}
+					}
+					left = result;
+
+				}
+			}
+			else {
+				return left;
+			}
 		}
 	}
 
@@ -1027,7 +1062,7 @@ public class ExpressionParser {
 			if (expression == null) {
 				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
 			}
-			return arguments.maybeWrap(expression);
+			return this.finishNextMember(arguments.maybeWrap(expression));
 		}
 		else {
 			InsnTree tree = this.nextSingleExpression();
@@ -1259,10 +1294,10 @@ public class ExpressionParser {
 				for (int index = 1, size = fields.size(); index < size; index++) {
 					invokeStatic(
 						HASH_MIX,
-						ArrayExtensions.computeHashCode(
-							add(
-								this,
-								getFromStack(TypeInfos.INT),
+						add(
+							this,
+							getFromStack(TypeInfos.INT),
+							ArrayExtensions.computeHashCode(
 								getField(load(methodThis), fields.get(index).info)
 							)
 						)

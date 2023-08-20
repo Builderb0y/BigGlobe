@@ -22,9 +22,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -35,12 +33,7 @@ import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
 import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructurePresence;
@@ -88,16 +81,17 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
-import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
+import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.structures.DelegatingStructure;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements ColumnValueDisplayer {
 
@@ -111,12 +105,17 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public transient long seed;
 	//no idea if this needs to be synchronized or not, but it can't hurt.
-	public final transient Map<GenerationStep.Feature, RegistryEntry<Structure>[]> sortedStructures = Collections.synchronizedMap(new EnumMap<>(GenerationStep.Feature.class));
+	public final SortedStructures sortedStructures;
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
 
-	public BigGlobeChunkGenerator(BiomeSource biomeSource, SortedFeatures configuredFeatures) {
+	public BigGlobeChunkGenerator(
+		BiomeSource biomeSource,
+		SortedFeatures configuredFeatures,
+		SortedStructures sortedStructures
+	) {
 		super(biomeSource);
 		this.configuredFeatures = configuredFeatures;
+		this.sortedStructures = sortedStructures;
 	}
 
 	@Wrapper
@@ -145,6 +144,29 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 		public <C extends FeatureConfig> Stream<C> streamConfigs(Feature<C> feature) {
 			return this.streamConfiguredFeatures(feature).map(ConfiguredFeature::config);
+		}
+	}
+
+	@Wrapper
+	public static class SortedStructures {
+
+		public final BetterRegistry<Structure> registry;
+		public final RegistryEntry<Structure>[] sortedStructures;
+
+		@SuppressWarnings("unchecked")
+		public SortedStructures(BetterRegistry<Structure> registry) {
+			this.registry = registry;
+			this.sortedStructures = (
+				registry
+				.streamEntries()
+				.sorted(
+					Comparator.comparing(
+						(RegistryEntry<Structure> entry) -> entry.value().getFeatureGenerationStep()
+					)
+					.thenComparing(UnregisteredObjectException::getID)
+				)
+				.toArray(RegistryEntry[]::new)
+			);
 		}
 	}
 
@@ -328,26 +350,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public static interface HeightmapSupplier {
 
 		public abstract int getHeight(int index, boolean includeWater);
-	}
-
-	public void setAllStates(SectionGenerationContext context, BlockState state) {
-		if (context.palette() instanceof SingularPalette_EntryAccess singular) {
-			//how to set 4096 blocks in one operation.
-			singular.bigglobe_setEntry(state);
-		}
-		else {
-			//this shouldn't happen, but we should handle it sanely anyway.
-			if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace(context + " does not have a SingularPalette.");
-			}
-			int stoneID = context.id(state);
-			PaletteStorage storage = context.storage();
-			long payload = stoneID;
-			for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
-				payload |= payload << bits;
-			}
-			Arrays.fill(storage.getData(), payload);
-		}
 	}
 
 	public abstract void generateRawTerrain(
@@ -632,75 +634,84 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		}
 	}
 
-	public void generateStructuresInStage(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor, GenerationStep.Feature step) {
+	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ChunkOfColumns<? extends WorldColumn> columns) {
 		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
-		for (
-			RegistryEntry<Structure> structure
-		:
-			this.sortedStructures.computeIfAbsent(
-				step,
-				step_ -> (
-					world
-					.getRegistryManager()
-					.get(RegistryKeyVersions.structure())
-					.streamEntries()
-					.filter(structure -> structure.value().getFeatureGenerationStep() == step_)
-					.toArray(REGISTRY_ENTRY_ARRAY_FACTORY.generic())
-				)
-			)
-		) {
-			//important: make sure this seed does NOT use chunkPos as part of the hash!
-			//the same StructureStart should use the same seed for every chunk that it intersects with.
-			//this fixes shipwrecks spawning at different heights or with
-			//different wood types when they spawn intersecting a chunk border.
-			long seed = Permuter.permute(world.getSeed() ^ 0x5E4FE744EECE1D5BL, UnregisteredObjectException.getID(structure));
-			this.generateStructure(world, chunk, structureAccessor, seed, structure.value());
+		RawGenerationStructurePiece.Context context = null;
+		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
+		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
+			if (structureEntry.value() instanceof RawGenerationStructure) {
+				List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
+				for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
+					StructureStart start = starts.get(startIndex);
+					if (start.hasChildren()) {
+						long structureSeed = getStructureSeed(this.seed, structureEntry, start);
+						List<StructurePiece> children = start.getChildren();
+						for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+							StructurePiece piece = children.get(pieceIndex);
+							if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
+								long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+								if (context == null) {
+									context = new RawGenerationStructurePiece.Context(0L, chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
+								}
+								context.pieceSeed = pieceSeed;
+								rawPiece.generateRaw(context);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
-	public void generateStructure(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor, long seed, Structure structure) {
-		List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structure);
-		for (int startIndex = 0, size = starts.size(); startIndex < size; startIndex++) {
-			StructureStart start = starts.get(startIndex);
-			try {
-				world.setCurrentlyGeneratingStructureName(() -> {
-					RegistryKey<Structure> key = world.getRegistryManager().get(RegistryKeyVersions.structure()).getKey(structure).orElse(null);
-					return (key != null ? key : structure).toString();
-				});
-				long startSeed = Permuter.permute(seed, start.getPos());
-				start.place(
-					world,
-					structureAccessor,
-					this,
-					new MojangPermuter(startSeed),
-					WorldUtil.chunkBox(chunk),
-					chunk.getPos()
-				);
-			}
-			catch (Exception exception) {
-				CrashReport report = CrashReport.create(exception, "Structure placement");
+	public void generateStructures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) return;
 
-				report
-				.addElement("Structure being placed")
-				.add("ID", () -> String.valueOf(world.getRegistryManager().get(RegistryKeyVersions.structure()).getId(structure)))
-				.add("Description", () -> String.valueOf(structure))
-				.add("Start", () -> String.valueOf(start))
-				.add("Start position", () -> String.valueOf(start.getPos()));
-
-				report
-				.addElement("World and location")
-				.add("World", () -> String.valueOf(world))
-				.add("Chunk", () -> String.valueOf(chunk))
-				.add("Chunk position", () -> String.valueOf(chunk.getPos()))
-				.add("Seed", seed);
-
-				throw new CrashException(report);
-			}
-			finally {
-				world.setCurrentlyGeneratingStructureName(null);
+		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
+		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
+			List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
+			for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
+				StructureStart start = starts.get(startIndex);
+				if (start.hasChildren()) {
+					long structureSeed = getStructureSeed(this.seed, structureEntry, start);
+					List<StructurePiece> children = start.getChildren();
+					BlockBox firstPieceBB = children.get(0).getBoundingBox();
+					BlockPos pivot = new BlockPos(
+						(firstPieceBB.getMinX() + firstPieceBB.getMaxX() + 1) >> 1,
+						firstPieceBB.getMinY(),
+						(firstPieceBB.getMinZ() + firstPieceBB.getMaxZ() + 1) >> 1
+					);
+					for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+						StructurePiece piece = children.get(pieceIndex);
+						if (piece.getBoundingBox().intersects(chunkBox)) {
+							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+							piece.generate(
+								world,
+								structureAccessor,
+								this,
+								new MojangPermuter(pieceSeed),
+								chunkBox,
+								chunk.getPos(),
+								pivot
+							);
+						}
+					}
+					start.getStructure().postPlace(
+						world,
+						structureAccessor,
+						this,
+						new MojangPermuter(structureSeed),
+						chunkBox,
+						chunk.getPos(),
+						((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
+					);
+				}
 			}
 		}
+	}
+
+	public static long getStructureSeed(long worldSeed, RegistryEntry<Structure> structureEntry, StructureStart start) {
+		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, UnregisteredObjectException.getID(structureEntry).hashCode(), start.getPos().x, start.getPos().z);
 	}
 
 	public class StructureFinder {
@@ -822,7 +833,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		int centerChunkX = center.getX() >> 4;
 		int centerChunkZ = center.getZ() >> 4;
 		StructureFinder finder = this.structureFinder(world, structures, skipReferencedStructures);
-		if (finder.tryStrongholds(centerChunkX, centerChunkZ)) return finder.toPair();
 		if (finder.update(centerChunkX, centerChunkZ)) return finder.toPair();
 		for (int radius = 1; radius <= maxRadius; radius++) {
 			if (finder.update(centerChunkX + radius, centerChunkZ)) return finder.toPair();
@@ -844,6 +854,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			if (finder.update(centerChunkX - radius, centerChunkZ + radius)) return finder.toPair();
 			if (finder.update(centerChunkX - radius, centerChunkZ - radius)) return finder.toPair();
 		}
+		if (finder.tryStrongholds(centerChunkX, centerChunkZ)) return finder.toPair();
 		return null;
 	}
 

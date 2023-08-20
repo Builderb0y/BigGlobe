@@ -116,6 +116,7 @@ public class BlockQueue {
 					worldBlockEntity.readNbt(queuedBlockEntity.createNbt());
 				}
 			}
+			//*
 			if ((this.flags & Block.SKIP_LIGHTING_UPDATES) != 0 && world instanceof World) {
 				LightingProvider lightManager = world.getLightingProvider();
 				for (
@@ -125,6 +126,7 @@ public class BlockQueue {
 					lightManager.checkBlock(pos.set(iterator.nextLong()));
 				}
 			}
+			//*/
 		}
 	}
 

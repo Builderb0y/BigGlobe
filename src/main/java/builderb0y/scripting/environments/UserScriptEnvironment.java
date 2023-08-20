@@ -90,12 +90,12 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			(parser, receiver, name, mode, arguments) -> {
 				return switch (arguments.length) {
 					case 0 -> {
-						yield new CastResult(mode.makeInstanceInvoker(parser, receiver, getter), false);
+						yield new CastResult(mode.makeInvoker(parser, receiver, getter), false);
 					}
 					case 1 -> {
 						InsnTree argument = arguments[0].cast(parser, field.type, CastMode.IMPLICIT_NULL);
 						if (argument == null) yield null;
-						yield new CastResult(mode.makeInstanceInvoker(parser, receiver, setter, argument), argument != arguments[0]);
+						yield new CastResult(mode.makeInvoker(parser, receiver, setter, argument), argument != arguments[0]);
 					}
 					default -> {
 						yield null;
@@ -114,7 +114,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return new CastResult(mode.makeStaticInvoker(parser, method, castArguments), castArguments != arguments);
+				if (castArguments != null) return new CastResult(mode.makeInvoker(parser, method, castArguments), castArguments != arguments);
 			}
 			return null;
 		});

@@ -27,7 +27,7 @@ public class JumpToReturnOptimizer implements MethodOptimizer {
 				AbstractInsnNode target = ((JumpInsnNode)(node)).label;
 				do target = target.getNext();
 				while (target instanceof LabelNode || target instanceof LineNumberNode);
-				switch (target.getOpcode()) {
+				if (target != null) switch (target.getOpcode()) {
 					case IRETURN, LRETURN, FRETURN, DRETURN, ARETURN, RETURN -> {
 						method.instructions.set(node, new InsnNode(target.getOpcode()));
 						changed = true;

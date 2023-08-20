@@ -7,7 +7,10 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.CastingSupport;
+import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -18,6 +21,7 @@ import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax;
@@ -30,7 +34,15 @@ public class BuiltinScriptEnvironment {
 
 	public static final MethodInfo
 		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
-		PRINTLN = MethodInfo.findMethod(PrintStream.class, "println", void.class, String.class);
+		PRINTLN_VOID          = MethodInfo.findMethod(PrintStream.class, "println", void.class),
+		PRINTLN_BOOLEAN       = MethodInfo.findMethod(PrintStream.class, "println", void.class, boolean.class),
+		PRINTLN_CHAR          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    char.class),
+		PRINTLN_INT           = MethodInfo.findMethod(PrintStream.class, "println", void.class,     int.class),
+		PRINTLN_LONG          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    long.class),
+		PRINTLN_FLOAT         = MethodInfo.findMethod(PrintStream.class, "println", void.class,   float.class),
+		PRINTLN_DOUBLE        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  double.class),
+		PRINTLN_STRING        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  String.class),
+		PRINTLN_OBJECT        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  Object.class);
 	public static final FieldInfo
 		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
 
@@ -44,7 +56,7 @@ public class BuiltinScriptEnvironment {
 		.addVariable("false", ldc(false))
 		.addVariable("no",    ldc(false))
 		.addVariable("noop",  noop)
-		.addVariable("null",  ldc(null, TypeInfos.OBJECT))
+		.addVariable("null",  ldc(null, TypeInfos.OBJECT.generic()))
 
 		//////////////// types ////////////////
 
@@ -97,22 +109,42 @@ public class BuiltinScriptEnvironment {
 		*/
 		.addFunction("print", (parser, name, arguments) -> {
 			InsnTree loadOut = getStatic(SYSTEM_OUT);
-			InsnTree concat = invokeDynamic(
-				STRING_CONCAT_FACTORY,
-				new MethodInfo(
-					ACC_PUBLIC | ACC_STATIC,
-					TypeInfos.OBJECT, //ignored
-					"concat",
-					TypeInfos.STRING,
-					Arrays
-					.stream(arguments)
-					.map(InsnTree::getTypeInfo)
-					.toArray(TypeInfo.ARRAY_FACTORY)
-				),
-				ConstantValue.ARRAY_FACTORY.empty(),
-				arguments
+			return new CastResult(
+				switch (arguments.length) {
+					case 0 -> invokeInstance(loadOut, PRINTLN_VOID);
+					case 1 -> switch (arguments[0].getTypeInfo().getSort()) {
+						case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
+						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+						case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
+						case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
+						case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);
+						case DOUBLE        -> invokeInstance(loadOut, PRINTLN_DOUBLE,  arguments);
+						case CHAR          -> invokeInstance(loadOut, PRINTLN_CHAR,    arguments);
+						case BOOLEAN       -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
+						case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT,  arguments);
+					};
+					default -> invokeInstance(
+						loadOut,
+						PRINTLN_STRING,
+						invokeDynamic(
+							STRING_CONCAT_FACTORY,
+							new MethodInfo(
+								ACC_PUBLIC | ACC_STATIC,
+								TypeInfos.OBJECT, //ignored
+								"concat",
+								TypeInfos.STRING,
+								Arrays
+								.stream(arguments)
+								.map(InsnTree::getTypeInfo)
+								.toArray(TypeInfo.ARRAY_FACTORY)
+							),
+							ConstantValue.ARRAY_FACTORY.empty(),
+							arguments
+						)
+					);
+				},
+				false
 			);
-			return new CastResult(invokeInstance(loadOut, PRINTLN, concat), false);
 		})
 
 		//////////////// keywords ////////////////
@@ -195,6 +227,13 @@ public class BuiltinScriptEnvironment {
 		.addMemberKeyword(null, "as", (parser, receiver, name, mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
 		})
+		.addMemberKeyword(TypeInfos.BYTE,   "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.SHORT,  "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.INT,    "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.LONG,   "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.FLOAT,  "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.DOUBLE, "isBetween", makeBetween())
+		.addMemberKeyword(TypeInfos.CHAR,   "isBetween", makeBetween())
 
 		//////////////// casting ////////////////
 
@@ -316,6 +355,19 @@ public class BuiltinScriptEnvironment {
 		if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 		parser.input.expectAfterWhitespace(')');
 		return type;
+	}
+
+	public static MemberKeywordHandler makeBetween() {
+		return (parser, receiver, name, mode) -> {
+			return switch (mode) {
+				case NORMAL, NULLABLE -> {
+					yield SpecialFunctionSyntax.IsBetween.parse(parser, receiver).toTree(parser);
+				}
+				case RECEIVER, NULLABLE_RECEIVER -> {
+					throw new ScriptParsingException("Can't use isBetween() with nullable syntax.", parser.input);
+				}
+			};
+		};
 	}
 
 	public static InsnTree nextIfElse(ExpressionParser parser, boolean negate) throws ScriptParsingException {

@@ -27,6 +27,8 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLooku
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
@@ -82,7 +84,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				((chunkZ + 1) << 4) | 15
 			)
 		);
-		Coordination coordination = new Coordination(origin.getX(), origin.getZ(), rotation, box);
+		Coordination coordination = new Coordination(
+			Rotation2D.fromCenter(origin.getX(), origin.getZ(), rotation),
+			box,
+			box
+		);
 		StructureWorldAccess world = switch (context.getConfig().queueType) {
 			case NONE -> context.getWorld();
 			case BASIC -> new BlockQueueStructureWorldAccess(
@@ -113,7 +119,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				}
 			);
 		};
-		WorldWrapper wrapper = new WorldWrapper(world, permuter, coordination);
+		WorldWrapper wrapper = new WorldWrapper(new WorldDelegator(world), permuter, coordination);
 		if (
 			context.getConfig().script.generate(
 				wrapper,
@@ -175,13 +181,15 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		@Wrapper
 		public static class Holder extends ScriptHolder<FeatureScript> implements FeatureScript {
 
-			public static final InsnTree LOAD_RANDOM = new IdentityCastInsnTree(
-				getField(
-					load("world", 1, WorldWrapper.TYPE),
-					FieldInfo.getField(WorldWrapper.class, "permuter")
-				),
-				type(RandomGenerator.class)
-			);
+			public static final InsnTree
+				LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+				LOAD_RANDOM = new IdentityCastInsnTree(
+					getField(
+						LOAD_WORLD,
+						FieldInfo.getField(WorldWrapper.class, "permuter")
+					),
+					type(RandomGenerator.class)
+				);
 
 			public final SerializableScriptInputs inputs;
 
@@ -190,9 +198,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					new TemplateScriptParser<>(FeatureScript.class, inputs.buildScriptInputs())
 					.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(
-						load("world", 1, WorldWrapper.TYPE)
-					))
+					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
+					.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 					.addEnvironment(
@@ -210,7 +217,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						ColumnScriptEnvironmentBuilder.createFromLookup(
 							ColumnValue.REGISTRY,
 							new IdentityCastInsnTree(
-								load("world", 1, type(WorldWrapper.class)),
+								LOAD_WORLD,
 								type(ColumnLookup.class)
 							),
 							new DefaultLookupPosition(
@@ -225,6 +232,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 						)
 						.build()
 					)
+					.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 					.parse()
 				);
 				this.inputs = inputs;

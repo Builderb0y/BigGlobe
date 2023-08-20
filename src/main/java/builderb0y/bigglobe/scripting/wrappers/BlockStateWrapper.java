@@ -138,8 +138,8 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
-		BlockPos pos = world.pos(x, y, z);
-		return pos != null && BlockStateVersions.isReplaceable(world.world.getBlockState(pos)) && state.canPlaceAt(world.world, pos);
+		BlockPos pos = world.mutablePos(x, y, z);
+		return pos != null && BlockStateVersions.isReplaceable(world.world.getBlockState(pos)) && world.world.canPlace(pos, state);
 	}
 
 	public static boolean hasWater(BlockState state) {

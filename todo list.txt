@@ -9,7 +9,7 @@ bugs:
 	immersive portals places the end portal inside the end nest.
 		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
 		this is fixed in a later version of immersive portals.
-	try nightly build of distant horizons and see if I can debug any memory leaks or anything.
+	try nightly build of distant horizons again. apparently the server thread is stuck in an infinite loop.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -20,9 +20,14 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed recently added "make big globe the default world type" config option not working properly.
-	* Improved physics of string slightly.
-	* Added a couple new pieces of syntax for scripting.
+	* Added surface mineshaft structure.
+	* Added medium and large house structures.
+	* Fixed foliage colors with sodium 0.5.0+.
+	* Potentially fixed some structures failing to be located correctly.
+	* Sped up distant horizons chunk generation in the overworld slightly.
+	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
+	* Some scripts can now place structure templates.
+	* Miscellaneous changes and improvements for scripting, as usual.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -33,8 +38,10 @@ scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
 	scriptable RandomSource?
-	scripted structure layouts should be able to construct jigsaw structure pieces.
 	general-purpose script bytecode optimization framework.
+		more sophisticated flow analysis to see what values could be where at any given time?
+			could help with more advanced constant jumps?
+		more sophisticated back-tracking algorithm for pop removal?
 	more invoke syntaxes:
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.
@@ -50,11 +57,6 @@ scripting:
 			this is the more intuitive option, but it is more difficult semantically
 			due to the fact that you can't assign to final fields inside clone().
 			not that I have final fields yet, but still.
-	cache scripts.
-	for (int x in range[0, 10) % step: body)
-		how to handle descending iteration?
-		maybe for (int x in -range[0, 10) % step: body)?
-		should step be auto-negated in this case?
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
@@ -77,9 +79,24 @@ features:
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
 		ice spikes.
-		glaciers.
+		glaciers:
+			snow on top.
+			packed snow under that.
+				can be broken by pickaxe or shovel, but not quickly.
+			packed ice under that.
+			then blue ice.
+			and lastly, regular ice.
+			2 types of glacier areas:
+				floating debris:
+					small boulders of various types of ice floating on the surface.
+				main island:
+					mostly flat-ish.
+					thickness determined by temperature.
+					thickness does not reach 0 where island starts.
+						instead, there is a cliff there.
+						cliff may be submerged, as there is another layer of noise which determines vertical center.
+					spikes on surface.
 		log cabin structure?
-		medium and large house structures?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -113,7 +130,7 @@ features:
 			add "center" noise?
 		make lilypads renewable?
 		sandstone small house variant.
-		surface mineshaft structure.
+		more decorations for surface mineshafts?
 	nether:
 	end:
 		block of void?
@@ -123,6 +140,7 @@ features:
 		asteroids in the void biome.
 		ender clam?
 			source of ender pearls.
+		holes in the surface?
 
 before release:
 	make sure nothing in test package is used.
@@ -137,15 +155,16 @@ porting:
 
 back-porting from 1.20 to 1.19.4:
 	re-enable lighting update suppression in BlockQueue.
+	re-enable lighting in SectionGenerationContext.
+	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
+	@VerifyNormal needs to verify that the block does not emit light.
 	SpelunkingRopeBlock block needs to override getPistonBehavior() to return DESTROY.
 	RopeAnchorBlock needs to override getPistonBehavior() to return BLOCK.
 	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
 	loot tables for wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
-	@VerifyNormal needs to verify that the block does not emit light.
 	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
-	re-enable lighting in SectionGenerationContext.
-	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
-	remove replaceable_plants block tag and just use Material.PLANT in MaterialVersions instead.
+	remove replaceable_plants block tag.
+	use Material.PLANT in BlockStateVersions instead.
 	remove hanging signs and cherry stuff.
 		remove hanging signs in WoodPalette.
 		list of places where hanging signs appear:
@@ -175,4 +194,5 @@ back-porting from 1.19.4 to 1.19.2:
 	revert biomes to re-add precipitation field.
 	ensure ball of string adds correct NBT variants to creative menu.
 		and doesn't add itself to the wrong tabs.
+	fix WorldPresets_MakeBigGlobeTheDefaultWorldType2.
 	revert minecraft version dependency in fabric.mod.json.

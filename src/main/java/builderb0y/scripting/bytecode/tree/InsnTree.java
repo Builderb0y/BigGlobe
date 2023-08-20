@@ -7,7 +7,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.ElvisInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -49,7 +49,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			return this.asStatement();
 		}
 		if (this.jumpsUnconditionally()) {
-			return new IdentityCastInsnTree(this, type);
+			return wrapIdentityCast(this, type);
 		}
 		if (this.getTypeInfo().isGeneric || type.isGeneric) {
 			mode = mode.toExplicit();
@@ -175,7 +175,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			new StringBuilder(64)
 			.append(className, className.lastIndexOf('.') + 1, className.length())
 			.append(" of type ")
-			.append(this.getTypeInfo())
+			.append(this.getTypeInfo().getClassName())
 		);
 		ConstantValue constant = this.getConstantValue();
 		if (constant.isConstantOrDynamic()) {

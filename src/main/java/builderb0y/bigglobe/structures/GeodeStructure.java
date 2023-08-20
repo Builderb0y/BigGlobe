@@ -297,7 +297,6 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			double[] samples = new double[maxY - minY + 1];
 			double rcpRadius = 1.0D / this.data.radius;
 			double noiseMax = this.data.noise.maxValue();
-			Permuter permuter = new Permuter(Permuter.permute(context.seed ^ 0x963A72388F228396L, chunkPos));
 			BlockPos.Mutable pos = new BlockPos.Mutable();
 			for (int z = minZ; z <= maxZ; z++) {
 				pos.setZ(z);
@@ -306,7 +305,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					pos.setX(x);
 					double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
 					this.data.noise.getBulkY(
-						context.seed,
+						context.pieceSeed,
 						x - this.data.offsetX,
 						minY - this.data.offsetY,
 						z - this.data.offsetZ,
@@ -322,7 +321,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						if (noise > 0.0D) {
 							for (BlocksConfig block : this.data.blocks) {
 								if (noise < block.threshold) {
-									context.chunk.setBlockState(pos, block.states.getRandomElement(permuter), false);
+									context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
 									break placed;
 								}
 							}
@@ -575,7 +574,6 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			Data data = this.data;
 			ChunkPos chunkPos = context.chunk.getPos();
-			Permuter permuter = new Permuter(Permuter.permute(context.seed ^ 0xA895D1EC06824D06L, data.x1, data.y1, data.z1));
 			int minX = chunkPos.getStartX();
 			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
 			int minZ = chunkPos.getStartZ();
@@ -598,7 +596,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						double distanceSquared = relativePos.distanceSquared(nearest);
 						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
 						if (distanceSquared < thresholdSquared && context.chunk.getBlockState(mutablePos.set(x, y, z)).isAir()) {
-							context.chunk.setBlockState(mutablePos, data.states.getRandomElement(permuter), false);
+							context.chunk.setBlockState(mutablePos, data.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)), false);
 						}
 					}
 				}

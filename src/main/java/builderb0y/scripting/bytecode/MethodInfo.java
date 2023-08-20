@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
 
+import com.google.common.collect.ObjectArrays;
 import org.objectweb.asm.Handle;
 
 import builderb0y.scripting.util.ReflectionData;
@@ -13,7 +14,7 @@ import builderb0y.scripting.util.TypeInfos;
 import static org.objectweb.asm.Opcodes.*;
 
 @SuppressWarnings("deprecation")
-public class MethodInfo {
+public class MethodInfo implements BytecodeEmitter {
 
 	public static final int PURE = Integer.MIN_VALUE;
 
@@ -23,6 +24,7 @@ public class MethodInfo {
 	public String name;
 	public TypeInfo returnType;
 	public TypeInfo[] paramTypes;
+	public TypeInfo[] invokeTypes;
 
 	public MethodInfo(int access, TypeInfo owner, String name, TypeInfo returnType, TypeInfo... paramTypes) {
 		this.access = access;
@@ -34,6 +36,18 @@ public class MethodInfo {
 			if (paramType.isVoid()) {
 				throw new IllegalArgumentException("Void-type parameter: " + this);
 			}
+		}
+	}
+
+	public TypeInfo[] getInvokeTypes() {
+		if (this.isStatic()) {
+			return this.paramTypes;
+		}
+		else {
+			if (this.invokeTypes == null) {
+				this.invokeTypes = ObjectArrays.concat(this.owner, this.paramTypes);
+			}
+			return this.invokeTypes;
 		}
 	}
 
@@ -84,7 +98,8 @@ public class MethodInfo {
 		method.node.visitMethodInsn(opcode, this.owner.getInternalName(), this.name, this.getDescriptor(), this.isInterface());
 	}
 
-	public void emit(MethodCompileContext method) {
+	@Override
+	public void emitBytecode(MethodCompileContext method) {
 		this.emit(method, this.getInvokeOpcode());
 	}
 

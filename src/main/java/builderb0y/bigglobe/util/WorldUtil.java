@@ -9,10 +9,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -91,16 +88,34 @@ public class WorldUtil {
 		}
 	}
 
-	public static BlockBox chunkBox(Chunk chunk) {
-		ChunkPos chunkPos = chunk.getPos();
+	public static BlockBox chunkBox(ChunkPos pos, HeightLimitView height) {
 		return new BlockBox(
-			chunkPos.getStartX(),
-			chunk.getBottomY(),
-			chunkPos.getStartZ(),
-			chunkPos.getEndX(),
-			chunk.getTopY() - 1,
-			chunkPos.getEndZ()
+			pos.getStartX(),
+			height.getBottomY(),
+			pos.getStartZ(),
+			pos.getEndX(),
+			height.getTopY() - 1,
+			pos.getEndZ()
 		);
+	}
+
+	public static BlockBox chunkBox(Chunk chunk) {
+		return chunkBox(chunk.getPos(), chunk);
+	}
+
+	public static BlockBox surroundingChunkBox(ChunkPos pos, HeightLimitView height) {
+		return new BlockBox(
+			(pos.x - 1) << 4,
+			height.getBottomY(),
+			(pos.z - 1) << 4,
+			((pos.x + 1) << 4) | 15,
+			height.getTopY() - 1,
+			((pos.z + 1) << 4) | 15
+		);
+	}
+
+	public static BlockBox surroundingChunkBox(Chunk chunk) {
+		return surroundingChunkBox(chunk.getPos(), chunk);
 	}
 
 	public static BlockBox createBlockBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
