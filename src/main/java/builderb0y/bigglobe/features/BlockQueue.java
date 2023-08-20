@@ -123,7 +123,7 @@ public class BlockQueue {
 					lightManager.checkBlock(pos.set(iterator.nextLong()));
 				}
 			}
-			*/
+			//*/
 		}
 	}
 

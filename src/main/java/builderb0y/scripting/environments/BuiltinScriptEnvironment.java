@@ -302,6 +302,15 @@ public class BuiltinScriptEnvironment {
 		.addCast(CastingSupport.D2L)
 		.addCast(CastingSupport.D2F)
 		//boxing
+		.addCastConstant(CastingSupport.   BYTE_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.  SHORT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.    INT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.   LONG_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.  FLOAT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport. DOUBLE_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.   CHAR_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.BOOLEAN_CONSTANT_FACTORY, true)
+		/*
 		.addCastInvokeStatic(Byte     .class, "valueOf", true, Byte     .class, byte     .class)
 		.addCastInvokeStatic(Short    .class, "valueOf", true, Short    .class, short    .class)
 		.addCastInvokeStatic(Integer  .class, "valueOf", true, Integer  .class, int      .class)
@@ -310,6 +319,7 @@ public class BuiltinScriptEnvironment {
 		.addCastInvokeStatic(Double   .class, "valueOf", true, Double   .class, double   .class)
 		.addCastInvokeStatic(Character.class, "valueOf", true, Character.class, char     .class)
 		.addCastInvokeStatic(Boolean  .class, "valueOf", true, Boolean  .class, boolean  .class)
+		*/
 		//unboxing
 		.addCast(TypeInfos.BYTE_WRAPPER,    TypeInfos.BYTE,            true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Byte     .class,    "byteValue")))
 		.addCast(TypeInfos.SHORT_WRAPPER,   TypeInfos.SHORT,           true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Short    .class,   "shortValue")))

@@ -2,9 +2,11 @@ package builderb0y.bigglobe.entities;
 
 import com.google.common.collect.ImmutableSet;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EntityType.EntityFactory;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
@@ -18,54 +20,76 @@ public class BigGlobeEntityTypes {
 
 	public static final EntityType<TorchArrowEntity> TORCH_ARROW = register(
 		"torch_arrow",
-		new EntityType<>(
-			TorchArrowEntity::new,                 //factory
-			SpawnGroup.MISC,                       //spawnGroup
-			true,                                  //saveable
-			true,                                  //summonable
-			false,                                 //fireImmune
-			false,                                 //spawnableFarFromPlayer
-			ImmutableSet.of(),                     //canSpawnInside
-			EntityDimensions.changing(0.5F, 0.5F), //dimensions
-			4,                                     //maxTrackingRange
-			20,                                    //trackingInterval
-			FeatureSet.empty()                     //requiredFeatures
-		)
+		TorchArrowEntity::new,
+		SpawnGroup.MISC,
+		true,
+		true,
+		false,
+		false,
+		ImmutableSet.of(),
+		EntityDimensions.changing(0.5F, 0.5F),
+		4,
+		20
 	);
 	public static final EntityType<RockEntity> ROCK = register(
 		"rock",
-		new EntityType<>(
-			RockEntity::new,
-			SpawnGroup.MISC,
-			true,
-			true,
-			false,
-			false,
-			ImmutableSet.of(),
-			EntityDimensions.changing(0.5F, 0.5F),
-			4,
-			20,
-			FeatureSet.empty()
-		)
+		RockEntity::new,
+		SpawnGroup.MISC,
+		true,
+		true,
+		false,
+		false,
+		ImmutableSet.of(),
+		EntityDimensions.changing(0.5F, 0.5F),
+		4,
+		20
 	);
 	public static final EntityType<StringEntity> STRING = register(
 		"string",
-		new EntityType<>(
-			StringEntity::new,
-			SpawnGroup.MISC,
-			true,
-			true,
-			false,
-			true,
-			ImmutableSet.of(),
-			EntityDimensions.changing(0.5F, 0.5F),
-			4,
-			20,
-			FeatureSet.empty()
-		)
+		StringEntity::new,
+		SpawnGroup.MISC,
+		true,
+		true,
+		false,
+		true,
+		ImmutableSet.of(),
+		EntityDimensions.changing(0.5F, 0.5F),
+		4,
+		20
 	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }
+
+	public static <E extends Entity> EntityType<E> register(
+		String name,
+		EntityFactory<E> factory,
+		SpawnGroup spawnGroup,
+		boolean saveable,
+		boolean summonable,
+		boolean fireImmune,
+		boolean spawnableFarFromPlayer,
+		ImmutableSet<Block> canSpawnInside,
+		EntityDimensions dimensions,
+		int maxTrackDistance,
+		int trackTickInterval
+	) {
+		return register(
+			name,
+			new EntityType<>(
+				factory,
+				spawnGroup,
+				saveable,
+				summonable,
+				fireImmune,
+				spawnableFarFromPlayer,
+				canSpawnInside,
+				dimensions,
+				maxTrackDistance,
+				trackTickInterval,
+				FeatureSet.empty()
+			)
+		);
+	}
 
 	public static <E extends Entity> EntityType<E> register(String name, EntityType<E> type) {
 		return Registry.register(RegistryVersions.entityType(), BigGlobeMod.modID(name), type);

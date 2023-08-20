@@ -472,6 +472,11 @@ public class BigGlobeMath {
 		else throw new ArithmeticException("Value too big for an unsigned int: " + value);
 	}
 
+	public static char toCharExact(int value) {
+		if (value == (char)(value)) return (char)(value);
+		else throw new ArithmeticException("Value too big for a char: " + value);
+	}
+
 	public static int positiveProduct(int a, int b) {
 		return a > 0 && b > 0 ? a * b : 0;
 	}

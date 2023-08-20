@@ -97,6 +97,7 @@ features:
 						cliff may be submerged, as there is another layer of noise which determines vertical center.
 					spikes on surface.
 		log cabin structure?
+		windmill structure?
 		trees:
 			roots.
 				use for mangrove trees.
@@ -181,18 +182,19 @@ back-porting from 1.20 to 1.19.4:
 		data/bigglobe/worldgen/configured_feature/overworld/overriders/caves/trail_ruins.json
 		data/minecraft/tags/worldgen/biome/has_structure/trail_ruins.json
 	remove immersive portals mixin until immersive portals back-ports to 1.19.4.
+	remove sodium 0.5.0 mixin until sodium back-ports to 1.19.4.
 	revert minecraft version dependency in fabric.mod.json.
 
 back-porting from 1.19.4 to 1.19.2:
 	remove BiomeDownfallAccessor.
 	remove BigGlobeGameRules.SOUL_LAVA_CONVERSION.
+	re-add DynamicRegistryManager_AddBigGlobeInfos.
 	re-add call to BigGlobeDynamicRegistries.addBuiltin() in mod initializer.
-	fix SlimeEntity_AllowSpawningFromSpawner.
-	fix OceanMonumentGeneratorBase_VanillaBugFixes.
 	re-add structureSetRegistry pseudo-field to BigGlobeChunkGenerator.
 		include getter.
 	revert biomes to re-add precipitation field.
 	ensure ball of string adds correct NBT variants to creative menu.
 		and doesn't add itself to the wrong tabs.
 	fix WorldPresets_MakeBigGlobeTheDefaultWorldType2.
+	make sure BetterHardCodedRegistry.getOrCreateEntry() calls the correct method.
 	revert minecraft version dependency in fabric.mod.json.

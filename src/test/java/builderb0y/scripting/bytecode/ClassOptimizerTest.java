@@ -118,6 +118,19 @@ public class ClassOptimizerTest extends TestCommon {
 		);
 	}
 
+	@Test
+	@Disabled
+	public void testDumpConstants() throws ScriptParsingException {
+		dumpBytecode("return(true)");
+		dumpBytecode("return(12345i)");
+	}
+
+	@Test
+	public void testConstantEquality() throws ScriptParsingException {
+		assertSuccess(true, "Integer a = 12345i Integer b = 12345i a === b");
+		assertSuccess(true, "int a = 12345 int b = 12345 Integer(a) !== Integer(b)");
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void dumpBytecode(String script) throws ScriptParsingException {
 		ScriptParser<Supplier<Object>> parser = new ScriptParser<>((Class)(Supplier.class), script);

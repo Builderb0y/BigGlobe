@@ -1,16 +1,24 @@
 package builderb0y.scripting.bytecode;
 
+import java.lang.invoke.MethodHandles;
+
 import org.objectweb.asm.Opcodes;
 
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.instructions.casting.D2ZInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.F2ZInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandlerData;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MultiCastHandler;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class CastingSupport {
 
@@ -32,6 +40,37 @@ public class CastingSupport {
 		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT, false, opcode(Opcodes.D2F)),
 		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new F2ZInsnTree(value)),
 		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new D2ZInsnTree(value));
+	public static final FieldInfo
+		TRUE_FIELD  = FieldInfo.getField(Boolean.class, "TRUE" ),
+		FALSE_FIELD = FieldInfo.getField(Boolean.class, "FALSE");
+	public static final ConstantFactory
+		BYTE_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeByte"   ), MethodInfo.findMethod(Byte     .class, "valueOf", Byte     .class, byte   .class), TypeInfos.BYTE,    TypeInfos.BYTE_WRAPPER   ),
+		SHORT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeShort"  ), MethodInfo.findMethod(Short    .class, "valueOf", Short    .class, short  .class), TypeInfos.SHORT,   TypeInfos.SHORT_WRAPPER  ),
+		INT_CONSTANT_FACTORY     = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeInt"    ), MethodInfo.findMethod(Integer  .class, "valueOf", Integer  .class, int    .class), TypeInfos.INT,     TypeInfos.INT_WRAPPER    ),
+		LONG_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeLong"   ), MethodInfo.findMethod(Long     .class, "valueOf", Long     .class, long   .class), TypeInfos.LONG,    TypeInfos.LONG_WRAPPER   ),
+		FLOAT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeFloat"  ), MethodInfo.findMethod(Float    .class, "valueOf", Float    .class, float  .class), TypeInfos.FLOAT,   TypeInfos.FLOAT_WRAPPER  ),
+		DOUBLE_CONSTANT_FACTORY  = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeDouble" ), MethodInfo.findMethod(Double   .class, "valueOf", Double   .class, double .class), TypeInfos.DOUBLE,  TypeInfos.DOUBLE_WRAPPER ),
+		CHAR_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeChar"   ), MethodInfo.findMethod(Character.class, "valueOf", Character.class, char   .class), TypeInfos.CHAR,    TypeInfos.CHAR_WRAPPER   ),
+		BOOLEAN_CONSTANT_FACTORY = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeBoolean"), MethodInfo.findMethod(Boolean  .class, "valueOf", Boolean  .class, boolean.class), TypeInfos.BOOLEAN, TypeInfos.BOOLEAN_WRAPPER) {
+
+			@Override
+			public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
+				if (argument.getTypeInfo().equals(this.inType)) {
+					if (argument.getConstantValue().isConstant()) {
+						return new CastResult(getStatic(argument.getConstantValue().asBoolean() ? TRUE_FIELD : FALSE_FIELD), true);
+					}
+					else {
+						return new CastResult(InsnTrees.invokeStatic(this.variableMethod, argument), true);
+					}
+				}
+				else if (argument.getTypeInfo().equals(this.outType)) {
+					return new CastResult(argument, false);
+				}
+				else {
+					throw new InvalidOperandException("Must be a " + this.inType.getClassName() + " or a " + this.outType.getClassName() + "; was " + argument.getTypeInfo());
+				}
+			}
+		};
 
 	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
 		if (value.getTypeInfo().equals(type)) {
@@ -132,5 +171,41 @@ public class CastingSupport {
 
 	public static long roundLong(double value) {
 		return floorLong(value + 0.5D);
+	}
+
+	public static Byte makeByte(MethodHandles.Lookup caller, String name, Class<?> type, int value) {
+		return Byte.valueOf(BigGlobeMath.toByteExact(value));
+	}
+
+	public static Short makeShort(MethodHandles.Lookup caller, String name, Class<?> type, int value) {
+		return Short.valueOf(BigGlobeMath.toShortExact(value));
+	}
+
+	public static Integer makeInt(MethodHandles.Lookup caller, String name, Class<?> type, int value) {
+		return Integer.valueOf(value);
+	}
+
+	public static Long makeLong(MethodHandles.Lookup caller, String name, Class<?> type, long value) {
+		return Long.valueOf(value);
+	}
+
+	public static Float makeFloat(MethodHandles.Lookup caller, String name, Class<?> type, float value) {
+		return Float.valueOf(value);
+	}
+
+	public static Double makeDouble(MethodHandles.Lookup caller, String name, Class<?> type, double value) {
+		return Double.valueOf(value);
+	}
+
+	public static Character makeChar(MethodHandles.Lookup caller, String name, Class<?> type, int value) {
+		return Character.valueOf(BigGlobeMath.toCharExact(value));
+	}
+
+	public static Boolean makeBoolean(MethodHandles.Lookup caller, String name, Class<?> type, int value) {
+		return switch (value) {
+			case 0 -> Boolean.FALSE;
+			case 1 -> Boolean.TRUE;
+			default -> throw new IllegalArgumentException("Not a boolean: " + value);
+		};
 	}
 }

@@ -2,7 +2,7 @@ package builderb0y.scripting.environments;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -60,12 +60,13 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				//as such, we will only return a canonical boxing operation
 				//here if the result would extend or implement the requested type.
 				//for example, we return int -> Integer when the requested type
-				//is Integer, Object, Comparable, or a few other types.
+				//is Integer, Number, Object, Comparable, or a few other types.
 				//we will NOT return int -> Integer when the requested type
 				//is IntNbt, for example.
 				TypeInfo boxed = from.box();
 				if (boxed.extendsOrImplements(to)) {
-					return invokeStatic(new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, boxed, "valueOf", boxed, from), value);
+					return CastingSupport.primitiveCast(value, boxed);
+					//return invokeStatic(new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, boxed, "valueOf", boxed, from), value);
 				}
 			}
 		}

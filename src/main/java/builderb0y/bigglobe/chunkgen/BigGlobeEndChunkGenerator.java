@@ -97,7 +97,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 		ringCloudUpperCeilingDecorators,
 		ringCloudUpperFloorDecorators;
 
-	public BigGlobeEndChunkGenerator(EndSettings settings, SortedFeatures configuredFeatures, SortedStructures sortedStructures) {
+	public BigGlobeEndChunkGenerator(
+		EndSettings settings,
+		SortedFeatures configuredFeatures,
+		SortedStructures sortedStructures
+	) {
 		super(
 			new ColumnBiomeSource(
 				settings

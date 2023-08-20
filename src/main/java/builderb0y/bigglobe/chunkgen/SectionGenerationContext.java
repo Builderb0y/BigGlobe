@@ -48,7 +48,7 @@ public class SectionGenerationContext {
 		if (this.lights != null) {
 			this.lights.add(index);
 		}
-		*/
+		//*/
 	}
 
 	public boolean hasLights() {
