@@ -20,14 +20,6 @@ testing:
 where I left off:
 
 changelog:
-	* Added surface mineshaft structure.
-	* Added medium and large house structures.
-	* Fixed foliage colors with sodium 0.5.0+.
-	* Potentially fixed some structures failing to be located correctly.
-	* Sped up distant horizons chunk generation in the overworld slightly.
-	* Changed some structure random number seeds again. This could potentially make structures in old worlds generate differently on the boundary of generated chunks. On the plus side though, this also seems to fix the bug where every loot chest in a structure contains the same items.
-	* Some scripts can now place structure templates.
-	* Miscellaneous changes and improvements for scripting, as usual.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -70,6 +62,13 @@ features:
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
+		fully programmable chunk generator:
+			user-defined column values.
+				noise inputs.
+			user-defined "layers" of blocks to place.
+				2D and 3D layers are valid.
+				can choose if the layer is uniform or voronoi.
+				list of carvers.
 	overworld:
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
@@ -176,7 +175,6 @@ back-porting from 1.20 to 1.19.4:
 			data/bigglobe/loot_tables/blocks/charred_hanging_sign.json
 		list of places where cherry trees appear:
 			honestly just double-shift search for "cherry".
-			and then search in src for "cherry".
 	remove references to trail ruins:
 		data/bigglobe/worldgen/configured_feature/overworld/overriders/structures/trail_ruins.json
 		data/bigglobe/worldgen/configured_feature/overworld/overriders/caves/trail_ruins.json
