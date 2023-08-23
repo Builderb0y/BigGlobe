@@ -44,8 +44,13 @@ public class BlockQueue {
 	public BlockQueue(boolean causeBlockUpdates) {
 		this.flags = (
 			causeBlockUpdates
-			? Block.NOTIFY_ALL
-			: Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+			#if MC_VERSION >= MC_1_20_0
+				? Block.NOTIFY_ALL
+				: Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+			#else
+				? Block.SKIP_LIGHT_UPDATES | Block.NOTIFY_ALL
+				: Block.SKIP_LIGHT_UPDATES | Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+			#endif
 		);
 	}
 
@@ -113,17 +118,17 @@ public class BlockQueue {
 					worldBlockEntity.readNbt(queuedBlockEntity.createNbt());
 				}
 			}
-			/*
-			if ((this.flags & Block.SKIP_LIGHTING_UPDATES) != 0 && world instanceof World) {
-				LightingProvider lightManager = world.getLightingProvider();
-				for (
-					LongIterator iterator = this.queuedBlocks.keySet().iterator();
-					iterator.hasNext();
-				) {
-					lightManager.checkBlock(pos.set(iterator.nextLong()));
+			#if MC_VERSION < MC_1_20_0
+				if ((this.flags & Block.SKIP_LIGHTING_UPDATES) != 0 && world instanceof World) {
+					LightingProvider lightManager = world.getLightingProvider();
+					for (
+						LongIterator iterator = this.queuedBlocks.keySet().iterator();
+						iterator.hasNext();
+					) {
+						lightManager.checkBlock(pos.set(iterator.nextLong()));
+					}
 				}
-			}
-			//*/
+			#endif
 		}
 	}
 
@@ -190,13 +195,13 @@ public class BlockQueue {
 
 	public static record QueuedObject<T>(int x, int y, int z, long packed, T object) {
 
-		public QueuedObject(long packed, T state) {
+		public QueuedObject(long packed, T object) {
 			this(
 				BlockPos.unpackLongX(packed),
 				BlockPos.unpackLongY(packed),
 				BlockPos.unpackLongZ(packed),
 				packed,
-				state
+				object
 			);
 		}
 
