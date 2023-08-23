@@ -5,6 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.ItemEntity;
@@ -290,4 +291,13 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
 		return state.with(FACING, mirror.apply(state.get(FACING)));
 	}
+
+	#if MC_VERSION < MC_1_20_0
+		@Override
+		@Deprecated
+		@SuppressWarnings("deprecation")
+		public PistonBehavior getPistonBehavior(BlockState state) {
+			return PistonBehavior.DESTROY;
+		}
+	#endif
 }

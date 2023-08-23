@@ -12,7 +12,9 @@ public class BigGlobeBlockTags {
 	public static final TagKey<Block>
 		MINEABLE_PERCUSSIVE_HAMMER = of("mineable/percussive_hammer"),
 		ROCK_BREAKABLE             = of("rock_breakable"),
+		#if MC_VERSION >= MC_1_20_0
 		REPLACEABLE_PLANTS         = of("replaceable_plants"),
+		#endif
 		END_STONES                 = common("end_stones"),
 		END_STONE_SPREADABLE       = of("end_stone_spreadable");
 

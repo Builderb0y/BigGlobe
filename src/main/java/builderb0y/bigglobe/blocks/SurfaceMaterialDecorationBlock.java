@@ -3,6 +3,7 @@ package builderb0y.bigglobe.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
@@ -77,4 +78,13 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 		super.appendProperties(builder);
 		builder.add(Properties.WATERLOGGED);
 	}
+
+	#if MC_VERSION < MC_1_20_0
+		@Override
+		@Deprecated
+		@SuppressWarnings("deprecation")
+		public PistonBehavior getPistonBehavior(BlockState state) {
+			return PistonBehavior.DESTROY;
+		}
+	#endif
 }

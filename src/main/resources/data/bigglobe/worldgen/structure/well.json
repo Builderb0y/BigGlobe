@@ -9,12 +9,7 @@
 				"int originY = ceilInt(max_y(originX, originZ))",
 
 				"Biome biome = getBiome(originX, originY, originZ)",
-				"WoodPalette palette = (",
-					"biome.isIn('bigglobe:has_structure/mega_tree/cherry')",
-					"&& random.nextBoolean(0.25)",
-					"? WoodPalette('minecraft:cherry')",
-					": WoodPalette.randomForBiome(biome)",
-				")",
+				"WoodPalette palette = WoodPalette.randomForBiome(biome)",
 				"int type = 0",
 				"     if (biome == Biome('bigglobe:hot_plains'   ): type = 1)",
 				"else if (biome == Biome('bigglobe:hot_forest'   ): type = 1)",

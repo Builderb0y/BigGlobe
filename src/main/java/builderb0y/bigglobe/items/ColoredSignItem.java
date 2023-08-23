@@ -28,8 +28,12 @@ public class ColoredSignItem extends SignItem {
 		SignBlockEntity sign = WorldUtil.getBlockEntity(world, pos, SignBlockEntity.class);
 		if (sign != null) {
 			//set before reading from stack NBT.
-			sign.setText(sign.getFrontText().withColor(this.color), true );
-			sign.setText(sign.getBackText ().withColor(this.color), false);
+			#if MC_VERSION < MC_1_20_0
+				sign.setTextColor(this.color);
+			#else
+				sign.setText(sign.getFrontText().withColor(this.color), true );
+				sign.setText(sign.getBackText ().withColor(this.color), false);
+			#endif
 		}
 		return super.postPlacement(pos, world, player, stack, state);
 	}

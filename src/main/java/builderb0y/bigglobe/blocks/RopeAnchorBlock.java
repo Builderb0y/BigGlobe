@@ -3,6 +3,7 @@ package builderb0y.bigglobe.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -204,4 +205,13 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HAS_ROPE);
 	}
+
+	#if MC_VERSION < MC_1_20_0
+		@Override
+		@Deprecated
+		@SuppressWarnings("deprecation")
+		public PistonBehavior getPistonBehavior(BlockState state) {
+			return PistonBehavior.DESTROY;
+		}
+	#endif
 }

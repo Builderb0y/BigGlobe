@@ -15,7 +15,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.random.RandomSequencesState;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
@@ -24,12 +23,22 @@ import net.minecraft.world.spawner.Spawner;
 
 import builderb0y.bigglobe.dimensionTypes.BigGlobeDimensionTypeKeys;
 
-@Mixin(ServerWorld.class)
-public abstract class ServerWorld_CreateEnderDragonFightInBigGlobeWorlds extends World {
+#if MC_VERSION < MC_1_20_0
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mutable;
+#else
+import net.minecraft.util.math.random.RandomSequencesState;
+#endif
 
+@Mixin(ServerWorld.class)
+public abstract class ServerWorld_SpawnEnderDragonInBigGlobeWorlds extends World {
+
+	#if MC_VERSION < MC_1_20_0
+	@Final @Mutable
+	#endif
 	@Shadow private @Nullable EnderDragonFight enderDragonFight;
 
-	public ServerWorld_CreateEnderDragonFightInBigGlobeWorlds() {
+	public ServerWorld_SpawnEnderDragonInBigGlobeWorlds() {
 		super(null, null, null, null, null, false, false, 0L, 0);
 	}
 
@@ -46,7 +55,9 @@ public abstract class ServerWorld_CreateEnderDragonFightInBigGlobeWorlds extends
 		long seed,
 		List<Spawner> spawners,
 		boolean shouldTickTime,
+		#if MC_VERSION >= MC_1_20_0
 		RandomSequencesState randomSequencesState,
+		#endif
 		CallbackInfo callback
 	) {
 		if (this.getRegistryKey() == World.END && this.getDimensionEntry().matchesKey(BigGlobeDimensionTypeKeys.END)) {

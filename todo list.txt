@@ -21,6 +21,8 @@ where I left off:
 	structure template positions (pivot and placement) should be relative to WorldWrapper origin.
 
 changelog:
+	* To make my life a little bit easier, wells, surface mineshafts, and campfires will no longer spawn in cherry variants.
+		* Small, medium, and large houses will still have cherry variants.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

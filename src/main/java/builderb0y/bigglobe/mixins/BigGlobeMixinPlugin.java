@@ -41,7 +41,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                                    Boolean.TRUE);
-		//defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                              Boolean.TRUE); //unnecessary in 1.20.1.
+		#if MC_VERSION < MC_1_20_0
+		defaults.put(mixinPackage + ".CactusBlock_AllowPlacementOnOvergrownSand",                              Boolean.TRUE);
+		#endif
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                                  Boolean.FALSE);
 		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",                 Boolean.TRUE);
@@ -55,7 +57,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                                Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",                           Boolean.TRUE);
+		#if MC_VERSION >= MC_1_20_0
 		defaults.put(mixinPackage + ".ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds", Boolean.TRUE);
+		#endif
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                                   Boolean.FALSE);
@@ -70,10 +74,12 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",               Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerWorld_SpawnEnderDragonInBigGlobeWorlds",                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                   Boolean.TRUE);
+		#if MC_VERSION >= MC_1_20_0
 		defaults.put(mixinPackage + ".Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",                             Boolean.TRUE);
+		#endif
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
@@ -227,15 +233,17 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		Boolean enabled = this.settings.get(mixinClassName);
 		boolean defaultEnabled = enabled != null ? enabled.booleanValue() : true;
 		return switch (mixinClassName) {
-			case "builderb0y.bigglobe.mixins.Sodium_WorldSlice_UseNoiseInBigGlobeWorlds" -> {
-				yield defaultEnabled && checkMod(mixinClassName, "sodium", "0.5.0");
-			}
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
+			}
+			#if MC_VERSION >= MC_1_20_1
+			case "builderb0y.bigglobe.mixins.Sodium_WorldSlice_UseNoiseInBigGlobeWorlds" -> {
+				yield defaultEnabled && checkMod(mixinClassName, "sodium", "0.5.0");
 			}
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
 				yield defaultEnabled && checkMod(mixinClassName, "imm_ptl_core");
 			}
+			#endif
 			default -> {
 				yield defaultEnabled;
 			}

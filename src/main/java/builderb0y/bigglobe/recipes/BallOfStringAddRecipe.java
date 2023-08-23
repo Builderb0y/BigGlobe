@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.recipes;
 
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -15,6 +14,12 @@ import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
+#if MC_VERSION == MC_1_19_4
+import net.minecraft.inventory.CraftingInventory;
+#elif MC_VERSION == MC_1_20_1
+import net.minecraft.inventory.RecipeInputInventory;
+#endif
+
 public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 
 	public static final TagKey<Item> STRING = TagKey.of(RegistryKeyVersions.item(), new Identifier("c", "string"));
@@ -24,7 +29,15 @@ public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public boolean matches(RecipeInputInventory inventory, World world) {
+	#if MC_VERSION == MC_1_19_2
+		public boolean matches() {
+	#elif MC_VERSION == MC_1_19_4
+		public boolean matches(CraftingInventory inventory, World world) {
+	#elif MC_VERSION == MC_1_20_1
+		public boolean matches(RecipeInputInventory inventory, World world) {
+	#else
+		#error "check if minecraft changed the recipe methods again or not."
+	#endif
 		boolean haveBall = false, haveString = false;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {
 			ItemStack stack = inventory.getStack(slot);
@@ -46,7 +59,15 @@ public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager) {
+	#if MC_VERSION == MC_1_19_2
+		public ItemStack craft() {
+	#elif MC_VERSION == MC_1_19_4
+		public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
+	#elif MC_VERSION == MC_1_20_1
+		public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
+	#else
+		#error "check if minecraft changed the recipe methods again or not."
+	#endif
 		ItemStack ball = ItemStack.EMPTY;
 		int string = 0;
 		for (int slot = 0, size = inventory.size(); slot < size; slot++) {

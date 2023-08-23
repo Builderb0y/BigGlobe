@@ -24,7 +24,9 @@ public class SectionGenerationContext {
 	public final int sectionStartY;
 	public final long worldSeed;
 	public final ChunkOfColumns<? extends WorldColumn> columns;
-	//public final @Nullable LightPositionCollector lights;
+	#if MC_VERSION < MC_1_20_0
+	public final @Nullable LightPositionCollector lights;
+	#endif
 
 	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
 		this.chunk         = chunk;
@@ -32,7 +34,9 @@ public class SectionGenerationContext {
 		this.sectionStartY = sectionStartY;
 		this.worldSeed     = worldSeed;
 		this.columns       = columns;
-		//this.lights        = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
+		#if MC_VERSION < MC_1_20_0
+			this.lights = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
+		#endif
 	}
 
 	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
@@ -44,18 +48,26 @@ public class SectionGenerationContext {
 	}
 
 	public void addLight(int index) {
-		/*
-		if (this.lights != null) {
-			this.lights.add(index);
-		}
-		//*/
+		#if MC_VERSION < MC_1_20_0
+			if (this.lights != null) {
+				this.lights.add(index);
+			}
+		#endif
 	}
 
 	public boolean hasLights() {
-		return false; //this.lights != null && !this.lights.isEmpty();
+		#if MC_VERSION < MC_1_20_0
+			return this.lights != null && !this.lights.isEmpty();
+		#else
+			return false;
+		#endif
 	}
 
-	public @Nullable LightPositionCollector lights() { return null; } //this.lights; }
+	#if MC_VERSION < MC_1_20_0
+		public @Nullable LightPositionCollector lights() { return this.lights; }
+	#else
+		public @Nullable LightPositionCollector lights() { return null; }
+	#endif
 	public Chunk chunk() { return this.chunk; }
 	public ChunkPos chunkPos() { return this.chunk.getPos(); }
 	public ChunkSection section() { return this.section; }

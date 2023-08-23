@@ -51,7 +51,7 @@
 		"RegistryLoader_MakeDynamicRegistriesMutable",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
-		"ServerWorld_CreateEnderDragonFightInBigGlobeWorlds",
+		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
 		"ServerWorld_CustomTimeSpeed",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
 		"SingularPalette_EntryAccess",

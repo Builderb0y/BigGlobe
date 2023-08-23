@@ -8,6 +8,10 @@ import net.minecraft.text.Text;
 public class ServerCommandSourceVersions {
 
 	public static void sendFeedback(ServerCommandSource source, Supplier<Text> feedbackSupplier, boolean broadcastToOps) {
-		source.sendFeedback(feedbackSupplier, broadcastToOps);
+		#if MC_VERSION >= MC_1_20_0
+			source.sendFeedback(feedbackSupplier, broadcastToOps);
+		#else
+			source.sendFeedback(feedbackSupplier.get(), broadcastToOps);
+		#endif
 	}
 }

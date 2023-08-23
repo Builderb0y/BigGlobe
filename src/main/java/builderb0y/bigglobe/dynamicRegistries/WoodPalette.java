@@ -132,8 +132,10 @@ public class WoodPalette {
 	public Block pottedSaplingBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING   ); }
 	public Block standingSignBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN    ); }
 	public Block wallSignBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN        ); }
+	#if MC_VERSION >= MC_1_20_0
 	public Block hangingSignBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.HANGING_SIGN     ); }
 	public Block wallHangingSignBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_HANGING_SIGN); }
+	#endif
 
 	//////////////////////////////// blocks ////////////////////////////////
 
@@ -161,8 +163,10 @@ public class WoodPalette {
 	public IRandomList<Block> pottedSaplingBlocks  () { return this.getBlocks(WoodPaletteType.POTTED_SAPLING   ); }
 	public IRandomList<Block> standingSignBlocks   () { return this.getBlocks(WoodPaletteType.STANDING_SIGN    ); }
 	public IRandomList<Block> wallSignBlocks       () { return this.getBlocks(WoodPaletteType.WALL_SIGN        ); }
+	#if MC_VERSION >= MC_1_20_0
 	public IRandomList<Block> hangingSignBlocks    () { return this.getBlocks(WoodPaletteType.HANGING_SIGN     ); }
 	public IRandomList<Block> wallHangingSignBlocks() { return this.getBlocks(WoodPaletteType.WALL_HANGING_SIGN); }
+	#endif
 
 	//////////////////////////////// states ////////////////////////////////
 
@@ -299,14 +303,6 @@ public class WoodPalette {
 		return state;
 	}
 
-	public BlockState hangingSign(RandomGenerator random, int rotation, boolean attached, boolean waterlogged) {
-		BlockState state = this.getState(random, WoodPaletteType.HANGING_SIGN);
-		state = BlockStateVersions.withIfExists(state, Properties.ROTATION, rotation);
-		state = BlockStateVersions.withIfExists(state, Properties.ATTACHED, attached);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
-		return state;
-	}
-
 	//////////////////////////////// types ////////////////////////////////
 
 	public static enum WoodPaletteType implements StringIdentifiable {
@@ -328,8 +324,11 @@ public class WoodPalette {
 		POTTED_SAPLING,
 		STANDING_SIGN,
 		WALL_SIGN,
+		#if MC_VERSION >= MC_1_20_0
 		HANGING_SIGN,
-		WALL_HANGING_SIGN;
+		WALL_HANGING_SIGN,
+		#endif
+		;
 
 		public static final WoodPaletteType[] VALUES = values();
 		public static final Map<String, WoodPaletteType> LOWER_CASE_LOOKUP = (

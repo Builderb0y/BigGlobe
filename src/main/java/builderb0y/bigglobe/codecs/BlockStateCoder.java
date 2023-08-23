@@ -38,11 +38,19 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static <T_Encoded> void verifyNormal(VerifyContext<T_Encoded, BlockState> context) throws VerifyException {
 		BlockState state = context.object;
-		if (state != null && state.hasBlockEntity()) {
+		#if MC_VERSION >= MC_1_20_0
+			if (state != null && state.hasBlockEntity()) {
+		#else
+			if (state != null && (state.getLuminance() != 0 || state.hasBlockEntity())) {
+		#endif
 			throw new VerifyException(() -> {
 				StringBuilder message = new StringBuilder("For technical reasons, ");
 				context.appendPathTo(message);
-				return message.append(" cannot have a BlockEntity. (was ").append(state).append(')').toString();
+				#if MC_VERSION >= MC_1_20_0
+					return message.append(" cannot have a BlockEntity. (was ").append(state).append(')').toString();
+				#else
+					return message.append(" cannot emit light or have a BlockEntity. (was ").append(state).append(')').toString();
+				#endif
 			});
 		}
 	}
