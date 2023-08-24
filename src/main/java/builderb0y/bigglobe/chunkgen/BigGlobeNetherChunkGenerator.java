@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
@@ -40,6 +41,7 @@ import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
@@ -80,11 +82,17 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient NetherOreFeature.Config[] ores;
 
 	public BigGlobeNetherChunkGenerator(
+		#if MC_VERSION == MC_1_19_2
+			BetterRegistry<StructureSet> structureSetRegistry,
+		#endif
 		NetherSettings settings,
 		SortedFeatures configuredFeatures,
 		SortedStructures sortedStructures
 	) {
 		super(
+			#if MC_VERSION == MC_1_19_2
+				structureSetRegistry,
+			#endif
 			new ColumnBiomeSource(
 				settings.local_settings.stream().map(
 					(RegistryEntry<LocalNetherSettings> localSettings) -> (

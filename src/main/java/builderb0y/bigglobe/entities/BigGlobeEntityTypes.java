@@ -9,10 +9,13 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityType.EntityFactory;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION > MC_1_19_2
+import net.minecraft.resource.featuretoggle.FeatureSet;
+#endif
 
 public class BigGlobeEntityTypes {
 
@@ -85,8 +88,10 @@ public class BigGlobeEntityTypes {
 				canSpawnInside,
 				dimensions,
 				maxTrackDistance,
-				trackTickInterval,
-				FeatureSet.empty()
+				trackTickInterval
+				#if MC_VERSION > MC_1_19_2
+					, FeatureSet.empty()
+				#endif
 			)
 		);
 	}

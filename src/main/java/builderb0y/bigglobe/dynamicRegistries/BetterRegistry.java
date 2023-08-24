@@ -5,14 +5,17 @@ import java.util.stream.Stream;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION > MC_1_19_2
+	import net.minecraft.registry.RegistryEntryLookup;
+	import net.minecraft.registry.RegistryWrapper;
+#endif
 
 /**
 in 1.19.2, all of this functionality was implemented by {@link Registry}.
@@ -49,7 +52,11 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
-			return this.registry.entryOf(key);
+			#if MC_VERSION <= MC_1_19_2
+				return this.registry.getOrCreateEntry(key);
+			#else
+				return this.registry.entryOf(key);
+			#endif
 		}
 
 		@Override
@@ -68,41 +75,43 @@ public interface BetterRegistry<T> {
 		}
 	}
 
-	public static class BetterDynamicRegistry<T> implements BetterRegistry<T> {
+	#if MC_VERSION > MC_1_19_2
+		public static class BetterDynamicRegistry<T> implements BetterRegistry<T> {
 
-		public final RegistryWrapper.Impl<T> wrapperImpl;
-		public final RegistryEntryLookup<T> lookup;
+			public final RegistryWrapper.Impl<T> wrapperImpl;
+			public final RegistryEntryLookup<T> lookup;
 
-		public BetterDynamicRegistry(RegistryWrapper.Impl<T> wrapperImpl, RegistryEntryLookup<T> lookup) {
-			this.wrapperImpl = wrapperImpl;
-			this.lookup = lookup;
+			public BetterDynamicRegistry(RegistryWrapper.Impl<T> wrapperImpl, RegistryEntryLookup<T> lookup) {
+				this.wrapperImpl = wrapperImpl;
+				this.lookup = lookup;
+			}
+
+			@Override
+			public RegistryKey<Registry<T>> getKey() {
+				return RegistryVersions.getRegistryKey(this.wrapperImpl);
+			}
+
+			@Override
+			public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
+				return this.lookup.getOrThrow(key);
+			}
+
+			@Override
+			public RegistryEntryList<T> getOrCreateTag(TagKey<T> key) {
+				return this.lookup.getOrThrow(key);
+			}
+
+			@Override
+			public Stream<RegistryEntry<T>> streamEntries() {
+				return castStream(this.wrapperImpl.streamEntries());
+			}
+
+			@Override
+			public Stream<RegistryEntryList<T>> streamTags() {
+				return castStream(this.wrapperImpl.streamTags());
+			}
 		}
-
-		@Override
-		public RegistryKey<Registry<T>> getKey() {
-			return RegistryVersions.getRegistryKey(this.wrapperImpl);
-		}
-
-		@Override
-		public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
-			return this.lookup.getOrThrow(key);
-		}
-
-		@Override
-		public RegistryEntryList<T> getOrCreateTag(TagKey<T> key) {
-			return this.lookup.getOrThrow(key);
-		}
-
-		@Override
-		public Stream<RegistryEntry<T>> streamEntries() {
-			return castStream(this.wrapperImpl.streamEntries());
-		}
-
-		@Override
-		public Stream<RegistryEntryList<T>> streamTags() {
-			return castStream(this.wrapperImpl.streamTags());
-		}
-	}
+	#endif
 
 	@SuppressWarnings("unchecked")
 	public static <T> Stream<T> castStream(Stream<? extends T> stream) {

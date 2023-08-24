@@ -6,6 +6,7 @@ import net.minecraft.block.Fertilizable;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
@@ -16,7 +17,7 @@ public class OvergrownEndStoneBlock extends Block implements Fertilizable {
 	}
 
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state, boolean isClient) {
+	public boolean isFertilizable(#if (MC_VERSION <= MC_1_19_2) BlockView #else WorldView #endif world, BlockPos pos, BlockState state, boolean isClient) {
 		return true;
 	}
 

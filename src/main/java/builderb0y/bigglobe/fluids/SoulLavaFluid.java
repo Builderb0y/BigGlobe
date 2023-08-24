@@ -32,10 +32,17 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 		return BigGlobeFluids.SOUL_LAVA;
 	}
 
-	@Override
-	public boolean isInfinite(World world) {
-		return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
-	}
+	#if MC_VERSION <= MC_1_19_2
+		@Override
+		public boolean isInfinite() {
+			return false;
+		}
+	#else
+		@Override
+		public boolean isInfinite(World world) {
+			return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
+		}
+	#endif
 
 	@Override
 	public void beforeBreakingBlock(WorldAccess world, BlockPos pos, BlockState state) {

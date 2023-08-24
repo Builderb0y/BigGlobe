@@ -42,7 +42,12 @@ repositories() {
 
 dependencies() {
 	minecraft("com.mojang:minecraft:${ project.minecraft_version }")
-	mappings("net.fabricmc:yarn:${ project.yarn_mappings }:v2")
+	if (project.minecraft_version == '1.19.2') {
+		mappings(fileTree('mapping'))
+	}
+	else {
+		mappings("net.fabricmc:yarn:${ project.yarn_mappings }:v2")
+	}
 	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
 
@@ -50,8 +55,15 @@ dependencies() {
 	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
 
 	String AUTO_CODEC_VERSION = '4.10.0'
-	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION")
+	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
+		transitive = false //don't include different version of DFU than what minecraft uses.
+	}
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
+	if (project.minecraft_version == '1.19.2') {
+		String JOML_VERSION = '1.10.4'
+		implementation("org.joml:joml:$JOML_VERSION")
+		include("org.joml:joml:$JOML_VERSION")
+	}
 
 	modCompileOnly(fileTree(file("dependencies/$project.minecraft_version/compileOnly")))
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
@@ -75,7 +87,7 @@ processResources() {
 }
 
 loom() {
-	accessWidenerPath = file('src/main/resources/bigglobe.accesswidener')
+	accessWidenerPath = file("src/main/resources_${project.minecraft_version}/bigglobe.accesswidener")
 }
 
 def targetJavaVersion = 17
@@ -164,7 +176,7 @@ Map<String, String> loadVersion(Version version) {
 	)
 }
 
-for (Version version in [ new Version(19, 4), new Version(20, 1) ]) {
+for (Version version in [ new Version(19, 2), new Version(19, 4), new Version(20, 1) ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
 		group('versions')

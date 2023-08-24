@@ -37,10 +37,16 @@ public class ColumnBiomeSource extends BiomeSource {
 
 	public BigGlobeChunkGenerator generator;
 	public ThreadLocal<WorldColumn> threadLocalColumn;
-	public Stream<RegistryEntry<Biome>> biomeStream;
+	#if MC_VERSION > MC_1_19_2
+		public Stream<RegistryEntry<Biome>> biomeStream;
+	#endif
 
 	public ColumnBiomeSource(Stream<RegistryEntry<Biome>> biomeStream) {
-		this.biomeStream = biomeStream;
+		#if MC_VERSION <= MC_1_19_2
+			super(biomeStream);
+		#else
+			this.biomeStream = biomeStream;
+		#endif
 	}
 
 	public void setGenerator(BigGlobeChunkGenerator generator) {
@@ -53,16 +59,18 @@ public class ColumnBiomeSource extends BiomeSource {
 		return CODEC;
 	}
 
-	/**
-	this will only be called once, which conveniently
-	is the number of times a Stream can be used.
-	*/
-	@Override
-	protected Stream<RegistryEntry<Biome>> biomeStream() {
-		Stream<RegistryEntry<Biome>> stream = this.biomeStream;
-		this.biomeStream = null;
-		return stream;
-	}
+	#if MC_VERSION > MC_1_19_2
+		/**
+		this will only be called once, which conveniently
+		is the number of times a Stream can be used.
+		*/
+		@Override
+		public Stream<RegistryEntry<Biome>> biomeStream() {
+			Stream<RegistryEntry<Biome>> stream = this.biomeStream;
+			this.biomeStream = null;
+			return stream;
+		}
+	#endif
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {

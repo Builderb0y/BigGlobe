@@ -191,7 +191,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@Override
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(FACING, context.getHorizontalPlayerFacing());
+		return this.getDefaultState().with(FACING, #if (MC_VERSION <= MC_1_19_2) context.getPlayerFacing() #else context.getHorizontalPlayerFacing() #endif);
 	}
 
 	@Override

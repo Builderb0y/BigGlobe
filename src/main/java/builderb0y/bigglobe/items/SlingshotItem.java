@@ -23,6 +23,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -45,7 +46,7 @@ public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 			return;
 		}
 		boolean creative = playerEntity.getAbilities().creativeMode;
-		ItemStack ammunitionStack = playerEntity.getProjectileType(stack);
+		ItemStack ammunitionStack = EntityVersions.getAmmunition(playerEntity, stack);
 		if ((ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) && !creative) {
 			return;
 		}
@@ -105,7 +106,7 @@ public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack itemStack = user.getStackInHand(hand);
-		boolean hasAmmunition = !user.getProjectileType(itemStack).isEmpty();
+		boolean hasAmmunition = !EntityVersions.getAmmunition(user, itemStack).isEmpty();
 		if (user.getAbilities().creativeMode || hasAmmunition) {
 			user.setCurrentHand(hand);
 			return TypedActionResult.consume(itemStack);

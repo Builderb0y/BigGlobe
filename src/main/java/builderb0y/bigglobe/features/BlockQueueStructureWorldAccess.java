@@ -15,7 +15,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -43,6 +42,10 @@ import net.minecraft.world.event.GameEvent.Emitter;
 import net.minecraft.world.tick.QueryableTickScheduler;
 
 import builderb0y.bigglobe.blocks.BlockStates;
+
+#if MC_VERSION > MC_1_19_2
+import net.minecraft.resource.featuretoggle.FeatureSet;
+#endif
 
 public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
@@ -266,8 +269,10 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 		return this.world.getWorldBorder();
 	}
 
-	@Override
-	public FeatureSet getEnabledFeatures() {
-		return this.world.getEnabledFeatures();
-	}
+	#if MC_VERSION > MC_1_19_2
+		@Override
+		public FeatureSet getEnabledFeatures() {
+			return this.world.getEnabledFeatures();
+		}
+	#endif
 }

@@ -19,7 +19,11 @@ public abstract class ServerWorld_CustomTimeSpeed extends World {
 	private double bigglobe_customTime;
 
 	public ServerWorld_CustomTimeSpeed() {
-		super(null, null, null, null, null, false, false, 0L, 0);
+		#if MC_VERSION <= MC_1_19_2
+			super(null, null, null, null, false, false, 0L, 0);
+		#else
+			super(null, null, null, null, null, false, false, 0L, 0);
+		#endif
 	}
 
 	@Shadow

@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.recipes;
 
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -15,23 +14,31 @@ import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 #if MC_VERSION == MC_1_19_4
-import net.minecraft.inventory.CraftingInventory;
+	import net.minecraft.inventory.CraftingInventory;
+	import net.minecraft.recipe.book.CraftingRecipeCategory;
+	import net.minecraft.registry.DynamicRegistryManager;
 #elif MC_VERSION == MC_1_20_1
-import net.minecraft.inventory.RecipeInputInventory;
+	import net.minecraft.inventory.RecipeInputInventory;
+	import net.minecraft.recipe.book.CraftingRecipeCategory;
+	import net.minecraft.registry.DynamicRegistryManager;
 #endif
 
 public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 
 	public static final TagKey<Item> STRING = TagKey.of(RegistryKeyVersions.item(), new Identifier("c", "string"));
 
-	public BallOfStringAddRecipe(Identifier id, CraftingRecipeCategory category) {
-		super(id, category);
-	}
+	#if MC_VERSION <= MC_1_19_2
+		public BallOfStringAddRecipe(Identifier identifier) {
+			super(identifier);
+		}
+	#else
+		public BallOfStringAddRecipe(Identifier id, CraftingRecipeCategory category) {
+			super(id, category);
+		}
+	#endif
 
 	@Override
-	#if MC_VERSION == MC_1_19_2
-		public boolean matches() {
-	#elif MC_VERSION == MC_1_19_4
+	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public boolean matches(CraftingInventory inventory, World world) {
 	#elif MC_VERSION == MC_1_20_1
 		public boolean matches(RecipeInputInventory inventory, World world) {
@@ -60,7 +67,7 @@ public class BallOfStringAddRecipe extends SpecialCraftingRecipe {
 
 	@Override
 	#if MC_VERSION == MC_1_19_2
-		public ItemStack craft() {
+		public ItemStack craft(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_19_4
 		public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
 	#elif MC_VERSION == MC_1_20_1

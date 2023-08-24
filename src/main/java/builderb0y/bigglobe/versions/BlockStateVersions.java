@@ -12,7 +12,11 @@ import net.minecraft.state.property.Property;
 public class BlockStateVersions {
 
 	public static boolean isReplaceable(BlockState state) {
-		return state.isReplaceable();
+		#if MC_VERSION < MC_1_20_0
+			return state.getMaterial().isReplaceable();
+		#else
+			return state.isReplaceable();
+		#endif
 	}
 
 	public static boolean isReplaceableOrPlant(BlockState state) {
@@ -32,6 +36,10 @@ public class BlockStateVersions {
 	}
 
 	public static <C extends Comparable<C>> BlockState withIfExists(BlockState state, Property<C> property, C value) {
-		return state.withIfExists(property, value);
+		#if MC_VERSION <= MC_1_19_2
+			return state.contains(property) ? state.with(property, value) : state;
+		#else
+			return state.withIfExists(property, value);
+		#endif
 	}
 }

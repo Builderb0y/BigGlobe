@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.recipes;
 
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -13,21 +12,29 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 #if MC_VERSION == MC_1_19_4
-import net.minecraft.inventory.CraftingInventory;
+	import net.minecraft.inventory.CraftingInventory;
+	import net.minecraft.recipe.book.CraftingRecipeCategory;
+	import net.minecraft.registry.DynamicRegistryManager;
 #elif MC_VERSION == MC_1_20_1
-import net.minecraft.inventory.RecipeInputInventory;
+	import net.minecraft.inventory.RecipeInputInventory;
+	import net.minecraft.recipe.book.CraftingRecipeCategory;
+	import net.minecraft.registry.DynamicRegistryManager;
 #endif
 
 public class BallOfStringRemoveRecipe extends SpecialCraftingRecipe {
 
-	public BallOfStringRemoveRecipe(Identifier id, CraftingRecipeCategory category) {
-		super(id, category);
-	}
+	#if MC_VERSION <= MC_1_19_2
+		public BallOfStringRemoveRecipe(Identifier identifier) {
+			super(identifier);
+		}
+	#else
+		public BallOfStringRemoveRecipe(Identifier id, CraftingRecipeCategory category) {
+			super(id, category);
+		}
+	#endif
 
 	@Override
-	#if MC_VERSION == MC_1_19_2
-		public boolean matches() {
-	#elif MC_VERSION == MC_1_19_4
+	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public boolean matches(CraftingInventory inventory, World world) {
 	#elif MC_VERSION == MC_1_20_1
 		public boolean matches(RecipeInputInventory inventory, World world) {
@@ -52,7 +59,7 @@ public class BallOfStringRemoveRecipe extends SpecialCraftingRecipe {
 
 	@Override
 	#if MC_VERSION == MC_1_19_2
-		public ItemStack craft() {
+		public ItemStack craft(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_19_4
 		public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
 	#elif MC_VERSION == MC_1_20_1
@@ -77,9 +84,7 @@ public class BallOfStringRemoveRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	#if MC_VERSION == MC_1_19_2
-		public DefaultedList<ItemStack> getRemainder() {
-	#elif MC_VERSION == MC_1_19_4
+	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_20_1
 		public DefaultedList<ItemStack> getRemainder(RecipeInputInventory inventory) {

@@ -26,6 +26,11 @@ import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.EntityVersions;
 
+#if MC_VERSION <= MC_1_19_2
+	import net.minecraft.network.Packet;
+	import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+#endif
+
 public class StringEntity extends Entity {
 
 	public static final TrackedData<Integer>
@@ -264,6 +269,13 @@ public class StringEntity extends Entity {
 			return null;
 		}
 	}
+
+	#if MC_VERSION <= MC_1_19_2
+		@Override
+		public Packet<?> createSpawnPacket() {
+			return new EntitySpawnS2CPacket(this);
+		}
+	#endif
 
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {}

@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
@@ -59,7 +60,11 @@ public class RockEntity extends ThrownItemEntity {
 	public void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
 		entityHitResult.getEntity().damage(
-			this.getDamageSources().thrown(this, this.getOwner()),
+			#if MC_VERSION <= MC_1_19_2
+				DamageSource.thrownProjectile(this, this.getOwner()),
+			#else
+				this.getDamageSources().thrown(this, this.getOwner()),
+			#endif
 			(float)(this.getVelocity().length() * 6.0D)
 		);
 		this.discard();

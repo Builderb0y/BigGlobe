@@ -14,7 +14,11 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 @Mixin(WorldPresets.class)
 public class WorldPresets_MakeBigGlobeTheDefaultWorldType2 {
 
-	@Redirect(method = "createDemoOptions", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))
+	#if MC_VERSION <= MC_1_19_2
+		@Redirect(method = "createDefaultOptions(Lnet/minecraft/registry/DynamicRegistryManager;JZZ)Lnet/minecraft/world/gen/GeneratorOptions;", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))
+	#else
+		@Redirect(method = "createDemoOptions", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))
+	#endif
 	private static RegistryKey<WorldPreset> bigglobe_getDefaultWorldPreset() {
 		return BigGlobeConfig.INSTANCE.get().makeBigGlobeDefaultWorldType ? BigGlobeMod.BIG_GLOBE_WORLD_PRESET_KEY : WorldPresets.DEFAULT;
 	}

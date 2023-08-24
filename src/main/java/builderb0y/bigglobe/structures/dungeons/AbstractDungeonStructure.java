@@ -293,7 +293,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int x = this.x();
 			int y = this.y();
 			int z = this.z();
-			if (this.decorators != null && chunkBox.contains(x, y, z)) {
+			if (this.decorators != null && contains(chunkBox, x, y, z)) {
 				RegistryEntryList<ConfiguredFeature<?, ?>> tag = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).getEntryList(this.decorators).orElse(null);
 				if (tag != null) {
 					RegistryEntry<ConfiguredFeature<?, ?>> entry = tag.getRandom(random).orElse(null);
@@ -302,6 +302,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 					}
 				}
 			}
+		}
+
+		/**
+		BlockBox.contains(int, int, int) was added in 1.19.4.
+		in 1.19.2, only BlockBox.contains(Vec3i) existed.
+		*/
+		public static boolean contains(BlockBox box, int x, int y, int z) {
+			return x >= box.getMinX() && x <= box.getMaxX() && y >= box.getMinY() && y <= box.getMaxY() && z >= box.getMinZ() && z <= box.getMaxZ();
 		}
 
 		@Override
@@ -451,7 +459,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
-			spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
+			#if MC_VERSION <= MC_1_19_2
+				spawner.getLogic().setEntityId(this.spawnerType);
+			#else
+				spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
+			#endif
 		}
 	}
 

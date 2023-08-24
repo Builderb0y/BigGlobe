@@ -13,7 +13,15 @@ public class BigGlobeSoundEvents {
 
 	public static SoundEvent of(String name) {
 		Identifier id = BigGlobeMod.modID(name);
-		return Registry.register(RegistryVersions.soundEvent(), id, SoundEvent.of(id));
+		return Registry.register(
+			RegistryVersions.soundEvent(),
+			id,
+			#if MC_VERSION <= MC_1_19_2
+				new SoundEvent(id)
+			#else
+				SoundEvent.of(id)
+			#endif
+		);
 	}
 
 	public static void init() {}

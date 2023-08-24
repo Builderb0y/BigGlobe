@@ -1,0 +1,24 @@
+accessWidener v1 named
+
+#used for really fast multi-threaded worldgen magic.
+accessible class net/minecraft/world/chunk/PalettedContainer$Data
+
+#used to filter where structures can spawn.
+extendable method net/minecraft/world/gen/chunk/ChunkGenerator trySetStructureStart (Lnet/minecraft/structure/StructureSet$WeightedEntry;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/registry/DynamicRegistryManager;Lnet/minecraft/world/gen/noise/NoiseConfig;Lnet/minecraft/structure/StructureTemplateManager;JLnet/minecraft/world/chunk/Chunk;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/ChunkSectionPos;)Z
+
+#used by efficient structure locating logic.
+accessible method net/minecraft/world/gen/chunk/ChunkGenerator getStructurePlacement (Lnet/minecraft/registry/entry/RegistryEntry;Lnet/minecraft/world/gen/noise/NoiseConfig;)Ljava/util/List;
+
+#used to make ocean monuments spawn at the correct Y level,
+#instead of a hard-coded Y level which only works for vanilla worlds.
+accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
+
+#used by charred button blocks to press for 10 ticks instead of 30.
+extendable method net/minecraft/block/AbstractButtonBlock getPressTicks ()I
+
+#used to expose biome downfall to scripts.
+accessible class net/minecraft/world/biome/Biome$Weather
+
+#used by spore particles in the end to, you know, construct the particle.
+#did you know that crimson and warped spore particles are instances of WaterSuspendParticle?
+accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/particle/SpriteProvider;DDDDDD)V

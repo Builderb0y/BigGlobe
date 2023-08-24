@@ -39,7 +39,11 @@ public abstract class ServerWorld_SpawnEnderDragonInBigGlobeWorlds extends World
 	@Shadow private @Nullable EnderDragonFight enderDragonFight;
 
 	public ServerWorld_SpawnEnderDragonInBigGlobeWorlds() {
-		super(null, null, null, null, null, false, false, 0L, 0);
+		#if MC_VERSION <= MC_1_19_2
+			super(null, null, null, null, false, false, 0L, 0);
+		#else
+			super(null, null, null, null, null, false, false, 0L, 0);
+		#endif
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))

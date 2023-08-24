@@ -25,13 +25,15 @@ public class BigGlobeGameRules {
 			})
 		)
 	);
-	public static final GameRules.Key<BooleanRule> SOUL_LAVA_SOURCE_CONVERSION = (
-		GameRuleRegistry.register(
-			"bigglobe:soulLavaSourceConversion",
-			GameRules.Category.UPDATES,
-			GameRuleFactory.createBooleanRule(false)
-		)
-	);
+	#if MC_VERSION > MC_1_19_2
+		public static final GameRules.Key<BooleanRule> SOUL_LAVA_SOURCE_CONVERSION = (
+			GameRuleRegistry.register(
+				"bigglobe:soulLavaSourceConversion",
+				GameRules.Category.UPDATES,
+				GameRuleFactory.createBooleanRule(false)
+			)
+		);
+	#endif
 
 	static { BigGlobeMod.LOGGER.debug("Done registering game rules."); }
 

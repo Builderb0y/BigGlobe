@@ -303,7 +303,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public PositionState(NbtCompound nbt) {
 			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(RegistryVersions.block().getReadOnlyWrapper(), nbt);
+			this.state = NbtHelper.toBlockState(#if (MC_VERSION > MC_1_19_2) RegistryVersions.block().getReadOnlyWrapper(), #endif nbt);
 			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
@@ -1238,7 +1238,11 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
 			root.setBlockState(0, 0, 0, Blocks.SPAWNER.getDefaultState());
 			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
-				spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
+				#if MC_VERSION <= MC_1_19_2
+					spawner.getLogic().setEntityId(EntityType.BLAZE);
+				#else
+					spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
+				#endif
 			});
 		}
 	}

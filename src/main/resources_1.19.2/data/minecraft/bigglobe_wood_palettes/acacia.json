@@ -1,0 +1,24 @@
+{
+	"blocks": {
+		"log": "minecraft:acacia_log",
+		"wood": "minecraft:acacia_wood",
+		"stripped_log": "minecraft:stripped_acacia_log",
+		"stripped_wood": "minecraft:stripped_acacia_wood",
+		"planks": "minecraft:acacia_planks",
+		"stairs": "minecraft:acacia_stairs",
+		"slab": "minecraft:acacia_slab",
+		"fence": "minecraft:acacia_fence",
+		"fence_gate": "minecraft:acacia_fence_gate",
+		"door": "minecraft:acacia_door",
+		"trapdoor": "minecraft:acacia_trapdoor",
+		"pressure_plate": "minecraft:acacia_pressure_plate",
+		"button": "minecraft:acacia_button",
+		"leaves": "minecraft:acacia_leaves",
+		"sapling": "minecraft:acacia_sapling",
+		"potted_sapling": "minecraft:potted_acacia_sapling",
+		"standing_sign": "minecraft:acacia_sign",
+		"wall_sign": "minecraft:acacia_wall_sign"
+	},
+	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/acacia",
+	"biomes": "minecraft:bigglobe_wood_palette/acacia"
+}

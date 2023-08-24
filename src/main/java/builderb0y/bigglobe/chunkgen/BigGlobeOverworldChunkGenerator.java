@@ -17,6 +17,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
@@ -34,7 +35,6 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
@@ -60,6 +60,7 @@ import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.*;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
@@ -89,6 +90,10 @@ import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
+#if MC_VERSION > MC_1_19_2
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+#endif
+
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
@@ -116,11 +121,17 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		seaLevelDecorators;
 
 	public BigGlobeOverworldChunkGenerator(
+		#if MC_VERSION == MC_1_19_2
+			BetterRegistry<StructureSet> structureSetRegistry,
+		#endif
 		OverworldSettings settings,
 		SortedFeatures configuredFeatures,
 		SortedStructures sortedStructures
 	) {
 		super(
+			#if MC_VERSION == MC_1_19_2
+				structureSetRegistry,
+			#endif
 			new ColumnBiomeSource(
 				settings
 				.biomes
@@ -954,12 +965,34 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	@Override
 	public void actuallySetStructureStarts(
 		DynamicRegistryManager registryManager,
-		StructurePlacementCalculator placementCalculator,
-		StructureAccessor structureAccessor,
-		Chunk chunk,
-		StructureTemplateManager structureTemplateManager
+		#if MC_VERSION == MC_1_19_2
+			NoiseConfig noiseConfig,
+			StructureAccessor structureAccessor,
+			Chunk chunk,
+			StructureTemplateManager structureTemplateManager,
+			long seed
+		#else
+			StructurePlacementCalculator placementCalculator,
+			StructureAccessor structureAccessor,
+			Chunk chunk,
+			StructureTemplateManager structureTemplateManager
+		#endif
 	) {
-		super.actuallySetStructureStarts(registryManager, placementCalculator, structureAccessor, chunk, structureTemplateManager);
+		super.actuallySetStructureStarts(
+			registryManager,
+			#if MC_VERSION == MC_1_19_2
+				noiseConfig,
+				structureAccessor,
+				chunk,
+				structureTemplateManager,
+				seed
+			#else
+				placementCalculator,
+				structureAccessor,
+				chunk,
+				structureTemplateManager
+			#endif
+		);
 		if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
 			OverworldCavernSettings cavernSettings = this.settings.underground.deep_caverns();
 			if (cavernSettings != null) {
@@ -980,10 +1013,17 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 								new WeightedEntry(structure, 1),
 								structureAccessor,
 								registryManager,
-								placementCalculator.getNoiseConfig(),
-								structureTemplateManager,
-								placementCalculator.getStructureSeed(),
-								chunk
+								#if MC_VERSION == MC_1_19_2
+									noiseConfig,
+									structureTemplateManager,
+									seed,
+									chunk
+								#else
+									placementCalculator.getNoiseConfig(),
+									structureTemplateManager,
+									placementCalculator.getStructureSeed(),
+									chunk
+								#endif
 							);
 						}
 					}

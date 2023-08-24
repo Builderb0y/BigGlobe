@@ -46,7 +46,11 @@ public class TestItem extends Item {
 		System.out.println("spawning structure");
 		ChunkPos chunkPos = new ChunkPos(pos);
 		StructurePosition position = (
-			structure.getValidStructurePosition(
+			#if MC_VERSION <= MC_1_19_2
+				structure.getStructurePosition(
+			#else
+				structure.getValidStructurePosition(
+			#endif
 				new Structure.Context(
 					world.getRegistryManager(),
 					world.getChunkManager().getChunkGenerator(),

@@ -14,8 +14,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
 
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryLoader;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -26,6 +27,10 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
+
+#if MC_VERSION > MC_1_19_2
+import net.minecraft.registry.RegistryLoader;
+#endif
 
 public class DumpRegistriesCommand {
 
@@ -44,13 +49,20 @@ public class DumpRegistriesCommand {
 					.thenComparing(Identifier::getPath)
 				);
 				RegistryOps<JsonElement> ops = RegistryOps.of(JsonOps.INSTANCE, context.getSource().getRegistryManager());
-				Map<RegistryKey<?>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
-				for (RegistryLoader.Entry<?> entry : RegistryLoader.DYNAMIC_REGISTRIES) {
-					dynamicCodecs.put(entry.key(), entry.elementCodec());
-				}
-				for (RegistryLoader.Entry<?> entry : RegistryLoader.DIMENSION_REGISTRIES) {
-					dynamicCodecs.put(entry.key(), entry.elementCodec());
-				}
+				#if MC_VERSION == MC_1_19_2
+					Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(DynamicRegistryManager.INFOS.size());
+					for (DynamicRegistryManager.Info<?> info : DynamicRegistryManager.INFOS.values()) {
+						dynamicCodecs.put(info.registry(), info.entryCodec());
+					}
+				#else
+					Map<RegistryKey<?>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
+					for (RegistryLoader.Entry<?> entry : RegistryLoader.DYNAMIC_REGISTRIES) {
+						dynamicCodecs.put(entry.key(), entry.elementCodec());
+					}
+					for (RegistryLoader.Entry<?> entry : RegistryLoader.DIMENSION_REGISTRIES) {
+						dynamicCodecs.put(entry.key(), entry.elementCodec());
+					}
+				#endif
 				context
 				.getSource()
 				.getRegistryManager()

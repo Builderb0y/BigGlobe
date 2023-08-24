@@ -3,7 +3,6 @@ package builderb0y.bigglobe.items;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
@@ -18,6 +17,10 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION > MC_1_19_2
+	import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+#endif
 
 public class BigGlobeItems {
 
@@ -175,59 +178,61 @@ public class BigGlobeItems {
 			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
 			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
-			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
-			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB, FLOATSTONE, FLOATSTONE_STAIRS, FLOATSTONE_SLAB);
-			entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
-			entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
-			entries.addBefore(Items.SAND, OVERGROWN_SAND);
-			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK);
-			entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
-			entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
-			entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);
-			entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
-			entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
-			entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
-			entries.addBefore(Items.GRASS, SHORT_GRASS);
-			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
-			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
-			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
-			entries.addAfter(Items.STONE, ROCK);
-			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
-			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
-			entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
-			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
-			#if MC_VERSION >= MC_1_20_0
-			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_HANGING_SIGN);
-			#endif
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
-			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
-			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
-			entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
-			entries.addAfter(Items.LEAD, string(16), string(64), string(256));
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
-			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
-			entries.addAfter(Items.CHARCOAL, SULFUR);
-			entries.addAfter(Items.GUNPOWDER, ASH);
-			entries.addAfter(Items.FLINT, ROCK);
-			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
-			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
-		});
+		#if MC_VERSION > MC_1_19_2
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
+				entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
+				entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB, FLOATSTONE, FLOATSTONE_STAIRS, FLOATSTONE_SLAB);
+				entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
+				entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
+				entries.addBefore(Items.SAND, OVERGROWN_SAND);
+				entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
+				entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
+				entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK);
+				entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
+				entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
+				entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);
+				entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
+				entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
+				entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
+				entries.addBefore(Items.GRASS, SHORT_GRASS);
+				entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
+				entries.addAfter(Items.DANDELION, ROSE);
+				entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
+				entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
+				entries.addAfter(Items.STONE, ROCK);
+				entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
+				entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
+				entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
+				entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
+				entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
+				entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
+				#if MC_VERSION >= MC_1_20_0
+					entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_HANGING_SIGN);
+				#endif
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
+				entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
+				entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
+				entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
+				entries.addAfter(Items.LEAD, string(16), string(64), string(256));
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+				entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
+				entries.addAfter(Items.CHARCOAL, SULFUR);
+				entries.addAfter(Items.GUNPOWDER, ASH);
+				entries.addAfter(Items.FLINT, ROCK);
+				entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
+			});
+			ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+				entries.addAfter(Items.CROSSBOW, SLINGSHOT);
+			});
+		#endif
 	}
 
 	public static ItemStack string(int blocks) {
