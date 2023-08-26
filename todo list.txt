@@ -18,7 +18,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	add a way to disable biome layout elements.
 	use Symmetry in Rotation2D.
 	add method to script structure pieces to rotate them randomly.
 	add method to script structure pieces to rotate and mirror them randomly.
@@ -32,6 +31,7 @@ changelog:
 		* Small, medium, and large houses will still have cherry variants.
 	* Hopefully fixed issue where placing a structure template from a scripted structure results in its coordinates being absolute, instead of moved with the structure placing the template.
 		* This *should* work, but is un-tested. Feel free to report bugs about this too!
+	* Biome layouts can now be disabled by data packs.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

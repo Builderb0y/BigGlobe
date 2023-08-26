@@ -15,9 +15,9 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
-import builderb0y.autocodec.annotations.SingletonArray;
-import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -28,12 +28,14 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
+@UseVerifier(name = "verify", in = BiomeLayout.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public class BiomeLayout {
 
 	public static final Identifier ROOT_IDENTIFIER = BigGlobeMod.modID("root");
 
+	public final @DefaultBoolean(true) boolean enabled;
 	public final @VerifyNullable String parent;
-	public final ColumnRestriction restrictions;
+	public final @VerifyNullable ColumnRestriction restrictions;
 	public final @VerifyNullable RegistryEntry<Biome> biome;
 	public final @VerifyNullable PrimarySurface primary_surface;
 	public final SecondarySurface @SingletonArray @VerifyNullable [] secondary_surfaces;
@@ -42,12 +44,14 @@ public class BiomeLayout {
 	public transient long nameHash;
 
 	public BiomeLayout(
+		boolean enabled,
 		@VerifyNullable String parent,
-		ColumnRestriction restrictions,
+		@VerifyNullable ColumnRestriction restrictions,
 		@VerifyNullable RegistryEntry<Biome> biome,
 		@VerifyNullable PrimarySurface primary_surface,
 		SecondarySurface @VerifyNullable [] secondary_surfaces
 	) {
+		this.enabled = enabled;
 		this.parent = parent;
 		this.restrictions = restrictions;
 		this.biome = biome;
@@ -55,19 +59,27 @@ public class BiomeLayout {
 		this.secondary_surfaces = secondary_surfaces;
 	}
 
+	public static <T_Encoded> void verify(VerifyContext<T_Encoded, BiomeLayout> context) throws VerifyException {
+		BiomeLayout layout = context.object;
+		if (layout != null && layout.enabled && layout.restrictions == null) {
+			throw new VerifyException(() -> "Must provide restrictions when enabled.");
+		}
+	}
+
 	public static class OverworldBiomeLayout extends BiomeLayout {
 
 		public final @VerifyNullable Boolean player_spawn_friendly;
 
 		public OverworldBiomeLayout(
+			boolean enabled,
 			@VerifyNullable String parent,
-			ColumnRestriction restrictions,
-			RegistryEntry<Biome> biome,
+			@VerifyNullable ColumnRestriction restrictions,
+			@VerifyNullable RegistryEntry<Biome> biome,
 			@VerifyNullable PrimarySurface primary_surface,
 			SecondarySurface @VerifyNullable [] secondary_surfaces,
 			@VerifyNullable Boolean player_spawn_friendly
 		) {
-			super(parent, restrictions, biome, primary_surface, secondary_surfaces);
+			super(enabled, parent, restrictions, biome, primary_surface, secondary_surfaces);
 			this.player_spawn_friendly = player_spawn_friendly;
 		}
 	}
@@ -75,13 +87,14 @@ public class BiomeLayout {
 	public static class EndBiomeLayout extends BiomeLayout {
 
 		public EndBiomeLayout(
+			boolean enabled,
 			@VerifyNullable String parent,
-			ColumnRestriction restrictions,
-			RegistryEntry<Biome> biome,
+			@VerifyNullable ColumnRestriction restrictions,
+			@VerifyNullable RegistryEntry<Biome> biome,
 			@VerifyNullable PrimarySurface primary_surface,
 			SecondarySurface @VerifyNullable [] secondary_surfaces
 		) {
-			super(parent, restrictions, biome, primary_surface, secondary_surfaces);
+			super(enabled, parent, restrictions, biome, primary_surface, secondary_surfaces);
 		}
 	}
 
@@ -118,7 +131,7 @@ public class BiomeLayout {
 		public Holder(BetterRegistry<T_Layout> registry) {
 			this.registry = registry;
 			this.usedValues = new HashSet<>();
-			registry.streamEntries().sequential().forEachOrdered(entry -> {
+			registry.streamEntries().sequential().filter(entry -> entry.value().enabled).forEachOrdered(entry -> {
 				RegistryKey<T_Layout> key = UnregisteredObjectException.getKey(entry);
 				T_Layout layout = entry.value();
 				layout.nameHash = Permuter.permute(0x5DE1C3307454F391L, key.getValue());
@@ -134,7 +147,9 @@ public class BiomeLayout {
 					if (parentName == null) throw new IllegalStateException(key + " must have a parent.");
 					boolean negated = !parentName.isEmpty() && parentName.charAt(0) == '!';
 					if (negated) parentName = parentName.substring(1);
-					T_Layout parent = registry.getOrCreateEntry(key(registry, new Identifier(parentName))).value();
+					Identifier parentIdentifier = new Identifier(parentName);
+					T_Layout parent = registry.getOrCreateEntry(key(registry, parentIdentifier)).value();
+					if (!parent.enabled) throw new IllegalStateException(key.getValue() + "'s parent, " + parentIdentifier + ", is disabled.");
 					if (negated) {
 						if (parent.unlessMatch != null && parent.unlessMatch != layout) {
 							throw new IllegalStateException(parentName + " already has a non-matching child.");
