@@ -18,11 +18,17 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	structure template positions (pivot and placement) should be relative to WorldWrapper origin.
+	add a way to disable biome layout elements.
 
 changelog:
-	* To make my life a little bit easier, wells, surface mineshafts, and campfires will no longer spawn in cherry variants.
+	# This release uses a new build system.
+	The new build system allows me to work on all 3 MC versions simultaneously, without needing to port code between them. However, there is a chance I broke something while porting to this new system. Feel free to report any bugs in this release to my issue tracker or my discord.
+
+	Changes:
+	* To make my life a little bit easier (with regards to the new build system), wells, surface mineshafts, and campfires will no longer spawn in cherry variants.
 		* Small, medium, and large houses will still have cherry variants.
+	* Hopefully fixed issue where placing a structure template from a scripted structure results in its coordinates being absolute, instead of moved with the structure placing the template.
+		* This *should* work, but is un-tested. Feel free to report bugs about this too!
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -58,6 +64,7 @@ scripting:
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
+	make "var" and "class" into keywords.
 
 features:
 	general:
@@ -74,6 +81,8 @@ features:
 				2D and 3D layers are valid.
 				can choose if the layer is uniform or voronoi.
 				list of carvers.
+			still need to figure out:
+				how to link biome placement to block placement.
 	overworld:
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.

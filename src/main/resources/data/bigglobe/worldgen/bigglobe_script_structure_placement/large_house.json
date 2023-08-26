@@ -202,9 +202,9 @@
 		")",
 
 		";spawn villagers",
-		"summon('minecraft:villager', -4.5L, 1.0L, -2.5L)",
-		"summon('minecraft:villager', -2.5L, 1.0L, -4.5L)",
-		"summon('minecraft:villager', -4.5L, 1.0L, 2.5L)",
-		"summon('minecraft:villager', -2.5L, 1.0L, 4.5L)"
+		"summon(-4.5L, 1.0L, -2.5L, 'minecraft:villager')",
+		"summon(-2.5L, 1.0L, -4.5L, 'minecraft:villager')",
+		"summon(-4.5L, 1.0L,  2.5L, 'minecraft:villager')",
+		"summon(-2.5L, 1.0L,  4.5L, 'minecraft:villager')"
 	]
 }

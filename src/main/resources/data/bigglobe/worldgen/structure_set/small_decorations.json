@@ -10,6 +10,7 @@
 		{ "weight": 4, "structure": "bigglobe:campfire" },
 		{ "weight": 3, "structure": "bigglobe:small_house" },
 		{ "weight": 2, "structure": "bigglobe:medium_house" },
+		{ "weight": 2, "structure": "bigglobe:log_cabin" },
 		{ "weight": 1, "structure": "bigglobe:large_house" }
 	]
 }

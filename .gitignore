@@ -3,10 +3,7 @@
 /.gradle
 /build/
 /run/
-/gradle/
 /dependencies/
 /logs/
-/gradlew
-/gradlew.bat
 /releases/
 /server/

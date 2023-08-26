@@ -125,7 +125,7 @@
 		".$setBlockState(1, 1,  0, 'minecraft:crafting_table')",
 
 		";spawn villagers",
-		"summon('minecraft:villager', 0.5L, 1.0625L, 4.5L)",
-		"summon('minecraft:villager', 0.5L, 1.0625L, -3.5L)"
+		"summon(0.5L, 1.0625L,  4.5L, 'minecraft:villager')",
+		"summon(0.5L, 1.0625L, -3.5L, 'minecraft:villager')"
 	]
 }

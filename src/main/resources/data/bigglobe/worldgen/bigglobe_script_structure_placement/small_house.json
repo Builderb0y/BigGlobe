@@ -111,6 +111,6 @@
 		"setBlockState(midX, minY + 3, midZ - 1, 'minecraft:wall_torch[facing=south]')",
 
 		";summon villager",
-		"summon('minecraft:villager', midX + 0.5L, minY + 1.0L, midZ + 0.5L)"
+		"summon(midX + 0.5L, minY + 1.0L, midZ + 0.5L, 'minecraft:villager')"
 	]
 }

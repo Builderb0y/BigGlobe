@@ -211,10 +211,16 @@ public class WorldWrapper implements ColumnLookup {
 	}
 
 	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template) {
-		this.world.placeStructureTemplate(x, y, z, template, new StructurePlacementData(), this.permuter);
+		this.placeStructureTemplate(x, y, z, template, new StructurePlacementData());
 	}
 
 	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data) {
+		data = data.copy();
+		BlockPos pos = this.unboundedPos(x, y, z);
+		x = pos.getX(); y = pos.getY(); z = pos.getZ();
+		pos = this.unboundedPos(data.getPosition().getX(), data.getPosition().getY(), data.getPosition().getZ());
+		data.setPosition(pos.toImmutable());
+		data.setRotation(this.coordination.rotation.rotation().rotate(data.getRotation()));
 		this.world.placeStructureTemplate(x, y, z, template, data, this.permuter);
 	}
 
@@ -267,7 +273,7 @@ public class WorldWrapper implements ColumnLookup {
 		}
 	}
 
-	public void summon(String entityType, double x, double y, double z) {
+	public void summon(double x, double y, double z, String entityType) {
 		Vector3d newPos = this.coordination.filterVecMutable(
 			this.coordination.modifyVecUnbounded(
 				new Vector3d(x, y, z)
@@ -295,7 +301,7 @@ public class WorldWrapper implements ColumnLookup {
 		}
 	}
 
-	public void summon(String entityType, double x, double y, double z, NbtCompound nbt) {
+	public void summon(double x, double y, double z, String entityType, NbtCompound nbt) {
 		Vector3d newPos = this.coordination.filterVecMutable(
 			this.coordination.modifyVecUnbounded(
 				new Vector3d(x, y, z)
