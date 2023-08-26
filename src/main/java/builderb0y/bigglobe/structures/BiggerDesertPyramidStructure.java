@@ -178,7 +178,8 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			rotatedTower.flip2X().setBlockStateLine(1, 9, 3, 0, 1, 0, 2, Blocks.ORANGE_TERRACOTTA.getDefaultState());
 			rotatedTower.flip2X().setBlockStateLine(2, 11, 3, 0, 1, 0, 3, Blocks.ORANGE_TERRACOTTA.getDefaultState());
 			rotatedTower.flip2X().setBlockStateLine(1, 14, 3, 0, 1, 0, 2, Blocks.ORANGE_TERRACOTTA.getDefaultState());
-			tower.setBlockStateRelativeCuboid(-2, 1, -2, 2, 16, 2, (BlockPos.Mutable pos) -> pos.getY() >= 10 ? BlockStates.SANDSTONE : BlockStates.AIR);
+			tower.setBlockStateCuboid(-2, 10, -2, 2, 16, 2, BlockStates.SANDSTONE);
+			tower.setBlockStateCuboid(-2, 1, -2, 2, 9, 2, BlockStates.AIR);
 			rotatedTower.setBlockStateLine(-1, 9, -2, 1, 0, 0, 3, plainTopStairs(Direction.NORTH));
 			rotatedTower.setBlockState(-2, 9, -2, plainStairs(Direction.NORTH, BlockHalf.TOP, StairShape.INNER_LEFT));
 			tower.setBlockStateCuboid(-1, 9, -1, 1, 9, 1, Blocks.SMOOTH_SANDSTONE_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP));

@@ -25,6 +25,16 @@ public enum Symmetry {
 		public Symmetry compose(Symmetry before) {
 			return before;
 		}
+
+		@Override
+		public int bulkAndThen(int after) {
+			return after;
+		}
+
+		@Override
+		public int bulkCompose(int before) {
+			return before;
+		}
 	},
 	ROTATE_90 {
 		@Override public int    getX(int    x, int    z) { return -z; }
@@ -152,14 +162,14 @@ public enum Symmetry {
 		}
 	},
 	FLIP_XZ {
-		@Override public int    getX(int    x, int    z) { return z; }
-		@Override public int    getZ(int    x, int    z) { return x; }
-		@Override public double getX(double x, double z) { return z; }
-		@Override public double getZ(double x, double z) { return x; }
+		@Override public int    getX(int    x, int    z) { return  z; }
+		@Override public int    getZ(int    x, int    z) { return  x; }
+		@Override public double getX(double x, double z) { return  z; }
+		@Override public double getZ(double x, double z) { return  x; }
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.LEFT_RIGHT);
+			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.FRONT_BACK);
 		}
 
 		@Override
@@ -184,7 +194,7 @@ public enum Symmetry {
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.FRONT_BACK);
+			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.LEFT_RIGHT);
 		}
 
 		@Override
@@ -252,19 +262,19 @@ public enum Symmetry {
 		};
 	}
 
-	public int bulkAndThen(int input) {
-		if (input == 0) return 0;
+	public int bulkAndThen(int after) {
+		if (after == 0 || after == 255) return after;
 		if (this.bulkAndThen == null) {
 			this.bulkAndThen = new byte[256];
 		}
-		int output = this.bulkAndThen[input];
+		int output = this.bulkAndThen[after];
 		if (output == 0) {
 			for (int index = 0; index < 8; index++) {
-				if ((input & (1 << index)) != 0) {
-					output |= 1 << VALUES[index].andThen(this).ordinal();
+				if ((after & (1 << index)) != 0) {
+					output |= this.andThen(VALUES[index]).flag();
 				}
 			}
-			this.bulkAndThen[input] = (byte)(output);
+			this.bulkAndThen[after] = (byte)(output);
 		}
 		else {
 			output &= 255;
@@ -272,23 +282,28 @@ public enum Symmetry {
 		return output;
 	}
 
-	public int bulkCompose(int input) {
-		if (input == 0) return 0;
+	public int bulkCompose(int before) {
+		if (before == 0 || before == 255) return before;
 		if (this.bulkCompose == null) {
 			this.bulkCompose = new byte[256];
 		}
-		int output = this.bulkCompose[input];
+		int output = this.bulkCompose[before];
 		if (output == 0) {
 			for (int index = 0; index < 8; index++) {
-				if ((input & (1 << index)) != 0) {
-					output |= 1 << this.andThen(VALUES[index]).ordinal();
+				if ((before & (1 << index)) != 0) {
+					output |= VALUES[index].andThen(this).flag();
 				}
 			}
-			this.bulkCompose[input] = (byte)(output);
+			this.bulkCompose[before] = (byte)(output);
 		}
 		else {
 			output &= 255;
 		}
 		return output;
+	}
+
+
+	public int flag() {
+		return 1 << this.ordinal();
 	}
 }

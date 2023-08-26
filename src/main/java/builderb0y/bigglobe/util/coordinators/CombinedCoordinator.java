@@ -1,20 +1,11 @@
 package builderb0y.bigglobe.util.coordinators;
 
 import java.util.Arrays;
-import java.util.List;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-
-import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorBiConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorRunnable;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorTriConsumer;
 
 public class CombinedCoordinator extends ScratchPosCoordinator {
 
@@ -25,110 +16,30 @@ public class CombinedCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
 		for (Coordinator delegate : this.delegates) {
-			delegate.getCoordinates(x, y, z, action);
+			callback.run(delegate, x, y, z);
 		}
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action) {
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
 		for (Coordinator delegate : this.delegates) {
-			delegate.getBlockState(x, y, z, action);
+			callback.run(delegate, x, y, z, arg);
 		}
 	}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action) {
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
 		for (Coordinator delegate : this.delegates) {
-			delegate.getFluidState(x, y, z, action);
+			callback.run(delegate, x, y, z, arg1, arg2);
 		}
 	}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
 		for (Coordinator delegate : this.delegates) {
-			delegate.getBlockEntity(x, y, z, action);
-		}
-	}
-
-	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getBiome(x, y, z, action);
-		}
-	}
-
-	@Override
-	public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getChunk(x, y, z, action);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, BlockState state) {
-		if (state == null) return;
-		for (Coordinator delegate : this.delegates) {
-			delegate.setBlockState(x, y, z, state);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.setBlockState(x, y, z, supplier);
-		}
-	}
-
-	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		for (Coordinator delegate : this.delegates) {
-			delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		for (Coordinator delegate : this.delegates) {
-			delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
-		}
-	}
-
-	@Override
-	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.modifyBlockState(x, y, z, mapper);
-		}
-	}
-
-	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.getEntities(x, y, z, entityType, boxSupplier, entityAction);
-		}
-	}
-
-	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
-		for (Coordinator delegate : this.delegates) {
-			delegate.addEntity(x, y, z, supplier);
+			callback.run(delegate, x, y, z, arg1, arg2, arg3);
 		}
 	}
 

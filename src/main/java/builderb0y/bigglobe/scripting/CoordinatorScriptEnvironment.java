@@ -2,13 +2,18 @@ package builderb0y.bigglobe.scripting;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateBiConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateConsumer;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -79,6 +84,7 @@ public class CoordinatorScriptEnvironment {
 			.addMethodInvokeSpecific(Coordinator.class, "flip4XZ", Coordinator.class)
 			.addMethodInvokeSpecific(Coordinator.class, "stack", Coordinator.class, int.class, int.class, int.class, int.class)
 			.addMethodInvokeSpecific(Coordinator.class, "inBox", Coordinator.class, int.class, int.class, int.class, int.class, int.class, int.class)
+			.addMethodMultiInvokeStatic(CoordinatorScriptEnvironment.class, "summon")
 		);
 	}
 
@@ -106,14 +112,14 @@ public class CoordinatorScriptEnvironment {
 		coordinator.getBlockEntityCuboid(minX, minY, minZ, maxX, maxY, maxZ, merger(data));
 	}
 
-	public static CoordinateBiConsumer<BlockEntity> setter(NbtCompound data) {
+	public static CoordinateConsumer<BlockEntity> setter(NbtCompound data) {
 		return (BlockPos.Mutable pos, BlockEntity blockEntity) -> {
 			blockEntity.readNbt(data);
 			blockEntity.markDirty();
 		};
 	}
 
-	public static CoordinateBiConsumer<BlockEntity> merger(NbtCompound data) {
+	public static CoordinateConsumer<BlockEntity> merger(NbtCompound data) {
 		return (BlockPos.Mutable pos, BlockEntity blockEntity) -> {
 			NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
 			NbtCompound newData = oldData.copy().copyFrom(data);
@@ -122,5 +128,54 @@ public class CoordinatorScriptEnvironment {
 				blockEntity.markDirty();
 			}
 		};
+	}
+
+	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName) {
+		Identifier identifier = new Identifier(entityTypeName);
+		if (RegistryVersions.entityType().containsId(identifier)) {
+			EntityType<?> entityType = RegistryVersions.entityType().get(identifier);
+			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
+			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
+			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
+			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (pos, world) -> {
+				double newX = pos.getX() + offsetX;
+				double newY = pos.getY() + offsetY;
+				double newZ = pos.getZ() + offsetZ;
+				Entity entity = entityType.create(world);
+				if (entity != null) {
+					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
+					return entity;
+				}
+				else {
+					throw new IllegalArgumentException("Entity type " + entityTypeName + " is not enabled in this world's feature flags.");
+				}
+			});
+		}
+		else {
+			throw new IllegalArgumentException("Unknown entity type: " + entityTypeName);
+		}
+	}
+
+	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName, NbtCompound data) {
+		Identifier identifier = new Identifier(entityTypeName);
+		if (RegistryVersions.entityType().containsId(identifier)) {
+			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
+			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
+			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
+			NbtCompound copy = data.copy();
+			copy.putString("id", entityTypeName);
+			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (pos, world) -> {
+				double newX = pos.getX() + offsetX;
+				double newY = pos.getY() + offsetY;
+				double newZ = pos.getZ() + offsetZ;
+				return EntityType.loadEntityWithPassengers(copy, world, entity -> {
+					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
+					return entity;
+				});
+			});
+		}
+		else {
+			throw new IllegalArgumentException("Unknown entity type: " + entityTypeName);
+		}
 	}
 }

@@ -1,20 +1,11 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import java.util.List;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
 
-import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorBiConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorRunnable;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorTriConsumer;
 
 public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator {
 
@@ -31,81 +22,23 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 	public abstract int offsetZ();
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {
-		this.delegate.getCoordinates(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
+		callback.run(this.delegate, x + this.offsetX(), y + this.offsetY(), z + this.offsetZ());
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action) {
-		this.delegate.getBlockState(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
+		callback.run(this.delegate, x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), arg);
 	}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action) {
-		this.delegate.getFluidState(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
+		callback.run(this.delegate, x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), arg1, arg2);
 	}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
-		this.delegate.getBlockEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
-	}
-
-	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		this.delegate.getBlockEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), tileEntityType, action);
-	}
-
-	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		this.delegate.getBlockEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), tileEntityType, action);
-	}
-
-	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		this.delegate.getBiome(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
-	}
-
-	@Override
-	public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {
-		this.delegate.getChunk(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), action);
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, BlockState state) {
-		if (state == null) return;
-		this.delegate.setBlockState(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), state);
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-		this.delegate.setBlockState(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), supplier);
-	}
-
-	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		this.delegate.setBlockStateAndBlockEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), state, blockEntityClass, action);
-	}
-
-	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		this.delegate.setBlockStateAndBlockEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), state, blockEntityType, action);
-	}
-
-	@Override
-	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
-		this.delegate.modifyBlockState(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), mapper);
-	}
-
-	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		this.delegate.getEntities(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), entityType, boxSupplier, entityAction);
-	}
-
-	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
-		this.delegate.addEntity(x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), supplier);
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
+		callback.run(this.delegate, x + this.offsetX(), y + this.offsetY(), z + this.offsetZ(), arg1, arg2, arg3);
 	}
 
 	public static class TranslateCoordinator extends AbstractTranslateCoordinator {
@@ -141,8 +74,7 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof TranslateCoordinator)) return false;
-			TranslateCoordinator that = (TranslateCoordinator)(obj);
+			if (!(obj instanceof TranslateCoordinator that)) return false;
 			return (
 				this.delegate.equals(that.delegate) &&
 				this.offsetX == that.offsetX &&
@@ -178,8 +110,7 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof LazyTranslateCoordinator)) return false;
-			LazyTranslateCoordinator that = (LazyTranslateCoordinator)(obj);
+			if (!(obj instanceof LazyTranslateCoordinator that)) return false;
 			return this.delegate.equals(that.delegate) && this.offset == that.offset;
 		}
 

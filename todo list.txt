@@ -19,6 +19,9 @@ testing:
 
 where I left off:
 	add a way to disable biome layout elements.
+	use Symmetry in Rotation2D.
+	add method to script structure pieces to rotate them randomly.
+	add method to script structure pieces to rotate and mirror them randomly.
 
 changelog:
 	# This release uses a new build system.

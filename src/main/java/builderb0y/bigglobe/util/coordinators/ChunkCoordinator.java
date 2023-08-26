@@ -28,40 +28,60 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
+		callback.run(this, x, y, z);
+	}
+
+	@Override
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
+		callback.run(this, x, y, z, arg);
+	}
+
+	@Override
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
+		callback.run(this, x, y, z, arg1, arg2);
+	}
+
+	@Override
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
+		callback.run(this, x, y, z, arg1, arg2, arg3);
+	}
+
+	@Override
+	public void getCoordinates(int x, int y, int z, CoordinateRunnable action) {
 		action.accept(this.scratchPos.set(x, y, z));
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action) {
+	public void getBlockState(int x, int y, int z, CoordinateConsumer<BlockState> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.chunk.getBlockState(this.scratchPos));
 	}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action) {
+	public void getFluidState(int x, int y, int z, CoordinateConsumer<FluidState> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.chunk.getFluidState(this.scratchPos));
 	}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
+	public void getBlockEntity(int x, int y, int z, CoordinateConsumer<BlockEntity> action) {
 		BlockEntity blockEntity = this.chunk.getBlockEntity(this.scratchPos.set(x, y, z));
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateBiConsumer<B> action) {
+	public <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateConsumer<B> action) {
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
+	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
 
 	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
+	public void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {
 		action.accept(
 			this.scratchPos.set(x, y, z),
 			this.biomeColumn.lookupColumn(x, z).getBiome(y)
@@ -69,7 +89,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {
+	public void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.chunk);
 	}
 
@@ -88,7 +108,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
+	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
 		if (state == null) return;
 		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityClass);
@@ -96,7 +116,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
+	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		if (state == null) return;
 		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
@@ -113,7 +133,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
+	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
 		throw new UnsupportedOperationException("Chunks don't store entities.");
 	}
 

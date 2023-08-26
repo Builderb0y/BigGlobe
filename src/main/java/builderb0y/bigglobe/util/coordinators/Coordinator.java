@@ -29,10 +29,10 @@ import net.minecraft.world.chunk.Chunk;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LimitArea;
-import builderb0y.bigglobe.util.coordinators.AbstractPermuteCoordinator.*;
 import builderb0y.bigglobe.util.coordinators.AbstractTranslateCoordinator.LazyTranslateCoordinator;
 import builderb0y.bigglobe.util.coordinators.AbstractTranslateCoordinator.TranslateCoordinator;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
@@ -105,19 +105,141 @@ public interface Coordinator {
 
 	//////////////////////////////// actions ////////////////////////////////
 
+	public abstract void genericPos(int x, int y, int z, CoordinatorRunnable callback);
+
+	public abstract <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback);
+
+	public abstract <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback);
+
+	public abstract <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback);
+
+	/**
+	invokes the callback at the coordinates
+	several times in a cuboid region.
+	*/
+	public default void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinatorRunnable callback) {
+		for (int x = minX; x <= maxX; x++) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int y = minY; y <= maxY; y++) {
+					callback.run(this, x, y, z);
+				}
+			}
+		}
+	}
+
+	/**
+	invokes the callback at the coordinates
+	several times in a cuboid region
+	using the extra argument for the callback.
+	*/
+	public default <A> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg, CoordinatorConsumer<A> callback) {
+		for (int x = minX; x <= maxX; x++) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int y = minY; y <= maxY; y++) {
+					callback.run(this, x, y, z, arg);
+				}
+			}
+		}
+	}
+
+	public default <A, B> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
+		for (int x = minX; x <= maxX; x++) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int y = minY; y <= maxY; y++) {
+					callback.run(this, x, y, z, arg1, arg2);
+				}
+			}
+		}
+	}
+
+	public default <A, B, C> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
+		for (int x = minX; x <= maxX; x++) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int y = minY; y <= maxY; y++) {
+					callback.run(this, x, y, z, arg1, arg2, arg3);
+				}
+			}
+		}
+	}
+
+	/**
+	invokes the action at the coordinates
+	several times in a straight line.
+	*/
+	public default void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, LineRunnable action) {
+		if (length <= 0) return;
+		action.run(this, x, y, z, 0);
+		for (int index = 1; index < length; index++) {
+			x += dx; y += dy; z += dz;
+			action.run(this, x, y, z, index);
+		}
+	}
+
+	/**
+	invokes the action at the (possibly pre-processed)
+	coordinates several times in a straight line,
+	using the elements in the provided array
+	as the extra argument for the action.
+	the array parameter is last so that it can use varargs.
+	*/
+	public default <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, LineConsumer<T> action, T... args) {
+		if (args == null) return;
+		int length = args.length;
+		if (length == 0) return;
+		if (args[0] != null) action.run(this, x, y, z, 0, args[0]);
+		for (int index = 1; index < length; index++) {
+			x += dx; y += dy; z += dz;
+			if (args[index] != null) action.run(this, x, y, z, index, args[index]);
+		}
+	}
+
+	/**
+	invokes the callback at the coordinates
+	several times in a straight line
+	using the extra argument for the callback.
+	the argument parameter is NOT last because:
+	A: it does not need to be varargs, and
+	B: this will add a bit more distinction from the previous method.
+	*/
+	public default <A> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg, LineConsumer<A> callback) {
+		if (length <= 0) return;
+		callback.run(this, x, y, z, 0, arg);
+		for (int index = 1; index < length; index++) {
+			callback.run(this, x += dx, y += dy, z += dz, index, arg);
+		}
+	}
+
+	public default <A, B> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, LineBiConsumer<A, B> callback) {
+		if (length <= 0) return;
+		callback.run(this, x, y, z, 0, arg1, arg2);
+		for (int index = 1; index < length; index++) {
+			callback.run(this, x += dx, y += dy, z += dz, index, arg1, arg2);
+		}
+	}
+
+	public default <A, B, C> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, C arg3, LineTriConsumer<A, B, C> callback) {
+		if (length <= 0) return;
+		callback.run(this, x, y, z, 0, arg1, arg2, arg3);
+		for (int index = 1; index < length; index++) {
+			callback.run(this, x += dx, y += dy, z += dz, index, arg1, arg2, arg3);
+		}
+	}
+
 	/** invokes the action at the (possibly pre-processed) coordinates. */
-	public abstract void getCoordinates(int x, int y, int z, CoordinateConsumer action);
-
-	public default void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getCoordinates());
+	public default void getCoordinates(int x, int y, int z, CoordinateRunnable action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getCoordinates());
 	}
 
-	public default void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getCoordinates());
+	public default void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateRunnable action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getCoordinates());
 	}
 
-	public default void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getCoordinates(), actions);
+	public default void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateRunnable action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getCoordinates());
+	}
+
+	public default void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateRunnable... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getCoordinates(), actions);
 	}
 
 	/**
@@ -147,18 +269,20 @@ public interface Coordinator {
 	coordinates, using the BlockState at those
 	coordinates as the extra argument for the action.
 	*/
-	public abstract void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action);
-
-	public default void getBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<BlockState> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getBlockState());
+	public default void getBlockState(int x, int y, int z, CoordinateConsumer<BlockState> action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getBlockState());
 	}
 
-	public default void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<BlockState> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getBlockState());
+	public default void getBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockState> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getBlockState());
 	}
 
-	public default void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<BlockState>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getBlockState(), actions);
+	public default void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockState> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getBlockState());
+	}
+
+	public default void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockState>... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getBlockState(), actions);
 	}
 
 	/**
@@ -166,18 +290,20 @@ public interface Coordinator {
 	coordinates, using the FluidState at those
 	coordinates as the extra argument for the action.
 	*/
-	public abstract void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action);
-
-	public default void getFluidStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<FluidState> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getFluidState());
+	public default void getFluidState(int x, int y, int z, CoordinateConsumer<FluidState> action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getFluidState());
 	}
 
-	public default void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<FluidState> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getFluidState());
+	public default void getFluidStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<FluidState> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getFluidState());
 	}
 
-	public default void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<FluidState>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getFluidState(), actions);
+	public default void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<FluidState> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getFluidState());
+	}
+
+	public default void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<FluidState>... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getFluidState(), actions);
 	}
 
 	/**
@@ -185,18 +311,20 @@ public interface Coordinator {
 	coordinates, invokes the action at those coordinates
 	using the BlockEntity as the extra argument for the action.
 	*/
-	public abstract void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action);
-
-	public default void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<BlockEntity> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getBlockEntity());
+	public default void getBlockEntity(int x, int y, int z, CoordinateConsumer<BlockEntity> action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getBlockEntity());
 	}
 
-	public default void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<BlockEntity> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getBlockEntity());
+	public default void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockEntity> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getBlockEntity());
 	}
 
-	public default void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<BlockEntity>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getBlockEntity(), actions);
+	public default void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockEntity> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getBlockEntity());
+	}
+
+	public default void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockEntity>... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getBlockEntity(), actions);
 	}
 
 	/**
@@ -206,38 +334,16 @@ public interface Coordinator {
 	the generic type B is not bounded to extend BlockEntity to
 	allow it to be an interface type. for example, {@link Inventory}.
 	*/
-	public abstract <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateBiConsumer<B> action);
-
-	public default <B> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.getBlockEntity(x, y, z, blockEntityType, action);
-				}
-			}
-		}
+	public default <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericPos(x, y, z, blockEntityType, action, CoordinatorBiConsumer.getBlockEntityByClass());
 	}
 
-	public default <B> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (length <= 0) return;
-		this.getBlockEntity(x, y, z, blockEntityType, action);
-		for (int index = 0; index < length; index++) {
-			this.getBlockEntity(x += dx, y += dy, z += dz, blockEntityType, action);
-		}
+	public default <B> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, blockEntityType, action, CoordinatorBiConsumer.getBlockEntityByClass());
 	}
 
-	public default <B> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, Class<B> blockEntityType, CoordinateBiConsumer<B>... actions) {
-		int length = actions.length;
-		if (length == 0) return;
-		if (actions[0] != null) {
-			this.getBlockEntity(x, y, z, blockEntityType, actions[0]);
-		}
-		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
-			if (actions[index] != null) {
-				this.getBlockEntity(x, y, z, blockEntityType, actions[index]);
-			}
-		}
+	public default <B> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, blockEntityType, action, LineBiConsumer.getBlockEntitiesByClass());
 	}
 
 	/**
@@ -245,38 +351,16 @@ public interface Coordinator {
 	pre-processed) coordinates, invokes the action at those coordinates
 	using the BlockEntity as the extra argument for the action.
 	*/
-	public abstract <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action);
-
-	public default <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.getBlockEntity(x, y, z, blockEntityType, action);
-				}
-			}
-		}
+	public default <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericPos(x, y, z, blockEntityType, action, CoordinatorBiConsumer.getBlockEntityByType());
 	}
 
-	public default <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (length <= 0) return;
-		this.getBlockEntity(x, y, z, blockEntityType, action);
-		for (int index = 0; index < length; index++) {
-			this.getBlockEntity(x += dx, y += dy, z += dz, blockEntityType, action);
-		}
+	public default <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, blockEntityType, action, CoordinatorBiConsumer.getBlockEntityByType());
 	}
 
-	public default <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B>... actions) {
-		int length = actions.length;
-		if (length == 0) return;
-		if (actions[0] != null) {
-			this.getBlockEntity(x, y, z, blockEntityType, actions[0]);
-		}
-		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
-			if (actions[index] != null) {
-				this.getBlockEntity(x += dx, y += dy, z += dz, blockEntityType, actions[index]);
-			}
-		}
+	public default <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, blockEntityType, action, LineBiConsumer.getBlockEntitiesByType());
 	}
 
 	/**
@@ -289,18 +373,20 @@ public interface Coordinator {
 	due to the fact that chunks only store on biome for every 4x4x4 volume,
 	but columns can compute the biome for every block.
 	*/
-	public abstract void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action);
-
-	public default void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getBiome());
+	public default void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getBiome());
 	}
 
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getBiome());
+	public default void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<RegistryEntry<Biome>> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getBiome());
 	}
 
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<RegistryEntry<Biome>>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getBiome(), actions);
+	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<RegistryEntry<Biome>> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getBiome());
+	}
+
+	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<RegistryEntry<Biome>>... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getBiome(), actions);
 	}
 
 	/**
@@ -308,18 +394,20 @@ public interface Coordinator {
 	coordinates, using the Chunk at those
 	coordinates as the extra argument for the action.
 	*/
-	public abstract void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action);
-
-	public default void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateBiConsumer<Chunk> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CuboidBiCallback.getChunk());
+	public default void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
+		this.genericPos(x, y, z, action, CoordinatorConsumer.getChunk());
 	}
 
-	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateBiConsumer<Chunk> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineBiCallback.getChunk());
+	public default void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<Chunk> action) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getChunk());
 	}
 
-	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateBiConsumer<Chunk>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.getChunk(), actions);
+	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<Chunk> action) {
+		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getChunk());
+	}
+
+	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<Chunk>... actions) {
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getChunk(), actions);
 	}
 
 	/**
@@ -327,18 +415,24 @@ public interface Coordinator {
 	coordinates to the provided BlockState.
 	if the provided BlockState is null, this method does nothing.
 	*/
-	public abstract void setBlockState(int x, int y, int z, BlockState state);
+	public default void setBlockState(int x, int y, int z, BlockState state) {
+		if (state == null) return;
+		this.genericPos(x, y, z, state, CoordinatorConsumer.setBlockState());
+	}
 
 	public default void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, state, CuboidBiCallback.setBlockState());
+		if (state == null) return;
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, state, CoordinatorConsumer.setBlockState());
 	}
 
 	public default void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state) {
-		this.genericLine(x, y, z, dx, dy, dz, length, state, LineBiCallback.setBlockState());
+		if (state == null) return;
+		this.genericLine(x, y, z, dx, dy, dz, length, state, LineConsumer.setBlockState());
 	}
 
 	public default void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, BlockState... states) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.setBlockState(), states);
+		if (states == null || states.length == 0) return;
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.setBlockState(), states);
 	}
 
 	/**
@@ -356,24 +450,19 @@ public interface Coordinator {
 	coordinates BEFORE this method was called,
 	the action will NOT be invoked on it.
 	*/
-	public abstract <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action);
-
-	public default <B> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
-				}
-			}
-		}
+	public default <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		this.genericPos(x, y, z, state, blockEntityClass, action, CoordinatorTriConsumer.setBlockStateAndBlockEntityByClass());
 	}
 
-	public default <B> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		if (length <= 0) return;
-		this.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
-		for (int index = 1; index < length; index++) {
-			this.setBlockStateAndBlockEntity(x += dx, y += dy, z += dz, state, blockEntityClass, action);
-		}
+	public default <B> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, state, blockEntityClass, action, CoordinatorTriConsumer.setBlockStateAndBlockEntityByClass());
+	}
+
+	public default <B> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		this.genericLine(x, y, z, dx, dy, dz, length, state, blockEntityClass, action, LineTriConsumer.setBlockStateAndBlockEntityByClass());
 	}
 
 	/**(
@@ -391,25 +480,18 @@ public interface Coordinator {
 	coordinates BEFORE this method was called,
 	the action will NOT be invoked on it.
 	*/
-	public abstract <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action);
-
-	public default <B extends BlockEntity> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
-				}
-			}
-		}
+	public default <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		this.genericPos(x, y, z, state, blockEntityType, action, CoordinatorTriConsumer.setBlockStateAndBlockEntityByType());
 	}
 
-	public default <B extends BlockEntity> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state == null || length <= 0) return;
-		this.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
-		for (int index = 1; index < length; index++) {
-			this.setBlockStateAndBlockEntity(x += dx, y += dy, z += dz, state, blockEntityType, action);
-		}
+	public default <B extends BlockEntity> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, state, blockEntityType, action, CoordinatorTriConsumer.setBlockStateAndBlockEntityByType());
+	}
+
+	public default <B extends BlockEntity> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		this.genericLine(x, y, z, dx, dy, dz, length, state, blockEntityType, action, LineTriConsumer.setBlockStateAndBlockEntityByType());
 	}
 
 	/**
@@ -421,37 +503,20 @@ public interface Coordinator {
 	in other words, this method will NOT abort on
 	the first null returned by the supplier.
 	*/
-	public abstract void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier);
+	public default void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
+		this.genericPos(x, y, z, supplier, CoordinatorConsumer.setBlockState_supplier());
+	}
 
 	public default void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateSupplier<BlockState> supplier) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, supplier, CuboidBiCallback.setBlockState_supplier());
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, supplier, CoordinatorConsumer.setBlockState_supplier());
 	}
 
 	public default void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateSupplier<BlockState> supplier) {
-		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineBiCallback.setBlockState_supplier());
+		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineConsumer.setBlockState_supplier());
 	}
 
 	public default void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateSupplier<BlockState>... suppliers) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.setBlockState_supplier(), suppliers);
-	}
-
-	/**
-	like the above methods, but invokes the supplier on the provided
-	coodinates immediately without pre-processing them first.
-	the return value of the supplier will be applied to the pre-processed coordinates.
-	*/
-	public abstract void setBlockStateRelative(int x, int y, int z, CoordinateSupplier<BlockState> supplier);
-
-	public default void setBlockStateRelativeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateSupplier<BlockState> supplier) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, supplier, CuboidBiCallback.setBlockStateRelative());
-	}
-
-	public default void setBlockStateRelativeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateSupplier<BlockState> supplier) {
-		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineBiCallback.setBlockStateRelative());
-	}
-
-	public default void setBlockStateRelativeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateSupplier<BlockState>... suppliers) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.setBlockStateRelative(), suppliers);
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.setBlockState_supplier(), suppliers);
 	}
 
 	/**
@@ -467,18 +532,20 @@ public interface Coordinator {
 	in other words, this method will NOT abort on
 	the first null returned by the mapper.
 	*/
-	public abstract void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper);
+	public default void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
+		this.genericPos(x, y, z, mapper, CoordinatorConsumer.modifyBlockState());
+	}
 
 	public default void modifyBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateUnaryOperator<BlockState> mapper) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, mapper, CuboidBiCallback.modifyBlockState());
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, mapper, CoordinatorConsumer.modifyBlockState());
 	}
 
 	public default void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateUnaryOperator<BlockState> mapper) {
-		this.genericLine(x, y, z, dx, dy, dz, length, mapper, LineBiCallback.modifyBlockState());
+		this.genericLine(x, y, z, dx, dy, dz, length, mapper, LineConsumer.modifyBlockState());
 	}
 
 	public default void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateUnaryOperator<BlockState>... mappers) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.modifyBlockState(), mappers);
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.modifyBlockState(), mappers);
 	}
 
 	/**
@@ -486,34 +553,17 @@ public interface Coordinator {
 	next, gets the list of entities of the specified type in that box.
 	lastly, invokes the entityAction at those coordinates using the
 	list of entities as the extra argument for the entityAction.
-
-	I don't like the parameters of this method.
-	I think it would make much more sense to provide an
-	AABB instead of 3 ints, drop the boxSupplier parameter,
-	and a new callback interface which also takes AABBs.
-	but I would need to do a decent amount of re-writing
-	(mostly in {@link AbstractPermuteCoordinator}) to handle this,
-	and that's a lot of work for just one method.
-	so for now at least, these parameters will stay.
 	*/
-	public abstract <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction);
-
-	public default <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.getEntities(x, y, z, entityType, boxSupplier, entityAction);
-				}
-			}
-		}
+	public default <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+		this.genericPos(x, y, z, entityType, boxSupplier, entityAction, CoordinatorTriConsumer.getEntities());
 	}
 
-	public default <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		if (length <= 0) return;
-		this.getEntities(x, y, z, entityType, boxSupplier, entityAction);
-		for (int index = 0; index < length; index++) {
-			this.getEntities(x += dx, y += dy, z += dz, entityType, boxSupplier, entityAction);
-		}
+	public default <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, entityType, boxSupplier, entityAction, CoordinatorTriConsumer.getEntities());
+	}
+
+	public default <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+		this.genericLine(x, y, z, dx, dy, dz, length, entityType, boxSupplier, entityAction, LineTriConsumer.getEntities());
 	}
 
 	//no getEntitiesLine() method which takes arrays because
@@ -531,100 +581,20 @@ public interface Coordinator {
 	in other words, this method will NOT abort on
 	the first null returned by the supplier.
 	*/
-	public abstract void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier);
+	public default void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
+		this.genericPos(x, y, z, supplier, CoordinatorConsumer.addEntity());
+	}
 
 	public default void addEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateFunction<ServerWorld, Entity> supplier) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					this.addEntity(x, y, z, supplier);
-				}
-			}
-		}
+		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, supplier, CoordinatorConsumer.addEntity());
 	}
 
 	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateFunction<ServerWorld, Entity> supplier) {
-		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineBiCallback.addEntity());
+		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineConsumer.addEntity());
 	}
 
 	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateFunction<ServerWorld, Entity>... suppliers) {
-		this.genericLine(x, y, z, dx, dy, dz, LineBiCallback.addEntity(), suppliers);
-	}
-
-	/**
-	invokes the action at the coordinates
-	several times in a cuboid region.
-	*/
-	public default void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CuboidCallback action) {
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					action.run(this, x, y, z);
-				}
-			}
-		}
-	}
-
-	/**
-	invokes the action at the coordinates
-	several times in a cuboid region
-	using the extra argument for the action.
-	*/
-	public default <T> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, T arg, CuboidBiCallback<T> action) {
-		if (arg == null) return;
-		for (int x = minX; x <= maxX; x++) {
-			for (int z = minZ; z <= maxZ; z++) {
-				for (int y = minY; y <= maxY; y++) {
-					action.run(this, x, y, z, arg);
-				}
-			}
-		}
-	}
-
-	/**
-	invokes the action at the coordinates
-	several times in a straight line.
-	*/
-	public default void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, LineCallback action) {
-		if (length <= 0) return;
-		action.run(this, x, y, z, 0);
-		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
-			action.run(this, x, y, z, index);
-		}
-	}
-
-	/**
-	invokes the action at the (possibly pre-processed)
-	coordinates several times in a straight line,
-	using the elements in the provided array
-	as the extra argument for the action.
-	the array parameter is last so that it can use varargs.
-	*/
-	public default <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, LineBiCallback<T> action, T... args) {
-		int length = args.length;
-		if (length == 0) return;
-		if (args[0] != null) action.run(this, x, y, z, 0, args[0]);
-		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
-			if (args[index] != null) action.run(this, x, y, z, index, args[index]);
-		}
-	}
-
-	/**
-	invokes the action at the coordinates
-	several times in a straight line
-	using the extra argument for the action.
-	the argument parameter is NOT last because:
-	A: it does not need to be varargs, and
-	B: this will add a bit more distinction from the previous method.
-	*/
-	public default <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, T arg, LineBiCallback<T> action) {
-		if (arg == null || length <= 0) return;
-		action.run(this, x, y, z, 0, arg);
-		for (int index = 1; index < length; index++) {
-			action.run(this, x += dx, y += dy, z += dz, index, arg);
-		}
+		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.addEntity(), suppliers);
 	}
 
 	//////////////////////////////// coordinate manipulation ////////////////////////////////
@@ -670,7 +640,9 @@ public interface Coordinator {
 		if (offsets.length == 0) return warnDrop("no offsets provided");
 		if (offsets.length == 3) return this.translate(offsets[0], offsets[1], offsets[2]);
 		int count = offsets.length / 3;
-		if (offsets.length != count * 3) throw new IllegalArgumentException("offsets length must be multiple of 3");
+		if (offsets.length != (count << 1) + count) {
+			throw new IllegalArgumentException("offsets length must be multiple of 3");
+		}
 		return combine(
 			IntStream.range(0, count)
 			.map((int index) -> index + (index << 1))
@@ -712,6 +684,18 @@ public interface Coordinator {
 		);
 	}
 
+	public default Coordinator symmetric(Symmetry s1) {
+		return new SymmetricCoordinator(this, s1.flag());
+	}
+
+	public default Coordinator symmetric(Symmetry s1, Symmetry s2) {
+		return new SymmetricCoordinator(this, s1.flag() | s2.flag());
+	}
+
+	public default Coordinator symmetric(Symmetry s1, Symmetry s2, Symmetry s3, Symmetry s4) {
+		return new SymmetricCoordinator(this, s1.flag() | s2.flag() | s3.flag() | s4.flag());
+	}
+
 	/**
 	rotates all coordinates about the origin by the provided amount before using them.
 	when calling {@link #setBlockState(int, int, int, BlockState)}
@@ -719,12 +703,7 @@ public interface Coordinator {
 	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
 	*/
 	public default Coordinator rotate1x(BlockRotation rotation) {
-		return switch (rotation) {
-			case NONE                -> this;
-			case CLOCKWISE_90        -> new Rotate1x90(this);
-			case CLOCKWISE_180       -> new Rotate1x180(this);
-			case COUNTERCLOCKWISE_90 -> new Rotate1x270(this);
-		};
+		return this.symmetric(Symmetry.of(rotation));
 	}
 
 	/**
@@ -737,7 +716,7 @@ public interface Coordinator {
 	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
 	*/
 	public default Coordinator rotate4x90() {
-		return new Rotate4x90(this);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.ROTATE_90, Symmetry.ROTATE_180, Symmetry.ROTATE_270);
 	}
 
 	/**
@@ -750,7 +729,7 @@ public interface Coordinator {
 	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
 	*/
 	public default Coordinator rotate2x180() {
-		return new Rotate2x180(this);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.ROTATE_180);
 	}
 
 	/**
@@ -762,7 +741,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip1X() {
-		return new Flip1X(this);
+		return this.symmetric(Symmetry.FLIP_Z);
 	}
 
 	/**
@@ -774,7 +753,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip1Z() {
-		return new Flip1Z(this);
+		return this.symmetric(Symmetry.FLIP_X);
 	}
 
 	/**
@@ -788,7 +767,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip2X() {
-		return new Flip2X(this);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_Z);
 	}
 
 	/**
@@ -802,7 +781,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip2Z() {
-		return new Flip2Z(this);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_X);
 	}
 
 	/**
@@ -815,7 +794,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip4XZ() {
-		return new Flip4XZ(this);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_X, Symmetry.FLIP_Z, Symmetry.ROTATE_180);
 	}
 
 	/**
@@ -837,7 +816,7 @@ public interface Coordinator {
 	restricts coordinates based on the provided predicate.
 	no actions will be performed on coordinates which the predicate rejects.
 	*/
-	public default Coordinator limitArea(CoordinatePredicate predicate) {
+	public default Coordinator limitArea(CoordinateBooleanSupplier predicate) {
 		return new LimitArea(this, predicate);
 	}
 

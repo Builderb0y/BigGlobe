@@ -1,19 +1,7 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import java.util.List;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
@@ -28,123 +16,39 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 	public abstract boolean test(int x, int y, int z);
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
 		if (this.test(x, y, z)) {
-			this.delegate.getCoordinates(x, y, z, action);
+			callback.run(this.delegate, x, y, z);
 		}
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action) {
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
 		if (this.test(x, y, z)) {
-			this.delegate.getBlockState(x, y, z, action);
+			callback.run(this.delegate, x, y, z, arg);
 		}
 	}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action) {
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
 		if (this.test(x, y, z)) {
-			this.delegate.getFluidState(x, y, z, action);
+			callback.run(this.delegate, x, y, z, arg1, arg2);
 		}
 	}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
 		if (this.test(x, y, z)) {
-			this.delegate.getBlockEntity(x, y, z, action);
-		}
-	}
-
-	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		if (this.test(x, y, z)) {
-			this.delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		if (this.test(x, y, z)) {
-			this.delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		if (this.test(x, y, z)) {
-			this.delegate.getBiome(x, y, z, action);
-		}
-	}
-
-	@Override
-	public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {
-		if (this.test(x, y, z)) {
-			this.delegate.getChunk(x, y, z, action);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, BlockState state) {
-		if (state != null && this.test(x, y, z)) {
-			this.delegate.setBlockState(x, y, z, state);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-		if (this.test(x, y, z)) {
-			this.delegate.setBlockState(x, y, z, supplier);
-		}
-	}
-
-	@Override
-	public void setBlockStateRelative(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-		if (this.test(x, y, z)) {
-			this.delegate.setBlockStateRelative(x, y, z, supplier);
-		}
-	}
-
-	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		if (state != null && this.test(x, y, z)) {
-			this.delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state != null && this.test(x, y, z)) {
-			this.delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
-		}
-	}
-
-	@Override
-	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
-		if (this.test(x, y, z)) {
-			this.delegate.modifyBlockState(x, y, z, mapper);
-		}
-	}
-
-	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		if (this.test(x, y, z)) {
-			this.delegate.getEntities(x, y, z, entityType, boxSupplier, entityAction);
-		}
-	}
-
-	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
-		if (this.test(x, y, z)) {
-			this.delegate.addEntity(x, y, z, supplier);
+			callback.run(this.delegate, x, y, z, arg1, arg2, arg3);
 		}
 	}
 
 	public static class LimitArea extends AbstractLimitAreaCoordinator {
 
-		public final CoordinatePredicate predicate;
+		public final CoordinateBooleanSupplier predicate;
 		public final BlockPos.Mutable scratchPos;
 
-		public LimitArea(Coordinator delegate, CoordinatePredicate predicate) {
+		public LimitArea(Coordinator delegate, CoordinateBooleanSupplier predicate) {
 			super(delegate);
 			this.predicate = predicate;
 			this.scratchPos = new BlockPos.Mutable();
@@ -156,7 +60,7 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 		}
 
 		@Override
-		public Coordinator limitArea(CoordinatePredicate predicate) {
+		public Coordinator limitArea(CoordinateBooleanSupplier predicate) {
 			return this.delegate.limitArea(this.predicate.and(predicate));
 		}
 

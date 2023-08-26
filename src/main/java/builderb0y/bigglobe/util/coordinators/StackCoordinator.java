@@ -1,19 +1,9 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import java.util.List;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-
-import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorBiConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorConsumer;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorRunnable;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorTriConsumer;
 
 public class StackCoordinator extends ScratchPosCoordinator {
 
@@ -31,140 +21,38 @@ public class StackCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateConsumer action) {
-		this.delegate.getCoordinates(x, y, z, action);
-		this.delegate.getCoordinates(x + this.dx, y + this.dy, z + this.dz, action);
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
+		callback.run(this.delegate, x, y, z);
+		callback.run(this.delegate, x + this.dx, y + this.dy, z + this.dz);
 		for (int i = 2; i < this.count; i++) {
-			this.delegate.getCoordinates(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
+			callback.run(this.delegate, x + this.dx * i, y + this.dy * i, z + this.dz * i);
 		}
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateBiConsumer<BlockState> action) {
-		this.delegate.getBlockState(x, y, z, action);
-		this.delegate.getBlockState(x + this.dx, y + this.dy, z + this.dz, action);
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
+		callback.run(this.delegate, x, y, z, arg);
+		callback.run(this.delegate, x + this.dx, y + this.dy, z + this.dz, arg);
 		for (int i = 2; i < this.count; i++) {
-			this.delegate.getBlockState(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
+			callback.run(this.delegate, x + this.dx * i, y + this.dy * i, z + this.dz * i, arg);
 		}
 	}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateBiConsumer<FluidState> action) {
-		this.delegate.getFluidState(x, y, z, action);
-		this.delegate.getFluidState(x + this.dx, y + this.dy, z + this.dz, action);
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
+		callback.run(this.delegate, x, y, z, arg1, arg2);
+		callback.run(this.delegate, x + this.dx, y + this.dy, z + this.dz, arg1, arg2);
 		for (int i = 2; i < this.count; i++) {
-			this.delegate.getFluidState(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
+			callback.run(this.delegate, x + this.dx * i, y + this.dy * i, z + this.dz * i, arg1, arg2);
 		}
 	}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateBiConsumer<BlockEntity> action) {
-		this.delegate.getBlockEntity(x, y, z, action);
-		this.delegate.getBlockEntity(x + this.dx, y + this.dy, z + this.dz, action);
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
+		callback.run(this.delegate, x, y, z, arg1, arg2, arg3);
+		callback.run(this.delegate, x + this.dx, y + this.dy, z + this.dz, arg1, arg2, arg3);
 		for (int i = 2; i < this.count; i++) {
-			this.delegate.getBlockEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
-		}
-	}
-
-	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		this.delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		this.delegate.getBlockEntity(x + this.dx, y + this.dy, z + this.dz, tileEntityType, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getBlockEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateBiConsumer<B> action) {
-		this.delegate.getBlockEntity(x, y, z, tileEntityType, action);
-		this.delegate.getBlockEntity(x + this.dx, y + this.dy, z + this.dz, tileEntityType, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getBlockEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, tileEntityType, action);
-		}
-	}
-
-	@Override
-	public void getBiome(int x, int y, int z, CoordinateBiConsumer<RegistryEntry<Biome>> action) {
-		this.delegate.getBiome(x, y, z, action);
-		this.delegate.getBiome(x + this.dx, y + this.dy, z + this.dz, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getBiome(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
-		}
-	}
-
-	@Override
-	public void getChunk(int x, int y, int z, CoordinateBiConsumer<Chunk> action) {
-		this.delegate.getChunk(x, y, z, action);
-		this.delegate.getChunk(x + this.dx, y + this.dy, z + this.dz, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getChunk(x + this.dx * i, y + this.dy * i, z + this.dz * i, action);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, BlockState state) {
-		if (state == null) return;
-		this.delegate.setBlockState(x, y, z, state);
-		this.delegate.setBlockState(x + this.dx, y + this.dy, z + this.dz, state);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.setBlockState(x + this.dx * i, y + this.dy * i, z + this.dz * i, state);
-		}
-	}
-
-	@Override
-	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-		this.delegate.setBlockState(x, y, z, supplier);
-		this.delegate.setBlockState(x + this.dx, y + this.dy, z + this.dz, supplier);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.setBlockState(x + this.dx * i, y + this.dy * i, z + this.dz * i, supplier);
-		}
-	}
-
-	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		this.delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
-		this.delegate.setBlockStateAndBlockEntity(x + this.dx, y + this.dy, z + this.dz, state, blockEntityClass, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.setBlockStateAndBlockEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, state, blockEntityClass, action);
-		}
-	}
-
-	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateBiConsumer<B> action) {
-		if (state == null) return;
-		this.delegate.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
-		this.delegate.setBlockStateAndBlockEntity(x + this.dx, y + this.dy, z + this.dz, state, blockEntityType, action);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.setBlockStateAndBlockEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, state, blockEntityType, action);
-		}
-	}
-
-	@Override
-	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
-		this.delegate.modifyBlockState(x, y, z, mapper);
-		this.delegate.modifyBlockState(x + this.dx, y + this.dy, z + this.dz, mapper);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.modifyBlockState(x + this.dx * i, y + this.dy * i, z + this.dz * i, mapper);
-		}
-	}
-
-	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateBiConsumer<List<E>> entityAction) {
-		this.delegate.getEntities(x, y, z, entityType, boxSupplier, entityAction);
-		this.delegate.getEntities(x + this.dx, y + this.dy, z + this.dz, entityType, boxSupplier, entityAction);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.getEntities(x + this.dx * i, y + this.dy * i, z + this.dz * i, entityType, boxSupplier, entityAction);
-		}
-	}
-
-	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
-		this.delegate.addEntity(x, y, z, supplier);
-		this.delegate.addEntity(x + this.dx, y + this.dy, z + this.dz, supplier);
-		for (int i = 2; i < this.count; i++) {
-			this.delegate.addEntity(x + this.dx * i, y + this.dy * i, z + this.dz * i, supplier);
+			callback.run(this.delegate, x + this.dx * i, y + this.dy * i, z + this.dz * i, arg1, arg2, arg3);
 		}
 	}
 

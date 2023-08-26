@@ -60,7 +60,7 @@
 		"placeDoor(0, 0, 2, random.if ('east') else ('west'))",
 
 		";windows",
-		"fillBlockState(0, 1, -4, 2, 1, -4, paneEW)",
+		"root.setBlockStateCuboid(0, 1, -4, 2, 1, -4, paneEW)",
 		"root.flip2X().setBlockState(4, 1, 2, paneNS)",
 		"root.flip2X().setBlockState(2, 1, 4, paneEW)",
 		"root.setBlockStateLine(-2, 5, 4, 2, 0, 0, 3, paneEW)",
