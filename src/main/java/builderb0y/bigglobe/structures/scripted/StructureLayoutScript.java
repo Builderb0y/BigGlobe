@@ -56,7 +56,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
-				.addEnvironment(SymmetryEnvironment.create(LOAD_RANDOM))
+				.addEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
 					new MutableScriptEnvironment()
 

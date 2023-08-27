@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.scripting;
 
+import java.util.Arrays;
+
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.scripting.bytecode.FieldConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -8,12 +10,13 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class SymmetryEnvironment {
+public class SymmetryScriptEnvironment {
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
 		.addType("Symmetry", Symmetry.class)
 		.addCastConstant(FieldConstantFactory.forEnum(Symmetry.class), true)
+		.addQualifiedVariableGetStatics(Symmetry.class, Arrays.stream(Symmetry.VALUES).map(Symmetry::name).toArray(String[]::new))
 		.addMethodMultiInvokes(Symmetry.class, "getX", "getZ", "apply", "andThen", "compose", "inverse")
 		.addQualifiedFunctionInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
 	);

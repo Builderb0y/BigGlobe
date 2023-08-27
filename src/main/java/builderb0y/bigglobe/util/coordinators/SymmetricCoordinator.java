@@ -110,19 +110,29 @@ public class SymmetricCoordinator extends ScratchPosCoordinator {
 
 	@Override
 	public Coordinator symmetric(Symmetry s1) {
-		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(this.symmetries & 255));
+		return create(this.delegate, s1.bulkAndThen(this.symmetries & 255));
 	}
 
 	@Override
 	public Coordinator symmetric(Symmetry s1, Symmetry s2) {
 		int s = this.symmetries & 255;
-		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s));
+		return create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s));
 	}
 
 	@Override
 	public Coordinator symmetric(Symmetry s1, Symmetry s2, Symmetry s3, Symmetry s4) {
 		int s = this.symmetries & 255;
-		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s) | s3.bulkAndThen(s) | s4.bulkAndThen(s));
+		return create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s) | s3.bulkAndThen(s) | s4.bulkAndThen(s));
+	}
+
+	@Override
+	public Coordinator symmetric(Symmetry... symmetries) {
+		int s = this.symmetries & 255;
+		int flags = 0;
+		for (Symmetry symmetry : symmetries) {
+			flags |= symmetry.bulkAndThen(s);
+		}
+		return create(this.delegate, flags);
 	}
 
 	@Override

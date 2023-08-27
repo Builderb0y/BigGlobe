@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateConsumer;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -21,7 +22,7 @@ import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler.Named;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -31,7 +32,11 @@ public class CoordinatorScriptEnvironment {
 	public static final MethodInfo
 		ALL_OF = MethodInfo.findMethod(Coordinator.class, "combine", Coordinator.class, Coordinator[].class),
 		TRANSLATE = MethodInfo.findMethod(Coordinator.class, "translate", Coordinator.class, int.class, int.class, int.class),
-		MULTI_TRANSLATE = MethodInfo.findMethod(Coordinator.class, "multiTranslate", Coordinator.class, int[].class);
+		MULTI_TRANSLATE = MethodInfo.findMethod(Coordinator.class, "multiTranslate", Coordinator.class, int[].class),
+		SYMMETRIFY_1 = MethodInfo.findMethod(Coordinator.class, "symmetric", Coordinator.class, Symmetry.class),
+		SYMMETRIFY_2 = MethodInfo.findMethod(Coordinator.class, "symmetric", Coordinator.class, Symmetry.class, Symmetry.class),
+		SYMMETRIFY_4 = MethodInfo.findMethod(Coordinator.class, "symmetric", Coordinator.class, Symmetry.class, Symmetry.class, Symmetry.class, Symmetry.class),
+		SYMMETRIFY_VARARGS = MethodInfo.findMethod(Coordinator.class, "symmetric", Coordinator.class, Symmetry[].class);
 
 	public static MutableScriptEnvironment create(InsnTree loadWorld) {
 		return (
@@ -58,7 +63,7 @@ public class CoordinatorScriptEnvironment {
 			.addMethod(
 				type(Coordinator.class),
 				"translate",
-				new Named(
+				new MethodHandler.Named(
 					"translate(int... offsets ;(number of offsets must be divisible by 3))",
 					(parser, receiver, name, mode, arguments) -> {
 						if (arguments.length % 3 != 0) return null;
@@ -71,6 +76,26 @@ public class CoordinatorScriptEnvironment {
 							InsnTree array = newArrayWithContents(parser, type(int[].class), offsets);
 							return new CastResult(invokeInstance(receiver, MULTI_TRANSLATE, array), offsets != arguments);
 						}
+					}
+				)
+			)
+			.addMethod(
+				type(Coordinator.class),
+				"symmetrify",
+				new MethodHandler.Named(
+					"symmetrify(Symmetry...)",
+					(parser, receiver, name, mode, arguments) -> {
+						InsnTree[] symmetries = ScriptEnvironment.castArguments(parser, "symmetrify", types(Symmetry.class, arguments.length), CastMode.IMPLICIT_NULL, arguments);
+						if (symmetries == null) return null;
+						return new CastResult(
+							switch (symmetries.length) {
+								case 1 -> invokeInstance(receiver, SYMMETRIFY_1, symmetries);
+								case 2 -> invokeInstance(receiver, SYMMETRIFY_2, symmetries);
+								case 4 -> invokeInstance(receiver, SYMMETRIFY_4, symmetries);
+								default -> invokeInstance(receiver, SYMMETRIFY_VARARGS, newArrayWithContents(parser, type(Symmetry[].class), symmetries));
+							},
+							symmetries != arguments
+						);
 					}
 				)
 			)

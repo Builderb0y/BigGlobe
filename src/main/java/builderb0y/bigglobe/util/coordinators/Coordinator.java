@@ -696,6 +696,14 @@ public interface Coordinator {
 		return SymmetricCoordinator.create(this, s1.flag() | s2.flag() | s3.flag() | s4.flag());
 	}
 
+	public default Coordinator symmetric(Symmetry... symmetries) {
+		int flags = 0;
+		for (Symmetry symmetry : symmetries) {
+			flags |= symmetry.flag();
+		}
+		return SymmetricCoordinator.create(this, flags);
+	}
+
 	/**
 	rotates all coordinates about the origin by the provided amount before using them.
 	when calling {@link #setBlockState(int, int, int, BlockState)}

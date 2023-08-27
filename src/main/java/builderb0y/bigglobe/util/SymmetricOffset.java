@@ -2,8 +2,6 @@ package builderb0y.bigglobe.util;
 
 import org.jetbrains.annotations.UnknownNullability;
 
-import net.minecraft.util.BlockRotation;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.UseName;
@@ -20,7 +18,7 @@ public record SymmetricOffset(
 	@UseName("x") int offsetX,
 	@UseName("y") int offsetY,
 	@UseName("z") int offsetZ,
-	@UseName("r") @UseCoder(name = "RAW_SYMMETRY_CODER", in = SymmetricOffset.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) Symmetry symmetry
+	@UseName("r" /* named r for backwards compatibility */) @UseCoder(name = "RAW_SYMMETRY_CODER", in = SymmetricOffset.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) Symmetry symmetry
 ) {
 
 	public static class Testing {
