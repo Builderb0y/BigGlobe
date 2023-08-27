@@ -20,11 +20,9 @@
 					"ScriptStructurePiece.new(",
 						"-5, 0, -9, 5, 7, 9,",
 						"'bigglobe:medium_house',",
-						"nbtCompound(",
-							"palette: woodPalette.id",
-						")",
+						"nbtCompound(palette: woodPalette.id)",
 					")",
-					".withRotation(random.nextInt(4) * 90)",
+					".symmetrify(Symmetry.randomRotation())",
 					".offset(originX, originY, originZ)",
 				")"
 			]

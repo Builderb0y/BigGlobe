@@ -18,7 +18,7 @@
 							"palette: woodPalette.id",
 						")",
 					")",
-					".withRotation(random.nextInt(4) * 90)",
+					".symmetrify(Symmetry.randomRotation())",
 				")",
 
 				"random.if (",
@@ -36,7 +36,7 @@
 								"palette: woodPalette.id",
 							")",
 						")",
-						".withRotation(random.if (90) else (0))",
+						".symmetrify(random.if ('ROTATE_90') else ('IDENTITY'))",
 					")",
 				")"
 			]

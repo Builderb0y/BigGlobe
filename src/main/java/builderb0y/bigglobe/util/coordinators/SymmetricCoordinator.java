@@ -16,6 +16,18 @@ public class SymmetricCoordinator extends ScratchPosCoordinator {
 		this.symmetries = (byte)(symmetries);
 	}
 
+	public static Coordinator create(Coordinator delegate, int symmetries) {
+		if ((symmetries & 255) == Symmetry.IDENTITY.flag()) {
+			return delegate;
+		}
+		else if ((symmetries & 255) == 0) {
+			return Coordinator.warnDrop("No symmetries");
+		}
+		else {
+			return new SymmetricCoordinator(delegate, symmetries);
+		}
+	}
+
 	@Override
 	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
 		int symmetries = this.symmetries;
@@ -98,19 +110,19 @@ public class SymmetricCoordinator extends ScratchPosCoordinator {
 
 	@Override
 	public Coordinator symmetric(Symmetry s1) {
-		return new SymmetricCoordinator(this.delegate, s1.bulkCompose(this.symmetries & 255));
+		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(this.symmetries & 255));
 	}
 
 	@Override
 	public Coordinator symmetric(Symmetry s1, Symmetry s2) {
 		int s = this.symmetries & 255;
-		return new SymmetricCoordinator(this.delegate, s1.bulkCompose(s) | s2.bulkCompose(s));
+		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s));
 	}
 
 	@Override
 	public Coordinator symmetric(Symmetry s1, Symmetry s2, Symmetry s3, Symmetry s4) {
 		int s = this.symmetries & 255;
-		return new SymmetricCoordinator(this.delegate, s1.bulkCompose(s) | s2.bulkCompose(s) | s3.bulkCompose(s) | s4.bulkCompose(s));
+		return SymmetricCoordinator.create(this.delegate, s1.bulkAndThen(s) | s2.bulkAndThen(s) | s3.bulkAndThen(s) | s4.bulkAndThen(s));
 	}
 
 	@Override

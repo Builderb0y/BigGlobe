@@ -965,8 +965,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addCast(from, to, implicit, (parser, value, to_, implicit_) -> new IdentityCastInsnTree(value, to_));
 	}
 
-	public MutableScriptEnvironment addCastConstant(ConstantFactory factory, boolean implicit) {
-		return this.addCast(factory.variableMethod.paramTypes[0], factory.variableMethod.returnType, implicit, (parser, value, to, implicit_) -> factory.create(parser, value, implicit_).tree);
+	public MutableScriptEnvironment addCastConstant(AbstractConstantFactory factory, boolean implicit) {
+		return this.addCast(factory.inType, factory.outType, implicit, (parser, value, to, implicit_) -> factory.create(parser, value, implicit_).tree);
 	}
 
 	//////////////////////////////// getters ////////////////////////////////

@@ -24,7 +24,7 @@
 							"palette: woodPalette.id",
 						")",
 					")",
-					".withRotation(random.nextInt(4) * 90)",
+					".symmetrify(Symmetry.randomRotation())",
 				")",
 
 				"random.if (",
@@ -38,11 +38,9 @@
 						"ScriptStructurePiece.new(",
 							"farmX - sizeX, originY - 1, farmZ - sizeZ, farmX + sizeX, originY + 1, farmZ + sizeZ,",
 							"'bigglobe:farm',",
-							"nbtCompound(",
-								"palette: woodPalette.id",
-							")",
+							"nbtCompound(palette: woodPalette.id)",
 						")",
-						".withRotation(random.if (90) else (0))",
+						".symmetrify(random.if ('ROTATE_90') else ('IDENTITY'))",
 					")",
 				")"
 			]

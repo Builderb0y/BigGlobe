@@ -685,15 +685,15 @@ public interface Coordinator {
 	}
 
 	public default Coordinator symmetric(Symmetry s1) {
-		return new SymmetricCoordinator(this, s1.flag());
+		return SymmetricCoordinator.create(this, s1.flag());
 	}
 
 	public default Coordinator symmetric(Symmetry s1, Symmetry s2) {
-		return new SymmetricCoordinator(this, s1.flag() | s2.flag());
+		return SymmetricCoordinator.create(this, s1.flag() | s2.flag());
 	}
 
 	public default Coordinator symmetric(Symmetry s1, Symmetry s2, Symmetry s3, Symmetry s4) {
-		return new SymmetricCoordinator(this, s1.flag() | s2.flag() | s3.flag() | s4.flag());
+		return SymmetricCoordinator.create(this, s1.flag() | s2.flag() | s3.flag() | s4.flag());
 	}
 
 	/**
@@ -741,7 +741,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip1X() {
-		return this.symmetric(Symmetry.FLIP_Z);
+		return this.symmetric(Symmetry.FLIP_0);
 	}
 
 	/**
@@ -753,7 +753,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip1Z() {
-		return this.symmetric(Symmetry.FLIP_X);
+		return this.symmetric(Symmetry.FLIP_90);
 	}
 
 	/**
@@ -767,7 +767,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip2X() {
-		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_Z);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_0);
 	}
 
 	/**
@@ -781,7 +781,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip2Z() {
-		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_X);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_90);
 	}
 
 	/**
@@ -794,7 +794,7 @@ public interface Coordinator {
 	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
 	*/
 	public default Coordinator flip4XZ() {
-		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_X, Symmetry.FLIP_Z, Symmetry.ROTATE_180);
+		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_90, Symmetry.FLIP_0, Symmetry.ROTATE_180);
 	}
 
 	/**

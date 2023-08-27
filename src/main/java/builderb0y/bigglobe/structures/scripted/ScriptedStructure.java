@@ -2,6 +2,7 @@ package builderb0y.bigglobe.structures.scripted;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
 
@@ -35,12 +36,9 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
-import builderb0y.bigglobe.util.CheckedList;
-import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
-import builderb0y.bigglobe.util.WorldUtil;
 
 public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -88,7 +86,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	public static class Piece extends StructurePiece implements RawGenerationStructurePiece {
 
 		public final BlockBox originalBoundingBox;
-		public Rotation2D transformation;
+		public SymmetricOffset transformation;
 		public final StructurePlacementScriptEntry placement;
 		public final NbtCompound data;
 
@@ -97,7 +95,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.originalBoundingBox = boundingBox;
 			this.placement = placement;
 			this.data = data;
-			this.transformation = Rotation2D.IDENTITY;
+			this.transformation = SymmetricOffset.IDENTITY;
 		}
 
 		/** this is the constructor that the layout script uses. */
@@ -110,20 +108,20 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.originalBoundingBox = BlockBox.CODEC.parse(NbtOps.INSTANCE, nbt.get("OBB")).getOrThrow(true, BigGlobeMod.LOGGER::error);
 			NbtElement transform = nbt.get("transform");
 			if (transform != null) try {
-				this.transformation = BigGlobeAutoCodec.AUTO_CODEC.decode(Rotation2D.CODER, transform, NbtOps.INSTANCE);
+				this.transformation = BigGlobeAutoCodec.AUTO_CODEC.decode(SymmetricOffset.CODER, transform, NbtOps.INSTANCE);
 			}
 			catch (DecodeException exception) {
 				throw new RuntimeException(exception);
 			}
 			else {
-				this.transformation = Rotation2D.IDENTITY;
+				this.transformation = SymmetricOffset.IDENTITY;
 			}
 			BlockRotation legacyRotation = Directions.ROTATIONS[nbt.getByte("rot")];
 			if (legacyRotation != BlockRotation.NONE) {
 				this.transformation = this.transformation.rotateAround(
 					(this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1,
 					(this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1,
-					legacyRotation
+					Symmetry.of(legacyRotation)
 				);
 				this.updateBoundingBox();
 			}
@@ -135,21 +133,37 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
-			nbt.put("transform", BigGlobeAutoCodec.AUTO_CODEC.encode(Rotation2D.CODER, this.transformation, NbtOps.INSTANCE));
+			nbt.put("transform", BigGlobeAutoCodec.AUTO_CODEC.encode(SymmetricOffset.CODER, this.transformation, NbtOps.INSTANCE));
 			nbt.put("OBB", BlockBox.CODEC.encodeStart(NbtOps.INSTANCE, this.originalBoundingBox).getOrThrow(true, BigGlobeMod.LOGGER::error));
 		}
 
-		public Piece withRotation(int rotation) {
-			return this.rotateAround(
+		public Piece symmetrify(Symmetry symmetry) {
+			return this.symmetrifyAround(
 				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
 				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1,
-				rotation
+				symmetry
 			);
 		}
 
+		public Piece withRotation(int rotation) {
+			return this.symmetrify(Symmetry.rotation(rotation));
+		}
+
 		public Piece rotateAround(int x, int z, int rotation) {
-			this.setTransformation(this.transformation.rotateAround(x, z, Directions.scriptRotation(rotation)));
+			return this.symmetrifyAround(x, z, Symmetry.rotation(rotation));
+		}
+
+		public Piece symmetrifyAround(int x, int z, Symmetry symmetry) {
+			this.setTransformation(this.transformation.rotateAround(x, z, symmetry));
 			return this;
+		}
+
+		public Piece rotateRandomly(RandomGenerator random) {
+			return this.symmetrify(Symmetry.VALUES[random.nextInt(4)]);
+		}
+
+		public Piece rotateAndFlipRandomly(RandomGenerator random) {
+			return this.symmetrify(Symmetry.VALUES[random.nextInt(8)]);
 		}
 
 		public Piece offset(int x, int y, int z) {
@@ -162,12 +176,16 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.setTransformation(this.transformation.offset(x, y, z));
 		}
 
-		public int rotation() {
-			return Directions.reverseScriptRotation(this.transformation.rotation());
+		public Symmetry symmetry() {
+			return this.transformation.symmetry();
 		}
 
 		public int offsetX() {
 			return this.transformation.offsetX();
+		}
+
+		public int offsetY() {
+			return this.transformation.offsetY();
 		}
 
 		public int offsetZ() {
@@ -178,7 +196,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			return this.placement;
 		}
 
-		public void setTransformation(Rotation2D transformation) {
+		public void setTransformation(SymmetricOffset transformation) {
 			this.transformation = transformation;
 			this.updateBoundingBox();
 		}
@@ -306,11 +324,6 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				this.data,
 				DistantHorizonsCompat.isOnDistantHorizonThread()
 			);
-		}
-
-		@Override
-		public BlockRotation getRotation() {
-			return this.transformation.rotation();
 		}
 	}
 }

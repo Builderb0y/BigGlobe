@@ -16,7 +16,7 @@
 						"'bigglobe:log_cabin',",
 						"nbtCompound(palette: palette.id)",
 					")",
-					".withRotation(random.nextInt(4) * 90)",
+					".symmetrify(Symmetry.randomRotationAndFlip())",
 					".offset(originX, originY, originZ)",
 				")"
 			]

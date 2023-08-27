@@ -24,9 +24,7 @@
 				"pieces.add(ScriptStructurePiece.new(",
 					"originX - 4, originY - 1, originZ - 4, originX + 4, originY, originZ + 4,",
 					"'bigglobe:campfire',",
-					"nbtCompound(",
-						"palette: paletteID",
-					")",
+					"nbtCompound(palette: paletteID)",
 				"))",
 
 				";tent",
@@ -44,7 +42,7 @@
 								"wool: 'minecraft:$randomColor()_wool'",
 							")",
 						")",
-						".withRotation(random.nextInt(4) * 90)",
+						".symmetrify(Symmetry.randomRotation())",
 					")",
 
 					";tent interior",
@@ -53,11 +51,9 @@
 							"ScriptStructurePiece.new(",
 								"tentX - 1, originY, tentZ - 1, tentX + 1, originY, tentZ + 1,",
 								"'bigglobe:tent_interior',",
-								"nbtCompound(",
-									"bed: 'minecraft:$randomColor()_bed'",
-								")",
+								"nbtCompound(bed: 'minecraft:$randomColor()_bed')",
 							")",
-							".withRotation(random.nextInt(4) * 90)",
+							".symmetrify(Symmetry.randomRotation())",
 						")",
 					")",
 				")"

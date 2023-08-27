@@ -12,6 +12,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
+import builderb0y.bigglobe.util.CheckedList;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -55,6 +56,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
+				.addEnvironment(SymmetryEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
@@ -82,11 +84,13 @@ public interface StructureLayoutScript extends Script {
 					)
 
 					.addQualifiedSpecificConstructor(ScriptedStructure.Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
-					.addMethodInvokes(ScriptedStructure.Piece.class, "withRotation", "rotateAround", "offset")
+					.addMethodInvokes(ScriptedStructure.Piece.class, "withRotation", "rotateAround", "symmetrify", "symmetrifyAround", "offset")
+					.addMethod(type(ScriptedStructure.Piece.class), "rotateRandomly", Handlers.builder(ScriptedStructure.Piece.class, "rotateRandomly").addReceiverArgument(ScriptedStructure.Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
+					.addMethod(type(ScriptedStructure.Piece.class), "rotateAndFlipRandomly", Handlers.builder(ScriptedStructure.Piece.class, "rotateAndFlipRandomly").addReceiverArgument(ScriptedStructure.Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 					.addFieldGet(ScriptedStructure.Piece.class, "data")
 					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
-					.addVariableLoad("pieces", 5, type(List.class))
+					.addVariableLoad("pieces", 5, type(CheckedList.class))
 
 					.addVariableLoad("distantHorizons", 6, TypeInfos.BOOLEAN)
 				)

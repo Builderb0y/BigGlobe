@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.instructions.casting.D2ZInsnTree;
@@ -23,27 +24,29 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class CastingSupport {
 
 	public static final CastHandlerData
-		I2B = data(TypeInfos.INT, TypeInfos.BYTE, false, opcode(Opcodes.I2B)),
-		I2S = data(TypeInfos.INT, TypeInfos.SHORT, false, opcode(Opcodes.I2S)),
-		I2C = data(TypeInfos.INT, TypeInfos.CHAR, false, opcode(Opcodes.I2C)),
-		I2L = data(TypeInfos.INT, TypeInfos.LONG, true, opcode(Opcodes.I2L)),
-		I2F = data(TypeInfos.INT, TypeInfos.FLOAT, true, opcode(Opcodes.I2F)),
-		I2D = data(TypeInfos.INT, TypeInfos.DOUBLE, true, opcode(Opcodes.I2D)),
-		L2I = data(TypeInfos.LONG, TypeInfos.INT, false, opcode(Opcodes.L2I)),
-		L2F = data(TypeInfos.LONG, TypeInfos.FLOAT, true, opcode(Opcodes.L2F)),
-		L2D = data(TypeInfos.LONG, TypeInfos.DOUBLE, true, opcode(Opcodes.L2D)),
-		F2I = data(TypeInfos.FLOAT, TypeInfos.INT, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, float.class))),
-		F2L = data(TypeInfos.FLOAT, TypeInfos.LONG, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, float.class))),
-		F2D = data(TypeInfos.FLOAT, TypeInfos.DOUBLE, true, opcode(Opcodes.F2D)),
-		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, double.class))),
-		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG, false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, double.class))),
-		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT, false, opcode(Opcodes.D2F)),
-		F2Z = data(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new F2ZInsnTree(value)),
+		I2B = data(TypeInfos.INT,    TypeInfos.BYTE,    false, opcode(Opcodes.I2B)),
+		I2S = data(TypeInfos.INT,    TypeInfos.SHORT,   false, opcode(Opcodes.I2S)),
+		I2C = data(TypeInfos.INT,    TypeInfos.CHAR,    false, opcode(Opcodes.I2C)),
+		I2L = data(TypeInfos.INT,    TypeInfos.LONG,    true,  opcode(Opcodes.I2L)),
+		I2F = data(TypeInfos.INT,    TypeInfos.FLOAT,   true,  opcode(Opcodes.I2F)),
+		I2D = data(TypeInfos.INT,    TypeInfos.DOUBLE,  true,  opcode(Opcodes.I2D)),
+		L2I = data(TypeInfos.LONG,   TypeInfos.INT,     false, opcode(Opcodes.L2I)),
+		L2F = data(TypeInfos.LONG,   TypeInfos.FLOAT,   true,  opcode(Opcodes.L2F)),
+		L2D = data(TypeInfos.LONG,   TypeInfos.DOUBLE,  true,  opcode(Opcodes.L2D)),
+		F2I = data(TypeInfos.FLOAT,  TypeInfos.INT,     false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, float.class))),
+		F2L = data(TypeInfos.FLOAT,  TypeInfos.LONG,    false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, float.class))),
+		F2D = data(TypeInfos.FLOAT,  TypeInfos.DOUBLE,  true,  opcode(Opcodes.F2D)),
+		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT,     false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, double.class))),
+		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG,    false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, double.class))),
+		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT,   false, opcode(Opcodes.D2F)),
+		F2Z = data(TypeInfos.FLOAT,  TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new F2ZInsnTree(value)),
 		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new D2ZInsnTree(value));
 	public static final FieldInfo
 		TRUE_FIELD  = FieldInfo.getField(Boolean.class, "TRUE" ),
 		FALSE_FIELD = FieldInfo.getField(Boolean.class, "FALSE");
-	public static final ConstantFactory
+	public static final MethodInfo
+		BOOLEAN_VALUE_OF = MethodInfo.findMethod(Boolean.class, "valueOf", Boolean.class, boolean.class);
+	public static final AbstractConstantFactory
 		BYTE_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeByte"   ), MethodInfo.findMethod(Byte     .class, "valueOf", Byte     .class, byte   .class), TypeInfos.BYTE,    TypeInfos.BYTE_WRAPPER   ),
 		SHORT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeShort"  ), MethodInfo.findMethod(Short    .class, "valueOf", Short    .class, short  .class), TypeInfos.SHORT,   TypeInfos.SHORT_WRAPPER  ),
 		INT_CONSTANT_FACTORY     = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeInt"    ), MethodInfo.findMethod(Integer  .class, "valueOf", Integer  .class, int    .class), TypeInfos.INT,     TypeInfos.INT_WRAPPER    ),
@@ -51,24 +54,16 @@ public class CastingSupport {
 		FLOAT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeFloat"  ), MethodInfo.findMethod(Float    .class, "valueOf", Float    .class, float  .class), TypeInfos.FLOAT,   TypeInfos.FLOAT_WRAPPER  ),
 		DOUBLE_CONSTANT_FACTORY  = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeDouble" ), MethodInfo.findMethod(Double   .class, "valueOf", Double   .class, double .class), TypeInfos.DOUBLE,  TypeInfos.DOUBLE_WRAPPER ),
 		CHAR_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeChar"   ), MethodInfo.findMethod(Character.class, "valueOf", Character.class, char   .class), TypeInfos.CHAR,    TypeInfos.CHAR_WRAPPER   ),
-		BOOLEAN_CONSTANT_FACTORY = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeBoolean"), MethodInfo.findMethod(Boolean  .class, "valueOf", Boolean  .class, boolean.class), TypeInfos.BOOLEAN, TypeInfos.BOOLEAN_WRAPPER) {
+		BOOLEAN_CONSTANT_FACTORY = new AbstractConstantFactory(TypeInfos.BOOLEAN, TypeInfos.BOOLEAN_WRAPPER) {
 
 			@Override
-			public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
-				if (argument.getTypeInfo().equals(this.inType)) {
-					if (argument.getConstantValue().isConstant()) {
-						return new CastResult(getStatic(argument.getConstantValue().asBoolean() ? TRUE_FIELD : FALSE_FIELD), true);
-					}
-					else {
-						return new CastResult(InsnTrees.invokeStatic(this.variableMethod, argument), true);
-					}
-				}
-				else if (argument.getTypeInfo().equals(this.outType)) {
-					return new CastResult(argument, false);
-				}
-				else {
-					throw new InvalidOperandException("Must be a " + this.inType.getClassName() + " or a " + this.outType.getClassName() + "; was " + argument.getTypeInfo());
-				}
+			public InsnTree createConstant(ConstantValue constant) {
+				return getStatic(constant.asBoolean() ? TRUE_FIELD : FALSE_FIELD);
+			}
+
+			@Override
+			public InsnTree createNonConstant(InsnTree tree) {
+				return InsnTrees.invokeStatic(BOOLEAN_VALUE_OF, tree);
 			}
 		};
 

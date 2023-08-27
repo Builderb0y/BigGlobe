@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.InsnTrees;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -23,6 +24,9 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
 import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NullableInvokeInsnTree;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
@@ -116,10 +120,24 @@ public class SpecialFunctionSyntax {
 
 	public static record SwitchBody(InsnTree value, Int2ObjectSortedMap<InsnTree> cases, boolean hasNewVariables) implements CodeBlock {
 
+		public static final MethodInfo ENUM_ORDINAL = MethodInfo.getMethod(Enum.class, "ordinal");
+
 		public static SwitchBody parse(ExpressionParser parser) throws ScriptParsingException {
 			parser.input.expectAfterWhitespace('(');
 			parser.environment.user().push();
 			InsnTree value = parser.nextScript();
+			@SuppressWarnings("rawtypes")
+			Class<? extends Enum> enumClass;
+			if (value.getTypeInfo().isObject()) {
+				enumClass = value.getTypeInfo().toClass().asSubclass(Enum.class);
+				value = new ElvisGetInsnTree(ElvisEmitters.forGetter(value, ENUM_ORDINAL, ldc(-1)));
+			}
+			else if (value.getTypeInfo().isSingleWidthInt()) {
+				enumClass = null;
+			}
+			else {
+				throw new ScriptParsingException("Switch value must be enum or single-width int", parser.input);
+			}
 			parser.input.expectAfterWhitespace(':');
 			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
 			IntArrayList builder = new IntArrayList(1);
@@ -127,7 +145,7 @@ public class SpecialFunctionSyntax {
 				if (parser.input.hasAfterWhitespace("case")) {
 					parser.input.expectAfterWhitespace('(');
 					parser.environment.user().push();
-					do builder.add(nextConstantInt(parser));
+					do builder.add(nextConstantInt(parser, enumClass));
 					while (parser.input.hasOperatorAfterWhitespace(","));
 					parser.input.expectOperatorAfterWhitespace(":");
 					InsnTree body = parser.nextScript();
@@ -169,13 +187,22 @@ public class SpecialFunctionSyntax {
 			return new SwitchBody(value, cases, newVariables);
 		}
 
-		public static int nextConstantInt(ExpressionParser parser) throws ScriptParsingException {
-			ConstantValue value = parser.nextSingleExpression().getConstantValue();
-			if (value.isConstant() && value.getTypeInfo().isSingleWidthInt()) {
-				return value.asInt();
+		@SuppressWarnings("unchecked")
+		public static int nextConstantInt(ExpressionParser parser, @SuppressWarnings("rawtypes") Class<? extends Enum> enumClass) throws ScriptParsingException {
+			if (enumClass != null) {
+				String name = parser.input.readIdentifierOrNullAfterWhitespace();
+				if (name == null) throw new ScriptParsingException("Expected enum constant name", parser.input);
+				if (name.equals("null")) return -1;
+				return Enum.valueOf(enumClass, name).ordinal();
 			}
 			else {
-				throw new ScriptParsingException("Expected constant int", parser.input);
+				ConstantValue value = parser.nextSingleExpression().getConstantValue();
+				if (value.isConstant() && value.getTypeInfo().isSingleWidthInt()) {
+					return value.asInt();
+				}
+				else {
+					throw new ScriptParsingException("Expected constant int", parser.input);
+				}
 			}
 		}
 	}

@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
+import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -27,7 +28,8 @@ import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
-import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.SymmetricOffset;
+import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -220,7 +222,15 @@ public class WorldWrapper implements ColumnLookup {
 		x = pos.getX(); y = pos.getY(); z = pos.getZ();
 		pos = this.unboundedPos(data.getPosition().getX(), data.getPosition().getY(), data.getPosition().getZ());
 		data.setPosition(pos.toImmutable());
-		data.setRotation(this.coordination.rotation.rotation().rotate(data.getRotation()));
+		Symmetry oldSymmetry = Symmetry.of(data.getMirror()).andThen(Symmetry.of(data.getRotation()));
+		Symmetry newSymmetry = this.coordination.transformation().symmetry().andThen(oldSymmetry);
+		data.setMirror(newSymmetry.isFlipped() ? BlockMirror.FRONT_BACK : BlockMirror.NONE);
+		data.setRotation(switch (newSymmetry) {
+			case IDENTITY, FLIP_0 -> BlockRotation.NONE;
+			case ROTATE_90, FLIP_135 -> BlockRotation.CLOCKWISE_90;
+			case ROTATE_180, FLIP_90 -> BlockRotation.CLOCKWISE_180;
+			case ROTATE_270, FLIP_45 -> BlockRotation.COUNTERCLOCKWISE_90;
+		});
 		this.world.placeStructureTemplate(x, y, z, template, data, this.permuter);
 	}
 
@@ -328,11 +338,11 @@ public class WorldWrapper implements ColumnLookup {
 			.coordinator()
 			.inBox(this.coordination.mutableArea, false)
 			.translate(
-				this.coordination.rotation.offsetX(),
-				this.coordination.rotation.offsetY(),
-				this.coordination.rotation.offsetZ()
+				this.coordination.transformation.offsetX(),
+				this.coordination.transformation.offsetY(),
+				this.coordination.transformation.offsetZ()
 			)
-			.rotate1x(this.coordination.rotation.rotation())
+			.symmetric(this.coordination.transformation.symmetry())
 		);
 	}
 
@@ -341,9 +351,9 @@ public class WorldWrapper implements ColumnLookup {
 		return this.getClass().getSimpleName() + ": { " + this.world + " }";
 	}
 
-	public static record Coordination(Rotation2D rotation, BlockBox mutableArea, BlockBox immutableArea) {
+	public static record Coordination(SymmetricOffset transformation, BlockBox mutableArea, BlockBox immutableArea) {
 
-		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, Rotation2D rotation) {
+		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, SymmetricOffset rotation) {
 			int x = rotation.getX(pos.getX(), pos.getY(), pos.getZ());
 			int y = rotation.getY(pos.getX(), pos.getY(), pos.getZ());
 			int z = rotation.getZ(pos.getX(), pos.getY(), pos.getZ());
@@ -351,7 +361,7 @@ public class WorldWrapper implements ColumnLookup {
 		}
 
 		public BlockPos.Mutable modifyPosUnbounded(BlockPos.Mutable pos) {
-			return rotate(pos, this.rotation);
+			return rotate(pos, this.transformation);
 		}
 
 		public BlockPos.@Nullable Mutable filterPosMutable(BlockPos.Mutable pos) {
@@ -362,7 +372,7 @@ public class WorldWrapper implements ColumnLookup {
 			return this.immutableArea.contains(pos) ? pos : null;
 		}
 
-		public static Vector3d rotate(Vector3d vector, Rotation2D rotation) {
+		public static Vector3d rotate(Vector3d vector, SymmetricOffset rotation) {
 			double x = vector.x - 0.5D;
 			double y = vector.y;
 			double z = vector.z - 0.5D;
@@ -373,7 +383,7 @@ public class WorldWrapper implements ColumnLookup {
 		}
 
 		public Vector3d modifyVecUnbounded(Vector3d vector) {
-			return rotate(vector, this.rotation);
+			return rotate(vector, this.transformation);
 		}
 
 		public static boolean contains(BlockBox area, double x, double y, double z) {
@@ -393,16 +403,11 @@ public class WorldWrapper implements ColumnLookup {
 		}
 
 		public BlockState modifyState(BlockState state) {
-			return state.rotate(this.rotation.rotation());
+			return this.transformation.symmetry().apply(state);
 		}
 
 		public BlockState unmodifyState(BlockState state) {
-			return state.rotate(switch (this.rotation.rotation()) {
-				case NONE -> BlockRotation.NONE;
-				case CLOCKWISE_90 -> BlockRotation.COUNTERCLOCKWISE_90;
-				case CLOCKWISE_180 -> BlockRotation.CLOCKWISE_180;
-				case COUNTERCLOCKWISE_90 -> BlockRotation.CLOCKWISE_90;
-			});
+			return this.transformation.symmetry().inverse().apply(state);
 		}
 	}
 }

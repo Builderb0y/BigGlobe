@@ -140,13 +140,13 @@ public class ColumnScriptEnvironmentBuilder {
 				InsnTree tree = (
 					value.dependsOnY()
 					? invokeInstance(
-						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+						COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 						COLUMN_VALUE_GET_VALUE,
 						loadColumn,
 						loadY
 					)
 					: invokeInstance(
-						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+						COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 						COLUMN_VALUE_GET_VALUE_WITHOUT_Y,
 						loadColumn
 					)
@@ -173,7 +173,7 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.builder(ColumnValue.class, "getValue")
-						.addImplicitArgument(COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)))
+						.addImplicitArgument(COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)))
 						.addImplicitArgument(loadColumn)
 						.addRequiredArgument(TypeInfos.DOUBLE)
 						.also(addToUsed(environment, value))
@@ -181,7 +181,7 @@ public class ColumnScriptEnvironmentBuilder {
 					);
 					if (defaultY != null) {
 						tree = invokeInstance(
-							COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+							COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 							COLUMN_VALUE_GET_VALUE,
 							loadColumn,
 							defaultY
@@ -193,7 +193,7 @@ public class ColumnScriptEnvironmentBuilder {
 				}
 				else {
 					tree = invokeInstance(
-						COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+						COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 						COLUMN_VALUE_GET_VALUE_WITHOUT_Y,
 						loadColumn
 					);
@@ -220,7 +220,7 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.inCaller("invokeGetValue")
-						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)), "IDI")
+						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "IDI")
 						.also(addToUsed(environment, value))
 						.buildFunction()
 					);
@@ -230,7 +230,7 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.inCaller("invokeGetValueWithoutY")
-						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)), "II")
+						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "II")
 						.also(addToUsed(environment, value))
 						.buildFunction()
 					);
@@ -328,7 +328,7 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.inCaller("getValueFromLookup")
-						.addArguments(loadLookup, COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)), "IDI")
+						.addArguments(loadLookup, COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "IDI")
 						.also(addToUsed(environment, value))
 						.buildFunction()
 					);
@@ -342,7 +342,7 @@ public class ColumnScriptEnvironmentBuilder {
 								invokeStatic(
 									GET_VALUE_FROM_LOOKUP,
 									loadLookup,
-									COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+									COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 									defaultPosition.x,
 									defaultPosition.y,
 									defaultPosition.z
@@ -357,7 +357,7 @@ public class ColumnScriptEnvironmentBuilder {
 						Handlers.inCaller("getValueFromLookupWithoutY")
 						.addArguments(
 							loadLookup,
-							COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+							COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 							"II"
 						)
 						.buildFunction()
@@ -372,7 +372,7 @@ public class ColumnScriptEnvironmentBuilder {
 								invokeStatic(
 									GET_VALUE_FROM_LOOKUP_WITHOUT_Y,
 									loadLookup,
-									COLUMN_VALUE_CONSTANT_FACTORY.create(constant(name)),
+									COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)),
 									defaultPosition.x,
 									defaultPosition.z
 								)

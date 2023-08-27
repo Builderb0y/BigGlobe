@@ -18,9 +18,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	use Symmetry in Rotation2D.
-	add method to script structure pieces to rotate them randomly.
-	add method to script structure pieces to rotate and mirror them randomly.
+	expose Coordinator.symmtrify(Symmetry...) to scripts.
 
 changelog:
 	# This release uses a new build system.

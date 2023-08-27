@@ -81,11 +81,18 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 	}
 
 	@Override
+	@SuppressWarnings("SlowListContainsAll")
 	public boolean containsAll(Collection<?> collection) {
-		return this.delegate.containsAll(collection);
+		if (this.delegate.size() > 2 && collection.size() > 2) {
+			return new HashSet<>(this.delegate).containsAll(collection);
+		}
+		else {
+			return this.delegate.containsAll(collection);
+		}
 	}
 
 	@Override
+	@SuppressWarnings("NonShortCircuitBooleanExpression")
 	public boolean addAll(Collection<? extends E> collection) {
 		boolean changed = false;
 		for (E element : collection) {
@@ -210,6 +217,7 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 	}
 
 	@Override
+	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	public boolean equals(Object object) {
 		return object == this || this.delegate.equals(object);
 	}

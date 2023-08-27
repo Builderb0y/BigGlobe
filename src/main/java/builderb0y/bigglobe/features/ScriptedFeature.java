@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.random.RandomGenerator;
 
@@ -9,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
@@ -27,7 +29,8 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLooku
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.SymmetricOffset;
+import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -58,11 +61,23 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 	public boolean generate(FeatureContext<Config> context) {
 		BlockPos origin = context.getOrigin();
 		Permuter permuter = Permuter.from(context.getRandom());
-		BlockRotation rotation = (
-			context.getConfig().rotate_randomly
-			? Permuter.choose(permuter, Directions.ROTATIONS)
-			: BlockRotation.NONE
-		);
+		Symmetry symmetry;
+		if (context.getConfig().rotate_randomly) {
+			if (context.getConfig().flip_randomly) {
+				symmetry = Symmetry.VALUES[permuter.nextInt(8)];
+			}
+			else {
+				symmetry = Symmetry.VALUES[permuter.nextInt(4)];
+			}
+		}
+		else {
+			if (context.getConfig().flip_randomly) {
+				symmetry = Symmetry.VALUES[permuter.nextInt(4, 8)];
+			}
+			else {
+				symmetry = Symmetry.IDENTITY;
+			}
+		}
 		int chunkX = origin.getX() >> 4;
 		int chunkZ = origin.getZ() >> 4;
 		BlockBox box = (
@@ -85,7 +100,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 			)
 		);
 		Coordination coordination = new Coordination(
-			Rotation2D.fromCenter(origin.getX(), origin.getZ(), rotation),
+			SymmetricOffset.fromCenter(origin.getX(), origin.getZ(), symmetry),
 			box,
 			box
 		);
@@ -145,11 +160,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		//because it itself has another script field.
 		public final FeatureScript.@EncodeInline Holder script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
+		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
 		public final @DefaultString("none") @UseName("queue") QueueType queueType;
 
-		public Config(FeatureScript.Holder script, boolean rotate_randomly, QueueType queueType) {
+		public Config(FeatureScript.Holder script, boolean rotate_randomly, boolean flip_randomly, QueueType queueType) {
 			this.script = script;
 			this.rotate_randomly = rotate_randomly;
+			this.flip_randomly = flip_randomly;
 			this.queueType = queueType;
 		}
 	}

@@ -15,7 +15,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
-import builderb0y.bigglobe.util.Rotation2D;
+import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
@@ -35,7 +35,7 @@ public class EvaluateCommand {
 						WorldWrapper world = new WorldWrapper(
 							new WorldDelegator(context.getSource().getWorld()),
 							Permuter.from(context.getSource().getWorld().random),
-							new Coordination(Rotation2D.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
+							new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
 						);
 						Vec3d position = context.getSource().getPosition();
 						WorldColumn column = WorldColumn.forWorld(
