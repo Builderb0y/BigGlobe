@@ -128,14 +128,20 @@ task copyToReleases(type: Copy) {
 		}
 	}
 	into(new File("$projectDir/releases"))
-	duplicatesStrategy = DuplicatesStrategy.FAIL
 }
 
 test() {
 	useJUnitPlatform()
+	doFirst() {
+		if (file("$projectDir/releases/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
+			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
+		}
+	}
 }
 
-build.dependsOn(copyToReleases)
+build() {
+	dependsOn(copyToReleases)
+}
 
 class Version {
 
@@ -174,6 +180,16 @@ Map<String, String> loadVersion(Version version) {
 		.putAll(loadProperties('gradle_common.properties'))
 		.putAll(loadProperties("gradle_${version.longhand()}.properties"))
 	)
+}
+
+//this is the dumbest thing I've ever done with gradle.
+//its sole purpose is to display the current
+//version in the gradle window in intellij.
+tasks.register("Current version = $project.minecraft_version") {
+	group('versions')
+	doFirst() {
+		println("Current version = $project.minecraft_version")
+	}
 }
 
 for (Version version in [ new Version(19, 2), new Version(19, 4), new Version(20, 1) ]) {

@@ -5,6 +5,8 @@
 		"#minecraft:flowers",
 		"#minecraft:crops",
 		"minecraft:pink_petals",
-		"bigglobe:tall_chorus_spores"
+		"bigglobe:tall_chorus_spores",
+		"minecraft:weeping_vines",
+		"minecraft:twisting_vines"
 	]
 }

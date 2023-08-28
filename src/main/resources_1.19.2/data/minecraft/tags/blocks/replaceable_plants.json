@@ -1,0 +1,11 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:short_grass",
+		"bigglobe:charred_grass",
+		"bigglobe:wart_weed",
+		"bigglobe:short_chorus_spores",
+		"bigglobe:medium_chorus_spores",
+		"bigglobe:tall_chorus_spores"
+	]
+}

@@ -228,8 +228,8 @@ public class FlowTest extends TestCommon {
 		);
 		assertFail("Switch must have at least one case", "switch (0: ) 1");
 		assertFail("Switch must have at least one case", "switch (0: default (1))");
-		assertFail("Switch value must be single-width int", "switch (1.0: case (1: noop))");
-		assertFail("Switch value must be single-width int", "switch ('hi': case (1: noop))");
+		assertFail("Switch value must be enum or single-width int", "switch (1.0: case (1: noop))");
+		assertFail("Switch value must be enum or single-width int", "switch ('hi': case (1: noop))");
 		assertSuccess(1,
 			"""
 			switch ( int value = 5 value :

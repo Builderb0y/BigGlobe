@@ -18,7 +18,11 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 public interface DynamicRegistryManager_AddBigGlobeInfos {
 
 	@Dynamic("lambda method")
-	@Inject(method = "method_30531()Lcom/google/common/collect/ImmutableMap;", at = @At(value = "INVOKE_ASSIGN", target = "com/google/common/collect/ImmutableMap.builder()Lcom/google/common/collect/ImmutableMap$Builder;"), locals = LocalCapture.CAPTURE_FAILHARD)
+	@Inject(
+		method = "method_30531()Lcom/google/common/collect/ImmutableMap;",
+		at = @At(value = "INVOKE_ASSIGN", target = "com/google/common/collect/ImmutableMap.builder()Lcom/google/common/collect/ImmutableMap$Builder;", remap = false),
+		locals = LocalCapture.CAPTURE_FAILHARD
+	)
 	private static void bigglobe_addInfos(
 		CallbackInfoReturnable<
 			ImmutableMap<

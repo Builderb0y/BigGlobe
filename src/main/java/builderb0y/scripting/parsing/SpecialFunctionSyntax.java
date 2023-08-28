@@ -128,7 +128,7 @@ public class SpecialFunctionSyntax {
 			InsnTree value = parser.nextScript();
 			@SuppressWarnings("rawtypes")
 			Class<? extends Enum> enumClass;
-			if (value.getTypeInfo().isObject()) {
+			if (value.getTypeInfo().extendsOrImplements(type(Enum.class))) {
 				enumClass = value.getTypeInfo().toClass().asSubclass(Enum.class);
 				value = new ElvisGetInsnTree(ElvisEmitters.forGetter(value, ENUM_ORDINAL, ldc(-1)));
 			}

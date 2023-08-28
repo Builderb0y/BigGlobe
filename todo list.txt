@@ -32,6 +32,7 @@ changelog:
 	* Added a log cabin structure.
 	* Added a windmill structure.
 	* Fixed trees not using the same threshold as other foliage when deciding whether or not to spawn. This results in fewer trees at high altitudes compared to previous versions.
+	* Fixed warped fungi trees not spawning as often as they should in MC 1.20.1.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
