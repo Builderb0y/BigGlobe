@@ -10,8 +10,6 @@
 		")",
 		"WoodPalette palette = WoodPalette(data.palette.?asString() ?: return())",
 		"Coordinator root = Coordinator.new()",
-		";random.if (root = root.flip1Z())",
-		"print('$:root')",
 		"void placeDoor(int x, int y, int z, String facing:",
 			"String hinge = random.if ('left') else ('right')",
 			"BlockState door = palette.doorState(facing: facing, half: 'lower', hinge: hinge, open: false, powered: false)",

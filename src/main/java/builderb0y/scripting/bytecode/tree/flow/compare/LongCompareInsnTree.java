@@ -6,6 +6,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -71,5 +72,16 @@ public class LongCompareInsnTree extends IntLikeCompareInsnTree {
 
 		method.scopes.popManualScope();
 		method.scopes.popScope();
+	}
+
+	@Override
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+		InsnTree lessThan = this.lessThan.cast(parser, type, mode);
+		if (lessThan == null) return null;
+		InsnTree equalTo = this.equalTo.cast(parser, type, mode);
+		if (equalTo == null) return null;
+		InsnTree greaterThan = this.greaterThan.cast(parser, type, mode);
+		if (greaterThan == null) return null;
+		return new LongCompareInsnTree(this.left, this.right, lessThan, equalTo, greaterThan, type);
 	}
 }

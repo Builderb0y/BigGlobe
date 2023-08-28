@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.tree.flow.compare;
 
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 public abstract class CompareInsnTree implements InsnTree {
 
@@ -29,4 +30,7 @@ public abstract class CompareInsnTree implements InsnTree {
 	public TypeInfo getTypeInfo() {
 		return this.type;
 	}
+
+	@Override
+	public abstract InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode);
 }

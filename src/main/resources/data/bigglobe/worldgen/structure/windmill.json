@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/windmill",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"script": [
+				"int originY = ceilInt(max_y(originX, originZ))",
+				"Biome biome = getBiome(originX, originY, originZ)",
+				"WoodPalette palette = WoodPalette.randomForBiome(biome) ?: return()",
+
+				"pieces.add(",
+					"ScriptStructurePiece.new(",
+						"-8, -1, -8, 8, 24, 8,",
+						"'bigglobe:windmill',",
+						"nbtCompound(palette: palette.id)",
+					")",
+					".symmetrify(Symmetry.randomRotationAndFlip())",
+					".offset(originX, originY, originZ)",
+				")"
+			]
+		}
+	}
+}

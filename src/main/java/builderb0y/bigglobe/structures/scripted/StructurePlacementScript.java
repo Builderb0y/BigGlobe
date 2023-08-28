@@ -56,6 +56,7 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
+				.addEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))

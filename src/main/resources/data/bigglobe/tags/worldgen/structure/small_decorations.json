@@ -3,6 +3,10 @@
 	"values": [
 		"bigglobe:campfire",
 		"bigglobe:small_house",
+		"bigglobe:medium_house",
+		"bigglobe:large_house",
+		"bigglobe:log_cabin",
+		"bigglobe:windmill",
 		"bigglobe:well"
 	]
 }
