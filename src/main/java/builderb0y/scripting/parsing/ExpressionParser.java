@@ -23,6 +23,7 @@ import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.bigglobe.util.ThrowingFunction;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.*;
@@ -673,11 +674,12 @@ public class ExpressionParser {
 			return switch (prefixOperator) {
 				case "+" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree tree = this.nextProduct();
-					if (!tree.getTypeInfo().isNumber()) {
-						throw new ScriptParsingException("Non-numeric term for unary '+': " + tree.getTypeInfo(), this.input);
-					}
-					yield tree;
+					yield this.nextPrefixTerm(NegateMode.NONE, tree -> {
+						if (!tree.getTypeInfo().isNumber()) {
+							throw new ScriptParsingException("Non-numeric term for unary '+': " + tree.getTypeInfo(), this.input);
+						}
+						return tree;
+					});
 				}
 				case "-" -> {
 					this.input.onCharsRead(prefixOperator);
@@ -685,18 +687,16 @@ public class ExpressionParser {
 					//because otherwise it would try to parse them as positive numbers,
 					//and then negate them, but the positive form is not representable
 					//in the same precision as the negative form.
-					if (isNumber(this.input.peekAfterWhitespace())) {
-						yield this.nextNumber(true);
-					}
-					yield neg(this.nextProduct());
+					yield this.nextPrefixTerm(NegateMode.ARITHMETIC, InsnTrees::neg);
 				}
 				case "~" -> {
 					this.input.onCharsRead(prefixOperator);
-					InsnTree term = this.nextMember();
-					//it is safe to use term.getTypeInfo() directly
-					//without sanity checking that it is numeric here,
-					//because bxor() will check that immediately afterwards.
-					yield bxor(this, term, ldc(-1, term.getTypeInfo()));
+					yield this.nextPrefixTerm(NegateMode.BITWISE, tree -> {
+						//it is safe to use tree.getTypeInfo() directly
+						//without sanity checking that it is numeric here,
+						//because bxor() will check that immediately afterwards.
+						return bxor(this, tree, ldc(-1, tree.getTypeInfo()));
+					});
 				}
 				case "!" -> {
 					this.input.onCharsRead(prefixOperator);
@@ -743,6 +743,15 @@ public class ExpressionParser {
 		}
 	}
 
+	public InsnTree nextPrefixTerm(NegateMode negateMode, ThrowingFunction<InsnTree, InsnTree, ScriptParsingException> nonNumber) throws ScriptParsingException {
+		if (isNumber(this.input.peekAfterWhitespace())) {
+			return this.nextNumber(negateMode);
+		}
+		else {
+			return nonNumber.apply(this.nextMember());
+		}
+	}
+
 	public InsnTree nextTerm() throws ScriptParsingException {
 		try {
 			char first = this.input.peekAfterWhitespace();
@@ -755,7 +764,7 @@ public class ExpressionParser {
 					yield ParenthesizedScript.parse(this).maybeWrapContents();
 				}
 				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-					yield this.nextNumber(false);
+					yield this.nextNumber(NegateMode.NONE);
 				}
 				case
 					'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -863,10 +872,23 @@ public class ExpressionParser {
 		builder.append(this.input.input, skippedWhitespace + 1, this.input.cursor);
 	}
 
-	public InsnTree nextNumber(boolean negated) throws ScriptParsingException {
+	public static enum NegateMode {
+		NONE,
+		ARITHMETIC,
+		BITWISE;
+	}
+
+	public InsnTree nextNumber(NegateMode negateMode) throws ScriptParsingException {
 		try {
 			BigDecimal number = NumberParser.parse(this.input);
-			if (negated) number = number.negate();
+			switch (negateMode) {
+				case NONE -> {}
+				case ARITHMETIC -> number = number.negate();
+				case BITWISE -> {
+					if (number.scale() > 0) throw new ScriptParsingException("Can't bitwise negate non-integer", this.input);
+					number = new BigDecimal(number.toBigIntegerExact().not());
+				}
+			}
 			char suffix = this.input.peek();
 			boolean unsigned = false;
 			if (suffix == 'u' || suffix == 'U') {
@@ -884,7 +906,7 @@ public class ExpressionParser {
 					if (number.scale() > 0) {
 						if (unsigned) throw new ScriptParsingException("Unsigned double literals not supported", this.input);
 						double value = number.doubleValue();
-						if (negated && value == 0.0D) value = -0.0D;
+						if (negateMode == NegateMode.ARITHMETIC && value == 0.0D) value = -0.0D;
 						yield ldc(value);
 					}
 					else {
@@ -907,7 +929,7 @@ public class ExpressionParser {
 					if (number.scale() > 0) {
 						if (unsigned) throw new ScriptParsingException("Unsigned float literals not supported", this.input);
 						float value = number.floatValue();
-						if (negated && value == 0.0F) value = -0.0F;
+						if (negateMode == NegateMode.ARITHMETIC && value == 0.0F) value = -0.0F;
 						yield ldc(value);
 					}
 					else {
@@ -921,17 +943,21 @@ public class ExpressionParser {
 				}
 				case 's', 'S' -> {
 					this.input.onCharRead(suffix);
-					if (unsigned) throw new ScriptParsingException("Unsigned shorts not supported", this.input);
 					if (number.scale() > 0) {
 						throw new ScriptParsingException("Half-precision floats not supported", this.input);
 					}
-					yield ldc(number.shortValueExact());
+					if (unsigned) {
+						yield ldc(BigGlobeMath.toUnsignedShortExact(number.intValueExact()));
+					}
+					else {
+						yield ldc(number.shortValueExact());
+					}
 				}
 				default -> {
 					if (number.scale() > 0) {
 						if (unsigned) throw new ScriptParsingException("Unsigned floating point literals not supported", this.input);
 						double doubleValue = number.doubleValue();
-						if (negated && doubleValue == 0.0D) doubleValue = -0.0D;
+						if (negateMode == NegateMode.ARITHMETIC && doubleValue == 0.0D) doubleValue = -0.0D;
 						float floatValue = (float)(doubleValue);
 						if (doubleValue == floatValue) {
 							yield ldc(floatValue);
@@ -948,21 +974,32 @@ public class ExpressionParser {
 							else {
 								throw new ScriptParsingException("Overflow", this.input);
 							}
+							if (longValue == (longValue & 0xFFFF_FFFFL)) {
+								int intValue = (int)(longValue);
+								if (intValue == (intValue & 0xFFFF)) {
+									if (intValue == (intValue & 0xFF)) {
+										yield ldc((byte)(intValue));
+									}
+									yield ldc((short)(intValue));
+								}
+								yield ldc(intValue);
+							}
+							yield ldc(longValue);
 						}
 						else {
 							longValue = number.longValueExact();
-						}
-						int intValue = (int)(longValue);
-						if (intValue == longValue) {
-							if (intValue == (short)(intValue)) {
-								if (intValue == (byte)(intValue)) {
-									yield ldc((byte)(intValue));
+							int intValue = (int)(longValue);
+							if (intValue == longValue) {
+								if (intValue == (short)(intValue)) {
+									if (intValue == (byte)(intValue)) {
+										yield ldc((byte)(intValue));
+									}
+									yield ldc((short)(intValue));
 								}
-								yield ldc((short)(intValue));
+								yield ldc(intValue);
 							}
-							yield ldc(intValue);
+							yield ldc(longValue);
 						}
-						yield ldc(longValue);
 					}
 				}
 			};

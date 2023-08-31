@@ -6,6 +6,7 @@ import org.objectweb.asm.Type;
 import builderb0y.bigglobe.math.FastPow;
 import builderb0y.scripting.bytecode.ExtendedOpcodes;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -16,7 +17,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class PowerInsnTree extends BinaryInsnTree {
+public abstract class PowerInsnTree extends BinaryInsnTree {
 
 	public final PowMode mode;
 
@@ -70,42 +71,16 @@ public class PowerInsnTree extends BinaryInsnTree {
 		}
 		left  = left .cast(parser, mode.leftType,  CastMode.EXPLICIT_THROW);
 		right = right.cast(parser, mode.rightType, CastMode.EXPLICIT_THROW);
-		return new PowerInsnTree(left, right, mode);
+		if (rightConstant.isConstant()) {
+			return new VariableConstantPowerInsnTree(left, right, mode);
+		}
+		if (leftConstant.isConstant()) {
+			return new ConstantVariablePowerInsnTree(left, right, mode);
+		}
+		return new VariableVariablePowerInsnTree(left, right, mode);
 	}
 
-	@Override
-	public void emitBytecode(MethodCompileContext method) {
-		ConstantValue rightConstant = this.right.getConstantValue();
-		int power;
-		if (rightConstant.isConstant() && (power = (int)(rightConstant.asDouble())) == rightConstant.asDouble()) {
-			if (power == 2) { //special-handle x ^ 2.
-				this.left.emitBytecode(method);
-				method.node.visitInsn(this.left.getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
-				method.node.visitInsn(this.left.getTypeInfo().getOpcode(IMUL));
-				return;
-			}
-			else { //use generated function for x ^ (any integer except 2).
-				this.left.emitBytecode(method);
-				method.node.visitInvokeDynamicInsn(
-					"pow",
-					switch (this.mode) {
-						case IIPOW -> "(I)I";
-						case LIPOW -> "(J)J";
-						case FIPOW, FFPOW -> "(F)F";
-						case DIPOW, DDPOW -> "(D)D";
-					},
-					new Handle(
-						H_INVOKESTATIC,
-						Type.getInternalName(FastPow.class),
-						"getCallSite",
-						"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;",
-						false
-					),
-					power
-				);
-				return;
-			}
-		}
+	public void emitFallbackBytecode(MethodCompileContext method) {
 		this.left.emitBytecode(method);
 		this.right.emitBytecode(method);
 		method.node.visitMethodInsn(
@@ -123,6 +98,100 @@ public class PowerInsnTree extends BinaryInsnTree {
 			},
 			false
 		);
+	}
+
+	public static class VariableConstantPowerInsnTree extends PowerInsnTree {
+
+		public VariableConstantPowerInsnTree(InsnTree left, InsnTree right, PowMode mode) {
+			super(left, right, mode);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			double power = this.right.getConstantValue().asDouble();
+			int intPower = (int)(power);
+			if (intPower == power) {
+				if (intPower == 2) { //special handle x^2
+					this.left.emitBytecode(method);
+					method.node.visitInsn(this.left.getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
+					method.node.visitInsn(this.left.getTypeInfo().getOpcode(IMUL));
+				}
+				else { //use invokedynamic for x ^ (constant int)
+					this.left.emitBytecode(method);
+					method.node.visitInvokeDynamicInsn(
+						"pow",
+						switch (this.mode) {
+							case IIPOW -> "(I)I";
+							case LIPOW -> "(J)J";
+							case FIPOW, FFPOW -> "(F)F";
+							case DIPOW, DDPOW -> "(D)D";
+						},
+						new Handle(
+							H_INVOKESTATIC,
+							Type.getInternalName(FastPow.class),
+							"getCallSite",
+							"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;",
+							false
+						),
+						intPower
+					);
+				}
+			}
+			else { //x ^ (non-int)
+				this.emitFallbackBytecode(method);
+			}
+		}
+	}
+
+	public static class ConstantVariablePowerInsnTree extends PowerInsnTree {
+
+		public static final MethodInfo
+			EXPD = MethodInfo.getMethod(Math.class, "exp"),
+			EXPF = MethodInfo.getMethod(FastPow.class, "exp");
+
+		public ConstantVariablePowerInsnTree(InsnTree left, InsnTree right, PowMode mode) {
+			super(left, right, mode);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			double base = this.left.getConstantValue().asDouble();
+			if (base > 0.0D && base < Double.POSITIVE_INFINITY) {
+				double logBase = Math.log(base);
+				switch (this.mode) {
+					case FFPOW -> {
+						this.right.emitBytecode(method);
+						constant((float)(logBase)).emitBytecode(method);
+						method.node.visitInsn(FMUL);
+						EXPF.emitBytecode(method);
+					}
+					case DDPOW -> {
+						this.right.emitBytecode(method);
+						constant(logBase).emitBytecode(method);
+						method.node.visitInsn(DMUL);
+						EXPD.emitBytecode(method);
+					}
+					default -> {
+						this.emitFallbackBytecode(method);
+					}
+				}
+			}
+			else {
+				this.emitFallbackBytecode(method);
+			}
+		}
+	}
+
+	public static class VariableVariablePowerInsnTree extends PowerInsnTree {
+
+		public VariableVariablePowerInsnTree(InsnTree left, InsnTree right, PowMode mode) {
+			super(left, right, mode);
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.emitFallbackBytecode(method);
+		}
 	}
 
 	public static enum PowMode {

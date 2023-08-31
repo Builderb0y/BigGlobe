@@ -1,0 +1,12 @@
+{
+	"script": [
+		"double offset = (y - depth) / deviation",
+		"mixLinear(limit, peak, exp2(-(offset ^ 2)))"
+	],
+	"inputs": [
+		{ "name": "depth",     "type": "double" },
+		{ "name": "deviation", "type": "double" },
+		{ "name": "peak",      "type": "double" },
+		{ "name": "limit",     "type": "double" }
+	]
+}

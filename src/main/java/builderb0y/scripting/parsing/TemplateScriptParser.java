@@ -22,7 +22,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 
 	public ScriptInputs inputs;
 
-	public TemplateScriptParser(Class<I> implementingClass, ScriptInputs inputs) throws ScriptParsingException {
+	public TemplateScriptParser(Class<I> implementingClass, ScriptInputs inputs) {
 		super(implementingClass, inputs.template.source);
 		this.inputs = inputs;
 	}

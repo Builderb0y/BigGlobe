@@ -3,7 +3,14 @@
 	"config": {
 		"stone_state": "minecraft:iron_ore",
 		"deepslate_state": "minecraft:deepslate_iron_ore",
-		"chance": "2 ^ ((y - `max_y`) / 512 - 1) + 0.25",
+		"chance": {
+			"template": "bigglobe:ores/exponential",
+			"inputs": {
+				"delay": "512.0L",
+				"peak":  "0.75L",
+				"limit": "0.25L"
+			}
+		},
 		"radius": {
 			"type": "average",
 			"min": 2.5,

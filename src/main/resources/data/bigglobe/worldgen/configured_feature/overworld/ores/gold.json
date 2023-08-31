@@ -3,7 +3,11 @@
 	"config": {
 		"stone_state": "minecraft:gold_ore",
 		"deepslate_state": "minecraft:deepslate_gold_ore",
-		"chance": "((`max_y` - y) / 512 - 0.25) * max(`overworld/temperature`, 0) ^ 2",
+		"chance": [
+			"double line = unmixLinear(128.0L, 384.0L, max_y - y)",
+			"double curve = (1.0L - exp(-line)) * 0.5L",
+			"return(curve * max(`overworld/temperature`, 0.0L) ^ 2)"
+		],
 		"radius": {
 			"type": "average",
 			"min": 2.0,

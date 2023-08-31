@@ -5,13 +5,28 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.MultiLine;
-import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.common.FactoryException;
+import builderb0y.autocodec.decoders.AutoDecoder;
+import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.decoders.RecordDecoder;
+import builderb0y.autocodec.encoders.AutoEncoder;
+import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -59,6 +74,7 @@ public class ScriptInputs {
 		);
 	}
 
+	@UseCoder(name = "new", in = SerializableScriptInputs.Coder.class, usage = MemberUsage.METHOD_IS_FACTORY)
 	@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 	public static class SerializableScriptInputs {
 
@@ -135,6 +151,51 @@ public class ScriptInputs {
 					)
 				)
 			);
+		}
+
+		public static class Coder extends NamedCoder<SerializableScriptInputs> {
+
+			public final AutoCoder<@MultiLine String> stringCoder;
+			public final AutoCoder<SerializableScriptInputs> objectCoder;
+
+			public Coder(
+				@NotNull ReifiedType<SerializableScriptInputs> handledType,
+				AutoCoder<@MultiLine String> stringCoder,
+				AutoCoder<SerializableScriptInputs> objectCoder
+			) {
+				super(handledType);
+				this.stringCoder = stringCoder;
+				this.objectCoder = objectCoder;
+			}
+
+			public Coder(FactoryContext<SerializableScriptInputs> context) {
+				super(context.type);
+				this.stringCoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateCoder();
+				this.objectCoder = (AutoCoder<SerializableScriptInputs>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
+			}
+
+			@Override
+			public <T_Encoded> @Nullable SerializableScriptInputs decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				if (context.isEmpty()) return null;
+				if (context.isString() || context.isList()) {
+					return new SerializableScriptInputs(context.decodeWith(this.stringCoder), null, null);
+				}
+				else {
+					return context.decodeWith(this.objectCoder);
+				}
+			}
+
+			@Override
+			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, SerializableScriptInputs> context) throws EncodeException {
+				SerializableScriptInputs input = context.input;
+				if (input == null) return context.empty();
+				if (input.isScript()) {
+					return context.input(input.script).encodeWith(this.stringCoder);
+				}
+				else {
+					return context.encodeWith(this.objectCoder);
+				}
+			}
 		}
 	}
 }

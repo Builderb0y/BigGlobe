@@ -3,7 +3,14 @@
 	"config": {
 		"stone_state": "minecraft:copper_ore",
 		"deepslate_state": "minecraft:deepslate_copper_ore",
-		"chance": "2 ^ ((y - `max_y`) / 512)",
+		"chance": {
+			"template": "bigglobe:ores/exponential",
+			"inputs": {
+				"delay": "512.0L",
+				"peak":  "1.0L",
+				"limit": "0.0L"
+			}
+		},
 		"radius": {
 			"type": "average",
 			"min": 2.5,

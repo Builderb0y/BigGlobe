@@ -34,6 +34,12 @@ public class ExpressionParserTest extends TestCommon {
 		assertSuccess(8, "2 * 2 * 2");
 		assertSuccess(8, "( 2 + 2 ) * 2");
 		assertSuccess(8, "2 * ( 2 + 2 )");
+		assertSuccess(4, "-2 ^ 2");
+		assertSuccess(4, "- 2 ^ 2");
+		assertSuccess(4, "int x = 2 ,, -x ^ 2");
+		assertSuccess(4, "int x = 2 ,, - x ^ 2");
+		assertSuccessExactType(Integer.MIN_VALUE, Integer.toString(Integer.MIN_VALUE));
+		assertSuccessExactType(Long.MIN_VALUE, Long.toString(Long.MIN_VALUE));
 		assertFail("3 / 4 cannot be represented exactly as an int. Try doing 3.0 / 4.0 instead", "3 / 4");
 		assertFail("Unexpected end of input", "(");
 		assertFail("Expected ')'", "(2");

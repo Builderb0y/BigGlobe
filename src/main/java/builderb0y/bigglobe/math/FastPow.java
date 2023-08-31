@@ -217,6 +217,10 @@ public class FastPow {
 		return (float)(Math.pow((double)(a), (double)(b)));
 	}
 
+	public static float exp(float x) {
+		return (float)(Math.exp((double)(x)));
+	}
+
 	//////////////////////////////// special cases ////////////////////////////////
 
 	public static int negativeEven(int operand) {

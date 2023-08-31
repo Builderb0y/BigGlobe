@@ -7,7 +7,7 @@
 			"int findGround(int x, int z:",
 				"int y = originY",
 				"until (`end/nest_noise`(x, y, z) > 0.0L:",
-					"unless (isYLevelValid(:--y): return(-2147483648))",
+					"unless (isYLevelValid(:--y): return(16x8000_0000U))",
 				")",
 				"return(y + 1)",
 			")",
@@ -15,7 +15,7 @@
 				"int x = column.x",
 				"int z = column.z",
 				"int minY = findGround(x, z)",
-				"if (minY == -2147483648: return())",
+				"if (minY == 16x8000_0000U: return())",
 				"int maxY = minY + height.y",
 				"for (int y = minY, y < maxY, ++y:",
 					"setBlockState(x, y, z, 'minecraft:obsidian')",
@@ -23,7 +23,7 @@
 			")",
 
 			"int groundZero = findGround(originX, originZ)",
-			"if (groundZero == -2147483648: return(false))",
+			"if (groundZero == 16x8000_0000U: return(false))",
 			"int maxHeightI = originY - groundZero",
 			"double standardDeviation = sqrt(maxHeightI * 0.25L)",
 

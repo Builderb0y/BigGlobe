@@ -18,6 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCommon {
 
+	public static void assertSuccessExactType(Object expected, String script) throws ScriptParsingException {
+		assertEquals(expected, evaluate(script));
+	}
+
 	public static void assertSuccess(Object expected, String script) throws ScriptParsingException {
 		Object actual = evaluate(script);
 		if (expected instanceof Number a && actual instanceof Number b) {

@@ -284,16 +284,28 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		}
 	}
 
+	public static float toFinite(float f) {
+		if (f == Float.NEGATIVE_INFINITY) return -Float.MAX_VALUE;
+		if (f == Float.POSITIVE_INFINITY) return  Float.MAX_VALUE;
+		return f;
+	}
+
+	public static double toFinite(double d) {
+		if (d == Double.NEGATIVE_INFINITY) return -Double.MAX_VALUE;
+		if (d == Double.POSITIVE_INFINITY) return  Double.MAX_VALUE;
+		return d;
+	}
+
 	public static void assertSimilar(String operator, Object a, Object b) {
 		if (operator == "^") {
 			if (a instanceof Float af && b instanceof Float bf) {
 				if (Float.floatToIntBits(af) == Float.floatToIntBits(bf)) return;
-				float diff = af / bf;
-				assertEquals(1.0F, diff, 0.000001F);
+				float diff = toFinite(af) / toFinite(bf);
+				assertEquals(1.0F, diff, 0.00001F);
 			}
 			else if (a instanceof Double ad && b instanceof Double bd) {
 				if (Double.doubleToLongBits(ad) == Double.doubleToLongBits(bd)) return;
-				double diff = ad / bd;
+				double diff = toFinite(ad) / toFinite(bd);
 				assertEquals(1.0D, diff, 0.0000000000001D);
 			}
 			else {

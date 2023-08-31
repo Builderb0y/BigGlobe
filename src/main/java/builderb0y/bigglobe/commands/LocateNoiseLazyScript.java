@@ -12,6 +12,7 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
+import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
@@ -21,7 +22,7 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 	public @Nullable ColumnYToDoubleScript script;
 
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ColumnYToDoubleScript.Parser(script);
+		this.parser = new ColumnYToDoubleScript.Parser(new SerializableScriptInputs(script, null, null));
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
 		keywords.remove("while");
 		keywords.remove("until");

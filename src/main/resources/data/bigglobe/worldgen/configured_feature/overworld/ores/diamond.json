@@ -3,7 +3,11 @@
 	"config": {
 		"stone_state": "minecraft:diamond_ore",
 		"deepslate_state": "minecraft:deepslate_diamond_ore",
-		"chance": "(`max_y` - y) / 1024 - 0.375",
+		"chance": [
+			"double line = unmixLinear(256.0L, 512.0L, max_y - y)",
+			"double curve = 1.0L - exp(-line)",
+			"return(curve * 0.25L)"
+		],
 		"radius": {
 			"type": "average",
 			"min": 1.5,

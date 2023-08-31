@@ -8,8 +8,9 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -21,14 +22,16 @@ public interface ColumnYRandomToDoubleScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYRandomToDoubleScript> implements ColumnYRandomToDoubleScript {
 
+		public final SerializableScriptInputs inputs;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(ColumnYRandomToDoubleScript script, Set<ColumnValue<?>> usedValues) {
+		public Holder(ColumnYRandomToDoubleScript script, SerializableScriptInputs inputs, Set<ColumnValue<?>> usedValues) {
 			super(script);
+			this.inputs = inputs;
 			this.usedValues = usedValues;
 		}
 
-		public static Holder create(String script) throws ScriptParsingException {
+		public static Holder create(SerializableScriptInputs inputs) throws ScriptParsingException {
 			ColumnScriptEnvironmentBuilder columnYScriptEnvironment = ColumnScriptEnvironmentBuilder.createFixedXYZ(
 				ColumnValue.REGISTRY,
 				load("column", 1, type(WorldColumn.class)),
@@ -38,7 +41,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 			.addY("y")
 			.addSeed("worldSeed");
 			ColumnYRandomToDoubleScript actualScript = (
-				new ScriptParser<>(ColumnYRandomToDoubleScript.class, script)
+				new TemplateScriptParser<>(ColumnYRandomToDoubleScript.class, inputs.buildScriptInputs())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment.build())
 				.addEnvironment(RandomScriptEnvironment.create(
@@ -47,7 +50,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
-			return new Holder(actualScript, columnYScriptEnvironment.usedValues);
+			return new Holder(actualScript, inputs, columnYScriptEnvironment.usedValues);
 		}
 
 		@Override

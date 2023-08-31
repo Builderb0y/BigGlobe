@@ -20,19 +20,13 @@ testing:
 where I left off:
 
 changelog:
-	# This release uses a new build system.
-	The new build system allows me to work on all 3 MC versions simultaneously, without needing to port code between them. However, there is a chance I broke something while porting to this new system. Feel free to report any bugs in this release to my issue tracker or my discord.
-
-	Changes:
-	* To make my life a little bit easier (with regards to the new build system), wells, surface mineshafts, and campfires will no longer spawn in cherry variants.
-		* Small, medium, and large houses will still have cherry variants.
-	* Hopefully fixed issue where placing a structure template from a scripted structure results in its coordinates being absolute, instead of moved with the structure placing the template.
-		* This *should* work, but is un-tested. Feel free to report bugs about this too!
-	* Biome layouts can now be disabled by data packs.
-	* Added a log cabin structure.
-	* Added a windmill structure.
-	* Fixed trees not using the same threshold as other foliage when deciding whether or not to spawn. This results in fewer trees at high altitudes compared to previous versions.
-	* Fixed warped fungi trees not spawning as often as they should in MC 1.20.1.
+	* Fixed ocean monuments being too reluctant to spawn.
+	* Changed ore distributions:
+		* Less gold and redstone at excessively deep Y levels.
+		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
+		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
+	* Scripting: added template support for a couple more common script functions.
+	* Scripting: more consistent order of operations for prefix operators.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -40,6 +34,7 @@ AutoCodec:
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
 	type reification has a massive flaw where types can self-reference, causing a StackOverflowError when calling toString() on them.
 		probably related to unresolvable types. in other words, type parameters declared on methods.
+	@MultiLine.INSTANCE needs to override Object methods too.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -70,9 +65,11 @@ scripting:
 	inline getters and setters for user-defined classes.
 	make "var" and "class" into keywords.
 	allow for (non-int in range[]:
+	allow for (int index, T element in list:
 
 features:
 	general:
+		range checks for random sources.
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
