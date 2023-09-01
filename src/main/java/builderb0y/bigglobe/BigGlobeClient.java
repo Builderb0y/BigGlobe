@@ -11,6 +11,8 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
+import builderb0y.bigglobe.scripting.ClientPrintSink;
+import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
 @Environment(EnvType.CLIENT)
 public class BigGlobeClient implements ClientModInitializer {
@@ -25,6 +27,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeNetwork.initClient();
 		BigGlobeCommands.initClient();
 		BigGlobeParticles.initClient();
+		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}
 }

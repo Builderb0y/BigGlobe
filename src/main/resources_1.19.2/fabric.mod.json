@@ -19,6 +19,7 @@
 	"entrypoints": {
 		"main":          [ "builderb0y.bigglobe.BigGlobeMod" ],
 		"client":        [ "builderb0y.bigglobe.BigGlobeClient" ],
+		"server":        [ "builderb0y.bigglobe.BigGlobeServer" ],
 		"modmenu":       [ "builderb0y.bigglobe.compat.ModMenuCompat" ],
 		"dynamiclights": [ "builderb0y.bigglobe.compat.LambDynamicLightsCompat" ]
 	},

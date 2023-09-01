@@ -105,7 +105,7 @@ public interface CommandScript extends Script {
 			catch (Throwable throwable) {
 				ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);
 				ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.getSource()));
-				return null;
+				return throwable;
 			}
 		}
 

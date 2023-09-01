@@ -103,9 +103,7 @@ public class ExpressionParser {
 	}
 
 	public static final MethodInfo
-		OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
-		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants"),
-		HASH_MIX = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
+		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants");
 
 	public static void clinit() {}
 
@@ -1014,73 +1012,53 @@ public class ExpressionParser {
 
 	public InsnTree nextIdentifier(String name) throws ScriptParsingException {
 		try {
-			if (name.equals("var")) {
-				String varName = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "variable");
-				boolean reuse;
-				if (this.input.hasOperatorAfterWhitespace("=")) reuse = false;
-				else if (this.input.hasOperatorAfterWhitespace(":=")) reuse = true;
-				else throw new ScriptParsingException("Expected '=' or ':='", this.input);
-				InsnTree initializer = this.nextSingleExpression();
-				VarInfo variable = this.environment.user().newVariable(varName, initializer.getTypeInfo());
-				return (
-					reuse
-					? new VariableDeclarePostAssignInsnTree(variable, initializer)
-					: new VariableDeclareAssignInsnTree(variable, initializer)
-				);
-			}
-			else if (name.equals("class")) {
-				String className = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "class");
-				return this.nextUserDefinedClass(className);
-			}
-			else { //not var or class.
-				InsnTree result = this.environment.parseKeyword(this, name);
-				if (result != null) return result;
-				//not keyword.
-				TypeInfo type = this.environment.getType(this, name);
-				if (type != null) {
-					if (this.input.peekAfterWhitespace() == '(') { //casting.
-						return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW);
+			InsnTree result = this.environment.parseKeyword(this, name);
+			if (result != null) return result;
+			//not keyword.
+			TypeInfo type = this.environment.getType(this, name);
+			if (type != null) {
+				if (this.input.peekAfterWhitespace() == '(') { //casting.
+					return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW);
+				}
+				else { //not casting. (variable or method declaration or ldc class)
+					String varName = this.input.readIdentifierAfterWhitespace();
+					if (!varName.isEmpty()) { //variable or method declaration.
+						if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
+							this.verifyName(varName, "variable");
+							InsnTree initializer = this.nextVariableInitializer(type, true);
+							VarInfo variable = this.environment.user().newVariable(varName, type);
+							return new VariableDeclareAssignInsnTree(variable, initializer);
+						}
+						else if (this.input.hasOperatorAfterWhitespace(":=")) {
+							this.verifyName(varName, "variable");
+							InsnTree initializer = this.nextVariableInitializer(type, true);
+							VarInfo variable = this.environment.user().newVariable(varName, type);
+							return new VariableDeclarePostAssignInsnTree(variable, initializer);
+						}
+						else if (this.input.hasAfterWhitespace('(')) { //method declaration.
+							this.verifyName(varName, "method");
+							return this.nextUserDefinedFunction(type, varName);
+						}
+						else {
+							throw new ScriptParsingException("Expected '=' or '('", this.input);
+						}
 					}
-					else { //not casting. (variable or method declaration or ldc class)
-						String varName = this.input.readIdentifierAfterWhitespace();
-						if (!varName.isEmpty()) { //variable or method declaration.
-							if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
-								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextVariableInitializer(type, true);
-								VarInfo variable = this.environment.user().newVariable(varName, type);
-								return new VariableDeclareAssignInsnTree(variable, initializer);
-							}
-							else if (this.input.hasOperatorAfterWhitespace(":=")) {
-								this.verifyName(varName, "variable");
-								InsnTree initializer = this.nextVariableInitializer(type, true);
-								VarInfo variable = this.environment.user().newVariable(varName, type);
-								return new VariableDeclarePostAssignInsnTree(variable, initializer);
-							}
-							else if (this.input.hasAfterWhitespace('(')) { //method declaration.
-								this.verifyName(varName, "method");
-								return this.nextUserDefinedFunction(type, varName);
-							}
-							else {
-								throw new ScriptParsingException("Expected '=' or '('", this.input);
-							}
-						}
-						else { //ldc class.
-							return ldc(type);
-						}
+					else { //ldc class.
+						return ldc(type);
 					}
 				}
-				else { //not a type.
-					if (this.input.peekAfterWhitespace() == '(') { //function call.
-						CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-						result = this.environment.getFunction(this, name, arguments.arguments());
-						if (result != null) return arguments.maybeWrap(result);
-						throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
-					}
-					else { //variable.
-						InsnTree variable = this.environment.getVariable(this, name);
-						if (variable != null) return variable;
-						throw new ScriptParsingException(this.listCandidates(name, "Unknown variable: " + name, "Actual form: " + name), this.input);
-					}
+			}
+			else { //not a type.
+				if (this.input.peekAfterWhitespace() == '(') { //function call.
+					CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+					result = this.environment.getFunction(this, name, arguments.arguments());
+					if (result != null) return arguments.maybeWrap(result);
+					throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
+				}
+				else { //variable.
+					InsnTree variable = this.environment.getVariable(this, name);
+					if (variable != null) return variable;
+					throw new ScriptParsingException(this.listCandidates(name, "Unknown variable: " + name, "Actual form: " + name), this.input);
 				}
 			}
 		}
@@ -1196,200 +1174,6 @@ public class ExpressionParser {
 		InsnTree result = newParser.parseRemainingInput(true);
 
 		return new MethodDeclarationInsnTree(newMethod, result);
-	}
-
-	public InsnTree nextUserDefinedClass(String className) throws ScriptParsingException {
-		this.input.expectAfterWhitespace('(');
-		ClassCompileContext innerClass = this.clazz.newInnerClass(
-			ACC_PUBLIC | ACC_STATIC,
-			this.clazz.innerClassName(className),
-			TypeInfos.OBJECT,
-			TypeInfo.ARRAY_FACTORY.empty()
-		);
-		TypeInfo innerClassType = innerClass.info;
-		List<FieldCompileContext> fields = new ArrayList<>(8);
-		while (!this.input.hasAfterWhitespace(')')) {
-			String typeName = this.input.expectIdentifier();
-			TypeInfo type = this.environment.getType(this, typeName);
-			if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, this.input);
-
-			String fieldName = this.verifyName(this.input.expectIdentifierAfterWhitespace(), "field");
-			FieldCompileContext field = innerClass.newField(ACC_PUBLIC, fieldName, type);
-			fields.add(field);
-
-			if (this.input.hasOperatorAfterWhitespace("=")) {
-				ConstantValue initializer = this.nextSingleExpression().cast(this, type, CastMode.IMPLICIT_THROW).getConstantValue();
-				if (initializer.isConstant()) {
-					field.initializer = initializer;
-				}
-				else {
-					throw new ScriptParsingException("Field initializer must be constant", this.input);
-				}
-			}
-			FieldInfo fieldInfo = field.info;
-			innerClass.newMethod(ACC_PUBLIC, fieldName, type).scopes.withScope((MethodCompileContext getter) -> {
-				return_(getField(load("this", 0, innerClassType), fieldInfo)).emitBytecode(getter);
-			});
-			innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, fieldInfo.type).scopes.withScope((MethodCompileContext setter) -> {
-				putField(load("this", 0, innerClassType), fieldInfo, load(fieldInfo.name, 1, fieldInfo.type)).emitBytecode(setter);
-				return_(noop).emitBytecode(setter);
-			});
-
-			this.input.hasOperatorAfterWhitespace(",,");
-		}
-		//add constructors.
-		innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID).scopes.withScope((MethodCompileContext constructor) -> {
-			VarInfo constructorThis = constructor.addThis();
-			invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
-			for (FieldCompileContext field : fields) {
-				if (field.initializer != null) {
-					putField(
-						load(constructorThis),
-						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
-						ldc(field.initializer)
-					)
-					.emitBytecode(constructor);
-				}
-			}
-			return_(noop).emitBytecode(constructor);
-		});
-		if (!fields.isEmpty()) {
-			innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo constructorThis = constructor.addThis();
-				invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
-				for (FieldCompileContext field : fields) {
-					putField(
-						load(constructorThis),
-						new FieldInfo(ACC_PUBLIC, innerClassType, field.name(), field.info.type),
-						load(constructor.newParameter(field.name(), field.info.type))
-					)
-					.emitBytecode(constructor);
-				}
-				return_(noop).emitBytecode(constructor);
-			});
-		}
-		List<FieldCompileContext> nonDefaulted = fields.stream().filter(field -> field.initializer == null).collect(Collectors.toList());
-		if (nonDefaulted.size() != fields.size() && !nonDefaulted.isEmpty()) {
-			innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo constructorThis = constructor.addThis();
-				invokeInstance(load(constructorThis), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
-				for (FieldCompileContext field : fields) {
-					putField(
-						load(constructorThis),
-						new FieldInfo(ACC_PUBLIC, innerClassType, field.info.name, field.info.type),
-						field.initializer != null ? ldc(field.initializer) : load(constructor.newParameter(field.name(), field.info.type))
-					)
-					.emitBytecode(constructor);
-				}
-				return_(noop).emitBytecode(constructor);
-			});
-		}
-		//add toString().
-		innerClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodThis = method.addThis();
-			StringBuilder pattern = new StringBuilder(className).append('(');
-			for (FieldCompileContext field : fields) {
-				pattern.append(field.name()).append(": ").append('\u0001').append(", ");
-			}
-			pattern.setLength(pattern.length() - 2);
-			pattern.append(')');
-			return_(
-				invokeDynamic(
-					MAKE_CONCAT_WITH_CONSTANTS,
-					new MethodInfo(
-						ACC_PUBLIC | ACC_STATIC,
-						TypeInfos.OBJECT,
-						"toString",
-						TypeInfos.STRING,
-						fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)
-					),
-					new ConstantValue[] {
-						constant(pattern.toString())
-					},
-					fields
-					.stream()
-					.map(field -> getField(load(methodThis), field.info))
-					.toArray(InsnTree.ARRAY_FACTORY)
-				)
-			)
-			.emitBytecode(method);
-		});
-		//add hashCode().
-		innerClass.newMethod(ACC_PUBLIC, "hashCode", TypeInfos.INT).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodThis = method.addThis();
-			if (fields.isEmpty()) {
-				return_(ldc(0)).emitBytecode(method);
-			}
-			else {
-				invokeStatic(
-					HASH_MIX,
-					ArrayExtensions.computeHashCode(
-						getField(load(methodThis), fields.get(0).info)
-					)
-				)
-				.emitBytecode(method);
-				for (int index = 1, size = fields.size(); index < size; index++) {
-					invokeStatic(
-						HASH_MIX,
-						add(
-							this,
-							getFromStack(TypeInfos.INT),
-							ArrayExtensions.computeHashCode(
-								getField(load(methodThis), fields.get(index).info)
-							)
-						)
-					)
-					.emitBytecode(method);
-				}
-				return_(getFromStack(TypeInfos.INT)).emitBytecode(method);
-			}
-		});
-		//add equals().
-		innerClass.newMethod(ACC_PUBLIC, "equals", TypeInfos.BOOLEAN, TypeInfos.OBJECT).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodThis = method.addThis();
-			VarInfo object = method.newParameter("object", TypeInfos.OBJECT);
-			if (fields.isEmpty()) {
-				return_(instanceOf(load(object), innerClassType)).emitBytecode(method);
-			}
-			else {
-				VarInfo that = method.newVariable("that", innerClassType);
-				ifThen(
-					not(condition(this, instanceOf(load(object), innerClassType))),
-					return_(ldc(false))
-				)
-				.emitBytecode(method);
-				store(that, load(object).cast(this, innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(method);
-				for (FieldCompileContext field : fields) {
-					ifThen(
-						not(
-							condition(
-								this,
-								ArrayExtensions.computeEquals(
-									this,
-									getField(load(methodThis), field.info),
-									getField(load(that), field.info)
-								)
-							)
-						),
-						return_(ldc(false))
-					)
-					.emitBytecode(method);
-				}
-				return_(ldc(true)).emitBytecode(method);
-			}
-		});
-		//setup user definitions.
-		this.checkType(className);
-		this.environment.user().types.put(className, innerClassType);
-		this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID));
-		if (!fields.isEmpty()) {
-			this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
-			if (nonDefaulted.size() != fields.size()) {
-				this.environment.user().addConstructor(innerClassType, new MethodInfo(ACC_PUBLIC, innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
-			}
-		}
-		fields.stream().map(field -> field.info).forEach(this.environment.user()::addFieldGetterAndSetter);
-		return noop;
 	}
 
 	public TypeInfo getMainReturnType() {

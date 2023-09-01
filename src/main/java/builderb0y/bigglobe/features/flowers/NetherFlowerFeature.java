@@ -19,6 +19,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRestrictedListElement;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.VariationsList;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -92,7 +93,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 	public static class Config implements FeatureConfig {
 
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
-		public final RandomSource randomize_radius;
+		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource randomize_radius;
 		public final VariationsList<Entry> entries;
 
 		public Config(
@@ -110,7 +111,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 
 		public final double weight;
 		public final ColumnRestriction restrictions;
-		public final RandomSource radius;
+		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius;
 		public final SingleBlockFeature.Config state;
 		public final SingleBlockFeature.@VerifyNullable Config under;
 

@@ -24,6 +24,7 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
 		this.parser = new ColumnYToDoubleScript.Parser(new SerializableScriptInputs(script, null, null));
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
+		keywords.remove("class");
 		keywords.remove("while");
 		keywords.remove("until");
 		keywords.remove("do");

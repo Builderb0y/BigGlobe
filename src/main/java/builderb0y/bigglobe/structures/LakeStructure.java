@@ -29,6 +29,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.features.SortedFeatureTag;
@@ -56,7 +57,8 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 	}
 	public static final Codec<LakeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LakeStructure.class);
 
-	public final RandomSource horizontal_radius, vertical_depth;
+	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 112.0D) RandomSource horizontal_radius;
+	public final RandomSource vertical_depth;
 	public final BlockState fluid;
 	public final @VerifyNullable PrimarySurface primary_surface;
 	public final SecondarySurface @VerifyNullable @SingletonArray [] secondary_surfaces;

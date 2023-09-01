@@ -32,6 +32,7 @@ import builderb0y.bigglobe.math.pointSequences.SphericalPointIterator;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectList;
@@ -43,7 +44,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(GeodeStructure.class);
 
 	public final Grid3D noise;
-	public final RandomSource radius;
+	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 112.0D) RandomSource radius;
 	public final BlocksConfig @VerifyNotEmpty @UseVerifier(name = "verifySorted", in = BlocksConfig.class, usage = MemberUsage.METHOD_IS_HANDLER) [] blocks;
 	public final SpikesConfig spikes;
 	public final GrowthConfig @VerifyNullable @SingletonArray [] growth;

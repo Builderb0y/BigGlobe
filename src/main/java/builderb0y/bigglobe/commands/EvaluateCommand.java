@@ -30,27 +30,26 @@ public class EvaluateCommand {
 				CommandManager
 				.argument("script", new CommandScriptArgument())
 				.executes(context -> {
-					CommandScript script = context.getArgument("script", LazyCommandScript.class);
-					try {
-						WorldWrapper world = new WorldWrapper(
-							new WorldDelegator(context.getSource().getWorld()),
-							Permuter.from(context.getSource().getWorld().random),
-							new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
-						);
-						Vec3d position = context.getSource().getPosition();
-						WorldColumn column = WorldColumn.forWorld(
-							context.getSource().getWorld(),
-							BigGlobeMath.floorI(position.x),
-							BigGlobeMath.floorI(position.z)
-						);
-						Object result = script.evaluate(world, column, column.x, BigGlobeMath.floorI(position.y), column.z);
+					LazyCommandScript script = context.getArgument("script", LazyCommandScript.class);
+					WorldWrapper world = new WorldWrapper(
+						new WorldDelegator(context.getSource().getWorld()),
+						Permuter.from(context.getSource().getWorld().random),
+						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
+					);
+					Vec3d position = context.getSource().getPosition();
+					WorldColumn column = WorldColumn.forWorld(
+						context.getSource().getWorld(),
+						BigGlobeMath.floorI(position.x),
+						BigGlobeMath.floorI(position.z)
+					);
+					Object result = script.evaluate(world, column, column.x, BigGlobeMath.floorI(position.y), column.z);
+					if (result instanceof Throwable) {
+						context.getSource().sendError(Text.literal(" = " + result + "; check your logs for more info."));
+					}
+					else {
 						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.literal(" = " + result), false);
-						return result instanceof Number number ? number.intValue() : 1;
 					}
-					catch (Throwable throwable) {
-						context.getSource().sendError(Text.literal(throwable.toString()));
-						return 0;
-					}
+					return result instanceof Number number ? number.intValue() : 1;
 				})
 			)
 		);

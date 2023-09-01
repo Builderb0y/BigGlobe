@@ -23,6 +23,7 @@ public class LocateAreaLazyScript implements ColumnPredicate {
 	public LocateAreaLazyScript(String script) throws ScriptParsingException {
 		this.parser = new ColumnPredicate.Parser(script);
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
+		keywords.remove("class");
 		keywords.remove("while");
 		keywords.remove("until");
 		keywords.remove("do");

@@ -36,6 +36,7 @@ import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.noise.SmoothGrid2D;
 import builderb0y.bigglobe.noise.SummingGrid2D;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.settings.Seed.NumberSeed;
@@ -48,8 +49,8 @@ public class UndergroundPocketStructure extends BigGlobeStructure implements Raw
 
 	public static final Codec<UndergroundPocketStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(UndergroundPocketStructure.class);
 
-	public final RandomSource radius;
-	public final RandomSource noise_decay;
+	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 112.0D) RandomSource radius;
+	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 1.0D, maxInclusive = false) RandomSource noise_decay;
 	public final @VerifyNullable FluidConfig fluid;
 	public final @VerifyNullable FloorCeilingConfig floor, ceiling;
 

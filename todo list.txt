@@ -25,8 +25,11 @@ changelog:
 		* Less gold and redstone at excessively deep Y levels.
 		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
 		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
-	* Scripting: added template support for a couple more common script functions.
-	* Scripting: more consistent order of operations for prefix operators.
+	* Scripting changes:
+		* Added template support for a couple more common script functions.
+		* More consistent order of operations for prefix operators.
+		* print() now outputs to in-game chat in singleplayer.
+		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -63,9 +66,12 @@ scripting:
 		don't capture variables which aren't used.
 	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
-	make "var" and "class" into keywords.
+	extract user-defined function parsing into its own class.
+		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
 	allow for (int index, T element in list:
+	template support for scripted noise.
+		use this to apply edge, floor, and ceiling bias in the nether.
 
 features:
 	general:

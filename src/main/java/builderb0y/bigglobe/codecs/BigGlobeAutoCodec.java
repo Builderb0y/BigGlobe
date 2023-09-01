@@ -49,11 +49,14 @@ import builderb0y.autocodec.imprinters.MapImprinter;
 import builderb0y.autocodec.logging.*;
 import builderb0y.autocodec.reflection.ReflectionManager;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.autocodec.verifiers.FloatRangeVerifier;
+import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -248,6 +251,18 @@ public class BigGlobeAutoCodec {
 					super.setup();
 					this.addFactoryBefore(CollectionImprinter.Factory.INSTANCE, BlockStateCollectionImprinter.Factory.INSTANCE);
 					this.addFactoryBefore(MapImprinter.Factory.INSTANCE, BlockStateToObjectMapImprinter.Factory.INSTANCE);
+				}
+			};
+		}
+
+		@Override
+		public @NotNull VerifierFactoryList createVerifiers() {
+			return new VerifierFactoryList(this) {
+
+				@Override
+				public void setup() {
+					super.setup();
+					this.addFactoryAfter(FloatRangeVerifier.Factory.INSTANCE, RandomRangeVerifier.Factory.INSTANCE);
 				}
 			};
 		}

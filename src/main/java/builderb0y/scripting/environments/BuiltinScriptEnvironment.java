@@ -1,19 +1,18 @@
 package builderb0y.scripting.environments;
 
-import java.io.PrintStream;
 import java.lang.invoke.StringConcatFactory;
 import java.util.Arrays;
 import java.util.Objects;
 
+import it.unimi.dsi.fastutil.HashCommon;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.CastingSupport;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
+import builderb0y.scripting.bytecode.tree.VariableDeclarePostAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
@@ -21,30 +20,34 @@ import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
+import builderb0y.scripting.parsing.UserClassDefiner;
+import builderb0y.scripting.util.PrintSink;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class BuiltinScriptEnvironment {
 
+	public static PrintSink PRINTER = PrintSink.forPrintStream(System.out);
+
 	public static final MethodInfo
-		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
-		PRINTLN_VOID          = MethodInfo.findMethod(PrintStream.class, "println", void.class),
-		PRINTLN_BOOLEAN       = MethodInfo.findMethod(PrintStream.class, "println", void.class, boolean.class),
-		PRINTLN_CHAR          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    char.class),
-		PRINTLN_INT           = MethodInfo.findMethod(PrintStream.class, "println", void.class,     int.class),
-		PRINTLN_LONG          = MethodInfo.findMethod(PrintStream.class, "println", void.class,    long.class),
-		PRINTLN_FLOAT         = MethodInfo.findMethod(PrintStream.class, "println", void.class,   float.class),
-		PRINTLN_DOUBLE        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  double.class),
-		PRINTLN_STRING        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  String.class),
-		PRINTLN_OBJECT        = MethodInfo.findMethod(PrintStream.class, "println", void.class,  Object.class);
+		STRING_CONCAT_FACTORY      = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
+		PRINTLN_BOOLEAN            = MethodInfo.findMethod(PrintSink.class, "println", void.class, boolean.class),
+		PRINTLN_CHAR               = MethodInfo.findMethod(PrintSink.class, "println", void.class,    char.class),
+		PRINTLN_INT                = MethodInfo.findMethod(PrintSink.class, "println", void.class,     int.class),
+		PRINTLN_LONG               = MethodInfo.findMethod(PrintSink.class, "println", void.class,    long.class),
+		PRINTLN_FLOAT              = MethodInfo.findMethod(PrintSink.class, "println", void.class,   float.class),
+		PRINTLN_DOUBLE             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  double.class),
+		PRINTLN_STRING             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  String.class),
+		PRINTLN_OBJECT             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  Object.class);
 	public static final FieldInfo
-		SYSTEM_OUT = FieldInfo.getField(System.class, "out");
+		PRINTER_FIELD = FieldInfo.getField(BuiltinScriptEnvironment.class, "PRINTER");
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
@@ -107,48 +110,12 @@ public class BuiltinScriptEnvironment {
 			return new CastResult(throw_(toThrow), toThrow != arguments[0]);
 		})
 		*/
-		.addFunction("print", (parser, name, arguments) -> {
-			InsnTree loadOut = getStatic(SYSTEM_OUT);
-			return new CastResult(
-				switch (arguments.length) {
-					case 0 -> invokeInstance(loadOut, PRINTLN_VOID);
-					case 1 -> switch (arguments[0].getTypeInfo().getSort()) {
-						case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
-						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW));
-						case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
-						case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
-						case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);
-						case DOUBLE        -> invokeInstance(loadOut, PRINTLN_DOUBLE,  arguments);
-						case CHAR          -> invokeInstance(loadOut, PRINTLN_CHAR,    arguments);
-						case BOOLEAN       -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
-						case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT,  arguments);
-					};
-					default -> invokeInstance(
-						loadOut,
-						PRINTLN_STRING,
-						invokeDynamic(
-							STRING_CONCAT_FACTORY,
-							new MethodInfo(
-								ACC_PUBLIC | ACC_STATIC,
-								TypeInfos.OBJECT, //ignored
-								"concat",
-								TypeInfos.STRING,
-								Arrays
-								.stream(arguments)
-								.map(InsnTree::getTypeInfo)
-								.toArray(TypeInfo.ARRAY_FACTORY)
-							),
-							ConstantValue.ARRAY_FACTORY.empty(),
-							arguments
-						)
-					);
-				},
-				false
-			);
-		})
+		.addFunction("print", makePrint())
 
 		//////////////// keywords ////////////////
 
+		.addKeyword("var", makeVar())
+		.addKeyword("class", makeClass())
 		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
 		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
 		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, false))
@@ -365,6 +332,81 @@ public class BuiltinScriptEnvironment {
 		if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 		parser.input.expectAfterWhitespace(')');
 		return type;
+	}
+
+	public static FunctionHandler makePrint() {
+		return new FunctionHandler.Named("builtin function print(anything)", (parser, name, arguments) -> {
+			if (arguments.length == 0) {
+				throw new ScriptParsingException("Not allowed to print nothing", parser.input);
+			}
+			InsnTree loadOut = getStatic(PRINTER_FIELD);
+			if (arguments.length == 1) {
+				return new CastResult(
+					switch (arguments[0].getTypeInfo().getSort()) {
+						case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
+						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+						case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
+						case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
+						case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);
+						case DOUBLE        -> invokeInstance(loadOut, PRINTLN_DOUBLE,  arguments);
+						case CHAR          -> invokeInstance(loadOut, PRINTLN_CHAR,    arguments);
+						case BOOLEAN       -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
+						case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT,  arguments);
+					},
+					false
+				);
+			}
+			else {
+				return new CastResult(
+					invokeInstance(
+						loadOut,
+						PRINTLN_STRING,
+						invokeDynamic(
+							STRING_CONCAT_FACTORY,
+							new MethodInfo(
+								ACC_PUBLIC | ACC_STATIC,
+								TypeInfos.OBJECT, //ignored
+								"concat",
+								TypeInfos.STRING,
+								Arrays
+								.stream(arguments)
+								.map(InsnTree::getTypeInfo)
+								.toArray(TypeInfo.ARRAY_FACTORY)
+							),
+							ConstantValue.ARRAY_FACTORY.empty(),
+							arguments
+						)
+					),
+					false
+				);
+			}
+		});
+	}
+
+	public static KeywordHandler makeVar() {
+		return (parser, name) -> {
+			String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+			boolean reuse;
+			if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
+			else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
+			else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+			InsnTree initializer = parser.nextSingleExpression();
+			VarInfo variable = parser.environment.user().newVariable(varName, initializer.getTypeInfo());
+			return (
+				reuse
+				? new VariableDeclarePostAssignInsnTree(variable, initializer)
+				: new VariableDeclareAssignInsnTree(variable, initializer)
+			);
+		};
+	}
+
+	public static KeywordHandler makeClass() {
+		return (parser, name) -> {
+			String className = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "class");
+			parser.checkType(className);
+			new UserClassDefiner(parser, className).parse();
+			return noop;
+		};
 	}
 
 	public static MemberKeywordHandler makeBetween() {

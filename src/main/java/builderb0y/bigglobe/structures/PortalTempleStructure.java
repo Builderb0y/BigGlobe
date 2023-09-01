@@ -39,6 +39,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -51,7 +52,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public static final Codec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(PortalTempleStructure.class);
 
-	public final RandomSource cracked_chance;
+	public final @VerifyRandomRange(min = 0.0D, max = 1.0D) RandomSource cracked_chance;
 
 	public PortalTempleStructure(Config config, RandomSource cracked_chance) {
 		super(config);

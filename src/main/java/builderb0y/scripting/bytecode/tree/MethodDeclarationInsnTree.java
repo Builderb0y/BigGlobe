@@ -9,7 +9,7 @@ part of method declaration logic needs to be delayed in
 order for local variable capturing to work correctly.
 specifically, the method needs to be converted to
 bytecode after {@link VariableDeclarationInsnTree}
-updates the variable's index.
+updates all the captured variables' indexes.
 */
 public class MethodDeclarationInsnTree implements InsnTree {
 
