@@ -19,9 +19,10 @@ import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -43,11 +44,12 @@ public interface StructureLayoutScript extends Script {
 
 		public static final InsnTree LOAD_RANDOM = load("random", 3, type(RandomGenerator.class));
 
-		public final SerializableScriptInputs inputs;
+		public final ScriptUsage<GenericScriptTemplateUsage> usage;
 
-		public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new TemplateScriptParser<>(StructureLayoutScript.class, inputs.buildScriptInputs())
+				TemplateScriptParser
+				.createFrom(StructureLayoutScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
@@ -103,7 +105,7 @@ public interface StructureLayoutScript extends Script {
 				)
 				.parse()
 			);
-			this.inputs = inputs;
+			this.usage = usage;
 		}
 
 		@Override

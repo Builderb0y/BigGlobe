@@ -4,35 +4,33 @@
 		"biomes": "#bigglobe:has_structure/soul_campfire",
 		"spawn_overrides": {},
 		"step": "surface_structures",
-		"layout": {
-			"script": [
-				"boolean isTerrainAt(int y:",
-					"return(`nether/cached_cave_noise`(originX, y, originZ) >= `nether/cave_noise_threshold`(originX, y, originZ) && `nether/cached_cavern_noise`(originX, y, originZ) >= 0.0L)",
-				")",
+		"layout": [
+			"boolean isTerrainAt(int y:",
+				"return(`nether/cached_cave_noise`(originX, y, originZ) >= `nether/cave_noise_threshold`(originX, y, originZ) && `nether/cached_cavern_noise`(originX, y, originZ) >= 0.0L)",
+			")",
 
-				"int getY(:",
-					"repeat (16:",
-						"int y = int(mixLinear(min_y(originX, originZ), max_y(originX, originZ), random.nextDouble()))",
-						"unless (isTerrainAt(y):",
-							"do until (isTerrainAt(y):",
-								"--y",
-								"if (y < `nether/lava_level`(originX, originZ): return(16x8000_0000U))",
-							")",
-							"return(y + 1)",
+			"int getY(:",
+				"repeat (16:",
+					"int y = int(mixLinear(min_y(originX, originZ), max_y(originX, originZ), random.nextDouble()))",
+					"unless (isTerrainAt(y):",
+						"do until (isTerrainAt(y):",
+							"--y",
+							"if (y < `nether/lava_level`(originX, originZ): return(16x8000_0000U))",
 						")",
+						"return(y + 1)",
 					")",
-					"return(16x8000_0000U)",
 				")",
+				"return(16x8000_0000U)",
+			")",
 
-				"int y = getY()",
-				"unless (y == 16x8000_0000U:",
-					"pieces.add(ScriptStructurePiece.new(",
-						"originX - 4, y - 1, originZ - 4, originX + 4, y, originZ + 4,",
-						"'bigglobe:soul_campfire',",
-						"nbtCompound()",
-					"))",
-				")"
-			]
-		}
+			"int y = getY()",
+			"unless (y == 16x8000_0000U:",
+				"pieces.add(ScriptStructurePiece.new(",
+					"originX - 4, y - 1, originZ - 4, originX + 4, y, originZ + 4,",
+					"'bigglobe:soul_campfire',",
+					"nbtCompound()",
+				"))",
+			")"
+		]
 	}
 }

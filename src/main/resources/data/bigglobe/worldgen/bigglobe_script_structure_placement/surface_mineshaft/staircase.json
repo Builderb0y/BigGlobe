@@ -1,15 +1,13 @@
 {
-	"raw_placement": {
-		"script": [
-			"for (int x = minX, x <= maxX, ++x:",
-				"int ideal = (maxX - minX) - (x - minX) + minY - 1",
-				"int startY = max(minY + 1, ideal)",
-				"int endY = min(maxY - 1, ideal + 4)",
-				"fillBlockState(x, startY, midZ - 1, x, endY, midZ + 1, 'minecraft:air')",
-			")"
-		]
-	},
-	"script": [
+	"raw_placement": [
+		"for (int x = minX, x <= maxX, ++x:",
+			"int ideal = (maxX - minX) - (x - minX) + minY - 1",
+			"int startY = max(minY + 1, ideal)",
+			"int endY = min(maxY - 1, ideal + 4)",
+			"fillBlockState(x, startY, midZ - 1, x, endY, midZ + 1, 'minecraft:air')",
+		")"
+	],
+	"placement": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"boolean isStart = data.start.asBoolean()",
 		"int cobwebX = random.nextInt(minX, maxX + 1)",

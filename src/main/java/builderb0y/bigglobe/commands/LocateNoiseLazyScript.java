@@ -12,17 +12,18 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
-import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
+import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 
-	public @Nullable ColumnYToDoubleScript.Parser parser;
+	public @Nullable ScriptParser<ColumnYToDoubleScript> parser;
 	public Set<ColumnValue<?>> usedValues;
 	public @Nullable ColumnYToDoubleScript script;
 
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ColumnYToDoubleScript.Parser(new SerializableScriptInputs(script, null, null));
+		this.parser = new ScriptParser<>(ColumnYToDoubleScript.class, script);
+		this.usedValues = Holder.setupParser(this.parser).usedValues;
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
 		keywords.remove("class");
 		keywords.remove("while");
@@ -34,7 +35,6 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 		keywords.remove("break");
 		keywords.remove("continue");
 		this.parser.toBytecode();
-		this.usedValues = this.parser.builder.usedValues;
 	}
 
 	public ColumnYToDoubleScript getScript() {

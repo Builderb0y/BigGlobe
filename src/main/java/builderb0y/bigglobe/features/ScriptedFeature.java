@@ -28,7 +28,6 @@ import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLookupPosition;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
-import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
@@ -39,10 +38,8 @@ import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTre
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -156,9 +153,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 
 	public static class Config implements FeatureConfig {
 
-		//note to self: the SerializableScriptInputs needs to be encoded inline,
-		//because it itself has another script field.
-		public final FeatureScript.@EncodeInline Holder script;
+		public final FeatureScript.Holder script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
 		public final @DefaultString("none") @UseName("queue") QueueType queueType;
@@ -208,11 +203,12 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					type(RandomGenerator.class)
 				);
 
-			public final SerializableScriptInputs inputs;
+			public final ScriptUsage<GenericScriptTemplateUsage> usage;
 
-			public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 				super(
-					new TemplateScriptParser<>(FeatureScript.class, inputs.buildScriptInputs())
+					TemplateScriptParser
+					.createFrom(FeatureScript.class, usage)
 					.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
 					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
@@ -252,7 +248,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 					.parse()
 				);
-				this.inputs = inputs;
+				this.usage = usage;
 			}
 
 			@Override

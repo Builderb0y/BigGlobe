@@ -1,4 +1,5 @@
 {
+	"type": "bigglobe:generic",
 	"script": [
 		"double depth = (max_y - y) / delay",
 		"double scale = (4.0L * peak) / (2.0L * peak - limit)",

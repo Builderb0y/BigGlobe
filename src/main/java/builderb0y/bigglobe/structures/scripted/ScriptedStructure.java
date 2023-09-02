@@ -79,7 +79,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	}
 
 	public static record CombinedStructureScripts(
-		StructurePlacementScript.@EncodeInline /* backwards-compatibility */ Holder placement,
+		StructurePlacementScript.Holder placement,
 		StructurePlacementScript.@VerifyNullable Holder raw_placement
 	) {}
 

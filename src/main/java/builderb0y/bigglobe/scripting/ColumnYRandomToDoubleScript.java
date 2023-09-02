@@ -7,9 +7,10 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -22,26 +23,29 @@ public interface ColumnYRandomToDoubleScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYRandomToDoubleScript> implements ColumnYRandomToDoubleScript {
 
-		public final SerializableScriptInputs inputs;
+		public final ScriptUsage<GenericScriptTemplateUsage> usage;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(ColumnYRandomToDoubleScript script, SerializableScriptInputs inputs, Set<ColumnValue<?>> usedValues) {
+		public Holder(ColumnYRandomToDoubleScript script, ScriptUsage<GenericScriptTemplateUsage> usage, Set<ColumnValue<?>> usedValues) {
 			super(script);
-			this.inputs = inputs;
+			this.usage = usage;
 			this.usedValues = usedValues;
 		}
 
-		public static Holder create(SerializableScriptInputs inputs) throws ScriptParsingException {
-			ColumnScriptEnvironmentBuilder columnYScriptEnvironment = ColumnScriptEnvironmentBuilder.createFixedXYZ(
-				ColumnValue.REGISTRY,
-				load("column", 1, type(WorldColumn.class)),
-				load("y", 2, TypeInfos.DOUBLE)
-			)
-			.addXZ("x", "z")
-			.addY("y")
-			.addSeed("worldSeed");
+		public static Holder create(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
+			ColumnScriptEnvironmentBuilder columnYScriptEnvironment = (
+				ColumnScriptEnvironmentBuilder.createFixedXYZ(
+					ColumnValue.REGISTRY,
+					load("column", 1, type(WorldColumn.class)),
+					load("y", 2, TypeInfos.DOUBLE)
+				)
+				.addXZ("x", "z")
+				.addY("y")
+				.addSeed("worldSeed")
+			);
 			ColumnYRandomToDoubleScript actualScript = (
-				new TemplateScriptParser<>(ColumnYRandomToDoubleScript.class, inputs.buildScriptInputs())
+				TemplateScriptParser
+				.createFrom(ColumnYRandomToDoubleScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment.build())
 				.addEnvironment(RandomScriptEnvironment.create(
@@ -50,7 +54,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
-			return new Holder(actualScript, inputs, columnYScriptEnvironment.usedValues);
+			return new Holder(actualScript, usage, columnYScriptEnvironment.usedValues);
 		}
 
 		@Override

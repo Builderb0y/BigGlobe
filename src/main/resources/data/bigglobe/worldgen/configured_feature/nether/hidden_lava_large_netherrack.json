@@ -1,10 +1,12 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"template": "bigglobe:hidden_lava_large",
-		"inputs": {
-			"REPLACE": "'bigglobe:hidden_lava_replaceables_netherrack'",
-			"SPILL_CHANCE": "unmixLinear(512.0L, min_y, double(originY)) * 0.0625L"
+		"script": {
+			"template": "bigglobe:hidden_lava_large",
+			"inputs": {
+				"REPLACE": "'bigglobe:hidden_lava_replaceables_netherrack'",
+				"SPILL_CHANCE": "unmixLinear(512.0L, min_y, double(originY)) * 0.0625L"
+			}
 		}
 	}
 }

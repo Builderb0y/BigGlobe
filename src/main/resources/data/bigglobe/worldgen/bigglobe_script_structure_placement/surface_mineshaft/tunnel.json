@@ -1,10 +1,8 @@
 {
-	"raw_placement": {
-		"script": [
-			"fillBlockState(minX, minY + 1, midZ - 1, maxX, minY + 3, midZ + 1, 'minecraft:air')"
-		]
-	},
-	"script": [
+	"raw_placement": [
+		"fillBlockState(minX, minY + 1, midZ - 1, maxX, minY + 3, midZ + 1, 'minecraft:air')"
+	],
+	"placement": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"fillBlockStateReplaceable(minX, minY, midZ - 1, maxX, minY, midZ + 1, palette.planksState())",
 		"fillBlockState(minX, minY + 1, midZ, maxX, minY + 1, midZ, 'minecraft:rail[shape=east_west,waterlogged=false]')",

@@ -1,4 +1,5 @@
 {
+	"type": "bigglobe:generic",
 	"script": [
 		"boolean canReplace(int x, int y, int z:",
 			"return(getBlockState(x, y, z).isIn(REPLACE))",

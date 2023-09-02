@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		"Block bedBlock = Block(data.bed.asString())",
 		"setBlockState(minX, minY, midZ, BlockState(bedBlock, facing: 'south', part: 'foot'))",
 		"setBlockState(minX, minY, maxZ, BlockState(bedBlock, facing: 'south', part: 'head'))",

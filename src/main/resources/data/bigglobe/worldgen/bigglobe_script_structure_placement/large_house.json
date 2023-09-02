@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		"String randomColor(:",
 			"random.switch(",
 				"'white',      'orange', 'magenta', 'light_blue',",

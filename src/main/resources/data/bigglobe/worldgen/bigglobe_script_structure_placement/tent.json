@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 
 		";fences",

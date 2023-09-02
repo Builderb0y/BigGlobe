@@ -4,27 +4,25 @@
 		"biomes": "#bigglobe:has_structure/well",
 		"spawn_overrides": {},
 		"step": "surface_structures",
-		"layout": {
-			"script": [
-				"int originY = ceilInt(max_y(originX, originZ))",
+		"layout": [
+			"int originY = ceilInt(max_y(originX, originZ))",
 
-				"Biome biome = getBiome(originX, originY, originZ)",
-				"WoodPalette palette = WoodPalette.randomForBiome(biome)",
-				"int type = 0",
-				"     if (biome == Biome('bigglobe:hot_plains'   ): type = 1)",
-				"else if (biome == Biome('bigglobe:hot_forest'   ): type = 1)",
-				"else if (biome == Biome('bigglobe:hot_wasteland'): type = 2,, palette = 'minecraft:acacia')",
-				"random.if (palette = null)",
+			"Biome biome = getBiome(originX, originY, originZ)",
+			"WoodPalette palette = WoodPalette.randomForBiome(biome)",
+			"int type = 0",
+			"     if (biome == Biome('bigglobe:hot_plains'   ): type = 1)",
+			"else if (biome == Biome('bigglobe:hot_forest'   ): type = 1)",
+			"else if (biome == Biome('bigglobe:hot_wasteland'): type = 2,, palette = 'minecraft:acacia')",
+			"random.if (palette = null)",
 
-				"pieces.add(ScriptStructurePiece.new(",
-					"originX - 2, originY - random.nextInt(8, 24), originZ - 2, originX + 2, originY + 4, originZ + 2,",
-					"'bigglobe:well',",
-					"nbtCompound(",
-						"palette: palette.?id,",
-						"type: type",
-					")",
-				"))"
-			]
-		}
+			"pieces.add(ScriptStructurePiece.new(",
+				"originX - 2, originY - random.nextInt(8, 24), originZ - 2, originX + 2, originY + 4, originZ + 2,",
+				"'bigglobe:well',",
+				"nbtCompound(",
+					"palette: palette.?id,",
+					"type: type",
+				")",
+			"))"
+		]
 	}
 }

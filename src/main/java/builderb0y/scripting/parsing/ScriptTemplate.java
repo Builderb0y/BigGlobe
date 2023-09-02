@@ -1,79 +1,54 @@
 package builderb0y.scripting.parsing;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import builderb0y.autocodec.annotations.MultiLine;
-import builderb0y.autocodec.annotations.UseName;
+import net.minecraft.registry.entry.RegistryEntry;
 
-public class ScriptTemplate {
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.CoderRegistry;
+import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.ScriptedGridTemplate;
 
-	public final @UseName("script") @MultiLine String source;
-	public final List<RequiredInput> inputs;
+@UseCoder(name = "REGISTRY", in = ScriptTemplate.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+public interface ScriptTemplate extends CoderRegistryTyped<ScriptTemplate> {
 
-	public ScriptTemplate(String source, List<RequiredInput> inputs) {
-		this.source = source;
-		this.inputs = inputs;
-	}
+	public static final CoderRegistry<ScriptTemplate> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("script_templates"));
+	public static final Object INITIALIZER = new Object() {{
+		REGISTRY.registerAuto(BigGlobeMod.modID("generic"), GenericScriptTemplate.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("grid"), ScriptedGridTemplate.class);
+	}};
 
-	@Override
-	public String toString() {
-		return (
-			"ScriptTemplate:\n"
-			+ "source:\n"
-			+ this.source + '\n'
-			+ "Inputs:\n"
-			+ (
-				this
-				.inputs
-				.stream()
-				.map(Objects::toString)
-				.collect(Collectors.joining("\n"))
-			)
-		);
-	}
+	public abstract String getSource();
 
-	@Override
-	public int hashCode() {
-		return this.source.hashCode() * 31 + this.inputs.hashCode();
-	}
+	public abstract List<RequiredInput> getRequiredInputs();
 
-	@Override
-	public boolean equals(Object obj) {
-		return this == obj || (
-			obj instanceof ScriptTemplate that &&
-			this.source.equals(that.source) &&
-			this.inputs.equals(that.inputs)
-		);
-	}
+	public record RequiredInput(String name, String type) {}
 
-	public static class RequiredInput {
+	public static interface ScriptTemplateUsage {
 
-		public final String name, type;
+		public abstract RegistryEntry<ScriptTemplate> getEntry();
 
-		public RequiredInput(String name, String type) {
-			this.name = name;
-			this.type = type;
-		}
+		public abstract Map<String, String> getProvidedInputs();
 
-		@Override
-		public String toString() {
-			return "ScriptTemplate$RequiredInput: { name: " + this.name + ", type: " + this.type + " }";
-		}
-
-		@Override
-		public int hashCode() {
-			return this.name.hashCode() * 31 + this.type.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return this == obj || (
-				obj instanceof RequiredInput that &&
-				this.name.equals(that.name) &&
-				this.type.equals(that.type)
-			);
+		public default <X extends Throwable> void validateInputs(Function<Supplier<String>, X> exceptionFactory) throws X {
+			List<RequiredInput> requiredInputs = this.getEntry().value().getRequiredInputs();
+			Set<String> expected = new HashSet<>(requiredInputs.size());
+			for (RequiredInput requiredInput : requiredInputs) {
+				if (!expected.add(requiredInput.name())) {
+					throw exceptionFactory.apply(() -> "Duplicate input: " + requiredInput.name());
+				}
+			}
+			Set<String> actual = this.getProvidedInputs().keySet();
+			if (!expected.equals(actual)) {
+				throw exceptionFactory.apply(() -> "Input mismatch: Expected " + expected + ", got " + actual);
+			}
 		}
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		";cobblestone",
 		"setBlockState(midX, minY, midZ, 'minecraft:blackstone')",
 		"setBlockState(midX - 1, minY, midZ, 'minecraft:blackstone')",

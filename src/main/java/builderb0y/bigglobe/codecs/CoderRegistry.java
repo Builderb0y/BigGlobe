@@ -45,7 +45,10 @@ public class CoderRegistry<E extends CoderRegistryTyped<E>> extends DispatchCode
 	public static class IdentifierLookupCoder<E> extends LookupCoder<Identifier, AutoCoder<? extends E>> {
 
 		public IdentifierLookupCoder(@NotNull Identifier registryKey) {
-			super("IdentifierLookupCoder<" + registryKey + '>', BigGlobeAutoCodec.createNamespacedIdentifierCodec(registryKey.getNamespace()));
+			super(
+				"IdentifierLookupCoder<" + registryKey + '>',
+				BigGlobeAutoCodec.createNamespacedIdentifierCodec(registryKey.getNamespace())
+			);
 		}
 	}
 }

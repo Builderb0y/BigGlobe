@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		";main floor and walls",
 		"BlockState mainBlock = random.if ('minecraft:white_terracotta') else ('minecraft:light_gray_terracotta')",
 		"for (int y in range[-1, 16]:",

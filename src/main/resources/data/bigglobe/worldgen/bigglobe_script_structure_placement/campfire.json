@@ -1,5 +1,5 @@
 {
-	"script": [
+	"placement": [
 		"BlockState maybeCobble(:",
 			"return(random.if ('minecraft:mossy_cobblestone') else ('minecraft:cobblestone'))",
 		")",

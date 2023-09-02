@@ -1,10 +1,8 @@
 {
-	"raw_placement": {
-		"script": [
-			"fillBlockState(minX + 1, minY + 1, minZ + 1, maxX - 1, data.maxY.asInt() - 1, maxZ - 1, 'minecraft:air')"
-		]
-	},
-	"script": [
+	"raw_placement": [
+		"fillBlockState(minX + 1, minY + 1, minZ + 1, maxX - 1, data.maxY.asInt() - 1, maxZ - 1, 'minecraft:air')"
+	],
+	"placement": [
 		"WoodPalette palette = WoodPalette(data.palette.asString())",
 		"fillBlockStateReplaceable(minX + 1, minY, minZ + 1, maxX - 1, minY, maxZ - 1, palette.planksState())",
 

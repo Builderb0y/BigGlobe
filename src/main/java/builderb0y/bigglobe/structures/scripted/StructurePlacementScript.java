@@ -15,9 +15,10 @@ import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnT
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptInputs.SerializableScriptInputs;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -48,11 +49,12 @@ public interface StructurePlacementScript extends Script {
 				type(RandomGenerator.class)
 			);
 
-		public final SerializableScriptInputs inputs;
+		public final ScriptUsage<GenericScriptTemplateUsage> usage;
 
-		public Holder(SerializableScriptInputs inputs) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new TemplateScriptParser<>(StructurePlacementScript.class, inputs.buildScriptInputs())
+				TemplateScriptParser
+				.createFrom(StructurePlacementScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
@@ -86,7 +88,7 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 				.parse()
 			);
-			this.inputs = inputs;
+			this.usage = usage;
 		}
 
 		@Override
