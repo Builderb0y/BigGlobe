@@ -53,8 +53,7 @@ public interface StructurePlacementScript extends Script {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				TemplateScriptParser
-				.createFrom(StructurePlacementScript.class, usage)
+				new TemplateScriptParser<>(StructurePlacementScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))

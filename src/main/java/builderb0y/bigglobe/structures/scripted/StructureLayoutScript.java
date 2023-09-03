@@ -48,8 +48,7 @@ public interface StructureLayoutScript extends Script {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				TemplateScriptParser
-				.createFrom(StructureLayoutScript.class, usage)
+				new TemplateScriptParser<>(StructureLayoutScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))

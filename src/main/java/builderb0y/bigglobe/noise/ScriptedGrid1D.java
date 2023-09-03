@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -14,6 +15,7 @@ import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,8 +26,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
 	public final transient Grid1D delegate;
 
-	public ScriptedGrid1D(String script, Map<String, Grid1D> inputs, double min, double max) throws ScriptParsingException {
-		super(inputs, min, max);
+	public ScriptedGrid1D(ScriptUsage<ScriptedGridTemplateUsage<Grid1D>> script, Map<String, Grid1D> inputs, double min, double max) throws ScriptParsingException {
+		super(script, inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_1D_TYPE_INFO);
 		Parser parser = new Parser(script, processedInputs);
 		parser
@@ -58,27 +60,22 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		this.delegate.getBulkX(seed, startX, samples, sampleCount);
 	}
 
-	public static class Parser extends ScriptedGrid.Parser {
+	public static class Parser extends ScriptedGrid.Parser<Grid1D> {
 
 		@SuppressWarnings("MultipleVariablesInDeclaration")
 		public static final MethodInfo
 			GET_BULK_X = MethodInfo.getMethod(Grid1D.class, "getBulkX"),
 			GET_BULK[] = { GET_BULK_X };
 
-		public Parser(String source, LinkedHashMap<String, Input> inputs) {
-			super(source, inputs, GRID_1D_TYPE_INFO);
-		}
-
-		@Override
-		public Grid1D parse() throws ScriptParsingException {
-			return (Grid1D)(super.parse());
+		public Parser(ScriptUsage<ScriptedGridTemplateUsage<Grid1D>> usage, LinkedHashMap<String, Input> inputs) {
+			super(usage, inputs, GRID_1D_TYPE_INFO);
 		}
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
 			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulkX) -> {
-				Input input = this.inputs.values().iterator().next();
+				Input input = this.gridInputs.values().iterator().next();
 				VarInfo thisVar     = getBulkX.addThis();
 				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
@@ -156,8 +153,8 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				VarInfo column      = getBulkX.newVariable("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
-				VarInfo[] scratches = new VarInfo[this.inputs.size()];
-				for (Input input : this.inputs.values()) {
+				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
+				for (Input input : this.gridInputs.values()) {
 					scratches[input.index] = getBulkX.newVariable(input.name, DOUBLE_ARRAY);
 				}
 				//if (sampleCount <= 0) return;
@@ -173,7 +170,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
 				//allocate scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
 						invokeStatic(
@@ -185,7 +182,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					getBulkX.node.visitLabel(label());
 				}
 				//fill scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeInstance(
 						getField(load(thisVar), input.fieldInfo(getBulkX)),
 						methodInfo,
@@ -214,14 +211,14 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 									getBulkX_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'D', this.inputs.size())
+									types(WorldColumn.class, 'I', 'D', this.gridInputs.size())
 								),
 								Stream.concat(
 									Stream.of(
 										load(column),
 										add(this, load(startX), load(index))
 									),
-									this.inputs.values().stream().map(input -> (
+									this.gridInputs.values().stream().map(input -> (
 										arrayLoad(load(scratches[input.index]), load(index))
 									))
 								)
@@ -232,7 +229,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					.emitBytecode(getBulkX_);
 				});
 				//reclaim scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeStatic(
 						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])

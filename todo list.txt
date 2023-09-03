@@ -18,6 +18,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	template support for the rest of the script types.
 
 changelog:
 	* Fixed ocean monuments being too reluctant to spawn.
@@ -26,7 +27,7 @@ changelog:
 		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
 		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
 	* Scripting changes:
-		* Added template support for a couple more common script functions.
+		* Added template support for several common script functions.
 		* More consistent order of operations for prefix operators.
 		* print() now outputs to in-game chat in singleplayer.
 		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
@@ -38,6 +39,7 @@ AutoCodec:
 	type reification has a massive flaw where types can self-reference, causing a StackOverflowError when calling toString() on them.
 		probably related to unresolvable types. in other words, type parameters declared on methods.
 	@MultiLine.INSTANCE needs to override Object methods too.
+	RecordCodec needs to check that field type == parameter type when getting map of parameters -> fields.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.

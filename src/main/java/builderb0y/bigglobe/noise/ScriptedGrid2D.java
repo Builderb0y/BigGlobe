@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -14,6 +15,7 @@ import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,8 +26,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 	public final transient Grid2D delegate;
 
-	public ScriptedGrid2D(String script, Map<String, Grid2D> inputs, double min, double max) throws ScriptParsingException {
-		super(inputs, min, max);
+	public ScriptedGrid2D(ScriptUsage<ScriptedGridTemplateUsage<Grid2D>> script, Map<String, Grid2D> inputs, double min, double max) throws ScriptParsingException {
+		super(script, inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_2D_TYPE_INFO);
 		Parser parser = new Parser(script, processedInputs);
 		parser
@@ -63,7 +65,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		this.delegate.getBulkY(seed, x, startY, samples, sampleCount);
 	}
 
-	public static class Parser extends ScriptedGrid.Parser {
+	public static class Parser extends ScriptedGrid.Parser<Grid2D> {
 
 		@SuppressWarnings("MultipleVariablesInDeclaration")
 		public static final MethodInfo
@@ -71,20 +73,15 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 			GET_BULK_Y = MethodInfo.getMethod(Grid2D.class, "getBulkY"),
 			GET_BULK[] = { GET_BULK_X, GET_BULK_Y };
 
-		public Parser(String input, LinkedHashMap<String, Input> inputs) {
-			super(input, inputs, GRID_2D_TYPE_INFO);
-		}
-
-		@Override
-		public Grid2D parse() throws ScriptParsingException {
-			return (Grid2D)(super.parse());
+		public Parser(ScriptUsage<ScriptedGridTemplateUsage<Grid2D>> usage, LinkedHashMap<String, Input> inputs) {
+			super(usage, inputs, GRID_2D_TYPE_INFO);
 		}
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
 			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
-				Input firstInput = this.inputs.values().iterator().next();
+				Input firstInput = this.gridInputs.values().iterator().next();
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
@@ -141,7 +138,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'I', 'D', this.inputs.size())
+									types(WorldColumn.class, 'I', 'I', 'D', this.gridInputs.size())
 								),
 								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
@@ -170,8 +167,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
-				VarInfo[] scratches = new VarInfo[this.inputs.size()];
-				for (Input input : this.inputs.values()) {
+				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
+				for (Input input : this.gridInputs.values()) {
 					scratches[input.index] = getBulk.newVariable(input.name, type(double[].class));
 				}
 				//if (sampleCount <= 0) return;
@@ -183,7 +180,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//allocate scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
 						invokeStatic(
@@ -195,7 +192,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					getBulk.node.visitLabel(label());
 				}
 				//fill scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeInstance(
 						getField(
 							load(thisVar),
@@ -228,7 +225,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'I', 'D', this.inputs.size())
+									types(WorldColumn.class, 'I', 'I', 'D', this.gridInputs.size())
 								),
 								Stream.concat(
 									Stream.of(
@@ -236,7 +233,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 										maybeAdd(this, x, index, 0, methodDimension),
 										maybeAdd(this, y, index, 1, methodDimension)
 									),
-									this.inputs.values().stream().map(input -> (
+									this.gridInputs.values().stream().map(input -> (
 										arrayLoad(load(scratches[input.index]), load(index))
 									))
 								)
@@ -247,7 +244,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					.emitBytecode(getBulk_);
 				});
 				//reclaim scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeStatic(
 						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])

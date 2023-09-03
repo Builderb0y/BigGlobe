@@ -2,36 +2,41 @@ package builderb0y.bigglobe.noise;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-@AddPseudoField(name = "script", getter = "getScriptSource")
 public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 	public static final TypeInfo DOUBLE_ARRAY = type(double[].class);
@@ -39,11 +44,13 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
 	public static final InsnTree GET_WORLD_SEED = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getWorldSeed"));
 
+	public final ScriptUsage<ScriptedGridTemplateUsage<G>> script;
 	public final @DefaultEmpty Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
 	public final @VerifySorted(greaterThanOrEqual = "min") double max;
 
-	public ScriptedGrid(Map<String, G> inputs, double min, double max) {
+	public ScriptedGrid(ScriptUsage<ScriptedGridTemplateUsage<G>> script, Map<String, G> inputs, double min, double max) {
+		this.script = script;
 		this.inputs = inputs;
 		this.min = min;
 		this.max = max;
@@ -59,10 +66,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	}
 
 	public abstract Grid getDelegate();
-
-	public @MultiLine String getScriptSource() {
-		return ((Script)(this.getDelegate())).getSource();
-	}
 
 	@Override
 	public double minValue() {
@@ -138,6 +141,11 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			this.info = info;
 		}
 
+		@SuppressWarnings("unchecked")
+		public <G extends Grid> G grid() {
+			return (G)(this.grid);
+		}
+
 		public FieldInfo fieldInfo(MethodCompileContext method) {
 			return new FieldInfo(ACC_PUBLIC | ACC_FINAL, method.clazz.info, this.name, this.info.type);
 		}
@@ -155,7 +163,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		}
 	}
 
-	public static abstract class Parser extends ExpressionParser {
+	public static abstract class Parser<G extends Grid> extends ExpressionParser {
 
 		public static final MethodInfo
 			CHECK_NAN = MethodInfo.getMethod(Parser.class, "checkNaN"),
@@ -163,33 +171,35 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			RECLAIM_SCRATCH_ARRAY = MethodInfo.getMethod(Grid.class, "reclaimScratchArray"),
 			OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class);
 
-		public LinkedHashMap<String, Input> inputs;
+		public ScriptUsage<ScriptedGridTemplateUsage<G>> usage;
+		public LinkedHashMap<String, Input> gridInputs;
 		public GridTypeInfo gridTypeInfo;
 
 		public Parser(
-			String input,
-			LinkedHashMap<String, Input> inputs,
+			ScriptUsage<ScriptedGridTemplateUsage<G>> usage,
+			LinkedHashMap<String, Input> gridInputs,
 			GridTypeInfo gridTypeInfo,
 			ClassCompileContext clazz
 		) {
 			super(
-				input,
+				usage.findSource(),
 				clazz,
 				clazz.newMethod(
 					ACC_PUBLIC | ACC_STATIC,
 					"evaluate",
 					TypeInfos.DOUBLE,
-					types(WorldColumn.class, 'I', gridTypeInfo.dimensions, 'D', inputs.size())
+					types(WorldColumn.class, 'I', gridTypeInfo.dimensions, 'D', gridInputs.size())
 				)
 			);
-			this.inputs = inputs;
+			this.usage = usage;
+			this.gridInputs = gridInputs;
 			this.gridTypeInfo = gridTypeInfo;
 		}
 
-		public Parser(String input, LinkedHashMap<String, Input> inputs, GridTypeInfo gridTypeInfo) {
+		public Parser(ScriptUsage<ScriptedGridTemplateUsage<G>> usage, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo) {
 			this(
-				input,
-				inputs,
+				usage,
+				gridInputs,
 				gridTypeInfo,
 				new ClassCompileContext(
 					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -201,11 +211,11 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			);
 		}
 
-		public Grid parse() throws ScriptParsingException {
+		public G parse() throws ScriptParsingException {
 			this.addConstructor();
 			this.addGetValue();
 			int dimensions = this.gridTypeInfo.dimensions;
-			if (this.inputs.size() == 1) {
+			if (this.gridInputs.size() == 1) {
 				for (int dimension = 0; dimension < dimensions; dimension++) {
 					this.addGetBulkOne(dimension);
 				}
@@ -225,17 +235,18 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		public abstract void addGetBulkMany(int methodDimension);
 
-		public Grid instantiate() throws ScriptParsingException {
+		@SuppressWarnings("unchecked")
+		public G instantiate() throws ScriptParsingException {
 			try {
 				Class<?> clazz = this.compile();
-				Class<?>[] parameterTypes = new Class<?>[this.inputs.size()];
+				Class<?>[] parameterTypes = new Class<?>[this.gridInputs.size()];
 				Arrays.fill(parameterTypes, this.gridTypeInfo.gridClass);
 				Constructor<?> constructor = clazz.getDeclaredConstructor(parameterTypes);
-				Object[] arguments = new Object[this.inputs.size()];
-				for (Input input : this.inputs.values()) {
+				Object[] arguments = new Object[this.gridInputs.size()];
+				for (Input input : this.gridInputs.values()) {
 					arguments[input.index] = input.grid;
 				}
-				return (Grid)(constructor.newInstance(arguments));
+				return (G)(constructor.newInstance(arguments));
 			}
 			catch (Throwable throwable) {
 				throw new ScriptParsingException(this.fatalError().toString(), throwable, null);
@@ -243,7 +254,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		}
 
 		public void addConstructor() {
-			for (Input input : this.inputs.values()) {
+			for (Input input : this.gridInputs.values()) {
 				this.clazz.node.fields.add(input.fieldNode());
 			}
 			this
@@ -252,14 +263,14 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 				ACC_PUBLIC,
 				"<init>",
 				TypeInfos.VOID,
-				repeat(this.gridTypeInfo.type, this.inputs.size())
+				repeat(this.gridTypeInfo.type, this.gridInputs.size())
 			)
 			.scopes
 			.withScope((MethodCompileContext constructor) -> {
 				VarInfo thisVar = constructor.addThis();
 				invokeInstance(load(thisVar), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
 				constructor.node.visitLabel(label());
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					VarInfo parameter = input.newGridParameter(constructor);
 					assert parameter.index == input.index + 1 : "Parameters out of order!";
 					new PutFieldInsnTree(
@@ -292,7 +303,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 				for (int dimension = 0; dimension < dimensions; dimension++) {
 					load(coordinates[dimension]).emitBytecode(getValue);
 				}
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeInstance(
 						getField(
 							load(thisVar),
@@ -313,7 +324,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					)
 					.emitBytecode(getValue);
 				}
-				getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.inputs.size()) + ")D", false);
+				getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
 				getValue.node.visitInsn(DRETURN);
 			});
 		}
@@ -325,11 +336,52 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			for (int dimension = 0; dimension < dimensions; dimension++) {
 				this.method.newParameter(coordName(dimension), TypeInfos.INT);
 			}
-			for (Input input : this.inputs.values()) {
+			for (Input input : this.gridInputs.values()) {
 				input.newDoubleParameter(this.method);
 			}
 			this.parseEntireInput().emitBytecode(this.method);
 			this.method.scopes.popScope();
+		}
+
+		@Override
+		public InsnTree parseEntireInput() throws ScriptParsingException {
+			for (Input input : this.gridInputs.values()) {
+				this.environment.mutable().addVariableConstant(input.name + "Min", input.grid.minValue());
+				this.environment.mutable().addVariableConstant(input.name + "Max", input.grid.maxValue());
+			}
+			if (this.usage.isTemplate()) {
+				ScriptedGridTemplateUsage<G> gridUsage = this.usage.getTemplate();
+				gridUsage.validateInputs(this.gridInputs.entrySet().stream().map(entry -> Map.entry(entry.getKey(), entry.getValue().<G>grid())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), message -> new ScriptParsingException(message.get(), null));
+				ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
+				for (RequiredInput input : gridUsage.actualTemplate.getRequiredInputs()) {
+					String inputSource = gridUsage.getProvidedInputs().get(input.name());
+					assert inputSource != null;
+					ClassCompileContext classCopy = new ClassCompileContext(this.clazz.node.access, this.clazz.info);
+					MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), this.method.info);
+					ExpressionParser parserCopy = new ExpressionParser(inputSource, classCopy, methodCopy);
+					parserCopy.environment.mutable(new MutableScriptEnvironment().addAll(this.environment.mutable()));
+					FunctionHandler handler = new FunctionHandler.Named("invalid", (parser, name, arguments) -> {
+						throw new ScriptParsingException(name + " is not allowed in script inputs", parser.input);
+					});
+					parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
+					TypeInfo type = parserCopy.environment.getType(this, input.type());
+					if (type == null) {
+						throw new ScriptParsingException("Unknown type: " + input.type(), null);
+					}
+					InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
+					VarInfo declaration = this.environment.user().newVariable(input.name(), type);
+					InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
+					this.environment.mutable()
+						.addVariable(input.name(), load(declaration))
+						.addVariable('$' + input.name(), inputTree);
+					initializers.add(initializer);
+				}
+				initializers.add(super.parseEntireInput());
+				return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
+			}
+			else {
+				return super.parseEntireInput();
+			}
 		}
 
 		public void addSource() {

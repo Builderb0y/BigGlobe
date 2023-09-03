@@ -35,7 +35,7 @@ public class ScriptUsage<T extends ScriptTemplateUsage> {
 	}
 
 	public String findSource() {
-		return this.script != null ? this.script : this.template.getEntry().value().getSource();
+		return this.isScript() ? this.getScript() : this.getTemplate().getEntry().value().getSource();
 	}
 
 	public boolean isScript() {

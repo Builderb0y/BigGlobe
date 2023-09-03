@@ -8,6 +8,7 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -17,6 +18,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -27,8 +29,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 	public final transient Grid3D delegate;
 
-	public ScriptedGrid3D(String script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
-		super(inputs, min, max);
+	public ScriptedGrid3D(ScriptUsage<ScriptedGridTemplateUsage<Grid3D>> script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
+		super(script, inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_3D_TYPE_INFO);
 		Parser parser = new Parser(script, processedInputs);
 		parser
@@ -75,7 +77,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		this.delegate.getBulkZ(seed, x, y, startZ, samples, sampleCount);
 	}
 
-	public static class Parser extends ScriptedGrid.Parser {
+	public static class Parser extends ScriptedGrid.Parser<Grid3D> {
 
 		@SuppressWarnings("MultipleVariablesInDeclaration")
 		public static final MethodInfo
@@ -84,21 +86,15 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 			GET_BULK_Z = MethodInfo.getMethod(Grid3D.class, "getBulkZ"),
 			GET_BULK[] = { GET_BULK_X, GET_BULK_Y, GET_BULK_Z };
 
-
-		public Parser(String input, LinkedHashMap<String, Input> inputs) {
-			super(input, inputs, GRID_3D_TYPE_INFO);
-		}
-
-		@Override
-		public Grid3D parse() throws ScriptParsingException {
-			return (Grid3D)(super.parse());
+		public Parser(ScriptUsage<ScriptedGridTemplateUsage<Grid3D>> usage, LinkedHashMap<String, Input> inputs) {
+			super(usage, inputs, GRID_3D_TYPE_INFO);
 		}
 
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
 			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulk) -> {
-				Input input = this.inputs.values().iterator().next();
+				Input input = this.gridInputs.values().iterator().next();
 				VarInfo thisVar     = getBulk.addThis();
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
@@ -149,7 +145,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'I', 'I', 'D', this.inputs.size())
+									types(WorldColumn.class, 'I', 'I', 'I', 'D', this.gridInputs.size())
 								),
 								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
@@ -180,8 +176,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
-				VarInfo[] scratches = new VarInfo[this.inputs.size()];
-				for (Input input : this.inputs.values()) {
+				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
+				for (Input input : this.gridInputs.values()) {
 					scratches[input.index] = getBulk.newVariable(input.name, type(double[].class));
 				}
 				//if (sampleCount <= 0) return;
@@ -193,7 +189,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//allocate scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
 						invokeStatic(
@@ -205,7 +201,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					getBulk.node.visitLabel(label());
 				}
 				//fill scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeInstance(
 						getField(
 							load(thisVar),
@@ -239,7 +235,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 									getBulk_.clazz.info,
 									"evaluate",
 									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'I', 'I', 'D', this.inputs.size())
+									types(WorldColumn.class, 'I', 'I', 'I', 'D', this.gridInputs.size())
 								),
 								Stream.concat(
 									Stream.of(
@@ -248,7 +244,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 										maybeAdd(this, y, index, 1, methodDimension),
 										maybeAdd(this, z, index, 2, methodDimension)
 									),
-									this.inputs.values().stream().map(input -> (
+									this.gridInputs.values().stream().map(input -> (
 										arrayLoad(
 											load(scratches[input.index]),
 											load(index)
@@ -262,7 +258,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					.emitBytecode(getBulk_);
 				});
 				//reclaim scratch arrays.
-				for (Input input : this.inputs.values()) {
+				for (Input input : this.gridInputs.values()) {
 					invokeStatic(
 						RECLAIM_SCRATCH_ARRAY,
 						load(scratches[input.index])

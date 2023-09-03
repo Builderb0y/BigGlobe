@@ -44,8 +44,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addSeed("worldSeed")
 			);
 			ColumnYRandomToDoubleScript actualScript = (
-				TemplateScriptParser
-				.createFrom(ColumnYRandomToDoubleScript.class, usage)
+				new TemplateScriptParser<>(ColumnYRandomToDoubleScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment.build())
 				.addEnvironment(RandomScriptEnvironment.create(

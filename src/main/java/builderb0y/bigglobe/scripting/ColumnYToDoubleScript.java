@@ -48,7 +48,7 @@ public interface ColumnYToDoubleScript extends Script {
 		}
 
 		public static Holder create(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			ScriptParser<ColumnYToDoubleScript> parser = TemplateScriptParser.createFrom(ColumnYToDoubleScript.class, usage);
+			ScriptParser<ColumnYToDoubleScript> parser = new TemplateScriptParser<>(ColumnYToDoubleScript.class, usage);
 			ColumnScriptEnvironmentBuilder builder = setupParser(parser);
 			ColumnYToDoubleScript actualScript = parser.parse();
 			return new Holder(actualScript, usage, builder.usedValues);

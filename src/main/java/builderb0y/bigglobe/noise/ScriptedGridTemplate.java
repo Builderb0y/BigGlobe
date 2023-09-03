@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.noise;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
@@ -41,13 +45,11 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 
 		public final RegistryEntry<ScriptTemplate> template;
 		public final transient ScriptedGridTemplate actualTemplate;
-		public final Map<String, String> script_inputs;
-		public final Map<String, G> grid_inputs;
+		public final @DefaultEmpty Map<String, String> inputs;
 
 		public ScriptedGridTemplateUsage(
 			RegistryEntry<ScriptTemplate> template,
-			Map<String, String> script_inputs,
-			Map<String, G> grid_inputs
+			Map<String, String> inputs
 		) {
 			if (template.value() instanceof ScriptedGridTemplate actualTemplate) {
 				this.actualTemplate = actualTemplate;
@@ -56,8 +58,7 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 				throw new IllegalStateException("Referenced template must be of type bigglobe:grid");
 			}
 			this.template = template;
-			this.script_inputs = script_inputs;
-			this.grid_inputs = grid_inputs;
+			this.inputs = inputs;
 		}
 
 		@Override
@@ -67,7 +68,22 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 
 		@Override
 		public Map<String, String> getProvidedInputs() {
-			return this.script_inputs;
+			return this.inputs;
+		}
+
+		public <X extends Throwable> void validateInputs(Map<String, G> providedGridInputs, Function<Supplier<String>, X> exceptionFactory) throws X {
+			ScriptTemplateUsage.super.validateInputs(exceptionFactory);
+			List<GridInput> gridInputs = this.actualTemplate.grid_inputs;
+			Set<String> expected = new HashSet<>(gridInputs.size());
+			for (GridInput gridInput : gridInputs) {
+				if (!expected.add(gridInput.name())) {
+					throw exceptionFactory.apply(() -> "Duplicate input: " + gridInput.name());
+				}
+			}
+			Set<String> actual = providedGridInputs.keySet();
+			if (!expected.equals(actual)) {
+				throw exceptionFactory.apply(() -> "Input mismatch: Expected " + expected + ", got " + actual);
+			}
 		}
 	}
 }

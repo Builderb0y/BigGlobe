@@ -3,15 +3,14 @@
 	"depth": 512,
 	"noise": {
 		"type": "script",
-		"script": [
-			"double curve(double layer1, double layer2, double width:",
-				"double lengthSquared = layer1 ^ 2 + layer2 ^ 2",
-				"return(lengthSquared / (lengthSquared + width ^ 2))",
-			")",
-			"double primaryWidth = mixLinear(48.0L, 8.0L, unmixLinear(max_y - 512.0L, max_y, y))",
-			"double secondaryWidth = 8.0L",
-			"return(curve(primary1, primary2, primaryWidth) * curve(secondary1, secondary2, secondaryWidth))"
-		],
+		"script": {
+			"template": "bigglobe:grids/overworld_cave",
+			"inputs": {
+				"lower_primary_width": "48.0L",
+				"upper_primary_width": "8.0L",
+				"secondary_width": "8.0L"
+			}
+		},
 		"min": 0.0,
 		"max": 1.0,
 		"inputs": {

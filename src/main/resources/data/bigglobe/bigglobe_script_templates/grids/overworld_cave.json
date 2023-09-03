@@ -1,0 +1,22 @@
+{
+	"type": "bigglobe:grid",
+	"script": [
+		"double curve(double layer1, double layer2, double width:",
+			"double lengthSquared = layer1 ^ 2 + layer2 ^ 2",
+			"return(lengthSquared / (lengthSquared + width ^ 2))",
+		")",
+		"double primaryWidth = mixLinear(lower_primary_width, upper_primary_width, unmixLinear(max_y - 512.0L, max_y, y))",
+		"return(curve(primary1, primary2, primaryWidth) * curve(secondary1, secondary2, secondary_width))"
+	],
+	"script_inputs": [
+		{ "name": "lower_primary_width", "type": "double" },
+		{ "name": "upper_primary_width", "type": "double" },
+		{ "name": "secondary_width",     "type": "double" }
+	],
+	"grid_inputs": [
+		{ "name": "primary1" },
+		{ "name": "primary2" },
+		{ "name": "secondary1" },
+		{ "name": "secondary2" }
+	]
+}

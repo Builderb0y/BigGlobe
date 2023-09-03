@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:grid",
+	"script": [
+		"1.0L / (exp(-4.0L * base) + 1.0L)"
+	],
+	"grid_inputs": [
+		{ "name": "base" }
+	]
+}
