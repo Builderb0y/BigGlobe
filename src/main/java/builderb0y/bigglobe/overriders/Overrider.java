@@ -23,10 +23,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.ReflectionData;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -110,8 +108,9 @@ public interface Overrider extends Script {
 
 	public static class Holder<T_Overrider extends Overrider> extends ScriptHolder<T_Overrider> implements Overrider {
 
-		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser) throws ScriptParsingException {
 			super(
+				usage,
 				parser
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(JavaUtilScriptEnvironment.ALL)

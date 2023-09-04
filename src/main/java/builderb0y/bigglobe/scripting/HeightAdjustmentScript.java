@@ -3,9 +3,8 @@ package builderb0y.bigglobe.scripting;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 public interface HeightAdjustmentScript extends Script {
@@ -14,8 +13,8 @@ public interface HeightAdjustmentScript extends Script {
 
 	public static class Holder extends ScriptHolder<HeightAdjustmentScript> implements HeightAdjustmentScript {
 
-		public Holder(HeightAdjustmentScript script) {
-			super(script);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, HeightAdjustmentScript script) {
+			super(usage, script);
 		}
 
 		@Override
@@ -33,9 +32,10 @@ public interface HeightAdjustmentScript extends Script {
 	@Wrapper
 	public static class TemperatureHolder extends Holder {
 
-		public TemperatureHolder(String script) throws ScriptParsingException {
+		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(HeightAdjustmentScript.class, script)
+				usage,
+				new TemplateScriptParser<>(HeightAdjustmentScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()
@@ -55,9 +55,10 @@ public interface HeightAdjustmentScript extends Script {
 	@Wrapper
 	public static class FoliageHolder extends Holder {
 
-		public FoliageHolder(String script) throws ScriptParsingException {
+		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(HeightAdjustmentScript.class, script)
+				usage,
+				new TemplateScriptParser<>(HeightAdjustmentScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()

@@ -203,10 +203,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					type(RandomGenerator.class)
 				);
 
-			public final ScriptUsage<GenericScriptTemplateUsage> usage;
-
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 				super(
+					usage,
 					new TemplateScriptParser<>(FeatureScript.class, usage)
 					.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -247,7 +246,6 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 					.parse()
 				);
-				this.usage = usage;
 			}
 
 			@Override

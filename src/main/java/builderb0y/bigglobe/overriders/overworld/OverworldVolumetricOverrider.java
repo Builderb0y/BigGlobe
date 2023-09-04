@@ -8,8 +8,10 @@ import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -78,9 +80,10 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<OverworldVolumetricOverrider> implements OverworldVolumetricOverrider {
 
-		public Holder(String script) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldVolumetricOverrider.class, script)
+				usage,
+				new TemplateScriptParser<>(OverworldVolumetricOverrider.class, usage)
 				.addEnvironment(EXCLUDE_SURFACE_ENVIRONMENT),
 				OverworldVolumetricOverrider.Context.class
 			);

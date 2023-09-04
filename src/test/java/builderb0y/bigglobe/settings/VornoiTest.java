@@ -111,7 +111,7 @@ public class VornoiTest {
 			}
 			else {
 				VoronoiDiagram2D.Cell cell = this.frame.diagram.getNearestCell(realX, realY);
-				int brightness = MathHelper.floor(cell.progressToEdgeF(realX, realY) * 255.0F + 0.5F);
+				int brightness = MathHelper.floor(cell.progressToEdgeD(realX, realY) * 255.0D + 0.5D);
 				if (cell.center.cellEquals(this.clickedCell.center)) {
 					color = brightness << 16;
 				}

@@ -18,7 +18,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	template support for the rest of the script types.
 
 changelog:
 	* Fixed ocean monuments being too reluctant to spawn.
@@ -27,7 +26,7 @@ changelog:
 		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
 		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
 	* Scripting changes:
-		* Added template support for several common script functions.
+		* All json scripts can now use templates.
 		* More consistent order of operations for prefix operators.
 		* print() now outputs to in-game chat in singleplayer.
 		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
@@ -72,12 +71,9 @@ scripting:
 		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
 	allow for (int index, T element in list:
-	template support for scripted noise.
-		use this to apply edge, floor, and ceiling bias in the nether.
 
 features:
 	general:
-		range checks for random sources.
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
@@ -151,7 +147,9 @@ features:
 			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
 			add "center" noise?
 		make lilypads renewable?
-		sandstone small house variant.
+		sandstone house variants?
+			generify WoodPalette into BlockPalette?
+				with "type": "wood" or "type": "generic"?
 		more decorations for surface mineshafts?
 	nether:
 	end:
@@ -174,47 +172,3 @@ porting:
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
-
-back-porting from 1.20 to 1.19.4:
-	re-enable lighting update suppression in BlockQueue.
-	re-enable lighting in SectionGenerationContext.
-	re-enable lighting in BigGlobeChunkGenerator.generateSectionsParallel().
-	@VerifyNormal needs to verify that the block does not emit light.
-	SpelunkingRopeBlock block needs to override getPistonBehavior() to return DESTROY.
-	RopeAnchorBlock needs to override getPistonBehavior() to return BLOCK.
-	SurfaceMaterialDecorationBlock needs to override getPistonBehavior() to return DESTROY.
-	loot tables for wart_weed and charred_leaves need to use "condition": "alternative" instead of "any_of".
-	CactusBlock_AllowPlacementOnOvergrownSand needs to be re-enabled.
-	remove replaceable_plants block tag.
-	use Material.PLANT in BlockStateVersions instead.
-	remove hanging signs and cherry stuff.
-		remove hanging signs in WoodPalette.
-		list of places where hanging signs appear:
-			assets/bigglobe/textures/entity/signs/hanging/
-			data/bigglobe/bigglobe_wood_palettes/charred.json
-			data/minecraft/bigglobe_wood_palettes/*
-			data/bigglobe/recipes/charred_hanging_sign.json
-			data/bigglobe/loot_tables/blocks/charred_hanging_sign.json
-		list of places where cherry trees appear:
-			honestly just double-shift search for "cherry".
-	remove references to trail ruins:
-		data/bigglobe/worldgen/configured_feature/overworld/overriders/structures/trail_ruins.json
-		data/bigglobe/worldgen/configured_feature/overworld/overriders/caves/trail_ruins.json
-		data/minecraft/tags/worldgen/biome/has_structure/trail_ruins.json
-	remove immersive portals mixin until immersive portals back-ports to 1.19.4.
-	remove sodium 0.5.0 mixin until sodium back-ports to 1.19.4.
-	revert minecraft version dependency in fabric.mod.json.
-
-back-porting from 1.19.4 to 1.19.2:
-	remove BiomeDownfallAccessor.
-	remove BigGlobeGameRules.SOUL_LAVA_CONVERSION.
-	re-add DynamicRegistryManager_AddBigGlobeInfos.
-	re-add call to BigGlobeDynamicRegistries.addBuiltin() in mod initializer.
-	re-add structureSetRegistry pseudo-field to BigGlobeChunkGenerator.
-		include getter.
-	revert biomes to re-add precipitation field.
-	ensure ball of string adds correct NBT variants to creative menu.
-		and doesn't add itself to the wrong tabs.
-	fix WorldPresets_MakeBigGlobeTheDefaultWorldType2.
-	make sure BetterHardCodedRegistry.getOrCreateEntry() calls the correct method.
-	revert minecraft version dependency in fabric.mod.json.

@@ -14,9 +14,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -57,8 +56,9 @@ public interface FlatOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends FlatOverrider> extends Overrider.Holder<T_Overrider> implements FlatOverrider {
 
-		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser) throws ScriptParsingException {
 			super(
+				usage,
 				parser
 				.addEnvironment(STRUCTURE_STARTS_ENVIRONMENT)
 				.addEnvironment(

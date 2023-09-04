@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.tree.MethodNode;
 
@@ -13,6 +14,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
 import builderb0y.scripting.util.ArrayBuilder;
@@ -26,6 +28,16 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 	public TemplateScriptParser(Class<I> implementingClass, ScriptUsage<GenericScriptTemplateUsage> usage) {
 		super(implementingClass, usage.findSource());
 		this.usage = usage;
+	}
+
+	@Override
+	public TemplateScriptParser<I> addEnvironment(ScriptEnvironment environment) {
+		return (TemplateScriptParser<I>)(super.addEnvironment(environment));
+	}
+
+	@Override
+	public TemplateScriptParser<I> configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
+		return (TemplateScriptParser<I>)(super.configureEnvironment(configurator));
 	}
 
 	@Override

@@ -49,10 +49,9 @@ public interface StructurePlacementScript extends Script {
 				type(RandomGenerator.class)
 			);
 
-		public final ScriptUsage<GenericScriptTemplateUsage> usage;
-
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
+				usage,
 				new TemplateScriptParser<>(StructurePlacementScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -87,7 +86,6 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD))
 				.parse()
 			);
-			this.usage = usage;
 		}
 
 		@Override

@@ -11,9 +11,8 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -25,9 +24,10 @@ public interface ScriptedBranchShape extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ScriptedBranchShape> implements ScriptedBranchShape {
 
-		public Holder(String script) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(ScriptedBranchShape.class, script)
+				usage,
+				new TemplateScriptParser<>(ScriptedBranchShape.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()

@@ -4,8 +4,10 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface EndVolumetricOverrider extends VolumetricOverrider {
 
@@ -85,8 +87,12 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<EndVolumetricOverrider> implements EndVolumetricOverrider {
 
-		public Holder(String script) throws ScriptParsingException {
-			super(new ScriptParser<>(EndVolumetricOverrider.class, script), EndVolumetricOverrider.Context.class);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
+			super(
+				usage,
+				new TemplateScriptParser<>(EndVolumetricOverrider.class, usage),
+				EndVolumetricOverrider.Context.class
+			);
 		}
 
 		@Override

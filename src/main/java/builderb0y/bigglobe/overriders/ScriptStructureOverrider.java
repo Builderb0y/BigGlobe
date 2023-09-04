@@ -13,8 +13,10 @@ import builderb0y.bigglobe.scripting.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -42,9 +44,10 @@ public interface ScriptStructureOverrider extends Overrider {
 	@Wrapper
 	public static class Holder extends Overrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
-		public Holder(String script) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(ScriptStructureOverrider.class, script)
+				usage,
+				new TemplateScriptParser<>(ScriptStructureOverrider.class, usage)
 				.addEnvironment(START_MOVE_DH_ENVIRONMENT)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(

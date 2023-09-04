@@ -19,12 +19,10 @@ public interface ColumnYToDoubleScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
-		public final ScriptUsage<GenericScriptTemplateUsage> usage;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(ColumnYToDoubleScript script, ScriptUsage<GenericScriptTemplateUsage> usage, Set<ColumnValue<?>> usedValues) {
-			super(script);
-			this.usage = usage;
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnYToDoubleScript script, Set<ColumnValue<?>> usedValues) {
+			super(usage, script);
 			this.usedValues = usedValues;
 		}
 
@@ -51,7 +49,7 @@ public interface ColumnYToDoubleScript extends Script {
 			ScriptParser<ColumnYToDoubleScript> parser = new TemplateScriptParser<>(ColumnYToDoubleScript.class, usage);
 			ColumnScriptEnvironmentBuilder builder = setupParser(parser);
 			ColumnYToDoubleScript actualScript = parser.parse();
-			return new Holder(actualScript, usage, builder.usedValues);
+			return new Holder(usage, actualScript, builder.usedValues);
 		}
 
 		@Override

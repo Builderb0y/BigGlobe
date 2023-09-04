@@ -11,17 +11,20 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnPredicate;
+import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
+import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class LocateAreaLazyScript implements ColumnPredicate {
 
-	public @Nullable ColumnPredicate.Parser parser;
+	public @Nullable ScriptParser<ColumnPredicate> parser;
 	public Set<ColumnValue<?>> usedValues;
 	public @Nullable ColumnPredicate script;
 
 	public LocateAreaLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ColumnPredicate.Parser(script);
+		this.parser = new ScriptParser<>(ColumnPredicate.class, script);
+		ColumnScriptEnvironmentBuilder builder = ColumnPredicate.Holder.setupParser(this.parser);
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
 		keywords.remove("class");
 		keywords.remove("while");
@@ -33,7 +36,7 @@ public class LocateAreaLazyScript implements ColumnPredicate {
 		keywords.remove("break");
 		keywords.remove("continue");
 		this.parser.toBytecode();
-		this.usedValues = this.parser.builder.usedValues;
+		this.usedValues = builder.usedValues;
 	}
 
 	public ColumnPredicate getScript() {

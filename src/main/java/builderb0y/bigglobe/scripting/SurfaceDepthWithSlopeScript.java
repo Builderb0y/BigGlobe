@@ -7,9 +7,8 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -21,9 +20,10 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceDepthWithSlopeScript> implements SurfaceDepthWithSlopeScript {
 
-		public Holder(String script) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(SurfaceDepthWithSlopeScript.class, script)
+				usage,
+				new TemplateScriptParser<>(SurfaceDepthWithSlopeScript.class, usage)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXYZ(
 						ColumnValue.REGISTRY,

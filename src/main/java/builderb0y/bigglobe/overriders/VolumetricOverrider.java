@@ -16,8 +16,10 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -247,8 +249,9 @@ public interface VolumetricOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends Overrider.Holder<T_Overrider> implements VolumetricOverrider {
 
-		public Holder(ScriptParser<T_Overrider> parser, Class<? extends Context> contextClass) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser, Class<? extends Context> contextClass) throws ScriptParsingException {
 			super(
+				usage,
 				parser
 				.addEnvironment(STRUCTURE_START_EXCLUDE_ENVIRONMENT)
 				.addEnvironment(

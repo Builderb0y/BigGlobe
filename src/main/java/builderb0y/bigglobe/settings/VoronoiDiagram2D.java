@@ -563,28 +563,21 @@ public class VoronoiDiagram2D {
 			return Math.sqrt(this.progressToEdgeSquaredD(blockX, blockZ));
 		}
 
-		public float progressToEdgeSquaredF(int blockX, int blockZ) {
+		public double hardProgressToEdgeD(int blockX, int blockZ) {
 			try {
-				float distance = 1.0F;
-				for (SeedPoint adjacent : this.adjacent) {
-					float progress = this.center.progressToF(adjacent, blockX, blockZ);
-					if (progress > 0.0F) {
-						progress *= 2.0F;
-						if (progress > 1.0F) {
-							throw new IllegalArgumentException("Position not inside cell");
-						}
-						distance *= 1.0F - progress * progress;
+				double distance = 0.0D;
+				for (AdjacentSeedPoint adjacent : this.adjacent) {
+					double progress = this.center.progressToD(adjacent, blockX, blockZ);
+					if (progress > 0.5D) {
+						throw new IllegalArgumentException("Position not inside cell");
 					}
+					distance = Math.max(distance, progress);
 				}
-				return 1.0F - distance;
+				return distance * 2.0D;
 			}
 			catch (Throwable throwable) {
 				throw this.handleError(throwable, blockX, blockZ);
 			}
-		}
-
-		public float progressToEdgeF(int blockX, int blockZ) {
-			return MathHelper.sqrt(this.progressToEdgeSquaredF(blockX, blockZ));
 		}
 
 		@Override

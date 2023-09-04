@@ -23,12 +23,10 @@ public interface ColumnYRandomToDoubleScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYRandomToDoubleScript> implements ColumnYRandomToDoubleScript {
 
-		public final ScriptUsage<GenericScriptTemplateUsage> usage;
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(ColumnYRandomToDoubleScript script, ScriptUsage<GenericScriptTemplateUsage> usage, Set<ColumnValue<?>> usedValues) {
-			super(script);
-			this.usage = usage;
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnYRandomToDoubleScript script, Set<ColumnValue<?>> usedValues) {
+			super(usage, script);
 			this.usedValues = usedValues;
 		}
 
@@ -53,7 +51,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()
 			);
-			return new Holder(actualScript, usage, columnYScriptEnvironment.usedValues);
+			return new Holder(usage, actualScript, columnYScriptEnvironment.usedValues);
 		}
 
 		@Override

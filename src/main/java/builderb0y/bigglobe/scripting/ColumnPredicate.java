@@ -6,9 +6,8 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -16,37 +15,35 @@ public interface ColumnPredicate extends Script {
 
 	public abstract boolean test(WorldColumn column);
 
-	public static class Parser extends ScriptParser<ColumnPredicate> {
-
-		public final ColumnScriptEnvironmentBuilder builder;
-
-		public Parser(String input) {
-			super(ColumnPredicate.class, input);
-			this.builder = (
-				ColumnScriptEnvironmentBuilder
-				.createFixedXZVariableY(ColumnValue.REGISTRY, load("column", 1, type(WorldColumn.class)), null)
-				.trackUsedValues()
-				.addXZ("x", "z")
-			);
-			this
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(this.builder.build());
-		}
-	}
-
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnPredicate> implements ColumnPredicate {
 
 		public final transient Set<ColumnValue<?>> usedValues;
 
-		public Holder(ColumnPredicate predicate, Set<ColumnValue<?>> usedValues) {
-			super(predicate);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnPredicate predicate, Set<ColumnValue<?>> usedValues) {
+			super(usage, predicate);
 			this.usedValues = usedValues;
 		}
 
-		public static Holder create(String script) throws ScriptParsingException {
-			Parser parser = new Parser(script);
-			return new Holder(parser.parse(), parser.builder.usedValues);
+		public static ColumnScriptEnvironmentBuilder setupParser(ScriptParser<ColumnPredicate> parser) {
+			ColumnScriptEnvironmentBuilder builder = (
+				ColumnScriptEnvironmentBuilder
+				.createFixedXZVariableY(ColumnValue.REGISTRY, load("column", 1, type(WorldColumn.class)), null)
+				.trackUsedValues()
+				.addXZ("x", "z")
+			);
+			parser
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(builder.build());
+			return builder;
+		}
+
+		public static Holder create(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
+			TemplateScriptParser<ColumnPredicate> parser = (
+				new TemplateScriptParser<>(ColumnPredicate.class, usage)
+			);
+			ColumnScriptEnvironmentBuilder builder = setupParser(parser);
+			return new Holder(usage, parser.parse(), builder.usedValues);
 		}
 
 		@Override

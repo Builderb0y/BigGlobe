@@ -4,8 +4,10 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 
@@ -34,9 +36,10 @@ public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldHeightOverrider> implements OverworldHeightOverrider {
 
-		public Holder(String script) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
-				new ScriptParser<>(OverworldHeightOverrider.class, script)
+				usage,
+				new TemplateScriptParser<>(OverworldHeightOverrider.class, usage)
 				.addEnvironment(Y_LEVELS_ENVIRONMENT)
 			);
 		}

@@ -44,10 +44,9 @@ public interface StructureLayoutScript extends Script {
 
 		public static final InsnTree LOAD_RANDOM = load("random", 3, type(RandomGenerator.class));
 
-		public final ScriptUsage<GenericScriptTemplateUsage> usage;
-
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
+				usage,
 				new TemplateScriptParser<>(StructureLayoutScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -104,7 +103,6 @@ public interface StructureLayoutScript extends Script {
 				)
 				.parse()
 			);
-			this.usage = usage;
 		}
 
 		@Override

@@ -3,19 +3,22 @@ package builderb0y.bigglobe.scripting;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
-import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.MultiLine;
+import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.logging.AbstractTaskLogger;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptUsage;
 
-@AddPseudoField(name = "script", getter = "getSource")
 public class ScriptHolder<S extends Script> implements Script {
 
+	public final @UseName("script") ScriptUsage<GenericScriptTemplateUsage> usage;
 	public final transient S script;
 	public transient long nextWarning = Long.MIN_VALUE;
 
-	public ScriptHolder(S script) {
+	public ScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage, S script) {
+		this.usage = usage;
 		this.script = script;
 	}
 

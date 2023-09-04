@@ -4,8 +4,10 @@ import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
-import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface OverworldFlatOverrider extends FlatOverrider {
 
@@ -19,8 +21,8 @@ public interface OverworldFlatOverrider extends FlatOverrider {
 
 	public static class Holder<T_Overrider extends OverworldFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements OverworldFlatOverrider {
 
-		public Holder(ScriptParser<T_Overrider> parser) throws ScriptParsingException {
-			super(parser);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser) throws ScriptParsingException {
+			super(usage, parser);
 		}
 
 		@Override
