@@ -17,7 +17,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplateManager;
@@ -60,7 +59,6 @@ import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.*;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.LinkedFlowerConfig;
@@ -81,6 +79,7 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.BiomeLayout.PrimarySurface;
 import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
+import builderb0y.bigglobe.settings.OverworldSettings.OverworldGlacierSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
@@ -92,6 +91,9 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION > MC_1_19_2
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+#else
+import net.minecraft.structure.StructureSet;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 #endif
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -117,8 +119,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public final transient SortedFeatureTag
 		surfaceDecorators,
-		bedrockDecorators,
-		seaLevelDecorators;
+		glacierDecorators,
+		seaLevelDecorators,
+		bedrockDecorators;
 
 	public BigGlobeOverworldChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
@@ -157,6 +160,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 		this.  surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
 		this.  bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
+		this.  glacierDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_GLACIER_DECORATORS);
 		this. seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
 	}
 
@@ -191,6 +195,11 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.getTemperature();
 				column.getFoliage();
 				this.runFoliageOverrides(column, structures);
+
+				column.getGlacierHeightD();
+				column.getGlacierCell();
+				column.getGlacierCrackFraction();
+				column.getGlacierCrackThreshold();
 
 				if (!columns.isForBiomes() && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 					column.getCaveCell();
@@ -416,6 +425,45 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				return height;
 			}
 		});
+	}
+
+	public void generateGlaciers(Chunk chunk, ChunkOfColumns<OverworldColumn> columns) {
+		OverworldGlacierSettings glaciers = this.settings.glaciers;
+		if (glaciers != null) {
+			BlockPos.Mutable pos = new BlockPos.Mutable();
+			int seaLevel = this.settings.height.sea_level();
+			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+				OverworldColumn column = columns.getColumn(horizontalIndex);
+				if (column.getFinalTopHeightI() < seaLevel) {
+					double threshold = column.getGlacierCrackThreshold();
+					if (
+						threshold > 0.0D && (
+							threshold >= 1.0D || (
+								column.getGlacierCrackFraction() <= threshold
+							)
+						)
+					) {
+						long columnSeed = Permuter.permute(this.seed ^ 0xAB6ACB182D123E6DL, column.x, column.z);
+						pos.setX(column.x).setZ(column.z);
+						double topD = column.getGlacierHeightD();
+						int topI = column.getGlacierHeightI();
+						int bottom = Math.max(topI - glaciers.states().length, column.getFinalTopHeightI());
+						for (int y = topI; --y >= bottom;) {
+							long ySeed = Permuter.permute(columnSeed, y);
+							chunk.setBlockState(
+								pos.setY(y),
+								glaciers.states()[topI - y - 1].getRandomElement(ySeed),
+								false
+							);
+						}
+						int layers = (int)(BigGlobeMath.modulus_BP(topD, 1.0D) * 8.0D);
+						if (layers != 0 && topI >= seaLevel) {
+							chunk.setBlockState(pos.setY(topI), BlockStates.SNOW.with(SnowBlock.LAYERS, layers), false);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void generateCavernFluids(Chunk chunk, ChunkOfColumns<OverworldColumn> columns) {
@@ -729,6 +777,9 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		this.profiler.run("Init heightmaps", () -> {
 			this.updatePostRawGenerationHeightmaps(chunk, columns, distantHorizons);
 		});
+		this.profiler.run("Glaciers", () -> {
+			this.generateGlaciers(chunk, columns);
+		});
 		if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground)) {
 			this.profiler.run("Cavern fluids", () -> {
 				this.generateCavernFluids(chunk, columns);
@@ -793,6 +844,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					this.runDecorators(world, pos, mojang, this.surfaceDecorators, column.getFinalTopHeightI());
 					if (column.getFinalTopHeightI() < this.getSeaLevel()) {
 						this.runDecorators(world, pos, mojang, this.seaLevelDecorators, this.getSeaLevel());
+					}
+					double fraction = column.getGlacierCrackFraction();
+					if (fraction > 0.0D && (fraction >= 1.0D || column.getGlacierCrackThreshold() <= fraction)) {
+						this.runDecorators(world, pos, mojang, this.glacierDecorators, column.getGlacierHeightI());
 					}
 
 					SkylandCell skylandCell = column.getSkylandCell();

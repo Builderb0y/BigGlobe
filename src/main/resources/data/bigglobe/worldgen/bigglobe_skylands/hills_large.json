@@ -23,11 +23,12 @@
 		]
 	},
 	"max_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0L || `overworld/temperature` <= -0.25L: return(nan))",
 
-		"double cellBias   = `overworld/skyland_edginess_squared`",
-		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
-		"double bias2      = cellBias + heightBias",
+		"double cellBias        = `overworld/skyland_edginess_squared`",
+		"double heightBias      = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"double temperatureBias = max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
+		"double bias2           = cellBias + heightBias + temperatureBias",
 		"if (bias2 >= 1.0: return(nan))",
 
 		"double thickness  = `overworld/skyland_thickness`",
@@ -37,17 +38,18 @@
 		"double center     = `overworld/skyland_center`",
 		";make half of the terrain reversed in Y level from the other half, for variety.",
 		"if (thickness < 0.0:",
-		"center = `overworld/skyland_average_center` * 2 - center",
+			"center = `overworld/skyland_average_center` * 2 - center",
 		")",
 
 		"return(center + mountain * 128.0)"
 	],
 	"min_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0L || `overworld/temperature` <= -0.25L: return(nan))",
 
-		"double cellBias   = `overworld/skyland_edginess_squared`",
-		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
-		"double bias2      = cellBias + heightBias",
+		"double cellBias        = `overworld/skyland_edginess_squared`",
+		"double heightBias      = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"double temperatureBias = max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
+		"double bias2           = cellBias + heightBias + temperatureBias",
 		"if (bias2 >= 1.0: return(nan))",
 
 		"double thickness  = `overworld/skyland_thickness`",
@@ -57,7 +59,7 @@
 		"double center     = `overworld/skyland_center`",
 		";make half of the terrain reversed in Y level from the other half, for variety.",
 		"if (thickness < 0.0:",
-		"center = `overworld/skyland_average_center` * 2 - center",
+			"center = `overworld/skyland_average_center` * 2 - center",
 		")",
 
 		"return(center - dip * 32.0)"

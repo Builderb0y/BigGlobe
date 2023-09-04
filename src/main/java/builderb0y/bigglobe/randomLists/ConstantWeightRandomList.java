@@ -22,20 +22,22 @@ this class is intended to be a wrapper for another List.
 public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implements KnownTotalWeightRandomList<E> {
 
 	public final List<E> delegate;
+	public final double weight;
 
-	public ConstantWeightRandomList(List<E> delegate) {
+	public ConstantWeightRandomList(List<E> delegate, double weight) {
 		this.delegate = delegate;
+		this.weight = weight;
 	}
 
 	@Override
 	public double getWeight(int index) {
 		this.checkIndex(index);
-		return IRandomList.DEFAULT_WEIGHT;
+		return this.weight;
 	}
 
 	@Override
 	public double getTotalWeight() {
-		return this.size() * IRandomList.DEFAULT_WEIGHT;
+		return this.size() * this.weight;
 	}
 
 	@Override
@@ -114,13 +116,16 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 	}
 
 	@Override
-	public boolean equals(Object that) {
-		return that instanceof ConstantWeightRandomList<?> && this.delegate == ((ConstantWeightRandomList<?>)(that)).delegate;
+	public boolean equals(Object object) {
+		if (object instanceof ConstantWeightRandomList<?> that) {
+			return this.delegate.equals(that.delegate) && this.weight == that.weight;
+		}
+		return this.defaultEquals(object);
 	}
 
 	@Override
 	public IRandomList<E> subList(int fromIndex, int toIndex) {
-		return new ConstantWeightRandomList<>(this.delegate.subList(fromIndex, toIndex));
+		return new ConstantWeightRandomList<>(this.delegate.subList(fromIndex, toIndex), this.weight);
 	}
 
 	@Override
@@ -212,17 +217,17 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 
 	@Override
 	public WeightedIterator<E> iterator() {
-		return new WrappedIterator<>(this.delegate.iterator());
+		return new WrappedIterator<>(this.delegate.iterator(), this.weight);
 	}
 
 	@Override
 	public WeightedListIterator<E> listIterator() {
-		return new WrappedListIterator<>(this.delegate.listIterator());
+		return new WrappedListIterator<>(this.delegate.listIterator(), this.weight);
 	}
 
 	@Override
 	public WeightedListIterator<E> listIterator(int index) {
-		return new WrappedListIterator<>(this.delegate.listIterator(index));
+		return new WrappedListIterator<>(this.delegate.listIterator(index), this.weight);
 	}
 
 	@Override
@@ -244,14 +249,16 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 	public static class WrappedIterator<E> implements WeightedIterator<E> {
 
 		public final Iterator<E> delegate;
+		public final double weight;
 
-		public WrappedIterator(Iterator<E> delegate) {
+		public WrappedIterator(Iterator<E> delegate, double weight) {
 			this.delegate = delegate;
+			this.weight = weight;
 		}
 
 		@Override
 		public double getWeight() {
-			return IRandomList.DEFAULT_WEIGHT;
+			return this.weight;
 		}
 
 		@Override
@@ -278,14 +285,16 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 	public static class WrappedListIterator<E> implements WeightedListIterator<E> {
 
 		public final ListIterator<E> delegate;
+		public final double weight;
 
-		public WrappedListIterator(ListIterator<E> delegate) {
+		public WrappedListIterator(ListIterator<E> delegate, double weight) {
 			this.delegate = delegate;
+			this.weight = weight;
 		}
 
 		@Override
 		public double getWeight() {
-			return IRandomList.DEFAULT_WEIGHT;
+			return this.weight;
 		}
 
 		@Override
@@ -341,6 +350,13 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 		@Override
 		public void forEachRemaining(Consumer<? super E> action) {
 			this.delegate.forEachRemaining(action);
+		}
+	}
+
+	public static class RandomAccessConstantWeightRandomList<E> extends ConstantWeightRandomList<E> implements RandomAccessKnownTotalWeightRandomList<E> {
+
+		public RandomAccessConstantWeightRandomList(List<E> delegate, double weight) {
+			super(delegate, weight);
 		}
 	}
 }

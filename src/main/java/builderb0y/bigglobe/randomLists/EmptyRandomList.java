@@ -250,7 +250,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 	}
 
 	@Override
-	public IRandomList<E> optimizeSize() {
+	public IRandomList<E> optimize() {
 		return this;
 	}
 

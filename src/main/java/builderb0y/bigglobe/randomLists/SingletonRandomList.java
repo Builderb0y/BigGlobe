@@ -268,7 +268,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 	}
 
 	@Override
-	public IRandomList<E> optimizeSize() {
+	public IRandomList<E> optimize() {
 		return this;
 	}
 

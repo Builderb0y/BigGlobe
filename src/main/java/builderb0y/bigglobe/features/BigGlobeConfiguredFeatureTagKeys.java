@@ -11,6 +11,7 @@ public class BigGlobeConfiguredFeatureTagKeys {
 	public static final TagKey<ConfiguredFeature<?, ?>>
 		OVERWORLD_SURFACE_DECORATORS   = overworld("surface_decorators"),
 		OVERWORLD_SEA_LEVEL_DECORATORS = overworld("sea_level_decorators"),
+		OVERWORLD_GLACIER_DECORATORS   = overworld("glacier_decorators"),
 		OVERWORLD_BEDROCK_DECORATORS   = overworld("bedrock_decorators"),
 		END_BRIDGE_CLOUD_LOWER_CEILING =       end("bridge_cloud_lower_ceiling"),
 		END_BRIDGE_CLOUD_LOWER_FLOOR   =       end("bridge_cloud_lower_floor"),

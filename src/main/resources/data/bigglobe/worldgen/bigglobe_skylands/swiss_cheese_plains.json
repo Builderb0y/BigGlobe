@@ -25,10 +25,11 @@
 		"`overworld/skyland_center`"
 	],
 	"min_y": [
-		"if (max_y >= -64.0L: return(nan))",
+		"if (max_y >= -64.0L || `overworld/temperature` <= -0.25L: return(nan))",
 		"double result = `overworld/skyland_center` + `overworld/skyland_thickness`",
 		"double heightBias = max(unmixLinear(-128.0L, -64.0L, max_y), 0.0L) ^ 2",
-		"return(result + (heightBias + `overworld/skyland_edginess_squared`) * 44.0)"
+		"double temperatureBias = max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
+		"return(result + (heightBias + temperatureBias + `overworld/skyland_edginess_squared`) * 44.0)"
 	],
 	"surface": {
 		"primary": {

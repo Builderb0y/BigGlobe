@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -16,6 +17,7 @@ import builderb0y.bigglobe.settings.*;
 import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
 import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
 import builderb0y.bigglobe.settings.OverworldHeightSettings.OverworldCliffSettings;
+import builderb0y.bigglobe.settings.OverworldSettings.OverworldGlacierSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
 import builderb0y.bigglobe.structures.LakeStructure;
@@ -26,33 +28,37 @@ public class OverworldColumn extends WorldColumn {
 		HILLINESS                    = 1 << 0,
 		CLIFFINESS                   = 1 << 1,
 		RAW_EROSION_AND_SNOW         = 1 << 2,
-		POST_CLIFF_HEIGHT            = 1 << 3,
-		FINAL_HEIGHT                 = 1 << 4,
-		TEMPERATURE                  = 1 << 5,
-		FOLIAGE                      = 1 << 6,
-		SNOW_HEIGHT                  = 1 << 7,
-		SURFACE_BIOME                = 1 << 8,
+		FINAL_HEIGHT                 = 1 << 3,
+		TEMPERATURE                  = 1 << 4,
+		FOLIAGE                      = 1 << 5,
+		SNOW_HEIGHT                  = 1 << 6,
+		SURFACE_BIOME                = 1 << 7,
 
-		CAVE_CELL                    = 1 << 9,
-		CAVE_NOISE                   = 1 << 10,
-		CAVE_SURFACE_DEPTH           = 1 << 11,
-		CAVE_SYSTEM_EDGINESS         = 1 << 12,
-		CAVE_SYSTEM_EDGINESS_SQUARED = 1 << 13,
+		CAVE_CELL                    = 1 << 8,
+		CAVE_NOISE                   = 1 << 9,
+		CAVE_SURFACE_DEPTH           = 1 << 10,
+		CAVE_SYSTEM_EDGINESS         = 1 << 11,
+		CAVE_SYSTEM_EDGINESS_SQUARED = 1 << 12,
 
-		CAVERN_CELL                  = 1 << 14,
-		CAVERN_CENTER                = 1 << 15,
-		CAVERN_THICKNESS_SQUARED     = 1 << 16,
-		CAVERN_EDGINESS              = 1 << 17,
-		CAVERN_EDGINESS_SQUARED      = 1 << 18,
+		CAVERN_CELL                  = 1 << 13,
+		CAVERN_CENTER                = 1 << 14,
+		CAVERN_THICKNESS_SQUARED     = 1 << 15,
+		CAVERN_EDGINESS              = 1 << 16,
+		CAVERN_EDGINESS_SQUARED      = 1 << 17,
 
-		SKYLAND_CELL                 = 1 << 19,
-		SKYLAND_CENTER               = 1 << 20,
-		SKYLAND_THICKNESS            = 1 << 21,
-		SKYLAND_AUXILIARY_NOISE      = 1 << 22,
-		SKYLAND_EDGINESS_SQUARED     = 1 << 23,
-		SKYLAND_EDGINESS             = 1 << 24,
-		SKYLAND_MIN_Y                = 1 << 25,
-		SKYLAND_MAX_Y                = 1 << 26;
+		SKYLAND_CELL                 = 1 << 18,
+		SKYLAND_CENTER               = 1 << 19,
+		SKYLAND_THICKNESS            = 1 << 20,
+		SKYLAND_AUXILIARY_NOISE      = 1 << 21,
+		SKYLAND_EDGINESS_SQUARED     = 1 << 22,
+		SKYLAND_EDGINESS             = 1 << 23,
+		SKYLAND_MIN_Y                = 1 << 24,
+		SKYLAND_MAX_Y                = 1 << 25,
+
+		GLACIER_HEIGHT               = 1 << 26,
+		GLACIER_CRACK_CELL           = 1 << 27,
+		GLACIER_CRACK_FRACTION       = 1 << 28,
+		GLACIER_CRACK_THRESHOLD      = 1 << 29;
 
 	public final OverworldSettings settings;
 	public double
@@ -60,10 +66,14 @@ public class OverworldColumn extends WorldColumn {
 		cliffiness,
 		temperature,
 		foliage,
-		postCliffHeight,
 		finalHeight,
 		snowHeight,
 		snowChance;
+	public VoronoiDiagram2D.Cell glacierCell;
+	public double
+		glacierHeight,
+		glacierCrackFraction,
+		glacierCrackThreshold;
 	public final double[] rawErosionAndSnow = new double[2];
 	public CaveCell caveCell;
 	public double[] caveNoise;
@@ -181,14 +191,6 @@ public class OverworldColumn extends WorldColumn {
 		return this.getRawErosion() * this.getHilliness();
 	}
 
-	public double getPostCliffHeight() {
-		return (
-			this.setFlag(POST_CLIFF_HEIGHT)
-			? this.postCliffHeight = this.applyCliffs(this.getPreCliffHeight())
-			: this.postCliffHeight
-		);
-	}
-
 	public static double halfCliffCurve(double height, double coefficient) {
 		double product = coefficient * height;
 		return (product + height) / (product + 1.0D);
@@ -230,7 +232,7 @@ public class OverworldColumn extends WorldColumn {
 	public double getFinalTopHeightD() {
 		return (
 			this.setFlag(FINAL_HEIGHT)
-			? this.finalHeight = this.getPostCliffHeight()
+			? this.finalHeight = this.applyCliffs(this.getPreCliffHeight())
 			: this.finalHeight
 		);
 	}
@@ -277,6 +279,34 @@ public class OverworldColumn extends WorldColumn {
 
 	public double getSurfaceFoliage() {
 		return this.getHeightAdjustedFoliage(this.getFinalTopHeightD());
+	}
+
+	//////////////////////////////// glaciers ////////////////////////////////
+
+	public double getGlacierHeightD() {
+		return this.setFlag(GLACIER_HEIGHT) ? this.glacierHeight = this.getDouble(this.settings.glaciers, (self, glaciers) -> glaciers.height().getValue(self.seed, self.x, self.z)) : this.glacierHeight;
+	}
+
+	public int getGlacierHeightI() {
+		double height = this.getGlacierHeightD();
+		return Double.isNaN(height) ? Integer.MIN_VALUE : BigGlobeMath.ceilI(height);
+	}
+
+	public VoronoiDiagram2D.@Nullable Cell getGlacierCell() {
+		return this.setFlag(GLACIER_CRACK_CELL) ? this.computeGlcierCell() : this.glacierCell;
+	}
+
+	public VoronoiDiagram2D.@Nullable Cell computeGlcierCell() {
+		OverworldGlacierSettings glaciers = this.settings.glaciers;
+		return glaciers != null ? this.glacierCell = glaciers.cracks().getNearestCell(this.x, this.z, this.glacierCell) : null;
+	}
+
+	public double getGlacierCrackFraction() {
+		return this.setFlag(GLACIER_CRACK_FRACTION) ? this.glacierCrackFraction = this.getDouble(this.getGlacierCell(), (self, cell) -> cell.hardProgressToEdgeD(self.x, self.z)) : this.glacierCrackFraction;
+	}
+
+	public double getGlacierCrackThreshold() {
+		return this.setFlag(GLACIER_CRACK_THRESHOLD) ? this.glacierCrackThreshold = this.getDouble(this.settings.glaciers, (self, glaciers) -> glaciers.crack_threshold().evaluate(self, self.getSeaLevel())) : this.glacierCrackThreshold;
 	}
 
 	//////////////////////////////// caves ////////////////////////////////
@@ -502,14 +532,12 @@ public class OverworldColumn extends WorldColumn {
 	public double getCavernEdginessSquared() {
 		return (
 			this.setFlag(CAVERN_EDGINESS_SQUARED)
-			? this.cavernEdginessSquared = this.computeCavernEdginessSquared()
+			? this.cavernEdginessSquared = this.getDouble(
+				this.getCavernCell(),
+				(self, cell) -> cell.voronoiCell.progressToEdgeSquaredD(self.x, self.z)
+			)
 			: this.cavernEdginessSquared
 		);
-	}
-
-	public double computeCavernEdginessSquared() {
-		CavernCell cell = this.getCavernCell();
-		return cell == null ? Double.NaN : cell.voronoiCell.progressToEdgeSquaredD(this.x, this.z);
 	}
 
 	public double getCavernEdginess() {
@@ -528,15 +556,12 @@ public class OverworldColumn extends WorldColumn {
 	public double getCavernCenter() {
 		return (
 			this.setFlag(CAVERN_CENTER)
-			? this.cavernCenter = this.computeCavernCenter()
+			? this.cavernCenter = this.getDouble(
+				this.getCavernCell(),
+				(self, cell) -> cell.averageCenter + cell.settings.center.getValue(self.seed, self.x, self.z)
+			)
 			: this.cavernCenter
 		);
-	}
-
-	public double computeCavernCenter() {
-		CavernCell cell = this.getCavernCell();
-		if (cell == null) return Double.NaN;
-		return cell.averageCenter + cell.settings.center.getValue(this.seed, this.x, this.z);
 	}
 
 	public double getCavernThicknessSquared() {
@@ -641,27 +666,23 @@ public class OverworldColumn extends WorldColumn {
 	public double getSkylandCenter() {
 		return (
 			this.setFlag(SKYLAND_CENTER)
-			? this.skylandCenter = this.computeSkylandCenter()
+			? this.skylandCenter = this.getDouble(
+				this.getSkylandCell(),
+				(self, cell) -> cell.averageCenter + cell.settings.center.getValue(cell.voronoiCell.center.getSeed(self.seed), self.x, self.z)
+			)
 			: this.skylandCenter
 		);
-	}
-
-	public double computeSkylandCenter() {
-		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.averageCenter + cell.settings.center.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandThickness() {
 		return (
 			this.setFlag(SKYLAND_THICKNESS)
-			? this.skylandThickness = this.computeSkylandThickness()
+			? this.skylandThickness = this.getDouble(
+				this.getSkylandCell(),
+				(self, cell) -> cell.settings.thickness.getValue(cell.voronoiCell.center.getSeed(self.seed), self.x, self.z)
+			)
 			: this.skylandThickness
 		);
-	}
-
-	public double computeSkylandThickness() {
-		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.thickness.getValue(cell.voronoiCell.center.getSeed(this.seed), this.x, this.z);
 	}
 
 	public double getSkylandAuxiliaryNoise() {
@@ -683,14 +704,12 @@ public class OverworldColumn extends WorldColumn {
 	public double getSkylandEdginessSquared() {
 		return (
 			this.setFlag(SKYLAND_EDGINESS_SQUARED)
-			? this.skylandEdginessSquared = this.computeSkylandBiasSquared()
+			? this.skylandEdginessSquared = this.getDouble(
+				this.getSkylandCell(),
+				(self, cell) -> cell.voronoiCell.progressToEdgeSquaredD(self.x, self.z)
+			)
 			: this.skylandEdginessSquared
 		);
-	}
-
-	public double computeSkylandBiasSquared() {
-		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.voronoiCell.progressToEdgeSquaredD(this.x, this.z);
 	}
 
 	public double getSkylandEdginess() {
@@ -704,27 +723,23 @@ public class OverworldColumn extends WorldColumn {
 	public double getSkylandMinY() {
 		return (
 			this.setFlag(SKYLAND_MIN_Y)
-			? this.skylandMinY = this.computeSkylandMinY()
+			? this.skylandMinY = this.getDouble(
+				this.getSkylandCell(),
+				(self, cell) -> cell.settings.min_y.evaluate(self, cell.averageCenter)
+			)
 			: this.skylandMinY
 		);
-	}
-
-	public double computeSkylandMinY() {
-		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.min_y.evaluate(this, cell.averageCenter);
 	}
 
 	public double getSkylandMaxY() {
 		return (
 			this.setFlag(SKYLAND_MAX_Y)
-			? this.skylandMaxY = this.computeSkylandMaxY()
+			? this.skylandMaxY = this.getDouble(
+				this.getSkylandCell(),
+				(self, cell) -> cell.settings.max_y.evaluate(self, cell.averageCenter)
+			)
 			: this.skylandMaxY
 		);
-	}
-
-	public double computeSkylandMaxY() {
-		SkylandCell cell = this.getSkylandCell();
-		return cell == null ? Double.NaN : cell.settings.max_y.evaluate(this, cell.averageCenter);
 	}
 
 	public boolean hasSkyland() {
@@ -778,6 +793,16 @@ public class OverworldColumn extends WorldColumn {
 	@Override
 	public OverworldColumn blankCopy() {
 		return new OverworldColumn(this.settings, this.seed, this.x, this.z);
+	}
+
+	public <T> double getDouble(@Nullable T object, DoubleGetter<@NotNull T> getter) {
+		return object != null ? getter.get(this, object) : Double.NaN;
+	}
+
+	@FunctionalInterface
+	public static interface DoubleGetter<T> {
+
+		public abstract double get(OverworldColumn self, T object);
 	}
 
 	public static class CaveCell {

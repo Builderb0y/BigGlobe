@@ -22,6 +22,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
 
 /**
 a list which can return random elements via {@link #getRandomElement(RandomGenerator)}.
@@ -102,29 +103,55 @@ public interface IRandomList<E> extends List<E> {
 	public abstract IRandomList<E> subList(int fromIndex, int toIndex);
 
 	/**
-	returns an IRandomList which might be a specialized class
-	that holds exactly the number of elements this list contains.
-	the returned list cannot be assumed to change if
-	this list is modified after this method returns.
-	more generally, it's probably not a good idea to
-	modify this list after calling this method.
-	attempts to do so may result in undefined behavior or
-	inconsistent states, and generally be difficult to debug.
+	returns an IRandomList which contains the same elements and
+	weights as this IRandomList, but is possibly faster to query.
+	no guarantees are made about the properties of the returned
+	IRandomList. in particular, the returned IRandomList might
+	be immutable. it might also be independent from this list
+	such that changes to this list are NOT reflected in the
+	returned list and vise versa. more generally, it is not
+	recommended to modify this list or the returned list
+	while you still have a live reference to the other list.
+	if no better/faster-to-query representation of this list
+	is possible, this list is returned as-is.
 	*/
-	public default IRandomList<E> optimizeSize() {
+	public default IRandomList<E> optimize() {
 		return switch (this.size()) {
 			case 0 -> EmptyRandomList.instance();
 			case 1 -> new SingletonRandomList<>(this.get(0), this.getWeight(0));
-			default -> this;
+			default -> {
+				double weight;
+				if (this instanceof RandomAccess) {
+					weight = this.getWeight(0);
+					for (int index = 1, size = this.size(); index < size; index++) {
+						if (this.getWeight(index) != weight) {
+							yield this;
+						}
+					}
+					yield new RandomAccessConstantWeightRandomList<>(this, weight);
+				}
+				else {
+					WeightedIterator<E> iterator = this.iterator();
+					iterator.next();
+					weight = iterator.getWeight();
+					while (iterator.hasNext()) {
+						iterator.next();
+						if (iterator.getWeight() != weight) {
+							yield this;
+						}
+					}
+					yield new RandomAccessConstantWeightRandomList<>(new ArrayList<>(this), weight);
+				}
+			}
 		};
 	}
 
 	/**
 	similar to the above method, but static.
-	if the provided list is null, this method behaves as if it were empty.
+	if the provided list is null, this method returns {@link EmptyRandomList#instance()}.
 	*/
 	public static <E> IRandomList<E> optimizeSizeNullable(IRandomList<E> list) {
-		return list != null ? list.optimizeSize() : EmptyRandomList.instance();
+		return list != null ? list.optimize() : EmptyRandomList.instance();
 	}
 
 	public default String defaultToString() {
@@ -426,11 +453,11 @@ public interface IRandomList<E> extends List<E> {
 		}
 
 		public <T_Encoded> T element(DecodeContext<T_Encoded> context) throws DecodeException {
-			return (this.elementName != null ? context.getMember(this.elementName) : context).decodeWith(this.elementDecoder);
+			return (this.elementName != null && context.isMap() ? context.getMember(this.elementName) : context).decodeWith(this.elementDecoder);
 		}
 
 		public <T_Encoded> double weight(DecodeContext<T_Encoded> context) throws DecodeException {
-			return context.getMember("weight").decodeWith(WEIGHT_DECODER);
+			return context.isMap() ? context.getMember("weight").decodeWith(WEIGHT_DECODER) : DEFAULT_WEIGHT;
 		}
 
 		@Override
@@ -449,7 +476,7 @@ public interface IRandomList<E> extends List<E> {
 						for (DecodeContext<T_Encoded> entry : list) {
 							result.add(this.element(entry), this.weight(entry));
 						}
-						yield result;
+						yield result.optimize();
 					}
 				};
 			}

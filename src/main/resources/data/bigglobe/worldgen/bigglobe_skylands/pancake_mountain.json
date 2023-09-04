@@ -42,29 +42,37 @@
 		}
 	},
 	"max_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0 || `overworld/temperature` <= -0.25L: return(nan))",
+
 		"double cellBias   = `overworld/skyland_edginess_squared`",
 		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
-		"double bias2      = (cellBias + heightBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
+		"double temperatureBias = max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
+		"double bias2      = (cellBias + heightBias + temperatureBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
 		"if (bias2 >= 1.0: return(nan))",
+
 		"double bias1      = sqrt(bias2)",
 		"double holes      = `overworld/skyland_thickness`",
 		"holes             = holes * (bias1 * 0.5 + 0.25) + (bias1 * -0.5 + 0.75)",
 		"if (holes <= 0.0: return(nan))",
+
 		"double mountain   = (1.0 - bias1) / (bias1 * 8.0 + 1.0)",
 		"double center     = `overworld/skyland_center`",
 		"return(center + sqrt(mountain * holes) * 128.0)"
 	],
 	"min_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0 || `overworld/temperature` <= -0.25L: return(nan))",
+
 		"double cellBias   = `overworld/skyland_edginess_squared`",
 		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
-		"double bias2      = (cellBias + heightBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
+		"double temperatureBias = max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
+		"double bias2      = (cellBias + heightBias + temperatureBias) * `overworld/skyland_auxiliary_noise` ;don't go all the way to the edges of the cell.",
 		"if (bias2 >= 1.0: return(nan))",
+
 		"double bias1      = sqrt(bias2)",
 		"double holes      = `overworld/skyland_thickness`",
 		"holes             = holes * (bias1 * 0.5 + 0.25) + (bias1 * -0.5 + 0.75)",
 		"if (holes <= 0.0: return(nan))",
+
 		"double dip        = 1.0 - bias2",
 		"double center     = `overworld/skyland_center`",
 		"return(center - sqrt(dip * holes) * 32.0)"

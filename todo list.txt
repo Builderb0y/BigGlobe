@@ -90,6 +90,9 @@ features:
 			still need to figure out:
 				how to link biome placement to block placement.
 	overworld:
+		magicalness column value.
+			high magicalness -> cherry trees.
+			low magicalness -> swamp.
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
@@ -99,22 +102,9 @@ features:
 		allow flowers to place a Feature for every flower.
 		ice spikes.
 		glaciers:
-			snow on top.
-			packed snow under that.
-				can be broken by pickaxe or shovel, but not quickly.
-			packed ice under that.
-			then blue ice.
-			and lastly, regular ice.
-			2 types of glacier areas:
-				floating debris:
-					small boulders of various types of ice floating on the surface.
-				main island:
-					mostly flat-ish.
-					thickness determined by temperature.
-					thickness does not reach 0 where island starts.
-						instead, there is a cliff there.
-						cliff may be submerged, as there is another layer of noise which determines vertical center.
-					spikes on surface.
+			snow/ice castle structure?
+			spikes on surface.
+			height overriders.
 		trees:
 			roots.
 				use for mangrove trees.

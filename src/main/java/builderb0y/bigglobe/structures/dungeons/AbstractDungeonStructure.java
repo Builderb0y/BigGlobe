@@ -52,6 +52,7 @@ import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.*;
+import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.structures.LabyrinthLayout.DecorationPiece;
@@ -562,18 +563,18 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			COBBLE = new Palette(
 				IRandomList.DEFAULT_WEIGHT,
 				ColumnRestriction.EMPTY,
-				new ConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE)),
-				new ConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE_SLAB)),
-				new ConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS, Blocks.MOSSY_COBBLESTONE_STAIRS)),
-				new ConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL, Blocks.MOSSY_COBBLESTONE_WALL))
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE_SLAB), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS, Blocks.MOSSY_COBBLESTONE_STAIRS), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL, Blocks.MOSSY_COBBLESTONE_WALL), 1.0D)
 			),
 			BRICKS = new Palette(
 				IRandomList.DEFAULT_WEIGHT,
 				ColumnRestriction.EMPTY,
 				new RandomList<Block>(3).addSelf(Blocks.MOSSY_STONE_BRICKS, 1.5D).addSelf(Blocks.STONE_BRICKS, 1.0D).addSelf(Blocks.CRACKED_STONE_BRICKS, 0.5D),
-				new ConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB)),
-				new ConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_STAIRS, Blocks.MOSSY_STONE_BRICK_STAIRS)),
-				new ConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_WALL, Blocks.MOSSY_STONE_BRICK_WALL))
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_STAIRS, Blocks.MOSSY_STONE_BRICK_STAIRS), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_WALL, Blocks.MOSSY_STONE_BRICK_WALL), 1.0D)
 			),
 			DEEPSLATE_COBBLE = new Palette(
 				IRandomList.DEFAULT_WEIGHT,

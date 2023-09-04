@@ -278,6 +278,39 @@
 
 
 
+					"glaciers": {
+						"cracks": {
+							"distance": 32,
+							"variation": 24
+						},
+						"crack_threshold": [
+							"min(",
+								"unmixLinear(-0.25L, -0.5L, `overworld/temperature`),",
+								"unmixLinear(`overworld/sea_level`, `overworld/sea_level` - `overworld/hilliness` * 128.0L, max_y)",
+							")"
+						],
+						"height": {
+							"type": "sum",
+							"layers": [
+								{ "type": "constant", "value": 4.0 },
+								{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 2.0 },
+								{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0 },
+								{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.5 }
+							]
+						},
+						"states": [
+							"minecraft:snow_block",
+							[ "minecraft:snow_block", "minecraft:packed_ice" ],
+							"minecraft:packed_ice",
+							[ "minecraft:packed_ice", "minecraft:blue_ice" ],
+							"minecraft:blue_ice",
+							[ "minecraft:blue_ice", "minecraft:ice" ],
+							"minecraft:ice"
+						]
+					},
+
+
+
 					"miscellaneous": {
 						"snow_temperature_multiplier": 8.0
 					},

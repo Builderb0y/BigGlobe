@@ -104,7 +104,6 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_CLIFFINESS                    = registerOverworld("cliffiness",                    withoutY(OverworldColumn::getCliffiness                  ), null),
 		OVERWORLD_RAW_EROSION                   = registerOverworld("raw_erosion",                   withoutY(OverworldColumn::getRawErosion                  ), null),
 		OVERWORLD_PRE_CLIFF_HEIGHT              = registerOverworld("pre_cliff_height",              withoutY(OverworldColumn::getPreCliffHeight              ), null),
-		OVERWORLD_POST_CLIFF_HEIGHT             = registerOverworld("post_cliff_height",             withoutY(OverworldColumn::getPostCliffHeight             ), null),
 
 		OVERWORLD_TEMPERATURE                   = registerOverworld("temperature",                   withoutY(OverworldColumn::getTemperature                 ), null),
 		OVERWORLD_HEIGHT_ADJUSTED_TEMPERATURE   = registerOverworld("height_adjusted_temperature",      withY(OverworldColumn::getHeightAdjustedTemperature   ), null),
@@ -117,6 +116,10 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_RAW_SNOW                      = registerOverworld("raw_snow",                      withoutY(OverworldColumn::getRawSnow                     ), null),
 		OVERWORLD_SNOW_HEIGHT                   = registerOverworld("snow_height",                   withoutY(OverworldColumn::getSnowHeight                  ), null),
 		OVERWORLD_SNOW_CHANCE                   = registerOverworld("snow_chance",                   withoutY(OverworldColumn::getSnowChance                  ), null),
+
+		OVERWORLD_GLACIER_HEIGHT                = registerOverworld("glacier_height",                withoutY(OverworldColumn::getGlacierHeightD              ), null),
+		OVERWORLD_GLACIER_CRACK_FRACTION        = registerOverworld("glacier_crack_fraction",        withoutY(OverworldColumn::getGlacierCrackFraction        ), null),
+		OVERWORLD_GLACIER_CRACK_THRESHOLD       = registerOverworld("glacier_crack_threshold",       withoutY(OverworldColumn::getGlacierCrackThreshold       ), null),
 
 		OVERWORLD_CAVE_NOISE                    = registerOverworld("cave_noise",                       withY(OverworldColumn::getCaveNoise                   ), null),
 		OVERWORLD_CACHED_CAVE_NOISE             = registerOverworld("cached_cave_noise",                withY(OverworldColumn::getCachedCaveNoise             ), null),

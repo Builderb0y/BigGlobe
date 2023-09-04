@@ -22,16 +22,16 @@
 		]
 	},
 	"max_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0 || `overworld/temperature` <= -0.25L: return(nan))",
 		"double center = `overworld/skyland_center`",
 		";make half of the terrain reversed in Y level from the other half, for variety.",
 		"if (`overworld/skyland_thickness` < 0.0:",
 			"center = `overworld/skyland_average_center` * 2 - center",
 		")",
-		"center"
+		"return(center)"
 	],
 	"min_y": [
-		"if (`max_y` >= -64.0: return(nan))",
+		"if (`max_y` >= -64.0 || `overworld/temperature` <= -0.25L: return(nan))",
 		"double center = `overworld/skyland_center`",
 		";make half of the terrain reversed in Y level from the other half, for variety.",
 		"if (`overworld/skyland_thickness` < 0.0:",
@@ -39,7 +39,7 @@
 		")",
 		"double dip        = abs(`overworld/skyland_thickness`)",
 		"double cellBias   =     `overworld/skyland_edginess_squared`",
-		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2",
+		"double heightBias = max(unmixLinear(-128.0, -64.0, `max_y`), 0.0) ^ 2 + max(`overworld/temperature` * -4.0L, 0.0L) ^ 2",
 		"return(center + ((cellBias + heightBias) * 1.5 - dip) * 64.0)"
 	],
 	"surface": {
