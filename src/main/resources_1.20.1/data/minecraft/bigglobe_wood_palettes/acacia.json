@@ -21,6 +21,10 @@
 		"hanging_sign": "minecraft:acacia_hanging_sign",
 		"wall_hanging_sign": "minecraft:acacia_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/acacia",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/acacia",
+		"natural_surface": "bigglobe:overworld/trees/natural/acacia",
+		"skylands": "bigglobe:overworld/trees/skylands/acacia"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/acacia"
 }

@@ -19,6 +19,9 @@
 		"standing_sign": "bigglobe:charred_sign",
 		"wall_sign": "bigglobe:charred_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:nether/trees/artificial/charred",
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/charred",
+		"natural_surface": "bigglobe:nether/trees/natural/charred"
+	},
 	"biomes": "bigglobe:bigglobe_wood_palette/charred"
 }

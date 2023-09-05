@@ -196,6 +196,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 				column.getTemperature();
 				column.getFoliage();
+				column.getMagicalness();
 				this.runFoliageOverrides(column, structures);
 
 				column.getGlacierHeightD();

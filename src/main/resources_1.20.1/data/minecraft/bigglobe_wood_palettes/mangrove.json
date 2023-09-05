@@ -21,6 +21,9 @@
 		"hanging_sign": "minecraft:mangrove_hanging_sign",
 		"wall_hanging_sign": "minecraft:mangrove_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/mangrove",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/mangrove",
+		"natural_surface": "bigglobe:overworld/trees/natural/mangrove"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/mangrove"
 }

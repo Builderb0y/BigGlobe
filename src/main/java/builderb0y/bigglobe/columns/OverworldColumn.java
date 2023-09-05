@@ -31,34 +31,35 @@ public class OverworldColumn extends WorldColumn {
 		FINAL_HEIGHT                 = 1 << 3,
 		TEMPERATURE                  = 1 << 4,
 		FOLIAGE                      = 1 << 5,
-		SNOW_HEIGHT                  = 1 << 6,
-		SURFACE_BIOME                = 1 << 7,
+		MAGICALNESS                  = 1 << 6,
+		SNOW_HEIGHT                  = 1 << 7,
+		SURFACE_BIOME                = 1 << 8,
 
-		CAVE_CELL                    = 1 << 8,
-		CAVE_NOISE                   = 1 << 9,
-		CAVE_SURFACE_DEPTH           = 1 << 10,
-		CAVE_SYSTEM_EDGINESS         = 1 << 11,
-		CAVE_SYSTEM_EDGINESS_SQUARED = 1 << 12,
+		CAVE_CELL                    = 1 << 9,
+		CAVE_NOISE                   = 1 << 10,
+		CAVE_SURFACE_DEPTH           = 1 << 11,
+		CAVE_SYSTEM_EDGINESS         = 1 << 12,
+		CAVE_SYSTEM_EDGINESS_SQUARED = 1 << 13,
 
-		CAVERN_CELL                  = 1 << 13,
-		CAVERN_CENTER                = 1 << 14,
-		CAVERN_THICKNESS_SQUARED     = 1 << 15,
-		CAVERN_EDGINESS              = 1 << 16,
-		CAVERN_EDGINESS_SQUARED      = 1 << 17,
+		CAVERN_CELL                  = 1 << 14,
+		CAVERN_CENTER                = 1 << 15,
+		CAVERN_THICKNESS_SQUARED     = 1 << 16,
+		CAVERN_EDGINESS              = 1 << 17,
+		CAVERN_EDGINESS_SQUARED      = 1 << 18,
 
-		SKYLAND_CELL                 = 1 << 18,
-		SKYLAND_CENTER               = 1 << 19,
-		SKYLAND_THICKNESS            = 1 << 20,
-		SKYLAND_AUXILIARY_NOISE      = 1 << 21,
-		SKYLAND_EDGINESS_SQUARED     = 1 << 22,
-		SKYLAND_EDGINESS             = 1 << 23,
-		SKYLAND_MIN_Y                = 1 << 24,
-		SKYLAND_MAX_Y                = 1 << 25,
+		SKYLAND_CELL                 = 1 << 19,
+		SKYLAND_CENTER               = 1 << 20,
+		SKYLAND_THICKNESS            = 1 << 21,
+		SKYLAND_AUXILIARY_NOISE      = 1 << 22,
+		SKYLAND_EDGINESS_SQUARED     = 1 << 23,
+		SKYLAND_EDGINESS             = 1 << 24,
+		SKYLAND_MIN_Y                = 1 << 25,
+		SKYLAND_MAX_Y                = 1 << 26,
 
-		GLACIER_HEIGHT               = 1 << 26,
-		GLACIER_CRACK_CELL           = 1 << 27,
-		GLACIER_CRACK_FRACTION       = 1 << 28,
-		GLACIER_CRACK_THRESHOLD      = 1 << 29;
+		GLACIER_HEIGHT               = 1 << 27,
+		GLACIER_CRACK_CELL           = 1 << 28,
+		GLACIER_CRACK_FRACTION       = 1 << 29,
+		GLACIER_CRACK_THRESHOLD      = 1 << 30;
 
 	public final OverworldSettings settings;
 	public double
@@ -66,6 +67,7 @@ public class OverworldColumn extends WorldColumn {
 		cliffiness,
 		temperature,
 		foliage,
+		magicalness,
 		finalHeight,
 		snowHeight,
 		snowChance;
@@ -252,7 +254,9 @@ public class OverworldColumn extends WorldColumn {
 	public double getTemperature() {
 		return (
 			this.setFlag(TEMPERATURE)
-			? this.temperature = ScriptedGrid.SECRET_COLUMN.apply(this, (OverworldColumn self) -> this.settings.temperature.noise().getValue(Permuter.stafford(self.seed), self.x, self.z))
+			//scripted grids do not get access to the secret column for temperature,
+			//because temperature is used on the client and the secret column will not exist there.
+			? this.temperature = this.settings.temperature.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
 			: this.temperature
 		);
 	}
@@ -268,7 +272,9 @@ public class OverworldColumn extends WorldColumn {
 	public double getFoliage() {
 		return (
 			this.setFlag(FOLIAGE)
-			? this.foliage = ScriptedGrid.SECRET_COLUMN.apply(this, (OverworldColumn self) -> self.settings.foliage.noise().getValue(Permuter.stafford(self.seed), self.x, self.z))
+			//scripted grids do not get access to the secret column for foliage,
+			//because foliage is used on the client and the secret column will not exist there.
+			? this.foliage = this.settings.foliage.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
 			: this.foliage
 		);
 	}
@@ -281,10 +287,27 @@ public class OverworldColumn extends WorldColumn {
 		return this.getHeightAdjustedFoliage(this.getFinalTopHeightD());
 	}
 
+	public double getMagicalness() {
+		return (
+			this.setFlag(MAGICALNESS)
+			//scripted grids do not get access to the secret column for magicalness,
+			//because magicalness is used on the client and the secret column will not exist there.
+			? this.magicalness = this.settings.magicalness.noise().getValue(Permuter.stafford(this.seed), this.x, this.z)
+			: this.magicalness
+		);
+	}
+
 	//////////////////////////////// glaciers ////////////////////////////////
 
 	public double getGlacierHeightD() {
-		return this.setFlag(GLACIER_HEIGHT) ? this.glacierHeight = this.getDouble(this.settings.glaciers, (self, glaciers) -> glaciers.height().getValue(self.seed, self.x, self.z)) : this.glacierHeight;
+		return (
+			this.setFlag(GLACIER_HEIGHT)
+			? this.glacierHeight = this.getDouble(
+				this.settings.glaciers,
+				(self, glaciers) -> glaciers.height().getValue(self.seed, self.x, self.z)
+			)
+			: this.glacierHeight
+		);
 	}
 
 	public int getGlacierHeightI() {

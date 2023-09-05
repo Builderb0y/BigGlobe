@@ -1,12 +1,11 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Maps;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -14,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -62,6 +62,10 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 
 	public WoodPalette palette() {
 		return this.entry.value();
+	}
+
+	public Map<String, ConfiguredFeatureEntry> features() {
+		return Collections.unmodifiableMap(Maps.transformValues(this.entry.value().features, ConfiguredFeatureEntry::new));
 	}
 
 	public IRandomList<Block> getBlocks(WoodPaletteType type) {

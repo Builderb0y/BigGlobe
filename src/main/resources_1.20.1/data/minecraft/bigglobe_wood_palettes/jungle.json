@@ -21,6 +21,10 @@
 		"hanging_sign": "minecraft:jungle_hanging_sign",
 		"wall_hanging_sign": "minecraft:jungle_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/jungle",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/jungle",
+		"natural_surface": "bigglobe:overworld/trees/natural/jungle",
+		"skylands": "bigglobe:overworld/trees/skylands/jungle"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/jungle"
 }

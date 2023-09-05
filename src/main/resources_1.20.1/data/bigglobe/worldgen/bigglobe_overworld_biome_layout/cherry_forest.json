@@ -1,0 +1,5 @@
+{
+	"parent": "!bigglobe:swamp",
+	"restrictions": { "type": "range", "property": "overworld/magicalness", "min": 0.375, "mid": 0.625 },
+	"biome": "bigglobe:cherry_forest"
+}

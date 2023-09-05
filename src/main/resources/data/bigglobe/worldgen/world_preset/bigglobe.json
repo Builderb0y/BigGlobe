@@ -263,6 +263,22 @@
 
 
 
+					"magicalness": {
+						"noise": {
+							"type": "sum",
+							"layers": [
+								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.75 },
+								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.375 },
+								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.1875 },
+								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.09375 },
+								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.046875 },
+								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0234375 }
+							]
+						}
+					},
+
+
+
 					"surface": {
 						"primary_surface_depth": [
 							"return(",

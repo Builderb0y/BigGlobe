@@ -1,7 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:temperate_forest",
-		"bigglobe:temperate_plains"
+		"bigglobe:cherry_forest"
 	]
 }

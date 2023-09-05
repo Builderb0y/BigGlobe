@@ -21,6 +21,9 @@
 		"hanging_sign": "minecraft:warped_hanging_sign",
 		"wall_hanging_sign": "minecraft:warped_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:nether/trees/artificial/warped",
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/warped",
+		"natural_surface": "bigglobe:nether/trees/natural/warped"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/warped"
 }

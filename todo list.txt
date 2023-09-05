@@ -18,8 +18,10 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	make torch arrows work in dispensers.
 
 changelog:
+	* Added cherry forest and swamp biomes.
 	* Fixed ocean monuments being too reluctant to spawn.
 	* Changed ore distributions:
 		* Less gold and redstone at excessively deep Y levels.
@@ -39,6 +41,7 @@ AutoCodec:
 		probably related to unresolvable types. in other words, type parameters declared on methods.
 	@MultiLine.INSTANCE needs to override Object methods too.
 	RecordCodec needs to check that field type == parameter type when getting map of parameters -> fields.
+	add @Intern for String decoding.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -87,8 +90,11 @@ features:
 				2D and 3D layers are valid.
 				can choose if the layer is uniform or voronoi.
 				list of carvers.
+					carvers have the same properties (2D vs. 3D, uniform vs. voronoi)
 			still need to figure out:
 				how to link biome placement to block placement.
+				how to optimize bulk block setting.
+				how to handle oceans?
 	overworld:
 		magicalness column value.
 			high magicalness -> cherry trees.
@@ -104,7 +110,6 @@ features:
 		glaciers:
 			snow/ice castle structure?
 			spikes on surface.
-			height overriders.
 		trees:
 			roots.
 				use for mangrove trees.

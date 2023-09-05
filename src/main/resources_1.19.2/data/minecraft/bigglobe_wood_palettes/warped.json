@@ -19,6 +19,9 @@
 		"standing_sign": "minecraft:warped_sign",
 		"wall_sign": "minecraft:warped_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:nether/trees/artificial/warped",
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/warped",
+		"natural_surface": "bigglobe:nether/trees/natural/warped"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/warped"
 }

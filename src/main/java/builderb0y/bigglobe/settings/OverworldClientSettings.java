@@ -13,6 +13,7 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
@@ -21,6 +22,7 @@ public record OverworldClientSettings(
 	long seed,
 	ClientTemperatureSettings temperature,
 	ClientFoliageSettings foliage,
+	ClientMagicalnessSettings magicalness,
 	int sea_level
 ) {
 
@@ -30,11 +32,14 @@ public record OverworldClientSettings(
 
 	public static record ClientFoliageSettings(Grid2D noise, HeightAdjustmentScript.FoliageHolder height_adjustment) {}
 
+	public static record ClientMagicalnessSettings(Grid2D noise) {}
+
 	public static OverworldClientSettings of(long worldSeed, OverworldSettings settings) {
 		return new OverworldClientSettings(
 			Permuter.stafford(worldSeed),
 			new ClientTemperatureSettings(settings.temperature.noise(), settings.temperature.height_adjustment()),
 			new ClientFoliageSettings(settings.foliage.noise(), settings.foliage.height_adjustment()),
+			new ClientMagicalnessSettings(settings.magicalness.noise()),
 			settings.height.sea_level()
 		);
 	}
@@ -59,16 +64,49 @@ public record OverworldClientSettings(
 		);
 	}
 
+	public double getMagicalness(int x, int y, int z) {
+		return this.magicalness.noise.getValue(this.seed, x, z);
+	}
+
+	public int adjustForMagicalness(int color, double magicalness) {
+		double adjustedMagicalness = 0.5D - 0.5D / (magicalness * magicalness + 1.0D);
+		double red   = (color >>> 16) & 255;
+		double green = (color >>>  8) & 255;
+		double blue  =  color         & 255;
+		if (magicalness > 0.0D) {
+			red   = Interpolator.mixLinear(red,   255.0D, adjustedMagicalness);
+			green = Interpolator.mixLinear(green, 255.0D, adjustedMagicalness);
+			blue  = Interpolator.mixLinear(blue,  255.0D, adjustedMagicalness);
+		}
+		else if (magicalness < 0.0D) {
+			red   *= 1.0D - adjustedMagicalness;
+			green *= 1.0D - adjustedMagicalness;
+			blue  *= 1.0D - adjustedMagicalness;
+		}
+		int redI   = Math.min((int)(red), 255);
+		int greenI = Math.min((int)(green), 255);
+		int blueI  = Math.min((int)(blue), 255);
+		return 0xFF000000 | (redI << 16) | (greenI << 8) | blueI;
+	}
+
 	public int getGrassColor(int x, int y, int z) {
-		double temperature = this.getTemperature(x, y, z);
-		double foliage = this.getFoliage(x, y, z);
-		return GrassColors.getColor(temperature, foliage);
+		return this.adjustForMagicalness(
+			GrassColors.getColor(
+				this.getTemperature(x, y, z),
+				this.getFoliage(x, y, z)
+			),
+			this.getMagicalness(x, y, z)
+		);
 	}
 
 	public int getFoliageColor(int x, int y, int z) {
-		double temperature = this.getTemperature(x, y, z);
-		double foliage = this.getFoliage(x, y, z);
-		return FoliageColors.getColor(temperature, foliage);
+		return this.adjustForMagicalness(
+			FoliageColors.getColor(
+				this.getTemperature(x, y, z),
+				this.getFoliage(x, y, z)
+			),
+			this.getMagicalness(x, y, z)
+		);
 	}
 
 	public int getWaterColor(int x, int y, int z) {

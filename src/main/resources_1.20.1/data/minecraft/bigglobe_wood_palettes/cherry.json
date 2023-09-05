@@ -21,6 +21,10 @@
 		"hanging_sign": "minecraft:cherry_hanging_sign",
 		"wall_hanging_sign": "minecraft:cherry_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/cherry",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/cherry",
+		"natural_surface": "bigglobe:overworld/trees/natural/cherry",
+		"skylands": "bigglobe:overworld/trees/skylands/cherry"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/cherry"
 }

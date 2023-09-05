@@ -113,6 +113,8 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_HEIGHT_ADJUSTED_FOLIAGE       = registerOverworld("height_adjusted_foliage",          withY(OverworldColumn::getHeightAdjustedFoliage       ), null),
 		OVERWORLD_SURFACE_FOLIAGE               = registerOverworld("surface_foliage",               withoutY(OverworldColumn::getSurfaceFoliage              ), null),
 
+		OVERWORLD_MAGICALNESS                   = registerOverworld("magicalness",                   withoutY(OverworldColumn::getMagicalness                 ), null),
+
 		OVERWORLD_RAW_SNOW                      = registerOverworld("raw_snow",                      withoutY(OverworldColumn::getRawSnow                     ), null),
 		OVERWORLD_SNOW_HEIGHT                   = registerOverworld("snow_height",                   withoutY(OverworldColumn::getSnowHeight                  ), null),
 		OVERWORLD_SNOW_CHANCE                   = registerOverworld("snow_chance",                   withoutY(OverworldColumn::getSnowChance                  ), null),

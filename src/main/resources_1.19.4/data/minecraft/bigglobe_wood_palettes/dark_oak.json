@@ -19,6 +19,10 @@
 		"standing_sign": "minecraft:dark_oak_sign",
 		"wall_sign": "minecraft:dark_oak_wall_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/dark_oak",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/acacia",
+		"natural_surface": "bigglobe:overworld/trees/natural/acacia",
+		"skylands": "bigglobe:overworld/trees/skylands/acacia"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/dark_oak"
 }

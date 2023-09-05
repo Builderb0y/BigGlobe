@@ -39,18 +39,18 @@ public class WoodPalette {
 		BIOME_CACHE = new ServerValue<>(WoodPalette::computeBiomeCache);
 
 	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") Block>> blocks;
-	public final @VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> sapling_grow_feature;
+	public final @DefaultEmpty Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features;
 	/** a tag containing biomes whose trees are made of this wood palette. */
 	public final @VerifyNullable TagKey<Biome> biomes;
 	public transient Set<RegistryKey<Biome>> biomeSet;
 
 	public WoodPalette(
 		EnumMap<WoodPaletteType, IRandomList<Block>> blocks,
-		@VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> sapling_grow_feature,
+		Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features,
 		@VerifyNullable TagKey<Biome> biomes
 	) {
 		this.blocks = blocks;
-		this.sapling_grow_feature = sapling_grow_feature;
+		this.features = features;
 		this.biomes = biomes;
 	}
 
@@ -104,6 +104,10 @@ public class WoodPalette {
 			});
 		});
 		return map;
+	}
+
+	public RegistryEntry<ConfiguredFeature<?, ?>> getSaplingGrowFeature() {
+		return this.features.get("sapling_grow");
 	}
 
 	//////////////////////////////// block ////////////////////////////////

@@ -21,6 +21,9 @@
 		"hanging_sign": "minecraft:crimson_hanging_sign",
 		"wall_hanging_sign": "minecraft:crimson_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:nether/trees/artificial/crimson",
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/crimson",
+		"natural_surface": "bigglobe:nether/trees/natural/crimson"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/crimson"
 }

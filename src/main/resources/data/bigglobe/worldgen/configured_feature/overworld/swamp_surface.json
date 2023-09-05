@@ -1,0 +1,38 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (",
+				"getBiome(originX, originY, originZ) != Biome('bigglobe:swamp') ||",
+				"`overworld/surface_foliage` !> 0.0L",
+			":",
+				"return(false)",
+			")",
+			"--originY",
+			"boolean hasSolidOrWater(int x, int z:",
+				"BlockState state = getBlockState(x, originY, z)",
+				"return(state.hasFullCubeCollision() || state.hasWater())",
+			")",
+			"double adjustedFoliage = 0.5L - 0.5L / (4.0L * `overworld/surface_foliage` ^ 2 + 1.0L)",
+			"if (",
+				"random.nextBoolean(adjustedFoliage) &&",
+				"hasSolidOrWater(originX - 1, originZ) &&",
+				"hasSolidOrWater(originX + 1, originZ) &&",
+				"hasSolidOrWater(originX, originZ - 1) &&",
+				"hasSolidOrWater(originX, originZ + 1)",
+			":",
+				"double sigmoidFoliage = 0.5L / (exp(-4.0L * `overworld/height_adjusted_foliage`) + 1.0L)",
+				"setBlockState(originX, originY, originZ, random.if (sigmoidFoliage: 'minecraft:seagrass') else ('minecraft:water[level=0]'))",
+				"setBlockState(originX, originY - 1, originZ, 'minecraft:mud')",
+				"block (",
+					"unless (getBlockState(originX, :++originY, originZ).canStayAt(originX, originY, originZ):",
+						"setBlockState(originX, originY, originZ, 'minecraft:air')",
+						"continue()",
+					")",
+				")",
+				"return(true)",
+			")",
+			"return(false)"
+		]
+	}
+}

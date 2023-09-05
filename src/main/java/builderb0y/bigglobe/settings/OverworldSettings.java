@@ -16,6 +16,7 @@ public class OverworldSettings {
 	public final OverworldHeightSettings height;
 	public final OverworldTemperatureSettings temperature;
 	public final OverworldFoliageSettings foliage;
+	public final OverworldMagicalnessSettings magicalness;
 	public final OverworldSurfaceSettings surface;
 	public final @VerifyNullable OverworldGlacierSettings glaciers;
 	public final OverworldUndergroundSettings underground;
@@ -28,6 +29,7 @@ public class OverworldSettings {
 		OverworldHeightSettings height,
 		OverworldTemperatureSettings temperature,
 		OverworldFoliageSettings foliage,
+		OverworldMagicalnessSettings magicalness,
 		OverworldSurfaceSettings surface,
 		@VerifyNullable OverworldGlacierSettings glaciers,
 		OverworldUndergroundSettings underground,
@@ -38,6 +40,7 @@ public class OverworldSettings {
 		this.height        = height;
 		this.temperature   = temperature;
 		this.foliage       = foliage;
+		this.magicalness   = magicalness;
 		this.surface       = surface;
 		this.glaciers      = glaciers;
 		this.underground   = underground;
@@ -58,6 +61,10 @@ public class OverworldSettings {
 	public static record OverworldFoliageSettings(
 		Grid2D noise,
 		HeightAdjustmentScript.FoliageHolder height_adjustment
+	) {}
+
+	public static record OverworldMagicalnessSettings(
+		Grid2D noise
 	) {}
 
 	public static record OverworldSurfaceSettings(

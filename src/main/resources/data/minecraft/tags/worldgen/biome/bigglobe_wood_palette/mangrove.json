@@ -1,8 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:beach",
-		"bigglobe:shallow_ocean",
+		"bigglobe:swamp",
 		"minecraft:mangrove_swamp"
 	]
 }

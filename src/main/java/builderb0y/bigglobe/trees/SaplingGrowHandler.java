@@ -55,11 +55,12 @@ public class SaplingGrowHandler {
 			.getRegistryManager()
 			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
 		) {
-			if (palette.sapling_grow_feature != null) {
+			RegistryEntry<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
+			if (saplingGrowFeature != null) {
 				IRandomList<Block> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
 				if (blocks != null) {
 					for (Block block : blocks) {
-						map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(palette.sapling_grow_feature);
+						map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(saplingGrowFeature);
 					}
 				}
 			}

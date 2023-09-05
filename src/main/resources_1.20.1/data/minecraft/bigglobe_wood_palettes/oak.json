@@ -21,6 +21,10 @@
 		"hanging_sign": "minecraft:oak_hanging_sign",
 		"wall_hanging_sign": "minecraft:oak_wall_hanging_sign"
 	},
-	"sapling_grow_feature": "bigglobe:overworld/trees/artificial/oak",
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/oak",
+		"natural_surface": "bigglobe:overworld/trees/natural/oak",
+		"skylands": "bigglobe:overworld/trees/skylands/oak"
+	},
 	"biomes": "minecraft:bigglobe_wood_palette/oak"
 }

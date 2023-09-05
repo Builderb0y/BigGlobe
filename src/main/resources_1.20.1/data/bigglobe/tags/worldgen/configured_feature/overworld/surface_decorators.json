@@ -2,7 +2,8 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/occasional_prismarine",
-		"bigglobe:overworld/occasional_cherry_tree",
+		"bigglobe:overworld/swamp_surface",
+		"bigglobe:overworld/cherry_blossoms",
 		"bigglobe:overworld/surface_big_foliage",
 		"bigglobe:overworld/surface_small_foliage",
 		"bigglobe:overworld/occasional_waterfall",
