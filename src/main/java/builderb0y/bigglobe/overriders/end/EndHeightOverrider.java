@@ -13,27 +13,11 @@ public interface EndHeightOverrider extends EndFlatOverrider {
 
 	public static final MutableScriptEnvironment Y_LEVELS_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariable("mountainCenterY",   FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainCenterY",   "setMountainCenterY"  ))
-		.addVariable("mountainThickness", FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainThickness", "setMountainThickness"))
-		.addVariable("mountainMinY",      FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainMinY",      "setMountainMinY"     ))
-		.addVariable("mountainMaxY",      FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainMaxY",      "setMountainMaxY"     ))
+		.addVariable("mountainCenterY",   FlatOverrider.createVariableFromField(EndColumn.class, "mountainCenterY"))
+		.addVariable("mountainThickness", FlatOverrider.createVariableFromField(EndColumn.class, "mountainThickness"))
+		.addVariable("mountainMinY",      FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainMinY", "setMountainMinY"))
+		.addVariable("mountainMaxY",      FlatOverrider.createVariableFromStaticGetterAndSetter(EndHeightOverrider.class, EndColumn.class, "getMountainMaxY", "setMountainMaxY"))
 	);
-
-	public static double getMountainCenterY(EndColumn column) {
-		return column.mountainCenterY;
-	}
-
-	public static void setMountainCenterY(EndColumn column, double y) {
-		column.mountainCenterY = y;
-	}
-
-	public static double getMountainThickness(EndColumn column) {
-		return column.mountainThickness;
-	}
-
-	public static void setMountainThickness(EndColumn column, double y) {
-		column.mountainThickness = y;
-	}
 
 	public static double getMountainMinY(EndColumn column) {
 		return column.mountainCenterY - column.mountainThickness;

@@ -13,16 +13,8 @@ public interface EndFoliageOverrider extends EndFlatOverrider {
 
 	public static final MutableScriptEnvironment FOLIAGE_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariable("foliage", FlatOverrider.createVariableFromStaticGetterAndSetter(EndVolumetricOverrider.class, EndColumn.class, "getFoliage", "setFoliage"))
+		.addVariable("foliage", FlatOverrider.createVariableFromField(EndColumn.class, "foliage"))
 	);
-
-	public static double getFoliage(EndColumn column) {
-		return column.foliage;
-	}
-
-	public static void setFoliage(EndColumn column, double foliage) {
-		column.foliage = foliage;
-	}
 
 	@Wrapper
 	public static class Holder extends EndFlatOverrider.Holder<EndFoliageOverrider> implements EndFoliageOverrider {

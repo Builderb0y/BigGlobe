@@ -5,6 +5,7 @@ import com.google.common.collect.ObjectArrays;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -35,6 +36,13 @@ public interface FlatOverrider extends Overrider {
 		return new VariableHandler.Named(getter + " <-> " + setter, (ExpressionParser parser, String name) -> {
 			return new GetterSetterInsnTree(loadColumn, getter, setter);
 		});
+	}
+
+	public static VariableHandler createVariableFromField(Class<? extends WorldColumn> columnClass, String fieldName) {
+		FieldInfo field = FieldInfo.getField(columnClass, fieldName);
+		InsnTree loadColumn = load("column", 2, type(columnClass));
+		InsnTree getField = getField(loadColumn, field);
+		return new VariableHandler.Named(field.toString(), (parser, name) -> getField);
 	}
 
 	public static FunctionHandler createColumnFunction(MethodInfo method, Class<? extends WorldColumn> columnClass) {

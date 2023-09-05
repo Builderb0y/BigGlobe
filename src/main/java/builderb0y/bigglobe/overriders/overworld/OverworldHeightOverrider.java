@@ -13,25 +13,9 @@ public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 
 	public static final MutableScriptEnvironment Y_LEVELS_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariable("terrainY", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldHeightOverrider.class, OverworldColumn.class, "getMaxY",  "setMaxY" ))
-		.addVariable("snowY",    FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldHeightOverrider.class, OverworldColumn.class, "getSnowY", "setSnowY"))
+		.addVariable("terrainY", FlatOverrider.createVariableFromField(OverworldColumn.class, "finalHeight"))
+		.addVariable("snowY",    FlatOverrider.createVariableFromField(OverworldColumn.class, "snowHeight"))
 	);
-
-	public static double getMaxY(OverworldColumn column) {
-		return column.finalHeight;
-	}
-
-	public static void setMaxY(OverworldColumn column, double y) {
-		column.finalHeight = y;
-	}
-
-	public static double getSnowY(OverworldColumn column) {
-		return column.snowHeight;
-	}
-
-	public static void setSnowY(OverworldColumn column, double y) {
-		column.snowHeight = y;
-	}
 
 	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldHeightOverrider> implements OverworldHeightOverrider {

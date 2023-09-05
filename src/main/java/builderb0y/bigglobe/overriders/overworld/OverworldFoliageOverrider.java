@@ -13,16 +13,8 @@ public interface OverworldFoliageOverrider extends OverworldFlatOverrider {
 
 	public static final MutableScriptEnvironment FOLIAGE_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariable("foliage", FlatOverrider.createVariableFromStaticGetterAndSetter(OverworldFoliageOverrider.class, OverworldColumn.class, "getFoliage", "setFoliage"))
+		.addVariable("foliage", FlatOverrider.createVariableFromField(OverworldColumn.class, "foliage"))
 	);
-
-	public static double getFoliage(OverworldColumn column) {
-		return column.foliage;
-	}
-
-	public static void setFoliage(OverworldColumn column, double foliage) {
-		column.foliage = foliage;
-	}
 
 	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldFoliageOverrider> implements OverworldFoliageOverrider {

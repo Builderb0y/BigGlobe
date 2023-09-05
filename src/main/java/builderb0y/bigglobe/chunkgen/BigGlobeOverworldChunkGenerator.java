@@ -111,6 +111,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public final transient LinkedFlowerConfig[] flowerGroups;
 	public final transient LinkedRockLayerConfig<OverworldRockLayerEntryFeature.Entry>[] rockLayers;
 	public final transient OverworldHeightOverrider.Holder[] heightOverriders;
+	public final transient OverworldGlacierHeightOverrider.Holder[] glacierHeightOverriders;
 	public final transient OverworldFoliageOverrider.Holder[] foliageOverriders;
 	public final transient OverworldVolumetricOverrider.Holder[] caveOverriders;
 	public final transient OverworldCavernOverrider.Holder[] cavernOverriders;
@@ -147,21 +148,22 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			configuredFeatures,
 			sortedStructures
 		);
-		this.           settings = settings;
-		this.         rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
-		this.       flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
-		this.         oreConfigs = configuredFeatures.streamConfigs(BigGlobeFeatures.OVERWORLD_ORE).toArray(OverworldOreFeature.Config[]::new);
-		this.   heightOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.   OVERWORLD_HEIGHT_OVERRIDER);
-		this.  foliageOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  OVERWORLD_FOLIAGE_OVERRIDER);
-		this.     caveOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.     OVERWORLD_CAVE_OVERRIDER);
-		this.   cavernOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.   OVERWORLD_CAVERN_OVERRIDER);
-		this.  skylandOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.  OVERWORLD_SKYLAND_OVERRIDER);
-		this.structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.OVERWORLD_STRUCTURE_OVERRIDER);
+		this.               settings = settings;
+		this.             rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
+		this.           flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);
+		this.             oreConfigs = configuredFeatures.streamConfigs(BigGlobeFeatures.OVERWORLD_ORE).toArray(OverworldOreFeature.Config[]::new);
+		this.       heightOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.        OVERWORLD_HEIGHT_OVERRIDER);
+		this.glacierHeightOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.OVERWORLD_GLACIER_HEIGHT_OVERRIDER);
+		this.      foliageOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.       OVERWORLD_FOLIAGE_OVERRIDER);
+		this.         caveOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.          OVERWORLD_CAVE_OVERRIDER);
+		this.       cavernOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.        OVERWORLD_CAVERN_OVERRIDER);
+		this.      skylandOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.       OVERWORLD_SKYLAND_OVERRIDER);
+		this.    structureOverriders = OverrideFeature.collect(configuredFeatures, BigGlobeFeatures.     OVERWORLD_STRUCTURE_OVERRIDER);
 
-		this.  surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
-		this.  bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
-		this.  glacierDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_GLACIER_DECORATORS);
-		this. seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
+		this.      surfaceDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SURFACE_DECORATORS);
+		this.      bedrockDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_BEDROCK_DECORATORS);
+		this.      glacierDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_GLACIER_DECORATORS);
+		this.     seaLevelDecorators = this.getFeatures(BigGlobeConfiguredFeatureTagKeys.OVERWORLD_SEA_LEVEL_DECORATORS);
 	}
 
 	public SortedFeatureTag getFeatures(TagKey<ConfiguredFeature<?, ?>> key) {
@@ -200,6 +202,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.getGlacierCell();
 				column.getGlacierCrackFraction();
 				column.getGlacierCrackThreshold();
+				this.runGlacierOverriders(column, structures);
 
 				if (!columns.isForBiomes() && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
 					column.getCaveCell();
@@ -703,6 +706,12 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			overrider.override(structures, column);
 		}
 		column.populateInLake(lakePiece);
+	}
+
+	public void runGlacierOverriders(OverworldColumn column, ScriptStructures structures) {
+		for (OverworldGlacierHeightOverrider.Holder overrider : this.glacierHeightOverriders) {
+			overrider.override(structures, column);
+		}
 	}
 
 	public void runFoliageOverrides(OverworldColumn column, ScriptStructures structures) {
