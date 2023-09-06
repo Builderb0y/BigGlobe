@@ -9,7 +9,8 @@
 					"type": "and_range",
 					"overworld/height_adjusted_foliage":     { "min": -0.5,             "max": 0.5 },
 					"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
-					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 }
+					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 },
+					"overworld/magicalness":                 { "min": -0.5, "mid": 0.0             }
 				},
 				"under": {
 					"place": "minecraft:farmland",

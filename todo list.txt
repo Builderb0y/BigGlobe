@@ -9,7 +9,6 @@ bugs:
 	immersive portals places the end portal inside the end nest.
 		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
 		this is fixed in a later version of immersive portals.
-	try nightly build of distant horizons again. apparently the server thread is stuck in an infinite loop.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -20,7 +19,7 @@ testing:
 where I left off:
 
 changelog:
-	* Added cherry forest and swamp biomes.
+	* Added cherry forests, swamps, and glaciers.
 	* Fixed ocean monuments being too reluctant to spawn.
 	* Fixed torch arrows, rocks, and soul lava buckets not working in dispensers.
 	* Changed ore distributions:

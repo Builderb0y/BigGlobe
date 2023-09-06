@@ -1,5 +1,5 @@
 {
-	"parent": "!bigglobe:shallow_ocean",
+	"parent": "bigglobe:beach",
 	"restrictions": {
 		"type": "and",
 		"restrictions": [

@@ -1,0 +1,44 @@
+{
+	"carvers": {},
+	"downfall": 0.5,
+	"effects": {
+		"fog_color": 12638463,
+		"mood_sound": {
+			"block_search_extent": 8,
+			"offset": 2.0,
+			"sound": "minecraft:ambient.cave",
+			"tick_delay": 6000
+		},
+		"sky_color": 8103167,
+		"water_color": 4020182,
+		"water_fog_color": 329011
+	},
+	"features": [ [], [], [], [], [], [], [], [], [], [] ],
+	"has_precipitation": true,
+	"precipitation": "snow",
+	"spawn_costs": {},
+	"spawners": {
+		"monster": [
+			{ "weight": 100, "minCount": 4, "maxCount": 4, "type": "minecraft:spider" },
+			{ "weight": 95,  "minCount": 4, "maxCount": 4, "type": "minecraft:zombie" },
+			{ "weight": 5,   "minCount": 1, "maxCount": 1, "type": "minecraft:zombie_villager" },
+			{ "weight": 100, "minCount": 4, "maxCount": 4, "type": "minecraft:skeleton" },
+			{ "weight": 100, "minCount": 4, "maxCount": 4, "type": "minecraft:creeper" },
+			{ "weight": 100, "minCount": 4, "maxCount": 4, "type": "minecraft:slime" },
+			{ "weight": 10,  "minCount": 1, "maxCount": 4, "type": "minecraft:enderman" },
+			{ "weight": 5,   "minCount": 1, "maxCount": 1, "type": "minecraft:witch" },
+			{ "weight": 5,   "minCount": 1, "maxCount": 1, "type": "minecraft:drowned" }
+		],
+		"underground_water_creature": [
+			{ "weight": 10,  "minCount": 4, "maxCount": 6, "type": "minecraft:glow_squid" }
+		],
+		"water_ambient": [
+			{ "weight": 15,  "minCount": 3, "maxCount": 6, "type": "minecraft:cod" },
+			{ "weight": 15,  "minCount": 1, "maxCount": 5, "type": "minecraft:salmon" }
+		],
+		"water_creature": [
+			{ "weight": 3,   "minCount": 1, "maxCount": 4, "type": "minecraft:squid" }
+		]
+	},
+	"temperature": 0.0
+}

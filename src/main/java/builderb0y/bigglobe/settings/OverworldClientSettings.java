@@ -74,14 +74,14 @@ public record OverworldClientSettings(
 		double green = (color >>>  8) & 255;
 		double blue  =  color         & 255;
 		if (magicalness > 0.0D) {
-			red   = Interpolator.mixLinear(red,   255.0D, adjustedMagicalness);
+			red   = Interpolator.mixLinear(red,   255.0D, adjustedMagicalness * 0.5D);
 			green = Interpolator.mixLinear(green, 255.0D, adjustedMagicalness);
-			blue  = Interpolator.mixLinear(blue,  255.0D, adjustedMagicalness);
+			blue  = Interpolator.mixLinear(blue,  255.0D, adjustedMagicalness * 1.5D);
 		}
 		else if (magicalness < 0.0D) {
-			red   *= 1.0D - adjustedMagicalness;
+			red   *= 1.0D - adjustedMagicalness * 0.5D;
 			green *= 1.0D - adjustedMagicalness;
-			blue  *= 1.0D - adjustedMagicalness;
+			blue  *= 1.0D - adjustedMagicalness * 1.5D;
 		}
 		int redI   = Math.min((int)(red), 255);
 		int greenI = Math.min((int)(green), 255);
