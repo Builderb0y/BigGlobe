@@ -18,17 +18,18 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	make torch arrows work in dispensers.
 
 changelog:
 	* Added cherry forest and swamp biomes.
 	* Fixed ocean monuments being too reluctant to spawn.
+	* Fixed torch arrows, rocks, and soul lava buckets not working in dispensers.
 	* Changed ore distributions:
 		* Less gold and redstone at excessively deep Y levels.
 		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
 		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
 	* Scripting changes:
 		* All json scripts can now use templates.
+			* Command scripts are still inline-only.
 		* More consistent order of operations for prefix operators.
 		* print() now outputs to in-game chat in singleplayer.
 		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.

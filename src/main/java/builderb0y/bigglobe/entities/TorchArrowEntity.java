@@ -32,6 +32,10 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 		super(entityType, owner, world);
 	}
 
+	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world) {
+		super(type, x, y, z, world);
+	}
+
 	@Override
 	public void onHit(LivingEntity target) {
 		super.onHit(target);

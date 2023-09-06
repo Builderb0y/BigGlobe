@@ -1,7 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:forest",
-		"#bigglobe:plains"
+		"#bigglobe:has_trees"
 	]
 }

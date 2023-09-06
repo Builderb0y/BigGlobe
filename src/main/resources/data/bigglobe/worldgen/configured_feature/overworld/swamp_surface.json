@@ -2,13 +2,14 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (",
-				"getBiome(originX, originY, originZ) != Biome('bigglobe:swamp') ||",
-				"`overworld/surface_foliage` !> 0.0L",
+			"unless (",
+				"getBiome(originX, originY, originZ) == Biome('bigglobe:swamp') &&",
+				"`overworld/surface_foliage` > 0.0L",
 			":",
 				"return(false)",
 			")",
 			"--originY",
+			"unless (getBlockState(originX, originY, originZ).hasFullCubeCollision(): return(false))",
 			"boolean hasSolidOrWater(int x, int z:",
 				"BlockState state = getBlockState(x, originY, z)",
 				"return(state.hasFullCubeCollision() || state.hasWater())",
@@ -30,6 +31,10 @@
 						"continue()",
 					")",
 				")",
+				"return(true)",
+			")",
+			"else random.if (adjustedFoliage:",
+				"setBlockState(originX, originY, originZ, 'minecraft:mud')",
 				"return(true)",
 			")",
 			"return(false)"

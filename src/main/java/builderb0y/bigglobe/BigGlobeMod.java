@@ -34,6 +34,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
@@ -71,23 +72,29 @@ public class BigGlobeMod implements ModInitializer {
 		#if MC_VERSION > MC_1_19_2
 			BigGlobeDynamicRegistries.init();
 		#endif
+
 		BigGlobeLoot.init();
+
 		BigGlobeFluids.init();
 		BigGlobeBlocks.init();
 		BigGlobeItems.init();
-		SoulCauldronBlock.init();
 		BigGlobeBlockEntityTypes.init();
-		BigGlobeBrewing.init();
 		BigGlobeEntityTypes.init();
+		BigGlobeSoundEvents.init();
+
+		SoulCauldronBlock.init();
+		BigGlobeDispenserBehaviors.init();
+		BigGlobeBrewing.init();
+
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
 		BigGlobeOverworldChunkGenerator.init();
 		BigGlobeNetherChunkGenerator.init();
 		BigGlobeEndChunkGenerator.init();
-		BigGlobeSoundEvents.init();
 		#if MC_VERSION == MC_1_19_2
 			BigGlobeDynamicRegistries.addBuiltin();
 		#endif
+
 		BigGlobeArgumentTypes.init();
 		BigGlobeCommands.init();
 		BigGlobeGameRules.init();
@@ -95,6 +102,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeRecipeSerializers.init();
 		ExpressionParser.clinit();
 		BigGlobeParticles.init();
+
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);

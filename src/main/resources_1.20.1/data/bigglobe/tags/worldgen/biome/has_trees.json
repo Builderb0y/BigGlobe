@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:forest",
+		"#bigglobe:plains",
+		"bigglobe:cherry_forest",
+		"bigglobe:swamp"
+	]
+}
