@@ -106,16 +106,13 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public static final boolean WORLD_SLICES = false;
 
-	public static final GenerationStep.Feature[] FEATURE_STEPS = GenerationStep.Feature.values();
-	public static final ObjectArrayFactory<RegistryEntry<?>> REGISTRY_ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
-
 	public final SortedFeatures configuredFeatures;
 	public transient ColumnValue<?>[] displayedColumnValues;
 
 	public transient long seed;
-	//no idea if this needs to be synchronized or not, but it can't hurt.
 	public final SortedStructures sortedStructures;
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
+	public final transient SemiThreadLocal<ChunkOfColumns<? extends WorldColumn>> chunkOfColumnsRecycler = SemiThreadLocal.soft(64, () -> new ChunkOfColumns<>(this::column));
 
 	public BigGlobeChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
@@ -263,7 +260,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public abstract void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons);
 
 	public ChunkOfColumns<? extends WorldColumn> createAndPopulateChunkOfColumns(ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
-		ChunkOfColumns<? extends WorldColumn> columns = new ChunkOfColumns<>(this::column);
+		ChunkOfColumns<? extends WorldColumn> columns = this.chunkOfColumnsRecycler.get();
 		this.populateChunkOfColumns(columns, chunkPos, structures, distantHorizons);
 		return columns;
 	}
@@ -950,6 +947,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos blockPos) {
+		text.add("Reclaimed columns: " + this.chunkOfColumnsRecycler.valueCount);
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 

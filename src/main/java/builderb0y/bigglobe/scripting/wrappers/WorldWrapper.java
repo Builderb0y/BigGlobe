@@ -48,7 +48,7 @@ public class WorldWrapper implements ColumnLookup {
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final Permuter permuter;
-	public final WorldColumn randomColumn;
+	public @Nullable WorldColumn randomColumn;
 	/**
 	sometimes, a Feature will get placed in a live world,
 	completely outside of worldgen logic.
@@ -67,7 +67,6 @@ public class WorldWrapper implements ColumnLookup {
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
 		this.permuter = permuter;
-		this.randomColumn = world.createColumn(0, 0);
 		this.checkForColumns = !world.isLive();
 		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 	}
@@ -121,7 +120,12 @@ public class WorldWrapper implements ColumnLookup {
 				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.immutableArea);
 			}
 		}
-		this.randomColumn.setPos(pos.getX(), pos.getZ());
+		if (this.randomColumn == null) {
+			this.randomColumn = this.world.createColumn(pos.getX(), pos.getZ());
+		}
+		else {
+			this.randomColumn.setPos(pos.getX(), pos.getZ());
+		}
 		return this.randomColumn;
 	}
 

@@ -66,6 +66,7 @@
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
+		"WorldChunk_RecycleColumnsOnConstruct",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [

@@ -3,6 +3,7 @@
 	"values": [
 		"bigglobe:shallow_ocean",
 		"bigglobe:ocean",
-		"bigglobe:deep_ocean"
+		"bigglobe:deep_ocean",
+		"bigglobe:glacier"
 	]
 }

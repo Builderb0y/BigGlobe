@@ -19,7 +19,7 @@ testing:
 where I left off:
 
 changelog:
-	* Added cherry forests, swamps, and glaciers.
+	* Added cherry forests (1.20.1 only), swamps, and glaciers.
 	* Fixed ocean monuments being too reluctant to spawn.
 	* Fixed torch arrows, rocks, and soul lava buckets not working in dispensers.
 	* Changed ore distributions:
