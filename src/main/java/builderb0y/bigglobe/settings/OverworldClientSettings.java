@@ -83,9 +83,9 @@ public record OverworldClientSettings(
 			green *= 1.0D - adjustedMagicalness;
 			blue  *= 1.0D - adjustedMagicalness * 1.5D;
 		}
-		int redI   = Math.min((int)(red), 255);
+		int redI   = Math.min((int)(red  ), 255);
 		int greenI = Math.min((int)(green), 255);
-		int blueI  = Math.min((int)(blue), 255);
+		int blueI  = Math.min((int)(blue ), 255);
 		return 0xFF000000 | (redI << 16) | (greenI << 8) | blueI;
 	}
 
@@ -111,7 +111,10 @@ public record OverworldClientSettings(
 
 	public int getWaterColor(int x, int y, int z) {
 		double temperature = this.getTemperature(x, y, z);
-		return 0xFF3F00FF | (((int)(temperature * 128.0D + 64.0D)) << 8);
+		return this.adjustForMagicalness(
+			0xFF3F00FF | (((int)(temperature * 128.0D + 64.0D)) << 8),
+			this.getMagicalness(x, y, z)
+		);
 	}
 
 	public static void overrideColor(int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {

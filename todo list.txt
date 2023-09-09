@@ -20,6 +20,7 @@ where I left off:
 
 changelog:
 	* Added cherry forests (1.20.1 only), swamps, and glaciers.
+	* Spread out transition from plains to desert and snow.
 	* Fixed ocean monuments being too reluctant to spawn.
 	* Fixed torch arrows, rocks, and soul lava buckets not working in dispensers.
 	* Changed ore distributions:
@@ -29,9 +30,10 @@ changelog:
 	* Scripting changes:
 		* All json scripts can now use templates.
 			* Command scripts are still inline-only.
-		* More consistent order of operations for prefix operators.
+		* Snow height in the overworld is now scriptable.
 		* print() now outputs to in-game chat in singleplayer.
 		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
+		* More consistent order of operations for prefix operators.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -96,9 +98,6 @@ features:
 				how to optimize bulk block setting.
 				how to handle oceans?
 	overworld:
-		magicalness column value.
-			high magicalness -> cherry trees.
-			low magicalness -> swamp.
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
@@ -106,10 +105,8 @@ features:
 		fallen logs.
 		column values for cliff frac and cliff bias.
 		allow flowers to place a Feature for every flower.
-		ice spikes.
 		glaciers:
 			snow/ice castle structure?
-			spikes on surface.
 		trees:
 			roots.
 				use for mangrove trees.

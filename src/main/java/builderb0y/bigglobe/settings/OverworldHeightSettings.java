@@ -7,6 +7,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.noise.ErosionGrid2D;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
 
 public record OverworldHeightSettings(
 	@VerifyDivisibleBy16 int min_y,
@@ -15,7 +16,8 @@ public record OverworldHeightSettings(
 	int sea_level,
 	Grid2D hilliness,
 	@VerifyNullable OverworldCliffSettings cliffs,
-	ErosionGrid2D[] erosion
+	ErosionGrid2D[] erosion,
+	ColumnYToDoubleScript.Holder snow_height
 ) {
 
 	public int y_range() {

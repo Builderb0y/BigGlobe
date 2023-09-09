@@ -199,7 +199,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.getMagicalness();
 				this.runFoliageOverrides(column, structures);
 
-				column.getGlacierHeightD();
+				column.getGlacierBottomHeightD();
+				column.getGlacierTopHeightD();
 				column.getGlacierCell();
 				column.getGlacierCrackFraction();
 				column.getGlacierCrackThreshold();
@@ -439,29 +440,27 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 				OverworldColumn column = columns.getColumn(horizontalIndex);
 				if (column.getFinalTopHeightI() < seaLevel) {
-					double threshold = column.getGlacierCrackThreshold();
-					if (
-						threshold > 0.0D && (
-							threshold >= 1.0D || (
-								column.getGlacierCrackFraction() <= threshold
-							)
-						)
-					) {
+					if (column.getGlacierCrackFraction() <= column.getGlacierCrackThreshold()) {
 						long columnSeed = Permuter.permute(this.seed ^ 0xAB6ACB182D123E6DL, column.x, column.z);
 						pos.setX(column.x).setZ(column.z);
-						double topD = column.getGlacierHeightD();
-						int topI = column.getGlacierHeightI();
-						int bottom = Math.max(topI - glaciers.states().length, column.getFinalTopHeightI());
-						for (int y = topI; --y >= bottom;) {
+						int bottomI = Math.max(BigGlobeMath.floorI(column.getGlacierBottomHeightD()), column.getFinalTopHeightI());
+						for (int index = 0, length = glaciers.states().length; index < length; index++) {
+							int y = bottomI + index;
 							long ySeed = Permuter.permute(columnSeed, y);
 							chunk.setBlockState(
 								pos.setY(y),
-								glaciers.states()[topI - y - 1].getRandomElement(ySeed),
+								glaciers.states()[index].getRandomElement(ySeed),
 								false
 							);
 						}
+						double topD = column.getGlacierTopHeightD();
+						int topI = BigGlobeMath.floorI(topD);
 						int layers = (int)(BigGlobeMath.modulus_BP(topD, 1.0D) * 8.0D);
-						if (layers != 0 && topI >= seaLevel) {
+						BlockState fullSnow = BlockStates.SNOW.with(SnowBlock.LAYERS, 8);
+						for (int y = bottomI + glaciers.states().length; y < topI; y++) {
+							chunk.setBlockState(pos.setY(y), fullSnow, false);
+						}
+						if (layers != 0) {
 							chunk.setBlockState(pos.setY(topI), BlockStates.SNOW.with(SnowBlock.LAYERS, layers), false);
 						}
 					}
@@ -624,20 +623,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		boolean skipCaveFilling = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
 		for (int index = 0; index < 256; index++) {
 			OverworldColumn column = columns.getColumn(index);
-			int x = startX + (index &  15);
-			int z = startZ + (index >>> 4);
+			int x = startX | (index &  15);
+			int z = startZ | (index >>> 4);
 			double snowMaxY = column.getSnowHeight();
 			double snowDiff = snowMaxY - column.getFinalTopHeightD();
-			if (snowDiff < 0.0D) {
-				continue;
-				//snowDiff -= BigGlobeMath.squareF(snowDiff);
-				//snowMaxY = snowDiff + column.getFinalTopHeightF();
-			}
+			if (snowDiff < 0.0D) continue;
 			int topY = column.getFinalTopHeightI();
-			int snowLayers = BigGlobeMath.floorI(
-				(snowMaxY - topY)
-				* SnowBlock.MAX_LAYERS
-			);
+			int snowLayers = BigGlobeMath.floorI((snowMaxY - topY) * SnowBlock.MAX_LAYERS);
 			pos.set(x, topY, z);
 			boolean success = false;
 			done: {
@@ -654,6 +646,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 						}
 					}
 				}
+				if (snowLayers <= 0 && Permuter.toChancedBoolean(Permuter.permute(this.seed ^ 0x0322FF7E63673FDCL, x, z), snowDiff)) snowLayers = 1;
 				BlockState snowState = BlockStates.SNOW.with(SnowBlock.LAYERS, SnowBlock.MAX_LAYERS);
 				for (; snowLayers >= SnowBlock.MAX_LAYERS; snowLayers -= SnowBlock.MAX_LAYERS) {
 					if (chunk.getBlockState(pos).isAir()) {
@@ -855,9 +848,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					if (column.getFinalTopHeightI() < this.getSeaLevel()) {
 						this.runDecorators(world, pos, mojang, this.seaLevelDecorators, this.getSeaLevel());
 					}
-					double fraction = column.getGlacierCrackFraction();
-					if (fraction > 0.0D && (fraction >= 1.0D || column.getGlacierCrackThreshold() <= fraction)) {
-						this.runDecorators(world, pos, mojang, this.glacierDecorators, column.getGlacierHeightI());
+					if (this.settings.glaciers != null) {
+						if (column.getGlacierCrackFraction() <= column.getGlacierCrackThreshold()) {
+							this.runDecorators(world, pos, mojang, this.glacierDecorators, BigGlobeMath.floorI(column.getGlacierTopHeightD()));
+						}
 					}
 
 					SkylandCell skylandCell = column.getSkylandCell();

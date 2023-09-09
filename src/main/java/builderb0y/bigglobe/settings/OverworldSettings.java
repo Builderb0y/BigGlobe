@@ -21,7 +21,6 @@ public class OverworldSettings {
 	public final @VerifyNullable OverworldGlacierSettings glaciers;
 	public final OverworldUndergroundSettings underground;
 	public final @VerifyNullable OverworldSkylandSettings skylands;
-	public final OverworldMiscellaneousSettings miscellaneous;
 
 	public final BiomeLayout.Holder<OverworldBiomeLayout> biomes;
 
@@ -34,19 +33,17 @@ public class OverworldSettings {
 		@VerifyNullable OverworldGlacierSettings glaciers,
 		OverworldUndergroundSettings underground,
 		@VerifyNullable OverworldSkylandSettings skylands,
-		OverworldMiscellaneousSettings miscellaneous,
 		BiomeLayout.Holder<OverworldBiomeLayout> biomes
 	) {
-		this.height        = height;
-		this.temperature   = temperature;
-		this.foliage       = foliage;
-		this.magicalness   = magicalness;
-		this.surface       = surface;
-		this.glaciers      = glaciers;
-		this.underground   = underground;
-		this.skylands      = skylands;
-		this.miscellaneous = miscellaneous;
-		this.biomes        = biomes;
+		this.height      = height;
+		this.temperature = temperature;
+		this.foliage     = foliage;
+		this.magicalness = magicalness;
+		this.surface     = surface;
+		this.glaciers    = glaciers;
+		this.underground = underground;
+		this.skylands    = skylands;
+		this.biomes      = biomes;
 	}
 
 	public boolean hasSkylands() {
@@ -71,14 +68,11 @@ public class OverworldSettings {
 		SurfaceDepthWithSlopeScript.Holder primary_surface_depth
 	) {}
 
-	public static record OverworldMiscellaneousSettings(
-		double snow_temperature_multiplier
-	) {}
-
 	public static record OverworldGlacierSettings(
 		VoronoiDiagram2D cracks,
 		ColumnYToDoubleScript.Holder crack_threshold,
-		Grid2D height,
+		Grid2D bottom_height,
+		Grid2D top_height,
 		IRandomList<@UseName("state") BlockState>[] states
 	) {}
 }

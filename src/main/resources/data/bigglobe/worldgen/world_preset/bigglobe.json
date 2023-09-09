@@ -222,7 +222,8 @@
 									]
 								}
 							}
-						]
+						],
+						"snow_height": "y + (-2.0L + y * 0.015625L + `overworld/temperature` * -4.0L)"
 					},
 
 
@@ -267,12 +268,12 @@
 						"noise": {
 							"type": "sum",
 							"layers": [
-								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 0.75 },
-								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.375 },
-								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.1875 },
-								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.09375 },
-								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.046875 },
-								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.0234375 }
+								{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 1.0 },
+								{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 0.5 },
+								{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 0.25 },
+								{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude": 0.125 },
+								{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude": 0.0625 },
+								{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude": 0.03125 }
 							]
 						}
 					},
@@ -305,30 +306,53 @@
 								"unmixLinear(`overworld/sea_level`, `overworld/sea_level` - `overworld/hilliness` * 128.0L, max_y)",
 							")"
 						],
-						"height": {
+						"bottom_height": {
 							"type": "sum",
 							"layers": [
-								{ "type": "constant", "value": 4.0 },
+								{ "type": "constant", "value": -4.0 },
 								{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 2.0 },
 								{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0 },
 								{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.5 }
 							]
 						},
+						"top_height": {
+							"type": "script",
+							"min": 0.0,
+							"max": 64.0,
+							"script": [
+								"double height = `overworld/glacier_bottom_height` + 8.0L",
+								"double magicalness = `overworld/magicalness`",
+								"double innerness = `overworld/glacier_crack_threshold` - 1.0L",
+								"if (magicalness > 0.0L && innerness > 0.0L:",
+									"magicalness = 1.0L - 0.0625L / (magicalness ^ 2 + 0.0625L)",
+									"innerness = 1.0L - 0.25L / (innerness ^ 2 + 0.25L)",
+									"maze = 24.0L - 24.0L / (maze ^ 4 + 1.0L)",
+									"height += maze * magicalness * innerness",
+								")",
+								"return(height)"
+							],
+							"inputs": {
+								"maze": {
+									"type": "sum",
+									"layers": [
+										{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 4.0 },
+										{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 1.6 },
+										{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.64 },
+										{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.256 },
+										{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.1024 }
+									]
+								}
+							}
+						},
 						"states": [
-							"minecraft:snow_block",
-							[ "minecraft:snow_block", "minecraft:packed_ice" ],
-							"minecraft:packed_ice",
-							[ "minecraft:packed_ice", "minecraft:blue_ice" ],
-							"minecraft:blue_ice",
+							"minecraft:ice",
 							[ "minecraft:blue_ice", "minecraft:ice" ],
-							"minecraft:ice"
+							"minecraft:blue_ice",
+							[ "minecraft:packed_ice", "minecraft:blue_ice" ],
+							"minecraft:packed_ice",
+							[ "minecraft:snow_block", "minecraft:packed_ice" ],
+							"minecraft:snow_block"
 						]
-					},
-
-
-
-					"miscellaneous": {
-						"snow_temperature_multiplier": 8.0
 					},
 
 

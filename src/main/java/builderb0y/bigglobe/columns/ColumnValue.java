@@ -119,7 +119,8 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		OVERWORLD_SNOW_HEIGHT                   = registerOverworld("snow_height",                   withoutY(OverworldColumn::getSnowHeight                  ), null),
 		OVERWORLD_SNOW_CHANCE                   = registerOverworld("snow_chance",                   withoutY(OverworldColumn::getSnowChance                  ), null),
 
-		OVERWORLD_GLACIER_HEIGHT                = registerOverworld("glacier_height",                withoutY(OverworldColumn::getGlacierHeightD              ), null),
+		OVERWORLD_GLACIER_BOTTOM_HEIGHT         = registerOverworld("glacier_bottom_height",         withoutY(OverworldColumn::getGlacierBottomHeightD        ), null),
+		OVERWORLD_GLACIER_TOP_HEIGHT            = registerOverworld("glacier_top_height",            withoutY(OverworldColumn::getGlacierTopHeightD           ), null),
 		OVERWORLD_GLACIER_CRACK_FRACTION        = registerOverworld("glacier_crack_fraction",        withoutY(OverworldColumn::getGlacierCrackFraction        ), null),
 		OVERWORLD_GLACIER_CRACK_THRESHOLD       = registerOverworld("glacier_crack_threshold",       withoutY(OverworldColumn::getGlacierCrackThreshold       ), null),
 

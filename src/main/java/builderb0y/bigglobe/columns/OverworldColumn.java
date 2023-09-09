@@ -56,10 +56,11 @@ public class OverworldColumn extends WorldColumn {
 		SKYLAND_MIN_Y                = 1 << 25,
 		SKYLAND_MAX_Y                = 1 << 26,
 
-		GLACIER_HEIGHT               = 1 << 27,
-		GLACIER_CRACK_CELL           = 1 << 28,
-		GLACIER_CRACK_FRACTION       = 1 << 29,
-		GLACIER_CRACK_THRESHOLD      = 1 << 30;
+		GLACIER_BOTTOM_HEIGHT        = 1 << 27,
+		GLACIER_TOP_HEIGHT           = 1 << 28,
+		GLACIER_CRACK_CELL           = 1 << 29,
+		GLACIER_CRACK_FRACTION       = 1 << 30,
+		GLACIER_CRACK_THRESHOLD      = 1 << 31;
 
 	public final OverworldSettings settings;
 	public double
@@ -73,7 +74,8 @@ public class OverworldColumn extends WorldColumn {
 		snowChance;
 	public VoronoiDiagram2D.Cell glacierCell;
 	public double
-		glacierHeight,
+		glacierTopHeight,
+		glacierBottomHeight,
 		glacierCrackFraction,
 		glacierCrackThreshold;
 	public final double[] rawErosionAndSnow = new double[2];
@@ -167,9 +169,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public double computeSnowHeight() {
 		double snowHeight = this.applyCliffs(this.getRawSnow() * this.getHilliness());
-		snowHeight += snowHeight * (1.0D / 64.0); //higher Y levels = more snow.
-		snowHeight -= 256.0D / 64.0D; //less snow (manual bias).
-		snowHeight -= this.getTemperature() * this.settings.miscellaneous.snow_temperature_multiplier(); //lower temperature = more snow.
+		snowHeight = this.settings.height.snow_height().evaluate(this, snowHeight);
 		double finalHeight = this.getFinalTopHeightD();
 		this.snowChance = snowHeight - finalHeight;
 		if (finalHeight - this.getSeaLevel() < 32.0D) {
@@ -299,20 +299,32 @@ public class OverworldColumn extends WorldColumn {
 
 	//////////////////////////////// glaciers ////////////////////////////////
 
-	public double getGlacierHeightD() {
+	public double getGlacierBottomHeightD() {
 		return (
-			this.setFlag(GLACIER_HEIGHT)
-			? this.glacierHeight = this.getDouble(
-				this.settings.glaciers,
-				(self, glaciers) -> glaciers.height().getValue(self.seed, self.x, self.z)
+			this.setFlag(GLACIER_BOTTOM_HEIGHT)
+			? this.glacierBottomHeight = ScriptedGrid.SECRET_COLUMN.apply(
+				this,
+				self -> self.getDouble(
+					self.settings.glaciers,
+					(me, glaciers) -> glaciers.bottom_height().getValue(me.seed, me.x, me.z)
+				)
 			)
-			: this.glacierHeight
+			: this.glacierBottomHeight
 		);
 	}
 
-	public int getGlacierHeightI() {
-		double height = this.getGlacierHeightD();
-		return Double.isNaN(height) ? Integer.MIN_VALUE : BigGlobeMath.ceilI(height);
+	public double getGlacierTopHeightD() {
+		return (
+			this.setFlag(GLACIER_TOP_HEIGHT)
+			? this.glacierTopHeight = ScriptedGrid.SECRET_COLUMN.apply(
+				this,
+				self -> self.getDouble(
+					self.settings.glaciers,
+					(me, glaciers) -> glaciers.top_height().getValue(me.seed, me.x, me.z)
+				)
+			)
+			: this.glacierTopHeight
+		);
 	}
 
 	public VoronoiDiagram2D.@Nullable Cell getGlacierCell() {

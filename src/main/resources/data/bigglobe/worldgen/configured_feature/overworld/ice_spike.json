@@ -1,0 +1,39 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double magicalness = `overworld/magicalness`",
+			"double innerness = `overworld/glacier_crack_threshold` - 1.0L",
+			"unless (magicalness < 0.0L && innerness > 0.0L: return(false))",
+			"innerness = 1.0L - 0.25L / (innerness ^ 2 + 0.25L)",
+			"double chance = magicalness ^ 2 * innerness",
+			"random.unless (chance / 256.0L: return(false))",
+
+			"BlockState state = random.if ('minecraft:ice') else ('minecraft:packed_ice')",
+			"double size = random.nextDouble(chance)",
+			"double baseRadius = size * 2.0L + 2.0L",
+			"double height = size * 16.0L + 8.0L",
+
+			"double r = random.nextDouble(0.5L)",
+			"double theta = random.nextDouble(tau)",
+			"double dx = cos(theta) * r",
+			"double dz = sin(theta) * r",
+
+			"double centerX = originX + random.nextDouble(-0.5L, +0.5L)",
+			"double centerZ = originZ + random.nextDouble(-0.5L, +0.5L)",
+			"for (int y in range[originY, floorInt(originY + height)]:",
+				"double currentRadius = mixLinear(baseRadius, sqrt(2.0L) / 2.0L, unmixLinear(originY, originY + height, y))",
+				"for (int z in range[ceilInt(centerZ - currentRadius), floorInt(centerZ + currentRadius)]:",
+					"for (int x in range[ceilInt(centerX - currentRadius), floorInt(centerX + currentRadius)]:",
+						"if ((x - centerX) ^ 2 + (z - centerZ) ^ 2 < currentRadius ^ 2:",
+							"setBlockState(x, y, z, state)",
+						")",
+					")",
+				")",
+				"centerX += dx",
+				"centerZ += dz",
+			")",
+			"return(true)"
+		]
+	}
+}

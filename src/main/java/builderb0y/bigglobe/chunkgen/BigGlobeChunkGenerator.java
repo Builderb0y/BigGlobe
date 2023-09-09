@@ -748,15 +748,25 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 						StructurePiece piece = children.get(pieceIndex);
 						if (piece.getBoundingBox().intersects(chunkBox)) {
 							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
-							piece.generate(
-								world,
-								structureAccessor,
-								this,
-								new MojangPermuter(pieceSeed),
-								chunkBox,
-								chunk.getPos(),
-								pivot
-							);
+							try {
+								piece.generate(
+									world,
+									structureAccessor,
+									this,
+									new MojangPermuter(pieceSeed),
+									chunkBox,
+									chunk.getPos(),
+									pivot
+								);
+							}
+							catch (NullPointerException exception) {
+								//I don't know why DH seems to have issues with this when it's a vanilla bug,
+								//but I'm tired of having my console spammed with errors.
+								if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
+									throw exception;
+								}
+								//else silently ignore.
+							}
 						}
 					}
 					start.getStructure().postPlace(
