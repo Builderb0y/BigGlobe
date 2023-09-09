@@ -39,7 +39,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.util.Directions;
@@ -49,7 +48,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 	public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LargeDungeonStructure.class);
 
-	public LargeDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
+	public LargeDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config, room_decorators, spawner_entries, palettes);
 	}
 

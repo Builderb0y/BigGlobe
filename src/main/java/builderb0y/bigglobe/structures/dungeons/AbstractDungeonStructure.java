@@ -76,7 +76,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public AbstractDungeonStructure(
 		Config config,
 		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
-		RandomList<EntityType<?>> spawner_entries,
+		IRandomList<EntityType<?>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config);

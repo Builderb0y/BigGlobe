@@ -39,11 +39,6 @@ AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
-	type reification has a massive flaw where types can self-reference, causing a StackOverflowError when calling toString() on them.
-		probably related to unresolvable types. in other words, type parameters declared on methods.
-	@MultiLine.INSTANCE needs to override Object methods too.
-	RecordCodec needs to check that field type == parameter type when getting map of parameters -> fields.
-	add @Intern for String decoding.
 
 scripting:
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -76,6 +71,7 @@ scripting:
 		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
 	allow for (int index, T element in list:
+	de-finalize user var in for (int number in range[]:
 
 features:
 	general:

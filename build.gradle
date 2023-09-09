@@ -24,7 +24,7 @@ repositories() {
 	//See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	//for more information about repositories.
 
-	mavenLocal()
+	mavenLocal() //AutoCodec
 
 	maven() {
 		name('Modrinth')
@@ -54,7 +54,7 @@ dependencies() {
 	testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.0-M1')
 	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
 
-	String AUTO_CODEC_VERSION = '4.10.0'
+	String AUTO_CODEC_VERSION = '4.11.0'
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
 		transitive = false //don't include different version of DFU than what minecraft uses.
 	}
@@ -65,15 +65,14 @@ dependencies() {
 		include("org.joml:joml:$JOML_VERSION")
 	}
 
-	modCompileOnly(fileTree(file("dependencies/$project.minecraft_version/compileOnly")))
+	modCompileOnly   (fileTree(file("dependencies/$project.minecraft_version/compileOnly"   )))
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
-	modRuntimeOnly(fileTree(file("dependencies/$project.minecraft_version/runtimeOnly")))
+	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
 	annotationProcessor('systems.manifold:manifold-preprocessor:2023.1.17')
 }
 
 compileJava() {
-	options.compilerArgs.add('-parameters')
 	options.compilerArgs.add('-Xplugin:Manifold')
 }
 
@@ -100,6 +99,7 @@ tasks.withType(JavaCompile).configureEach() {
 	if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
 		it.options.release = targetJavaVersion
 	}
+	it.options.compilerArgs.add('-parameters')
 }
 
 java() {
@@ -215,8 +215,8 @@ MC_VERSION=${capturedVersion.shorthand()}"""
 	}
 }
 
-// configure the maven publication
 /*
+// configure the maven publication
 publishing() {
 	publications() {
 		mavenJava(MavenPublication) {

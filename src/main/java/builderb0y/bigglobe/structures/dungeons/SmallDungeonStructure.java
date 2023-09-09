@@ -31,7 +31,6 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -40,7 +39,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static final Codec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SmallDungeonStructure.class);
 
-	public SmallDungeonStructure(Config config, TagKey<ConfiguredFeature<?, ?>> room_decorators, RandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
+	public SmallDungeonStructure(Config config, TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config, room_decorators, spawner_entries, palettes);
 	}
 
