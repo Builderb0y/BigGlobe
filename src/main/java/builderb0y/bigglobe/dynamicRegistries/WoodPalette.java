@@ -39,7 +39,7 @@ public class WoodPalette {
 		BIOME_CACHE = new ServerValue<>(WoodPalette::computeBiomeCache);
 
 	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") Block>> blocks;
-	public final @DefaultEmpty Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features;
+	public final @DefaultEmpty Map<@Intern String, RegistryEntry<ConfiguredFeature<?, ?>>> features;
 	/** a tag containing biomes whose trees are made of this wood palette. */
 	public final @VerifyNullable TagKey<Biome> biomes;
 	public transient Set<RegistryKey<Biome>> biomeSet;

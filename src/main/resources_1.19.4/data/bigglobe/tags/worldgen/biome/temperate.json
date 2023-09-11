@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:temperate_forest",
+		"bigglobe:temperate_plains",
+		"bigglobe:temperate_wasteland",
+		"#bigglobe:swamps"
+	]
+}

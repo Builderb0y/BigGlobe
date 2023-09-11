@@ -345,13 +345,13 @@
 							}
 						},
 						"states": [
-							"minecraft:ice",
+							[ "minecraft:ice" ],
 							[ "minecraft:blue_ice", "minecraft:ice" ],
-							"minecraft:blue_ice",
+							[ "minecraft:blue_ice" ],
 							[ "minecraft:packed_ice", "minecraft:blue_ice" ],
-							"minecraft:packed_ice",
+							[ "minecraft:packed_ice" ],
 							[ "minecraft:snow_block", "minecraft:packed_ice" ],
-							"minecraft:snow_block"
+							[ "minecraft:snow_block" ]
 						]
 					},
 

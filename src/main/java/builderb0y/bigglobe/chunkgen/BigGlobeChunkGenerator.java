@@ -5,7 +5,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -23,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -42,7 +40,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.*;
-import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.StructureTerrainAdaptation;
@@ -56,7 +53,6 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
-import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
@@ -66,7 +62,6 @@ import builderb0y.autocodec.decoders.RecordDecoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.RockLayerReplacer;
@@ -75,11 +70,9 @@ import builderb0y.bigglobe.columns.*;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
@@ -90,13 +83,19 @@ import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
-import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
-#if MC_VERSION > MC_1_19_2
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-import net.minecraft.registry.RegistryWrapper;
+#if MC_VERSION == MC_1_19_2
+	import java.util.concurrent.ConcurrentLinkedQueue;
+	import builderb0y.autocodec.annotations.AddPseudoField;
+#elif MC_VERSION == MC_1_19_4
+	import java.util.concurrent.ConcurrentLinkedQueue;
+	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+	import net.minecraft.registry.RegistryWrapper;
+#elif MC_VERSION == MC_1_20_1
+	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+	import net.minecraft.registry.RegistryWrapper;
 #endif
 
 #if MC_VERSION == MC_1_19_2
@@ -112,7 +111,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public transient long seed;
 	public final SortedStructures sortedStructures;
 	public final transient WorldgenProfiler profiler = new WorldgenProfiler();
-	public final transient SemiThreadLocal<ChunkOfColumns<? extends WorldColumn>> chunkOfColumnsRecycler = SemiThreadLocal.soft(64, () -> new ChunkOfColumns<>(this::column));
+	public final transient ChunkOfColumnsRecycler chunkOfColumnsRecycler = new ChunkOfColumnsRecycler(this);
 
 	public BigGlobeChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
@@ -259,26 +258,8 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public abstract void populateChunkOfColumns(AbstractChunkOfColumns<? extends WorldColumn> columns, ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons);
 
-	public ChunkOfColumns<? extends WorldColumn> createAndPopulateChunkOfColumns(ChunkPos chunkPos, ScriptStructures structures, boolean distantHorizons) {
-		ChunkOfColumns<? extends WorldColumn> columns = this.chunkOfColumnsRecycler.get();
-		this.populateChunkOfColumns(columns, chunkPos, structures, distantHorizons);
-		return columns;
-	}
-
 	public ChunkOfColumns<? extends WorldColumn> getChunkOfColumns(Chunk chunk, ScriptStructures structures, boolean distantHorizons) {
-		if (chunk instanceof ChunkOfColumnsHolder holder) {
-			ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
-			if (columns == null) {
-				holder.bigglobe_setChunkOfColumns(columns = this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons));
-			}
-			return columns;
-		}
-		else {
-			if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is not a ChunkOfColumnsHolder: " + chunk);
-			}
-			return this.createAndPopulateChunkOfColumns(chunk.getPos(), structures, distantHorizons);
-		}
+		return this.chunkOfColumnsRecycler.get(chunk, structures, distantHorizons);
 	}
 
 	public ScriptStructures preGenerateFeatureColumns(StructureWorldAccess world, ChunkPos chunkPos, StructureAccessor structureAccessor, boolean distantHorizons) {
@@ -957,7 +938,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos blockPos) {
-		text.add("Reclaimed columns: " + this.chunkOfColumnsRecycler.valueCount);
+		text.add("Reclaimed columns: " + this.chunkOfColumnsRecycler.available.valueCount + " / " + ChunkOfColumnsRecycler.RECYCLER_SIZE);
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 

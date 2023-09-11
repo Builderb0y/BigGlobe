@@ -4,6 +4,8 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 public abstract class SemiThreadLocal<T> {
 
 	public int valueCount;
@@ -28,6 +30,15 @@ public abstract class SemiThreadLocal<T> {
 		T[] values = this.values();
 		if (this.valueCount < values.length) {
 			values[this.valueCount++] = value;
+		}
+	}
+
+	public synchronized void reclaimAll(ObjectList<T> values) {
+		T[] existingValues = this.values();
+		if (this.valueCount < existingValues.length) {
+			int moved = Math.min(existingValues.length - this.valueCount, values.size());
+			values.getElements(0, existingValues, this.valueCount, moved);
+			this.valueCount += moved;
 		}
 	}
 

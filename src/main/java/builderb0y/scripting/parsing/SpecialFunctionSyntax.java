@@ -238,7 +238,6 @@ public class SpecialFunctionSyntax {
 						if (firstType.getSort() != Sort.INT) {
 							throw new ScriptParsingException("Iteration over range requires variable to be of type int", parser.input);
 						}
-						userVar.isFinal = true;
 						boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
 							case '[' -> true;
 							case '(' -> false;

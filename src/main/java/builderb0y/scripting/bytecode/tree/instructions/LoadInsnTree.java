@@ -22,9 +22,6 @@ public class LoadInsnTree implements InsnTree {
 
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
-		if (this.variable.isFinal) {
-			throw new ScriptParsingException("Can't modify final variable", parser.input);
-		}
 		if (op == UpdateOp.ASSIGN) {
 			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW);
 			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forVariable(this.variable, cast));

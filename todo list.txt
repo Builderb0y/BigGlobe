@@ -71,7 +71,12 @@ scripting:
 		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
 	allow for (int index, T element in list:
-	de-finalize user var in for (int number in range[]:
+	scriptable recipes.
+	debug_name property for scripts.
+		modifies the name of the generated class.
+		must be sanity-checked to only include [a-zA-Z0-9_].
+		class name is still uniquified.
+		useful for debugging with, for example, visualVM.
 
 features:
 	general:
@@ -93,6 +98,10 @@ features:
 				how to link biome placement to block placement.
 				how to optimize bulk block setting.
 				how to handle oceans?
+		fast DH tree generation
+			skips a lot of the more expensive work for tree generation,
+			and replaces trees with blobs of leaves with a trunk and no branches.
+		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.

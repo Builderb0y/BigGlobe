@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"unless (",
-				"getBiome(originX, originY, originZ) == Biome('bigglobe:swamp') &&",
+				"getBiome(originX, originY, originZ).isIn('bigglobe:swamps') &&",
 				"`overworld/surface_foliage` > 0.0L",
 			":",
 				"return(false)",

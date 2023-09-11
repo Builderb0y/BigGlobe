@@ -514,27 +514,24 @@ public interface IRandomList<E> extends List<E> {
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, IRandomList<T>> context) throws EncodeException {
 			IRandomList<T> input = context.input;
 			if (input == null) return context.empty();
-			return switch (input.size()) {
-				case 0 -> context.emptyList();
-				case 1 -> context.input(input.get(0)).encodeWith(this.elementEncoder);
-				default -> context.createList(
-					IntStream.range(0, input.size()).mapToObj((int index) -> {
-						T_Encoded encodedElement = context.input(input.get(index)).encodeWith(this.elementEncoder);
-						T_Encoded encodedWeight  = context.input(input.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
-						if (this.elementName != null) {
-							return context.createStringMap(
-								Map.of(
-									this.elementName, encodedElement,
-									"weight", encodedWeight
-								)
-							);
-						}
-						else {
-							return context.addToStringMap(encodedElement, "weight", encodedWeight);
-						}
-					})
-				);
-			};
+			if (input.isEmpty()) return context.emptyList();
+			return context.createList(
+				IntStream.range(0, input.size()).mapToObj((int index) -> {
+					T_Encoded encodedElement = context.input(input.get(index)).encodeWith(this.elementEncoder);
+					T_Encoded encodedWeight  = context.input(input.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
+					if (this.elementName != null) {
+						return context.createStringMap(
+							Map.of(
+								this.elementName, encodedElement,
+								"weight", encodedWeight
+							)
+						);
+					}
+					else {
+						return context.addToStringMap(encodedElement, "weight", encodedWeight);
+					}
+				})
+			);
 		}
 	}
 }

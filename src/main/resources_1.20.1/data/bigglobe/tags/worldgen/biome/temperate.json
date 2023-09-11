@@ -5,6 +5,6 @@
 		"bigglobe:temperate_plains",
 		"bigglobe:temperate_wasteland",
 		"bigglobe:cherry_forest",
-		"bigglobe:swamp"
+		"#bigglobe:swamps"
 	]
 }

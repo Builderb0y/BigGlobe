@@ -23,10 +23,15 @@
 		},
 		"decorations": {
 			"trunk": [
-				{ "type": "bigglobe:scatter_leaves", "is_trunk": true }
+				{ "type": "bigglobe:scatter_leaves", "is_trunk": true },
+				{ "type": "bigglobe:snow" }
 			],
 			"branches": [
-				{ "type": "bigglobe:scatter_leaves", "is_trunk": false }
+				{ "type": "bigglobe:scatter_leaves", "is_trunk": false },
+				{ "type": "bigglobe:snow" }
+			],
+			"leaves": [
+				{ "type": "bigglobe:snow" }
 			]
 		},
 		"ground_replacements": {
