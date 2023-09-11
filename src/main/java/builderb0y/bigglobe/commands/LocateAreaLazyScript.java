@@ -60,6 +60,11 @@ public class LocateAreaLazyScript implements ColumnPredicate {
 		return this.getScript().getSource();
 	}
 
+	@Override
+	public @Nullable String getDebugName() {
+		return this.getScript().getDebugName();
+	}
+
 	public static class Argument implements ArgumentType<LocateAreaLazyScript> {
 
 		@Override

@@ -31,6 +31,7 @@ public class ScriptParser<I> extends ExpressionParser {
 		Class<I> implementingClass,
 		Method implementingMethod,
 		String input,
+		String debugName,
 		ClassCompileContext clazz,
 		MethodCompileContext method
 	) {
@@ -45,19 +46,29 @@ public class ScriptParser<I> extends ExpressionParser {
 		.scopes
 		.withScope(return_(ldc(input))::emitBytecode);
 
-		clazz.addToString(TypeFormatter.getSimpleClassName(implementingClass) + '.' + implementingMethod.getName() + "(): " + input);
+		clazz
+		.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING)
+		.scopes
+		.withScope(return_(ldc(debugName, TypeInfos.STRING))::emitBytecode);
+
+		StringBuilder toString = new StringBuilder(input.length() + 128).append(TypeFormatter.getSimpleClassName(implementingClass)).append("::").append(implementingMethod.getName());
+		if (debugName != null) toString.append(" (").append(debugName).append("):\n");
+		else toString.append(":\n");
+		clazz.addToString(toString.toString());
 	}
 
 	public ScriptParser(
 		Class<I> implementingClass,
 		Method implementingMethod,
 		String input,
+		String debugName,
 		ClassCompileContext clazz
 	) {
 		this(
 			implementingClass,
 			implementingMethod,
 			input,
+			debugName,
 			clazz,
 			clazz.newMethod(
 				ACC_PUBLIC,
@@ -78,6 +89,7 @@ public class ScriptParser<I> extends ExpressionParser {
 			implementingClass,
 			implementingMethod,
 			input,
+			debugName,
 			new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
@@ -115,10 +127,8 @@ public class ScriptParser<I> extends ExpressionParser {
 		Method implementingMethod = null;
 		for (Method method : implementingClass.getMethods()) {
 			if (
-				Modifier.isAbstract(method.getModifiers()) && !(
-					method.getName() == "getSource" &&
-					method.getParameterCount() == 0
-				)
+				Modifier.isAbstract(method.getModifiers()) &&
+				method.getDeclaringClass() != Script.class
 			) {
 				if (implementingMethod == null) implementingMethod = method;
 				else throw new IllegalArgumentException("implementingClass must have exactly 1 abstract method.");

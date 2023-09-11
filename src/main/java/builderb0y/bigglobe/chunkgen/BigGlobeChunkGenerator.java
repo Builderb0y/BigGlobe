@@ -91,11 +91,11 @@ import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 	import builderb0y.autocodec.annotations.AddPseudoField;
 #elif MC_VERSION == MC_1_19_4
 	import java.util.concurrent.ConcurrentLinkedQueue;
-	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 	import net.minecraft.registry.RegistryWrapper;
+	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 #elif MC_VERSION == MC_1_20_1
-	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 	import net.minecraft.registry.RegistryWrapper;
+	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 #endif
 
 #if MC_VERSION == MC_1_19_2
@@ -938,7 +938,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos blockPos) {
-		text.add("Reclaimed columns: " + this.chunkOfColumnsRecycler.available.valueCount + " / " + ChunkOfColumnsRecycler.RECYCLER_SIZE);
+		text.add("Reclaimed chunks of columns: " + this.chunkOfColumnsRecycler.available.valueCount + " / " + ChunkOfColumnsRecycler.RECYCLER_SIZE);
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 

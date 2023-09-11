@@ -113,5 +113,10 @@ public interface CommandScript extends Script {
 		public String getSource() {
 			return this.getScript().getSource();
 		}
+
+		@Override
+		public @Nullable String getDebugName() {
+			return this.getScript().getDebugName();
+		}
 	}
 }

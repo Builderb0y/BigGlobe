@@ -58,6 +58,11 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 		return this.getScript().getSource();
 	}
 
+	@Override
+	public @Nullable String getDebugName() {
+		return this.getScript().getDebugName();
+	}
+
 	public static class Argument implements ArgumentType<LocateNoiseLazyScript> {
 
 		@Override
