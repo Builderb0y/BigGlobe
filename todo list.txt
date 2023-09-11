@@ -72,11 +72,8 @@ scripting:
 	allow for (non-int in range[]:
 	allow for (int index, T element in list:
 	scriptable recipes.
-	debug_name property for scripts.
-		modifies the name of the generated class.
-		must be sanity-checked to only include [a-zA-Z0-9_].
-		class name is still uniquified.
-		useful for debugging with, for example, visualVM.
+	scriptable loot tables.
+	scriptable advancements?
 
 features:
 	general:

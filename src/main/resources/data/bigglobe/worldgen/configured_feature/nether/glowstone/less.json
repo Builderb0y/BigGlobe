@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": {
+			"debug_name": "ConfiguredFeatureNetherGlowstoneLess",
 			"template": "bigglobe:glowstone",
 			"inputs": {
 				"SIZE": "int(exp(random.nextDouble(log(4.0), log(64.0))))",

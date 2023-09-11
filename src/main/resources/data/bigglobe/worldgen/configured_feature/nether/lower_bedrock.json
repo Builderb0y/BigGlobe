@@ -1,15 +1,18 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": [
-			"if (distantHorizons: return(false))",
-			"++originY",
-			"for (int offsetY = 0, offsetY < 16, ++offsetY:",
-				"random.if ((1.0L - offsetY * 0.0625L) ^ 2:",
-					"setBlockState(originX, originY + offsetY, originZ, 'minecraft:bedrock')",
+		"script": {
+			"debug_name": "ConfiguredFeatureNetherLowerBedrock",
+			"source": [
+				"if (distantHorizons: return(false))",
+				"++originY",
+				"for (int offsetY = 0, offsetY < 16, ++offsetY:",
+					"random.if ((1.0L - offsetY * 0.0625L) ^ 2:",
+						"setBlockState(originX, originY + offsetY, originZ, 'minecraft:bedrock')",
+					")",
 				")",
-			")",
-			"return(true)"
-		]
+				"return(true)"
+			]
+		}
 	}
 }

@@ -1,32 +1,35 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": [
-			"if (distantHorizons: return(false))",
-			"for (int base = int(min_y), base < int(max_y), base += 128:",
-				"int y = base + random.nextInt(128)",
-				"double fraction = unmixLinear(min_y, max_y, y)",
-				"double chance = exp2(fraction * -4.0L)",
-				"if (",
-					"random.nextBoolean(chance) &&",
-					"getBlockState(originX, y, originZ) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX - 1, y, originZ) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX + 1, y, originZ) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX, y - 1, originZ) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX, y + 1, originZ) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX, y, originZ - 1) == BlockState('minecraft:netherrack') &&",
-					"getBlockState(originX, y, originZ + 1) == BlockState('minecraft:netherrack')",
-				":",
-					"setBlockState(originX - 1, y, originZ, 'minecraft:magma_block')",
-					"setBlockState(originX + 1, y, originZ, 'minecraft:magma_block')",
-					"setBlockState(originX, y - 1, originZ, 'minecraft:magma_block')",
-					"setBlockState(originX, y + 1, originZ, 'minecraft:magma_block')",
-					"setBlockState(originX, y, originZ - 1, 'minecraft:magma_block')",
-					"setBlockState(originX, y, originZ + 1, 'minecraft:magma_block')",
-					"setBlockState(originX, y, originZ, 'bigglobe:hidden_lava')",
+		"script": {
+			"debug_name": "ConfiguredFeatureNetherHiddenLavaSmall",
+			"source": [
+				"if (distantHorizons: return(false))",
+				"for (int base = int(min_y), base < int(max_y), base += 128:",
+					"int y = base + random.nextInt(128)",
+					"double fraction = unmixLinear(min_y, max_y, y)",
+					"double chance = exp2(fraction * -4.0L)",
+					"if (",
+						"random.nextBoolean(chance) &&",
+						"getBlockState(originX, y, originZ) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX - 1, y, originZ) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX + 1, y, originZ) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX, y - 1, originZ) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX, y + 1, originZ) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX, y, originZ - 1) == BlockState('minecraft:netherrack') &&",
+						"getBlockState(originX, y, originZ + 1) == BlockState('minecraft:netherrack')",
+					":",
+						"setBlockState(originX - 1, y, originZ, 'minecraft:magma_block')",
+						"setBlockState(originX + 1, y, originZ, 'minecraft:magma_block')",
+						"setBlockState(originX, y - 1, originZ, 'minecraft:magma_block')",
+						"setBlockState(originX, y + 1, originZ, 'minecraft:magma_block')",
+						"setBlockState(originX, y, originZ - 1, 'minecraft:magma_block')",
+						"setBlockState(originX, y, originZ + 1, 'minecraft:magma_block')",
+						"setBlockState(originX, y, originZ, 'bigglobe:hidden_lava')",
+					")",
 				")",
-			")",
-			"return(true)"
-		]
+				"return(true)"
+			]
+		}
 	}
 }

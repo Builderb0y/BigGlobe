@@ -22,7 +22,7 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 	public @Nullable ColumnYToDoubleScript script;
 
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ScriptParser<>(ColumnYToDoubleScript.class, script);
+		this.parser = new ScriptParser<>(ColumnYToDoubleScript.class, script, null);
 		this.usedValues = ColumnYToDoubleScript.Holder.setupParser(this.parser).usedValues;
 		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
 		keywords.remove("class");

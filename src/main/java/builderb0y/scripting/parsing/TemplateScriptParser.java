@@ -26,7 +26,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 	public final ScriptUsage<GenericScriptTemplateUsage> usage;
 
 	public TemplateScriptParser(Class<I> implementingClass, ScriptUsage<GenericScriptTemplateUsage> usage) {
-		super(implementingClass, usage.findSource());
+		super(implementingClass, usage.findSource(), usage.debug_name);
 		this.usage = usage;
 	}
 

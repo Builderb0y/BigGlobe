@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": {
+			"debug_name": "ConfiguredFeatureOverworldSkylandsAmethystCrystals",
 			"template": "bigglobe:glowstone",
 			"inputs": {
 				"SIZE": "int(exp(random.nextDouble(log(12.0), log(192.0))))",

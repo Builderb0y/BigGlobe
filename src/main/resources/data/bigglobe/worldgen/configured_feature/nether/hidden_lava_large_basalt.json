@@ -2,6 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": {
+			"debug_name": "ConfiguredFeatureNetherHiddenLavaLargeBasalt",
 			"template": "bigglobe:hidden_lava_large",
 			"inputs": {
 				"REPLACE": "'bigglobe:hidden_lava_replaceables_basalt'",

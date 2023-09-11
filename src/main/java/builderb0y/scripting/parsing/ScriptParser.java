@@ -5,6 +5,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.util.TypeFormatter;
@@ -69,7 +71,8 @@ public class ScriptParser<I> extends ExpressionParser {
 	public ScriptParser(
 		Class<I> implementingClass,
 		Method implementingMethod,
-		String input
+		String input,
+		@Nullable String debugName
 	) {
 		this(
 			implementingClass,
@@ -78,7 +81,7 @@ public class ScriptParser<I> extends ExpressionParser {
 			new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
-				Type.getInternalName(ScriptParser.class) + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+				Type.getInternalName(ScriptParser.class) + '$' + (debugName != null ? debugName : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,
 				Script.class.isAssignableFrom(implementingClass)
 				? new TypeInfo[] { type(implementingClass) }
@@ -87,8 +90,13 @@ public class ScriptParser<I> extends ExpressionParser {
 		);
 	}
 
+	public ScriptParser(Class<I> implementingClass, String input, String debugName) {
+		this(implementingClass, findImplementingMethod(implementingClass), input, debugName);
+	}
+
+	@TestOnly
 	public ScriptParser(Class<I> implementingClass, String input) {
-		this(implementingClass, findImplementingMethod(implementingClass), input);
+		this(implementingClass, input, null);
 	}
 
 	@Override

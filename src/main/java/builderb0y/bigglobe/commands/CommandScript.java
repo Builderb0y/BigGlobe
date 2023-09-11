@@ -42,7 +42,7 @@ public interface CommandScript extends Script {
 			);
 
 		public Parser(String input) {
-			super(CommandScript.class, IMPLEMENTING_METHOD, input);
+			super(CommandScript.class, IMPLEMENTING_METHOD, input, (String)(null));
 			this
 			.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
