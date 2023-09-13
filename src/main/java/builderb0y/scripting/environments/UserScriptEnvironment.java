@@ -105,6 +105,10 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		);
 	}
 
+	public void addMethod(TypeInfo owner, String name, MethodHandler handler) {
+		this.methods.computeIfAbsent(new NamedType(owner, name), $ -> new ArrayList<>(4)).add(handler);
+	}
+
 	public void addClassFunction(String name, MethodHandler methodHandler) {
 		this.methods.computeIfAbsent(new NamedType(TypeInfos.CLASS, name), $ -> new ArrayList<>(4)).add(methodHandler);
 	}

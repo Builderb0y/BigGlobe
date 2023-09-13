@@ -5,6 +5,9 @@
 			"debug_name": "ConfiguredFeatureEndNestSpike",
 			"source": [
 				"class Column (int x,, int z)",
+				"Column Column.at(int x, int z:",
+					"this.=$x(x).=$z(z)",
+				")",
 				"class Height (int y)",
 				"int findGround(int x, int z:",
 					"int y = originY",
@@ -33,7 +36,7 @@
 				";the 'heights' map maps Columns to Heights.",
 				"HashMap heights = new()",
 				"Column column = new()",
-				"while ((Height height = heights.(column.$x(originX).$z(originZ)),, height == null || height.y <= maxHeightI):",
+				"while ((Height height = heights.(column.at(originX, originZ)),, height == null || height.y <= maxHeightI):",
 					"column.x = roundInt(random.nextGaussian(column.x, standardDeviation))",
 					"column.z = roundInt(random.nextGaussian(column.z, standardDeviation))",
 					"if ((column.x - originX) ^ 2 + (column.z - originZ) ^ 2 > max(standardDeviation * 4.0L, 2.0L) ^ 2: continue())",

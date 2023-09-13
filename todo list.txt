@@ -17,9 +17,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
-	use script debug name in print().
-	SwitchInsnTree might be duplicating shared branches.
-		for example case (1, 2, 3: foo)
 
 changelog:
 	* Added cherry forests (1.20.1 only), swamps, and glaciers.
@@ -33,6 +30,8 @@ changelog:
 	* Scripting changes:
 		* All json scripts can now use templates.
 			* Command scripts are still inline-only.
+		* Added scripted recipes.
+		* Added extension methods.
 		* Snow height in the overworld is now scriptable.
 		* print() now outputs to in-game chat in singleplayer.
 		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
@@ -44,6 +43,7 @@ AutoCodec:
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
 
 scripting:
+	use script debug name in print().
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
 	scriptable RandomSource?

@@ -8,15 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.google.common.collect.ObjectArrays;
-import it.unimi.dsi.fastutil.HashCommon;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -26,29 +21,28 @@ import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.ThrowingFunction;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.tree.*;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOrder;
+import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
+import builderb0y.scripting.bytecode.tree.VariableDeclarePostAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.LineNumberInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ScopedInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
-import builderb0y.scripting.environments.UserScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList.UserParameter;
+import builderb0y.scripting.parsing.UserMethodDefiner.UserExtensionMethodDefiner;
+import builderb0y.scripting.parsing.UserMethodDefiner.UserFunctionDefiner;
 import builderb0y.scripting.util.ArrayBuilder;
-import builderb0y.scripting.util.ArrayExtensions;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -124,7 +118,7 @@ public class ExpressionParser {
 
 	/**
 	this constructor is intended for user-defined functions only.
-	see {@link #nextUserDefinedFunction(TypeInfo, String)}.
+	see {@link UserMethodDefiner}.
 	*/
 	public ExpressionParser(ExpressionParser from, MethodCompileContext method) {
 		this.input = from.input;
@@ -1029,15 +1023,25 @@ public class ExpressionParser {
 							VarInfo variable = this.environment.user().newVariable(varName, type);
 							return new VariableDeclareAssignInsnTree(variable, initializer);
 						}
-						else if (this.input.hasOperatorAfterWhitespace(":=")) {
+						else if (this.input.hasOperatorAfterWhitespace(":=")) { //also variable declaration.
 							this.verifyName(varName, "variable");
 							InsnTree initializer = this.nextVariableInitializer(type, true);
 							VarInfo variable = this.environment.user().newVariable(varName, type);
 							return new VariableDeclarePostAssignInsnTree(variable, initializer);
 						}
-						else if (this.input.hasAfterWhitespace('(')) { //method declaration.
+						else if (this.input.hasAfterWhitespace('(')) { //function declaration.
 							this.verifyName(varName, "method");
-							return this.nextUserDefinedFunction(type, varName);
+							return new UserFunctionDefiner(this, varName, type).parse();
+						}
+						else if (this.input.hasOperatorAfterWhitespace(".")) { //extension method declaration.
+							TypeInfo typeBeingExtended = this.environment.getType(this, varName);
+							if (typeBeingExtended == null) {
+								throw new ScriptParsingException("Unknown type: " + varName, this.input);
+							}
+							varName = this.input.readIdentifierAfterWhitespace();
+							this.verifyName(varName, "extension method");
+							this.input.expectAfterWhitespace('(');
+							return new UserExtensionMethodDefiner(this, varName, type, typeBeingExtended).parse();
 						}
 						else {
 							throw new ScriptParsingException("Expected '=' or '('", this.input);
@@ -1086,94 +1090,6 @@ public class ExpressionParser {
 			}
 			return tree;
 		}
-	}
-
-	public InsnTree nextUserDefinedFunction(TypeInfo returnType, String methodName) throws ScriptParsingException {
-		UserParameterList userParameters = UserParameterList.parse(this);
-		List<VarInfo> newParameters = new ArrayList<>(this.method.parameters.size() + userParameters.parameters().length);
-		int currentOffset = this.method.info.isStatic() ? 0 : 1;
-		for (VarInfo builtin : this.method.parameters.values()) {
-			if (builtin.index != currentOffset) {
-				throw new IllegalStateException("Builtin parameter has incorrect offset: " + builtin + " should be at index " + currentOffset);
-			}
-			newParameters.add(builtin);
-			currentOffset += builtin.type.getSize();
-		}
-		//System.out.println(methodName + " builtin: " + newParameters);
-		MutableScriptEnvironment userParametersEnvironment = new MutableScriptEnvironment().addAll(this.environment.mutable());
-		UserScriptEnvironment userVariablesEnvironment = new UserScriptEnvironment(this.environment.user());
-		userVariablesEnvironment.variables.clear();
-		for (VarInfo captured : this.environment.user().getVariables()) {
-			VarInfo added = new VarInfo(captured.name, currentOffset, captured.type);
-			newParameters.add(added);
-			InsnTree loader = load(added);
-			//must force put in backing map directly,
-			//as normally this variable is "already defined".
-			userParametersEnvironment.variables.put(added.name, (parser, name) -> loader);
-			currentOffset += added.type.getSize();
-		}
-		//System.out.println(methodName + " builtin + captured: " + newParameters);
-		for (UserParameter userParameter : userParameters.parameters()) {
-			VarInfo variable = new VarInfo(userParameter.name(), currentOffset, userParameter.type());
-			newParameters.add(variable);
-			userParametersEnvironment.addVariableLoad(variable);
-			currentOffset += variable.type.getSize();
-		}
-		//System.out.println(methodName + " builtin + captured + user: " + newParameters);
-		MethodCompileContext newMethod = this.clazz.newMethod(
-			this.method.info.access(),
-			methodName + '_' + this.functionUniquifier++,
-			returnType,
-			newParameters
-			.stream()
-			.map(var -> var.type)
-			.toArray(TypeInfo.ARRAY_FACTORY)
-		);
-		newMethod.scopes.pushScope();
-		if (!newMethod.info.isStatic()) {
-			newMethod.addThis();
-		}
-		for (VarInfo parameter : newParameters) {
-			VarInfo added = newMethod.newParameter(parameter.name, parameter.type);
-			if (added.index != parameter.index) {
-				throw new IllegalStateException("Parameter index mismatch: " + parameter + " -> " + added);
-			}
-		}
-
-		MethodInfo newMethodInfo = newMethod.info;
-		InsnTree[] implicitParameters = (
-			Stream.concat(
-				this.method.parameters.values().stream(),
-				this.environment.user().streamVariables()
-			)
-			.map(InsnTrees::load)
-			.toArray(InsnTree.ARRAY_FACTORY)
-		);
-		TypeInfo[] expectedTypes = (
-			Arrays
-			.stream(userParameters.parameters())
-			.map(UserParameter::type)
-			.toArray(TypeInfo.ARRAY_FACTORY)
-		);
-		FunctionHandler handler = (parser, name, arguments) -> {
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, expectedTypes, CastMode.IMPLICIT_THROW, arguments);
-			InsnTree[] concatenatedArguments = ObjectArrays.concat(implicitParameters, castArguments, InsnTree.class);
-			if (this.method.info.isStatic()) {
-				return new CastResult(invokeStatic(newMethodInfo, concatenatedArguments), castArguments != arguments);
-			}
-			else {
-				return new CastResult(invokeInstance(load("this", 0, this.clazz.info), newMethodInfo, concatenatedArguments), castArguments != arguments);
-			}
-		};
-		this.environment.user().addFunction(methodName, handler);
-		userVariablesEnvironment.addFunction(methodName, handler);
-
-		ExpressionParser newParser = new ExpressionParser(this, newMethod);
-		userVariablesEnvironment.parser = newParser;
-		newParser.environment.user(userVariablesEnvironment).mutable(userParametersEnvironment);
-		InsnTree result = newParser.parseRemainingInput(true);
-
-		return new MethodDeclarationInsnTree(newMethod, result);
 	}
 
 	public TypeInfo getMainReturnType() {

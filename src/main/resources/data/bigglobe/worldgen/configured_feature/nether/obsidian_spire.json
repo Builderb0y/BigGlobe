@@ -9,6 +9,12 @@
 					"return(state.isReplaceable() || (state.isIn('bigglobe:magma_blocks') && y == int(`nether/lava_level`) - 1))",
 				")",
 
+				"class Column (int x,, int z)",
+				"Column Column.at(int x, int z:",
+					"this.=$x(x).=$z(z)",
+				")",
+				"class Height (int y)",
+
 				"double maxHeightD = 1.0L - `nether/biome_edginess`",
 				"maxHeightD *= exp2(random.nextDouble(3.0L, 7.0L))",
 				"int maxHeightI = random.roundInt(maxHeightD) + originY",
@@ -16,11 +22,9 @@
 
 				";generate initial heights above lava level.",
 				";the 'heights' map maps Columns to Heights.",
-				"class Column (int x,, int z)",
-				"class Height (int y)",
 				"HashMap heights = new()",
 				"Column column = new()",
-				"while (Height height = heights.(column.$x(originX).$z(originZ)),, height == null || height.y < maxHeightI:",
+				"while (Height height = heights.(column.at(originX, originZ)),, height == null || height.y < maxHeightI:",
 					"column.x = int(random.nextGaussian(column.x + 0.5L, standardDeviation))",
 					"column.z = int(random.nextGaussian(column.z + 0.5L, standardDeviation))",
 					"if ((column.x - originX) ^ 2 + (column.z - originZ) ^ 2 > max(standardDeviation * 4.0L, 2.0L) ^ 2: continue())",

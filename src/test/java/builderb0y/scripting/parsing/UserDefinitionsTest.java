@@ -317,7 +317,20 @@ public class UserDefinitionsTest extends TestCommon {
 	}
 
 	@Test
-	void testVariablesInFunctions() throws ScriptParsingException {
+	public void testExtensionMethods() throws ScriptParsingException {
+		assertSuccess(2,
+			"""
+			class IntBox(int x)
+			void IntBox.increment(: ++this.x)
+			IntBox box = new(1)
+			box.increment()
+			return(box.x)
+			"""
+		);
+	}
+
+	@Test
+	public void testVariablesInFunctions() throws ScriptParsingException {
 		assertSuccess(1,
 			"""
 			int a(:
