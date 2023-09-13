@@ -126,9 +126,9 @@ public class ClassOptimizerTest extends TestCommon {
 	}
 
 	@Test
-	public void testConstantEquality() throws ScriptParsingException {
-		assertSuccess(true, "Integer a = 12345i Integer b = 12345i a === b");
-		assertSuccess(true, "int a = 12345 int b = 12345 Integer(a) !== Integer(b)");
+	@Disabled
+	public void testSwitchCasting() throws ScriptParsingException {
+		dumpBytecode("return(Integer(switch(1: case(1, 2, 3: 1i) default(0i))))");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -9,6 +9,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -127,14 +129,15 @@ public class SwitchInsnTree implements InsnTree {
 	}
 
 	public SwitchInsnTree mapCases(UnaryOperator<InsnTree> mapper, TypeInfo type) {
+		Reference2ReferenceMap<InsnTree, InsnTree> lookup = new Reference2ReferenceOpenHashMap<>(this.cases.size());
 		Int2ObjectSortedMap<InsnTree> newCases = new Int2ObjectAVLTreeMap<>();
 		for (Int2ObjectMap.Entry<InsnTree> entry : this.cases.int2ObjectEntrySet()) {
-			InsnTree mapped = mapper.apply(entry.getValue());
+			InsnTree mapped = lookup.computeIfAbsent(entry.getValue(), mapper);
 			if (mapped == null) return null;
 			newCases.put(entry.getIntKey(), mapped);
 		}
 		if (this.cases.defaultReturnValue() != null) {
-			InsnTree mapped = mapper.apply(this.cases.defaultReturnValue());
+			InsnTree mapped = lookup.computeIfAbsent(this.cases.defaultReturnValue(), mapper);
 			if (mapped == null) return null;
 			newCases.defaultReturnValue(mapped);
 		}

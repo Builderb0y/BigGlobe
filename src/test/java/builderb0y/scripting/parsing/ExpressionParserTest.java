@@ -67,6 +67,8 @@ public class ExpressionParserTest extends TestCommon {
 		assertFail("Not a statement", "2 3");
 		assertFail("Unreachable statement", "return(2) return(3)");
 		assertFail("Not a statement", "int x = 2 ,, x ,, x");
+		assertSuccess(true, "Integer a = 12345i Integer b = 12345i a === b");
+		assertSuccess(true, "int a = 12345 int b = 12345 Integer(a) !== Integer(b)");
 	}
 
 	@Test
