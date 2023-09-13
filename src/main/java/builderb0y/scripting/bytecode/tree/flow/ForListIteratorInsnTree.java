@@ -1,8 +1,11 @@
 package builderb0y.scripting.bytecode.tree.flow;
 
+import java.util.ListIterator;
+
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -10,55 +13,68 @@ import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ForIteratorInsnTree extends AbstractForIteratorInsnTree {
+public class ForListIteratorInsnTree extends AbstractForIteratorInsnTree {
 
-	public VariableDeclarationInsnTree variable;
+	public static final MethodInfo
+		LIST_ITERATOR_PREV_INDEX = MethodInfo.getMethod(ListIterator.class, "previousIndex");
+
+	public VariableDeclarationInsnTree indexVariable, elementVariable;
 	public VariableDeclareAssignInsnTree iterator;
 	public InsnTree body;
 
-	public ForIteratorInsnTree(
+	public ForListIteratorInsnTree(
 		String loopName,
-		VariableDeclarationInsnTree variable,
+		VariableDeclarationInsnTree indexVariable,
+		VariableDeclarationInsnTree elementVariable,
 		VariableDeclareAssignInsnTree iterator,
 		InsnTree body
 	) {
 		super(loopName);
-		this.variable = variable;
+		this.indexVariable = indexVariable;
+		this.elementVariable = elementVariable;
 		this.iterator = iterator;
-		this.body     = body;
+		this.body = body;
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		//(
-		//	Type userVar
-		//	Iterator iterator = iterable.iterator()
+		//	int index
+		//	Type element
+		//	ListIterator iterator = iterable.iterator()
 		//	while (iterator.hasNext():
-		//		userVar = iterator.next()
+		//		element = iterator.next()
+		//		index = iterator.previousIndex()
 		//		body
 		//	)
 		//)
 		//
 		//begin:
-		//	Type userVar
-		//	Iterator iterator = this.iterator
+		//	int index
+		//	Type element
+		//	List iterator = this.iterator
 		//continuePoint:
 		//	unless (iterator.hasNext(): goto(end))
-		//	userVar = iterator.next().as(Type)
+		//	element = iterator.next()
+		//	index = iterator.previousIndex()
 		//	body
 		//	goto(continuePoint)
 		//end:
 		LabelNode continuePoint = labelNode();
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
-		this.variable.emitBytecode(method);
+		this.indexVariable.emitBytecode(method);
+		this.elementVariable.emitBytecode(method);
 		this.iterator.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
 		this.iterator.variable.emitLoad(method);
-		HAS_NEXT.emitBytecode(method);
+		ForIteratorInsnTree.HAS_NEXT.emitBytecode(method);
 		method.node.visitJumpInsn(IFEQ, scope.end.getLabel());
 		this.iterator.variable.emitLoad(method);
-		NEXT.emitBytecode(method);
-		castAndStore(this.variable, method);
+		ForIteratorInsnTree.NEXT.emitBytecode(method);
+		castAndStore(this.elementVariable, method);
+		this.iterator.variable.emitLoad(method);
+		LIST_ITERATOR_PREV_INDEX.emitBytecode(method);
+		this.indexVariable.variable.emitStore(method);
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, continuePoint.getLabel());
 

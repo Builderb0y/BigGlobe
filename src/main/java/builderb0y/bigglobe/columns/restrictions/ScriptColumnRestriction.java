@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
 

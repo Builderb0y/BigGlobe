@@ -17,6 +17,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
+import builderb0y.scripting.util.VariableNameTextifier;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -101,7 +102,7 @@ public class ClassCompileContext {
 
 	public String dump() {
 		StringWriter writer = new StringWriter(8192);
-		this.node.accept(new TraceClassVisitor(new PrintWriter(writer)));
+		this.node.accept(new TraceClassVisitor(null, new VariableNameTextifier(), new PrintWriter(writer)));
 		return writer.toString();
 	}
 

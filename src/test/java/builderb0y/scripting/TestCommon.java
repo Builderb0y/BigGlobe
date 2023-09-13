@@ -9,6 +9,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.opentest4j.AssertionFailedError;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.util.ThrowingRunnable;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -72,5 +74,48 @@ public class TestCommon {
 
 	public static String opcodesToString(int... opcodes) {
 		return Arrays.stream(opcodes).filter((int opcode) -> opcode != -1).mapToObj((int opcode) -> Printer.OPCODES[opcode]).collect(Collectors.joining(" "));
+	}
+
+	/**
+	I remember there being an annotation to specify the max time a test is allowed to run for,
+	but I can't find that annotation now. so I'm implementing that logic more manually.
+	*/
+	@SuppressWarnings("deprecation")
+	public static void runTestWithTimeLimit(long miliseconds, ThrowingRunnable<Throwable> test) {
+		Thread[] threads = new Thread[2];
+		StackTraceElement[][] stackTrace = new StackTraceElement[1][];
+		threads[0] = new Thread(() -> {
+			try {
+				test.run();
+			}
+			catch (Throwable throwable) {
+				throw AutoCodecUtil.rethrow(throwable);
+			}
+			finally {
+				threads[1].interrupt();
+			}
+		});
+		threads[1] = new Thread(() -> {
+			try {
+				Thread.sleep(miliseconds);
+				stackTrace[0] = threads[0].getStackTrace();
+				threads[0].stop();
+			}
+			catch (InterruptedException expected) {}
+		});
+		threads[0].start();
+		threads[1].start();
+		try {
+			threads[0].join();
+			threads[1].join();
+		}
+		catch (InterruptedException exception) {
+			exception.printStackTrace();
+		}
+		if (stackTrace[0] != null) {
+			AssertionFailedError error = new AssertionFailedError("Infinite loop");
+			error.setStackTrace(stackTrace[0]);
+			throw error;
+		}
 	}
 }

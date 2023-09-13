@@ -1,4 +1,34 @@
 {
-	"type": "bigglobe:crafting_special_ball_of_string_remove",
-	"category": "misc"
+	"type": "bigglobe:scripted",
+	"category": "misc",
+	"width": 1,
+	"height": 1,
+	"matches": [
+		"boolean haveBall = false",
+		"for (ItemStack stack in input:",
+			"if (stack.empty: continue())",
+			"else if (stack.item == Item('bigglobe:ball_of_string'): haveBall = true)",
+			"else (return(false))",
+		")",
+		"return(haveBall)"
+	],
+	"output": [
+		"int balls = 0",
+		"for (ItemStack stack in input:",
+			"if (stack.empty: continue())",
+			"else if (stack.item == Item('bigglobe:ball_of_string'):",
+				"if (stack.damage < stack.maxDamage: ++balls)",
+			")",
+			"else (return(ItemStack.EMPTY))",
+		")",
+		"return(ItemStack.new('minecraft:string', balls))"
+	],
+	"remainder": [
+		"for (int slot, ItemStack stack in input:",
+			"if (stack.item == Item('bigglobe:ball_of_string'):",
+				"if (stack.damage < stack.maxDamage: ++stack.damage)",
+				"output.(slot) = stack",
+			")",
+		")"
+	]
 }

@@ -10,7 +10,7 @@ import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer.OneBlockReplace
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 

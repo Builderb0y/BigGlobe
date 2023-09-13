@@ -192,6 +192,32 @@ public class FlowTest extends TestCommon {
 			secondList
 			"""
 		);
+		assertSuccess(
+			true,
+			"""
+			ArrayList list = new().$add('a').$add('b').$add('c')
+			int sum = 0
+			String concat = ''
+			for (int index, String string in list:
+				sum += index
+				concat = '$concat$string'
+			)
+			sum == 3 && concat == 'abc'
+			"""
+		);
+		assertSuccess(
+			true,
+			"""
+			LinkedList list = new().$add('a').$add('b').$add('c')
+			int sum = 0
+			String concat = ''
+			for (int index, String string in list:
+				sum += index
+				concat = '$concat$string'
+			)
+			sum == 3 && concat == 'abc'
+			"""
+		);
 	}
 
 	@Test
@@ -440,5 +466,108 @@ public class FlowTest extends TestCommon {
 			Actual form: x""",
 			"for (int number in range[int x := 5, 10]: print(x))"
 		);
+	}
+
+	@Test
+	public void testInfiniteLoops() {
+		TestCommon.runTestWithTimeLimit(10000L, () -> {
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				ArrayList list = new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
+				int sum = 0
+				for (int number in list:
+					sum += number
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				LinkedList list = new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
+				int sum = 0
+				for (int number in list:
+					sum += number
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				Iterable list = ArrayList.new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
+				int sum = 0
+				for (int number in list:
+					sum += number
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				Iterator list = ArrayList.new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i).iterator()
+				int sum = 0
+				for (int number in list:
+					sum += number
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				int sum = 0
+				for (int number in range[1, 5]:
+					sum += number
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(0 + 1 + 2 + 3 + 4,
+				"""
+				ArrayList list = new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
+				int sum = 0
+				for (int index, int number in list:
+					sum += index
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(0 + 1 + 2 + 3 + 4,
+				"""
+				LinkedList list = new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i)
+				int sum = 0
+				for (int index, int number in list:
+					sum += index
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3,
+				"""
+				HashMap map = new().$put('a', 1i).$put('b', 2i).$put('c', 3i)
+				int sum = 0
+				for (String key, int value in map:
+					sum += value
+					continue()
+				)
+				sum
+				"""
+			);
+			assertSuccess(1 + 2 + 3 + 4 + 5,
+				"""
+				int sum = 0
+				for (int value = 1, value <= 5, ++value:
+					sum += value
+					continue()
+				)
+				sum
+				"""
+			);
+		});
 	}
 }

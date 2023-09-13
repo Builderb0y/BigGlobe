@@ -1,9 +1,6 @@
 package builderb0y.scripting.parsing;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.RandomAccess;
+import java.util.*;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
@@ -26,7 +23,6 @@ import builderb0y.scripting.bytecode.tree.flow.compare.*;
 import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.NullableInvokeInsnTree;
 import builderb0y.scripting.parsing.ExpressionReader.CursorPos;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
@@ -280,7 +276,7 @@ public class SpecialFunctionSyntax {
 						parser.input.setCursor(afterIn);
 					}
 
-					VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
+					VarInfo iterator = parser.environment.user().newAnonymousVariable("iterator", TypeInfos.ITERATOR);
 					InsnTree rawIterable = parser.nextScript();
 					InsnTree iterable;
 					ForEachLoop.Mode mode;
@@ -337,27 +333,69 @@ public class SpecialFunctionSyntax {
 							parser.verifyName(secondVarName, "variable");
 							parser.input.setCursor(afterIn);
 
-							VarInfo iterator = parser.environment.user().newAnonymousVariable(TypeInfos.ITERATOR);
 							VarInfo firstVar = parser.environment.user().newVariable(firstVarName, firstType);
 							VarInfo secondVar = parser.environment.user().newVariable(secondVarName, secondType);
-							InsnTree map = parser.nextScript().cast(parser, TypeInfos.MAP, CastMode.IMPLICIT_THROW);
-							parser.input.expectOperatorAfterWhitespace(":");
-							InsnTree body = parser.nextScript();
-							parser.input.expectAfterWhitespace(')');
-							parser.environment.user().pop();
-							return new ForMapLoop(
-								loopName,
-								new VariableDeclareAssignInsnTree(
-									iterator,
-									invokeInstance(
-										invokeInstance(map, ForMapIteratorInsnTree.ENTRY_SET),
-										AbstractForIteratorInsnTree.ITERATOR
-									)
-								),
-								new VariableDeclarationInsnTree(firstVar),
-								new VariableDeclarationInsnTree(secondVar),
-								body.asStatement()
-							);
+							InsnTree iterable = parser.nextScript();
+							if (iterable.getTypeInfo().extendsOrImplements(type(List.class))) {
+								if (!firstType.equals(TypeInfos.INT)) {
+									parser.input.setCursor(firstTypeRevert);
+									throw new ScriptParsingException("First type must be int when iterating over List (was " + firstType + ')', parser.input);
+								}
+								if (iterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class))) {
+									VarInfo list = parser.environment.user().newAnonymousVariable("listForIteration", type(List.class));
+									parser.input.expectOperatorAfterWhitespace(":");
+									InsnTree body = parser.nextScript();
+									parser.input.expectAfterWhitespace(')');
+									parser.environment.user().pop();
+									return new ForListIndexLoop(
+										loopName,
+										new VariableDeclarationInsnTree(firstVar),
+										new VariableDeclarationInsnTree(secondVar),
+										new VariableDeclareAssignInsnTree(list, iterable),
+										body
+									);
+								}
+								else {
+									VarInfo iterator = parser.environment.user().newAnonymousVariable("listIterator", type(ListIterator.class));
+									parser.input.expectOperatorAfterWhitespace(":");
+									InsnTree body = parser.nextScript();
+									parser.input.expectAfterWhitespace(')');
+									parser.environment.user().pop();
+									return new ForListIteratorLoop(
+										loopName,
+										new VariableDeclarationInsnTree(firstVar),
+										new VariableDeclarationInsnTree(secondVar),
+										new VariableDeclareAssignInsnTree(
+											iterator,
+											invokeInstance(iterable, ForListIteratorLoop.LIST_LIST_ITERATOR)
+										),
+										body
+									);
+								}
+							}
+							else if (iterable.getTypeInfo().extendsOrImplements(type(Map.class))) {
+								VarInfo iterator = parser.environment.user().newAnonymousVariable("mapEntrySetIterator", TypeInfos.ITERATOR);
+								parser.input.expectOperatorAfterWhitespace(":");
+								InsnTree body = parser.nextScript();
+								parser.input.expectAfterWhitespace(')');
+								parser.environment.user().pop();
+								return new ForMapLoop(
+									loopName,
+									new VariableDeclareAssignInsnTree(
+										iterator,
+										invokeInstance(
+											invokeInstance(iterable, ForMapIteratorInsnTree.ENTRY_SET),
+											AbstractForIteratorInsnTree.ITERATOR
+										)
+									),
+									new VariableDeclarationInsnTree(firstVar),
+									new VariableDeclarationInsnTree(secondVar),
+									body.asStatement()
+								);
+							}
+							else {
+								throw new ScriptParsingException("in clause must implement List or Map", parser.input);
+							}
 						}
 					}
 				}
@@ -413,6 +451,39 @@ public class SpecialFunctionSyntax {
 			RANDOM_ACCESS_LIST,
 			ITERABLE,
 			ITERATOR;
+		}
+	}
+
+	public static record ForListIndexLoop(
+		String loopName,
+		VariableDeclarationInsnTree indexVar,
+		VariableDeclarationInsnTree elementVar,
+		VariableDeclareAssignInsnTree list,
+		InsnTree body
+	)
+	implements ForLoop {
+
+		@Override
+		public InsnTree buildLoop(ExpressionParser parser) {
+			return new ForListIndexInsnTree(this.loopName, this.indexVar, this.elementVar, this.list, this.body);
+		}
+	}
+
+	public static record ForListIteratorLoop(
+		String loopName,
+		VariableDeclarationInsnTree indexVar,
+		VariableDeclarationInsnTree elementVar,
+		VariableDeclareAssignInsnTree listIterator,
+		InsnTree body
+	)
+	implements ForLoop {
+
+		public static final MethodInfo
+			LIST_LIST_ITERATOR = MethodInfo.findMethod(List.class, "listIterator", ListIterator.class);
+
+		@Override
+		public InsnTree buildLoop(ExpressionParser parser) {
+			return new ForListIteratorInsnTree(this.loopName, this.indexVar, this.elementVar, this.listIterator, this.body);
 		}
 	}
 

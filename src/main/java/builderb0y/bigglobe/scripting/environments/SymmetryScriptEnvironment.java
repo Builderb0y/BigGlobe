@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.scripting;
+package builderb0y.bigglobe.scripting.environments;
 
 import java.util.Arrays;
 

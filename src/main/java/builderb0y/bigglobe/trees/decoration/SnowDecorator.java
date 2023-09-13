@@ -2,6 +2,8 @@ package builderb0y.bigglobe.trees.decoration;
 
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2FloatMap;
+import it.unimi.dsi.fastutil.longs.Long2FloatOpenHashMap;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -17,13 +19,21 @@ import builderb0y.bigglobe.trees.TreeGenerator;
 @RecordLike({}) //RecordDecoder.Factory requires at least 1 field by default, but we have none.
 public class SnowDecorator implements BlockDecorator {
 
-	public transient Long2DoubleMap cache = new Long2DoubleOpenHashMap(256);
+	public transient Long2FloatMap cache;
 
-	public double getSnowChance(TreeGenerator generator, int x, int z) {
-		if (!(generator.anywhereColumn instanceof OverworldColumn column)) return 0.0D;
+	public SnowDecorator(int initialCapacity) {
+		this.cache = new Long2FloatOpenHashMap(initialCapacity);
+	}
+
+	public SnowDecorator() {
+		this(0);
+	}
+
+	public float getSnowChance(TreeGenerator generator, int x, int z) {
+		if (!(generator.anywhereColumn instanceof OverworldColumn column)) return 0.0F;
 		return this.cache.computeIfAbsent((((long)(z)) << 32) | (((long)(x)) & 0xFFFF_FFFFL), (long key) -> {
 			column.setPosUnchecked((int)(key), (int)(key >>> 32));
-			return column.getSnowChance();
+			return (float)(column.getSnowChance());
 		});
 	}
 
@@ -41,6 +51,6 @@ public class SnowDecorator implements BlockDecorator {
 
 	@Override
 	public BlockDecorator copyIfMutable() {
-		return new SnowDecorator();
+		return new SnowDecorator(48);
 	}
 }

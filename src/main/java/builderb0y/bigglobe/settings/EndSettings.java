@@ -5,8 +5,8 @@ import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
-import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 
 public class EndSettings {

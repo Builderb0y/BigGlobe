@@ -6,9 +6,9 @@ import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
-import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
-import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.HeightAdjustmentScript;
+import builderb0y.bigglobe.scripting.interfaces.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 
 public class OverworldSettings {

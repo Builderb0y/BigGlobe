@@ -26,7 +26,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;

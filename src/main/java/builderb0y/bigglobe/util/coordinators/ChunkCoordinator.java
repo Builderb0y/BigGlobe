@@ -13,7 +13,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 

@@ -38,7 +38,7 @@ import builderb0y.bigglobe.noise.SmoothGrid2D;
 import builderb0y.bigglobe.noise.SummingGrid2D;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYRandomToDoubleScript;
 import builderb0y.bigglobe.settings.Seed.NumberSeed;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;

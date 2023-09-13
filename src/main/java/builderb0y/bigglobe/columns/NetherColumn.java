@@ -11,7 +11,7 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.ScriptedGrid;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.NetherCavernSettings;

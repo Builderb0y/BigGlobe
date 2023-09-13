@@ -4,6 +4,7 @@ import org.objectweb.asm.Label;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -52,7 +53,12 @@ public class NullableReceiverListMapUpdaterInsnTree extends ListMapUpdaterInsnTr
 	}
 
 	@Override
+	public TypeInfo getTypeInfo() {
+		return this.receiver.getTypeInfo();
+	}
+
+	@Override
 	public InsnTree asStatement() {
-		return this.mode.isVoid() ? this : new NullableReceiverListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
+		return new NullableListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
 	}
 }

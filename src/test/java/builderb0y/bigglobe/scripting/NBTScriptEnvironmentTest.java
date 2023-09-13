@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import net.minecraft.nbt.*;
 
+import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;

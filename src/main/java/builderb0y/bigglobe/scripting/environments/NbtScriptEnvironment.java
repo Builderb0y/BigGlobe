@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.scripting;
+package builderb0y.bigglobe.scripting.environments;
 
 import java.util.Objects;
 
@@ -15,6 +15,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
@@ -120,7 +122,12 @@ public class NbtScriptEnvironment {
 		})
 
 		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name, mode) -> {
-			return new NormalListMapGetterInsnTree(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement");
+			return NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
+				case NORMAL -> GetMethodMode.NORMAL;
+				case NULLABLE -> GetMethodMode.NULLABLE;
+				case RECEIVER -> GetMethodMode.RECEIVER;
+				case NULLABLE_RECEIVER -> GetMethodMode.NULLABLE_RECEIVER;
+			});
 		})
 	);
 

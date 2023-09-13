@@ -7,7 +7,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public class LocateNoiseCommand2D extends LocateNoiseCommand {
 

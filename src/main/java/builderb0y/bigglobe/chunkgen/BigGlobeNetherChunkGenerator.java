@@ -9,7 +9,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
@@ -41,7 +40,6 @@ import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
@@ -53,8 +51,8 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.nether.NetherVolumetricOverrider;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript.Holder;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYRandomToDoubleScript.Holder;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.settings.NetherSettings;
 import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
@@ -62,6 +60,11 @@ import builderb0y.bigglobe.settings.NetherSettings.NetherSurfaceSettings;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.NetherPillarStructure;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION == MC_1_19_2
+import net.minecraft.structure.StructureSet;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+#endif
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {

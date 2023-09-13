@@ -872,6 +872,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addQualifiedFunctionMultiInvokeStatics(TypeInfo.of(in), in, names);
 	}
 
+	public MutableScriptEnvironment addQualifiedFunctionRenamedMultiInvokeStatic(TypeInfo owner, Class<?> in, String exposedName, String internalName) {
+		for (Method method : ReflectionData.forClass(in).getDeclaredMethods(internalName)) {
+			this.addQualifiedFunctionInvokeStatic(owner, exposedName, MethodInfo.forMethod(method));
+		}
+		return this;
+	}
+
 	//////////////// invoke ////////////////
 
 	//todo: finish this section.

@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.scripting;
+package builderb0y.bigglobe.scripting.environments;
 
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.environments.MutableScriptEnvironment;

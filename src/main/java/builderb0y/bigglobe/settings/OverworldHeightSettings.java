@@ -7,7 +7,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.noise.ErosionGrid2D;
 import builderb0y.bigglobe.noise.Grid2D;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public record OverworldHeightSettings(
 	@VerifyDivisibleBy16 int min_y,

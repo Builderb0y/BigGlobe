@@ -16,7 +16,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.HeightAdjustmentScript;
+import builderb0y.bigglobe.scripting.interfaces.HeightAdjustmentScript;
 
 public record OverworldClientSettings(
 	long seed,

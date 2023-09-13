@@ -28,7 +28,7 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;

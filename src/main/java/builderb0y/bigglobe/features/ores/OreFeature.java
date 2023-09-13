@@ -7,7 +7,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.features.DummyFeature;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public class OreFeature<T_Config extends OreFeature.Config> extends DummyFeature<T_Config> {
 

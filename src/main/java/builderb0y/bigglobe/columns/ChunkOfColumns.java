@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
 
 public class ChunkOfColumns<T_Column extends Column> extends AbstractChunkOfColumns<T_Column> implements ColumnLookup {
 

@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.tree.instructions.update;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
 public class ReceiverListMapUpdaterInsnTree extends ListMapUpdaterInsnTree {
@@ -40,7 +41,12 @@ public class ReceiverListMapUpdaterInsnTree extends ListMapUpdaterInsnTree {
 	}
 
 	@Override
+	public TypeInfo getTypeInfo() {
+		return this.receiver.getTypeInfo();
+	}
+
+	@Override
 	public InsnTree asStatement() {
-		return this.mode.isVoid() ? this : new ReceiverListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
+		return new NormalListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
 	}
 }

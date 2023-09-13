@@ -16,8 +16,8 @@ import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYRandomToDoubleScript;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYRandomToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class NetherSettings extends DecoratorTagHolder {

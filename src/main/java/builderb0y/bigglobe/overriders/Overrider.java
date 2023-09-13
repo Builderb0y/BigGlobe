@@ -11,7 +11,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.EntryWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.MethodInfo;

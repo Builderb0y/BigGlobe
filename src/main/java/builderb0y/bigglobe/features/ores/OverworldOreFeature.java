@@ -8,7 +8,7 @@ import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer.TwoBlockReplacer;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> {
 

@@ -20,7 +20,7 @@ import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class OverworldCaveSettings extends DecoratorTagHolder {

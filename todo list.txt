@@ -18,6 +18,8 @@ testing:
 
 where I left off:
 	use script debug name in print().
+	SwitchInsnTree might be duplicating shared branches.
+		for example case (1, 2, 3: foo)
 
 changelog:
 	* Added cherry forests (1.20.1 only), swamps, and glaciers.
@@ -71,13 +73,13 @@ scripting:
 	extract user-defined function parsing into its own class.
 		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
-	allow for (int index, T element in list:
 	scriptable recipes.
 	scriptable loot tables.
 	scriptable advancements?
 
 features:
 	general:
+		use float[]'s for arrays (like cave noise).
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.

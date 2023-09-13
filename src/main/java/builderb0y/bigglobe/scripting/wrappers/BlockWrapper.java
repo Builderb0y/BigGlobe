@@ -35,7 +35,7 @@ public class BlockWrapper {
 			return RegistryVersions.block().get(identifier);
 		}
 		else {
-			throw new IllegalArgumentException("Unknown block: " + id);
+			throw new IllegalArgumentException("Unknown block: " + identifier);
 		}
 	}
 

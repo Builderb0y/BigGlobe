@@ -210,8 +210,8 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		return variable;
 	}
 
-	public VarInfo newAnonymousVariable(TypeInfo type) {
-		return this.newVariable("$" + this.varUniquifier++, type);
+	public VarInfo newAnonymousVariable(String baseName, TypeInfo type) {
+		return new VarInfo(baseName + '$' + this.varUniquifier++, -1, type);
 	}
 
 	public Stream<VarInfo> streamVariables() {

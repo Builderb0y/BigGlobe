@@ -25,7 +25,7 @@ import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.SurfaceDepthWithSlopeScript;
+import builderb0y.bigglobe.scripting.interfaces.SurfaceDepthWithSlopeScript;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 @UseVerifier(name = "verify", in = BiomeLayout.class, usage = MemberUsage.METHOD_IS_HANDLER)

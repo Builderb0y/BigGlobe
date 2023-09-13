@@ -27,7 +27,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator3D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public abstract class LocateNoiseCommand extends AsyncLocateCommand<Result> {

@@ -18,7 +18,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
-import builderb0y.bigglobe.scripting.ColumnPredicate;
+import builderb0y.bigglobe.scripting.interfaces.ColumnPredicate;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateAreaCommand extends AsyncLocateCommand<LocateAreaCommand.Result> {

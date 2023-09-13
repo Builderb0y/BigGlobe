@@ -26,18 +26,20 @@ public class ScriptParser<I> extends ExpressionParser {
 
 	public Class<I> implementingClass;
 	public Method implementingMethod;
+	public @Nullable String debugName;
 
 	public ScriptParser(
 		Class<I> implementingClass,
 		Method implementingMethod,
 		String input,
-		String debugName,
+		@Nullable String debugName,
 		ClassCompileContext clazz,
 		MethodCompileContext method
 	) {
 		super(input, clazz, method);
 		this.implementingClass  = implementingClass;
 		this.implementingMethod = implementingMethod;
+		this.debugName          = debugName;
 
 		clazz.addNoArgConstructor(ACC_PUBLIC);
 
@@ -52,8 +54,7 @@ public class ScriptParser<I> extends ExpressionParser {
 		.withScope(return_(ldc(debugName, TypeInfos.STRING))::emitBytecode);
 
 		StringBuilder toString = new StringBuilder(input.length() + 128).append(TypeFormatter.getSimpleClassName(implementingClass)).append("::").append(implementingMethod.getName());
-		if (debugName != null) toString.append(" (").append(debugName).append("):\n");
-		else toString.append(":\n");
+		if (debugName != null) toString.append(" (").append(debugName).append(')');
 		clazz.addToString(toString.toString());
 	}
 
@@ -61,7 +62,7 @@ public class ScriptParser<I> extends ExpressionParser {
 		Class<I> implementingClass,
 		Method implementingMethod,
 		String input,
-		String debugName,
+		@Nullable String debugName,
 		ClassCompileContext clazz
 	) {
 		this(

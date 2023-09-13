@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;

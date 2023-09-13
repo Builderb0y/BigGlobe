@@ -10,6 +10,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.util.CheckedList;

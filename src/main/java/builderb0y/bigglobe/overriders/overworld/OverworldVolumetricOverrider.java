@@ -6,7 +6,7 @@ import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
-import builderb0y.bigglobe.scripting.ColumnYToDoubleScript;
+import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;

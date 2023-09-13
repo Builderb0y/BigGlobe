@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.features;
 
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.random.RandomGenerator;
 
@@ -8,9 +7,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
@@ -24,8 +21,9 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.*;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.DefaultLookupPosition;
+import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.DefaultLookupPosition;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;

@@ -1,6 +1,7 @@
-package builderb0y.bigglobe.scripting;
+package builderb0y.bigglobe.scripting.interfaces;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;

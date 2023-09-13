@@ -4,7 +4,7 @@ import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

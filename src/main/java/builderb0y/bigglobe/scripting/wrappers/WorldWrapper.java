@@ -27,7 +27,7 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.Tripwire;

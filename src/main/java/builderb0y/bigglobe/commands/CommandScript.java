@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
