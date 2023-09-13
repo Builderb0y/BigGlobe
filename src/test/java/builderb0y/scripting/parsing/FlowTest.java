@@ -391,56 +391,89 @@ public class FlowTest extends TestCommon {
 	}
 
 	@Test
-	public void testRangeLoop() throws ScriptParsingException {
-		boolean[] trueFalse = { true, false };
-		enum Step {
-			NONE,
-			CONSTANT,
-			VARIABLE;
+	public void testRangeLoop() {
+		runTestWithTimeLimit(10_000L, () -> {
+			boolean[] trueFalse = { true, false };
+			enum Step {
+				NONE,
+				CONSTANT,
+				VARIABLE;
 
-			public static final Step[] VALUES = values();
-		}
-		final int lowerBound = 5;
-		final int UpperBound = 15;
-		for (boolean descending : trueFalse) {
-			for (boolean lowerBoundInclusive : trueFalse) {
-				for (boolean lowerBoundVariable : trueFalse) {
-					for (boolean upperBoundInclusive : trueFalse) {
-						for (boolean upperBoundVariable : trueFalse) {
-							for (Step step : Step.VALUES) {
-								StringBuilder scriptBuilder = new StringBuilder(256);
-								scriptBuilder.append("ArrayList list = new()\n");
-								if (lowerBoundVariable) scriptBuilder.append("int lowerBound = " + lowerBound + '\n');
-								if (upperBoundVariable) scriptBuilder.append("int upperBound = " + UpperBound + '\n');
-								if (step == Step.VARIABLE) scriptBuilder.append("int step = 2\n");
-								scriptBuilder.append("for (int number in ");
-								if (descending) scriptBuilder.append('-');
-								scriptBuilder.append("range");
-								scriptBuilder.append(lowerBoundInclusive ? '[' : '(');
-								scriptBuilder.append(lowerBoundVariable ? "lowerBound" : "" + lowerBound);
-								scriptBuilder.append(", ");
-								scriptBuilder.append(upperBoundVariable ? "upperBound" : "" + UpperBound);
-								scriptBuilder.append(upperBoundInclusive ? ']' : ')');
-								if (step != Step.NONE) {
-									scriptBuilder.append(" % ");
-									scriptBuilder.append(step == Step.VARIABLE ? "step" : "2");
+				public static final Step[] VALUES = values();
+			}
+			final int lowerBound = 5;
+			final int UpperBound = 15;
+			for (boolean isFloat : trueFalse) {
+				for (boolean isLong : trueFalse) {
+					String type = isFloat ? (isLong ? "double" : "float") : (isLong ? "long" : "int");
+					char suffix = isLong ? 'L' : 'I';
+					for (boolean descending : trueFalse) {
+						for (boolean lowerBoundInclusive : trueFalse) {
+							for (boolean lowerBoundVariable : trueFalse) {
+								for (boolean upperBoundInclusive : trueFalse) {
+									for (boolean upperBoundVariable : trueFalse) {
+										for (Step step : Step.VALUES) {
+											StringBuilder scriptBuilder = new StringBuilder(256);
+											scriptBuilder.append("ArrayList list = new()\n");
+											if (lowerBoundVariable) scriptBuilder.append(type).append(" lowerBound = ").append(lowerBound).append(suffix).append('\n');
+											if (upperBoundVariable) scriptBuilder.append(type).append(" upperBound = ").append(UpperBound).append(suffix).append('\n');
+											if (step == Step.VARIABLE) scriptBuilder.append(type).append(" step = 2").append(suffix).append('\n');
+											scriptBuilder.append("for (").append(type).append(" number in ");
+											if (descending) scriptBuilder.append('-');
+											scriptBuilder.append("range");
+											scriptBuilder.append(lowerBoundInclusive ? '[' : '(');
+											scriptBuilder.append(lowerBoundVariable ? "lowerBound" : "" + lowerBound + suffix);
+											scriptBuilder.append(", ");
+											scriptBuilder.append(upperBoundVariable ? "upperBound" : "" + UpperBound + suffix);
+											scriptBuilder.append(upperBoundInclusive ? ']' : ')');
+											if (step != Step.NONE) {
+												scriptBuilder.append(" % ");
+												scriptBuilder.append(step == Step.VARIABLE ? "step" : "2" + suffix);
+											}
+											scriptBuilder.append(": list.add(number))\nlist");
+
+											List<Number> expected = new ArrayList<>(11);
+											for (int number = lowerBound; upperBoundInclusive ? number <= UpperBound : number < UpperBound; number += step != Step.NONE ? 2 : 1) {
+												if (number == lowerBound && !lowerBoundInclusive) continue;
+												expected.add(
+													isFloat
+													? (isLong ? ((Number)(Double.valueOf(number))) : ((Number)(Float.valueOf(number))))
+													: (isLong ? ((Number)(Long.valueOf(number))) : ((Number)(Integer.valueOf(number))))
+												);
+											}
+											if (descending) Collections.reverse(expected);
+
+											assertSuccess(expected, scriptBuilder.toString());
+
+											//make sure loop doesn't loop infinitely.
+											scriptBuilder.setLength(0);
+											if (lowerBoundVariable) scriptBuilder.append(type).append(" lowerBound = ").append(lowerBound).append(suffix).append('\n');
+											if (upperBoundVariable) scriptBuilder.append(type).append(" upperBound = ").append(UpperBound).append(suffix).append('\n');
+											if (step == Step.VARIABLE) scriptBuilder.append(type).append(" step = 2").append(suffix).append('\n');
+											scriptBuilder.append("for (").append(type).append(" number in ");
+											if (descending) scriptBuilder.append('-');
+											scriptBuilder.append("range");
+											scriptBuilder.append(lowerBoundInclusive ? '[' : '(');
+											scriptBuilder.append(lowerBoundVariable ? "lowerBound" : "" + lowerBound + suffix);
+											scriptBuilder.append(", ");
+											scriptBuilder.append(upperBoundVariable ? "upperBound" : "" + UpperBound + suffix);
+											scriptBuilder.append(upperBoundInclusive ? ']' : ')');
+											if (step != Step.NONE) {
+												scriptBuilder.append(" % ");
+												scriptBuilder.append(step == Step.VARIABLE ? "step" : "2" + suffix);
+											}
+											scriptBuilder.append(": continue())\ntrue");
+
+											evaluate(scriptBuilder.toString());
+										}
+									}
 								}
-								scriptBuilder.append(": list.add(number))\nlist");
-
-								List<Integer> expected = new ArrayList<>(10);
-								for (int number = lowerBound; upperBoundInclusive ? number <= UpperBound : number < UpperBound; number += step != Step.NONE ? 2 : 1) {
-									if (number == lowerBound && !lowerBoundInclusive) continue;
-									expected.add(number);
-								}
-								if (descending) Collections.reverse(expected);
-
-								assertSuccess(expected, scriptBuilder.toString());
 							}
 						}
 					}
 				}
 			}
-		}
+		});
 	}
 
 	@Test
@@ -509,16 +542,6 @@ public class FlowTest extends TestCommon {
 				Iterator list = ArrayList.new().$add(1i).$add(2i).$add(3i).$add(4i).$add(5i).iterator()
 				int sum = 0
 				for (int number in list:
-					sum += number
-					continue()
-				)
-				sum
-				"""
-			);
-			assertSuccess(1 + 2 + 3 + 4 + 5,
-				"""
-				int sum = 0
-				for (int number in range[1, 5]:
 					sum += number
 					continue()
 				)

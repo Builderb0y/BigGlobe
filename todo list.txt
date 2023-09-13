@@ -75,7 +75,8 @@ scripting:
 	allow for (non-int in range[]:
 	scriptable loot tables.
 	scriptable advancements?
-	extension methods?
+	check if UserScriptEnvironment.newAnonymousVariable() can be removed or not.
+		MethodCompileContext.newVariable() exists.
 
 features:
 	general:

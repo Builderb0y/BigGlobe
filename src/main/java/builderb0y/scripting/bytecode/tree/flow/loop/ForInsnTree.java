@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.flow;
+package builderb0y.scripting.bytecode.tree.flow.loop;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;

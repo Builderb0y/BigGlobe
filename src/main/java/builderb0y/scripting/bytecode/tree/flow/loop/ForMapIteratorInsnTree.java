@@ -1,6 +1,6 @@
-package builderb0y.scripting.bytecode.tree.flow;
+package builderb0y.scripting.bytecode.tree.flow.loop;
 
-import java.util.ListIterator;
+import java.util.Map;
 
 import org.objectweb.asm.tree.LabelNode;
 
@@ -13,57 +13,57 @@ import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ForListIteratorInsnTree extends AbstractForIteratorInsnTree {
+public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
-		LIST_ITERATOR_PREV_INDEX = MethodInfo.getMethod(ListIterator.class, "previousIndex");
+		ENTRY_SET = MethodInfo.getMethod(Map.class, "entrySet"),
+		GET_KEY   = MethodInfo.getMethod(Map.Entry.class, "getKey"),
+		GET_VALUE = MethodInfo.getMethod(Map.Entry.class, "getValue");
 
-	public VariableDeclarationInsnTree indexVariable, elementVariable;
+	public VariableDeclarationInsnTree keyVariable, valueVariable;
 	public VariableDeclareAssignInsnTree iterator;
 	public InsnTree body;
 
-	public ForListIteratorInsnTree(
+	public ForMapIteratorInsnTree(
 		String loopName,
-		VariableDeclarationInsnTree indexVariable,
-		VariableDeclarationInsnTree elementVariable,
+		VariableDeclarationInsnTree keyVariable,
+		VariableDeclarationInsnTree valueVariable,
 		VariableDeclareAssignInsnTree iterator,
 		InsnTree body
 	) {
 		super(loopName);
-		this.indexVariable = indexVariable;
-		this.elementVariable = elementVariable;
-		this.iterator = iterator;
-		this.body = body;
+		this.keyVariable   = keyVariable;
+		this.valueVariable = valueVariable;
+		this.iterator      = iterator;
+		this.body          = body;
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		//(
-		//	int index
-		//	Type element
-		//	ListIterator iterator = iterable.iterator()
+		//	Type keyVar
+		//	Type valueVar
+		//	Iterator iterator = iterable.iterator()
 		//	while (iterator.hasNext():
-		//		element = iterator.next()
-		//		index = iterator.previousIndex()
+		//		keyVar, valueVar = iterator.next().(getKey(), getValue())
 		//		body
 		//	)
 		//)
 		//
 		//begin:
-		//	int index
-		//	Type element
-		//	List iterator = this.iterator
+		//	Type keyVar
+		//	Type valueVar
+		//	Iterator iterator = this.iterator
 		//continuePoint:
 		//	unless (iterator.hasNext(): goto(end))
-		//	element = iterator.next()
-		//	index = iterator.previousIndex()
+		//	keyVar, valueVar = iterator.next().(getKey(), getValue())
 		//	body
 		//	goto(continuePoint)
 		//end:
 		LabelNode continuePoint = labelNode();
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
-		this.indexVariable.emitBytecode(method);
-		this.elementVariable.emitBytecode(method);
+		this.keyVariable.emitBytecode(method);
+		this.valueVariable.emitBytecode(method);
 		this.iterator.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
 		this.iterator.variable.emitLoad(method);
@@ -71,10 +71,11 @@ public class ForListIteratorInsnTree extends AbstractForIteratorInsnTree {
 		method.node.visitJumpInsn(IFEQ, scope.end.getLabel());
 		this.iterator.variable.emitLoad(method);
 		ForIteratorInsnTree.NEXT.emitBytecode(method);
-		castAndStore(this.elementVariable, method);
-		this.iterator.variable.emitLoad(method);
-		LIST_ITERATOR_PREV_INDEX.emitBytecode(method);
-		this.indexVariable.variable.emitStore(method);
+		method.node.visitInsn(DUP);
+		GET_KEY.emitBytecode(method);
+		castAndStore(this.keyVariable, method);
+		GET_VALUE.emitBytecode(method);
+		castAndStore(this.valueVariable, method);
 		this.body.emitBytecode(method);
 		method.node.visitJumpInsn(GOTO, continuePoint.getLabel());
 

@@ -18,8 +18,8 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.flow.*;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
+import builderb0y.scripting.bytecode.tree.flow.loop.*;
 import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
@@ -231,8 +231,9 @@ public class SpecialFunctionSyntax {
 
 					boolean hasMinus = parser.input.hasOperatorAfterWhitespace("-");
 					if (parser.input.hasIdentifierAfterWhitespace("range")) {
-						if (firstType.getSort() != Sort.INT) {
-							throw new ScriptParsingException("Iteration over range requires variable to be of type int", parser.input);
+						switch (firstType.getSort()) {
+							case INT, LONG, FLOAT, DOUBLE -> {}
+							default -> throw new ScriptParsingException("Iteration over range requires variable to be of type int, long, float, or double", parser.input);
 						}
 						boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
 							case '[' -> true;
@@ -240,9 +241,9 @@ public class SpecialFunctionSyntax {
 							default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
 						};
 						parser.environment.user().push();
-						InsnTree lowerBound = parser.nextScript().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+						InsnTree lowerBound = parser.nextScript().cast(parser, firstType, CastMode.IMPLICIT_THROW);
 						parser.input.expectOperatorAfterWhitespace(",");
-						InsnTree upperBound = parser.nextScript().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+						InsnTree upperBound = parser.nextScript().cast(parser, firstType, CastMode.IMPLICIT_THROW);
 						boolean upperBoundInclusive = switch (parser.input.readAfterWhitespace()) {
 							case ']' -> true;
 							case ')' -> false;
@@ -251,10 +252,10 @@ public class SpecialFunctionSyntax {
 						parser.environment.user().pop();
 						InsnTree step;
 						if (parser.input.hasOperatorAfterWhitespace("%")) {
-							step = parser.nextExponent().cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+							step = parser.nextExponent().cast(parser, firstType, CastMode.IMPLICIT_THROW);
 						}
 						else {
-							step = ldc(1);
+							step = ldc(1, firstType);
 						}
 						parser.input.expectOperatorAfterWhitespace(":");
 						InsnTree body = parser.nextScript().asStatement();
@@ -517,7 +518,13 @@ public class SpecialFunctionSyntax {
 
 		@Override
 		public InsnTree buildLoop(ExpressionParser parser) {
-			return new RangeLoopInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
+			return switch (this.variable.variable.type.getSort()) {
+				case INT -> new ForIntRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
+				case LONG -> new ForLongRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
+				case FLOAT -> new ForFloatRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
+				case DOUBLE -> new ForDoubleRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
+				default -> throw new IllegalStateException(this.variable.variable.type.toString());
+			};
 		}
 	}
 

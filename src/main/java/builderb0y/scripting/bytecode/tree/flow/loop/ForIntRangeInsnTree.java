@@ -1,11 +1,10 @@
-package builderb0y.scripting.bytecode.tree.flow;
+package builderb0y.scripting.bytecode.tree.flow.loop;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -17,19 +16,9 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class RangeLoopInsnTree implements InsnTree {
+public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 
-	public String loopName;
-	public VariableDeclarationInsnTree variable;
-	public boolean ascending;
-	public InsnTree lowerBound;
-	public boolean lowerBoundInclusive;
-	public InsnTree upperBound;
-	public boolean upperBoundInclusive;
-	public InsnTree step;
-	public InsnTree body;
-
-	public RangeLoopInsnTree(
+	public ForIntRangeInsnTree(
 		String loopName,
 		VariableDeclarationInsnTree variable,
 		boolean ascending,
@@ -40,15 +29,17 @@ public class RangeLoopInsnTree implements InsnTree {
 		InsnTree step,
 		InsnTree body
 	) {
-		this.loopName = loopName;
-		this.variable = variable;
-		this.ascending = ascending;
-		this.lowerBound = lowerBound;
-		this.lowerBoundInclusive = lowerBoundInclusive;
-		this.upperBound = upperBound;
-		this.upperBoundInclusive = upperBoundInclusive;
-		this.step = step;
-		this.body = body;
+		super(
+			loopName,
+			variable,
+			ascending,
+			lowerBound,
+			lowerBoundInclusive,
+			upperBound,
+			upperBoundInclusive,
+			step,
+			body
+		);
 	}
 
 	@Override
@@ -171,15 +162,5 @@ public class RangeLoopInsnTree implements InsnTree {
 		}
 
 		method.scopes.popScope();
-	}
-
-	@Override
-	public TypeInfo getTypeInfo() {
-		return TypeInfos.VOID;
-	}
-
-	@Override
-	public boolean canBeStatement() {
-		return true;
 	}
 }

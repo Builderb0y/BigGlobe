@@ -1,4 +1,4 @@
-package builderb0y.scripting.bytecode.tree.flow;
+package builderb0y.scripting.bytecode.tree.flow.loop;
 
 import java.util.List;
 
@@ -15,26 +15,24 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ForListIndexInsnTree extends AbstractForIteratorInsnTree {
+public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
-		LIST_SIZE = MethodInfo.getMethod(List.class, "size"),
-		LIST_GET = MethodInfo.getMethod(List.class, "get");
+		SIZE = MethodInfo.getMethod(List.class, "size"),
+		GET  = MethodInfo.getMethod(List.class, "get");
 
-	public VariableDeclarationInsnTree indexVariable, elementVariable;
+	public VariableDeclarationInsnTree variable;
 	public VariableDeclareAssignInsnTree list;
 	public InsnTree body;
 
-	public ForListIndexInsnTree(
+	public ForRandomAccessListInsnTree(
 		String loopName,
-		VariableDeclarationInsnTree indexVariable,
-		VariableDeclarationInsnTree elementVariable,
+		VariableDeclarationInsnTree variable,
 		VariableDeclareAssignInsnTree list,
 		InsnTree body
 	) {
 		super(loopName);
-		this.indexVariable = indexVariable;
-		this.elementVariable = elementVariable;
+		this.variable = variable;
 		this.list = list;
 		this.body = body;
 	}
@@ -42,52 +40,49 @@ public class ForListIndexInsnTree extends AbstractForIteratorInsnTree {
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		//(
-		//	List list = this.list
-		//	int size = list.size()
-		//	int indexVar = 0
-		//	Type elementVar
-		//	while (indexVar < size:
-		//		elementVar = list.get(indexVar)
+		//	Type userVar
+		//	List list = userList
+		//	for (int index = 0 int size = list.size(), index < size, ++index:
+		//		userVar = list.get(index)
 		//		body
-		//		++indexVar
 		//	)
 		//)
 		//
 		//begin:
-		//	List list = this.list
+		//	Type userVar
+		//	List list = userList
+		//	int index = 0
 		//	int size = list.size()
-		//	int indexVar = 0
-		//	Type elementVar
 		//restart:
-		//	unless (indexVar < size: goto(end))
-		//	elementVar = list.get(indexVar)
+		//	unless (index < size: goto(end))
+		//	userVar = list.get(index)
 		//	body
 		//continuePoint:
-		//	++indexVar
-		//	goto(continuePoint)
+		//	++index
+		//	goto(restart)
 		//end:
 		LabelNode continuePoint = labelNode(), restart = labelNode();
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
+		this.variable.emitBytecode(method);
 		this.list.emitBytecode(method);
-		VarInfo sizeVariable = method.newVariable("size", TypeInfos.INT);
-		this.list.variable.emitLoad(method);
-		LIST_SIZE.emitBytecode(method);
-		sizeVariable.emitStore(method);
-		this.indexVariable.emitBytecode(method);
+		VarInfo index = method.newVariable("index", TypeInfos.INT);
 		method.node.visitInsn(ICONST_0);
-		this.indexVariable.variable.emitStore(method);
-		this.elementVariable.emitBytecode(method);
+		index.emitStore(method);
+		VarInfo size = method.newVariable("size", TypeInfos.INT);
+		this.list.variable.emitLoad(method);
+		SIZE.emitBytecode(method);
+		size.emitStore(method);
 		method.node.instructions.add(restart);
-		this.indexVariable.variable.emitLoad(method);
-		sizeVariable.emitLoad(method);
+		index.emitLoad(method);
+		size.emitLoad(method);
 		method.node.visitJumpInsn(IF_ICMPGE, scope.end.getLabel());
 		this.list.variable.emitLoad(method);
-		this.indexVariable.variable.emitLoad(method);
-		LIST_GET.emitBytecode(method);
-		castAndStore(this.elementVariable, method);
+		index.emitLoad(method);
+		GET.emitBytecode(method);
+		castAndStore(this.variable, method);
 		this.body.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
-		method.node.visitIincInsn(this.indexVariable.variable.index, 1);
+		method.node.visitIincInsn(index.index, 1);
 		method.node.visitJumpInsn(GOTO, restart.getLabel());
 
 		method.scopes.popScope();

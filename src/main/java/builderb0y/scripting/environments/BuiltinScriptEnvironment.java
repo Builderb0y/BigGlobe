@@ -4,7 +4,6 @@ import java.lang.invoke.StringConcatFactory;
 import java.util.Arrays;
 import java.util.Objects;
 
-import it.unimi.dsi.fastutil.HashCommon;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.*;
@@ -14,7 +13,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarePostAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.bytecode.tree.flow.WhileInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.loop.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
