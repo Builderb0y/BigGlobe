@@ -73,9 +73,9 @@ scripting:
 	extract user-defined function parsing into its own class.
 		potentially make this abstract enough to be useful for user-defined methods too.
 	allow for (non-int in range[]:
-	scriptable recipes.
 	scriptable loot tables.
 	scriptable advancements?
+	extension methods?
 
 features:
 	general:

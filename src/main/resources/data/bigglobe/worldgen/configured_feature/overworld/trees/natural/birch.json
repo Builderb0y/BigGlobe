@@ -34,7 +34,10 @@
 			"bigglobe:overgrown_podzol": "minecraft:dirt",
 			"minecraft:farmland":        "minecraft:dirt",
 			"minecraft:coarse_dirt":     "minecraft:coarse_dirt",
-			"minecraft:rooted_dirt":     "minecraft:rooted_dirt"
+			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
+			"minecraft:sand":            "minecraft:sand",
+			"minecraft:red_sand":        "minecraft:red_sand",
+			"bigglobe:overgrown_sand":   "minecraft:sand"
 		}
 	}
 }

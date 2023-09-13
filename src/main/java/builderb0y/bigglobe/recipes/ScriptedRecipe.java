@@ -26,7 +26,9 @@ import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-#if MC_VERSION == MC_1_19_4
+#if MC_VERSION == MC_1_19_2
+	import net.minecraft.inventory.CraftingInventory;
+#elif MC_VERSION == MC_1_19_4
 	import net.minecraft.inventory.CraftingInventory;
 	import net.minecraft.recipe.book.CraftingRecipeCategory;
 	import net.minecraft.registry.DynamicRegistryManager;
@@ -114,7 +116,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 
 	@Override
 	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
-		public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory)
+		public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_20_1
 		public DefaultedList<ItemStack> getRemainder(RecipeInputInventory inventory) {
 	#else

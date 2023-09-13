@@ -55,7 +55,7 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 				for (int z = minZ; z <= maxZ; z++) {
 					if (squareD(x - centerX, z - centerZ) < shelfRadius2) {
 						mutablePos.setZ(z);
-						if (canShelfReplace(generator.worldQueue.getBlockState(mutablePos))) {
+						if (generator.canShelfReplace(generator.worldQueue.getBlockState(mutablePos))) {
 							placer.queueBlockAt(generator, mutablePos, offsetPos);
 						}
 					}
@@ -66,10 +66,5 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 		else {
 			this.probability = probability + this.density;
 		}
-	}
-
-	public static boolean canShelfReplace(BlockState state) {
-		if (state.getFluidState().isStill()) return false;
-		return BlockStateVersions.isReplaceableOrPlant(state) || state.isIn(TagsVersions.leaves());
 	}
 }

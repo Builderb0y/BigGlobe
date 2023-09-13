@@ -641,7 +641,7 @@ public class BigGlobeBlocks {
 		"short_chorus_spores",
 		new ChorusSporeBlock(
 			AbstractBlock.Settings
-			.of(Material.PLANT, MapColor.PURPLE)
+			.of(Material.REPLACEABLE_PLANT, MapColor.PURPLE)
 			.sounds(BlockSoundGroup.GRASS)
 			.offsetType(OffsetType.XZ)
 			.noCollision()

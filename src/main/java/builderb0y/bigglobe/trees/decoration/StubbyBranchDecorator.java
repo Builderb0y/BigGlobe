@@ -25,7 +25,7 @@ public class StubbyBranchDecorator extends LeafDecorator {
 		if (Permuter.nextChancedBoolean(generator.random, this.chance)) {
 			Direction offsetDirection = Permuter.choose(generator.random, Directions.ALL);
 			BlockPos offsetPos = pos.offset(offsetDirection);
-			if (generator.canLogReplace(generator.worldQueue.getBlockState(offsetPos))) {
+			if (generator.canTrunkReplace(generator.worldQueue.getBlockState(offsetPos))) {
 				generator.worldQueue.setBlockState(offsetPos, generator.palette.woodState(generator.random, offsetDirection.getAxis()));
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 				for (Direction direction : Directions.ALL) {

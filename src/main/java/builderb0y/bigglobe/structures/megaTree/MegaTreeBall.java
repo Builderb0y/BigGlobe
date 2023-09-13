@@ -18,6 +18,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.OverworldColumn;
@@ -203,7 +204,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	}
 
 	public boolean canLogReplace(BlockState state) {
-		return BlockStateVersions.isReplaceableOrPlant(state);
+		return BlockStateVersions.isReplaceable(state) || state.isIn(BigGlobeBlockTags.TREE_LOG_REPLACEABLES);
 	}
 
 	public boolean canLeavesReplace(BlockState state) {

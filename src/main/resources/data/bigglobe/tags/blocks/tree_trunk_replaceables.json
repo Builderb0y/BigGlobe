@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:tree_log_replaceables",
+		"bigglobe:stick",
+		"bigglobe:flint",
+		"bigglobe:rock"
+	]
+}

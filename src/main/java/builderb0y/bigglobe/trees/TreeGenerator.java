@@ -3,11 +3,11 @@ package builderb0y.bigglobe.trees;
 import java.util.Map;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.MushroomBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
 
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
@@ -20,7 +20,6 @@ import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.TagsVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -232,8 +231,8 @@ public class TreeGenerator {
 	}
 
 	public void generateBranchBlock(BlockPos pos, BlockState branchState) throws NotEnoughSpaceException {
-		if (this.canLogReplace(this.worldQueue.getWorldState(pos))) {
-			if (this.canLogReplace(this.worldQueue.queue.getBlockState(pos))) { //don't overwrite logs with other logs.
+		if (this.canBranchReplace(this.worldQueue.getWorldState(pos))) {
+			if (this.canBranchReplace(this.worldQueue.queue.getBlockState(pos))) { //don't overwrite logs with other logs.
 				this.worldQueue.setBlockState(pos, branchState);
 				for (BlockDecorator decorator : this.decorators.branchBlock) {
 					decorator.decorate(this, pos, branchState);
@@ -246,7 +245,8 @@ public class TreeGenerator {
 	}
 
 	public boolean canTrunkReplace(BlockState existingState) {
-		return this.canLogReplace(existingState);
+		if (existingState.getFluidState().isStill()) return this.trunk.canGenerateInLiquid;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_TRUNK_REPLACEABLES);
 	}
 
 	public boolean canTrunkReplaceBush(BlockPos.Mutable mutablePos, BlockState existingState) {
@@ -263,14 +263,18 @@ public class TreeGenerator {
 		}
 	}
 
-	public boolean canLogReplace(BlockState state) {
-		if (state.getFluidState().isStill()) return this.trunk.canGenerateInLiquid;
-		return BlockStateVersions.isReplaceableOrPlant(state) || state.isIn(TagsVersions.leaves()) || state.getBlock() instanceof MushroomBlock;
+	public boolean canBranchReplace(BlockState existingState) {
+		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_BRANCH_REPLACEABLES);
 	}
 
-	public boolean canLeavesReplace(BlockState state) {
-		if (state.getFluidState().isStill()) return false;
-		return BlockStateVersions.isReplaceableOrPlant(state);
+	public boolean canLeavesReplace(BlockState existingState) {
+		if (existingState.getFluidState().isStill()) return false;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_LEAF_REPLACEABLES);
+	}
+
+	public boolean canShelfReplace(BlockState existingState) {
+		if (existingState.getFluidState().isStill()) return false;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_SHELF_REPLACEABLES);
 	}
 
 	public static class NotEnoughSpaceException extends Exception {

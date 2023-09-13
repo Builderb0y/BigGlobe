@@ -87,8 +87,10 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
 #if MC_VERSION == MC_1_19_2
+	import net.minecraft.registry.Registry;
 	import java.util.concurrent.ConcurrentLinkedQueue;
 	import builderb0y.autocodec.annotations.AddPseudoField;
+	import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 #elif MC_VERSION == MC_1_19_4
 	import java.util.concurrent.ConcurrentLinkedQueue;
 	import net.minecraft.registry.RegistryWrapper;

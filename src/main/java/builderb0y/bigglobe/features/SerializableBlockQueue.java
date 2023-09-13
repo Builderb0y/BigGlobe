@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -122,7 +123,7 @@ public class SerializableBlockQueue extends BlockQueue {
 	}
 
 	public static boolean canImplicitlyReplace(BlockState state) {
-		return BlockStateVersions.isReplaceableOrPlant(state);
+		return BlockStateVersions.isReplaceable(state) || state.isIn(BigGlobeBlockTags.PLANTS);
 	}
 
 	@SuppressWarnings("unchecked")
