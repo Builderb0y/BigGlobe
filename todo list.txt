@@ -17,6 +17,7 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	use NumberArray for grids.
 
 changelog:
 	* Added cherry forests (1.20.1 only), swamps, and glaciers.
