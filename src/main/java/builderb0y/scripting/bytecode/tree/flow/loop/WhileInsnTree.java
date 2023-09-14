@@ -26,7 +26,7 @@ public class WhileInsnTree implements InsnTree {
 
 	public static InsnTree createRepeat(ExpressionParser parser, String loopName, InsnTree times, InsnTree body) {
 		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
-		VarInfo counter = new VarInfo("counter", -1, TypeInfos.INT);
+		VarInfo counter = new VarInfo("$counter", -1, TypeInfos.INT);
 		InsnTree init, loadLimit;
 		if (times.getConstantValue().isConstant()) {
 			//var counter = 0
@@ -44,7 +44,7 @@ public class WhileInsnTree implements InsnTree {
 			//	body
 			//	++counter
 			//)
-			VarInfo limit = new VarInfo("limit", -1, TypeInfos.INT);
+			VarInfo limit = new VarInfo("$limit", -1, TypeInfos.INT);
 			init = seq(
 				new VariableDeclareAssignInsnTree(limit, times),
 				new VariableDeclareAssignInsnTree(counter, ldc(0))

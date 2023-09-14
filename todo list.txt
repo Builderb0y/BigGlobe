@@ -68,15 +68,9 @@ scripting:
 			not that I have final fields yet, but still.
 	smarter detection of which variables are captured by methods.
 		don't capture variables which aren't used.
-	user-defined methods (not functions) in user-defined classes.
 	inline getters and setters for user-defined classes.
-	extract user-defined function parsing into its own class.
-		potentially make this abstract enough to be useful for user-defined methods too.
-	allow for (non-int in range[]:
 	scriptable loot tables.
 	scriptable advancements?
-	check if UserScriptEnvironment.newAnonymousVariable() can be removed or not.
-		MethodCompileContext.newVariable() exists.
 
 features:
 	general:

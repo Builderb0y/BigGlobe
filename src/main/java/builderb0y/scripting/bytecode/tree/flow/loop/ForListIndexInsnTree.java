@@ -69,7 +69,7 @@ public class ForListIndexInsnTree extends AbstractForIteratorInsnTree {
 		LabelNode continuePoint = labelNode(), restart = labelNode();
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
 		this.list.emitBytecode(method);
-		VarInfo sizeVariable = method.newVariable("size", TypeInfos.INT);
+		VarInfo sizeVariable = method.newVariable("$size", TypeInfos.INT);
 		this.list.variable.emitLoad(method);
 		LIST_SIZE.emitBytecode(method);
 		sizeVariable.emitStore(method);

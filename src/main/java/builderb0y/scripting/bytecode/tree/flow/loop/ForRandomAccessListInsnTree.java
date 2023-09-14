@@ -65,10 +65,10 @@ public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
 		this.variable.emitBytecode(method);
 		this.list.emitBytecode(method);
-		VarInfo index = method.newVariable("index", TypeInfos.INT);
+		VarInfo index = method.newVariable("$index", TypeInfos.INT);
 		method.node.visitInsn(ICONST_0);
 		index.emitStore(method);
-		VarInfo size = method.newVariable("size", TypeInfos.INT);
+		VarInfo size = method.newVariable("$size", TypeInfos.INT);
 		this.list.variable.emitLoad(method);
 		SIZE.emitBytecode(method);
 		size.emitStore(method);

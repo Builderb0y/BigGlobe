@@ -28,12 +28,11 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public ExpressionParser parser;
-	public StackMap<String, LoadInsnTree> variables;
-	public StackMap<NamedType, FieldInfo> fields;
-	public StackMap<String, List<FunctionHandler>> functions;
-	public StackMap<NamedType, List<MethodHandler>> methods;
-	public StackMap<String, TypeInfo> types;
-	public int varUniquifier;
+	public StackMap<String,         LoadInsnTree    > variables;
+	public StackMap<NamedType,      FieldInfo       > fields;
+	public StackMap<String,    List<FunctionHandler>> functions;
+	public StackMap<NamedType, List<MethodHandler  >> methods;
+	public StackMap<String,         TypeInfo        > types;
 
 	public UserScriptEnvironment() {
 		this.variables = new StackMap<>(8);
@@ -212,10 +211,6 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		VarInfo variable = new VarInfo(name, -1, type);
 		this.variables.put(name, load(variable));
 		return variable;
-	}
-
-	public VarInfo newAnonymousVariable(String baseName, TypeInfo type) {
-		return new VarInfo(baseName + '$' + this.varUniquifier++, -1, type);
 	}
 
 	public Stream<VarInfo> streamVariables() {

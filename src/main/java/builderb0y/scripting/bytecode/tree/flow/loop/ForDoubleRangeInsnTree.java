@@ -51,10 +51,10 @@ public class ForDoubleRangeInsnTree extends AbstractForRangeInsnTree {
 		if (!lowerBound.getConstantValue().isConstant() || !upperBound.getConstantValue().isConstant()) {
 			VarInfo lowerBoundVariable = null, upperBoundVariable = null;
 			if (!lowerBound.getConstantValue().isConstant()) {
-				lowerBoundVariable = method.newVariable("lowerBound", TypeInfos.DOUBLE);
+				lowerBoundVariable = method.newVariable("$lowerBound", TypeInfos.DOUBLE);
 			}
 			if (!upperBound.getConstantValue().isConstant()) {
-				upperBoundVariable = method.newVariable("upperBound", TypeInfos.DOUBLE);
+				upperBoundVariable = method.newVariable("$upperBound", TypeInfos.DOUBLE);
 			}
 			method.scopes.pushScope();
 			if (lowerBoundVariable != null) {
@@ -69,7 +69,7 @@ public class ForDoubleRangeInsnTree extends AbstractForRangeInsnTree {
 		}
 		InsnTree step = this.step;
 		if (!step.getConstantValue().isConstant()) {
-			VarInfo stepVariable = method.newVariable("step", TypeInfos.DOUBLE);
+			VarInfo stepVariable = method.newVariable("$step", TypeInfos.DOUBLE);
 			store(stepVariable, step).emitBytecode(method);
 			step = load(stepVariable);
 		}

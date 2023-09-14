@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -277,7 +276,7 @@ public class SpecialFunctionSyntax {
 						parser.input.setCursor(afterIn);
 					}
 
-					VarInfo iterator = parser.environment.user().newAnonymousVariable("iterator", TypeInfos.ITERATOR);
+					VarInfo iterator = new VarInfo("$iterator", -1, TypeInfos.ITERATOR);
 					InsnTree rawIterable = parser.nextScript();
 					InsnTree iterable;
 					ForEachLoop.Mode mode;
@@ -343,7 +342,7 @@ public class SpecialFunctionSyntax {
 									throw new ScriptParsingException("First type must be int when iterating over List (was " + firstType + ')', parser.input);
 								}
 								if (iterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class))) {
-									VarInfo list = parser.environment.user().newAnonymousVariable("listForIteration", type(List.class));
+									VarInfo list = new VarInfo("$listForIteration", -1, type(List.class));
 									parser.input.expectOperatorAfterWhitespace(":");
 									InsnTree body = parser.nextScript();
 									parser.input.expectAfterWhitespace(')');
@@ -357,7 +356,7 @@ public class SpecialFunctionSyntax {
 									);
 								}
 								else {
-									VarInfo iterator = parser.environment.user().newAnonymousVariable("listIterator", type(ListIterator.class));
+									VarInfo iterator = new VarInfo("$listIterator", -1, type(ListIterator.class));
 									parser.input.expectOperatorAfterWhitespace(":");
 									InsnTree body = parser.nextScript();
 									parser.input.expectAfterWhitespace(')');
@@ -375,7 +374,7 @@ public class SpecialFunctionSyntax {
 								}
 							}
 							else if (iterable.getTypeInfo().extendsOrImplements(type(Map.class))) {
-								VarInfo iterator = parser.environment.user().newAnonymousVariable("mapEntrySetIterator", TypeInfos.ITERATOR);
+								VarInfo iterator = new VarInfo("$mapEntrySetIterator", -1, TypeInfos.ITERATOR);
 								parser.input.expectOperatorAfterWhitespace(":");
 								InsnTree body = parser.nextScript();
 								parser.input.expectAfterWhitespace(')');

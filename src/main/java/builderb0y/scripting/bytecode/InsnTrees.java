@@ -98,14 +98,6 @@ public class InsnTrees implements ExtendedOpcodes {
 		return TypeInfo.parseObjects(objects);
 	}
 
-	public static VarInfo variable(String name, int index, TypeInfo type) {
-		return new VarInfo(name, index, type);
-	}
-
-	public static VarInfo variable(String name, int index, Class<?> type) {
-		return new VarInfo(name, index, type(type));
-	}
-
 	public static ConstantValue constant(boolean  value) { return ConstantValue.of(value); }
 	public static ConstantValue constant(byte     value) { return ConstantValue.of(value); }
 	public static ConstantValue constant(char     value) { return ConstantValue.of(value); }
