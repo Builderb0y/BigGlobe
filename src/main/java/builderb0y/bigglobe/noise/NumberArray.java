@@ -23,6 +23,13 @@ direct number arrays also all use a shared, thread-local region of memory.
 shared in this case means that all direct number arrays allocated
 on the same thread will use the same region of memory.
 the usage of this region is tracked automatically. see {@link Direct.Manager} for more info.
+
+instances of NumberArray are NOT thread-safe.
+attempting to use a heap NumberArray concurrently is prone
+to race conditions just as much as a regular array would be,
+and closing a direct NumberArray on a different thread than the
+one it was allocated on can corrupt the internal state of the
+manager it belongs to, possibly leading to exceptions or segfaults!
 */
 public interface NumberArray extends AutoCloseable {
 
@@ -792,8 +799,18 @@ public interface NumberArray extends AutoCloseable {
 		*/
 		public static class Manager {
 
-			public static final long MIN_SIZE = Long.getLong("bigglobe.NumberArray.Direct.minSize", 1024L * 8L);
-			public static final long MAX_SIZE = Long.getLong("bigglobe.NumberArray.Direct.maxSize", 1048576L);
+			public static final String
+				MIN_PROP = "bigglobe.NumberArray.Direct.minSize",
+				MAX_PROP = "bigglobe.NumberArray.Direct.maxSize";
+			public static final long
+				MIN_SIZE = Long.getLong(MIN_PROP, 1024L * Double.BYTES),
+				MAX_SIZE = Long.getLong(MAX_PROP, 1048576L);
+
+			static {
+				if (MIN_SIZE <= 0L) throw new IllegalStateException("-D" + MIN_PROP + " must be positive.");
+				if (MAX_SIZE < MIN_SIZE) throw new IllegalStateException("-D" + MAX_PROP + " must be greater than or equal to -D" + MIN_PROP);
+			}
+
 			public static final ThreadLocal<Manager> INSTANCES = ThreadLocal.withInitial(Manager::new);
 
 			/** the beginning of the region of memory this Manager keeps track of. */
@@ -805,16 +822,29 @@ public interface NumberArray extends AutoCloseable {
 
 			public Manager() {
 				this.base = MemoryUtil.nmemAlloc(MIN_SIZE);
+				if (this.base == 0L) throw new OutOfMemoryError("Failed to allocate " + MIN_SIZE + " byte(s)");
 				this.capacity = MIN_SIZE;
 			}
 
 			public void ensureCapacity(long capacity) {
 				if (capacity > MAX_SIZE) {
-					throw new OutOfMemoryError("Requested capacity " + capacity + " exceeds maximum allocation limit " + MAX_SIZE + " as defined by java argument -Dbigglobe.NumberArray.Direct.maxSize");
+					throw new OutOfMemoryError("Requested capacity " + capacity + " exceeds maximum allocation limit " + MAX_SIZE + " as defined by java argument -D" + MAX_PROP);
 				}
 				if (this.capacity < capacity) {
-					capacity = Math.min(Math.max(capacity, this.base == 0L ? 1024L * Double.BYTES : this.capacity << 1), MAX_SIZE);
-					this.base = this.base == 0L ? MemoryUtil.nmemAlloc(capacity) : MemoryUtil.nmemRealloc(this.base, capacity);
+					capacity = Math.min(
+						Math.max(
+							capacity,
+							this.base == 0L //should only be the case if a previous resize failed.
+							? MIN_SIZE //retry min capacity. can't hurt.
+							: this.capacity << 1
+						),
+						MAX_SIZE
+					);
+					this.base = (
+						this.base == 0L
+						? MemoryUtil.nmemAlloc(capacity)
+						: MemoryUtil.nmemRealloc(this.base, capacity)
+					);
 					if (this.base == 0L) {
 						this.capacity = 0L;
 						throw new OutOfMemoryError("Failed to allocate " + capacity + " byte(s)");
