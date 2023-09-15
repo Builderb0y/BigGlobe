@@ -11,6 +11,7 @@ import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.*;
@@ -80,7 +81,7 @@ public class OverworldColumn extends WorldColumn {
 		glacierCrackThreshold;
 	public final double[] rawErosionAndSnow = new double[2];
 	public CaveCell caveCell;
-	public double[] caveNoise;
+	public NumberArray caveNoise;
 	public double
 		caveSurfaceDepth,
 		caveSystemEdginess,
@@ -351,14 +352,14 @@ public class OverworldColumn extends WorldColumn {
 		if (cell != null) {
 			this.caveFloors = new IntArrayList(8);
 			this.caveCeilings = new IntArrayList(8);
-			double[] noise = this.caveNoise;
+			NumberArray noise = this.caveNoise;
 			assert noise != null;
 			int depth = cell.settings.depth;
 			int minY = this.getFinalTopHeightI() - depth;
 			boolean previousCave = false;
 			for (int index = 0; index < depth; index++) {
 				int y = index + minY;
-				boolean currentCave = noise[index] < cell.settings.getNoiseThreshold(this, y);
+				boolean currentCave = noise.getD(index) < cell.settings.getNoiseThreshold(this, y);
 				if (currentCave && !previousCave) {
 					this.caveFloors.add(y);
 				}
@@ -375,21 +376,22 @@ public class OverworldColumn extends WorldColumn {
 		return cell == null ? this.seed : cell.voronoiCell.center.getSeed(0xFCB66693C89B11E1L);
 	}
 
-	public double @Nullable [] getCaveNoise() {
+	public @Nullable NumberArray getCaveNoise() {
+		CaveCell cell = this.getCaveCell();
+		if (cell == null) return null;
 		if (this.setFlag(CAVE_NOISE)) {
-			CaveCell cell = this.getCaveCell();
-			if (cell != null) ScriptedGrid.SECRET_COLUMN.accept(this, self -> cell.settings.getBulkY(self));
+			ScriptedGrid.SECRET_COLUMN.accept(this, self -> cell.settings.getBulkY(self));
 		}
-		return this.caveNoise;
+		return this.caveNoise.prefix(cell.settings.depth);
 	}
 
 	public double getCaveNoise(int y, boolean cache) {
 		if (cache || this.hasFlag(CAVE_NOISE)) {
-			double[] noise = this.getCaveNoise();
+			NumberArray noise = this.getCaveNoise();
 			if (noise == null) return Double.NaN;
-			int index = y - (this.getFinalTopHeightI() - noise.length);
-			if (index < 0 || index >= noise.length) return Double.NaN;
-			return noise[index];
+			int index = y - (this.getFinalTopHeightI() - noise.length());
+			if (index < 0 || index >= noise.length()) return Double.NaN;
+			return noise.getD(index);
 		}
 		else {
 			CaveCell cell = this.getCaveCell();
@@ -406,7 +408,12 @@ public class OverworldColumn extends WorldColumn {
 		return this.getCaveNoise(BigGlobeMath.floorI(y), true);
 	}
 
-	public double getCaveDepth() {
+	public int getCaveDepthI() {
+		CaveCell cell = this.getCaveCell();
+		return cell == null ? Integer.MIN_VALUE : cell.settings.depth;
+	}
+
+	public double getCaveDepthD() {
 		CaveCell cell = this.getCaveCell();
 		return cell == null ? Double.NaN : cell.settings.depth;
 	}

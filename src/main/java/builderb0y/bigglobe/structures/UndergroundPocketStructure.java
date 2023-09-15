@@ -32,10 +32,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.noise.Grid2D;
-import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.noise.SmoothGrid2D;
-import builderb0y.bigglobe.noise.SummingGrid2D;
+import builderb0y.bigglobe.noise.*;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYRandomToDoubleScript;
@@ -227,23 +224,24 @@ public class UndergroundPocketStructure extends BigGlobeStructure implements Raw
 			int maxX = minX | 15;
 			int maxZ = minZ | 15;
 			BlockPos.Mutable pos = new BlockPos.Mutable();
-			double[] thicknessSamples = new double[16];
-			for (int z = minZ; z <= maxZ; z++) {
-				pos.setZ(z);
-				double offsetZ2 = BigGlobeMath.squareD(z - this.data.z);
-				this.data.noise.getBulkX(context.pieceSeed, minX, z, thicknessSamples, 16);
-				for (int x = minX; x <= maxX; x++) {
-					pos.setX(x);
-					double offsetXZ2 = offsetZ2 + BigGlobeMath.squareD(x - this.data.x);
-					if (!(offsetXZ2 < BigGlobeMath.squareD(this.data.radius))) continue;
-					double thickness = thicknessSamples[x & 15] - BigGlobeMath.squareD(offsetXZ2 / BigGlobeMath.squareD(this.data.radius)) * this.data.noise.maxValue();
-					for (int y = BigGlobeMath.floorI(this.data.y); BigGlobeMath.squareD(y - this.data.y) <= thickness; y--) {
-						pos.setY(y);
-						context.chunk.setBlockState(pos, this.data.fluid != null && y < this.data.fluid.level ? this.data.fluid.state : BlockStates.AIR, false);
-					}
-					for (int y = BigGlobeMath.floorI(this.data.y) + 1; BigGlobeMath.squareD(y - this.data.y) <= thickness; y++) {
-						pos.setY(y);
-						context.chunk.setBlockState(pos, this.data.fluid != null && y < this.data.fluid.level ? this.data.fluid.state : BlockStates.AIR, false);
+			try (NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16)) {
+				for (int z = minZ; z <= maxZ; z++) {
+					pos.setZ(z);
+					double offsetZ2 = BigGlobeMath.squareD(z - this.data.z);
+					this.data.noise.getBulkX(context.pieceSeed, minX, z, thicknessSamples);
+					for (int x = minX; x <= maxX; x++) {
+						pos.setX(x);
+						double offsetXZ2 = offsetZ2 + BigGlobeMath.squareD(x - this.data.x);
+						if (!(offsetXZ2 < BigGlobeMath.squareD(this.data.radius))) continue;
+						double thickness = thicknessSamples.getD(x & 15) - BigGlobeMath.squareD(offsetXZ2 / BigGlobeMath.squareD(this.data.radius)) * this.data.noise.maxValue();
+						for (int y = BigGlobeMath.floorI(this.data.y); BigGlobeMath.squareD(y - this.data.y) <= thickness; y--) {
+							pos.setY(y);
+							context.chunk.setBlockState(pos, this.data.fluid != null && y < this.data.fluid.level ? this.data.fluid.state : BlockStates.AIR, false);
+						}
+						for (int y = BigGlobeMath.floorI(this.data.y) + 1; BigGlobeMath.squareD(y - this.data.y) <= thickness; y++) {
+							pos.setY(y);
+							context.chunk.setBlockState(pos, this.data.fluid != null && y < this.data.fluid.level ? this.data.fluid.state : BlockStates.AIR, false);
+						}
 					}
 				}
 			}
@@ -266,48 +264,49 @@ public class UndergroundPocketStructure extends BigGlobeStructure implements Raw
 			BlockPos.Mutable pos = new BlockPos.Mutable();
 			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
 			Permuter permuter = new Permuter(0L);
-			double[] thicknessSamples = new double[16];
-			for (int z = minZ; z <= maxZ; z++) {
-				pos.setZ(z);
-				double offsetZ2 = BigGlobeMath.squareD(z - this.data.z);
-				this.data.noise.getBulkX(world.getSeed(), minX, z, thicknessSamples, 16);
-				for (int x = minX; x <= maxX; x++) {
-					pos.setX(x);
-					double offsetXZ2 = offsetZ2 + BigGlobeMath.squareD(x - this.data.x);
-					if (!(offsetXZ2 < BigGlobeMath.squareD(this.data.radius))) continue;
-					column.setPos(x, z);
-					double thickness = Math.sqrt(thicknessSamples[x & 15] - BigGlobeMath.squareD(offsetXZ2 / BigGlobeMath.squareD(this.data.radius)) * this.data.noise.maxValue());
-					if (thickness > 0.0D) {
-						int minY = BigGlobeMath. ceilI(this.data.y - thickness);
-						int maxY = BigGlobeMath.floorI(this.data.y + thickness);
-						if (this.data.floor != null && this.data.floor.surface != null) {
-							this.generateSurface(world, pos.setY(minY - 1), this.data.floor.surface, column, -1, permuter);
-						}
-						if (this.data.ceiling != null && this.data.ceiling.surface != null) {
-							this.generateSurface(world, pos.setY(maxY + 1), this.data.ceiling.surface, column, 1, permuter);
-						}
-						boolean warn = System.currentTimeMillis() >= this.data.nextWarnTime;
-						//noinspection NonShortCircuitBooleanExpression
-						if (
-							(
-								this.data.floor != null &&
-								this.data.floor.decorator != null &&
-								this.generateFeature(world, pos.setY(minY), chunkGenerator, random, this.data.floor.decorator, "floor.decorator", warn)
-							)
-							| (
-								this.data.ceiling != null &&
-								this.data.ceiling.decorator != null &&
-								this.generateFeature(world, pos.setY(maxY), chunkGenerator, random, this.data.ceiling.decorator, "ceiling.decorator", warn)
-							)
-							| (
-								this.data.fluid != null &&
-								this.data.fluid.decorator != null &&
-								this.data.fluid.level > minY &&
-								this.data.fluid.level < maxY &&
-								this.generateFeature(world, pos.setY(this.data.fluid.level), chunkGenerator, random, this.data.fluid.decorator, "fluid.decorator", warn)
-							)
-						) {
-							this.data.nextWarnTime = System.currentTimeMillis() + 5000L;
+			try (NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16)) {
+				for (int z = minZ; z <= maxZ; z++) {
+					pos.setZ(z);
+					double offsetZ2 = BigGlobeMath.squareD(z - this.data.z);
+					this.data.noise.getBulkX(world.getSeed(), minX, z, thicknessSamples);
+					for (int x = minX; x <= maxX; x++) {
+						pos.setX(x);
+						double offsetXZ2 = offsetZ2 + BigGlobeMath.squareD(x - this.data.x);
+						if (!(offsetXZ2 < BigGlobeMath.squareD(this.data.radius))) continue;
+						column.setPos(x, z);
+						double thickness = Math.sqrt(thicknessSamples.getD(x & 15) - BigGlobeMath.squareD(offsetXZ2 / BigGlobeMath.squareD(this.data.radius)) * this.data.noise.maxValue());
+						if (thickness > 0.0D) {
+							int minY = BigGlobeMath. ceilI(this.data.y - thickness);
+							int maxY = BigGlobeMath.floorI(this.data.y + thickness);
+							if (this.data.floor != null && this.data.floor.surface != null) {
+								this.generateSurface(world, pos.setY(minY - 1), this.data.floor.surface, column, -1, permuter);
+							}
+							if (this.data.ceiling != null && this.data.ceiling.surface != null) {
+								this.generateSurface(world, pos.setY(maxY + 1), this.data.ceiling.surface, column, 1, permuter);
+							}
+							boolean warn = System.currentTimeMillis() >= this.data.nextWarnTime;
+							//noinspection NonShortCircuitBooleanExpression
+							if (
+								(
+									this.data.floor != null &&
+									this.data.floor.decorator != null &&
+									this.generateFeature(world, pos.setY(minY), chunkGenerator, random, this.data.floor.decorator, "floor.decorator", warn)
+								)
+								| (
+									this.data.ceiling != null &&
+									this.data.ceiling.decorator != null &&
+									this.generateFeature(world, pos.setY(maxY), chunkGenerator, random, this.data.ceiling.decorator, "ceiling.decorator", warn)
+								)
+								| (
+									this.data.fluid != null &&
+									this.data.fluid.decorator != null &&
+									this.data.fluid.level > minY &&
+									this.data.fluid.level < maxY &&
+									this.generateFeature(world, pos.setY(this.data.fluid.level), chunkGenerator, random, this.data.fluid.decorator, "fluid.decorator", warn)
+								)
+							) {
+								this.data.nextWarnTime = System.currentTimeMillis() + 5000L;
+							}
 						}
 					}
 				}

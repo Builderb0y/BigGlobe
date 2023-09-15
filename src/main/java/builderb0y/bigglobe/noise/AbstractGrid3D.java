@@ -59,73 +59,73 @@ public abstract class AbstractGrid3D extends AbstractGrid implements Grid3D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, int z, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		seed ^= this.salt.value;
 		int fracY = BigGlobeMath.modulus_BP(y, this.scaleY);
 		int fracZ = BigGlobeMath.modulus_BP(z, this.scaleZ);
 		if (fracY == 0) {
 			if (fracZ == 0) {
-				this.getValuesX_None(seed, startX, y, z, samples, sampleCount);
+				this.getValuesX_None(seed, startX, y, z, samples);
 			}
 			else {
-				this.getValuesX_Z(seed, startX, y, z, this.fracZ(fracZ), samples, sampleCount);
+				this.getValuesX_Z(seed, startX, y, z, this.fracZ(fracZ), samples);
 			}
 		}
 		else {
 			if (fracZ == 0) {
-				this.getValuesX_Y(seed, startX, y, z, this.fracY(fracY), samples, sampleCount);
+				this.getValuesX_Y(seed, startX, y, z, this.fracY(fracY), samples);
 			}
 			else {
-				this.getValuesX_YZ(seed, startX, y, z, this.fracY(fracY), this.fracZ(fracZ), samples, sampleCount);
+				this.getValuesX_YZ(seed, startX, y, z, this.fracY(fracY), this.fracZ(fracZ), samples);
 			}
 		}
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, int z, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		seed ^= this.salt.value;
 		int fracX = BigGlobeMath.modulus_BP(x, this.scaleX);
 		int fracZ = BigGlobeMath.modulus_BP(z, this.scaleZ);
 		if (fracX == 0) {
 			if (fracZ == 0) {
-				this.getValuesY_None(seed, x, startY, z, samples, sampleCount);
+				this.getValuesY_None(seed, x, startY, z, samples);
 			}
 			else {
-				this.getValuesY_Z(seed, x, startY, z, this.fracZ(fracZ), samples, sampleCount);
+				this.getValuesY_Z(seed, x, startY, z, this.fracZ(fracZ), samples);
 			}
 		}
 		else {
 			if (fracZ == 0) {
-				this.getValuesY_X(seed, x, startY, z, this.fracX(fracX), samples, sampleCount);
+				this.getValuesY_X(seed, x, startY, z, this.fracX(fracX), samples);
 			}
 			else {
-				this.getValuesY_XZ(seed, x, startY, z, this.fracX(fracX), this.fracZ(fracZ), samples, sampleCount);
+				this.getValuesY_XZ(seed, x, startY, z, this.fracX(fracX), this.fracZ(fracZ), samples);
 			}
 		}
 	}
 
 	@Override
-	public void getBulkZ(long seed, int x, int y, int startZ, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		seed ^= this.salt.value;
 		int fracX = BigGlobeMath.modulus_BP(x, this.scaleX);
 		int fracY = BigGlobeMath.modulus_BP(y, this.scaleY);
 		if (fracX == 0) {
 			if (fracY == 0) {
-				this.getValuesZ_None(seed, x, y, startZ, samples, sampleCount);
+				this.getValuesZ_None(seed, x, y, startZ, samples);
 			}
 			else {
-				this.getValuesZ_Y(seed, x, y, startZ, this.fracY(fracY), samples, sampleCount);
+				this.getValuesZ_Y(seed, x, y, startZ, this.fracY(fracY), samples);
 			}
 		}
 		else {
 			if (fracY == 0) {
-				this.getValuesZ_X(seed, x, y, startZ, this.fracX(fracX), samples, sampleCount);
+				this.getValuesZ_X(seed, x, y, startZ, this.fracX(fracX), samples);
 			}
 			else {
-				this.getValuesZ_XY(seed, x, y, startZ, this.fracX(fracX), this.fracY(fracY), samples, sampleCount);
+				this.getValuesZ_XY(seed, x, y, startZ, this.fracX(fracX), this.fracY(fracY), samples);
 			}
 		}
 	}
@@ -377,124 +377,124 @@ public abstract class AbstractGrid3D extends AbstractGrid implements Grid3D {
 	public abstract double getValue_XYZ(long seed, int relativeX, int relativeY, int relativeZ, double fracX, double fracY, double fracZ);
 
 	/**
-	implementation for {@link Grid3D#getBulkX(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkX(long, int, int, int, NumberArray)} when:
 		y IS evenly divisible by {@link #scaleY}.
 		z IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the y axis is NOT necessary.
 		interpolation along the z axis is NOT necessary.
 	*/
-	public abstract void getValuesX_None(long seed, int startX, int y, int z, final double[] samples, final int sampleCount);
+	public abstract void getValuesX_None(long seed, int startX, int y, int z, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkX(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkX(long, int, int, int, NumberArray)} when:
 		y is NOT evenly divisible by {@link #scaleY}.
 		z IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the y axis IS necessary.
 		interpolation along the z axis is NOT necessary.
 	*/
-	public abstract void getValuesX_Y(long seed, int startX, int y, int z, double fracY, final double[] samples, final int sampleCount);
+	public abstract void getValuesX_Y(long seed, int startX, int y, int z, double fracY, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkX(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkX(long, int, int, int, NumberArray)} when:
 		y IS evenly divisible by {@link #scaleY}.
 		z is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the y axis is NOT necessary.
 		interpolation along the z axis IS necessary.
 	*/
-	public abstract void getValuesX_Z(long seed, int startX, int y, int z, double fracZ, final double[] samples, final int sampleCount);
+	public abstract void getValuesX_Z(long seed, int startX, int y, int z, double fracZ, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkX(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkX(long, int, int, int, NumberArray)} when:
 		y is NOT evenly divisible by {@link #scaleY}.
 		z is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the y axis IS necessary.
 		interpolation along the z axis IS necessary.
 	*/
-	public abstract void getValuesX_YZ(long seed, int startX, int y, int z, double fracY, double fracZ, final double[] samples, final int sampleCount);
+	public abstract void getValuesX_YZ(long seed, int startX, int y, int z, double fracY, double fracZ, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkY(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkY(long, int, int, int, NumberArray)} when:
 		x IS evenly divisible by {@link #scaleX}.
 		z IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis is NOT necessary.
 		interpolation along the z axis is NOT necessary.
 	*/
-	public abstract void getValuesY_None(long seed, int x, int startY, int z, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_None(long seed, int x, int startY, int z, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkY(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkY(long, int, int, int, NumberArray)} when:
 		x is NOT evenly divisible by {@link #scaleX}.
 		z IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis IS necessary.
 		interpolation along the z axis is NOT necessary.
 	*/
-	public abstract void getValuesY_X(long seed, int x, int startY, int z, double fracX, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_X(long seed, int x, int startY, int z, double fracX, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkY(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkY(long, int, int, int, NumberArray)} when:
 		x IS evenly divisible by {@link #scaleX}.
 		z is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis is NOT necessary.
 		interpolation along the z axis IS necessary.
 	*/
-	public abstract void getValuesY_Z(long seed, int x, int startY, int z, double fracZ, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_Z(long seed, int x, int startY, int z, double fracZ, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkY(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkY(long, int, int, int, NumberArray)} when:
 		x is NOT evenly divisible by {@link #scaleX}.
 		z is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis IS necessary.
 		interpolation along the z axis IS necessary.
 	*/
-	public abstract void getValuesY_XZ(long seed, int x, int startY, int z, double fracX, double fracZ, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_XZ(long seed, int x, int startY, int z, double fracX, double fracZ, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkZ(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkZ(long, int, int, int, NumberArray)} when:
 		x IS evenly divisible by {@link #scaleX}.
 		y IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis is NOT necessary.
 		interpolation along the y axis is NOT necessary.
 	*/
-	public abstract void getValuesZ_None(long seed, int x, int y, int startZ, final double[] samples, final int sampleCount);
+	public abstract void getValuesZ_None(long seed, int x, int y, int startZ, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkZ(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkZ(long, int, int, int, NumberArray)} when:
 		x is NOT evenly divisible by {@link #scaleX}.
 		y IS evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis IS necessary.
 		interpolation along the y axis is NOT necessary.
 	*/
-	public abstract void getValuesZ_X(long seed, int x, int y, int startZ, double fracX, final double[] samples, final int sampleCount);
+	public abstract void getValuesZ_X(long seed, int x, int y, int startZ, double fracX, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkZ(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkZ(long, int, int, int, NumberArray)} when:
 		x IS evenly divisible by {@link #scaleX}.
 		y is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis is NOT necessary.
 		interpolation along the y axis IS necessary.
 	*/
-	public abstract void getValuesZ_Y(long seed, int x, int y, int startZ, double fracY, final double[] samples, final int sampleCount);
+	public abstract void getValuesZ_Y(long seed, int x, int y, int startZ, double fracY, NumberArray samples);
 
 	/**
-	implementation for {@link Grid3D#getBulkZ(long, int, int, int, double[], int)} when:
+	implementation for {@link Grid3D#getBulkZ(long, int, int, int, NumberArray)} when:
 		x is NOT evenly divisible by {@link #scaleX}.
 		y is NOT evenly divisible by {@link #scaleZ}.
 	in this case:
 		interpolation along the x axis IS necessary.
 		interpolation along the y axis IS necessary.
 	*/
-	public abstract void getValuesZ_XY(long seed, int x, int y, int startZ, double fracX, double fracY, final double[] samples, final int sampleCount);
+	public abstract void getValuesZ_XY(long seed, int x, int y, int startZ, double fracX, double fracY, NumberArray samples);
 
 	/**
 	converts a position between lattice points from

@@ -31,7 +31,7 @@ public abstract class AbstractGrid1D extends AbstractGrid implements Grid1D {
 	}
 
 	@Override
-	public abstract void getBulkX(long seed, int startX, double[] samples, int sampleCount);
+	public abstract void getBulkX(long seed, int startX, NumberArray samples);
 
 	/**
 	gets the value at a position where x IS evenly divisible by {@link #scaleX}.

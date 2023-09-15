@@ -41,11 +41,12 @@ public abstract class ValueGrid1D extends AbstractGrid1D {
 	so, the act of calculating those values is skipped unless
 	the lattice points themselves are actually different.
 	this results in much greater efficiency than the default
-	implementation on {@link Grid1D#getBulkX(long, int, double[], int)}
+	implementation on {@link Grid1D#getBulkX(long, int, NumberArray)}
 	due to needing vastly fewer redundant calculations.
 	*/
 	@Override
-	public void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
+	public void getBulkX(long seed, int startX, NumberArray samples) {
+		int sampleCount = samples.length();
 		if (sampleCount <= 0) return;
 		seed ^= this.salt.value;
 		int    scaleX    = this.scaleX;
@@ -55,7 +56,7 @@ public abstract class ValueGrid1D extends AbstractGrid1D {
 		double value1    = this.getValue_None(seed, ++relativeX);
 		double diff      = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracX == 0 ? value0 : this.fracX(fracX) * diff + value0;
+			samples.setD(index, fracX == 0 ? value0 : this.fracX(fracX) * diff + value0);
 			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX  = 0;
@@ -64,6 +65,6 @@ public abstract class ValueGrid1D extends AbstractGrid1D {
 				diff   = value1 - value0;
 			}
 		}
-		this.scale(samples, sampleCount);
+		this.scale(samples);
 	}
 }

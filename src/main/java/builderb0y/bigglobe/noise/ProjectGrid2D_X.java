@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.noise;
 
-import java.util.Arrays;
-
 import builderb0y.autocodec.annotations.UseName;
 
 public class ProjectGrid2D_X implements Grid2D {
@@ -28,12 +26,12 @@ public class ProjectGrid2D_X implements Grid2D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
-		this.grid.getBulkX(seed, startX, samples, sampleCount);
+	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		this.grid.getBulkX(seed, startX, samples);
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
-		Arrays.fill(samples, 0, sampleCount, this.grid.getValue(seed, x));
+	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		samples.fill(this.grid.getValue(seed, x));
 	}
 }

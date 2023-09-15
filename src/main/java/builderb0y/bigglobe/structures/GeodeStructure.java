@@ -30,6 +30,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.math.pointSequences.PointIterator3D;
 import builderb0y.bigglobe.math.pointSequences.SphericalPointIterator;
 import builderb0y.bigglobe.noise.Grid3D;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
@@ -295,38 +296,38 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			int maxX = chunkPos.getEndX();
 			int maxY = Math.min(this.boundingBox.getMaxY(), context.chunk.getTopY() - 1);
 			int maxZ = chunkPos.getEndZ();
-			double[] samples = new double[maxY - minY + 1];
-			double rcpRadius = 1.0D / this.data.radius;
-			double noiseMax = this.data.noise.maxValue();
-			BlockPos.Mutable pos = new BlockPos.Mutable();
-			for (int z = minZ; z <= maxZ; z++) {
-				pos.setZ(z);
-				double rz = BigGlobeMath.squareD((z - this.data.z) * rcpRadius);
-				for (int x = minX; x <= maxX; x++) {
-					pos.setX(x);
-					double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
-					this.data.noise.getBulkY(
-						context.pieceSeed,
-						x - this.data.offsetX,
-						minY - this.data.offsetY,
-						z - this.data.offsetZ,
-						samples,
-						samples.length
-					);
-					for (int y = minY; y <= maxY; y++) {
-						pos.setY(y);
-						double rxyz = rxz + BigGlobeMath.squareD((y - this.data.y) * rcpRadius);
-						double noise = samples[y - minY];
-						noise -= rxyz * noiseMax;
-						placed:
-						if (noise > 0.0D) {
-							for (BlocksConfig block : this.data.blocks) {
-								if (noise < block.threshold) {
-									context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
-									break placed;
+			try (NumberArray samples = NumberArray.allocateDoublesDirect(maxY - minY + 1)) {
+				double rcpRadius = 1.0D / this.data.radius;
+				double noiseMax = this.data.noise.maxValue();
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				for (int z = minZ; z <= maxZ; z++) {
+					pos.setZ(z);
+					double rz = BigGlobeMath.squareD((z - this.data.z) * rcpRadius);
+					for (int x = minX; x <= maxX; x++) {
+						pos.setX(x);
+						double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
+						this.data.noise.getBulkY(
+							context.pieceSeed,
+							x - this.data.offsetX,
+							minY - this.data.offsetY,
+							z - this.data.offsetZ,
+							samples
+						);
+						for (int y = minY; y <= maxY; y++) {
+							pos.setY(y);
+							double rxyz = rxz + BigGlobeMath.squareD((y - this.data.y) * rcpRadius);
+							double noise = samples.getD(y - minY);
+							noise -= rxyz * noiseMax;
+							placed:
+							if (noise > 0.0D) {
+								for (BlocksConfig block : this.data.blocks) {
+									if (noise < block.threshold) {
+										context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
+										break placed;
+									}
 								}
+								context.chunk.setBlockState(pos, BlockStates.AIR, false);
 							}
-							context.chunk.setBlockState(pos, BlockStates.AIR, false);
 						}
 					}
 				}
@@ -389,116 +390,6 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			this.data.offsetX += x;
 			this.data.offsetY += y;
 			this.data.offsetZ += z;
-		}
-
-		/**
-		allows computing noise values for one column while
-		a different column uses that noise to place blocks.
-		this class is no longer used because of a rare race
-		condition which hangs one of the worldgen threads.
-		@deprecated prone to deadlock, for unknown reasons.
-		*/
-		@Deprecated
-		public static class NoiseSwapGenerateTask extends RecursiveAction {
-
-			public final int minX, minY, minZ, maxX, maxY, maxZ;
-			public final double centerX, centerY, centerZ;
-			public final double rcpRadius;
-			public final long seed;
-			public final Grid3D grid;
-			public double[] noise1, noise2;
-
-			public int currentX, currentZ;
-
-			public NoiseSwapGenerateTask(
-				int minX,
-				int minY,
-				int minZ,
-				int maxX,
-				int maxY,
-				int maxZ,
-				double centerX,
-				double centerY,
-				double centerZ,
-				double radius,
-				long seed,
-				Grid3D grid
-			) {
-				this.minX = minX;
-				this.minY = minY;
-				this.minZ = minZ;
-				this.maxX = maxX;
-				this.maxY = maxY;
-				this.maxZ = maxZ;
-				this.centerX = centerX;
-				this.centerY = centerY;
-				this.centerZ = centerZ;
-				this.rcpRadius = 1.0D / radius;
-				this.seed = seed;
-				this.grid = grid;
-				int verticalRange = maxY - minY + 1;
-				this.noise1 = new double[verticalRange];
-				this.noise2 = new double[verticalRange];
-				this.currentX = minX;
-				this.currentZ = minZ;
-				this.fork();
-			}
-
-			public NoiseSwapGenerateTask(
-				int minX,
-				int minY,
-				int minZ,
-				int maxX,
-				int maxY,
-				int maxZ,
-				Data data,
-				long seed
-			) {
-				this(
-					minX,
-					minY,
-					minZ,
-					maxX,
-					maxY,
-					maxZ,
-					data.x,
-					data.y,
-					data.z,
-					data.radius,
-					seed,
-					data.noise
-				);
-			}
-
-			public double[] swap() {
-				this.quietlyJoin();
-				if (++this.currentX > this.maxX) {
-					this.currentX = this.minX;
-					if (++this.currentZ > this.maxZ) {
-						return this.noise1; //done!
-					}
-				}
-				this.reinitialize();
-				double[] toReturn = this.noise1;
-				this.noise1 = this.noise2;
-				this.noise2 = toReturn;
-				this.fork();
-				return toReturn;
-			}
-
-			@Override
-			public void compute() {
-				this.grid.getBulkY(this.seed, this.currentX, this.minY, this.currentZ, this.noise1, this.maxY - this.minY + 1);
-				double rxz = BigGlobeMath.squareD(
-					(this.currentX - this.centerX) * this.rcpRadius,
-					(this.currentZ - this.centerZ) * this.rcpRadius
-				);
-				double noiseMax = this.grid.maxValue();
-				for (int y = this.minY; y <= this.maxY; y++) {
-					double rxyz = rxz + BigGlobeMath.squareD((y - this.centerY) * this.rcpRadius);
-					this.noise1[y - this.minY] -= rxyz * noiseMax;
-				}
-			}
 		}
 	}
 

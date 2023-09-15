@@ -3,6 +3,7 @@ package builderb0y.bigglobe.overriders.nether;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.noise.Grid3D;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
@@ -50,7 +51,7 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 
 		public final NetherColumn.LocalCell localCell;
 
-		public Context(ScriptStructures structureStarts, NetherColumn column, int minY, double[] noise) {
+		public Context(ScriptStructures structureStarts, NetherColumn column, int minY, NumberArray noise) {
 			super(structureStarts, column, minY, noise);
 			this.localCell = column.getLocalCell();
 		}

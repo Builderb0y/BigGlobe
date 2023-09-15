@@ -10,6 +10,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings;
@@ -29,7 +30,7 @@ public class NetherColumn extends WorldColumn {
 
 	public final NetherSettings settings;
 	public LocalCell localCell;
-	public double[] caveNoise, cavernNoise;
+	public NumberArray caveNoise, cavernNoise;
 	public double edginess, edginessSquared;
 
 	public IntList caveFloors, caveCeilings, cavernFloors, cavernCeilings;
@@ -45,14 +46,14 @@ public class NetherColumn extends WorldColumn {
 		this.  cavernFloors = new IntArrayList( 8);
 		this.cavernCeilings = new IntArrayList( 8);
 		{
-			double[] caveNoise = this.caveNoise;
+			NumberArray caveNoise = this.caveNoise;
 			int minY = this.settings.min_y;
 			int maxY = this.settings.max_y;
 			ColumnYToDoubleScript.Holder widthScript = this.getLocalCell().settings.caves.noise_threshold();
 			boolean previousCave = false;
 			for (int y = minY; y < maxY; y++) {
 				int index = y - minY;
-				boolean currentCave = caveNoise[index] < widthScript.evaluate(this, y);
+				boolean currentCave = caveNoise.getD(index) < widthScript.evaluate(this, y);
 				if (currentCave && !previousCave) {
 					this.caveFloors.add(y);
 				}
@@ -63,14 +64,14 @@ public class NetherColumn extends WorldColumn {
 			}
 		}
 		{
-			double[] cavernNoise = this.cavernNoise;
+			NumberArray cavernNoise = this.cavernNoise;
 			NetherCavernSettings caverns = this.getLocalCell().settings.caverns;
 			int minY = caverns.min_y();
 			int maxY = caverns.max_y();
 			boolean previousCavern = false;
 			for (int y = minY; y < maxY; y++) {
 				int index = y - minY;
-				boolean currentCavern = cavernNoise[index] < 0.0D;
+				boolean currentCavern = cavernNoise.getF(index) < 0.0F;
 				if (currentCavern && !previousCavern) {
 					this.cavernFloors.add(y);
 				}
@@ -120,24 +121,45 @@ public class NetherColumn extends WorldColumn {
 		return this.getLocalCell().lavaLevel;
 	}
 
-	public double[] getCaveNoise() {
-		return (
-			this.setFlag(CAVE_NOISE)
-			? this.computeCaveNoise()
-			: this.caveNoise
-		);
+	public NumberArray getCaveNoise() {
+		NumberArray noise = this.caveNoise;
+		if (this.setFlag(CAVE_NOISE)) {
+			if (noise == null) {
+				noise = this.caveNoise = NumberArray.allocateFloatsHeap(this.settings.height());
+			}
+			LocalCell cell = this.getLocalCell();
+			NumberArray noise_ = noise; //lambdas -_-
+			ScriptedGrid.SECRET_COLUMN.run(this, () ->
+				cell.settings.caves.noise().getBulkY(
+					cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
+					this.x,
+					this.settings.min_y,
+					this.z,
+					noise_
+				)
+			);
+			this.runCaveOverriders(noise);
+		}
+		return noise;
 	}
 
 	public double getCaveNoise(int y, boolean cache) {
-		double[] array = cache ? this.getCaveNoise() : this.caveNoise;
+		NumberArray array = cache ? this.getCaveNoise() : this.caveNoise;
 		if (array != null) {
 			int index = y - this.settings.min_y;
-			if (index >= 0 && index < array.length) {
-				return array[index];
+			if (index >= 0 && index < array.length()) {
+				return array.getD(index);
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.caves.noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL), this.x, y, this.z));
+		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () ->
+			cell.settings.caves.noise().getValue(
+				cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
+				this.x,
+				y,
+				this.z
+			)
+		);
 		return this.runCaveOverriders(noise, y);
 	}
 
@@ -155,25 +177,6 @@ public class NetherColumn extends WorldColumn {
 
 	public double getCaveEffectiveWidth(double y) {
 		return this.getLocalCell().settings.caves.effective_width().evaluate(this, y);
-	}
-
-	public double[] computeCaveNoise() {
-		int range = this.settings.height();
-		double[] noise = this.caveNoise;
-		if (noise == null || noise.length < range) {
-			noise = this.caveNoise = new double[range];
-		}
-		LocalCell cell = this.getLocalCell();
-		cell.settings.caves.noise().getBulkY(
-			cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
-			this.x,
-			this.settings.min_y,
-			this.z,
-			noise,
-			range
-		);
-		this.runCaveOverriders(noise);
-		return noise;
 	}
 
 	public double runCaveOverriders(double caveNoise, int y) {
@@ -216,7 +219,7 @@ public class NetherColumn extends WorldColumn {
 		return caveNoise;
 	}
 
-	public void runCaveOverriders(double[] caveNoise) {
+	public void runCaveOverriders(NumberArray caveNoise) {
 		LocalNetherSettings settings = this.getLocalCell().settings;
 		int minY = this.settings.min_y;
 		int maxY = this.settings.max_y;
@@ -234,10 +237,10 @@ public class NetherColumn extends WorldColumn {
 			double threshold = thresholdScript.evaluate(this, y);
 			double effectiveWidth = effectiveWidthScript.evaluate(this, y);
 			if (y < actualLowerPadding) {
-				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y)));
+				caveNoise.add(y - minY, threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualLowerPadding), (double)(effectiveMinY), (double)(y))));
 			}
 			if (y >= actualUpperPadding) {
-				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y)));
+				caveNoise.add(y - minY, threshold * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(actualUpperPadding), (double)(effectiveMaxY), (double)(y))));
 			}
 			double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - effectiveWidth, distanceBetweenBiomes, edginess);
 			//problem: cave noise is vastly more likely to be 0 near edges than cavern noise is.
@@ -250,25 +253,42 @@ public class NetherColumn extends WorldColumn {
 			//that's what the * 0.5D is for.
 			sidePadding = sidePadding * 0.5D + 0.75D;
 			if (sidePadding > 0.0D) {
-				caveNoise[y - minY] += threshold * BigGlobeMath.squareD(sidePadding);
+				caveNoise.add(y - minY, threshold * BigGlobeMath.squareD(sidePadding));
 			}
 		}
 	}
 
-	public double[] getCavernNoise() {
-		return (
-			this.setFlag(CAVERN_NOISE)
-			? this.computeCavernNoise()
-			: this.cavernNoise
-		);
+	public NumberArray getCavernNoise() {
+		NumberArray noise = this.cavernNoise, slice;
+		LocalCell cell = this.getLocalCell();
+		if (this.setFlag(CAVERN_NOISE)) {
+			if (noise == null) {
+				noise = this.cavernNoise = NumberArray.allocateFloatsHeap(this.settings.maxCavernRange);
+			}
+			slice = noise.prefix(cell.settings.caverns.range());
+			ScriptedGrid.SECRET_COLUMN.run(this, () -> {
+				cell.settings.caverns.noise().getBulkY(
+					cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
+					this.x,
+					cell.settings.caverns.min_y(),
+					this.z,
+					slice
+				);
+			});
+			this.runCavernOverriders(slice);
+		}
+		else {
+			slice = noise.prefix(cell.settings.caverns.range());
+		}
+		return slice;
 	}
 
 	public double getCavernNoise(int y, boolean cache) {
-		double[] array = cache ? this.getCavernNoise() : this.cavernNoise;
+		NumberArray array = cache ? this.getCavernNoise() : this.cavernNoise;
 		if (array != null) {
 			int index = y - this.getLocalCell().settings.caverns.min_y();
-			if (index >= 0 && index < array.length) {
-				return array[index];
+			if (index >= 0 && index < array.length()) {
+				return array.getD(index);
 			}
 		}
 		LocalCell cell = this.getLocalCell();
@@ -282,28 +302,6 @@ public class NetherColumn extends WorldColumn {
 
 	public double getCachedCavernNoise(double y) {
 		return this.getCavernNoise(BigGlobeMath.floorI(y), true);
-	}
-
-	public double[] computeCavernNoise() {
-		LocalCell cell = this.getLocalCell();
-		int range = cell.settings.caverns.max_y() - cell.settings.caverns.min_y();
-		double[] noise = this.cavernNoise;
-		if (noise == null) {
-			noise = this.cavernNoise = new double[range];
-		}
-		double[] noise_ = noise; //lambdas -_-
-		ScriptedGrid.SECRET_COLUMN.run(this, () -> {
-			cell.settings.caverns.noise().getBulkY(
-				cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
-				this.x,
-				cell.settings.caverns.min_y(),
-				this.z,
-				noise_,
-				range
-			);
-		});
-		this.runCavernOverriders(noise);
-		return noise;
 	}
 
 	public double runCavernOverriders(double noise, int y) {
@@ -330,7 +328,7 @@ public class NetherColumn extends WorldColumn {
 		return noise;
 	}
 
-	public void runCavernOverriders(double[] noise) {
+	public void runCavernOverriders(NumberArray noise) {
 		LocalNetherSettings settings = this.getLocalCell().settings;
 		int minY = settings.caverns.min_y();
 		int maxY = settings.caverns.max_y();
@@ -338,17 +336,17 @@ public class NetherColumn extends WorldColumn {
 		int upperPaddingMinY = maxY - settings.caverns.upper_padding();
 		double maxNoise = -settings.caverns.noise().minValue();
 		for (int y = minY; y <= lowerPaddingMaxY; y++) {
-			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(lowerPaddingMaxY), (double)(minY), (double)(y)));
+			noise.add(y - minY, maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(lowerPaddingMaxY), (double)(minY), (double)(y))));
 		}
 		for (int y = maxY; --y >= upperPaddingMinY;) {
-			noise[y - minY] += maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y)));
+			noise.add(y - minY, maxNoise * BigGlobeMath.squareD(Interpolator.unmixLinear((double)(upperPaddingMinY), (double)(maxY), (double)(y))));
 		}
 		int distanceBetweenBiomes = this.settings.biome_placement.distance;
 		double sidePadding = Interpolator.unmixLinear(distanceBetweenBiomes - settings.caverns.edge_padding(), distanceBetweenBiomes, this.getEdginess() * distanceBetweenBiomes);
 		if (sidePadding > 0.0D) {
 			sidePadding = sidePadding * sidePadding * maxNoise;
 			for (int y = minY; y < maxY; y++) {
-				noise[y - minY] += sidePadding;
+				noise.add(y - minY, sidePadding);
 			}
 		}
 	}

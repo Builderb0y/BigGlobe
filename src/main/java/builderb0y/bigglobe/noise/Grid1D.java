@@ -39,15 +39,14 @@ public interface Grid1D extends Grid, CoderRegistryTyped<Grid1D> {
 	public abstract double getValue(long seed, int x);
 
 	/**
-	gets (sampleCount) values starting at (startX) and continuing in the
+	gets (samples.length()) values starting at (startX) and continuing in the
 	+X direction, with a spacing of 1 between each sampled coordinate.
 	the sampled values are stored in (samples), starting at index 0.
-	the indexes in (samples) that are greater than or equal to (sampleCount) will not be modified.
-	if (sampleCount) is less than or equal to 0, then this method will do nothing.
+	if (samples.length()) is less than or equal to 0, then this method will do nothing.
 
 	@implSpec this method must produce the same results as the following code: {@code
-		for (int i = 0; i < sampleCount; i++) {
-			samples[i] = this.getValue(seed, startX + i);
+		for (int index = 0; index < samples.length(); index++) {
+			samples.setD(index, this.getValue(seed, startX + index));
 		}
 	}
 	to within the limits of floating point precision.
@@ -55,12 +54,10 @@ public interface Grid1D extends Grid, CoderRegistryTyped<Grid1D> {
 	differ slightly from the values stored in samples by the above loop.
 	this may happen if implementations perform interpolation differently in bulk vs. in repetition.
 	implementations are encouraged to replace the above loop with a more efficient approach where applicable.
-
-	@throws ArrayIndexOutOfBoundsException if sampleCount > samples.length.
 	*/
-	public default void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] = this.getValue(seed, startX + index);
+	public default void getBulkX(long seed, int startX, NumberArray samples) {
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.setD(index, this.getValue(seed, startX + index));
 		}
 	}
 }

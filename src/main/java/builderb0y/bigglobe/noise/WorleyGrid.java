@@ -26,4 +26,11 @@ public abstract class WorleyGrid implements Grid {
 	public double maxValue() {
 		return Math.max(this.amplitude, 0.0D);
 	}
+
+	public void scale(NumberArray samples) {
+		double rcp = this.rcp;
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.mul(index, rcp);
+		}
+	}
 }

@@ -29,28 +29,6 @@ public class ErosionGrid2D {
 		this.amplitude = amplitude;
 	}
 
-	public void getValuesX(long seed, int startX, int y, double[] sharpness, double[] samples, int sampleCount) {
-		this.absGrid.getBulkX(seed, startX, y, samples, sampleCount);
-		this.adjustBulk(sharpness, samples, sampleCount);
-	}
-
-	public void getValuesY(long seed, int x, int startY, double[] sharpness, double[] samples, int sampleCount) {
-		this.absGrid.getBulkY(seed, x, startY, samples, sampleCount);
-		this.adjustBulk(sharpness, samples, sampleCount);
-	}
-
-	public void adjustBulk(double[] sharpness, double[] samples, int sampleCount) {
-		double rcpMax = 1.0D / this.absGrid.maxValue();
-		for (int index = 0; index < sampleCount; index++) {
-			double value = samples[index];
-			value *= rcpMax; //0 to 1.
-			value *= Interpolator.mixLinear(value, 2.0D - value, sharpness[index]);
-			value = value * -2.0D + 1.0D; //-1 to +1.
-			value *= this.amplitude;
-			samples[index] = value;
-		}
-	}
-
 	public void getValueAndSnow(long seed, int x, int y, double sharpness, double[] out) {
 		double value = this.absGrid.getValue(seed, x, y) / this.absGrid.maxValue(); //0 to 1.
 		double curvedValue = value * Interpolator.mixLinear(value, 2.0D - value, sharpness);

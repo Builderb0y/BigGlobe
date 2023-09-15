@@ -23,10 +23,10 @@ public class AbstractGrid implements Grid {
 		return +this.amplitude;
 	}
 
-	public void scale(double[] samples, int sampleCount) {
+	public void scale(NumberArray samples) {
 		double amplitude = this.amplitude;
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] *= amplitude;
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.mul(index, amplitude);
 		}
 	}
 }

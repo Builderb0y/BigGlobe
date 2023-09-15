@@ -15,7 +15,7 @@ public class SmoothifyGrid3DTest {
 	public void testAll() {
 		Grid.TESTING.setTrue();
 		ValueGrid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
-		double[] values = new double[sampleCount];
+		NumberArray values = NumberArray.allocateDoublesHeap(sampleCount);
 		for (int x = -64; x < 64; x++) {
 			for (int z = -64; z < 64; z++) {
 				for (int y = -64; y < 64; y++) {
@@ -25,27 +25,27 @@ public class SmoothifyGrid3DTest {
 		}
 	}
 
-	public void testPosition(ValueGrid3D grid, double[] values, int x, int y, int z) {
-		grid.getBulkX(worldSeed, x, y, z, values, sampleCount);
+	public void testPosition(ValueGrid3D grid, NumberArray values, int x, int y, int z) {
+		grid.getBulkX(worldSeed, x, y, z, values);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x + index, y, z), values[index], 0.000001D);
+			assertEquals(grid.getValue(worldSeed, x + index, y, z), values.getD(index), 0.000001D);
 		}
 		this.checkContinuous(values);
-		grid.getBulkY(worldSeed, x, y, z, values, sampleCount);
+		grid.getBulkY(worldSeed, x, y, z, values);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x, y + index, z), values[index], 0.000001D);
+			assertEquals(grid.getValue(worldSeed, x, y + index, z), values.getD(index), 0.000001D);
 		}
 		this.checkContinuous(values);
-		grid.getBulkZ(worldSeed, x, y, z, values, sampleCount);
+		grid.getBulkZ(worldSeed, x, y, z, values);
 		for (int index = 0; index < sampleCount; index++) {
-			assertEquals(grid.getValue(worldSeed, x, y, z + index), values[index], 0.000001D);
+			assertEquals(grid.getValue(worldSeed, x, y, z + index), values.getD(index), 0.000001D);
 		}
 		this.checkContinuous(values);
 	}
 
-	public void checkContinuous(double[] values) {
+	public void checkContinuous(NumberArray values) {
 		for (int index = 1; index < sampleCount - 1; index++) {
-			assertEquals(values[index], (values[index - 1] + values[index + 1]) * 0.5F, 0.125F);
+			assertEquals(values.getD(index), (values.getD(index - 1) + values.getD(index + 1)) * 0.5F, 0.125F);
 		}
 	}
 

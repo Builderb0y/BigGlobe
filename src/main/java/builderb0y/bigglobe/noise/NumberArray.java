@@ -5,6 +5,25 @@ import java.util.Objects;
 
 import org.lwjgl.system.*;
 
+/**
+an abstraction above arrays of numbers.
+supported number types include bytes, shorts, ints, longs, floats, and doubles.
+supported number types do NOT include chars (even though they can be used in arithmetic)
+or booleans (even though they are ints on the stack).
+
+each NumberArray has a specific internal type, and attempts to get and set
+elements in the array will automatically cast to and from that internal type.
+
+NumberArray's come in 2 primary variants: heap number arrays, and direct number arrays.
+heap number arrays are backed by an actual java array of the corresponding number type.
+direct number arrays are backed by a pointer allocated by {@link MemoryUtil}, which lives off-heap.
+additionally, direct number arrays are fundamentally temporary objects.
+they are intended to be allocated, used, and de-allocated in reverse order that they are allocated in.
+direct number arrays also all use a shared, thread-local region of memory.
+shared in this case means that all direct number arrays allocated
+on the same thread will use the same region of memory.
+the usage of this region is tracked automatically. see {@link Direct.Manager} for more info.
+*/
 public interface NumberArray extends AutoCloseable {
 
 	public static NumberArray allocateBytesHeap(int bytes) { return new Heap.OfByte(new byte[bytes]); }
@@ -51,6 +70,48 @@ public interface NumberArray extends AutoCloseable {
 	public abstract void fillFromTo(int from, int to, long value);
 	public abstract void fillFromTo(int from, int to, float value);
 	public abstract void fillFromTo(int from, int to, double value);
+
+	public default void add(int index, byte   value) { this.setB(index, (byte)(this.getB(index) + value)); }
+	public default void add(int index, short  value) { this.setS(index, (short)(this.getB(index) + value)); }
+	public default void add(int index, int    value) { this.setI(index, this.getI(index) + value); }
+	public default void add(int index, long   value) { this.setL(index, this.getL(index) + value); }
+	public default void add(int index, float  value) { this.setF(index, this.getF(index) + value); }
+	public default void add(int index, double value) { this.setD(index, this.getD(index) + value); }
+
+	public default void sub(int index, byte   value) { this.setB(index, (byte)(this.getB(index) - value)); }
+	public default void sub(int index, short  value) { this.setS(index, (short)(this.getB(index) - value)); }
+	public default void sub(int index, int    value) { this.setI(index, this.getI(index) - value); }
+	public default void sub(int index, long   value) { this.setL(index, this.getL(index) - value); }
+	public default void sub(int index, float  value) { this.setF(index, this.getF(index) - value); }
+	public default void sub(int index, double value) { this.setD(index, this.getD(index) - value); }
+
+	public default void mul(int index, byte   value) { this.setB(index, (byte)(this.getB(index) * value)); }
+	public default void mul(int index, short  value) { this.setS(index, (short)(this.getB(index) * value)); }
+	public default void mul(int index, int    value) { this.setI(index, this.getI(index) * value); }
+	public default void mul(int index, long   value) { this.setL(index, this.getL(index) * value); }
+	public default void mul(int index, float  value) { this.setF(index, this.getF(index) * value); }
+	public default void mul(int index, double value) { this.setD(index, this.getD(index) * value); }
+
+	public default void div(int index, byte   value) { this.setB(index, (byte)(this.getB(index) / value)); }
+	public default void div(int index, short  value) { this.setS(index, (short)(this.getB(index) / value)); }
+	public default void div(int index, int    value) { this.setI(index, this.getI(index) / value); }
+	public default void div(int index, long   value) { this.setL(index, this.getL(index) / value); }
+	public default void div(int index, float  value) { this.setF(index, this.getF(index) / value); }
+	public default void div(int index, double value) { this.setD(index, this.getD(index) / value); }
+
+	public default void min(int index, byte   value) { this.setB(index, (byte)(Math.min(this.getB(index), value))); }
+	public default void min(int index, short  value) { this.setS(index, (short)(Math.min(this.getS(index), value))); }
+	public default void min(int index, int    value) { this.setI(index, Math.min(this.getI(index), value)); }
+	public default void min(int index, long   value) { this.setL(index, Math.min(this.getL(index), value)); }
+	public default void min(int index, float  value) { this.setF(index, Math.min(this.getF(index), value)); }
+	public default void min(int index, double value) { this.setD(index, Math.min(this.getD(index), value)); }
+
+	public default void max(int index, byte   value) { this.setB(index, (byte)(Math.max(this.getB(index), value))); }
+	public default void max(int index, short  value) { this.setS(index, (short)(Math.max(this.getS(index), value))); }
+	public default void max(int index, int    value) { this.setI(index, Math.max(this.getI(index), value)); }
+	public default void max(int index, long   value) { this.setL(index, Math.max(this.getL(index), value)); }
+	public default void max(int index, float  value) { this.setF(index, Math.max(this.getF(index), value)); }
+	public default void max(int index, double value) { this.setD(index, Math.max(this.getD(index), value)); }
 
 	public abstract int length();
 
@@ -389,9 +450,9 @@ public interface NumberArray extends AutoCloseable {
 			FLOAT_SHIFT = 2,
 			DOUBLE_SHIFT = 3;
 
-		public final Manager manager;
-		public final long byteOffset, byteLength;
-		public final boolean freeable;
+		public Manager manager;
+		public long byteOffset, byteLength;
+		public boolean freeable;
 
 		public Direct(Manager manager, long byteLength, int alignment) {
 			if ((byteLength & (alignment - 1)) != 0) {
@@ -400,10 +461,11 @@ public interface NumberArray extends AutoCloseable {
 			if (manager.used + byteLength > manager.capacity) {
 				throw new IllegalStateException("Manager has insufficient capacity for " + byteLength + " byte(s): " + manager);
 			}
-			this.manager  = manager;
+			this.manager    = manager;
 			this.byteOffset = manager.used;
 			this.byteLength = byteLength;
-			this.freeable = true;
+			this.freeable   = true;
+			manager.used += byteLength;
 		}
 
 		public Direct(Manager manager, long byteOffset, long byteLength, int alignment) {
@@ -428,14 +490,15 @@ public interface NumberArray extends AutoCloseable {
 				else {
 					throw new IllegalStateException("Attempt to close NumberArray in wrong order!");
 				}
+				this.byteOffset = 0L;
+				this.byteLength = 0L;
+				this.freeable = false;
 			}
+			this.manager = null;
 		}
 
 		public long baseAddress() {
-			if (this.byteOffset + this.byteLength > this.manager.used) {
-				throw new IllegalStateException("Attempt to use direct NumberArray after closing it.");
-			}
-			return this.manager.base() + this.byteOffset;
+			return this.manager.base + this.byteOffset;
 		}
 
 		public static class OfByte extends Direct implements NumberArray.OfByte {
@@ -708,33 +771,64 @@ public interface NumberArray extends AutoCloseable {
 			}
 		}
 
+		/**
+		manages a region of memory off-heap,
+		keeping track of how much of it is used at any given time.
+
+		every direct NumberArray has an associated Manager.
+		when a direct NumberArray is allocated,
+		the Manager is notified and the usage of its region of memory increases.
+		when a direct NumberArray is {@link #close()}'d, the usage of the region of memory decreases.
+		however, the algorithm for de-allocation is quite naive,
+		and only works if direct NumberArray's are de-allocated
+		in the reverse order that they are allocated in.
+
+		if enough direct NumberArray's are allocated that they collectively
+		use more memory than our {@link #capacity}, then the backing pointer
+		is re-allocated as a bigger size. this is why each direct NumberArray
+		has a reference to the manager, not a pointer to its region of memory.
+		this makes it possible to safely re-allocate memory without affecting
+		any direct NumberArrays which have already been allocated with this Manager.
+		*/
 		public static class Manager {
 
-			public static final long MAX_ALLOCATION = Long.getLong("bigglobe.NumberArray.maxAllocation", 1048576L);
+			public static final long MIN_SIZE = Long.getLong("bigglobe.NumberArray.Direct.minSize", 1024L * 8L);
+			public static final long MAX_SIZE = Long.getLong("bigglobe.NumberArray.Direct.maxSize", 1048576L);
 			public static final ThreadLocal<Manager> INSTANCES = ThreadLocal.withInitial(Manager::new);
 
+			/** the beginning of the region of memory this Manager keeps track of. */
 			public long base;
+			/** the number of bytes used in our region of memory. */
 			public long used;
+			/** the size of our region of memory. */
 			public long capacity;
 
+			public Manager() {
+				this.base = MemoryUtil.nmemAlloc(MIN_SIZE);
+				this.capacity = MIN_SIZE;
+			}
+
 			public void ensureCapacity(long capacity) {
-				if (capacity > MAX_ALLOCATION) {
-					throw new OutOfMemoryError("Requested capacity " + capacity + " exceeds maximum allocation limit " + MAX_ALLOCATION + " as defined by java argument -Dbigglobe.NumberArray.maxAllocation");
+				if (capacity > MAX_SIZE) {
+					throw new OutOfMemoryError("Requested capacity " + capacity + " exceeds maximum allocation limit " + MAX_SIZE + " as defined by java argument -Dbigglobe.NumberArray.Direct.maxSize");
 				}
 				if (this.capacity < capacity) {
-					capacity = Math.min(Math.max(capacity, this.base == 0L ? 1024L * Double.BYTES : this.capacity << 1), MAX_ALLOCATION);
+					capacity = Math.min(Math.max(capacity, this.base == 0L ? 1024L * Double.BYTES : this.capacity << 1), MAX_SIZE);
 					this.base = this.base == 0L ? MemoryUtil.nmemAlloc(capacity) : MemoryUtil.nmemRealloc(this.base, capacity);
+					if (this.base == 0L) {
+						this.capacity = 0L;
+						throw new OutOfMemoryError("Failed to allocate " + capacity + " byte(s)");
+					}
+					this.capacity = capacity;
 				}
 			}
 
 			public long beforeAllocate(long bytes) {
+				if (bytes < 0) {
+					throw new IllegalArgumentException("Attempt to allocate negative bytes: " + bytes);
+				}
 				this.ensureCapacity(this.used + bytes);
 				return bytes;
-			}
-
-			public long base() {
-				if (this.base != 0L) return this.base;
-				else throw new IllegalStateException("Manager not yet initialized");
 			}
 
 			public Direct.OfByte allocateBytes(int bytes) {

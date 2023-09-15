@@ -2,6 +2,7 @@ package builderb0y.bigglobe.overriders.end;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
@@ -60,7 +61,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 
 	public static abstract class Context extends VolumetricOverrider.Context {
 
-		public Context(ScriptStructures structureStarts, EndColumn column, int minY, double[] noise) {
+		public Context(ScriptStructures structureStarts, EndColumn column, int minY, NumberArray noise) {
 			super(structureStarts, column, minY, noise);
 		}
 
@@ -73,7 +74,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 
 		public final double exclusionMultiplier;
 
-		public SimpleContext(ScriptStructures structureStarts, EndColumn column, int minY, double[] noise, double multiplier) {
+		public SimpleContext(ScriptStructures structureStarts, EndColumn column, int minY, NumberArray noise, double multiplier) {
 			super(structureStarts, column, minY, noise);
 			this.exclusionMultiplier = multiplier;
 		}

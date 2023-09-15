@@ -12,12 +12,12 @@ public class ConstantGrid2D extends ConstantGrid implements Grid2D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
-		this.fill(samples, sampleCount);
+	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		samples.fill(this.value);
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
-		this.fill(samples, sampleCount);
+	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		samples.fill(this.value);
 	}
 }

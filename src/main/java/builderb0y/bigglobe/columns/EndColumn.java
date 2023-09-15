@@ -15,6 +15,7 @@ import net.minecraft.world.biome.Biome;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.EndSettings;
@@ -59,7 +60,7 @@ public class EndColumn extends WorldColumn {
 		bridgeCloudAngularBias,
 		bridgeCloudRadialBias,
 		bridgeCloudArchness;
-	public double @Nullable []
+	public @Nullable NumberArray
 		nestNoise,
 		lowerRingCloudNoise,
 		upperRingCloudNoise,
@@ -106,7 +107,7 @@ public class EndColumn extends WorldColumn {
 
 		public CloudLevelUpdater(String noise, String floor, String ceiling) {
 			try {
-				this.noise   = MethodHandles.lookup().findVirtual  (EndColumn.class, noise, MethodType.methodType(double[].class));
+				this.noise   = MethodHandles.lookup().findVirtual  (EndColumn.class, noise, MethodType.methodType(NumberArray.class));
 				this.floor   = MethodHandles.lookup().findVarHandle(EndColumn.class, floor,   IntList.class);
 				this.ceiling = MethodHandles.lookup().findVarHandle(EndColumn.class, ceiling, IntList.class);
 			}
@@ -116,20 +117,20 @@ public class EndColumn extends WorldColumn {
 		}
 
 		public void update(EndColumn column, int minY) {
-			double[] noise;
+			NumberArray noise;
 			try {
-				noise = (double[])(this.noise.invokeExact(column));
+				noise = (NumberArray)(this.noise.invokeExact(column));
 			}
 			catch (Throwable throwable) {
 				throw AutoCodecUtil.rethrow(throwable);
 			}
 			if (noise == null) return;
-			int maxY = minY + noise.length;
+			int maxY = minY + noise.length();
 			boolean previousCloud = false;
 			IntList floorLevels = null, ceilingLevels = null;
 			for (int y = minY; y < maxY; y++) {
 				int index = y - minY;
-				boolean currentCloud = noise[index] > 0.0D;
+				boolean currentCloud = noise.getF(index) > 0.0F;
 				if (previousCloud && !currentCloud) {
 					if (floorLevels == null) floorLevels = new IntArrayList(1);
 					floorLevels.add(y);
@@ -199,16 +200,16 @@ public class EndColumn extends WorldColumn {
 
 	//////////////////////////////// nest ////////////////////////////////
 
-	public double[] getNestNoise() {
+	public @Nullable NumberArray getNestNoise() {
 		if (this.getDistanceToOrigin() >= this.settings.nest.max_radius()) return null;
-		double[] nestNoise = this.nestNoise;
-		if (nestNoise == null) {
-			nestNoise = this.nestNoise = new double[this.settings.nest.verticalSamples()];
-		}
+		NumberArray nestNoise = this.nestNoise;
 		if (this.setFlag(NEST_NOISE)) {
+			if (nestNoise == null) {
+				nestNoise = this.nestNoise = NumberArray.allocateFloatsHeap(this.settings.nest.verticalSamples());
+			}
 			int startY = this.settings.nest.min_y();
-			ScriptedGrid.SECRET_COLUMN.accept(this, nestNoise, (double[] noise) -> {
-				this.settings.nest.shape().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, nestNoise, (NumberArray noise) -> {
+				this.settings.nest.shape().getBulkY(this.seed, this.x, startY, this.z, noise);
 			});
 		}
 		return nestNoise;
@@ -333,23 +334,23 @@ public class EndColumn extends WorldColumn {
 		return BigGlobeMath.ceilI(centerY + ringCloudSettings.vertical_thickness());
 	}
 
-	public double @Nullable [] getLowerRingCloudNoise() {
+	public @Nullable NumberArray getLowerRingCloudNoise() {
 		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return null;
 		double horizontalBias = this.getRingCloudHorizontalBias();
 		if (horizontalBias <= -ringCloudSettings.noise().maxValue()) return null;
-		double[] lowerRingCloudNoise = this.lowerRingCloudNoise;
-		if (lowerRingCloudNoise == null) {
-			lowerRingCloudNoise = this.lowerRingCloudNoise = new double[ringCloudSettings.verticalSamples()];
-		}
+		NumberArray lowerRingCloudNoise = this.lowerRingCloudNoise;
 		if (this.setFlag(LOWER_RING_CLOUD_NOISE)) {
+			if (lowerRingCloudNoise == null) {
+				lowerRingCloudNoise = this.lowerRingCloudNoise = NumberArray.allocateFloatsHeap(ringCloudSettings.verticalSamples());
+			}
 			int startY = this.getLowerRingCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, lowerRingCloudNoise, (double[] noise) -> {
-				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, lowerRingCloudNoise, (NumberArray noise) -> {
+				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
 			});
 			double noiseMax = ringCloudSettings.noise().maxValue();
-			for (int index = 0, length = lowerRingCloudNoise.length; index < length; index++) {
-				lowerRingCloudNoise[index] -= (horizontalBias + this.getLowerRingCloudVerticalBias(index + startY)) * noiseMax;
+			for (int index = 0, length = lowerRingCloudNoise.length(); index < length; index++) {
+				lowerRingCloudNoise.sub(index, (horizontalBias + this.getLowerRingCloudVerticalBias(index + startY)) * noiseMax);
 			}
 		}
 		return lowerRingCloudNoise;
@@ -404,23 +405,23 @@ public class EndColumn extends WorldColumn {
 		return BigGlobeMath.ceilI(centerY + ringCloudSettings.vertical_thickness());
 	}
 
-	public double @Nullable [] getUpperRingCloudNoise() {
+	public @Nullable NumberArray getUpperRingCloudNoise() {
 		RingCloudSettings ringCloudSettings = this.settings.ring_clouds;
 		if (ringCloudSettings == null) return null;
 		double horizontalBias = this.getRingCloudHorizontalBias();
 		if (horizontalBias <= -ringCloudSettings.noise().maxValue()) return null;
-		double[] upperRingCloudNoise = this.upperRingCloudNoise;
-		if (upperRingCloudNoise == null) {
-			upperRingCloudNoise = this.upperRingCloudNoise = new double[ringCloudSettings.verticalSamples()];
-		}
+		NumberArray upperRingCloudNoise = this.upperRingCloudNoise;
 		if (this.setFlag(UPPER_RING_CLOUD_NOISE)) {
+			if (upperRingCloudNoise == null) {
+				upperRingCloudNoise = this.upperRingCloudNoise = NumberArray.allocateFloatsHeap(ringCloudSettings.verticalSamples());
+			}
 			int startY = this.getUpperRingCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, upperRingCloudNoise, (double[] noise) -> {
-				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, upperRingCloudNoise, (NumberArray noise) -> {
+				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
 			});
-			double maxNoise = ringCloudSettings.noise().maxValue();
-			for (int index = 0, length = upperRingCloudNoise.length; index < length; index++) {
-				upperRingCloudNoise[index] -= (horizontalBias + this.getUpperRingCloudVerticalBias(index + startY)) * maxNoise;
+			double noiseMax = ringCloudSettings.noise().maxValue();
+			for (int index = 0, length = upperRingCloudNoise.length(); index < length; index++) {
+				upperRingCloudNoise.sub(index, (horizontalBias + this.getUpperRingCloudVerticalBias(index + startY)) * noiseMax);
 			}
 		}
 		return upperRingCloudNoise;
@@ -522,22 +523,23 @@ public class EndColumn extends WorldColumn {
 		return BigGlobeMath.ceilI(centerY + bridgeCloudSettings.vertical_thickness());
 	}
 
-	public double @Nullable [] getLowerBridgeCloudNoise() {
+	public @Nullable NumberArray getLowerBridgeCloudNoise() {
 		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return null;
 		double horizontalBias = this.getBridgeCloudHorizontalBias();
 		if (horizontalBias >= 1.0D) return null;
-		double[] lowerBridgeCloudNoise = this.lowerBridgeCloudNoise;
-		if (lowerBridgeCloudNoise == null) {
-			lowerBridgeCloudNoise = this.lowerBridgeCloudNoise = new double[bridgeCloudSettings.verticalSamples()];
-		}
+		NumberArray lowerBridgeCloudNoise = this.lowerBridgeCloudNoise;
 		if (this.setFlag(LOWER_BRIDGE_CLOUD_NOISE)) {
+			if (lowerBridgeCloudNoise == null) {
+				lowerBridgeCloudNoise = this.lowerBridgeCloudNoise = NumberArray.allocateFloatsHeap(bridgeCloudSettings.verticalSamples());
+			}
 			int startY = this.getLowerBridgeCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, lowerBridgeCloudNoise, (double[] noise) -> {
-				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, lowerBridgeCloudNoise, (NumberArray noise) -> {
+				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
 			});
-			for (int index = 0, length = lowerBridgeCloudNoise.length; index < length; index++) {
-				lowerBridgeCloudNoise[index] -= (horizontalBias + this.getLowerBridgeCloudVerticalBias(index + startY)) * bridgeCloudSettings.noise().maxValue();
+			double noiseMax = bridgeCloudSettings.noise().maxValue();
+			for (int index = 0, length = lowerBridgeCloudNoise.length(); index < length; index++) {
+				lowerBridgeCloudNoise.sub(index, (horizontalBias + this.getLowerBridgeCloudVerticalBias(index + startY)) * noiseMax);
 			}
 		}
 		return lowerBridgeCloudNoise;
@@ -588,22 +590,23 @@ public class EndColumn extends WorldColumn {
 		return BigGlobeMath.ceilI(centerY + bridgeCloudSettings.vertical_thickness());
 	}
 
-	public double @Nullable [] getUpperBridgeCloudNoise() {
+	public @Nullable NumberArray getUpperBridgeCloudNoise() {
 		BridgeCloudSettings bridgeCloudSettings = this.settings.bridge_clouds;
 		if (bridgeCloudSettings == null) return null;
 		double horizontalBias = this.getBridgeCloudHorizontalBias();
 		if (horizontalBias >= 1.0D) return null;
-		double[] upperBridgeCloudNoise = this.upperBridgeCloudNoise;
-		if (upperBridgeCloudNoise == null) {
-			upperBridgeCloudNoise = this.upperBridgeCloudNoise = new double[bridgeCloudSettings.verticalSamples()];
-		}
+		NumberArray upperBridgeCloudNoise = this.upperBridgeCloudNoise;
 		if (this.setFlag(UPPER_BRIDGE_CLOUD_NOISE)) {
+			if (upperBridgeCloudNoise == null) {
+				upperBridgeCloudNoise = this.upperBridgeCloudNoise = NumberArray.allocateFloatsHeap(bridgeCloudSettings.verticalSamples());
+			}
 			int startY = this.getUpperBridgeCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, upperBridgeCloudNoise, (double[] noise) -> {
-				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise, noise.length);
+			ScriptedGrid.SECRET_COLUMN.accept(this, upperBridgeCloudNoise, (NumberArray noise) -> {
+				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
 			});
-			for (int index = 0, length = upperBridgeCloudNoise.length; index < length; index++) {
-				upperBridgeCloudNoise[index] -= (horizontalBias + this.getUpperBridgeCloudVerticalBias(index + startY)) * bridgeCloudSettings.noise().maxValue();
+			double noiseMax = bridgeCloudSettings.noise().maxValue();
+			for (int index = 0, length = upperBridgeCloudNoise.length(); index < length; index++) {
+				upperBridgeCloudNoise.sub(index, (horizontalBias + this.getUpperBridgeCloudVerticalBias(index + startY)) * noiseMax);
 			}
 		}
 		return upperBridgeCloudNoise;

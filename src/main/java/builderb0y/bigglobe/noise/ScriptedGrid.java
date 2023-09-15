@@ -15,11 +15,15 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.DefaultEmpty;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
+import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -27,6 +31,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
+import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -39,7 +44,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
-	public static final TypeInfo DOUBLE_ARRAY = type(double[].class);
+	public static final TypeInfo NUMBER_ARRAY = type(NumberArray.class);
 	public static final ScopeLocal<WorldColumn> SECRET_COLUMN = new ScopeLocal<>();
 	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
 	public static final InsnTree GET_WORLD_SEED = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getWorldSeed"));
@@ -48,6 +53,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	public final @DefaultEmpty Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
 	public final @VerifySorted(greaterThanOrEqual = "min") double max;
+	public transient long nextWarning = Long.MIN_VALUE;
 
 	public ScriptedGrid(ScriptUsage<ScriptedGridTemplateUsage<G>> script, Map<String, G> inputs, double min, double max) {
 		this.script = script;
@@ -75,6 +81,19 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	@Override
 	public double maxValue() {
 		return this.max;
+	}
+
+	public void onError(Throwable throwable) {
+		long time = System.currentTimeMillis();
+		if (time >= this.nextWarning) {
+			this.nextWarning = time + 5000L;
+			StringBuilder mainMessage = new StringBuilder().append("Caught exception from ").append(this.getClass().getName());
+			if (this.script.debug_name != null) mainMessage.append(" (").append(this.script.debug_name).append(')');
+			mainMessage.append(": ").append(throwable).append("; Check your logs for more info.");
+			BuiltinScriptEnvironment.PRINTER.println(mainMessage.toString());
+			ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.script.findSource()));
+			ScriptLogger.LOGGER.error("Exception was: ", throwable);
+		}
 	}
 
 	public static <T_Encoded> void verifyInputName(VerifyContext<T_Encoded, String> context) throws VerifyException {
@@ -167,9 +186,12 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		public static final MethodInfo
 			CHECK_NAN = MethodInfo.getMethod(Parser.class, "checkNaN"),
-			GET_SCRATCH_ARRAY = MethodInfo.getMethod(Grid.class, "getScratchArray"),
-			RECLAIM_SCRATCH_ARRAY = MethodInfo.getMethod(Grid.class, "reclaimScratchArray"),
-			OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class);
+			OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
+
+			GETD = MethodInfo.getMethod(NumberArray.class, "getD"),
+			SETD = MethodInfo.getMethod(NumberArray.class, "setD"),
+			ALLOCATED = MethodInfo.getMethod(NumberArray.class, "allocateDoublesDirect"),
+			LENGTH = MethodInfo.getMethod(NumberArray.class, "length");
 
 		public ScriptUsage<ScriptedGridTemplateUsage<G>> usage;
 		public LinkedHashMap<String, Input> gridInputs;
@@ -209,6 +231,22 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					new TypeInfo[] { TypeInfo.of(gridTypeInfo.gridClass), TypeInfo.of(Script.class) }
 				)
 			);
+		}
+
+		public static InsnTree newNumberArray(InsnTree length) {
+			return invokeStatic(ALLOCATED, length);
+		}
+
+		public static InsnTree numberArrayLoad(InsnTree array, InsnTree index) {
+			return invokeInstance(array, GETD, index);
+		}
+
+		public static InsnTree numberArrayStore(InsnTree array, InsnTree index, InsnTree value) {
+			return invokeInstance(array, SETD, index, value);
+		}
+
+		public static InsnTree numberArrayLength(InsnTree array) {
+			return invokeInstance(array, LENGTH);
 		}
 
 		public G parse() throws ScriptParsingException {

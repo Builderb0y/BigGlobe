@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.noise;
 
-import java.util.Arrays;
-
 import builderb0y.bigglobe.settings.Seed;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
@@ -44,9 +42,10 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
+	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		Arrays.fill(samples, 0, sampleCount, Double.POSITIVE_INFINITY);
+		samples.fill(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(startX - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(startX + sampleCount + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
@@ -62,25 +61,24 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 					double distance = squareD(centerX - x) + y2;
 					if (!(distance < radius2)) break;
 					int index = x - startX;
-					samples[index] = Math.min(samples[index], distance);
+					samples.min(index, distance);
 				}
 				for (int x = Math.max(floorI(centerX) + 1, startX); x <= limit; x++) {
 					double distance = squareD(centerX - x) + y2;
 					if (!(distance < radius2)) break;
 					int index = x - startX;
-					samples[index] = Math.min(samples[index], distance);
+					samples.min(index, distance);
 				}
 			}
 		}
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] *= this.rcp;
-		}
+		this.scale(samples);
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
+	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		Arrays.fill(samples, 0, sampleCount, Double.POSITIVE_INFINITY);
+		samples.fill(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(startY - this.radius), this.scale);
@@ -96,19 +94,17 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 					double distance = squareD(centerY - y) + x2;
 					if (!(distance < radius2)) break;
 					int index = y - startY;
-					samples[index] = Math.min(samples[index], distance);
+					samples.min(index, distance);
 				}
 				for (int y = Math.max(floorI(centerY) + 1, startY); y <= limit; y++) {
 					double distance = squareD(centerY - y) + x2;
 					if (!(distance < radius2)) break;
 					int index = y - startY;
-					samples[index] = Math.min(samples[index], distance);
+					samples.min(index, distance);
 				}
 			}
 		}
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] *= this.rcp;
-		}
+		this.scale(samples);
 	}
 
 	/*

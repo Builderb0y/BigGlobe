@@ -56,8 +56,20 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
-		this.delegate.getBulkX(seed, startX, samples, sampleCount);
+	public void getBulkX(long seed, int startX, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkX(seed, startX, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	public static class Parser extends ScriptedGrid.Parser<Grid1D> {
@@ -79,10 +91,12 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				VarInfo thisVar     = getBulkX.addThis();
 				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
-				VarInfo samples     = getBulkX.newParameter("samples", DOUBLE_ARRAY);
-				VarInfo sampleCount = getBulkX.newParameter("sampleCount", TypeInfos.INT);
+				VarInfo samples     = getBulkX.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulkX.newVariable ("sampleCount", TypeInfos.INT);
 				VarInfo column      = getBulkX.newVariable ("column", type(WorldColumn.class));
 
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulkX);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(
@@ -104,8 +118,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					methodInfo,
 					load(seed),
 					load(startX),
-					load(samples),
-					load(sampleCount)
+					load(samples)
 				)
 				.emitBytecode(getBulkX);
 				getBulkX.node.visitLabel(label());
@@ -117,7 +130,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -130,7 +143,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 								),
 								load(column),
 								add(this, load(startX), load(index)),
-								arrayLoad(load(samples), load(index))
+								numberArrayLoad(load(samples), load(index))
 							)
 						)
 					)
@@ -148,15 +161,17 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				VarInfo thisVar     = getBulkX.addThis();
 				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
 				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
-				VarInfo samples     = getBulkX.newParameter("samples", DOUBLE_ARRAY);
-				VarInfo sampleCount = getBulkX.newParameter("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulkX.newVariable("column", type(WorldColumn.class));
+				VarInfo samples     = getBulkX.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulkX.newVariable ("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulkX.newVariable ("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
 				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
 				for (Input input : this.gridInputs.values()) {
-					scratches[input.index] = getBulkX.newVariable(input.name, DOUBLE_ARRAY);
+					scratches[input.index] = getBulkX.newVariable(input.name, NUMBER_ARRAY);
 				}
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulkX);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(
@@ -173,10 +188,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
-						invokeStatic(
-							GET_SCRATCH_ARRAY,
-							load(sampleCount)
-						)
+						newNumberArray(load(sampleCount))
 					)
 					.emitBytecode(getBulkX);
 					getBulkX.node.visitLabel(label());
@@ -188,8 +200,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						methodInfo,
 						load(seed),
 						load(startX),
-						load(scratches[input.index]),
-						load(sampleCount)
+						load(scratches[input.index])
 					)
 					.emitBytecode(getBulkX);
 					getBulkX.node.visitLabel(label());
@@ -202,7 +213,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -219,7 +230,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 										add(this, load(startX), load(index))
 									),
 									this.gridInputs.values().stream().map(input -> (
-										arrayLoad(load(scratches[input.index]), load(index))
+										numberArrayLoad(load(scratches[input.index]), load(index))
 									))
 								)
 								.toArray(InsnTree.ARRAY_FACTORY)
@@ -228,15 +239,6 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					)
 					.emitBytecode(getBulkX_);
 				});
-				//reclaim scratch arrays.
-				for (Input input : this.gridInputs.values()) {
-					invokeStatic(
-						RECLAIM_SCRATCH_ARRAY,
-						load(scratches[input.index])
-					)
-					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(label());
-				}
 				//return.
 				return_(noop).emitBytecode(getBulkX);
 			});

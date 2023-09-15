@@ -63,18 +63,54 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, int z, double[] samples, int sampleCount) {
-		this.delegate.getBulkX(seed, startX, y, z, samples, sampleCount);
+	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkX(seed, startX, y, z, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, int z, double[] samples, int sampleCount) {
-		this.delegate.getBulkY(seed, x, startY, z, samples, sampleCount);
+	public void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkY(seed, x, startY, z, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	@Override
-	public void getBulkZ(long seed, int x, int y, int startZ, double[] samples, int sampleCount) {
-		this.delegate.getBulkZ(seed, x, y, startZ, samples, sampleCount);
+	public void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkZ(seed, x, y, startZ, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	public static class Parser extends ScriptedGrid.Parser<Grid3D> {
@@ -100,10 +136,12 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
 				VarInfo z           = getBulk.newParameter("z", TypeInfos.INT);
-				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
-				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
+				VarInfo samples     = getBulk.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulk.newVariable ("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable ("column", type(WorldColumn.class));
 
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(this, load(sampleCount), ldc(0)),
@@ -123,8 +161,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					load(x),
 					load(y),
 					load(z),
-					load(samples),
-					load(sampleCount)
+					load(samples)
 				)
 				.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
@@ -136,7 +173,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -151,7 +188,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 								maybeAdd(this, x, index, 0, methodDimension),
 								maybeAdd(this, y, index, 1, methodDimension),
 								maybeAdd(this, z, index, 2, methodDimension),
-								arrayLoad(load(samples), load(index))
+								numberArrayLoad(load(samples), load(index))
 							)
 						)
 					)
@@ -171,15 +208,17 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
 				VarInfo z           = getBulk.newParameter("z", TypeInfos.INT);
-				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
-				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
+				VarInfo samples     = getBulk.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulk.newVariable ("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable ("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
 				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
 				for (Input input : this.gridInputs.values()) {
-					scratches[input.index] = getBulk.newVariable(input.name, type(double[].class));
+					scratches[input.index] = getBulk.newVariable(input.name, NUMBER_ARRAY);
 				}
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(this, load(sampleCount), ldc(0)),
@@ -192,10 +231,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
-						invokeStatic(
-							GET_SCRATCH_ARRAY,
-							load(sampleCount)
-						)
+						newNumberArray(load(sampleCount))
 					)
 					.emitBytecode(getBulk);
 					getBulk.node.visitLabel(label());
@@ -212,8 +248,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 						load(x),
 						load(y),
 						load(z),
-						load(scratches[input.index]),
-						load(sampleCount)
+						load(scratches[input.index])
 					)
 					.emitBytecode(getBulk);
 					getBulk.node.visitLabel(label());
@@ -226,7 +261,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -245,7 +280,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 										maybeAdd(this, z, index, 2, methodDimension)
 									),
 									this.gridInputs.values().stream().map(input -> (
-										arrayLoad(
+										numberArrayLoad(
 											load(scratches[input.index]),
 											load(index)
 										)
@@ -257,15 +292,6 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 					)
 					.emitBytecode(getBulk_);
 				});
-				//reclaim scratch arrays.
-				for (Input input : this.gridInputs.values()) {
-					invokeStatic(
-						RECLAIM_SCRATCH_ARRAY,
-						load(scratches[input.index])
-					)
-					.emitBytecode(getBulk);
-					getBulk.node.visitLabel(label());
-				}
 				//return.
 				return_(noop).emitBytecode(getBulk);
 			});

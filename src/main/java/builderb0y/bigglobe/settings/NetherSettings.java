@@ -26,6 +26,7 @@ public class NetherSettings extends DecoratorTagHolder {
 	public final transient IRandomList<RegistryEntry<LocalNetherSettings>> local_settings;
 	public final @VerifyDivisibleBy16 int min_y;
 	public final @VerifyDivisibleBy16 int max_y;
+	public final transient int maxCavernRange;
 
 	public NetherSettings(
 		VoronoiDiagram2D biome_placement,
@@ -51,6 +52,7 @@ public class NetherSettings extends DecoratorTagHolder {
 			localSettings.lowerBedrockDecorator   = this.createDecoratorTag(baseKey, "lower_bedrock");
 			localSettings.upperBedrockDecorator   = this.createDecoratorTag(baseKey, "upper_bedrock");
 		});
+		this.maxCavernRange = localSettingsRegistry.streamEntries().map(entry -> entry.value().caverns).mapToInt(cavern -> cavern.max_y - cavern.min_y).max().orElse(0);
 	}
 
 	@Override
@@ -114,7 +116,12 @@ public class NetherSettings extends DecoratorTagHolder {
 		Grid3D noise,
 		@VerifyNullable NetherSurfaceSettings floor_surface,
 		@VerifyNullable NetherSurfaceSettings ceiling_surface
-	) {}
+	) {
+
+		public int range() {
+			return this.max_y - this.min_y;
+		}
+	}
 
 	public static record NetherCaveSettings(
 		Grid3D noise,

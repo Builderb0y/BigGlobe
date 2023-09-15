@@ -6,9 +6,9 @@ public interface UnaryGrid extends Grid {
 
 	public abstract double operate(double value);
 
-	public default void operate(double[] samples, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] = this.operate(samples[index]);
+	public default void operate(NumberArray samples) {
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.setD(index, this.operate(samples.getD(index)));
 		}
 	}
 }

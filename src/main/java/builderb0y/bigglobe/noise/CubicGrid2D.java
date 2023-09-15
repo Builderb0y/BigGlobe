@@ -57,7 +57,8 @@ public class CubicGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesX_None(long seed, int absoluteX, int absoluteY, final double[] samples, final int sampleCount) {
+	public void getValuesX_None(long seed, int absoluteX, int absoluteY, NumberArray samples) {
+		int sampleCount = samples.length();
 		final int scaleX = this.scaleX;
 		final double rcpX = this.rcpX;
 		int relativeX = Math.floorDiv(absoluteX, scaleX);
@@ -71,9 +72,9 @@ public class CubicGrid2D extends AbstractGrid2D {
 		double term2 = cubicTerm2(a, b, c, d);
 		double term3 = cubicTerm3(a, b, c, d);
 		double term4 = cubicTerm4(a, b, c, d);
-		for (int i = 0; true /* break in the middle of the loop */;) {
-			samples[i] = fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX);
-			if (++i >= sampleCount) break;
+		for (int index = 0; true /* break in the middle of the loop */;) {
+			samples.setD(index, fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX));
+			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX = 0;
 				a = b;
@@ -89,7 +90,8 @@ public class CubicGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesX_Y(long seed, int absoluteX, int absoluteY, double fracY, final double[] samples, final int sampleCount) {
+	public void getValuesX_Y(long seed, int absoluteX, int absoluteY, double fracY, NumberArray samples) {
+		int sampleCount = samples.length();
 		final int scaleX = this.scaleX;
 		final double rcpX = this.rcpX;
 		int relativeX = Math.floorDiv(absoluteX, scaleX);
@@ -103,9 +105,9 @@ public class CubicGrid2D extends AbstractGrid2D {
 		double term2 = cubicTerm2(a, b, c, d);
 		double term3 = cubicTerm3(a, b, c, d);
 		double term4 = cubicTerm4(a, b, c, d);
-		for (int i = 0; true /* break in the middle of the loop */;) {
-			samples[i] = fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX);
-			if (++i >= sampleCount) break;
+		for (int index = 0; true /* break in the middle of the loop */;) {
+			samples.setD(index, fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX));
+			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX = 0;
 				a = b;
@@ -121,7 +123,8 @@ public class CubicGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesY_None(long seed, int absoluteX, int absoluteY, final double[] samples, final int sampleCount) {
+	public void getValuesY_None(long seed, int absoluteX, int absoluteY, NumberArray samples) {
+		int sampleCount = samples.length();
 		final int scaleY = this.scaleY;
 		final double rcpY = this.rcpY;
 		int relativeX = Math.floorDiv(absoluteX, this.scaleX);
@@ -135,9 +138,9 @@ public class CubicGrid2D extends AbstractGrid2D {
 		double term2 = cubicTerm2(a, b, c, d);
 		double term3 = cubicTerm3(a, b, c, d);
 		double term4 = cubicTerm4(a, b, c, d);
-		for (int i = 0; true /* break in the middle of the loop */;) {
-			samples[i] = fracY == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracY * rcpY);
-			if (++i >= sampleCount) break;
+		for (int index = 0; true /* break in the middle of the loop */;) {
+			samples.setD(index, fracY == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracY * rcpY));
+			if (++index >= sampleCount) break;
 			if (++fracY == scaleY) {
 				fracY = 0;
 				a = b;
@@ -153,7 +156,8 @@ public class CubicGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesY_X(long seed, int absoluteX, int absoluteY, double fracX, final double[] samples, final int sampleCount) {
+	public void getValuesY_X(long seed, int absoluteX, int absoluteY, double fracX, NumberArray samples) {
+		int sampleCount = samples.length();
 		final int scaleY = this.scaleY;
 		final double rcpY = this.rcpY;
 		int relativeX = Math.floorDiv(absoluteX, this.scaleX);
@@ -167,9 +171,9 @@ public class CubicGrid2D extends AbstractGrid2D {
 		double term2 = cubicTerm2(a, b, c, d);
 		double term3 = cubicTerm3(a, b, c, d);
 		double term4 = cubicTerm4(a, b, c, d);
-		for (int i = 0; true /* break in the middle of the loop */;) {
-			samples[i] = fracY == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracY * rcpY);
-			if (++i >= sampleCount) break;
+		for (int index = 0; true /* break in the middle of the loop */;) {
+			samples.setD(index, fracY == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracY * rcpY));
+			if (++index >= sampleCount) break;
 			if (++fracY == scaleY) {
 				fracY = 0;
 				a = b;

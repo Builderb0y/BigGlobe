@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.noise;
 
-import java.util.Arrays;
-
 import builderb0y.autocodec.annotations.UseName;
 
 public class ProjectGrid3D_Z implements Grid3D {
@@ -28,17 +26,17 @@ public class ProjectGrid3D_Z implements Grid3D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, int z, double[] samples, int sampleCount) {
-		Arrays.fill(samples, 0, sampleCount, this.grid.getValue(seed, z));
+	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
+		samples.fill(this.grid.getValue(seed, z));
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, int z, double[] samples, int sampleCount) {
-		Arrays.fill(samples, 0, sampleCount, this.grid.getValue(seed, z));
+	public void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
+		samples.fill(this.grid.getValue(seed, z));
 	}
 
 	@Override
-	public void getBulkZ(long seed, int x, int y, int startZ, double[] samples, int sampleCount) {
-		this.grid.getBulkX(seed, startZ, samples, sampleCount);
+	public void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
+		this.grid.getBulkX(seed, startZ, samples);
 	}
 }

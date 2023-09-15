@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.noise;
 
-import java.util.Arrays;
-
 import builderb0y.bigglobe.settings.Seed;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
@@ -30,9 +28,10 @@ public class WorleyGrid1D extends WorleyGrid implements Grid1D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
+	public void getBulkX(long seed, int startX, NumberArray samples) {
+		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		Arrays.fill(samples, 0, sampleCount, Double.POSITIVE_INFINITY);
+		samples.fill(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv(startX - this.scale, this.scale);
 		int maxCellX = Math.floorDiv(startX + sampleCount + this.scale, this.scale);
 		for (int cell = minCellX; cell <= maxCellX; cell++) {
@@ -41,12 +40,10 @@ public class WorleyGrid1D extends WorleyGrid implements Grid1D {
 			int maxX = Math.min(floorI(center + this.scale), startX + sampleCount - 1);
 			for (int x = minX; x <= maxX; x++) {
 				int index = x - startX;
-				samples[index] = Math.min(samples[index], squareD(center - x));
+				samples.min(index, squareD(center - x));
 			}
 		}
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] *= this.rcp;
-		}
+		this.scale(samples);
 	}
 
 	/*

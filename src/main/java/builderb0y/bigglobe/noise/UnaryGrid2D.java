@@ -11,14 +11,14 @@ public interface UnaryGrid2D extends UnaryGrid, Grid2D {
 	}
 
 	@Override
-	public default void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
-		this.getGrid().getBulkX(seed, startX, y, samples, sampleCount);
-		this.operate(samples, sampleCount);
+	public default void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		this.getGrid().getBulkX(seed, startX, y, samples);
+		this.operate(samples);
 	}
 
 	@Override
-	public default void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
-		this.getGrid().getBulkY(seed, x, startY, samples, sampleCount);
-		this.operate(samples, sampleCount);
+	public default void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		this.getGrid().getBulkY(seed, x, startY, samples);
+		this.operate(samples);
 	}
 }

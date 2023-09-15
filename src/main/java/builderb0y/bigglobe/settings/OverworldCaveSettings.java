@@ -18,6 +18,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
@@ -101,10 +102,12 @@ public class OverworldCaveSettings extends DecoratorTagHolder {
 
 		public void getBulkY(OverworldColumn column) {
 			int depth = this.depth;
-			double[] samples = column.caveNoise;
-			if (samples == null) samples = column.caveNoise = new double[depth];
+			NumberArray samples = column.caveNoise;
+			if (samples == null) {
+				samples = column.caveNoise = NumberArray.allocateFloatsHeap(column.settings.underground.caves().maxDepth);
+			}
 			int startY = column.getFinalTopHeightI() - depth;
-			this.noise.getBulkY(column.getCaveSeed(), column.x, startY, column.z, samples, depth);
+			this.noise.getBulkY(column.getCaveSeed(), column.x, startY, column.z, samples.prefix(depth));
 		}
 
 		public double getNoiseThreshold(OverworldColumn column, double y) {

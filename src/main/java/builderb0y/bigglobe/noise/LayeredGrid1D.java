@@ -16,19 +16,15 @@ public interface LayeredGrid1D extends LayeredGrid, Grid1D {
 	}
 
 	@Override
-	public default void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public default void getBulkX(long seed, int startX, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		Grid1D[] layers = this.getLayers();
-		layers[0].getBulkX(seed, startX, samples, sampleCount);
-		double[] scratch = Grid.getScratchArray(sampleCount);
-		try {
+		layers[0].getBulkX(seed, startX, samples);
+		try (NumberArray scratch = NumberArray.allocateDoublesDirect(samples.length())) {
 			for (int layerIndex = 1, length = layers.length; layerIndex < length; layerIndex++) {
-				layers[layerIndex].getBulkX(seed, startX, scratch, sampleCount);
-				this.accumulate(samples, scratch, sampleCount);
+				layers[layerIndex].getBulkX(seed, startX, scratch);
+				this.accumulate(samples, scratch);
 			}
-		}
-		finally {
-			Grid.reclaimScratchArray(scratch);
 		}
 	}
 }

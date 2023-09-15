@@ -16,53 +16,41 @@ public interface LayeredGrid3D extends LayeredGrid, Grid3D {
 	}
 
 	@Override
-	public default void getBulkX(long seed, int startX, int y, int z, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public default void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		Grid3D[] layers = this.getLayers();
-		layers[0].getBulkX(seed, startX, y, z, samples, sampleCount);
-		double[] scratch = Grid.getScratchArray(sampleCount);
-		try {
+		layers[0].getBulkX(seed, startX, y, z, samples);
+		try (NumberArray scratch = NumberArray.allocateDoublesDirect(samples.length())) {
 			for (int layerIndex = 1, length = layers.length; layerIndex < length; layerIndex++) {
-				layers[layerIndex].getBulkX(seed, startX, y, z, scratch, sampleCount);
-				this.accumulate(samples, scratch, sampleCount);
+				layers[layerIndex].getBulkX(seed, startX, y, z, scratch);
+				this.accumulate(samples, scratch);
 			}
-		}
-		finally {
-			Grid.reclaimScratchArray(scratch);
 		}
 	}
 
 	@Override
-	public default void getBulkY(long seed, int x, int startY, int z, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public default void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		Grid3D[] layers = this.getLayers();
-		layers[0].getBulkY(seed, x, startY, z, samples, sampleCount);
-		double[] scratch = Grid.getScratchArray(sampleCount);
-		try {
+		layers[0].getBulkY(seed, x, startY, z, samples);
+		try (NumberArray scratch = NumberArray.allocateDoublesDirect(samples.length())) {
 			for (int layerIndex = 1, length = layers.length; layerIndex < length; layerIndex++) {
-				layers[layerIndex].getBulkY(seed, x, startY, z, scratch, sampleCount);
-				this.accumulate(samples, scratch, sampleCount);
+				layers[layerIndex].getBulkY(seed, x, startY, z, scratch);
+				this.accumulate(samples, scratch);
 			}
-		}
-		finally {
-			Grid.reclaimScratchArray(scratch);
 		}
 	}
 
 	@Override
-	public default void getBulkZ(long seed, int x, int y, int startZ, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public default void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		Grid3D[] layers = this.getLayers();
-		layers[0].getBulkZ(seed, x, y, startZ, samples, sampleCount);
-		double[] scratch = Grid.getScratchArray(sampleCount);
-		try {
+		layers[0].getBulkZ(seed, x, y, startZ, samples);
+		try (NumberArray scratch = NumberArray.allocateDoublesDirect(samples.length())) {
 			for (int layerIndex = 1, length = layers.length; layerIndex < length; layerIndex++) {
-				layers[layerIndex].getBulkZ(seed, x, y, startZ, scratch, sampleCount);
-				this.accumulate(samples, scratch, sampleCount);
+				layers[layerIndex].getBulkZ(seed, x, y, startZ, scratch);
+				this.accumulate(samples, scratch);
 			}
-		}
-		finally {
-			Grid.reclaimScratchArray(scratch);
 		}
 	}
 }

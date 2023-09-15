@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.noise;
 
-import java.util.Arrays;
-
 /** a Grid implementation with a single constant value at all locations. */
 public class ConstantGrid implements Grid {
 
@@ -19,10 +17,6 @@ public class ConstantGrid implements Grid {
 	@Override
 	public double maxValue() {
 		return this.value;
-	}
-
-	public void fill(double[] samples, int sampleCount) {
-		if (sampleCount > 0) Arrays.fill(samples, 0, sampleCount, this.value);
 	}
 
 	@Override

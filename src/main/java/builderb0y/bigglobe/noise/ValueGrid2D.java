@@ -50,16 +50,17 @@ public abstract class ValueGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesX_None(long seed, int startX, int y, double[] samples, int sampleCount) {
-		int    scaleX    = this.scaleX;
-		int    relativeX = Math.floorDiv(startX, scaleX);
-		int    relativeY = Math.floorDiv(y, this.scaleY);
-		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
-		double value0    = this.getValue_None(seed,   relativeX, relativeY);
-		double value1    = this.getValue_None(seed, ++relativeX, relativeY);
-		double diff      = value1 - value0;
+	public void getValuesX_None(long seed, int startX, int y, NumberArray samples) {
+		int    sampleCount = samples.length();
+		int    scaleX      = this.scaleX;
+		int    relativeX   = Math.floorDiv(startX, scaleX);
+		int    relativeY   = Math.floorDiv(y, this.scaleY);
+		int    fracX       = BigGlobeMath.modulus_BP(startX, scaleX);
+		double value0      = this.getValue_None(seed,   relativeX, relativeY);
+		double value1      = this.getValue_None(seed, ++relativeX, relativeY);
+		double diff        = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracX == 0 ? value0 : this.fracX(fracX) * diff + value0;
+			samples.setD(index, fracX == 0 ? value0 : this.fracX(fracX) * diff + value0);
 			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX  = 0;
@@ -71,16 +72,17 @@ public abstract class ValueGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesX_Y(long seed, int startX, int y, double fracY, final double[] samples, final int sampleCount) {
-		int    scaleX    = this.scaleX;
-		int    relativeX = Math.floorDiv(startX, scaleX);
-		int    relativeY = Math.floorDiv(y, this.scaleY);
-		int    fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
-		double value0    = this.getValue_Y(seed,   relativeX, relativeY, fracY);
-		double value1    = this.getValue_Y(seed, ++relativeX, relativeY, fracY);
-		double diff      = value1 - value0;
+	public void getValuesX_Y(long seed, int startX, int y, double fracY, NumberArray samples) {
+		int    sampleCount = samples.length();
+		int    scaleX      = this.scaleX;
+		int    relativeX   = Math.floorDiv(startX, scaleX);
+		int    relativeY   = Math.floorDiv(y, this.scaleY);
+		int    fracX       = BigGlobeMath.modulus_BP(startX, scaleX);
+		double value0      = this.getValue_Y(seed,   relativeX, relativeY, fracY);
+		double value1      = this.getValue_Y(seed, ++relativeX, relativeY, fracY);
+		double diff        = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracX == 0 ? value0 : this.fracX(fracX) * diff + value0;
+			samples.setD(index, fracX == 0 ? value0 : this.fracX(fracX) * diff + value0);
 			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX  = 0;
@@ -92,16 +94,17 @@ public abstract class ValueGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesY_None(long seed, int x, int startY, final double[] samples, final int sampleCount) {
-		int    scaleY    = this.scaleY;
-		int    relativeX = Math.floorDiv(x, this.scaleX);
-		int    relativeY = Math.floorDiv(startY, scaleY);
-		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
-		double value0    = this.getValue_None(seed, relativeX,   relativeY);
-		double value1    = this.getValue_None(seed, relativeX, ++relativeY);
-		double diff      = value1 - value0;
+	public void getValuesY_None(long seed, int x, int startY, NumberArray samples) {
+		int    sampleCount = samples.length();
+		int    scaleY      = this.scaleY;
+		int    relativeX   = Math.floorDiv(x, this.scaleX);
+		int    relativeY   = Math.floorDiv(startY, scaleY);
+		int    fracY       = BigGlobeMath.modulus_BP(startY, scaleY);
+		double value0      = this.getValue_None(seed, relativeX,   relativeY);
+		double value1      = this.getValue_None(seed, relativeX, ++relativeY);
+		double diff        = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracY == 0 ? value0 : this.fracY(fracY) * diff + value0;
+			samples.setD(index, fracY == 0 ? value0 : this.fracY(fracY) * diff + value0);
 			if (++index >= sampleCount) break;
 			if (++fracY == scaleY) {
 				fracY  = 0;
@@ -113,16 +116,17 @@ public abstract class ValueGrid2D extends AbstractGrid2D {
 	}
 
 	@Override
-	public void getValuesY_X(long seed, int x, int startY, double fracX, final double[] samples, final int sampleCount) {
-		int    scaleY    = this.scaleY;
-		int    relativeX = Math.floorDiv(x, this.scaleX);
-		int    relativeY = Math.floorDiv(startY, scaleY);
-		int    fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
-		double value0    = this.getValue_X(seed, relativeX,   relativeY, fracX);
-		double value1    = this.getValue_X(seed, relativeX, ++relativeY, fracX);
-		double diff      = value1 - value0;
+	public void getValuesY_X(long seed, int x, int startY, double fracX, NumberArray samples) {
+		int    sampleCount = samples.length();
+		int    scaleY      = this.scaleY;
+		int    relativeX   = Math.floorDiv(x, this.scaleX);
+		int    relativeY   = Math.floorDiv(startY, scaleY);
+		int    fracY       = BigGlobeMath.modulus_BP(startY, scaleY);
+		double value0      = this.getValue_X(seed, relativeX,   relativeY, fracX);
+		double value1      = this.getValue_X(seed, relativeX, ++relativeY, fracX);
+		double diff        = value1 - value0;
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracY == 0 ? value0 : this.fracY(fracY) * diff + value0;
+			samples.setD(index, fracY == 0 ? value0 : this.fracY(fracY) * diff + value0);
 			if (++index >= sampleCount) break;
 			if (++fracY == scaleY) {
 				fracY  = 0;

@@ -126,7 +126,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 		OVERWORLD_CAVE_NOISE                    = registerOverworld("cave_noise",                       withY(OverworldColumn::getCaveNoise                   ), null),
 		OVERWORLD_CACHED_CAVE_NOISE             = registerOverworld("cached_cave_noise",                withY(OverworldColumn::getCachedCaveNoise             ), null),
-		OVERWORLD_CAVE_DEPTH                    = registerOverworld("cave_depth",                    withoutY(OverworldColumn::getCaveDepth                   ), null),
+		OVERWORLD_CAVE_DEPTH                    = registerOverworld("cave_depth",                    withoutY(OverworldColumn::getCaveDepthD                  ), null),
 		OVERWORLD_CAVE_SURFACE_DEPTH            = registerOverworld("cave_surface_depth",            withoutY(OverworldColumn::getCaveSurfaceDepth            ), null),
 		OVERWORLD_NORMALIZED_CAVE_SURFACE_DEPTH = registerOverworld("normalized_cave_surface_depth", withoutY(OverworldColumn::getNormalizedCaveSurfaceDepth  ), null),
 		OVERWORLD_CAVE_NOISE_THRESHOLD          = registerOverworld("cave_noise_threshold",             withY(OverworldColumn::getCaveNoiseThreshold          ), null),

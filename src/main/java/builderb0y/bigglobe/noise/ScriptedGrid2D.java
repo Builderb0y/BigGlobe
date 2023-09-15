@@ -56,13 +56,37 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
-		this.delegate.getBulkX(seed, startX, y, samples, sampleCount);
+	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkX(seed, startX, y, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
-		this.delegate.getBulkY(seed, x, startY, samples, sampleCount);
+	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		//workaround for the fact that I *really* don't want to deal
+		//with generating bytecode for try-with-resources at runtime.
+		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		long used = manager.used;
+		try {
+			this.delegate.getBulkY(seed, x, startY, samples);
+		}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+		}
+		finally {
+			manager.used = used;
+		}
 	}
 
 	public static class Parser extends ScriptedGrid.Parser<Grid2D> {
@@ -86,10 +110,12 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
-				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
-				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
+				VarInfo samples     = getBulk.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulk.newVariable ("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable ("column", type(WorldColumn.class));
 
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(
@@ -103,7 +129,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				//get column.
 				store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 				//fill samples with firstInput.
-					invokeInstance(
+				invokeInstance(
 					getField(
 						load(thisVar),
 						firstInput.fieldInfo(getBulk)
@@ -112,8 +138,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					load(seed),
 					load(x),
 					load(y),
-					load(samples),
-					load(sampleCount)
+					load(samples)
 				)
 				.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
@@ -129,7 +154,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							load(sampleCount)
 						),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -143,7 +168,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
 								maybeAdd(this, y, index, 1, methodDimension),
-								arrayLoad(load(samples), load(index))
+								numberArrayLoad(load(samples), load(index))
 							)
 						)
 					)
@@ -162,15 +187,17 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				VarInfo seed        = getBulk.newParameter("seed", TypeInfos.LONG);
 				VarInfo x           = getBulk.newParameter("x", TypeInfos.INT);
 				VarInfo y           = getBulk.newParameter("y", TypeInfos.INT);
-				VarInfo samples     = getBulk.newParameter("samples", type(double[].class));
-				VarInfo sampleCount = getBulk.newParameter("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulk.newVariable("column", type(WorldColumn.class));
+				VarInfo samples     = getBulk.newParameter("samples", NUMBER_ARRAY);
+				VarInfo sampleCount = getBulk.newVariable ("sampleCount", TypeInfos.INT);
+				VarInfo column      = getBulk.newVariable ("column", type(WorldColumn.class));
 
 				//declare scratch arrays.
 				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
 				for (Input input : this.gridInputs.values()) {
-					scratches[input.index] = getBulk.newVariable(input.name, type(double[].class));
+					scratches[input.index] = getBulk.newVariable(input.name, NUMBER_ARRAY);
 				}
+				//sampleCount = samples.length();
+				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
 				//if (sampleCount <= 0) return;
 				ifThen(
 					le(this, load(sampleCount), ldc(0)),
@@ -183,10 +210,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				for (Input input : this.gridInputs.values()) {
 					store(
 						scratches[input.index],
-						invokeStatic(
-							GET_SCRATCH_ARRAY,
-							load(sampleCount)
-						)
+						newNumberArray(load(sampleCount))
 					)
 					.emitBytecode(getBulk);
 					getBulk.node.visitLabel(label());
@@ -202,8 +226,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						load(seed),
 						load(x),
 						load(y),
-						load(scratches[input.index]),
-						load(sampleCount)
+						load(scratches[input.index])
 					)
 					.emitBytecode(getBulk);
 					getBulk.node.visitLabel(label());
@@ -216,7 +239,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),
-						arrayStore(
+						numberArrayStore(
 							load(samples),
 							load(index),
 							invokeStatic(
@@ -234,7 +257,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 										maybeAdd(this, y, index, 1, methodDimension)
 									),
 									this.gridInputs.values().stream().map(input -> (
-										arrayLoad(load(scratches[input.index]), load(index))
+										numberArrayLoad(load(scratches[input.index]), load(index))
 									))
 								)
 								.toArray(InsnTree[]::new)
@@ -243,15 +266,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					)
 					.emitBytecode(getBulk_);
 				});
-				//reclaim scratch arrays.
-				for (Input input : this.gridInputs.values()) {
-					invokeStatic(
-						RECLAIM_SCRATCH_ARRAY,
-						load(scratches[input.index])
-					)
-					.emitBytecode(getBulk);
-					getBulk.node.visitLabel(label());
-				}
 				//return.
 				return_(noop).emitBytecode(getBulk);
 			});

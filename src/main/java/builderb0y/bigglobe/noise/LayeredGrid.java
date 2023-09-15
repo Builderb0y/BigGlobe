@@ -6,9 +6,9 @@ public interface LayeredGrid extends Grid {
 
 	public abstract double accumulate(double a, double b);
 
-	public default void accumulate(double[] mainSamples, double[] scratch, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			mainSamples[index] = this.accumulate(mainSamples[index], scratch[index]);
+	public default void accumulate(NumberArray mainSamples, NumberArray scratch) {
+		for (int index = 0, length = mainSamples.length(); index < length; index++) {
+			mainSamples.setD(index, this.accumulate(mainSamples.getD(index), scratch.getD(index)));
 		}
 	}
 }

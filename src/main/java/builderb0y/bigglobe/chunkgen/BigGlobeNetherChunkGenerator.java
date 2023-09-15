@@ -47,6 +47,7 @@ import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -156,9 +157,9 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			int startY = context.startY();
 			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 				NetherColumn column = columns.getColumn(horizontalIndex);
-				double[] caveNoise = column.getCaveNoise();
+				NumberArray caveNoise = column.getCaveNoise();
 				int caveLowerY = column.settings.min_y;
-				double[] cavernNoise = column.getCavernNoise();
+				NumberArray cavernNoise = column.getCavernNoise();
 				LocalNetherSettings localSettings = column.getLocalCell().settings;
 				int cavernLowerY = localSettings.caverns.min_y();
 				int cavernUpperY = localSettings.caverns.max_y();
@@ -181,10 +182,10 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 					double caveWidth = widthScript.evaluate(column, y);
 					int index = horizontalIndex | (verticalIndex << 8);
 					if (
-						caveNoise[y - caveLowerY] < caveWidth || (
+						caveNoise.getD(y - caveLowerY) < caveWidth || (
 							y >= cavernLowerY &&
 							y <  cavernUpperY &&
-							cavernNoise[y - cavernLowerY] < 0.0D
+							cavernNoise.getF(y - cavernLowerY) < 0.0F
 						)
 					) {
 						if (y < lavaLevel) {
@@ -435,18 +436,18 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			LocalNetherSettings localSettings = column.getLocalCell().settings;
 			int lavaLevel = column.getLocalCell().lavaLevel;
 			ColumnYToDoubleScript.Holder widthScript = localSettings.caves.noise_threshold();
-			double[] caveNoise = column.getCaveNoise();
-			double[] cavernNoise = column.getCavernNoise();
+			NumberArray caveNoise = column.getCaveNoise();
+			NumberArray cavernNoise = column.getCavernNoise();
 			int cavernLowerY = localSettings.caverns.min_y();
 			int cavernUpperY = localSettings.caverns.max_y();
 			for (int index = 0, length = states.length; index < length; index++) {
 				int y = index + worldMinY;
 				double caveWidth = widthScript.evaluate(column, y);
 				if (
-					caveNoise[y - worldMinY] < caveWidth || (
+					caveNoise.getD(y - worldMinY) < caveWidth || (
 						y >= cavernLowerY &&
 						y < cavernUpperY &&
-						cavernNoise[y - cavernLowerY] < 0.0D
+						cavernNoise.getF(y - cavernLowerY) < 0.0F
 					)
 				) {
 					states[index] = y < lavaLevel ? BlockStates.LAVA : BlockStates.AIR;

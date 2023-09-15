@@ -46,71 +46,71 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 	public abstract double getValue(long seed, int x, int y, int z);
 
 	/**
-	gets (sampleCount) values starting at (startX) and continuing in the
+	gets (samples.length()) values starting at (startX, y, z) and continuing in the
 	+X direction, with a spacing of 1 between each sampled coordinate.
 	the sampled values are stored in (samples), starting at index 0.
-	the indexes in (samples) that are greater than or equal to (sampleCount) will not be modified.
-	if (sampleCount) is less than or equal to 0, then this method will do nothing.
+	if (samples.length()) is less than or equal to 0, then this method will do nothing.
 
-	@implSpec this method must produce the same results as the following code:
+	@implSpec this method must produce the same results as the following code: {@code
 		for (int i = 0; i < sampleCount; i++) {
 			samples[i] = this.getValue(seed, startX + i, y, z);
 		}
+	}
 	to within the limits of floating point precision.
-	in other words, the exact values stored in samples.mainSamples by this method can
-	differ slightly from the values stored in samples.mainSamples by the above loop.
+	in other words, the exact values stored in samples by this method can
+	differ slightly from the values stored in samples by the above loop.
 	this may happen if implementations perform interpolation differently in bulk vs. in repetition.
 	implementations are encouraged to replace the above loop with a more efficient approach where applicable.
 	*/
-	public default void getBulkX(long seed, int startX, int y, int z, double[] samples, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] = this.getValue(seed, startX + index, y, z);
+	public default void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.setD(index, this.getValue(seed, startX + index, y, z));
 		}
 	}
 
 	/**
-	gets (sampleCount) values starting at (startY) and continuing in the
+	gets (samples.length()) values starting at (x, startY, z) and continuing in the
 	+Y direction, with a spacing of 1 between each sampled coordinate.
 	the sampled values are stored in (samples), starting at index 0.
-	the indexes in (samples) that are greater than or equal to (sampleCount) will not be modified.
-	if (sampleCount) is less than or equal to 0, then this method will do nothing.
+	if (samples.length()) is less than or equal to 0, then this method will do nothing.
 
-	@implSpec this method must produce the same results as the following code:
-		for (int i = 0; i < sampleCount; i++) {
-			samples[i] = this.getValue(seed, x, startY + i, z);
+	@implSpec this method must produce the same results as the following code: {@code
+		for (int index = 0; index < samples.length(); index++) {
+			samples.setD(index, this.getValue(seed, x, startY + index, z));
 		}
+	}
 	to within the limits of floating point precision.
-	in other words, the exact values stored in samples.mainSamples by this method can
-	differ slightly from the values stored in samples.mainSamples by the above loop.
+	in other words, the exact values stored in samples by this method can
+	differ slightly from the values stored in samples by the above loop.
 	this may happen if implementations perform interpolation differently in bulk vs. in repetition.
 	implementations are encouraged to replace the above loop with a more efficient approach where applicable.
 	*/
-	public default void getBulkY(long seed, int x, int startY, int z, double[] samples, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] = this.getValue(seed, x, startY + index, z);
+	public default void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.setD(index, this.getValue(seed, x, startY + index, z));
 		}
 	}
 
 	/**
-	gets (sampleCount) values starting at (startZ) and continuing in the
+	gets (samples.length()) values starting at (x, y, startZ) and continuing in the
 	+Z direction, with a spacing of 1 between each sampled coordinate.
 	the sampled values are stored in (samples), starting at index 0.
-	the indexes in (samples) that are greater than or equal to (sampleCount) will not be modified.
-	if (sampleCount) is less than or equal to 0, then this method will do nothing.
+	if (samples.length()) is less than or equal to 0, then this method will do nothing.
 
-	@implSpec this method must produce the same results as the following code:
-		for (int i = 0; i < sampleCount; i++) {
-			samples[i] = this.getValue(seed, x, y, startZ + i);
+	@implSpec this method must produce the same results as the following code: {@code
+		for (int index = 0; index < sampleCount; index++) {
+			samples.setD(index, this.getValue(seed, x, y, startZ + index));
 		}
+	}
 	to within the limits of floating point precision.
-	in other words, the exact values stored in samples.mainSamples by this method can
-	differ slightly from the values stored in samples.mainSamples by the above loop.
+	in other words, the exact values stored in samples by this method can
+	differ slightly from the values stored in samples by the above loop.
 	this may happen if implementations perform interpolation differently in bulk vs. in repetition.
 	implementations are encouraged to replace the above loop with a more efficient approach where applicable.
 	*/
-	public default void getBulkZ(long seed, int x, int y, int startZ, double[] samples, int sampleCount) {
-		for (int index = 0; index < sampleCount; index++) {
-			samples[index] = this.getValue(seed, x, y, startZ + index);
+	public default void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
+		for (int index = 0, length = samples.length(); index < length; index++) {
+			samples.setD(index, this.getValue(seed, x, y, startZ + index));
 		}
 	}
 }

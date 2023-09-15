@@ -11,8 +11,8 @@ public interface UnaryGrid1D extends UnaryGrid, Grid1D {
 	}
 
 	@Override
-	public default void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
-		this.getGrid().getBulkX(seed, startX, samples, sampleCount);
-		this.operate(samples, sampleCount);
+	public default void getBulkX(long seed, int startX, NumberArray samples) {
+		this.getGrid().getBulkX(seed, startX, samples);
+		this.operate(samples);
 	}
 }

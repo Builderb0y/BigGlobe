@@ -4,6 +4,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
@@ -52,11 +53,11 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 		public final CaveCell caveCell;
 		public final double minYD, maxYD;
 
-		public Context(ScriptStructures structureStarts, OverworldColumn column, int minY, double[] noise) {
+		public Context(ScriptStructures structureStarts, OverworldColumn column, int minY, NumberArray noise) {
 			super(structureStarts, column, minY, noise);
 			this.caveCell = column.getCaveCell();
 			this.maxYD = column.getFinalTopHeightD();
-			this.minYD = this.maxYD - noise.length;
+			this.minYD = this.maxYD - noise.length();
 		}
 
 		public OverworldColumn column() {

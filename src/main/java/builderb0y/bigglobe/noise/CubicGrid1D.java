@@ -35,7 +35,8 @@ public class CubicGrid1D extends AbstractGrid1D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, double[] samples, int sampleCount) {
+	public void getBulkX(long seed, int startX, NumberArray samples) {
+		int sampleCount = samples.length();
 		final int scaleX = this.scaleX;
 		final double rcpX = this.rcpX;
 		int relativeX = Math.floorDiv(startX, scaleX);
@@ -49,7 +50,7 @@ public class CubicGrid1D extends AbstractGrid1D {
 		double term3 = cubicTerm3(a, b, c, d);
 		double term4 = cubicTerm4(a, b, c, d);
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples[index] = fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX);
+			samples.setD(index, fracX == 0 ? b : combineCubicTerms(term1, term2, term3, term4, fracX * rcpX));
 			if (++index >= sampleCount) break;
 			if (++fracX == scaleX) {
 				fracX = 0;
@@ -63,7 +64,7 @@ public class CubicGrid1D extends AbstractGrid1D {
 				term4 = cubicTerm4(a, b, c, d);
 			}
 		}
-		this.scale(samples, sampleCount);
+		this.scale(samples);
 	}
 
 	@Override

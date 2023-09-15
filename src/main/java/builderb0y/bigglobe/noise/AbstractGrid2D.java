@@ -41,60 +41,60 @@ public abstract class AbstractGrid2D extends AbstractGrid implements Grid2D {
 	}
 
 	@Override
-	public void getBulkX(long seed, int startX, int y, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		seed ^= this.salt.value;
 		int fracY = BigGlobeMath.modulus_BP(y, this.scaleY);
 		if (fracY == 0) {
-			this.getValuesX_None(seed, startX, y, samples, sampleCount);
+			this.getValuesX_None(seed, startX, y, samples);
 		}
 		else {
-			this.getValuesX_Y(seed, startX, y, this.fracY(fracY), samples, sampleCount);
+			this.getValuesX_Y(seed, startX, y, this.fracY(fracY), samples);
 		}
-		this.scale(samples, sampleCount);
+		this.scale(samples);
 	}
 
 	@Override
-	public void getBulkY(long seed, int x, int startY, double[] samples, int sampleCount) {
-		if (sampleCount <= 0) return;
+	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
+		if (samples.length() <= 0) return;
 		seed ^= this.salt.value;
 		int fracX = BigGlobeMath.modulus_BP(x, this.scaleX);
 		if (fracX == 0) {
-			this.getValuesY_None(seed, x, startY, samples, sampleCount);
+			this.getValuesY_None(seed, x, startY, samples);
 		}
 		else {
-			this.getValuesY_X(seed, x, startY, this.fracX(fracX), samples, sampleCount);
+			this.getValuesY_X(seed, x, startY, this.fracX(fracX), samples);
 		}
-		this.scale(samples, sampleCount);
+		this.scale(samples);
 	}
 
 	/**
-	implementation for {@link #getBulkX(long, int, int, double[], int)}
+	implementation for {@link #getBulkX(long, int, int, NumberArray)}
 	when y IS evenly divisible by {@link #scaleY}.
 	in this case, interpolation along the y axis is NOT necessary.
 	*/
-	public abstract void getValuesX_None(long seed, int startX, int y, double[] samples, int sampleCount);
+	public abstract void getValuesX_None(long seed, int startX, int y, NumberArray samples);
 
 	/**
-	implementation for {@link #getBulkX(long, int, int, double[], int)}
+	implementation for {@link #getBulkX(long, int, int, NumberArray)}
 	when y is NOT evenly divisible by {@link #scaleY}.
 	in this case, interpolation along the y axis IS necessary.
 	*/
-	public abstract void getValuesX_Y(long seed, int startX, int y, double fracY, final double[] samples, final int sampleCount);
+	public abstract void getValuesX_Y(long seed, int startX, int y, double fracY, NumberArray samples);
 
 	/**
-	implementation for {@link #getBulkY(long, int, int, double[], int)}
+	implementation for {@link #getBulkY(long, int, int, NumberArray)}
 	when x IS evenly divisible by {@link #scaleX}.
 	in this case, interpolation along the x axis is NOT necessary.
 	*/
-	public abstract void getValuesY_None(long seed, int x, int startY, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_None(long seed, int x, int startY, NumberArray samples);
 
 	/**
-	implementation for {@link #getBulkY(long, int, int, double[], int)}
+	implementation for {@link #getBulkY(long, int, int, NumberArray)}
 	when x is NOT evenly divisible by {@link #scaleX}.
 	in this case, interpolation along the x axis IS necessary.
 	*/
-	public abstract void getValuesY_X(long seed, int x, int startY, double fracX, final double[] samples, final int sampleCount);
+	public abstract void getValuesY_X(long seed, int x, int startY, double fracX, NumberArray samples);
 
 	/**
 	gets the value at a position where:

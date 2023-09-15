@@ -56,6 +56,7 @@ import builderb0y.bigglobe.features.OverrideFeature;
 import builderb0y.bigglobe.features.SortedFeatureTag;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.MojangPermuter;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructureOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -237,11 +238,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 					else {
 						mountainMinY = mountainMaxY = -1;
 					}
-					double[] nestNoise = column.getNestNoise();
-					double[] lowerRingNoise = column.getLowerRingCloudNoise();
-					double[] upperRingNoise = column.getUpperRingCloudNoise();
-					double[] lowerBridgeNoise = column.getLowerBridgeCloudNoise();
-					double[] upperBridgeNoise = column.getUpperBridgeCloudNoise();
+					NumberArray nestNoise = column.getNestNoise();
+					NumberArray lowerRingNoise = column.getLowerRingCloudNoise();
+					NumberArray upperRingNoise = column.getUpperRingCloudNoise();
+					NumberArray lowerBridgeNoise = column.getLowerBridgeCloudNoise();
+					NumberArray upperBridgeNoise = column.getUpperBridgeCloudNoise();
 					int nestStartY = column.settings.nest.min_y();
 					int lowerRingStartY = column.getLowerRingCloudSampleStartY();
 					int upperRingStartY = column.getUpperRingCloudSampleStartY();
@@ -251,11 +252,11 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 						int y = startY | yIndex;
 						if (
 							(yIndex >= mountainMinY && yIndex < mountainMaxY)
-							|| (lowerRingNoise   != null && y >= lowerRingStartY   && y < lowerRingStartY   + lowerRingNoise  .length && lowerRingNoise  [y - lowerRingStartY  ] > 0.0D)
-							|| (upperRingNoise   != null && y >= upperRingStartY   && y < upperRingStartY   + upperRingNoise  .length && upperRingNoise  [y - upperRingStartY  ] > 0.0D)
-							|| (lowerBridgeNoise != null && y >= lowerBridgeStartY && y < lowerBridgeStartY + lowerBridgeNoise.length && lowerBridgeNoise[y - lowerBridgeStartY] > 0.0D)
-							|| (upperBridgeNoise != null && y >= upperBridgeStartY && y < upperBridgeStartY + upperBridgeNoise.length && upperBridgeNoise[y - upperBridgeStartY] > 0.0D)
-							|| (nestNoise        != null && y >= nestStartY        && y < nestStartY        + nestNoise       .length && nestNoise       [y - nestStartY       ] > 0.0D)
+							|| (lowerRingNoise   != null && y >= lowerRingStartY   && y < lowerRingStartY   + lowerRingNoise  .length() && lowerRingNoise  .getF(y - lowerRingStartY  ) > 0.0F)
+							|| (upperRingNoise   != null && y >= upperRingStartY   && y < upperRingStartY   + upperRingNoise  .length() && upperRingNoise  .getF(y - upperRingStartY  ) > 0.0F)
+							|| (lowerBridgeNoise != null && y >= lowerBridgeStartY && y < lowerBridgeStartY + lowerBridgeNoise.length() && lowerBridgeNoise.getF(y - lowerBridgeStartY) > 0.0F)
+							|| (upperBridgeNoise != null && y >= upperBridgeStartY && y < upperBridgeStartY + upperBridgeNoise.length() && upperBridgeNoise.getF(y - upperBridgeStartY) > 0.0F)
+							|| (nestNoise        != null && y >= nestStartY        && y < nestStartY        + nestNoise       .length() && nestNoise       .getF(y - nestStartY       ) > 0.0F)
 						) {
 							storage.set(horizontalIndex | (yIndex << 8), endStoneID);
 							solidCount++;
