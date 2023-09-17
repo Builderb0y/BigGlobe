@@ -83,6 +83,9 @@
 	"item.minecraft.lingering_potion.effect.wither": "Lingering Potion of Withering",
 	"item.minecraft.lingering_potion.effect.long_wither": "Lingering Potion of Withering",
 	"item.minecraft.lingering_potion.effect.strong_wither": "Lingering Potion of Withering",
+	"item.minecraft.tipped_arrow.effect.wither": "Arrow of Withering",
+	"item.minecraft.tipped_arrow.effect.long_wither": "Arrow of Withering",
+	"item.minecraft.tipped_arrow.effect.strong_wither": "Arrow of Withering",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Daylight Cycle Speed",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",

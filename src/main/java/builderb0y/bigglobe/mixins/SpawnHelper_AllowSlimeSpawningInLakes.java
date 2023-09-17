@@ -15,7 +15,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.structures.BigGlobeStructureTags;
 
 @Mixin(SpawnHelper.class)
 public class SpawnHelper_AllowSlimeSpawningInLakes {
@@ -42,7 +42,7 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 			&& (
 				world
 				.getStructureAccessor()
-				.getStructureContaining(pos, BigGlobeStructures.SLIMES_SPAWN_ON_WATER_TAG_KEY)
+				.getStructureContaining(pos, BigGlobeStructureTags.SLIMES_SPAWN_ON_WATER)
 				.hasChildren()
 			)
 			//vanilla logic.

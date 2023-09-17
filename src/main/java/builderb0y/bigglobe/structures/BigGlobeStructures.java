@@ -110,8 +110,6 @@ public class BigGlobeStructures {
 		LAKE_TYPE       = registerType("lake", LakeStructure.CODEC);
 	public static final BigGlobeStructurePieceType
 		LAKE_PIECE_TYPE = registerPiece("lake_piece", LakeStructure.Piece::new);
-	public static final TagKey<Structure>
-		SLIMES_SPAWN_ON_WATER_TAG_KEY = TagKey.of(RegistryKeyVersions.structure(), BigGlobeMod.modID("slimes_spawn_on_water"));
 
 	//////////////// portal temple ////////////////
 

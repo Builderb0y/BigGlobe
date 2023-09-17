@@ -19,23 +19,7 @@ testing:
 where I left off:
 
 changelog:
-	* Added cherry forests (1.20.1 only), swamps, and glaciers.
-	* Spread out transition from plains to desert and snow.
-	* Fixed ocean monuments being too reluctant to spawn.
-	* Fixed torch arrows, rocks, and soul lava buckets not working in dispensers.
-	* Changed ore distributions:
-		* Less gold and redstone at excessively deep Y levels.
-		* Diamonds start spawning higher, but are less common at excessively deep Y levels too.
-		* Emeralds can now be found at all Y levels, they just get rarer as you go deeper.
-	* Scripting changes:
-		* All json scripts can now use templates.
-			* Command scripts are still inline-only.
-		* Added scripted recipes.
-		* Added extension methods.
-		* Snow height in the overworld is now scriptable.
-		* print() now outputs to in-game chat in singleplayer.
-		* Errors encountered during script evaluation are also printed to in-game chat in singleplayer.
-		* More consistent order of operations for prefix operators.
+	* Fixed localizations on withering tipped arrows.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -74,7 +58,7 @@ scripting:
 
 features:
 	general:
-		use float[]'s for arrays (like cave noise).
+		use float[]'s for weighted lists.
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.
