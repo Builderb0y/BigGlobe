@@ -23,7 +23,9 @@ changelog:
 	* Added bigglobe:generic_ore configured feature which spawns a big globe ore vein without being tied to internal chunk generator logic. This means it can be used in non-bigglobe worlds.
 	* Added column values for distance_above_max_y, distance_below_max_y, distance_above_min_y, and distance_below_min_y. useful for ore chance scripts.
 	* Column values are no longer displayed in the F3 menu by default. Use /bigglobe:displayColumns to show them again.
-		* The reason for this change is quite simple: there's too many columns now and they don't all fit anymore.
+		* The reason for this change is quite simple: there's too many column values now and they don't all fit anymore.
+	* Added client-side command to search through the F3 menu and highlight matching lines.
+		* This only works for lines that are initially uncolored, so it won't work with mods that put colored text in the F3 menu.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

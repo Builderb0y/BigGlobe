@@ -51,6 +51,7 @@ public class BigGlobeCommands {
 	) {
 		BigGlobeMod.LOGGER.debug("Registering client commands to dispatcher...");
 		DisplayColumnsClientCommand.register(dispatcher);
+		SearchF3ClientCommand.register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
 	}
 }

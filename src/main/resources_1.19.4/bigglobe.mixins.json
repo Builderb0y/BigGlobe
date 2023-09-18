@@ -74,6 +74,8 @@
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
+		"DebugHud_MakeSearchable",
+		"InGameHud_DebugHudGetter",
 		"MinecraftClient_ResetOverworldSettingsHook"
 	],
 	"injectors": {
