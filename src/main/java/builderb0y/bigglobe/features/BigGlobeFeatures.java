@@ -7,6 +7,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.features.flowers.FlowerEntryFeature;
 import builderb0y.bigglobe.features.flowers.FlowerGroupFeature;
 import builderb0y.bigglobe.features.flowers.NetherFlowerFeature;
+import builderb0y.bigglobe.features.ores.GenericOreFeature;
 import builderb0y.bigglobe.features.ores.NetherOreFeature;
 import builderb0y.bigglobe.features.ores.OverworldOreFeature;
 import builderb0y.bigglobe.features.rockLayers.NetherRockLayerEntryFeature;
@@ -32,6 +33,7 @@ public class BigGlobeFeatures {
 
 	public static final OverworldOreFeature                                     OVERWORLD_ORE                      = register("overworld_ore",                      new             OverworldOreFeature());
 	public static final NetherOreFeature                                        NETHER_ORE                         = register("nether_ore",                         new                NetherOreFeature());
+	public static final GenericOreFeature                                       GENERIC_ORE                        = register("generic_ore",                        new               GenericOreFeature());
 
 	public static final FlowerGroupFeature                                      FLOWER_GROUP                       = register("overworld_flower_group",             new              FlowerGroupFeature());
 	public static final FlowerEntryFeature                                      FLOWER_ENTRY                       = register("overworld_flower_entry",             new              FlowerEntryFeature());

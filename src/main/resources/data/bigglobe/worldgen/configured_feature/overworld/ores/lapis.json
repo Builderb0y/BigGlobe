@@ -3,7 +3,7 @@
 	"config": {
 		"stone_state": "minecraft:lapis_ore",
 		"deepslate_state": "minecraft:deepslate_lapis_ore",
-		"chance": "(y - max_y) / 1024.0L + sqrt(unmixLinear(`overworld/sea_level`, min_y, max_y))",
+		"chance": "sqrt(unmixLinear(`overworld/sea_level`, min_y, max_y)) - distance_below_max_y / 1024.0L",
 		"radius": {
 			"type": "average",
 			"min": 3.0,

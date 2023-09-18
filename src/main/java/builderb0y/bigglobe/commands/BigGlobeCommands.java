@@ -50,7 +50,7 @@ public class BigGlobeCommands {
 		CommandRegistryAccess registryAccess
 	) {
 		BigGlobeMod.LOGGER.debug("Registering client commands to dispatcher...");
-		FilterF3ClientCommand.register(dispatcher);
+		DisplayColumnsClientCommand.register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
 	}
 }

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.commands;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -27,23 +28,43 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.mixinInterfaces.ColumnValueDisplayer;
 
 @Environment(EnvType.CLIENT)
-public class FilterF3ClientCommand {
+public class DisplayColumnsClientCommand {
 
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
 		dispatcher.register(
 			ClientCommandManager
-			.literal(BigGlobeMod.MODID + ":filterF3")
+			.literal(BigGlobeMod.MODID + ":displayColumns")
 			.requires(source -> getGenerator() != null)
 			.executes(context -> {
 				ColumnValueDisplayer generator = getGenerator();
 				if (generator != null) {
-					generator.bigglobe_setDisplayedColumnValues(null);
+					generator.bigglobe_setDisplayedColumnValues(ColumnValue.ARRAY_FACTORY.empty());
 					return 1;
 				}
 				else {
 					return 0;
 				}
 			})
+			.then(
+				ClientCommandManager.literal("*").executes(context -> {
+					ColumnValueDisplayer generator = getGenerator();
+					if (generator != null) {
+						WorldColumn column = getColumn(0, 0);
+						generator.bigglobe_setDisplayedColumnValues(
+							ColumnValue
+							.REGISTRY
+							.stream()
+							.filter(value -> value.accepts(column))
+							.sorted(Comparator.comparing(ColumnValue::getName))
+							.toArray(ColumnValue.ARRAY_FACTORY)
+						);
+						return 1;
+					}
+					else {
+						return 0;
+					}
+				})
+			)
 			.then(
 				ClientCommandManager
 				.argument("filter", new FilterF3Argument())

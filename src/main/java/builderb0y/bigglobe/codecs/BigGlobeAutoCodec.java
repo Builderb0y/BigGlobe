@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.codecs;
 
+import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -273,7 +274,12 @@ public class BigGlobeAutoCodec {
 
 				@Override
 				public boolean canView(@NotNull Class<?> clazz) {
-					return clazz.getName().startsWith("builderb0y.");
+					return super.canView(clazz) && (clazz.getName().startsWith("builderb0y.") || clazz.getName().startsWith("java.util."));
+				}
+
+				@Override
+				public boolean canView(@NotNull Field field) {
+					return super.canView(field) && field.getDeclaringClass().getName().startsWith("builderb0y.");
 				}
 			};
 		}

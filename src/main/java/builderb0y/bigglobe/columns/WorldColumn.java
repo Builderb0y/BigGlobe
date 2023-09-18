@@ -81,6 +81,22 @@ public abstract class WorldColumn extends Column {
 	*/
 	public abstract double getFinalBottomHeightD();
 
+	public double getDistanceAboveMaxY(double y) {
+		return y - this.getFinalTopHeightD();
+	}
+
+	public double getDistanceBelowMaxY(double y) {
+		return this.getFinalTopHeightD() - y;
+	}
+
+	public double getDistanceAboveMinY(double y) {
+		return y - this.getFinalBottomHeightD();
+	}
+
+	public double getDistanceBelowMinY(double y) {
+		return this.getFinalBottomHeightD() - y;
+	}
+
 	/**
 	returns true if this column has a primary surface at this column's location.
 	*/

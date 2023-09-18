@@ -4,7 +4,7 @@
 		"stone_state": "minecraft:diamond_ore",
 		"deepslate_state": "minecraft:deepslate_diamond_ore",
 		"chance": [
-			"double line = unmixLinear(256.0L, 512.0L, max_y - y)",
+			"double line = unmixLinear(256.0L, 512.0L, distance_below_max_y)",
 			"double curve = 1.0L - exp(-line)",
 			"return(curve * 0.25L)"
 		],

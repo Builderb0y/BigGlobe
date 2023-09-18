@@ -1,6 +1,6 @@
 {
 	"type": "bigglobe:generic",
-	"script": "mixLinear(limit, peak, exp2((y - max_y) / delay))",
+	"script": "mixLinear(limit, peak, exp2(-distance_below_max_y / delay))",
 	"inputs": [
 		{ "name": "delay", "type": "double" },
 		{ "name": "peak",  "type": "double" },

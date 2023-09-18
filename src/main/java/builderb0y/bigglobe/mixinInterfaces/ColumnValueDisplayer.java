@@ -22,19 +22,13 @@ public interface ColumnValueDisplayer {
 	public abstract void bigglobe_setDisplayedColumnValues(ColumnValue<?>[] displayedColumnValues);
 
 	public default void bigglobe_appendText(List<String> text, WorldColumn column, int y) {
-		PlayerEntity player = getClientPlayer();
+		PlayerEntity player = bigglobe_getClientPlayer();
 		CustomDisplayContext context = player == null ? null : new CustomDisplayContext(player, column, y);
 		if (this.bigglobe_getDisplayedColumnValues() == null) {
 			this.bigglobe_setDisplayedColumnValues(
-				ColumnValue
-				.REGISTRY
-				.stream()
-				.filter(value -> value.accepts(column))
-				.sorted(Comparator.comparing(ColumnValue::getName))
-				.toArray(ColumnValue.ARRAY_FACTORY)
+				ColumnValue.ARRAY_FACTORY.empty()
 			);
 		}
-		text.add("Tip: use /bigglobe:filterF3 to filter the following information:");
 		for (ColumnValue<?> value : this.bigglobe_getDisplayedColumnValues()) {
 			text.add(
 				value == null
@@ -46,15 +40,15 @@ public interface ColumnValueDisplayer {
 		}
 	}
 
-	public static @Nullable PlayerEntity getClientPlayer() {
+	public static @Nullable PlayerEntity bigglobe_getClientPlayer() {
 		return switch (FabricLoader.getInstance().getEnvironmentType()) {
-			case CLIENT -> getClientPlayer0();
+			case CLIENT -> bigglobe_getClientPlayer0();
 			case SERVER -> null;
 		};
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static PlayerEntity getClientPlayer0() {
+	public static PlayerEntity bigglobe_getClientPlayer0() {
 		return MinecraftClient.getInstance().player;
 	}
 }
