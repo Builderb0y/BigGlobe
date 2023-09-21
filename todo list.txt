@@ -20,6 +20,8 @@ where I left off:
 
 changelog:
 	* Fixed localizations on withering tipped arrows.
+	* Fixed sulfur -> soul torch recipe producing normal torches.
+	* Fixed pickaxes not being able to break ashen netherrack quickly.
 	* Added bigglobe:generic_ore configured feature which spawns a big globe ore vein without being tied to internal chunk generator logic. This means it can be used in non-bigglobe worlds.
 	* Added column values for distance_above_max_y, distance_below_max_y, distance_above_min_y, and distance_below_min_y. useful for ore chance scripts.
 	* Column values are no longer displayed in the F3 menu by default. Use /bigglobe:displayColumns to show them again.
