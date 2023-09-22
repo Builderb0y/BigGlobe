@@ -67,7 +67,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		//workaround for the fact that I *really* don't want to deal
 		//with generating bytecode for try-with-resources at runtime.
 		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
-		long used = manager.used;
+		int used = manager.used;
 		try {
 			this.delegate.getBulkX(seed, startX, y, z, samples);
 		}
@@ -84,7 +84,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		//workaround for the fact that I *really* don't want to deal
 		//with generating bytecode for try-with-resources at runtime.
 		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
-		long used = manager.used;
+		int used = manager.used;
 		try {
 			this.delegate.getBulkY(seed, x, startY, z, samples);
 		}
@@ -101,7 +101,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		//workaround for the fact that I *really* don't want to deal
 		//with generating bytecode for try-with-resources at runtime.
 		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
-		long used = manager.used;
+		int used = manager.used;
 		try {
 			this.delegate.getBulkZ(seed, x, y, startZ, samples);
 		}

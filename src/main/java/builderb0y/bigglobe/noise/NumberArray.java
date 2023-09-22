@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.noise;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -16,8 +19,12 @@ elements in the array will automatically cast to and from that internal type.
 
 NumberArray's come in 2 primary variants: heap number arrays, and direct number arrays.
 heap number arrays are backed by an actual java array of the corresponding number type.
-direct number arrays are backed by a pointer allocated by {@link MemoryUtil}, which lives off-heap.
-additionally, direct number arrays are fundamentally temporary objects.
+direct number arrays used to be backed by a pointer allocated by {@link MemoryUtil}, which lives off-heap.
+however, I found out the hard way that {@link MemoryUtil} isn't available on dedicated servers.
+so, direct number arrays are now backed by a byte[] too, just handled differently.
+nevertheless, the name "direct" will stay, even though it is now a misnomer.
+
+direct number arrays are fundamentally temporary objects.
 they are intended to be allocated, used, and de-allocated in reverse order that they are allocated in.
 direct number arrays also all use a shared, thread-local region of memory.
 shared in this case means that all direct number arrays allocated
@@ -450,22 +457,29 @@ public interface NumberArray extends AutoCloseable {
 	public static abstract class Direct implements NumberArray {
 
 		public static final int
-			BYTE_SHIFT = 0,
-			SHORT_SHIFT = 1,
-			INT_SHIFT = 2,
-			LONG_SHIFT = 3,
-			FLOAT_SHIFT = 2,
+			BYTE_SHIFT   = 0,
+			SHORT_SHIFT  = 1,
+			INT_SHIFT    = 2,
+			LONG_SHIFT   = 3,
+			FLOAT_SHIFT  = 2,
 			DOUBLE_SHIFT = 3;
+		public static final VarHandle
+			BYTE_ACCESS   = MethodHandles.arrayElementVarHandle (byte  [].class).withInvokeExactBehavior(),
+			SHORT_ACCESS  = MethodHandles.byteArrayViewVarHandle(short [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+			INT_ACCESS    = MethodHandles.byteArrayViewVarHandle(int   [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+			LONG_ACCESS   = MethodHandles.byteArrayViewVarHandle(long  [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+			FLOAT_ACCESS  = MethodHandles.byteArrayViewVarHandle(float [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+			DOUBLE_ACCESS = MethodHandles.byteArrayViewVarHandle(double[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior();
 
 		public Manager manager;
-		public long byteOffset, byteLength;
+		public int byteOffset, byteLength;
 		public boolean freeable;
 
-		public Direct(Manager manager, long byteLength, int alignment) {
+		public Direct(Manager manager, int byteLength, int alignment) {
 			if ((byteLength & (alignment - 1)) != 0) {
 				throw new IllegalStateException("Invalid alignment " + alignment + " for length " + byteLength);
 			}
-			if (manager.used + byteLength > manager.capacity) {
+			if (manager.used + byteLength > manager.base.length) {
 				throw new IllegalStateException("Manager has insufficient capacity for " + byteLength + " byte(s): " + manager);
 			}
 			this.manager    = manager;
@@ -475,11 +489,11 @@ public interface NumberArray extends AutoCloseable {
 			manager.used += byteLength;
 		}
 
-		public Direct(Manager manager, long byteOffset, long byteLength, int alignment) {
+		public Direct(Manager manager, int byteOffset, int byteLength, int alignment) {
 			if ((byteLength & (alignment - 1)) != 0) {
 				throw new IllegalStateException("Invalid alignment " + alignment + " for length " + byteLength);
 			}
-			if (manager.used + byteLength > manager.capacity) {
+			if (manager.used + byteLength > manager.base.length) {
 				throw new IllegalStateException("Manager has insufficient capacity for " + byteLength + " byte(s): " + manager);
 			}
 			this.manager    = manager;
@@ -497,289 +511,285 @@ public interface NumberArray extends AutoCloseable {
 				else {
 					throw new IllegalStateException("Attempt to close NumberArray in wrong order!");
 				}
-				this.byteOffset = 0L;
-				this.byteLength = 0L;
+				this.byteOffset = 0;
+				this.byteLength = 0;
 				this.freeable = false;
 			}
 			this.manager = null;
 		}
 
-		public long baseAddress() {
-			return this.manager.base + this.byteOffset;
-		}
-
 		public static class OfByte extends Direct implements NumberArray.OfByte {
 
-			public OfByte(Manager manager, long length) {
+			public OfByte(Manager manager, int length) {
 				super(manager, length, Byte.BYTES);
 			}
 
-			public OfByte(Manager manager, long offset, long length) {
+			public OfByte(Manager manager, int offset, int length) {
 				super(manager, offset, length, Byte.BYTES);
 			}
 
 			@Override
 			public byte getB(int index) {
-				return MemoryUtil.memGetByte(this.baseAddress() + Objects.checkIndex(((long)(index)) << BYTE_SHIFT, this.byteLength));
+				return (byte)(BYTE_ACCESS.get(this.manager.base, Objects.checkIndex(index << BYTE_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setB(int index, byte value) {
-				MemoryUtil.memPutByte(this.baseAddress() + Objects.checkIndex(((long)(index)) << BYTE_SHIFT, this.byteLength), value);
+				BYTE_ACCESS.set(this.manager.base, Objects.checkIndex(index << BYTE_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, byte value) {
-				long addressFrom = ((long)(from)) << BYTE_SHIFT;
-				long addressTo = ((long)(to)) << BYTE_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Byte.BYTES) {
-					MemoryUtil.memPutByte(address, value);
+				int indexFrom = from << BYTE_SHIFT;
+				int indexTo = to << BYTE_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Byte.BYTES) {
+					BYTE_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> BYTE_SHIFT);
+				return this.byteLength >> BYTE_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfByte(this.manager, this.byteOffset + (((long)(offset)) << BYTE_SHIFT), ((long)(length)) << length);
+				return new Direct.OfByte(this.manager, (offset << BYTE_SHIFT) + this.byteOffset, length << BYTE_SHIFT);
 			}
 		}
 
 		public static class OfShort extends Direct implements NumberArray.OfShort {
 
-			public OfShort(Manager manager, long length) {
+			public OfShort(Manager manager, int length) {
 				super(manager, length, Short.BYTES);
 			}
 
-			public OfShort(Manager manager, long offset, long length) {
+			public OfShort(Manager manager, int offset, int length) {
 				super(manager, offset, length, Short.BYTES);
 			}
 
 			@Override
 			public short getS(int index) {
-				return MemoryUtil.memGetShort(this.baseAddress() + Objects.checkIndex(((long)(index)) << SHORT_SHIFT, this.byteLength));
+				return (short)(SHORT_ACCESS.get(this.manager.base, Objects.checkIndex(index << SHORT_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setS(int index, short value) {
-				MemoryUtil.memPutShort(this.baseAddress() + Objects.checkIndex(((long)(index)) << SHORT_SHIFT, this.byteLength), value);
+				SHORT_ACCESS.set(this.manager.base, Objects.checkIndex(index << SHORT_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, short value) {
-				long addressFrom = ((long)(from)) << SHORT_SHIFT;
-				long addressTo = ((long)(to)) << SHORT_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Short.BYTES) {
-					MemoryUtil.memPutShort(address, value);
+				int indexFrom = from << SHORT_SHIFT;
+				int indexTo = to << SHORT_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Short.BYTES) {
+					SHORT_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> SHORT_SHIFT);
+				return this.byteLength >> SHORT_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfShort(this.manager, this.byteOffset + (((long)(offset)) << SHORT_SHIFT), ((long)(length)) << length);
+				return new Direct.OfShort(this.manager, (offset << SHORT_SHIFT) + this.byteOffset, length << SHORT_SHIFT);
 			}
 		}
 
 		public static class OfInt extends Direct implements NumberArray.OfInt {
 
-			public OfInt(Manager manager, long length) {
+			public OfInt(Manager manager, int length) {
 				super(manager, length, Integer.BYTES);
 			}
 
-			public OfInt(Manager manager, long offset, long length) {
+			public OfInt(Manager manager, int offset, int length) {
 				super(manager, offset, length, Integer.BYTES);
 			}
 
 			@Override
 			public int getI(int index) {
-				return MemoryUtil.memGetInt(this.baseAddress() + Objects.checkIndex(((long)(index)) << INT_SHIFT, this.byteLength));
+				return (int)(INT_ACCESS.get(this.manager.base, Objects.checkIndex(index << INT_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setI(int index, int value) {
-				MemoryUtil.memPutInt(this.baseAddress() + Objects.checkIndex(((long)(index)) << INT_SHIFT, this.byteLength), value);
+				INT_ACCESS.set(this.manager.base, Objects.checkIndex(index << INT_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, int value) {
-				long addressFrom = ((long)(from)) << INT_SHIFT;
-				long addressTo = ((long)(to)) << INT_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Integer.BYTES) {
-					MemoryUtil.memPutInt(address, value);
+				int indexFrom = from << INT_SHIFT;
+				int indexTo = to << INT_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Integer.BYTES) {
+					INT_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> INT_SHIFT);
+				return this.byteLength >> INT_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfInt(this.manager, this.byteOffset + (((long)(offset)) << INT_SHIFT), ((long)(length)) << length);
+				return new Direct.OfInt(this.manager, (offset << INT_SHIFT) + this.byteOffset, length << INT_SHIFT);
 			}
 		}
 
 		public static class OfLong extends Direct implements NumberArray.OfLong {
 
-			public OfLong(Manager manager, long length) {
+			public OfLong(Manager manager, int length) {
 				super(manager, length, Long.BYTES);
 			}
 
-			public OfLong(Manager manager, long offset, long length) {
+			public OfLong(Manager manager, int offset, int length) {
 				super(manager, offset, length, Long.BYTES);
 			}
 
 			@Override
 			public long getL(int index) {
-				return MemoryUtil.memGetLong(this.baseAddress() + Objects.checkIndex(((long)(index)) << LONG_SHIFT, this.byteLength));
+				return (long)(LONG_ACCESS.get(this.manager.base, Objects.checkIndex(index << LONG_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setL(int index, long value) {
-				MemoryUtil.memPutLong(this.baseAddress() + Objects.checkIndex(((long)(index)) << LONG_SHIFT, this.byteLength), value);
+				LONG_ACCESS.set(this.manager.base, Objects.checkIndex(index << LONG_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, long value) {
-				long addressFrom = ((long)(from)) << LONG_SHIFT;
-				long addressTo = ((long)(to)) << LONG_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Long.BYTES) {
-					MemoryUtil.memPutLong(address, value);
+				int indexFrom = from << LONG_SHIFT;
+				int indexTo = to << LONG_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Long.BYTES) {
+					LONG_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> LONG_SHIFT);
+				return this.byteLength >> LONG_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfLong(this.manager, this.byteOffset + (((long)(offset)) << LONG_SHIFT), ((long)(length)) << length);
+				return new Direct.OfLong(this.manager, (offset << LONG_SHIFT) + this.byteOffset, length << LONG_SHIFT);
 			}
 		}
 
 		public static class OfFloat extends Direct implements NumberArray.OfFloat {
 
-			public OfFloat(Manager manager, long length) {
+			public OfFloat(Manager manager, int length) {
 				super(manager, length, Float.BYTES);
 			}
 
-			public OfFloat(Manager manager, long offset, long length) {
+			public OfFloat(Manager manager, int offset, int length) {
 				super(manager, offset, length, Float.BYTES);
 			}
 
 			@Override
 			public float getF(int index) {
-				return MemoryUtil.memGetFloat(this.baseAddress() + Objects.checkIndex(((long)(index)) << FLOAT_SHIFT, this.byteLength));
+				return (float)(FLOAT_ACCESS.get(this.manager.base, Objects.checkIndex(index << FLOAT_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setF(int index, float value) {
-				MemoryUtil.memPutFloat(this.baseAddress() + Objects.checkIndex(((long)(index)) << FLOAT_SHIFT, this.byteLength), value);
+				FLOAT_ACCESS.set(this.manager.base, Objects.checkIndex(index << FLOAT_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, float value) {
-				long addressFrom = ((long)(from)) << FLOAT_SHIFT;
-				long addressTo = ((long)(to)) << FLOAT_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Float.BYTES) {
-					MemoryUtil.memPutFloat(address, value);
+				int indexFrom = from << FLOAT_SHIFT;
+				int indexTo = to << FLOAT_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Float.BYTES) {
+					FLOAT_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> FLOAT_SHIFT);
+				return this.byteLength >> FLOAT_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfFloat(this.manager, this.byteOffset + (((long)(offset)) << FLOAT_SHIFT), ((long)(length)) << length);
+				return new Direct.OfFloat(this.manager, (offset << FLOAT_SHIFT) + this.byteOffset, length << FLOAT_SHIFT);
 			}
 		}
 
 		public static class OfDouble extends Direct implements NumberArray.OfDouble {
 
-			public OfDouble(Manager manager, long length) {
+			public OfDouble(Manager manager, int length) {
 				super(manager, length, Double.BYTES);
 			}
 
-			public OfDouble(Manager manager, long offset, long length) {
+			public OfDouble(Manager manager, int offset, int length) {
 				super(manager, offset, length, Double.BYTES);
 			}
 
 			@Override
 			public double getD(int index) {
-				return MemoryUtil.memGetDouble(this.baseAddress() + Objects.checkIndex(((long)(index)) << DOUBLE_SHIFT, this.byteLength));
+				return (double)(DOUBLE_ACCESS.get(this.manager.base, Objects.checkIndex(index << DOUBLE_SHIFT, this.byteLength) + this.byteOffset));
 			}
 
 			@Override
 			public void setD(int index, double value) {
-				MemoryUtil.memPutDouble(this.baseAddress() + Objects.checkIndex(((long)(index)) << DOUBLE_SHIFT, this.byteLength), value);
+				DOUBLE_ACCESS.set(this.manager.base, Objects.checkIndex(index << DOUBLE_SHIFT, this.byteLength) + this.byteOffset, value);
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, double value) {
-				long addressFrom = ((long)(from)) << DOUBLE_SHIFT;
-				long addressTo = ((long)(to)) << DOUBLE_SHIFT;
-				Objects.checkFromToIndex(addressFrom, addressTo, this.byteLength);
-				long base = this.baseAddress();
-				addressFrom += base;
-				addressTo += base;
-				for (long address = addressFrom; address < addressTo; address += Double.BYTES) {
-					MemoryUtil.memPutDouble(address, value);
+				int indexFrom = from << DOUBLE_SHIFT;
+				int indexTo = to << DOUBLE_SHIFT;
+				Objects.checkFromToIndex(indexFrom, indexTo, this.byteLength);
+				byte[] base = this.manager.base;
+				indexFrom += this.byteOffset;
+				indexTo += this.byteOffset;
+				for (int index = indexFrom; index < indexTo; index += Double.BYTES) {
+					DOUBLE_ACCESS.set(base, index, value);
 				}
 			}
 
 			@Override
 			public int length() {
-				return Math.toIntExact(this.byteLength >> DOUBLE_SHIFT);
+				return this.byteLength >> DOUBLE_SHIFT;
 			}
 
 			@Override
 			public NumberArray sliceOffsetLength(int offset, int length) {
 				Objects.checkFromIndexSize(offset, length, this.length());
-				return new Direct.OfDouble(this.manager, this.byteOffset + (((long)(offset)) << DOUBLE_SHIFT), ((long)(length)) << length);
+				return new Direct.OfDouble(this.manager, (offset << DOUBLE_SHIFT) + this.byteOffset, length << DOUBLE_SHIFT);
 			}
 		}
 
 		/**
-		manages a region of memory off-heap,
+		manages a region of memory backed by a byte[],
 		keeping track of how much of it is used at any given time.
 
 		every direct NumberArray has an associated Manager.
@@ -787,13 +797,13 @@ public interface NumberArray extends AutoCloseable {
 		the Manager is notified and the usage of its region of memory increases.
 		when a direct NumberArray is {@link #close()}'d, the usage of the region of memory decreases.
 		however, the algorithm for de-allocation is quite naive,
-		and only works if direct NumberArray's are de-allocated
-		in the reverse order that they are allocated in.
+		and only works if direct NumberArray's are closed
+		in the reverse order that they are opened in.
 
 		if enough direct NumberArray's are allocated that they collectively
-		use more memory than our {@link #capacity}, then the backing pointer
-		is re-allocated as a bigger size. this is why each direct NumberArray
-		has a reference to the manager, not a pointer to its region of memory.
+		use more memory than our {@link #base}'s length, then the backing array
+		is copied as a bigger size. this is why each direct NumberArray
+		has a reference to the manager, not a reference to its backing array.
 		this makes it possible to safely re-allocate memory without affecting
 		any direct NumberArrays which have already been allocated with this Manager.
 		*/
@@ -802,9 +812,9 @@ public interface NumberArray extends AutoCloseable {
 			public static final String
 				MIN_PROP = "bigglobe.NumberArray.Direct.minSize",
 				MAX_PROP = "bigglobe.NumberArray.Direct.maxSize";
-			public static final long
-				MIN_SIZE = Long.getLong(MIN_PROP, 1024L * Double.BYTES),
-				MAX_SIZE = Long.getLong(MAX_PROP, 1048576L);
+			public static final int
+				MIN_SIZE = Integer.getInteger(MIN_PROP, 1024 * Double.BYTES),
+				MAX_SIZE = Integer.getInteger(MAX_PROP, 1048576);
 
 			static {
 				if (MIN_SIZE <= 0L) throw new IllegalStateException("-D" + MIN_PROP + " must be positive.");
@@ -814,46 +824,28 @@ public interface NumberArray extends AutoCloseable {
 			public static final ThreadLocal<Manager> INSTANCES = ThreadLocal.withInitial(Manager::new);
 
 			/** the beginning of the region of memory this Manager keeps track of. */
-			public long base;
+			public byte[] base;
 			/** the number of bytes used in our region of memory. */
-			public long used;
-			/** the size of our region of memory. */
-			public long capacity;
+			public int used;
 
 			public Manager() {
-				this.base = MemoryUtil.nmemAlloc(MIN_SIZE);
-				if (this.base == 0L) throw new OutOfMemoryError("Failed to allocate " + MIN_SIZE + " byte(s)");
-				this.capacity = MIN_SIZE;
+				this.base = new byte[MIN_SIZE];
 			}
 
-			public void ensureCapacity(long capacity) {
+			public void ensureCapacity(int capacity) {
 				if (capacity > MAX_SIZE) {
 					throw new OutOfMemoryError("Requested capacity " + capacity + " exceeds maximum allocation limit " + MAX_SIZE + " as defined by java argument -D" + MAX_PROP);
 				}
-				if (this.capacity < capacity) {
+				if (this.base.length < capacity) {
 					capacity = Math.min(
-						Math.max(
-							capacity,
-							this.base == 0L //should only be the case if a previous resize failed.
-							? MIN_SIZE //retry min capacity. can't hurt.
-							: this.capacity << 1
-						),
+						Math.max(capacity, this.base.length << 1),
 						MAX_SIZE
 					);
-					this.base = (
-						this.base == 0L
-						? MemoryUtil.nmemAlloc(capacity)
-						: MemoryUtil.nmemRealloc(this.base, capacity)
-					);
-					if (this.base == 0L) {
-						this.capacity = 0L;
-						throw new OutOfMemoryError("Failed to allocate " + capacity + " byte(s)");
-					}
-					this.capacity = capacity;
+					this.base = Arrays.copyOf(this.base, capacity);
 				}
 			}
 
-			public long beforeAllocate(long bytes) {
+			public int beforeAllocate(int bytes) {
 				if (bytes < 0) {
 					throw new IllegalArgumentException("Attempt to allocate negative bytes: " + bytes);
 				}
@@ -862,47 +854,47 @@ public interface NumberArray extends AutoCloseable {
 			}
 
 			public Direct.OfByte allocateBytes(int bytes) {
-				return new Direct.OfByte(this, this.beforeAllocate(((long)(bytes)) << BYTE_SHIFT));
+				return new Direct.OfByte(this, this.beforeAllocate(bytes << BYTE_SHIFT));
 			}
 
 			public Direct.OfShort allocateShorts(int shorts) {
-				return new Direct.OfShort(this, this.beforeAllocate(((long)(shorts)) << SHORT_SHIFT));
+				return new Direct.OfShort(this, this.beforeAllocate(shorts << SHORT_SHIFT));
 			}
 
 			public Direct.OfInt allocateInts(int ints) {
-				return new Direct.OfInt(this, this.beforeAllocate(((long)(ints)) << INT_SHIFT));
+				return new Direct.OfInt(this, this.beforeAllocate(ints << INT_SHIFT));
 			}
 
 			public Direct.OfLong allocateLongs(int longs) {
-				return new Direct.OfLong(this, this.beforeAllocate(((long)(longs)) << LONG_SHIFT));
+				return new Direct.OfLong(this, this.beforeAllocate(longs << LONG_SHIFT));
 			}
 
 			public Direct.OfFloat allocateFloats(int floats) {
-				return new Direct.OfFloat(this, this.beforeAllocate(((long)(floats)) << FLOAT_SHIFT));
+				return new Direct.OfFloat(this, this.beforeAllocate(floats << FLOAT_SHIFT));
 			}
 
 			public Direct.OfDouble allocateDoubles(int doubles) {
-				return new Direct.OfDouble(this, this.beforeAllocate(((long)(doubles)) << DOUBLE_SHIFT));
+				return new Direct.OfDouble(this, this.beforeAllocate(doubles << DOUBLE_SHIFT));
 			}
 
 			public char hex(int shift) {
-				int number = ((int)(this.base >>> shift)) & 0xF;
+				int number = (System.identityHashCode(this.base) >>> shift) & 0xF;
 				return (char)(number + (number >= 10 ? 'A' - 10 : '0'));
 			}
 
 			public String formatPointer() {
 				return (
 					"0x"
-					+ this.hex(60) + this.hex(56) + this.hex(52) + this.hex(48)
-					+ this.hex(44) + this.hex(40) + this.hex(36) + this.hex(32)
-					+ this.hex(28) + this.hex(24) + this.hex(20) + this.hex(16)
-					+ this.hex(12) + this.hex( 8) + this.hex( 4) + this.hex( 0)
+					+ this.hex(28) + this.hex(24)
+					+ this.hex(20) + this.hex(16)
+					+ this.hex(12) + this.hex( 8)
+					+ this.hex( 4) + this.hex( 0)
 				);
 			}
 
 			@Override
 			public String toString() {
-				return this.getClass().getName() + ": { base: " + this.formatPointer() + ", used: " + this.used + ", capacity: " + this.capacity + " }";
+				return this.getClass().getName() + ": { base: " + this.formatPointer() + ", used: " + this.used + ", capacity: " + this.base.length + " }";
 			}
 		}
 	}
