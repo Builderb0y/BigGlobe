@@ -19,6 +19,8 @@ testing:
 where I left off:
 
 changelog:
+	* Updated to 1.20.2.
+	* Fixed geode spikes sometimes being detached from the wall of the geode.
 	* Fixed localizations on withering tipped arrows.
 	* Fixed sulfur -> soul torch recipe producing normal torches.
 	* Fixed pickaxes not being able to break ashen netherrack quickly.

@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
@@ -28,19 +28,28 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 #if MC_VERSION == MC_1_19_2
 	import net.minecraft.inventory.CraftingInventory;
+	import net.minecraft.util.Identifier;
 #elif MC_VERSION == MC_1_19_4
 	import net.minecraft.inventory.CraftingInventory;
 	import net.minecraft.recipe.book.CraftingRecipeCategory;
 	import net.minecraft.registry.DynamicRegistryManager;
+	import net.minecraft.util.Identifier;
 #elif MC_VERSION == MC_1_20_1
 	import net.minecraft.inventory.RecipeInputInventory;
 	import net.minecraft.recipe.book.CraftingRecipeCategory;
 	import net.minecraft.registry.DynamicRegistryManager;
+	import net.minecraft.util.Identifier;
+#elif MC_VERSION == MC_1_20_2
+	import net.minecraft.inventory.RecipeInputInventory;
+	import net.minecraft.recipe.book.CraftingRecipeCategory;
 #endif
 
-@AddPseudoField("id")
+#if MC_VERSION < MC_1_20_2
+	@AddPseudoField("id")
+#endif
+
 #if MC_VERSION >= MC_1_19_4
-@AddPseudoField("category")
+	@AddPseudoField("category")
 #endif
 public class ScriptedRecipe extends SpecialCraftingRecipe {
 
@@ -54,7 +63,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 	public final CraftingRemainderScript.@VerifyNullable Holder remainder;
 
 	public ScriptedRecipe(
-		Identifier id,
+		#if MC_VERSION < MC_1_20_2 Identifier id, #endif
 		#if MC_VERSION >= MC_1_19_4 CraftingRecipeCategory category, #endif
 		int width,
 		int height,
@@ -62,7 +71,13 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		CraftingOutputScript.Holder output,
 		CraftingRemainderScript.@VerifyNullable Holder remainder
 	) {
-		super(id #if MC_VERSION >= MC_1_19_4 , category #endif);
+		#if MC_VERSION >= MC_1_20_2
+			super(category);
+		#elif MC_VERSION >= MC_1_19_4
+			super(id, category);
+		#else
+			super(id);
+		#endif
 		this.width     = width;
 		this.height    = height;
 		this.matches   = matches;
@@ -70,20 +85,22 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		this.remainder = remainder;
 	}
 
-	public Identifier id() {
-		return this.getId();
-	}
+	#if MC_VERSION < MC_1_20_2
+		public Identifier id() {
+			return this.getId();
+		}
+	#endif
 
 	#if MC_VERSION >= MC_1_19_4
-	public @UseCoder(name = "CATEGORY_CODER", in = ScriptedRecipe.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) CraftingRecipeCategory category() {
-		return this.getCategory();
-	}
+		public @UseCoder(name = "CATEGORY_CODER", in = ScriptedRecipe.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) CraftingRecipeCategory category() {
+			return this.getCategory();
+		}
 	#endif
 
 	@Override
 	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public boolean matches(CraftingInventory inventory, World world) {
-	#elif MC_VERSION == MC_1_20_1
+	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
 		public boolean matches(RecipeInputInventory inventory, World world) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."
@@ -101,7 +118,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		public ItemStack craft(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_19_4
 		public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
-	#elif MC_VERSION == MC_1_20_1
+	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
 		public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."
@@ -117,7 +134,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 	@Override
 	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory) {
-	#elif MC_VERSION == MC_1_20_1
+	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
 		public DefaultedList<ItemStack> getRemainder(RecipeInputInventory inventory) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."

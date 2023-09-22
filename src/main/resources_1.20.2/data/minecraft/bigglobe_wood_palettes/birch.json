@@ -1,0 +1,30 @@
+{
+	"blocks": {
+		"log": "minecraft:birch_log",
+		"wood": "minecraft:birch_wood",
+		"stripped_log": "minecraft:stripped_birch_log",
+		"stripped_wood": "minecraft:stripped_birch_wood",
+		"planks": "minecraft:birch_planks",
+		"stairs": "minecraft:birch_stairs",
+		"slab": "minecraft:birch_slab",
+		"fence": "minecraft:birch_fence",
+		"fence_gate": "minecraft:birch_fence_gate",
+		"door": "minecraft:birch_door",
+		"trapdoor": "minecraft:birch_trapdoor",
+		"pressure_plate": "minecraft:birch_pressure_plate",
+		"button": "minecraft:birch_button",
+		"leaves": "minecraft:birch_leaves",
+		"sapling": "minecraft:birch_sapling",
+		"potted_sapling": "minecraft:potted_birch_sapling",
+		"standing_sign": "minecraft:birch_sign",
+		"wall_sign": "minecraft:birch_wall_sign",
+		"hanging_sign": "minecraft:birch_hanging_sign",
+		"wall_hanging_sign": "minecraft:birch_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/birch",
+		"natural_surface": "bigglobe:overworld/trees/natural/birch",
+		"skylands": "bigglobe:overworld/trees/skylands/birch"
+	},
+	"biomes": "minecraft:bigglobe_wood_palette/birch"
+}

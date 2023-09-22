@@ -1,0 +1,29 @@
+{
+	"blocks": {
+		"log": "bigglobe:charred_log",
+		"wood": "bigglobe:charred_wood",
+		"stripped_log": "bigglobe:stripped_charred_log",
+		"stripped_wood": "bigglobe:stripped_charred_wood",
+		"planks": "bigglobe:charred_planks",
+		"stairs": "bigglobe:charred_stairs",
+		"slab": "bigglobe:charred_slab",
+		"fence": "bigglobe:charred_fence",
+		"fence_gate": "bigglobe:charred_fence_gate",
+		"door": "bigglobe:charred_door",
+		"trapdoor": "bigglobe:charred_trapdoor",
+		"pressure_plate": "bigglobe:charred_pressure_plate",
+		"button": "bigglobe:charred_button",
+		"leaves": "bigglobe:charred_leaves",
+		"sapling": "bigglobe:charred_sapling",
+		"potted_sapling": "bigglobe:potted_charred_sapling",
+		"standing_sign": "bigglobe:charred_sign",
+		"wall_sign": "bigglobe:charred_wall_sign",
+		"hanging_sign": "bigglobe:charred_hanging_sign",
+		"wall_hanging_sign": "bigglobe:charred_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/charred",
+		"natural_surface": "bigglobe:nether/trees/natural/charred"
+	},
+	"biomes": "bigglobe:bigglobe_wood_palette/charred"
+}

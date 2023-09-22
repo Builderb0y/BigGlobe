@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "hanging_sign",
+	"key": {
+		"#": { "item": "bigglobe:stripped_charred_log" },
+		"X": { "item": "minecraft:chain" }
+	},
+	"pattern": [
+		"X X",
+		"###",
+		"###"
+	],
+	"result": {
+		"count": 6,
+		"item": "bigglobe:charred_hanging_sign"
+	}
+}

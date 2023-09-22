@@ -15,6 +15,15 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.loot.condition.LootCondition;
+import net.minecraft.loot.condition.LootConditionType;
+import net.minecraft.loot.condition.LootConditionTypes;
+import net.minecraft.loot.entry.LootPoolEntry;
+import net.minecraft.loot.entry.LootPoolEntryType;
+import net.minecraft.loot.entry.LootPoolEntryTypes;
+import net.minecraft.loot.function.LootFunction;
+import net.minecraft.loot.function.LootFunctionType;
+import net.minecraft.loot.function.LootFunctionTypes;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -207,6 +216,11 @@ public class BigGlobeAutoCodec {
 								coders.addAllTo(this);
 							}
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUEncoder(Structure.Config.CODEC.codec(), false));
+							#if MC_VERSION >= MC_1_20_2
+								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
+								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
+								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
+							#endif
 						}
 					};
 				}
@@ -237,6 +251,11 @@ public class BigGlobeAutoCodec {
 								coders.addAllTo(this);
 							}
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUDecoder(Structure.Config.CODEC.codec(), false));
+							#if MC_VERSION >= MC_1_20_2
+								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
+								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
+								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
+							#endif
 						}
 					};
 				}

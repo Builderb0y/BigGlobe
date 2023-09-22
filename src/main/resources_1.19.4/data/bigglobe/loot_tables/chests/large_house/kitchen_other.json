@@ -1,0 +1,18 @@
+{
+	"pools": [{
+		"rolls": 4,
+		"entries": [{
+			"type": "bigglobe:group",
+			"children": [
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:brown_mushroom" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:red_mushroom" },
+				{ "type": "minecraft:item", "weight": 1, "name": "minecraft:cocoa_beans" },
+				{ "type": "minecraft:item", "weight": 2, "name": "minecraft:sugar" }
+			],
+			"functions": [{
+				"function": "minecraft:set_count",
+				"count": { "min": 2, "max": 4 }
+			}]
+		}]
+	}]
+}

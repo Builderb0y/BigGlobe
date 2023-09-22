@@ -1,0 +1,33 @@
+{
+	"pools": [
+		{
+			"rolls": 6,
+			"entries": [{
+				"type": "bigglobe:group",
+				"children": [
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:beef" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:porkchop" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:mutton" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:chicken" },
+					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:rabbit" },
+					{ "type": "minecraft:item", "weight": 2, "name": "minecraft:egg" }
+				],
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 1, "max": 3 }
+				}]
+			}]
+		},
+		{
+			"rolls": 1,
+			"entries": [{
+				"type": "minecraft:item",
+				"name": "minecraft:ice",
+				"functions": [{
+					"function": "minecraft:set_count",
+					"count": { "min": 8, "max": 16 }
+				}]
+			}]
+		}
+	]
+}

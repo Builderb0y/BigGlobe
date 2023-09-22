@@ -1042,7 +1042,14 @@ public class PortalTempleStructure extends BigGlobeStructure {
 							state = block.getDefaultState();
 						}
 						else {
-							state = Blocks.GRINDSTONE.getDefaultState().with(WallMountedBlock.FACE, WallMountLocation.FLOOR);
+							state = Blocks.GRINDSTONE.getDefaultState().with(
+								WallMountedBlock.FACE,
+								#if MC_VERSION >= MC_1_20_2
+									BlockFace.FLOOR
+								#else
+									WallMountLocation.FLOOR
+								#endif
+							);
 						}
 						state = state.with(HorizontalFacingBlock.FACING, Permuter.choose(random, Directions.HORIZONTAL));
 					}

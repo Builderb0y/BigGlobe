@@ -98,6 +98,9 @@ import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 #elif MC_VERSION == MC_1_20_1
 	import net.minecraft.registry.RegistryWrapper;
 	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+#elif MC_VERSION == MC_1_20_2
+	import net.minecraft.registry.RegistryWrapper;
+	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 #endif
 
 #if MC_VERSION == MC_1_19_2
@@ -242,17 +245,17 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		}
 	}
 
-	#if MC_VERSION == MC_1_19_2
-		@Override
-		public void computeStructurePlacementsIfNeeded(NoiseConfig noiseConfig) {
-			this.setSeed(noiseConfig.getLegacyWorldSeed());
-			super.computeStructurePlacementsIfNeeded(noiseConfig);
-		}
-	#else
+	#if MC_VERSION > MC_1_19_2
 		@Override
 		public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
 			this.setSeed(seed);
 			return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
+		}
+	#else
+		@Override
+		public void computeStructurePlacementsIfNeeded(NoiseConfig noiseConfig) {
+			this.setSeed(noiseConfig.getLegacyWorldSeed());
+			super.computeStructurePlacementsIfNeeded(noiseConfig);
 		}
 	#endif
 

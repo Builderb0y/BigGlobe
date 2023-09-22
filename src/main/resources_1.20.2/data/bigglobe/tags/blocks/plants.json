@@ -1,0 +1,43 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:saplings",
+		"#minecraft:small_flowers",
+		"#minecraft:tall_flowers",
+		"#c:mushrooms",
+		"#minecraft:crops",
+		"#minecraft:corals",
+
+		"minecraft:sugar_cane",
+		"minecraft:attached_pumpkin_stem",
+		"minecraft:attached_melon_stem",
+		"minecraft:pumpkin_stem",
+		"minecraft:melon_stem",
+		"minecraft:lily_pad",
+		"minecraft:nether_wart",
+		"minecraft:cocoa",
+		"minecraft:chorus_plant",
+		"minecraft:chorus_flower",
+		"minecraft:kelp",
+		"minecraft:kelp_plant",
+		"minecraft:sea_pickle",
+		"minecraft:sweet_berry_bush",
+		"minecraft:warped_fungus",
+		"minecraft:crimson_fungus",
+		"minecraft:weeping_vines",
+		"minecraft:weeping_vines_plant",
+		"minecraft:twisting_vines",
+		"minecraft:twisting_vines_plant",
+		"minecraft:cave_vines",
+		"minecraft:cave_vines_plant",
+		"minecraft:spore_blossom",
+		"minecraft:moss_carpet",
+		"minecraft:big_dripleaf",
+		"minecraft:big_dripleaf_stem",
+		"minecraft:small_dripleaf",
+		"minecraft:pink_petals",
+
+		"bigglobe:tall_chorus_spores",
+		"bigglobe:short_chorus_spores"
+	]
+}

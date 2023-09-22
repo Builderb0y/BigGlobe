@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:overworld_structure_overrider",
+	"config": {
+		"script": [
+			"if (start.structure == Structure('minecraft:trail_ruins'):",
+				"return(",
+					"`overworld/hilliness`(start.midX, start.midZ) < 0.375L &&",
+					"`overworld/cliffiness`(start.midX, start.midZ) < 0.5L",
+				")",
+			")",
+			"else (",
+				"return(true)",
+			")"
+		]
+	}
+}

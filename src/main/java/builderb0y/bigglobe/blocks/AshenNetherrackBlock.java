@@ -24,7 +24,12 @@ public class AshenNetherrackBlock extends Block implements Fertilizable {
 	}
 
 	@Override
-	public boolean isFertilizable(#if (MC_VERSION <= MC_1_19_2) BlockView #else WorldView #endif world, BlockPos pos, BlockState state, boolean isClient) {
+	public boolean isFertilizable(
+		#if (MC_VERSION <= MC_1_19_2) BlockView #else WorldView #endif world,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION < MC_1_20_2 , boolean isClient #endif
+	) {
 		return true;
 	}
 

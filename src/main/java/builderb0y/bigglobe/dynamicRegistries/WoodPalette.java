@@ -267,14 +267,6 @@ public class WoodPalette {
 		return state;
 	}
 
-	public BlockState buttonState(RandomGenerator random, WallMountLocation face, Direction facing, boolean powered) {
-		BlockState state = this.getState(random, WoodPaletteType.BUTTON);
-		state = BlockStateVersions.withIfExists(state, Properties.WALL_MOUNT_LOCATION, face);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.POWERED, powered);
-		return state;
-	}
-
 	public BlockState leavesState(RandomGenerator random, @Range(from = 1, to = 7) int distance, boolean persistent, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.LEAVES);
 		state = BlockStateVersions.withIfExists(state, Properties.DISTANCE_1_7, distance);
@@ -291,20 +283,6 @@ public class WoodPalette {
 
 	public BlockState pottedSaplingState(RandomGenerator random) {
 		return this.getState(random, WoodPaletteType.POTTED_SAPLING);
-	}
-
-	public BlockState standingSignState(RandomGenerator random, int rotation, boolean waterlogged) {
-		BlockState state = this.getState(random, WoodPaletteType.STANDING_SIGN);
-		state = BlockStateVersions.withIfExists(state, Properties.ROTATION, rotation);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
-		return state;
-	}
-
-	public BlockState wallSignState(RandomGenerator random, Direction facing, boolean waterlogged) {
-		BlockState state = this.getState(random, WoodPaletteType.WALL_SIGN);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
-		return state;
 	}
 
 	//////////////////////////////// types ////////////////////////////////

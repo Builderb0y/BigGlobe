@@ -1,0 +1,30 @@
+{
+	"blocks": {
+		"log": "minecraft:jungle_log",
+		"wood": "minecraft:jungle_wood",
+		"stripped_log": "minecraft:stripped_jungle_log",
+		"stripped_wood": "minecraft:stripped_jungle_wood",
+		"planks": "minecraft:jungle_planks",
+		"stairs": "minecraft:jungle_stairs",
+		"slab": "minecraft:jungle_slab",
+		"fence": "minecraft:jungle_fence",
+		"fence_gate": "minecraft:jungle_fence_gate",
+		"door": "minecraft:jungle_door",
+		"trapdoor": "minecraft:jungle_trapdoor",
+		"pressure_plate": "minecraft:jungle_pressure_plate",
+		"button": "minecraft:jungle_button",
+		"leaves": "minecraft:jungle_leaves",
+		"sapling": "minecraft:jungle_sapling",
+		"potted_sapling": "minecraft:potted_jungle_sapling",
+		"standing_sign": "minecraft:jungle_sign",
+		"wall_sign": "minecraft:jungle_wall_sign",
+		"hanging_sign": "minecraft:jungle_hanging_sign",
+		"wall_hanging_sign": "minecraft:jungle_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/jungle",
+		"natural_surface": "bigglobe:overworld/trees/natural/jungle",
+		"skylands": "bigglobe:overworld/trees/skylands/jungle"
+	},
+	"biomes": "minecraft:bigglobe_wood_palette/jungle"
+}

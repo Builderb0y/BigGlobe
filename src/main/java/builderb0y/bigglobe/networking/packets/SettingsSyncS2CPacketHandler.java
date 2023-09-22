@@ -24,10 +24,10 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.mixins.NbtIo_ReadElementAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.settings.OverworldClientSettings;
+import builderb0y.bigglobe.util.NbtIo2;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
@@ -37,24 +37,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
-		NbtElement nbt;
-		try (
-			DataInputStream stream = new DataInputStream(
-				new GZIPInputStream(
-					new ByteBufInputStream(buffer)
-				)
-			)
-		) {
-			nbt = NbtIo_ReadElementAccess.bigglobe_read(
-				stream,
-				0,
-				NbtTagSizeTracker.EMPTY
-			);
-		}
-		catch (IOException exception) {
-			BigGlobeNetwork.LOGGER.error("", exception);
-			return;
-		}
+		NbtElement nbt = NbtIo2.readCompressed(buffer);
 		OverworldClientSettings settings;
 		try {
 			settings = BigGlobeAutoCodec.AUTO_CODEC.decode(OverworldClientSettings.NULLABLE_CODER, nbt, NbtOps.INSTANCE);
@@ -79,18 +62,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 		}
 		NbtElement nbt = BigGlobeAutoCodec.AUTO_CODEC.encode(OverworldClientSettings.NULLABLE_CODER, settings, NbtOps.INSTANCE);
 		PacketByteBuf buffer = this.buffer();
-		try (
-			DataOutputStream stream = new DataOutputStream(
-				new GZIPOutputStream(
-					new ByteBufOutputStream(buffer)
-				)
-			)
-		) {
-			NbtIo.write(nbt, stream);
-		}
-		catch (IOException exception) {
-			throw new UncheckedIOException(exception);
-		}
+		NbtIo2.writeCompressed(buffer, nbt);
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
 	}
 }

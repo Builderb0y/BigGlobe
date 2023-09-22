@@ -110,7 +110,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		if (center == null) return Optional.empty();
 
 		long worldSeed = context.seed();
-		long seed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
+		long chunkSeed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
 		return Optional.of(
 			new StructurePosition(
 				new BlockPos(
@@ -130,7 +130,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						this.growth
 					);
 					collector.addPiece(mainPiece);
-					Permuter permuter = new Permuter(seed);
+					Permuter permuter = new Permuter(chunkSeed);
 					PointIterator3D iterator = SphericalPointIterator.halton(permuter.nextInt() & 0xFFFF, 1.0D);
 					BlocksConfig lastConfig = this.blocks[this.blocks.length - 1];
 					double secondLastThreshold = this.blocks.length > 1 ? this.blocks[this.blocks.length - 2].threshold : 0.0D;
@@ -307,7 +307,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						pos.setX(x);
 						double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
 						this.data.noise.getBulkY(
-							context.pieceSeed,
+							context.worldSeed,
 							x - this.data.offsetX,
 							minY - this.data.offsetY,
 							z - this.data.offsetZ,

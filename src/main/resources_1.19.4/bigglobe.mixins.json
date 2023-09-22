@@ -36,7 +36,6 @@
 		"MobSpawnerLogic_GettersAndSettersForEverything",
 		"MobSpawnerLogic_SpawnLightning",
 		"NbtCompound_RemoveAndReturn",
-		"NbtIo_ReadElementAccess",
 		"NetherrackBlock_GrowProperly",
 		"NoiseChunkGenerator_DisplayVanillaColumnValues",
 		"OceanMonumentGeneratorBase_VanillaBugFixes",

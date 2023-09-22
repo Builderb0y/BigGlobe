@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"unless (",
+				"getBiome(originX, originY, originZ) == Biome('bigglobe:cherry_forest') &&",
+				"`overworld/surface_foliage` > 0.0",
+			":",
+				"return(false)",
+			")",
+			"block (",
+				"unless (isYLevelValid(:--originY): return(false))",
+				"if (getBlockState(originX, originY, originZ).isAir(): continue())",
+			")",
+			"++originY",
+			"double adjustedFoliage = 1.0L - 1.0L / (4.0L * `overworld/surface_foliage` ^ 2 + 1.0L)",
+			"int petals = 0",
+			"while (random.nextBoolean(adjustedFoliage) && petals < 4: ++petals)",
+			"if (petals == 0: return(false))",
+			"placeBlockState(originX, originY, originZ, BlockState('minecraft:pink_petals', flower_amount: petals))",
+			"return(true)"
+		]
+	}
+}
