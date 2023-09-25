@@ -11,6 +11,7 @@
 		"bigglobe:floatstone_slab",
 		"bigglobe:floatstone_stairs",
 		"bigglobe:soul_magma",
+		"bigglobe:soul_cauldron",
 		"bigglobe:rough_quartz",
 		"bigglobe:small_quartz_bud",
 		"bigglobe:medium_quartz_bud",
@@ -18,6 +19,8 @@
 		"bigglobe:quartz_cluster",
 		"bigglobe:budding_quartz",
 		"bigglobe:overgrown_end_stone",
-		"bigglobe:chorus_nylium"
+		"bigglobe:chorus_nylium",
+		"bigglobe:sulfur_ore",
+		"bigglobe:sulfur_block"
 	]
 }

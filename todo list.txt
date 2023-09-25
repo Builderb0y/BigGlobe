@@ -19,8 +19,11 @@ testing:
 where I left off:
 
 changelog:
-	* Fixed crash on dedicated servers.
-	* Fixed surface blocks in underground pockets spawning incorrectly.
+	* Probably fixed crash with other mods which make use of fabric's dynamic registries API.
+	* Fixed sulfur ore, sulfur blocks, and soul cauldron not breaking quickly with a pickaxe.
+	* Fixed spelunking rope not breaking quickly with shears.
+	* Fixed soul cauldron not dropping anything when destroyed.
+	* Added recipe for ash -> black dye.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

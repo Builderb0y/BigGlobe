@@ -13,15 +13,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.registry.RegistryLoader;
 
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+
+/**
+fabric now has its own system for adding dynamic registries,
+but it doesn't let me add my entries at a custom index.
+this is important because some dynamic registries
+depend on others at the time of deserialization.
+as such, I'm keeping this mixin here for now.
+*/
 @Mixin(RegistryLoader.class)
-public class RegistryLoader_MakeDynamicRegistriesMutable {
+public class RegistryLoader_AddBigGlobeEntries {
 
 	@Shadow @Final @Mutable public static List<RegistryLoader.Entry<?>> DYNAMIC_REGISTRIES;
 
 	@Inject(method = "<clinit>", at = @At("TAIL"))
-	private static void bigglobe_makeDynamicRegistriesMutable(CallbackInfo callback) {
+	private static void bigglobe_addEntries(CallbackInfo callback) {
 		if (DYNAMIC_REGISTRIES.getClass() != ArrayList.class) {
 			DYNAMIC_REGISTRIES = new ArrayList<>(DYNAMIC_REGISTRIES);
 		}
+		BigGlobeDynamicRegistries.init();
 	}
 }

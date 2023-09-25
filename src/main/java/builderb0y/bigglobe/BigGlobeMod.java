@@ -69,9 +69,6 @@ public class BigGlobeMod implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Initializing...");
 		BigGlobeConfig.init();
-		#if MC_VERSION > MC_1_19_2
-			BigGlobeDynamicRegistries.init();
-		#endif
 
 		BigGlobeLoot.init();
 
