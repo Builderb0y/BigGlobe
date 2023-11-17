@@ -40,8 +40,8 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Network");
 	public static final BigGlobeNetwork INSTANCE = new BigGlobeNetwork();
 
-	public final List<PacketHandler> idToHandler = new ArrayList<>(1);
-	public final Object2ByteMap<PacketHandler> handlerToId = new Object2ByteOpenHashMap<>(1);
+	public final List<PacketHandler> idToHandler = new ArrayList<>(2);
+	public final Object2ByteMap<PacketHandler> handlerToId = new Object2ByteOpenHashMap<>(2);
 
 	public BigGlobeNetwork() {
 		this.handlerToId.defaultReturnValue((byte)(-1));

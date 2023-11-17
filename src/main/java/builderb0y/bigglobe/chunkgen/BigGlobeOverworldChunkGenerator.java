@@ -211,13 +211,12 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					column.getCaveNoise();
 					column.getCaveSurfaceDepth();
 					this.runCaveOverrides(column, structures);
+					column.populateCaveFloorsAndCeilings();
 
 					column.getCavernCell();
 					column.getCavernCenter();
 					column.getCavernThicknessSquared();
 					this.runCavernOverrides(column, structures);
-
-					column.populateCaveFloorsAndCeilings();
 				}
 			});
 		});
@@ -750,7 +749,6 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			for (OverworldVolumetricOverrider.Holder overrider : this.caveOverriders) {
 				overrider.override(context);
 			}
-			column.populateCaveFloorsAndCeilings();
 		}
 	}
 

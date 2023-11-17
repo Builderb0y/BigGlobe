@@ -9,6 +9,10 @@ bugs:
 	immersive portals places the end portal inside the end nest.
 		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
 		this is fixed in a later version of immersive portals.
+	fabric has a memory leak.
+		the MinecraftServer is stored in ServerConfigurationNetworkAddon,
+		which is stored in GlobalReceiverRegistry.trackedAddons,
+		which is stored in ServerNetworkingImpl.CONFIGURATIONS.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -19,11 +23,6 @@ testing:
 where I left off:
 
 changelog:
-	* Probably fixed crash with other mods which make use of fabric's dynamic registries API.
-	* Fixed sulfur ore, sulfur blocks, and soul cauldron not breaking quickly with a pickaxe.
-	* Fixed spelunking rope not breaking quickly with shears.
-	* Fixed soul cauldron not dropping anything when destroyed.
-	* Added recipe for ash -> black dye.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -149,7 +148,9 @@ before release:
 	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
 	make sure SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE is set to false.
 
-porting:
+porting to newer MC versions:
 	check how ChunkSection counts are used.
 		in particular, see if nonEmptyFluidCount is still returned by hasRandomFluidTicks().
 		this usage matters for SectionGenerationContext.recalculateCounts().
+	check if ShapedRecipe implements serialization yet.
+		if it does, re-enable code to dump recipes in DumpRegistriesCommand.

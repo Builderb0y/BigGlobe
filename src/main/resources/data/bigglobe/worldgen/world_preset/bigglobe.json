@@ -241,7 +241,7 @@
 								{ "type": "cubic", "scaleX":   32, "scaleY":   32, "amplitude": 0.015625 }
 							]
 						},
-						"height_adjustment": "temperature - (y - sea_level) / 512.0"
+						"height_adjustment": "temperature - (y - sea_level) / 512.0L"
 					},
 
 
@@ -259,7 +259,7 @@
 								{ "type": "cubic", "scaleX":   16, "scaleY":   16, "amplitude": 0.0625 }
 							]
 						},
-						"height_adjustment": "foliage - abs(y - sea_level) / 512.0"
+						"height_adjustment": "foliage - abs(y - sea_level) / 512.0L"
 					},
 
 
