@@ -1,12 +1,16 @@
 package builderb0y.bigglobe.settings;
 
+import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.columns.ChunkOfColumns;
+import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.noise.ErosionGrid2D;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 
 public record OverworldHeightSettings(
@@ -28,15 +32,12 @@ public record OverworldHeightSettings(
 		return this.min_y + BigGlobeOverworldChunkGenerator.BEDROCK_HEIGHT;
 	}
 
-	public void getErosionAndSnow(long seed, int x, int z, double sharpness, double[] out) {
-		double valueSum = 0.0D, snowSum = 0.0D;
+	public void getErosionAndSnow(OverworldColumn column) {
+		column.rawErosion = column.rawSnow = 0.0D;
+		double sharpness = column.getHilliness();
 		for (ErosionGrid2D grid : this.erosion) {
-			grid.getValueAndSnow(seed, x, z, sharpness, out);
-			valueSum += out[0];
-			snowSum  += out[1];
+			grid.getValueAndSnow(column, sharpness);
 		}
-		out[0] = valueSum;
-		out[1] =  snowSum;
 	}
 
 	public boolean hasCliffs() {

@@ -28,6 +28,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeCommands.initClient();
 		BigGlobeParticles.initClient();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
+		//DistantHorizonsCompat.init();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}
 }

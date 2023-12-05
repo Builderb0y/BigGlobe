@@ -287,21 +287,21 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		long seed = this.seed;
-		IntStream.rangeClosed(
+		Async.loop(
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
-			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
-		)
-		.parallel()
-		.forEach((int index) -> {
-			ChunkSection section = chunk.getSection(index);
-			section.lock();
-			try {
-				generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1) + 1 /* convert back to exclusive */,
+			1,
+			(int index) -> {
+				ChunkSection section = chunk.getSection(index);
+				section.lock();
+				try {
+					generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
+				}
+				finally {
+					section.unlock();
+				}
 			}
-			finally {
-				section.unlock();
-			}
-		});
+		);
 	}
 
 	public void generateSectionsParallel(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
@@ -309,28 +309,27 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		#if MC_VERSION < MC_1_20_0
 			ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
 		#endif
-		IntStream.rangeClosed(
+		Async.loop(
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
-			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1)
-		)
-		.parallel()
-		.forEach((int index) -> {
-			ChunkSection section = chunk.getSection(index);
-			section.lock();
-			try {
-				SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
-				generator.accept(context);
-				#if MC_VERSION < MC_1_20_0
-					if (context.hasLights()) {
-						lights.add(context.lights());
-					}
-				#endif
-
+			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1) + 1 /* convert back to exclusive */,
+			1,
+			(int index) -> {
+				ChunkSection section = chunk.getSection(index);
+				section.lock();
+				try {
+					SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
+					generator.accept(context);
+					#if MC_VERSION < MC_1_20_0
+						if (context.hasLights()) {
+							lights.add(context.lights());
+						}
+					#endif
+				}
+				finally {
+					section.unlock();
+				}
 			}
-			finally {
-				section.unlock();
-			}
-		});
+		);
 		#if MC_VERSION < MC_1_20_0
 			if (lights != null) {
 				ProtoChunk protoChunk = (ProtoChunk)(chunk);
@@ -966,7 +965,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				ChunkOfBiomeColumns<? extends WorldColumn> columns = this.biomeColumns.get();
 				try {
 					this.populateChunkOfColumns(columns, chunk.getPos(), ScriptStructures.EMPTY_SCRIPT_STRUCTURES, distantHorizons);
-					IntStream.range(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord()).parallel().forEach(sectionY -> {
+					Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int sectionY) -> {
 						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(sectionY));
 						int startY = sectionY << 4;
 						PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());

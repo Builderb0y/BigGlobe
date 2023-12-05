@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
+import java.sql.Ref;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -72,9 +73,10 @@ public class ChunkOfColumnsRecycler {
 				columns = this.available.get();
 				this.generator.populateChunkOfColumns(columns, chunk.getPos(), structures, distantHorizons);
 				holder.bigglobe_setChunkOfColumns(columns);
-				Ref ref = new Ref(chunk, this.queue, columns);
 				synchronized (this) {
-					this.tracking.add(ref);
+					if (this.tracking.size() < RECYCLER_SIZE) {
+						this.tracking.add(new Ref(chunk, this.queue, columns));
+					}
 				}
 			}
 		}
@@ -86,6 +88,15 @@ public class ChunkOfColumnsRecycler {
 			this.generator.populateChunkOfColumns(columns, chunk.getPos(), structures, distantHorizons);
 		}
 		return columns;
+	}
+
+	public ChunkOfColumns<? extends WorldColumn> get() {
+		this.processQueue();
+		return this.available.get();
+	}
+
+	public void reclaim(ChunkOfColumns<? extends WorldColumn> columns) {
+		this.available.reclaim(columns);
 	}
 
 	public static class Ref extends PhantomReference<Chunk> {

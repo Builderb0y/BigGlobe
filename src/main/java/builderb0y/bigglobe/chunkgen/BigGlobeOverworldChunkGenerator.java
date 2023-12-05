@@ -2,8 +2,10 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,6 +86,7 @@ import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSetti
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
+import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
@@ -438,19 +441,22 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			int seaLevel = this.settings.height.sea_level();
 			for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 				OverworldColumn column = columns.getColumn(horizontalIndex);
-				if (column.getFinalTopHeightI() < seaLevel) {
+				int terrainTopY = column.getFinalTopHeightI();
+				if (terrainTopY < seaLevel) {
 					if (column.getGlacierCrackFraction() <= column.getGlacierCrackThreshold()) {
 						long columnSeed = Permuter.permute(this.seed ^ 0xAB6ACB182D123E6DL, column.x, column.z);
 						pos.setX(column.x).setZ(column.z);
-						int bottomI = Math.max(BigGlobeMath.floorI(column.getGlacierBottomHeightD()), column.getFinalTopHeightI());
+						int bottomI = BigGlobeMath.floorI(column.getGlacierBottomHeightD());
 						for (int index = 0, length = glaciers.states().length; index < length; index++) {
 							int y = bottomI + index;
-							long ySeed = Permuter.permute(columnSeed, y);
-							chunk.setBlockState(
-								pos.setY(y),
-								glaciers.states()[index].getRandomElement(ySeed),
-								false
-							);
+							if (y >= terrainTopY) {
+								long ySeed = Permuter.permute(columnSeed, y);
+								chunk.setBlockState(
+									pos.setY(y),
+									glaciers.states()[index].getRandomElement(ySeed),
+									false
+								);
+							}
 						}
 						double topD = column.getGlacierTopHeightD();
 						int topI = BigGlobeMath.floorI(topD);
@@ -495,7 +501,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateSurface(Chunk chunk, ChunkOfColumns<OverworldColumn> columns, ScriptStructures structures) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		Permuter permuter = new Permuter(0L);
-		OverworldColumn fallback = this.column(0, 0);
+		Supplier<OverworldColumn> fallbackSupplier = Suppliers.memoize(() -> this.column(0, 0));
 		for (int index = 0; index < 256; index++) {
 			OverworldColumn column = columns.getColumn(index);
 			double currentHeight = column.getFinalTopHeightD();
@@ -559,9 +565,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				SkylandSurfaceSettings surfaceSettings = column.getSkylandCell().settings.surface;
 				double maxY = column.getSkylandMaxY();
 				derivativeMagnitudeSquared = BigGlobeMath.squareD(
-					estimateSkylandDelta(columns, fallback, index, 1, maxY),
-					estimateSkylandDelta(columns, fallback, index, 16, maxY)
+					estimateSkylandDelta(columns, fallbackSupplier, index,  1, maxY),
+					estimateSkylandDelta(columns, fallbackSupplier, index, 16, maxY)
 				);
+				permuter.setSeed(Permuter.permute(this.seed ^ 0x4E3FC19AC72F9842L, column.x, column.z));
 				int primaryDepth = BigGlobeMath.floorI(surfaceSettings.primary_depth().evaluate(column, maxY, derivativeMagnitudeSquared, permuter));
 				pos.setY(BigGlobeMath.ceilI(maxY));
 				for (depth = 0; depth < primaryDepth; depth++) {
@@ -591,7 +598,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		}
 	}
 
-	public static double estimateSkylandDelta(ChunkOfColumns<OverworldColumn> columns, OverworldColumn fallback, int index, int xor, double baseHeight) {
+	public static double estimateSkylandDelta(ChunkOfColumns<OverworldColumn> columns, Supplier<OverworldColumn> fallbackSupplier, int index, int xor, double baseHeight) {
 		//check in one direction.
 		double adjacentHeight = columns.getColumn(index ^ xor).getSkylandMaxY();
 		if (!Double.isNaN(adjacentHeight)) return adjacentHeight - baseHeight; //fast path.
@@ -607,6 +614,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			//position is on a chunk boundary and opposite direction is normally inaccessible.
 			//use fallback column in this case.
 			OverworldColumn origin = columns.getColumn(0);
+			OverworldColumn fallback = fallbackSupplier.get();
 			fallback.setPos(origin.x + x, origin.z + z);
 			adjacentHeight = fallback.getSkylandMaxY();
 		}
@@ -864,18 +872,13 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 
 	public void generateFlowers(StructureWorldAccess world, ChunkOfColumns<OverworldColumn> columns, BlockPos.Mutable pos, Permuter permuter) {
 		if (this.flowerGroups.length == 0) return;
-		FlowerEntry[] entries = (
-			IntStream
-			.range(0, 256)
-			.parallel()
-			.mapToObj(columns::getColumn)
-			.map(column -> {
-				FlowerEntryFeature.Entry ground = this.getFlowerEntry(column, false);
-				FlowerEntryFeature.Entry sky = this.getFlowerEntry(column, true);
-				return ground == null && sky == null ? FlowerEntry.EMPTY : new FlowerEntry(ground, sky);
-			})
-			.toArray(FlowerEntry[]::new)
-		);
+		FlowerEntry[] entries = new FlowerEntry[256];
+		Async.setEach(entries, (int index) -> {
+			OverworldColumn column = columns.getColumn(index);
+			FlowerEntryFeature.Entry ground = this.getFlowerEntry(column, false);
+			FlowerEntryFeature.Entry sky = this.getFlowerEntry(column, true);
+			return ground == null && sky == null ? FlowerEntry.EMPTY : new FlowerEntry(ground, sky);
+		});
 		long seed = Permuter.permute(this.seed ^ 0x9A99AA4557D5FE0FL, columns.getColumn(0).x >> 4, columns.getColumn(0).z >> 4);
 		for (int index = 0; index < 256; index++) {
 			OverworldColumn column = columns.getColumn(index);

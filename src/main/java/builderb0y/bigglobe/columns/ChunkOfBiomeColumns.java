@@ -3,6 +3,8 @@ package builderb0y.bigglobe.columns;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
+import builderb0y.bigglobe.util.AsyncRunner;
+
 public class ChunkOfBiomeColumns<T_Column extends WorldColumn> extends AbstractChunkOfColumns<T_Column> {
 
 	public ChunkOfBiomeColumns(ColumnFactory<T_Column> columnFactory) {
@@ -39,13 +41,12 @@ public class ChunkOfBiomeColumns<T_Column extends WorldColumn> extends AbstractC
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
-		IntStream
-		.range(0, 16)
-		.parallel()
-		.forEach((int index) -> {
-			T_Column column = columns[index];
-			column.setPosUnchecked(startX | ((index & 3) << 2), startZ | (index & 0b1100));
-			populator.accept(column);
-		});
+		try (AsyncRunner async = new AsyncRunner()) {
+			for (int index = 0; index < 16; index++) {
+				T_Column column = columns[index];
+				column.setPosUnchecked(startX | ((index & 3) << 2), startZ | (index & 0b1100));
+				async.submit(() -> populator.accept(column));
+			}
+		}
 	}
 }

@@ -19,7 +19,7 @@ public class DistantHorizonsCompat {
 			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 				//try 1.6
 				try {
-					Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment");
+					Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment", false, DistantHorizonsCompat.class.getClassLoader());
 					handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
 					BigGlobeMod.LOGGER.info("Distant horizons 1.6 compatibility enabled.");
 					break got;
@@ -27,7 +27,7 @@ public class DistantHorizonsCompat {
 				catch (Exception ignored) {}
 				//try 2.0
 				try {
-					Class<?> environment = Class.forName("loaderCommon.fabric.com.seibel.distanthorizons.common.wrappers.worldGeneration.BatchGenerationEnvironment");
+					Class<?> environment = Class.forName("loaderCommon.fabric.com.seibel.distanthorizons.common.wrappers.worldGeneration.BatchGenerationEnvironment", false, DistantHorizonsCompat.class.getClassLoader());
 					handle = MethodHandles.lookup().findStatic(environment, "isCurrentThreadDistantGeneratorThread", MethodType.methodType(boolean.class));
 					BigGlobeMod.LOGGER.info("Distant horizons 2.0 compatibility enabled.");
 					break got;
@@ -48,4 +48,20 @@ public class DistantHorizonsCompat {
 			throw AutoCodecUtil.rethrow(throwable);
 		}
 	}
+
+	/*
+	public static void init() {
+		if (FabricLoader.getInstance().isModLoaded("distanthorizons")) try {
+			//DHCode.init();
+		}
+		catch (LinkageError ignored) {}
+	}
+
+	public static class DHCode {
+
+		public static void init() {
+			DhApiEventRegister.on(DhApiLevelLoadEvent.class, new FakeChunkGenSetterUpper());
+		}
+	}
+	*/
 }

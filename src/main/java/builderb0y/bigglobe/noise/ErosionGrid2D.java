@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
+import builderb0y.bigglobe.columns.ChunkOfColumns;
+import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.math.Interpolator;
 
 /**
@@ -29,8 +31,8 @@ public class ErosionGrid2D {
 		this.amplitude = amplitude;
 	}
 
-	public void getValueAndSnow(long seed, int x, int y, double sharpness, double[] out) {
-		double value = this.absGrid.getValue(seed, x, y) / this.absGrid.maxValue(); //0 to 1.
+	public void getValueAndSnow(OverworldColumn column, double sharpness) {
+		double value = this.absGrid.getValue(column.seed, column.x, column.z) / this.absGrid.maxValue(); //0 to 1.
 		double curvedValue = value * Interpolator.mixLinear(value, 2.0D - value, sharpness);
 		double offset = sharpness * 2.0D / Math.abs(this.amplitude);
 		double snow = hyperbola(curvedValue, offset);
@@ -38,8 +40,8 @@ public class ErosionGrid2D {
 		curvedValue *= this.amplitude;
 		snow = snow * -2.0D + 1.0D; //-1 to 1.
 		snow *= this.amplitude;
-		out[0] = curvedValue;
-		out[1] = snow;
+		column.rawErosion += curvedValue;
+		column.rawSnow += snow;
 	}
 
 	public static double hyperbola(double value, double offset) {

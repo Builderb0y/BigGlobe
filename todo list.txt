@@ -21,8 +21,14 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 
 where I left off:
+	make sure terrain gen still works correctly now that I'm using Async in more places.
+	add check for DH version to prevent applying hacky logic on unrecognized versions.
+	ensure DH mixins are disabled when DH is not installed.
 
 changelog:
+	* Decimated memory usage with distant horizons 2.0.
+	* Added new integration for distant horizons 2.0 to generate chunks even faster.
+	* Fixed glaciers spawning incorrectly in shallow water.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -85,6 +91,7 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
+		beehives.
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?

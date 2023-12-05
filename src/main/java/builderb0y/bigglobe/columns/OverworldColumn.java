@@ -78,8 +78,9 @@ public class OverworldColumn extends WorldColumn {
 		glacierTopHeight,
 		glacierBottomHeight,
 		glacierCrackFraction,
-		glacierCrackThreshold;
-	public final double[] rawErosionAndSnow = new double[2];
+		glacierCrackThreshold,
+		rawErosion,
+		rawSnow;
 	public CaveCell caveCell;
 	public NumberArray caveNoise;
 	public double
@@ -137,27 +138,22 @@ public class OverworldColumn extends WorldColumn {
 		return cliffs == null ? Double.NaN : cliffs.cliffiness().getValue(this.seed, this.x, this.z);
 	}
 
-	public double[] getRawErosionAndSnow() {
+	public void getRawErosionAndSnow() {
 		if (this.setFlag(RAW_EROSION_AND_SNOW)) {
 			ScriptedGrid.SECRET_COLUMN.accept(this, (OverworldColumn self) -> {
-				self.settings.height.getErosionAndSnow(
-					self.seed,
-					self.x,
-					self.z,
-					self.getHilliness(),
-					self.rawErosionAndSnow
-				);
+				self.settings.height.getErosionAndSnow(self);
 			});
 		}
-		return this.rawErosionAndSnow;
 	}
 
 	public double getRawErosion() {
-		return this.getRawErosionAndSnow()[0];
+		this.getRawErosionAndSnow();
+		return this.rawErosion;
 	}
 
 	public double getRawSnow() {
-		return this.getRawErosionAndSnow()[1];
+		this.getRawErosionAndSnow();
+		return this.rawSnow;
 	}
 
 	public double getSnowHeight() {

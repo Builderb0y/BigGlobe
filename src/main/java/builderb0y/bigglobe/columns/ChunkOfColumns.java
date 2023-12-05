@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.util.AsyncRunner;
 
 public class ChunkOfColumns<T_Column extends Column> extends AbstractChunkOfColumns<T_Column> implements ColumnLookup {
 
@@ -45,14 +46,13 @@ public class ChunkOfColumns<T_Column extends Column> extends AbstractChunkOfColu
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
-		IntStream
-		.range(0, 256)
-		.parallel()
-		.forEach((int index) -> {
-			T_Column column = columns[index];
-			column.setPosUnchecked(startX | (index & 15), startZ | (index >>> 4));
-			populator.accept(column);
-		});
+		try (AsyncRunner async = new AsyncRunner()) {
+			for (int index = 0; index < 256; index++) {
+				T_Column column = columns[index];
+				column.setPosUnchecked(startX | (index & 15), startZ | (index >>> 4));
+				async.submit(() -> populator.accept(column));
+			}
+		}
 	}
 
 	@Override

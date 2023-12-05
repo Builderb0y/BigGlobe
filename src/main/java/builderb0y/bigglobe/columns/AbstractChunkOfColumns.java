@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.columns;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.function.Consumer;
+
+import builderb0y.bigglobe.util.Async;
 
 public abstract class AbstractChunkOfColumns<T_Column extends Column> {
 
@@ -62,6 +63,6 @@ public abstract class AbstractChunkOfColumns<T_Column extends Column> {
 	}
 
 	public void populate(Consumer<? super T_Column> populator) {
-		Arrays.stream(this.columns).parallel().forEach(populator);
+		Async.forEach(this.columns, populator);
 	}
 }
