@@ -25,15 +25,15 @@ import builderb0y.bigglobe.versions.EntityVersions;
 public class TorchArrowEntity extends PersistentProjectileEntity {
 
 	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
-		super(entityType, world);
+		super(entityType, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
 	}
 
 	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner) {
-		super(entityType, owner, world);
+		super(entityType, owner, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
 	}
 
 	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world) {
-		super(type, x, y, z, world);
+		super(type, x, y, z, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
 	}
 
 	@Override
@@ -121,8 +121,10 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 		return false;
 	}
 
-	@Override
-	public ItemStack asItemStack() {
-		return new ItemStack(BigGlobeItems.TORCH_ARROW);
-	}
+	#if MC_VERSION < MC_1_20_3
+		@Override
+		public ItemStack asItemStack() {
+			return new ItemStack(BigGlobeItems.TORCH_ARROW);
+		}
+	#endif
 }

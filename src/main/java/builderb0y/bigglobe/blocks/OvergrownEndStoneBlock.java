@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Fertilizable;
@@ -15,6 +18,14 @@ public class OvergrownEndStoneBlock extends Block implements Fertilizable {
 	public OvergrownEndStoneBlock(Settings settings) {
 		super(settings);
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	public boolean isFertilizable(

@@ -1,38 +1,40 @@
 {
 	"type": "bigglobe:scripted",
-	"category": "misc",
-	"width": 1,
-	"height": 1,
-	"matches": [
-		"boolean haveBall = false",
-		"boolean haveString = false",
-		"for (ItemStack stack in input:",
-			"if (stack.empty: continue())",
-			"else if (stack.item.isIn('c:string'): haveString = true)",
-			"else if (stack.item == Item('bigglobe:ball_of_string'):",
-				"if (haveBall =: true: return(false))",
+	"value": {
+		"category": "misc",
+		"width": 1,
+		"height": 1,
+		"matches": [
+			"boolean haveBall = false",
+			"boolean haveString = false",
+			"for (ItemStack stack in input:",
+				"if (stack.empty: continue())",
+				"else if (stack.item.isIn('c:string'): haveString = true)",
+				"else if (stack.item == Item('bigglobe:ball_of_string'):",
+					"if (haveBall =: true: return(false))",
+				")",
+				"else (return(false))",
 			")",
-			"else (return(false))",
-		")",
-		"return(haveBall & haveString)"
-	],
-	"output": [
-		"ItemStack ball = ItemStack.EMPTY",
-		"int string = 0",
-		"for (ItemStack stack in input:",
-			"if (stack.empty: continue())",
-			"else if (stack.item.isIn('c:string'): ++string)",
-			"else if (stack.item == Item('bigglobe:ball_of_string'):",
-				"unless ((ball =: stack).empty: return(ItemStack.EMPTY))",
+			"return(haveBall & haveString)"
+		],
+		"output": [
+			"ItemStack ball = ItemStack.EMPTY",
+			"int string = 0",
+			"for (ItemStack stack in input:",
+				"if (stack.empty: continue())",
+				"else if (stack.item.isIn('c:string'): ++string)",
+				"else if (stack.item == Item('bigglobe:ball_of_string'):",
+					"unless ((ball =: stack).empty: return(ItemStack.EMPTY))",
+				")",
+				"else (return(ItemStack.EMPTY))",
 			")",
-			"else (return(ItemStack.EMPTY))",
-		")",
-		"NbtCompound nbt = ball.nbt ?: (ball.nbt := nbtCompound())",
-		"int damage = nbt.Damage.asInt()",
-		"int maxDamage = nbt.MaxDamage.asInt()",
-		"damage -= string",
-		"if (damage < 0: maxDamage -= (damage =: 0))",
-		"nbt.=$Damage(damage).=$MaxDamage(maxDamage)",
-		"return(ball)"
-	]
+			"NbtCompound nbt = ball.nbt ?: (ball.nbt := nbtCompound())",
+			"int damage = nbt.Damage.asInt()",
+			"int maxDamage = nbt.MaxDamage.asInt()",
+			"damage -= string",
+			"if (damage < 0: maxDamage -= (damage =: 0))",
+			"nbt.=$Damage(damage).=$MaxDamage(maxDamage)",
+			"return(ball)"
+		]
+	}
 }

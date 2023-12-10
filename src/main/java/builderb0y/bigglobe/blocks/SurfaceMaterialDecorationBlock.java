@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -27,6 +29,14 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 		this.shape = shape;
 		this.setDefaultState(this.getDefaultState().with(Properties.WATERLOGGED, Boolean.FALSE));
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	@Deprecated

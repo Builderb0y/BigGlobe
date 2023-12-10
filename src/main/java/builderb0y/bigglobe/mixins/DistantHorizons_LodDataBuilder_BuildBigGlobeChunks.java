@@ -13,6 +13,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.dhChunkGen.DHOverworldChunkGenerator;
 import builderb0y.bigglobe.compat.dhChunkGen.FakeChunk;
 
+/** not currently enabled, only for use in testing. to be removed later once DH's API adds a replacement. */
 @Mixin(LodDataBuilder.class)
 public class DistantHorizons_LodDataBuilder_BuildBigGlobeChunks {
 

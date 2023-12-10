@@ -196,7 +196,7 @@ public class BigGlobeItems {
 				entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
 				entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
 				entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
-				entries.addBefore(Items.GRASS, SHORT_GRASS);
+				entries.addBefore(Items.#if MC_VERSION >= MC_1_20_3 SHORT_GRASS #else GRASS #endif, SHORT_GRASS);
 				entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 				entries.addAfter(Items.DANDELION, ROSE);
 				entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);

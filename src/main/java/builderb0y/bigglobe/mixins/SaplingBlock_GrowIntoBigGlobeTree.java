@@ -16,7 +16,18 @@ import builderb0y.bigglobe.trees.SaplingGrowHandler;
 @Mixin(SaplingBlock.class)
 public class SaplingBlock_GrowIntoBigGlobeTree {
 
-	@Inject(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/sapling/SaplingGenerator;generate(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/random/Random;)Z"), cancellable = true)
+	@Inject(
+		method = "generate",
+		at = @At(
+			value = "INVOKE",
+			#if MC_VERSION >= MC_1_20_3
+				target = "Lnet/minecraft/block/SaplingGenerator;generate(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/random/Random;)Z"
+			#else
+				target = "Lnet/minecraft/block/sapling/SaplingGenerator;generate(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/random/Random;)Z"
+			#endif
+		),
+		cancellable = true
+	)
 	private void bigglobe_generateBigTree(ServerWorld world, BlockPos pos, BlockState state, Random random, CallbackInfo callback) {
 		if (SaplingGrowHandler.replaceSaplingGrowth(world, pos, state, random)) {
 			callback.cancel();

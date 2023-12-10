@@ -19,7 +19,7 @@ import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 public class BlockState2ObjectMap<V> {
 
 	public final @UseImplementation(LinkedHashMap.class) Map<String, V> serializedStates;
-	public transient Map<BlockState, V> runtimeStates;
+	public final transient Map<BlockState, V> runtimeStates;
 
 	public BlockState2ObjectMap(Map<String, V> serializedStates) throws CommandSyntaxException {
 		this.serializedStates = serializedStates;

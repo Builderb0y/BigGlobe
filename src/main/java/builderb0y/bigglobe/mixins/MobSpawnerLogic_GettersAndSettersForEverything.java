@@ -3,7 +3,12 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.world.MobSpawnerLogic;
+
+#if MC_VERSION >= MC_1_20_3
+	import net.minecraft.block.spawner.MobSpawnerLogic;
+#else
+	import net.minecraft.world.MobSpawnerLogic;
+#endif
 
 @Mixin(MobSpawnerLogic.class)
 public interface MobSpawnerLogic_GettersAndSettersForEverything {

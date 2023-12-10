@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
+
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
@@ -14,6 +17,14 @@ public class BuddingQuartzBlock extends BuddingAmethystBlock {
 	public BuddingQuartzBlock(Settings settings) {
 		super(settings);
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {

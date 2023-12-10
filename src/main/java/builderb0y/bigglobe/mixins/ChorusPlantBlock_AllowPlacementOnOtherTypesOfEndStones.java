@@ -14,8 +14,13 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 @Mixin(ChorusPlantBlock.class)
 public class ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones {
 
-	@Redirect(method = { "getStateForNeighborUpdate", "canPlaceAt", "withConnectionProperties" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))
+	@Redirect(method = { "getStateForNeighborUpdate", "canPlaceAt" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))
 	private boolean bigglobe_allowPlacementOnOtherTypesOfEndStones1(BlockState state, Block block) {
+		return block == Blocks.END_STONE ? state.isIn(BigGlobeBlockTags.END_STONES) : state.isOf(block);
+	}
+
+	@Redirect(method = "withConnectionProperties", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))
+	private #if MC_VERSION >= MC_1_20_3 static #endif boolean bigglobe_allowPlacementOnOtherTypesOfEndStones2(BlockState state, Block block) {
 		return block == Blocks.END_STONE ? state.isIn(BigGlobeBlockTags.END_STONES) : state.isOf(block);
 	}
 }

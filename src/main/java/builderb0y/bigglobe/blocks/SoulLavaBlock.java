@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -20,6 +23,14 @@ public class SoulLavaBlock extends FluidBlock {
 	public SoulLavaBlock(FlowableFluid fluid, Settings settings) {
 		super(fluid, settings);
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {

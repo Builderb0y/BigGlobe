@@ -17,7 +17,6 @@
 		"ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",
 		"ChunkSection_CountsAccess",
-		"CommandBlockExecutor_Optimize",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",

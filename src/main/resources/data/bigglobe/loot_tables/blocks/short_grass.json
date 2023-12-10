@@ -8,7 +8,7 @@
 			"children": [
 				{
 					"type": "minecraft:item",
-					"name": "minecraft:grass",
+					"name": "bigglobe:short_grass",
 					"conditions": [{
 						"condition": "minecraft:match_tool",
 						"predicate": {

@@ -1,5 +1,5 @@
 plugins() {
-	id('fabric-loom') version('1.3-SNAPSHOT')
+	id('fabric-loom') version('1.4-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -69,7 +69,7 @@ dependencies() {
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
 	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
-	annotationProcessor('systems.manifold:manifold-preprocessor:2023.1.29')
+	annotationProcessor('systems.manifold:manifold-preprocessor:2023.1.31')
 }
 
 compileJava() {
@@ -192,7 +192,13 @@ tasks.register("Current version = $project.minecraft_version") {
 	}
 }
 
-for (Version version in [ new Version(19, 2), new Version(19, 4), new Version(20, 1), new Version(20, 2) ]) {
+for (Version version in [
+	new Version(19, 2),
+	new Version(19, 4),
+	new Version(20, 1),
+	new Version(20, 2),
+	new Version(20, 4)
+]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
 		group('versions')
@@ -210,6 +216,8 @@ MC_1_19_4=11904
 MC_1_20_0=12000
 MC_1_20_1=12001
 MC_1_20_2=12002
+MC_1_20_3=12003
+MC_1_20_4=12004
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

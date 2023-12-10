@@ -1,0 +1,30 @@
+{
+	"blocks": {
+		"log": "minecraft:dark_oak_log",
+		"wood": "minecraft:dark_oak_wood",
+		"stripped_log": "minecraft:stripped_dark_oak_log",
+		"stripped_wood": "minecraft:stripped_dark_oak_wood",
+		"planks": "minecraft:dark_oak_planks",
+		"stairs": "minecraft:dark_oak_stairs",
+		"slab": "minecraft:dark_oak_slab",
+		"fence": "minecraft:dark_oak_fence",
+		"fence_gate": "minecraft:dark_oak_fence_gate",
+		"door": "minecraft:dark_oak_door",
+		"trapdoor": "minecraft:dark_oak_trapdoor",
+		"pressure_plate": "minecraft:dark_oak_pressure_plate",
+		"button": "minecraft:dark_oak_button",
+		"leaves": "minecraft:dark_oak_leaves",
+		"sapling": "minecraft:dark_oak_sapling",
+		"potted_sapling": "minecraft:potted_dark_oak_sapling",
+		"standing_sign": "minecraft:dark_oak_sign",
+		"wall_sign": "minecraft:dark_oak_wall_sign",
+		"hanging_sign": "minecraft:dark_oak_hanging_sign",
+		"wall_hanging_sign": "minecraft:dark_oak_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/dark_oak",
+		"natural_surface": "bigglobe:overworld/trees/natural/dark_oak",
+		"skylands": "bigglobe:overworld/trees/skylands/dark_oak"
+	},
+	"biomes": "minecraft:bigglobe_wood_palette/dark_oak"
+}

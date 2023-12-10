@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
@@ -41,6 +42,11 @@ public class BlockStateWrapper {
 
 	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
 		if (id == null) return null;
+		#if MC_VERSION >= MC_1_20_3
+			if (id.equals("grass") || id.equals("minecraft:grass")) {
+				return Blocks.SHORT_GRASS.getDefaultState();
+			}
+		#endif
 		BlockResult result = BlockArgumentParserVersions.block(id, false);
 		if (result.properties().size() != result.blockState().getProperties().size()) {
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
@@ -54,6 +60,11 @@ public class BlockStateWrapper {
 
 	public static BlockState getState(String id) throws CommandSyntaxException {
 		if (id == null) return null;
+		#if MC_VERSION >= MC_1_20_3
+			if (id.equals("grass") || id.equals("minecraft:grass")) {
+				return Blocks.SHORT_GRASS.getDefaultState();
+			}
+		#endif
 		//this method will be called only if the string is non-constant.
 		//for performance reasons, we will skip properties checking here.
 		return BlockArgumentParserVersions.block(id, false).blockState();

@@ -19,15 +19,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage.Session;
-import net.minecraft.world.spawner.Spawner;
 
 import builderb0y.bigglobe.dimensionTypes.BigGlobeDimensionTypeKeys;
 
 #if MC_VERSION < MC_1_20_0
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mutable;
+	import org.spongepowered.asm.mixin.Final;
+	import org.spongepowered.asm.mixin.Mutable;
 #else
-import net.minecraft.util.math.random.RandomSequencesState;
+	import net.minecraft.util.math.random.RandomSequencesState;
 #endif
 
 @Mixin(ServerWorld.class)
@@ -57,7 +56,7 @@ public abstract class ServerWorld_SpawnEnderDragonInBigGlobeWorlds extends World
 		WorldGenerationProgressListener worldGenerationProgressListener,
 		boolean debugWorld,
 		long seed,
-		List<Spawner> spawners,
+		List<?> spawners,
 		boolean shouldTickTime,
 		#if MC_VERSION >= MC_1_20_0
 		RandomSequencesState randomSequencesState,

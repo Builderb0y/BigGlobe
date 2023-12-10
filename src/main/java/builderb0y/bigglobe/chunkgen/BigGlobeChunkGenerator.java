@@ -95,10 +95,7 @@ import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 	import java.util.concurrent.ConcurrentLinkedQueue;
 	import net.minecraft.registry.RegistryWrapper;
 	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-#elif MC_VERSION == MC_1_20_1
-	import net.minecraft.registry.RegistryWrapper;
-	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-#elif MC_VERSION == MC_1_20_2
+#elif MC_VERSION >= MC_1_20_1 && MC_VERSION <= MC_1_20_4
 	import net.minecraft.registry.RegistryWrapper;
 	import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 #endif

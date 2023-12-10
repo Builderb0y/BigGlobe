@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
+
 import net.minecraft.block.*;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -16,6 +19,14 @@ public class ShortGrassBlock extends PlantBlock implements Fertilizable {
 	public ShortGrassBlock(Settings settings) {
 		super(settings);
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	@Deprecated
@@ -41,7 +52,7 @@ public class ShortGrassBlock extends PlantBlock implements Fertilizable {
 
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		BlockState replacement = Blocks.GRASS.getDefaultState();
+		BlockState replacement = Blocks.#if MC_VERSION >= MC_1_20_3 SHORT_GRASS #else GRASS #endif.getDefaultState();
 		if (replacement.canPlaceAt(world, pos)) {
 			world.setBlockState(pos, replacement, Block.NOTIFY_ALL);
 		}

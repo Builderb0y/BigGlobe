@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.noise.Permuter;
@@ -30,6 +31,11 @@ public class BlockWrapper {
 
 	public static Block getBlock(String id) {
 		if (id == null) return null;
+		#if MC_VERSION >= MC_1_20_3
+			if (id.equals("grass") || id.equals("minecraft:grass")) {
+				return Blocks.SHORT_GRASS;
+			}
+		#endif
 		Identifier identifier = new Identifier(id);
 		if (RegistryVersions.block().containsId(identifier)) {
 			return RegistryVersions.block().get(identifier);

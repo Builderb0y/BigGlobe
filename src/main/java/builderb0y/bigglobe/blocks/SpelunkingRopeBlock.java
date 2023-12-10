@@ -2,6 +2,8 @@ package builderb0y.bigglobe.blocks;
 
 import java.util.List;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -56,6 +58,14 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	public SpelunkingRopeBlock(Settings settings) {
 		super(settings);
 	}
+
+	#if MC_VERSION >= MC_1_20_3
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			throw new NotImplementedException();
+		}
+	#endif
 
 	@Override
 	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {

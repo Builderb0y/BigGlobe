@@ -1,10 +1,9 @@
 package builderb0y.bigglobe.recipes;
 
-import java.util.stream.IntStream;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -39,9 +38,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 	import net.minecraft.recipe.book.CraftingRecipeCategory;
 	import net.minecraft.registry.DynamicRegistryManager;
 	import net.minecraft.util.Identifier;
-#elif MC_VERSION == MC_1_20_2
+#elif MC_VERSION == MC_1_20_2 || MC_VERSION == MC_1_20_3 || MC_VERSION == MC_1_20_4
 	import net.minecraft.inventory.RecipeInputInventory;
-	import net.minecraft.recipe.book.CraftingRecipeCategory;
 #endif
 
 #if MC_VERSION < MC_1_20_2
@@ -57,19 +55,15 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC, false);
 	#endif
 
-	public final int width, height;
-	public final CraftingMatchesScript.Holder matches;
-	public final CraftingOutputScript.Holder output;
-	public final CraftingRemainderScript.@VerifyNullable Holder remainder;
+	#if MC_VERSION >= MC_1_20_3
+	@EncodeInline
+	#endif
+	public final Data value;
 
 	public ScriptedRecipe(
 		#if MC_VERSION < MC_1_20_2 Identifier id, #endif
 		#if MC_VERSION >= MC_1_19_4 CraftingRecipeCategory category, #endif
-		int width,
-		int height,
-		CraftingMatchesScript.Holder matches,
-		CraftingOutputScript.Holder output,
-		CraftingRemainderScript.@VerifyNullable Holder remainder
+		Data value
 	) {
 		#if MC_VERSION >= MC_1_20_2
 			super(category);
@@ -78,11 +72,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		#else
 			super(id);
 		#endif
-		this.width     = width;
-		this.height    = height;
-		this.matches   = matches;
-		this.output    = output;
-		this.remainder = remainder;
+		this.value = value;
 	}
 
 	#if MC_VERSION < MC_1_20_2
@@ -100,12 +90,12 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 	@Override
 	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public boolean matches(CraftingInventory inventory, World world) {
-	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
+	#elif MC_VERSION >= MC_1_20_1 && MC_VERSION <= MC_1_20_4
 		public boolean matches(RecipeInputInventory inventory, World world) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."
 	#endif
-		return this.matches.matches(new CraftingGrid(
+		return this.value.matches.matches(new CraftingGrid(
 			IntStream.range(0, inventory.size()).mapToObj(inventory::getStack),
 			inventory.getWidth(),
 			inventory.getHeight(),
@@ -118,12 +108,12 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 		public ItemStack craft(CraftingInventory inventory) {
 	#elif MC_VERSION == MC_1_19_4
 		public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
-	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
+	#elif MC_VERSION >= MC_1_20_1 && MC_VERSION <= MC_1_20_4
 		public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager dynamicRegistryManager) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."
 	#endif
-		return this.output.output(new CraftingGrid(
+		return this.value.output.output(new CraftingGrid(
 			IntStream.range(0, inventory.size()).mapToObj(inventory::getStack),
 			inventory.getWidth(),
 			inventory.getHeight(),
@@ -134,12 +124,12 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 	@Override
 	#if MC_VERSION == MC_1_19_2 || MC_VERSION == MC_1_19_4
 		public DefaultedList<ItemStack> getRemainder(CraftingInventory inventory) {
-	#elif MC_VERSION == MC_1_20_1 || MC_VERSION == MC_1_20_2
+	#elif MC_VERSION >= MC_1_20_1 && MC_VERSION <= MC_1_20_4
 		public DefaultedList<ItemStack> getRemainder(RecipeInputInventory inventory) {
 	#else
 		#error "check if minecraft changed the recipe methods again or not."
 	#endif
-		if (this.remainder != null) {
+		if (this.value.remainder != null) {
 			CraftingGrid input = new CraftingGrid(
 				IntStream.range(0, inventory.size()).mapToObj(inventory::getStack),
 				inventory.getWidth(),
@@ -152,7 +142,7 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 				inventory.getHeight(),
 				true
 			);
-			this.remainder.remainder(input, output);
+			this.value.remainder.remainder(input, output);
 			return new DefaultedList<>(output, ItemStack.EMPTY) {};
 		}
 		else {
@@ -162,13 +152,22 @@ public class ScriptedRecipe extends SpecialCraftingRecipe {
 
 	@Override
 	public boolean fits(int width, int height) {
-		return width >= this.width && height >= this.height;
+		return width >= this.value.width && height >= this.value.height;
 	}
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
 		return BigGlobeRecipeSerializers.SCRIPTED;
 	}
+
+	/** workaround for only some MC versions needing "value": {} */
+	public static record Data(
+		int width,
+		int height,
+		CraftingMatchesScript.Holder matches,
+		CraftingOutputScript.Holder output,
+		CraftingRemainderScript.@VerifyNullable Holder remainder
+	) {}
 
 	public static interface CraftingMatchesScript extends Script {
 

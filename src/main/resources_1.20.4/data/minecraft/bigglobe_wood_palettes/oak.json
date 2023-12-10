@@ -1,0 +1,30 @@
+{
+	"blocks": {
+		"log": "minecraft:oak_log",
+		"wood": "minecraft:oak_wood",
+		"stripped_log": "minecraft:stripped_oak_log",
+		"stripped_wood": "minecraft:stripped_oak_wood",
+		"planks": "minecraft:oak_planks",
+		"stairs": "minecraft:oak_stairs",
+		"slab": "minecraft:oak_slab",
+		"fence": "minecraft:oak_fence",
+		"fence_gate": "minecraft:oak_fence_gate",
+		"door": "minecraft:oak_door",
+		"trapdoor": "minecraft:oak_trapdoor",
+		"pressure_plate": "minecraft:oak_pressure_plate",
+		"button": "minecraft:oak_button",
+		"leaves": "minecraft:oak_leaves",
+		"sapling": "minecraft:oak_sapling",
+		"potted_sapling": "minecraft:potted_oak_sapling",
+		"standing_sign": "minecraft:oak_sign",
+		"wall_sign": "minecraft:oak_wall_sign",
+		"hanging_sign": "minecraft:oak_hanging_sign",
+		"wall_hanging_sign": "minecraft:oak_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/oak",
+		"natural_surface": "bigglobe:overworld/trees/natural/oak",
+		"skylands": "bigglobe:overworld/trees/skylands/oak"
+	},
+	"biomes": "minecraft:bigglobe_wood_palette/oak"
+}

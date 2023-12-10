@@ -13,8 +13,13 @@ import net.minecraft.entity.LightningEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
+
+#if MC_VERSION >= MC_1_20_3
+	import net.minecraft.block.spawner.MobSpawnerLogic;
+#else
+	import net.minecraft.world.MobSpawnerLogic;
+#endif
 
 @Mixin(MobSpawnerLogic.class)
 public abstract class MobSpawnerLogic_SpawnLightning {

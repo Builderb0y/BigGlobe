@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.mixins;
 
-#if MC_VERSION < MC_1_20_0
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,4 +34,3 @@ public class CactusBlock_AllowPlacementOnOvergrownSand {
 		}
 	}
 }
-#endif
