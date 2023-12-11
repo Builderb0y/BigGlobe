@@ -43,7 +43,8 @@ public class CaveSurfaceReplacer {
 				floorSurfaceID      =   floorBlocks != null ? context.id(  floorBlocks.surface   ()) : Integer.MIN_VALUE;
 				floorSubsurfaceID   =   floorBlocks != null ? context.id(  floorBlocks.subsurface()) : Integer.MIN_VALUE;
 				ceilingSurfaceID    = ceilingBlocks != null ? context.id(ceilingBlocks.surface   ()) : Integer.MIN_VALUE;
-				ceilingSubsurfaceID = ceilingBlocks != null ? context.id(ceilingBlocks.subsurface()) : Integer.MIN_VALUE;			}
+				ceilingSubsurfaceID = ceilingBlocks != null ? context.id(ceilingBlocks.subsurface()) : Integer.MIN_VALUE;
+			}
 
 			IntArrayList ceilings = column.caveCeilings;
 			if (ceilings != null && ceilingBlocks != null) {

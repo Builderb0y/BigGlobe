@@ -393,13 +393,12 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			});
 		}
 		if (!distantHorizons) {
-			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, true);
+			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns);
 			this.profiler.run("ores", () -> {
 				this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, context -> {
 					OreReplacer.generate(context, columns, this.oreConfigs);
 				});
 			});
-			this.generateRockLayers(this.rockLayers, chunk, minHeight, maxSurface, columns, false);
 		}
 		this.profiler.run("Recalculate counts", () -> {
 			this.generateSectionsParallelSimple(chunk, minHeight, maxHeight, columns, SectionGenerationContext::recalculateCounts);

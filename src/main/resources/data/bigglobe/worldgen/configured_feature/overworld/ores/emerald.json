@@ -1,8 +1,17 @@
 {
 	"type": "bigglobe:overworld_ore",
 	"config": {
-		"stone_state": "minecraft:emerald_ore",
-		"deepslate_state": "minecraft:deepslate_emerald_ore",
+		"blocks": {
+			"minecraft:stone":             "minecraft:emerald_ore",
+			"minecraft:cobblestone":       "minecraft:emerald_ore",
+			"minecraft:andesite":          "minecraft:emerald_ore",
+			"minecraft:polished_andesite": "minecraft:emerald_ore",
+			"minecraft:diorite":           "minecraft:emerald_ore",
+			"minecraft:polished_diorite":  "minecraft:emerald_ore",
+			"minecraft:granite":           "minecraft:emerald_ore",
+			"minecraft:polished_granite":  "minecraft:emerald_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_emerald_ore"
+		},
 		"chance": "exp(distance_below_max_y / -192.0L) * `overworld/hilliness`",
 		"radius": {
 			"type": "average",

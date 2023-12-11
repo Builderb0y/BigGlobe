@@ -1,8 +1,17 @@
 {
 	"type": "bigglobe:overworld_ore",
 	"config": {
-		"stone_state": "minecraft:redstone_ore[lit=false]",
-		"deepslate_state": "minecraft:deepslate_redstone_ore[lit=false]",
+		"blocks": {
+			"minecraft:stone":             "minecraft:redstone_ore[lit=false]",
+			"minecraft:cobblestone":       "minecraft:redstone_ore[lit=false]",
+			"minecraft:andesite":          "minecraft:redstone_ore[lit=false]",
+			"minecraft:polished_andesite": "minecraft:redstone_ore[lit=false]",
+			"minecraft:diorite":           "minecraft:redstone_ore[lit=false]",
+			"minecraft:polished_diorite":  "minecraft:redstone_ore[lit=false]",
+			"minecraft:granite":           "minecraft:redstone_ore[lit=false]",
+			"minecraft:polished_granite":  "minecraft:redstone_ore[lit=false]",
+			"minecraft:deepslate":         "minecraft:deepslate_redstone_ore[lit=false]"
+		},
 		"chance": [
 			"double line = unmixLinear(128.0L, 384.0L, distance_below_max_y)",
 			"double curve = (1.0L - exp(-line)) * 0.5L",

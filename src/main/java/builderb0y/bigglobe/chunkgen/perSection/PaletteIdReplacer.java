@@ -77,33 +77,17 @@ public interface PaletteIdReplacer {
 		}
 	}
 
-	public static class ManyToOneBlockReplacer implements PaletteIdReplacer {
+	public static class ManyBlockReplacer implements PaletteIdReplacer {
 
-		public final long[] from;
-		public final int to;
+		public final int[] lookup;
 
-		public ManyToOneBlockReplacer(SectionGenerationContext context, BlockState[] from, BlockState to) {
-			PaletteStorage storage = context.storage();
-			BitSet fromIDs = new BitSet(context.palette().getSize());
-			for (BlockState state : from) {
-				fromIDs.set(context.id(state));
-			}
-			int toID = context.id(to);
-			if (storage != (storage = context.storage())) { //resize
-				fromIDs.clear();
-				for (BlockState state : from) {
-					fromIDs.set(context.id(state));
-				}
-				toID = context.id(to);
-				assert storage == context.storage();
-			}
-			this.from = fromIDs.toLongArray();
-			this.to = toID;
+		public ManyBlockReplacer(int[] lookup) {
+			this.lookup = lookup;
 		}
 
 		@Override
 		public int getReplacement(int id) {
-			return (this.from[id >> 6] & (1L << id)) != 0 ? this.to : id;
+			return id < this.lookup.length ? this.lookup[id] : id;
 		}
 	}
 }

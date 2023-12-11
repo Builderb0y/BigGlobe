@@ -200,13 +200,12 @@ public class BigGlobeNetherChunkGenerator extends BigGlobeChunkGenerator {
 			}
 		});
 		if (!distantHorizons) {
-			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, true);
+			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns);
 			this.profiler.run("ores", () -> {
-				this.generateSectionsParallelSimple(chunk, this.settings.min_y, this.settings.max_y, columns, context -> {
+				this.generateSectionsParallelSimple(chunk, this.settings.min_y, this.settings.max_y, columns, (SectionGenerationContext context) -> {
 					OreReplacer.generate(context, columns, this.ores);
 				});
 			});
-			this.generateRockLayers(this.rockLayers, chunk, chunk.getBottomY(), chunk.getTopY(), columns, false);
 		}
 	}
 

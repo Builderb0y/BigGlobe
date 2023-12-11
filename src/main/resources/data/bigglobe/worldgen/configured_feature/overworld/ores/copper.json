@@ -1,8 +1,17 @@
 {
 	"type": "bigglobe:overworld_ore",
 	"config": {
-		"stone_state": "minecraft:copper_ore",
-		"deepslate_state": "minecraft:deepslate_copper_ore",
+		"blocks": {
+			"minecraft:stone":             "minecraft:copper_ore",
+			"minecraft:cobblestone":       "minecraft:copper_ore",
+			"minecraft:andesite":          "minecraft:copper_ore",
+			"minecraft:polished_andesite": "minecraft:copper_ore",
+			"minecraft:diorite":           "minecraft:copper_ore",
+			"minecraft:polished_diorite":  "minecraft:copper_ore",
+			"minecraft:granite":           "minecraft:copper_ore",
+			"minecraft:polished_granite":  "minecraft:copper_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_copper_ore"
+		},
 		"chance": {
 			"template": "bigglobe:ores/exponential",
 			"inputs": {

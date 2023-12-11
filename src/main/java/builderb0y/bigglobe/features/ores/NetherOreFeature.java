@@ -4,13 +4,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.biome.Biome;
 
-import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
-import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
-import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer.OneBlockReplacer;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
+import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 
@@ -20,17 +19,21 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 
 	public static class Config extends OreFeature.Config {
 
-		public final @VerifyNormal BlockState place, replace;
+		public final @VerifyNormal @VerifyNullable BlockState place, replace;
 		public final TagKey<Biome> biomes;
 
 		public Config(
 			ColumnYToDoubleScript.Holder chance,
 			RandomSource radius,
-			BlockState place,
-			BlockState replace,
+			BlockState2ObjectMap<BlockState> blocks,
+			@VerifyNormal @VerifyNullable BlockState place,
+			@VerifyNormal @VerifyNullable BlockState replace,
 			TagKey<Biome> biomes
 		) {
-			super(chance, radius);
+			super(chance, radius, blocks);
+			if (place != null && replace != null) {
+				blocks.runtimeStates.put(replace, place);
+			}
 			this.place   = place;
 			this.replace = replace;
 			this.biomes  = biomes;
@@ -39,11 +42,6 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 		@Override
 		public boolean canSpawnAt(WorldColumn column, int y) {
 			return column.getBiome(y).isIn(this.biomes);
-		}
-
-		@Override
-		public PaletteIdReplacer getReplacer(SectionGenerationContext context) {
-			return new OneBlockReplacer(context, this.replace, this.place);
 		}
 	}
 }

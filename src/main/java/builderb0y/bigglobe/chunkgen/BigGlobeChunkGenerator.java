@@ -453,14 +453,12 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		}
 	}
 
-	public void generateRockLayers(LinkedRockLayerConfig<?>[] rockLayers, Chunk chunk, int minHeight, int maxHeight, ChunkOfColumns<? extends WorldColumn> columns, boolean early) {
+	public void generateRockLayers(LinkedRockLayerConfig<?>[] rockLayers, Chunk chunk, int minHeight, int maxHeight, ChunkOfColumns<? extends WorldColumn> columns) {
 		this.profiler.run("Rock layers", () -> {
 			for (LinkedRockLayerConfig<?> rock : rockLayers) {
-				if (rock.group.generate_before_ores == early) {
-					this.profiler.run(rock.name, () -> {
-						RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
-					});
-				}
+				this.profiler.run(rock.name, () -> {
+					RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
+				});
 			}
 		});
 	}

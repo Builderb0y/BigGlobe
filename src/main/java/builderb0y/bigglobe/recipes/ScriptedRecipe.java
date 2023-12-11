@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.recipes;
 
+import java.util.stream.IntStream;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
