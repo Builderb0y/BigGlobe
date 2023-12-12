@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.features.ores;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
 import net.minecraft.block.BlockState;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
@@ -15,9 +17,9 @@ public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> 
 		super(Config.class);
 	}
 
+	@AddPseudoField("stone_state")
+	@AddPseudoField("deepslate_state")
 	public static class Config extends OreFeature.Config {
-
-		public final @VerifyNormal @VerifyNullable BlockState stone_state, deepslate_state;
 
 		public Config(
 			ColumnYToDoubleScript.Holder chance,
@@ -27,10 +29,23 @@ public class OverworldOreFeature extends OreFeature<OverworldOreFeature.Config> 
 			@VerifyNormal @VerifyNullable BlockState deepslate_state
 		) {
 			super(chance, radius, blocks);
-			if (stone_state != null) blocks.runtimeStates.put(BlockStates.STONE, stone_state);
-			if (deepslate_state != null) blocks.runtimeStates.put(BlockStates.DEEPSLATE, deepslate_state);
-			this.stone_state = stone_state;
-			this.deepslate_state = deepslate_state;
+			try {
+				if (stone_state != null) this.blocks.addSerialized("minecraft:stone", stone_state);
+				if (deepslate_state != null) this.blocks.addSerialized("minecraft:deepslate", deepslate_state);
+			}
+			catch (CommandSyntaxException exception) {
+				throw new AssertionError("Did minecraft change the name of stone or deepslate?", exception);
+			}
+		}
+
+		//backwards compatibility.
+
+		public @VerifyNormal @VerifyNullable BlockState stone_state() {
+			return null;
+		}
+
+		public @VerifyNormal @VerifyNullable BlockState deepslate_state() {
+			return null;
 		}
 	}
 }

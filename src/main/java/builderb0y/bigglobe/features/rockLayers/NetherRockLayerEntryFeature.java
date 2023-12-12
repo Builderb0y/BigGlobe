@@ -3,15 +3,16 @@ package builderb0y.bigglobe.features.rockLayers;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.command.argument.BlockArgumentParser;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
-import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
-import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer.OneBlockReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.noise.Grid2D;
+import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class NetherRockLayerEntryFeature extends RockLayerEntryFeature<NetherRockLayerEntryFeature.Entry> {
 
@@ -23,10 +24,9 @@ public class NetherRockLayerEntryFeature extends RockLayerEntryFeature<NetherRoc
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(new ReifiedType<>() {}));
 	}
 
+	@AddPseudoField("place")
+	@AddPseudoField("replace")
 	public static class Entry extends RockLayerEntryFeature.Entry {
-
-		public final @VerifyNormal BlockState place;
-		public final @VerifyNormal BlockState replace;
 
 		public Entry(
 			double weight,
@@ -34,16 +34,24 @@ public class NetherRockLayerEntryFeature extends RockLayerEntryFeature<NetherRoc
 			Grid2D center,
 			Grid2D thickness,
 			@VerifyNormal BlockState place,
-			@VerifyNormal BlockState replace
+			@VerifyNormal BlockState replace,
+			BlockState2ObjectMap<BlockState> blocks
 		) {
-			super(weight, restrictions, center, thickness);
-			this.place = place;
-			this.replace = replace;
+			super(weight, restrictions, center, thickness, blocks);
+			if (place != null && replace != null) {
+				this.blocks.serializedStates.put(BlockArgumentParser.stringifyBlockState(replace), place);
+				this.blocks.runtimeStates.put(replace, place);
+			}
 		}
 
-		@Override
-		public PaletteIdReplacer getReplacer(SectionGenerationContext context) {
-			return new OneBlockReplacer(context, this.replace, this.place);
+		//backwards compatibility.
+
+		public @VerifyNormal @VerifyNullable BlockState place() {
+			return null;
+		}
+
+		public @VerifyNormal @VerifyNullable BlockState replace() {
+			return null;
 		}
 	}
 }

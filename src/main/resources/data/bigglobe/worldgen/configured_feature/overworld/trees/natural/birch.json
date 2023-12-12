@@ -25,7 +25,8 @@
 				{ "type": "bigglobe:snow" }
 			],
 			"leaves": [
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow" },
+				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/bee_nest" }
 			]
 		},
 		"ground_replacements": {

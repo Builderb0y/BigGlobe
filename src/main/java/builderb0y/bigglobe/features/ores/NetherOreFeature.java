@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.features.ores;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.biome.Biome;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -17,9 +19,10 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 		super(Config.class);
 	}
 
+	@AddPseudoField("place")
+	@AddPseudoField("replace")
 	public static class Config extends OreFeature.Config {
 
-		public final @VerifyNormal @VerifyNullable BlockState place, replace;
 		public final TagKey<Biome> biomes;
 
 		public Config(
@@ -32,16 +35,25 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 		) {
 			super(chance, radius, blocks);
 			if (place != null && replace != null) {
-				blocks.runtimeStates.put(replace, place);
+				this.blocks.serializedStates.put(BlockArgumentParser.stringifyBlockState(replace), place);
+				this.blocks.runtimeStates.put(replace, place);
 			}
-			this.place   = place;
-			this.replace = replace;
-			this.biomes  = biomes;
+			this.biomes = biomes;
 		}
 
 		@Override
 		public boolean canSpawnAt(WorldColumn column, int y) {
 			return column.getBiome(y).isIn(this.biomes);
+		}
+
+		//backwards compatibility.
+
+		public @VerifyNormal @VerifyNullable BlockState place() {
+			return null;
+		}
+
+		public @VerifyNormal @VerifyNullable BlockState replace() {
+			return null;
 		}
 	}
 }

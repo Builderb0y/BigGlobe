@@ -26,8 +26,9 @@
 				"bigglobe:valley_of_souls": 1.0,
 				"default": 0.0
 			},
-			"place": "minecraft:soul_sand",
-			"replace": "minecraft:soul_soil"
+			"blocks": {
+				"minecraft:soul_soil": "minecraft:soul_sand"
+			}
 		}
 	}
 }

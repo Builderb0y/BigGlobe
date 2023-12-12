@@ -27,21 +27,9 @@
 				}
 			},
 			"variations": [
-				{
-					"weight": 1.0,
-					"place": "minecraft:netherrack",
-					"replace": "minecraft:basalt[axis=y]"
-				},
-				{
-					"weight": 1.0,
-					"place": "minecraft:blackstone",
-					"replace": "minecraft:basalt[axis=y]"
-				},
-				{
-					"weight": 0.5,
-					"place": "minecraft:smooth_basalt",
-					"replace": "minecraft:basalt[axis=y]"
-				}
+				{ "weight": 1.0, "blocks": { "minecraft:basalt": "minecraft:netherrack" } },
+				{ "weight": 1.0, "blocks": { "minecraft:basalt": "minecraft:blackstone" } },
+				{ "weight": 0.5, "blocks": { "minecraft:basalt": "minecraft:smooth_basalt" } }
 			]
 		}
 	}

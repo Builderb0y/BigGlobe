@@ -1,0 +1,35 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.if (1.0 / 16.0:",
+				"--originY",
+				"if (getBlockState(originX, originY, originZ).isAir():",
+					"int logX = originX",
+					"int logZ = originZ",
+					"random.switch (++logX, --logX, ++logZ, --logZ)",
+					"if (getBlockState(logX, originY, logZ).isIn('minecraft:logs_that_burn'):",
+						"setBlockState(originX, originY, originZ, BlockState(",
+							"'minecraft:bee_nest',",
+							"facing:      random.switch ('north', 'east', 'south', 'west'),",
+							"honey_level: random.nextInt(6)",
+						"))",
+						"NbtList list = nbtList()",
+						"repeat (random.nextInt(2, 4):",
+							"list.add(",
+								"nbtCompound(",
+									"EntityData: nbtCompound(id: 'minecraft:bee'),",
+									"MinOccupationTicks: 600,",
+									"TicksInHive: random.nextInt(599)",
+								")",
+							")",
+						")",
+						"mergeBlockData(originX, originY, originZ, nbtCompound(Bees: list))",
+						"return(true)",
+					")",
+				")",
+			")",
+			"return(false)"
+		]
+	}
+}

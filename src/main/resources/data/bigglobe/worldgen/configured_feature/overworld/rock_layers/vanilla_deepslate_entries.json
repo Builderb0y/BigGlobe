@@ -4,8 +4,10 @@
 		"group": "bigglobe:overworld/rock_layers/vanilla_deepslate",
 		"entries": {
 			"weight": 1.0,
-			"smooth_state": "minecraft:deepslate[axis=y]",
-			"cobble_state": "minecraft:cobbled_deepslate",
+			"blocks": {
+				"minecraft:stone": "minecraft:deepslate[axis=y]",
+				"minecraft:cobblestone": "minecraft:cobbled_deepslate"
+			},
 			"center": {
 				"type": "sum",
 				"layers": [

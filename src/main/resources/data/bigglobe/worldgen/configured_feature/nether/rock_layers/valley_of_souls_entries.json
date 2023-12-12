@@ -27,21 +27,9 @@
 				}
 			},
 			"variations": [
-				{
-					"weight": 1.0,
-					"place": "minecraft:netherrack",
-					"replace": "minecraft:soul_soil"
-				},
-				{
-					"weight": 0.5,
-					"place": "minecraft:smooth_basalt",
-					"replace": "minecraft:soul_soil"
-				},
-				{
-					"weight": 0.5,
-					"place": "minecraft:blackstone",
-					"replace": "minecraft:soul_soil"
-				}
+				{ "weight": 1.0, "blocks": { "minecraft:soul_soil": "minecraft:netherrack"    } },
+				{ "weight": 0.5, "blocks": { "minecraft:soul_soil": "minecraft:smooth_basalt" } },
+				{ "weight": 0.5, "blocks": { "minecraft:soul_soil": "minecraft:blackstone"    } }
 			]
 		}
 	}

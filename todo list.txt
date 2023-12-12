@@ -25,14 +25,12 @@ testing:
 where I left off:
 	add check for DH version to prevent applying hacky logic on unrecognized versions.
 	ensure DH mixins are disabled when DH is not installed.
-	add beehives.
-	generify ore feature to allow replacement of arbitrary blocks.
 
 changelog:
 	* Decimated memory usage with distant horizons 2.0.
-	* Added new integration for distant horizons 2.0 to generate chunks even faster.
 	* Fixed glaciers spawning incorrectly in shallow water.
 	* Fixed big globe's short grass dropping minecraft grass when sheared.
+	* Added bee nests to oak and birch trees.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

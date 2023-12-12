@@ -28,31 +28,11 @@
 				}
 			},
 			"variations": [
-				{
-					"weight": 1.0,
-					"place": "minecraft:soul_sand",
-					"replace": "minecraft:netherrack"
-				},
-				{
-					"weight": 1.0,
-					"place": "minecraft:soul_soil",
-					"replace": "minecraft:netherrack"
-				},
-				{
-					"weight": 0.5,
-					"place": "minecraft:smooth_basalt",
-					"replace": "minecraft:netherrack"
-				},
-				{
-					"weight": 0.5,
-					"place": "minecraft:blackstone",
-					"replace": "minecraft:netherrack"
-				},
-				{
-					"weight": 0.25,
-					"place": "minecraft:gravel",
-					"replace": "minecraft:netherrack"
-				}
+				{ "weight": 1.0,  "blocks": { "minecraft:netherrack": "minecraft:soul_sand"     } },
+				{ "weight": 1.0,  "blocks": { "minecraft:netherrack": "minecraft:soul_soil"     } },
+				{ "weight": 0.5,  "blocks": { "minecraft:netherrack": "minecraft:smooth_basalt" } },
+				{ "weight": 0.5,  "blocks": { "minecraft:netherrack": "minecraft:blackstone"    } },
+				{ "weight": 0.25, "blocks": { "minecraft:netherrack": "minecraft:gravel"        } }
 			]
 		}
 	}

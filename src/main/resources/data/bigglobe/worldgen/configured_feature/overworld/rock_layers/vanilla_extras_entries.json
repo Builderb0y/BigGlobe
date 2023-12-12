@@ -25,8 +25,10 @@
 			},
 			"variations": [
 				{
-					"smooth_state": "minecraft:andesite",
-					"cobble_state": "minecraft:polished_andesite",
+					"blocks": {
+						"minecraft:stone": "minecraft:andesite",
+						"minecraft:cobblestone": "minecraft:polished_andesite"
+					},
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
@@ -36,8 +38,10 @@
 					}
 				},
 				{
-					"smooth_state": "minecraft:diorite",
-					"cobble_state": "minecraft:polished_diorite",
+					"blocks": {
+						"minecraft:stone": "minecraft:diorite",
+						"minecraft:cobblestone": "minecraft:polished_diorite"
+					},
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
@@ -47,18 +51,24 @@
 					}
 				},
 				{
-					"smooth_state": "minecraft:granite",
-					"cobble_state": "minecraft:polished_granite",
+					"blocks": {
+						"minecraft:stone": "minecraft:granite",
+						"minecraft:cobblestone": "minecraft:polished_granite"
+					},
 					"restrictions": { "type": "range", "property": "overworld/hilliness", "min": 0.0, "mid": 1.0, "smooth": false }
 				},
 				{
-					"smooth_state": "minecraft:dripstone_block",
-					"cobble_state": "minecraft:dripstone_block",
+					"blocks": {
+						"minecraft:stone": "minecraft:dripstone_block",
+						"minecraft:cobblestone": "minecraft:dripstone_block"
+					},
 					"restrictions": { "type": "range", "property": "max_y", "max": 32.0, "mid": -32.0 }
 				},
 				{
-					"smooth_state": "minecraft:tuff",
-					"cobble_state": "minecraft:tuff",
+					"blocks": {
+						"minecraft:stone": "minecraft:tuff",
+						"minecraft:cobblestone": "minecraft:tuff"
+					},
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
@@ -68,8 +78,10 @@
 					}
 				},
 				{
-					"smooth_state": "minecraft:smooth_sandstone",
-					"cobble_state": "minecraft:sandstone",
+					"blocks": {
+						"minecraft:stone": "minecraft:smooth_sandstone",
+						"minecraft:cobblestone": "minecraft:sandstone"
+					},
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
@@ -80,8 +92,10 @@
 					}
 				},
 				{
-					"smooth_state": "minecraft:smooth_red_sandstone",
-					"cobble_state": "minecraft:red_sandstone",
+					"blocks": {
+						"minecraft:stone": "minecraft:smooth_red_sandstone",
+						"minecraft:cobblestone": "minecraft:red_sandstone"
+					},
 					"restrictions": {
 						"type": "and",
 						"restrictions": [

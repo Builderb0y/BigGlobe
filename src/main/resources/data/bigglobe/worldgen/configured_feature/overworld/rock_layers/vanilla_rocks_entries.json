@@ -23,12 +23,12 @@
 				}
 			},
 			"variations": [
-				{ "smooth_state": "minecraft:andesite",        "cobble_state": "minecraft:polished_andesite" },
-				{ "smooth_state": "minecraft:diorite",         "cobble_state": "minecraft:polished_diorite"  },
-				{ "smooth_state": "minecraft:granite",         "cobble_state": "minecraft:polished_granite"  },
-				{ "smooth_state": "minecraft:calcite",         "cobble_state": "minecraft:calcite"           },
-				{ "smooth_state": "minecraft:dripstone_block", "cobble_state": "minecraft:dripstone_block"   },
-				{ "smooth_state": "minecraft:tuff",            "cobble_state": "minecraft:tuff"              }
+				{ "blocks": { "minecraft:stone": "minecraft:andesite",        "minecraft:cobblestone": "minecraft:polished_andesite" } },
+				{ "blocks": { "minecraft:stone": "minecraft:diorite",         "minecraft:cobblestone": "minecraft:polished_diorite"  } },
+				{ "blocks": { "minecraft:stone": "minecraft:granite",         "minecraft:cobblestone": "minecraft:polished_granite"  } },
+				{ "blocks": { "minecraft:stone": "minecraft:calcite",         "minecraft:cobblestone": "minecraft:calcite"           } },
+				{ "blocks": { "minecraft:stone": "minecraft:dripstone_block", "minecraft:cobblestone": "minecraft:dripstone_block"   } },
+				{ "blocks": { "minecraft:stone": "minecraft:tuff",            "minecraft:cobblestone": "minecraft:tuff"              } }
 			]
 		}
 	}
