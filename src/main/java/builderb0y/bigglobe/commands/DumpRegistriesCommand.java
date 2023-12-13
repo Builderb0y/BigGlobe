@@ -16,8 +16,8 @@ import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryLoader;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -27,6 +27,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 #if MC_VERSION > MC_1_19_2
@@ -67,7 +68,7 @@ public class DumpRegistriesCommand {
 				dynamicCodecs.put(info.registry(), info.entryCodec());
 			}
 		#else
-			Map<RegistryKey<?>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
+			Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
 			for (RegistryLoader.Entry<?> entry : RegistryLoader.DYNAMIC_REGISTRIES) {
 				dynamicCodecs.put(entry.key(), entry.elementCodec());
 			}
@@ -86,7 +87,7 @@ public class DumpRegistriesCommand {
 		*/
 	}
 
-	public static void dumpRegistries(CommandContext<ServerCommandSource> context, File registryRoot, File tagsRoot, Map<RegistryKey<?>, Codec<?>> dynamicCodecs, RegistryOps<JsonElement> ops) {
+	public static void dumpRegistries(CommandContext<ServerCommandSource> context, File registryRoot, File tagsRoot, Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs, RegistryOps<JsonElement> ops) {
 		context
 		.getSource()
 		.getRegistryManager()

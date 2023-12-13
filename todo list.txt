@@ -27,6 +27,7 @@ where I left off:
 	ensure DH mixins are disabled when DH is not installed.
 
 changelog:
+	* Updated to MC 1.20.3 and 1.20.4.
 	* Decimated memory usage with distant horizons 2.0.
 	* Fixed glaciers spawning incorrectly in shallow water.
 	* Fixed big globe's short grass dropping minecraft grass when sheared.
@@ -93,7 +94,6 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
-		beehives.
 		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?

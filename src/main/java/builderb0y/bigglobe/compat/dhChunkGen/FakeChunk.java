@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.seibel.distanthorizons.core.wrapperInterfaces.world.IBiomeWrapper;
 import com.seibel.distanthorizons.core.wrapperInterfaces.world.ILevelWrapper;
@@ -32,6 +33,7 @@ import net.minecraft.world.tick.SimpleTickScheduler;
 
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
+/** not used, intended for testing purposes only, to be removed as soon as DH's API allows what I want. */
 public class FakeChunk extends Chunk {
 
 	public static final TickSchedulers EMPTY_TICK_SCHEDULERS = new TickSchedulers(new SimpleTickScheduler<>(), new SimpleTickScheduler<>());
@@ -141,14 +143,21 @@ public class FakeChunk extends Chunk {
 		return true;
 	}
 
-	@Override
-	public void forEachBlockMatchingPredicate(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> consumer) {
+	#if MC_VERSION >= MC_1_20_0
+		@Override
+		public void forEachBlockMatchingPredicate(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> consumer) {
 
-	}
+		}
+	#else
+		@Override
+		public Stream<BlockPos> getLightSourcesStream() {
+			return Stream.empty();
+		}
+	#endif
 
 	@Override
-	public int getHighestNonEmptySection() {
-		return -1;
+	public #if MC_VERSION >= MC_1_20_0 int #else ChunkSection #endif getHighestNonEmptySection() {
+		return #if MC_VERSION >= MC_1_20_0 -1 #else this.sectionArray[0] #endif;
 	}
 
 	@Override

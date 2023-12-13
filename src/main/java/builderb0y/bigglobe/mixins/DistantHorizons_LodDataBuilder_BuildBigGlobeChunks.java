@@ -17,7 +17,7 @@ import builderb0y.bigglobe.compat.dhChunkGen.FakeChunk;
 @Mixin(LodDataBuilder.class)
 public class DistantHorizons_LodDataBuilder_BuildBigGlobeChunks {
 
-	@Inject(method = "createChunkData", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "createChunkData(Lcom/seibel/distanthorizons/core/wrapperInterfaces/chunk/IChunkWrapper;)Lcom/seibel/distanthorizons/core/dataObjects/fullData/accessor/ChunkSizedFullDataAccessor;", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void bigglobe_generateFromColumns(IChunkWrapper chunkWrapper, CallbackInfoReturnable<ChunkSizedFullDataAccessor> callback) {
 		if (chunkWrapper instanceof ChunkWrapper impl && impl.getChunk() instanceof FakeChunk fakeChunk) {
 			ChunkSizedFullDataAccessor result = DHOverworldChunkGenerator.generateForReal(fakeChunk);

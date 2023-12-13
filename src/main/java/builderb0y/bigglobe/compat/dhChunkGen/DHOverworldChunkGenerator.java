@@ -19,11 +19,13 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntry.Reference;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.biome.source.util.MultiNoiseUtil.MultiNoiseSampler;
 import net.minecraft.world.chunk.ChunkSection;
 
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -49,10 +51,10 @@ public class DHOverworldChunkGenerator implements IDhApiWorldGenerator {
 		this.generator = generator;
 		this.sharedSections = new ChunkSection[serverWorld.countVerticalSections()];
 		Registry<Biome> biomeRegistry = serverWorld.getRegistryManager().get(RegistryKeyVersions.biome());
-		Reference<Biome> plains = biomeRegistry.entryOf(BiomeKeys.PLAINS);
+		RegistryEntry<Biome> plains = biomeRegistry.entryOf(BiomeKeys.PLAINS);
 		for (int index = 0, length = this.sharedSections.length; index < length; index++) {
-			this.sharedSections[index] = new ChunkSection(biomeRegistry);
-			this.sharedSections[index].populateBiomes((x, y, z, noise) -> plains, null, 0, 0, 0);
+			this.sharedSections[index] = new ChunkSection(#if MC_VERSION <= MC_1_19_4 index, #endif biomeRegistry);
+			this.sharedSections[index].populateBiomes((int x, int y, int z, MultiNoiseSampler noise) -> plains, null, 0, #if MC_VERSION > MC_1_19_4 0, #endif 0);
 		}
 	}
 
@@ -76,7 +78,7 @@ public class DHOverworldChunkGenerator implements IDhApiWorldGenerator {
 				int chunkPosMaxX = chunkPosMinX + (1 << (granularity - 4));
 				int chunkPosMaxZ = chunkPosMinZ + (1 << (granularity - 4));
 				Registry<Biome> biomeRegistry = this.serverWorld.getRegistryManager().get(RegistryKeyVersions.biome());
-				Reference<Biome> plains = biomeRegistry.entryOf(BiomeKeys.PLAINS);
+				RegistryEntry<Biome> plains = biomeRegistry.entryOf(BiomeKeys.PLAINS);
 				IBiomeWrapper plainsWrapper = BiomeWrapper.getBiomeWrapper(plains, this.level);
 				for (int chunkZ = chunkPosMinZ; chunkZ < chunkPosMaxZ; chunkZ++) {
 					for (int chunkX = chunkPosMinX; chunkX < chunkPosMaxX; chunkX++) {
