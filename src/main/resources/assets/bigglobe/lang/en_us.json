@@ -164,6 +164,11 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating distant chunks.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Distant Horizons is not installed.",
 
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration": "Hyperspeed Generation",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[0]": "If true, Big Globe will generate distant terrain directly through Distant Horizons' API, skipping chunks entirely.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[1]": "If false, Big Globe will allow Distant Horizons to wrap Big Globe's default chunk generator.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[2]": "Enabling this config option will skip structures and features. In particular, you will not see any trees with this option enabled until you get close to them.",
+
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures": "Skip Structures",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures.@Tooltip[0]": "If true, structures will not be generated in distant chunks, and you will not see structures until you get close enough to them.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures.@Tooltip[1]": "If false, structures will be generated in distant chunks, and you will be able to see them at any distance.",

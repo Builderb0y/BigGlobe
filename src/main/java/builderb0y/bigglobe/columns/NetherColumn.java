@@ -117,7 +117,11 @@ public class NetherColumn extends WorldColumn {
 		);
 	}
 
-	public double getLavaLevel() {
+	public double getLavaLevelD() {
+		return this.getLocalCell().lavaLevel;
+	}
+
+	public int getLavaLevelI() {
 		return this.getLocalCell().lavaLevel;
 	}
 

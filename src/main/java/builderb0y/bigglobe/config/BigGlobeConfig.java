@@ -65,6 +65,11 @@ public class BigGlobeConfig {
 	public static class DistantHorizonsIntegration {
 
 		@Tooltip(count = 3)
+		@UseName("Hyperspeed generation")
+		@DefaultIgnore
+		public boolean hyperspeedGeneration = false;
+
+		@Tooltip(count = 3)
 		@UseName("Skip Structures")
 		@DefaultIgnore
 		public boolean skipStructures = false;

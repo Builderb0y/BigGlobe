@@ -166,7 +166,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 		NETHER_BIOME_CENTER_Z                   = registerNether   ("biome_center_z",                withoutY(   NetherColumn::getBiomeCenterZ                ), NetherColumn::debugBiomeCenterZ),
 		NETHER_BIOME_EDGINESS                   = registerNether   ("biome_edginess",                withoutY(   NetherColumn::getEdginess                    ), null),
 		NETHER_BIOME_EDGINESS_SQUARED           = registerNether   ("biome_edginess_squared",        withoutY(   NetherColumn::getEdginessSquared             ), null),
-		NETHER_LAVA_LEVEL                       = registerNether   ("lava_level",                    withoutY(   NetherColumn::getLavaLevel                   ), null),
+		NETHER_LAVA_LEVEL                       = registerNether   ("lava_level",                    withoutY(   NetherColumn::getLavaLevelD                  ), null),
 		NETHER_CAVE_NOISE                       = registerNether   ("cave_noise",                       withY(   NetherColumn::getCaveNoise                   ), null),
 		NETHER_CACHED_CAVE_NOISE                = registerNether   ("cached_cave_noise",                withY(   NetherColumn::getCachedCaveNoise             ), null),
 		NETHER_CAVE_NOISE_THRESHOLD             = registerNether   ("cave_noise_threshold",             withY(   NetherColumn::getCaveNoiseThreshold          ), null),

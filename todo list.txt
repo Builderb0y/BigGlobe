@@ -23,15 +23,9 @@ testing:
 		in other words, see if my mixin is still necessary or not.
 
 where I left off:
-	add check for DH version to prevent applying hacky logic on unrecognized versions.
-	ensure DH mixins are disabled when DH is not installed.
+	surface blocks in the nether for hyperspeed generator?
 
 changelog:
-	* Updated to MC 1.20.3 and 1.20.4.
-	* Decimated memory usage with distant horizons 2.0.
-	* Fixed glaciers spawning incorrectly in shallow water.
-	* Fixed big globe's short grass dropping minecraft grass when sheared.
-	* Added bee nests to oak and birch trees.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -67,10 +61,13 @@ scripting:
 	inline getters and setters for user-defined classes.
 	scriptable loot tables.
 	scriptable advancements?
+	multi-dimensional loop:
+		for (int x, int y, int z in range[-1, 1], range[-1, 1], range[-1, 1]: body)
+		or possibly:
+		for (int x, int y, int z in range[-1, 1] * 3: body)
 
 features:
 	general:
-		use float[]'s for weighted lists.
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		BlockQueue should not use longs for internal storage, as this won't work with cubic chunks.

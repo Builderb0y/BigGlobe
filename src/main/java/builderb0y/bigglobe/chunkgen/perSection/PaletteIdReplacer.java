@@ -5,6 +5,7 @@ import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Palette;
 
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public interface PaletteIdReplacer {
@@ -17,11 +18,11 @@ public interface PaletteIdReplacer {
 			Palette<BlockState> palette = context.palette();
 			PaletteStorage storage = context.storage();
 			int size = palette.getSize();
-			int[] lookup = new int[size];
+			short[] lookup = new short[size];
 			for (int id = 0; id < size; id++) {
 				BlockState from = palette.get(id);
 				BlockState to = replacements.runtimeStates.get(from);
-				lookup[id] = to != null ? palette.index(to) : id;
+				lookup[id] = BigGlobeMath.toShortExact(to != null ? palette.index(to) : id);
 				//note: it is important to check for a resize after every iteration
 				//in this specific method, because of our use of a loop.
 				//a resize could change the palette size, which would change our loop bound.
@@ -103,9 +104,9 @@ public interface PaletteIdReplacer {
 
 	public static class ManyBlockReplacer implements PaletteIdReplacer {
 
-		public final int[] lookup;
+		public final short[] lookup;
 
-		public ManyBlockReplacer(int[] lookup) {
+		public ManyBlockReplacer(short[] lookup) {
 			this.lookup = lookup;
 		}
 

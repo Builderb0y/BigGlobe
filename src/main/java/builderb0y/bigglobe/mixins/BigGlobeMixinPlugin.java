@@ -243,11 +243,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 				yield defaultEnabled && checkMod(mixinClassName, "imm_ptl_core");
 			}
 			#endif
-			/*
-			case "builderb0y.bigglobe.mixins.DistantHorizons_LodDataBuilder_BuildBigGlobeChunks" -> {
-				yield true;
-			}
-			*/
 			default -> {
 				yield defaultEnabled;
 			}
