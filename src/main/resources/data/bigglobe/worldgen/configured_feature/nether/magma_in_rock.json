@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"if (distantHorizons: return(false))",
-			"for (int base = int(min_y), base < int(max_y), base += 16:",
+			"for (int base in range[int(min_y), int(max_y)) % 16:",
 				"int y = base + random.nextInt(16)",
 				"double fraction = unmixLinear(min_y, max_y, y)",
 				"double chance = exp2(fraction * -4.0L)",

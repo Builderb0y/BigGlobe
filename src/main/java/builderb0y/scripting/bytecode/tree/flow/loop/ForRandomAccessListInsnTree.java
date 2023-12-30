@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -26,7 +27,7 @@ public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 	public InsnTree body;
 
 	public ForRandomAccessListInsnTree(
-		String loopName,
+		LoopName loopName,
 		VariableDeclarationInsnTree variable,
 		VariableDeclareAssignInsnTree list,
 		InsnTree body

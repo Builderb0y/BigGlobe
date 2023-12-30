@@ -4,6 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -18,7 +19,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ForLongRangeInsnTree extends AbstractForRangeInsnTree {
 
 	public ForLongRangeInsnTree(
-		String loopName,
+		LoopName loopName,
 		VariableDeclarationInsnTree variable,
 		boolean ascending,
 		InsnTree lowerBound,

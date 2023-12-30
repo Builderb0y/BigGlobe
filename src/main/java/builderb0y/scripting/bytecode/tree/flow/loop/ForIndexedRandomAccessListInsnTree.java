@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -15,7 +16,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ForListIndexInsnTree extends AbstractForIteratorInsnTree {
+public class ForIndexedRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
 		LIST_SIZE = MethodInfo.getMethod(List.class, "size"),
@@ -25,8 +26,8 @@ public class ForListIndexInsnTree extends AbstractForIteratorInsnTree {
 	public VariableDeclareAssignInsnTree list;
 	public InsnTree body;
 
-	public ForListIndexInsnTree(
-		String loopName,
+	public ForIndexedRandomAccessListInsnTree(
+		LoopName loopName,
 		VariableDeclarationInsnTree indexVariable,
 		VariableDeclarationInsnTree elementVariable,
 		VariableDeclareAssignInsnTree list,

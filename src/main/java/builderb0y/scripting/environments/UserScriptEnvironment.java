@@ -213,6 +213,16 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		return variable;
 	}
 
+	public void addVariable(VarInfo variable) {
+		try {
+			this.parser.checkVariable(variable.name);
+		}
+		catch (ScriptParsingException exception) {
+			throw new RuntimeException(exception.getMessage(), exception);
+		}
+		this.variables.put(variable.name, load(variable));
+	}
+
 	public Stream<VarInfo> streamVariables() {
 		return this.variables.values().stream().map(load -> load.variable);
 	}

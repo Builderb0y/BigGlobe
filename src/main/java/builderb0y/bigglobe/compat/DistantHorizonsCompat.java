@@ -5,8 +5,11 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import com.seibel.distanthorizons.api.DhApi;
+import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiDistantGeneratorMode;
 import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiWorldGenerator;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
@@ -16,7 +19,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -99,6 +101,16 @@ public class DistantHorizonsCompat {
 		}
 
 		public static void init() {
+			try {
+				//make sure method we intend to override is present in the version of distant horizons the user has installed.
+				//if the user is on an old version, then we don't want to register anything.
+				IDhApiWorldGenerator.class.getDeclaredMethod("generateApiChunks", int.class, int.class, byte.class, byte.class, EDhApiDistantGeneratorMode.class, ExecutorService.class, Consumer.class);
+				BigGlobeMod.LOGGER.info("Distant Horizons hyperspeed generators available.");
+			}
+			catch (NoSuchMethodException exception) {
+				BigGlobeMod.LOGGER.info("Distant Horizons hyperspeed generators unavailable. Consider updating Distant Horizons.");
+				return;
+			}
 			DhApiEventRegister.on(DhApiLevelLoadEvent.class, new DhApiLevelLoadEvent() {
 
 				@Override

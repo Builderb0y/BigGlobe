@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -405,15 +406,15 @@ public class InsnTrees implements ExtendedOpcodes {
 		return IfElseInsnTree.create(parser, conditionTree, trueBody, falseBody);
 	}
 
-	public static InsnTree while_(String loopName, ConditionTree condition, InsnTree body) {
+	public static InsnTree while_(LoopName loopName, ConditionTree condition, InsnTree body) {
 		return new WhileInsnTree(loopName, condition, body);
 	}
 
-	public static InsnTree doWhile(ExpressionParser parser, String loopName, ConditionTree condition, InsnTree body) {
+	public static InsnTree doWhile(ExpressionParser parser, LoopName loopName, ConditionTree condition, InsnTree body) {
 		return new DoWhileInsnTree(parser, loopName, condition, body);
 	}
 
-	public static InsnTree for_(String loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+	public static InsnTree for_(LoopName loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
 		return new ForInsnTree(loopName, initializer, condition, step, body);
 	}
 
@@ -447,7 +448,7 @@ public class InsnTrees implements ExtendedOpcodes {
 		return ScopedInsnTree.create(body);
 	}
 
-	public static InsnTree block(String loopName, InsnTree body) {
+	public static InsnTree block(LoopName loopName, InsnTree body) {
 		return new BlockInsnTree(loopName, body);
 	}
 

@@ -1,9 +1,12 @@
 package builderb0y.scripting.bytecode.tree.flow.loop;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -12,6 +15,7 @@ import builderb0y.scripting.util.TypeInfos;
 public abstract class AbstractForIteratorInsnTree implements InsnTree {
 
 	public static final MethodInfo
+		LIST_ITERATOR = MethodInfo.findMethod(List.class, "listIterator", ListIterator.class),
 		ITERATOR      = MethodInfo.getMethod(Iterable .class, "iterator"    ),
 		HAS_NEXT      = MethodInfo.getMethod(Iterator .class, "hasNext"     ),
 		NEXT          = MethodInfo.getMethod(Iterator .class, "next"        ),
@@ -24,9 +28,9 @@ public abstract class AbstractForIteratorInsnTree implements InsnTree {
 		CHAR_VALUE    = MethodInfo.getMethod(Character.class, "charValue"   ),
 		BOOLEAN_VALUE = MethodInfo.getMethod(Boolean  .class, "booleanValue");
 
-	public String loopName;
+	public LoopName loopName;
 
-	public AbstractForIteratorInsnTree(String loopName) {
+	public AbstractForIteratorInsnTree(LoopName loopName) {
 		this.loopName = loopName;
 	}
 

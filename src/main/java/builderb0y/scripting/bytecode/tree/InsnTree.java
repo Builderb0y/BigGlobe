@@ -115,7 +115,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			}
 		}
 		else {
-			throw new IllegalArgumentException("Not a statement");
+			throw new IllegalArgumentException("Not a statement: " + this.describe());
 		}
 	}
 
@@ -124,7 +124,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	}
 
 	public static enum UpdateOp {
-		ASSIGN              ((parser, oldValue, newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
+		ASSIGN              ((ExpressionParser parser, InsnTree oldValue, InsnTree newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
 		ADD                 (InsnTrees::add ),
 		SUBTRACT            (InsnTrees::sub ),
 		MULTIPLY            (InsnTrees::mul ),

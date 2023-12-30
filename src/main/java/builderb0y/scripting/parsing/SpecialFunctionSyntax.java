@@ -9,16 +9,16 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
+import builderb0y.scripting.bytecode.loops.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
-import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
-import builderb0y.scripting.bytecode.tree.flow.loop.*;
 import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
@@ -202,328 +202,140 @@ public class SpecialFunctionSyntax {
 		}
 	}
 
-	public static interface ForLoop {
+	public static class ForLoop {
 
-		public abstract InsnTree buildLoop(ExpressionParser parser);
-
-		public static ForLoop parse(ExpressionParser parser) throws ScriptParsingException {
-			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+		public static InsnTree parse(ExpressionParser parser) throws ScriptParsingException {
+			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			parser.input.expectAfterWhitespace('(');
 			parser.environment.user().push();
 			CursorPos afterOpen = parser.input.getCursor();
-			String firstTypeName = parser.input.readIdentifierOrNullAfterWhitespace();
-			CursorPos firstTypeRevert = parser.input.getCursor();
-			String firstVarName = parser.input.readIdentifierOrNullAfterWhitespace();
-			CursorPos firstVarRevert = parser.input.getCursor();
-			if (firstTypeName != null && firstVarName != null) {
+			InsnTree result = tryParseEnhanced(parser, loopName);
+			if (result != null) {
+				parser.input.expectAfterWhitespace(')');
+				parser.environment.user().pop();
+				return result;
+			}
+			else {
+				parser.input.setCursor(afterOpen);
+				InsnTree initializer = parser.nextScript();
+				parser.input.expectOperatorAfterWhitespace(",");
+				ConditionTree condition = condition(parser, parser.nextScript());
+				parser.input.expectOperatorAfterWhitespace(",");
+				InsnTree incrementer = parser.nextScript();
+				parser.input.expectOperatorAfterWhitespace(":");
+				InsnTree body = parser.nextScript();
+				parser.input.expectAfterWhitespace(')');
+				parser.environment.user().pop();
+				return for_(loopName, initializer, condition, incrementer, body.asStatement());
+			}
+		}
+
+		public static @Nullable InsnTree tryParseEnhanced(ExpressionParser parser, LoopName loopName) throws ScriptParsingException {
+			List<VarInfo> variables = new ArrayList<>(4);
+			variables:
+			while (true) {
+				String typeName = parser.input.readIdentifierOrNullAfterWhitespace();
+				if (typeName == null) return null;
+				TypeInfo type = parser.environment.getType(parser, typeName);
+				if (type == null) return null;
+				String varName = parser.input.readIdentifierOrNullAfterWhitespace();
+				if (varName == null) return null;
+				variables.add(new VarInfo(varName, -1, type));
 				if (parser.input.hasIdentifierAfterWhitespace("in")) {
-					TypeInfo firstType = parser.environment.getType(parser, firstTypeName);
-					if (firstType == null) {
-						parser.input.setCursor(firstTypeRevert);
-						throw new ScriptParsingException("Unknown type: " + firstTypeName, parser.input);
-					}
-					CursorPos afterIn = parser.input.getCursor();
-					parser.input.setCursor(firstVarRevert);
-					parser.verifyName(firstVarName, "variable");
-					parser.input.setCursor(afterIn);
-					VarInfo userVar = parser.environment.user().newVariable(firstVarName, firstType);
-
-					boolean hasMinus = parser.input.hasOperatorAfterWhitespace("-");
-					if (parser.input.hasIdentifierAfterWhitespace("range")) {
-						switch (firstType.getSort()) {
-							case INT, LONG, FLOAT, DOUBLE -> {}
-							default -> throw new ScriptParsingException("Iteration over range requires variable to be of type int, long, float, or double", parser.input);
-						}
-						boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
-							case '[' -> true;
-							case '(' -> false;
-							default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
-						};
-						parser.environment.user().push();
-						InsnTree lowerBound = parser.nextScript().cast(parser, firstType, CastMode.IMPLICIT_THROW);
-						parser.input.expectOperatorAfterWhitespace(",");
-						InsnTree upperBound = parser.nextScript().cast(parser, firstType, CastMode.IMPLICIT_THROW);
-						boolean upperBoundInclusive = switch (parser.input.readAfterWhitespace()) {
-							case ']' -> true;
-							case ')' -> false;
-							default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
-						};
-						parser.environment.user().pop();
-						InsnTree step;
-						if (parser.input.hasOperatorAfterWhitespace("%")) {
-							step = parser.nextExponent().cast(parser, firstType, CastMode.IMPLICIT_THROW);
-						}
-						else {
-							step = ldc(1, firstType);
-						}
-						parser.input.expectOperatorAfterWhitespace(":");
-						InsnTree body = parser.nextScript().asStatement();
-						parser.input.expectAfterWhitespace(')');
-						parser.environment.user().pop();
-						return new ForRangeLoop(
-							loopName,
-							new VariableDeclarationInsnTree(userVar),
-							!hasMinus,
-							lowerBound,
-							lowerBoundInclusive,
-							upperBound,
-							upperBoundInclusive,
-							step,
-							body
-						);
-					}
-					else {
-						parser.input.setCursor(afterIn);
-					}
-
-					VarInfo iterator = new VarInfo("$iterator", -1, TypeInfos.ITERATOR);
-					InsnTree rawIterable = parser.nextScript();
-					InsnTree iterable;
-					ForEachLoop.Mode mode;
-					if (rawIterable.getTypeInfo().extendsOrImplements(type(List.class)) && rawIterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class))) {
-						iterable = rawIterable;
-						mode = ForEachLoop.Mode.RANDOM_ACCESS_LIST;
-					}
-					else if (rawIterable.getTypeInfo().extendsOrImplements(type(Iterable.class))) {
-						iterable = invokeInstance(rawIterable, AbstractForIteratorInsnTree.ITERATOR);
-						mode = ForEachLoop.Mode.ITERABLE;
-					}
-					else if (rawIterable.getTypeInfo().extendsOrImplements(type(Iterator.class))) {
-						iterable = rawIterable;
-						mode = ForEachLoop.Mode.ITERATOR;
-					}
-					else {
-						throw new ScriptParsingException("in clause must implement Iterable or Iterator", parser.input);
-					}
-					parser.input.expectOperatorAfterWhitespace(":");
-					InsnTree body = parser.nextScript();
-					parser.input.expectAfterWhitespace(')');
-					parser.environment.user().pop();
-					return new ForEachLoop(
-						loopName,
-						new VariableDeclareAssignInsnTree(iterator, iterable),
-						mode,
-						new VariableDeclarationInsnTree(userVar),
-						body.asStatement()
-					);
-				}
-				else if (parser.input.hasOperatorAfterWhitespace(",")) {
-					String secondTypeName = parser.input.readIdentifierOrNullAfterWhitespace();
-					CursorPos secondTypeRevert = parser.input.getCursor();
-					String secondVarName = parser.input.readIdentifierOrNullAfterWhitespace();
-					CursorPos secondVarRevert = parser.input.getCursor();
-					if (secondTypeName != null && secondVarName != null) {
-						if (parser.input.hasIdentifierAfterWhitespace("in")) {
-							CursorPos afterIn = parser.input.getCursor();
-							TypeInfo firstType = parser.environment.getType(parser, firstTypeName);
-							if (firstType == null) {
-								parser.input.setCursor(firstTypeRevert);
-								throw new ScriptParsingException("Unknown type: " + firstTypeName, parser.input);
-							}
-							parser.input.setCursor(firstVarRevert);
-							parser.verifyName(firstVarName, "variable");
-							parser.input.setCursor(afterIn);
-
-							TypeInfo secondType = parser.environment.getType(parser, secondTypeName);
-							if (secondType == null) {
-								parser.input.setCursor(secondTypeRevert);
-								throw new ScriptParsingException("Unknown type: " + secondTypeName, parser.input);
-							}
-							parser.input.setCursor(secondVarRevert);
-							parser.verifyName(secondVarName, "variable");
-							parser.input.setCursor(afterIn);
-
-							VarInfo firstVar = parser.environment.user().newVariable(firstVarName, firstType);
-							VarInfo secondVar = parser.environment.user().newVariable(secondVarName, secondType);
-							InsnTree iterable = parser.nextScript();
+					LoopFactory loopFactory = tryParseRange(parser);
+					if (loopFactory == null) {
+						InsnTree iterable = parser.nextScript();
+						if (iterable.getTypeInfo().extendsOrImplements(type(Iterable.class))) {
 							if (iterable.getTypeInfo().extendsOrImplements(type(List.class))) {
-								if (!firstType.equals(TypeInfos.INT)) {
-									parser.input.setCursor(firstTypeRevert);
-									throw new ScriptParsingException("First type must be int when iterating over List (was " + firstType + ')', parser.input);
-								}
 								if (iterable.getTypeInfo().extendsOrImplements(type(RandomAccess.class))) {
-									VarInfo list = new VarInfo("$listForIteration", -1, type(List.class));
-									parser.input.expectOperatorAfterWhitespace(":");
-									InsnTree body = parser.nextScript();
-									parser.input.expectAfterWhitespace(')');
-									parser.environment.user().pop();
-									return new ForListIndexLoop(
-										loopName,
-										new VariableDeclarationInsnTree(firstVar),
-										new VariableDeclarationInsnTree(secondVar),
-										new VariableDeclareAssignInsnTree(list, iterable),
-										body
-									);
+									loopFactory = new RandomAccessListLoopFactory(iterable);
 								}
 								else {
-									VarInfo iterator = new VarInfo("$listIterator", -1, type(ListIterator.class));
-									parser.input.expectOperatorAfterWhitespace(":");
-									InsnTree body = parser.nextScript();
-									parser.input.expectAfterWhitespace(')');
-									parser.environment.user().pop();
-									return new ForListIteratorLoop(
-										loopName,
-										new VariableDeclarationInsnTree(firstVar),
-										new VariableDeclarationInsnTree(secondVar),
-										new VariableDeclareAssignInsnTree(
-											iterator,
-											invokeInstance(iterable, ForListIteratorLoop.LIST_LIST_ITERATOR)
-										),
-										body
-									);
+									loopFactory = new SequentialListLoopFactory(iterable);
 								}
 							}
-							else if (iterable.getTypeInfo().extendsOrImplements(type(Map.class))) {
-								VarInfo iterator = new VarInfo("$mapEntrySetIterator", -1, TypeInfos.ITERATOR);
-								parser.input.expectOperatorAfterWhitespace(":");
-								InsnTree body = parser.nextScript();
-								parser.input.expectAfterWhitespace(')');
-								parser.environment.user().pop();
-								return new ForMapLoop(
-									loopName,
-									new VariableDeclareAssignInsnTree(
-										iterator,
-										invokeInstance(
-											invokeInstance(iterable, ForMapIteratorInsnTree.ENTRY_SET),
-											AbstractForIteratorInsnTree.ITERATOR
-										)
-									),
-									new VariableDeclarationInsnTree(firstVar),
-									new VariableDeclarationInsnTree(secondVar),
-									body.asStatement()
-								);
-							}
 							else {
-								throw new ScriptParsingException("in clause must implement List or Map", parser.input);
+								loopFactory = new IterableLoopFactory(iterable);
 							}
 						}
+						else if (iterable.getTypeInfo().extendsOrImplements(type(Map.class))) {
+							loopFactory = new MapLoopFactory(iterable);
+						}
+						else if (iterable.getTypeInfo().extendsOrImplements(type(Iterator.class))) {
+							loopFactory = new IteratorLoopFactory(iterable);
+						}
+						else {
+							throw new ScriptParsingException("in clause must be of type Iterable, Iterator, Map, or range", parser.input);
+						}
 					}
+					List<VariableDeclarationInsnTree> declarations = variables.stream().peek(parser.environment.user()::addVariable).map(VariableDeclarationInsnTree::new).toList();
+					return switch (parser.input.readOperatorAfterWhitespace()) {
+						case ":" -> loopFactory.createLoop(parser, loopName, declarations, parser.nextScript().asStatement());
+						case "," -> {
+							InsnTree body = tryParseEnhanced(parser, loopName);
+							if (body == null) throw new ScriptParsingException("Expected next variable declaration", parser.input);
+							yield loopFactory.createLoop(parser, loopName, declarations, body);
+						}
+						default -> throw new ScriptParsingException("Expected ':' or ','", parser.input);
+					};
+				}
+				else if (parser.input.hasOperatorAfterWhitespace(",")) {
+					continue variables;
+				}
+				else {
+					return null;
 				}
 			}
-			parser.input.setCursor(afterOpen);
-			InsnTree initializer = parser.nextScript();
-			parser.input.expectOperatorAfterWhitespace(",");
-			ConditionTree condition = condition(parser, parser.nextScript());
-			parser.input.expectOperatorAfterWhitespace(",");
-			InsnTree incrementer = parser.nextScript();
-			parser.input.expectOperatorAfterWhitespace(":");
-			InsnTree body = parser.nextScript();
-			parser.input.expectAfterWhitespace(')');
-			parser.environment.user().pop();
-			return new ManualForLoop(loopName, initializer, condition, incrementer, body.asStatement());
-		}
-	}
-
-	public static record ManualForLoop(
-		String loopName,
-		InsnTree initializer,
-		ConditionTree condition,
-		InsnTree step,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return for_(this.loopName, this.initializer, this.condition, this.step, this.body);
-		}
-	}
-
-	public static record ForEachLoop(
-		String loopName,
-		VariableDeclareAssignInsnTree iteratorOrList,
-		Mode mode,
-		VariableDeclarationInsnTree userVar,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return (
-				this.mode == Mode.RANDOM_ACCESS_LIST
-				? new ForRandomAccessListInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
-				: new ForIteratorInsnTree(this.loopName, this.userVar, this.iteratorOrList, this.body)
-			);
 		}
 
-		public static enum Mode {
-			RANDOM_ACCESS_LIST,
-			ITERABLE,
-			ITERATOR;
-		}
-	}
-
-	public static record ForListIndexLoop(
-		String loopName,
-		VariableDeclarationInsnTree indexVar,
-		VariableDeclarationInsnTree elementVar,
-		VariableDeclareAssignInsnTree list,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return new ForListIndexInsnTree(this.loopName, this.indexVar, this.elementVar, this.list, this.body);
-		}
-	}
-
-	public static record ForListIteratorLoop(
-		String loopName,
-		VariableDeclarationInsnTree indexVar,
-		VariableDeclarationInsnTree elementVar,
-		VariableDeclareAssignInsnTree listIterator,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		public static final MethodInfo
-			LIST_LIST_ITERATOR = MethodInfo.findMethod(List.class, "listIterator", ListIterator.class);
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return new ForListIteratorInsnTree(this.loopName, this.indexVar, this.elementVar, this.listIterator, this.body);
-		}
-	}
-
-	public static record ForMapLoop(
-		String loopName,
-		VariableDeclareAssignInsnTree iterator,
-		VariableDeclarationInsnTree keyVar,
-		VariableDeclarationInsnTree valueVar,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return new ForMapIteratorInsnTree(this.loopName, this.keyVar, this.valueVar, this.iterator, this.body);
-		}
-	}
-
-	public static record ForRangeLoop(
-		String loopName,
-		VariableDeclarationInsnTree variable,
-		boolean ascending,
-		InsnTree lowerBound,
-		boolean lowerBoundInclusive,
-		InsnTree upperBound,
-		boolean upperBoundInclusive,
-		InsnTree step,
-		InsnTree body
-	)
-	implements ForLoop {
-
-		@Override
-		public InsnTree buildLoop(ExpressionParser parser) {
-			return switch (this.variable.variable.type.getSort()) {
-				case INT -> new ForIntRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
-				case LONG -> new ForLongRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
-				case FLOAT -> new ForFloatRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
-				case DOUBLE -> new ForDoubleRangeInsnTree(this.loopName, this.variable, this.ascending, this.lowerBound, this.lowerBoundInclusive, this.upperBound, this.upperBoundInclusive, this.step, this.body);
-				default -> throw new IllegalStateException(this.variable.variable.type.toString());
-			};
+		public static @Nullable RangeLoopFactory tryParseRange(ExpressionParser parser) throws ScriptParsingException{
+			CursorPos afterIn = parser.input.getCursor();
+			boolean hasMinus = parser.input.hasOperatorAfterWhitespace("-");
+			if (parser.input.hasIdentifierAfterWhitespace("range")) {
+				boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
+					case '[' -> true;
+					case '(' -> false;
+					default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
+				};
+				parser.environment.user().push();
+				InsnTree lowerBound = parser.nextScript();
+				lowerBound = lowerBound.cast(parser, TypeInfos.widenToInt(lowerBound.getTypeInfo()), CastMode.IMPLICIT_THROW);
+				parser.input.expectOperatorAfterWhitespace(",");
+				InsnTree upperBound = parser.nextScript();
+				upperBound = upperBound.cast(parser, TypeInfos.widenToInt(upperBound.getTypeInfo()), CastMode.IMPLICIT_THROW);
+				if (upperBound.getTypeInfo().getSort() != lowerBound.getTypeInfo().getSort()) {
+					throw new ScriptParsingException("Range bounds must have the same type", parser.input);
+				}
+				boolean upperBoundInclusive = switch (parser.input.readAfterWhitespace()) {
+					case ']' -> true;
+					case ')' -> false;
+					default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
+				};
+				parser.environment.user().pop();
+				InsnTree step;
+				if (parser.input.hasOperatorAfterWhitespace("%")) {
+					step = parser.nextExponent();
+					step = step.cast(parser, TypeInfos.widenToInt(step.getTypeInfo()), CastMode.IMPLICIT_THROW);
+					if (step.getTypeInfo().getSort() != lowerBound.getTypeInfo().getSort()) {
+						throw new ScriptParsingException("Step type must match bound types", parser.input);
+					}
+				}
+				else {
+					step = ldc(1, lowerBound.getTypeInfo());
+				}
+				return new RangeLoopFactory(
+					!hasMinus,
+					lowerBound,
+					lowerBoundInclusive,
+					upperBound,
+					upperBoundInclusive,
+					step
+				);
+			}
+			else {
+				parser.input.setCursor(afterIn);
+				return null;
+			}
 		}
 	}
 

@@ -6,7 +6,7 @@
 			"source": [
 				"if (distantHorizons: return(false))",
 				"++originY",
-				"for (int offsetY = 0, offsetY < 16, ++offsetY:",
+				"for (int offsetY in range[0, 16):",
 					"random.if ((1.0L - offsetY * 0.0625L) ^ 2:",
 						"setBlockState(originX, originY + offsetY, originZ, 'minecraft:bedrock')",
 					")",

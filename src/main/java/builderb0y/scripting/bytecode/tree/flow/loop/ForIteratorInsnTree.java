@@ -3,6 +3,7 @@ package builderb0y.scripting.bytecode.tree.flow.loop;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -17,7 +18,7 @@ public class ForIteratorInsnTree extends AbstractForIteratorInsnTree {
 	public InsnTree body;
 
 	public ForIteratorInsnTree(
-		String loopName,
+		LoopName loopName,
 		VariableDeclarationInsnTree variable,
 		VariableDeclareAssignInsnTree iterator,
 		InsnTree body

@@ -12,7 +12,7 @@
 				")",
 				"if (iceDepth > 0:",
 					"int topY = ceilInt(max_y)",
-					"for (int depth = 1, depth <= iceDepth, ++depth:",
+					"for (int depth in range(0, iceDepth]:",
 						"if (getBlockState(originX, originY - depth, originZ) == BlockState('minecraft:water[level=0]'):",
 							"setBlockState(originX, originY - depth, originZ, 'minecraft:ice')",
 						")",

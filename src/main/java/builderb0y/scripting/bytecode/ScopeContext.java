@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.LabelNode;
 
@@ -26,27 +27,26 @@ public class ScopeContext {
 	}
 
 	public Scope pushScope() {
-		Scope scope = new Scope(Scope.Type.NORMAL);
+		Scope scope = Scope.normal();
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
 		return scope;
 	}
 
 	public Scope pushManualScope() {
-		Scope scope = new Scope(Scope.Type.MANUAL);
+		Scope scope = Scope.manual();
 		this.stack.add(scope);
 		return scope;
 	}
 
-	public Scope pushLoop(String loopName) {
-		Scope scope = new Scope(Scope.Type.LOOP);
-		scope.loopName = loopName;
+	public Scope pushLoop(LoopName loopName) {
+		Scope scope = Scope.loop(loopName);
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
 		return scope;
 	}
 
-	public Scope pushLoop(String name, LabelNode continuePoint) {
+	public Scope pushLoop(LoopName name, LabelNode continuePoint) {
 		Scope scope = this.pushLoop(name);
 		scope.continuePoint = continuePoint;
 		return scope;
@@ -73,11 +73,29 @@ public class ScopeContext {
 		return this.stack.get(0);
 	}
 
-	public Scope findLoop(String loopName) {
+	public Scope findLoopForContinue(String loopName) {
 		List<Scope> stack = this.stack;
 		for (int index = stack.size(); --index >= 0;) {
 			Scope scope = stack.get(index);
-			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName))) return scope;
+			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName.name))) {
+				return scope;
+			}
+		}
+		throw new IllegalStateException(loopName == null ? "No enclosing loop" : "No enclosing loop named " + loopName);
+	}
+
+	public Scope findLoopForBreak(String loopName) {
+		List<Scope> stack = this.stack;
+		for (int index = stack.size(); --index >= 0;) {
+			Scope scope = stack.get(index);
+			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName.name))) {
+				while (--index >= 0) {
+					Scope next = stack.get(index);
+					if (next.loopName == scope.loopName) scope = next;
+					else break;
+				}
+				return scope;
+			}
 		}
 		throw new IllegalStateException(loopName == null ? "No enclosing loop" : "No enclosing loop named " + loopName);
 	}
@@ -88,14 +106,32 @@ public class ScopeContext {
 		public LabelNode end;
 		public LabelNode continuePoint;
 		public Type type;
-		public @Nullable String loopName;
+		public @NotNull LoopName loopName;
 
-		public Scope(Type type) {
+		public Scope(
+			LabelNode start,
+			LabelNode end,
+			LabelNode continuePoint,
+			Type type,
+			@NotNull LoopName loopName
+		) {
+			this.start = start;
+			this.end = end;
+			this.continuePoint = continuePoint;
 			this.type = type;
-			if (type != Type.MANUAL) {
-				this.start = labelNode();
-				this.end = labelNode();
-			}
+			this.loopName = loopName;
+		}
+
+		public static Scope normal() {
+			return new Scope(labelNode(), labelNode(), null, Type.NORMAL, LoopName.NOT_A_LOOP);
+		}
+
+		public static Scope manual() {
+			return new Scope(null, null, null, Type.MANUAL, LoopName.NOT_A_LOOP);
+		}
+
+		public static Scope loop(LoopName loopName) {
+			return new Scope(labelNode(), labelNode(), null, Type.LOOP, loopName);
 		}
 
 		public void cycle() {
@@ -112,6 +148,15 @@ public class ScopeContext {
 			NORMAL,
 			MANUAL,
 			LOOP;
+		}
+	}
+
+	public static record LoopName(@Nullable String name) {
+
+		public static final LoopName NOT_A_LOOP = new LoopName(null);
+
+		public static LoopName of(String name) {
+			return new LoopName(name);
 		}
 	}
 }

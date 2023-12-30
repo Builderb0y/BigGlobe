@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -13,7 +14,7 @@ import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ForListIteratorInsnTree extends AbstractForIteratorInsnTree {
+public class ForIndexedSequentialListInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
 		LIST_ITERATOR_PREV_INDEX = MethodInfo.getMethod(ListIterator.class, "previousIndex");
@@ -22,8 +23,8 @@ public class ForListIteratorInsnTree extends AbstractForIteratorInsnTree {
 	public VariableDeclareAssignInsnTree iterator;
 	public InsnTree body;
 
-	public ForListIteratorInsnTree(
-		String loopName,
+	public ForIndexedSequentialListInsnTree(
+		LoopName loopName,
 		VariableDeclarationInsnTree indexVariable,
 		VariableDeclarationInsnTree elementVariable,
 		VariableDeclareAssignInsnTree iterator,

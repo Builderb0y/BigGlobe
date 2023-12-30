@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -25,7 +26,7 @@ public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 	public InsnTree body;
 
 	public ForMapIteratorInsnTree(
-		String loopName,
+		LoopName loopName,
 		VariableDeclarationInsnTree keyVariable,
 		VariableDeclarationInsnTree valueVariable,
 		VariableDeclareAssignInsnTree iterator,

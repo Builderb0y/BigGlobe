@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode.tree.flow.loop;
 
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -7,7 +8,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 public abstract class AbstractForRangeInsnTree implements InsnTree {
 
-	public String loopName;
+	public LoopName loopName;
 	public VariableDeclarationInsnTree variable;
 	public boolean ascending;
 	public InsnTree lowerBound;
@@ -18,7 +19,7 @@ public abstract class AbstractForRangeInsnTree implements InsnTree {
 	public InsnTree body;
 
 	public AbstractForRangeInsnTree(
-		String loopName,
+		LoopName loopName,
 		VariableDeclarationInsnTree variable,
 		boolean ascending,
 		InsnTree lowerBound,

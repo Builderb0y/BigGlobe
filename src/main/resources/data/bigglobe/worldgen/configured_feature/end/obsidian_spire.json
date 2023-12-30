@@ -13,7 +13,7 @@
 					"int x = column.x",
 					"int z = column.z",
 					"void fill(int minY, int maxY:",
-						"for (int y = minY, y <= maxY, ++y:",
+						"for (int y in range[minY, maxY]:",
 							"if (getBlockState(x, y, z).isReplaceable():",
 								"setBlockState(x, y, z, 'minecraft:obsidian')",
 							")",

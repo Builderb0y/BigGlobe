@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"if (distantHorizons: return(false))",
-			"for (int count = 0, count < 2, ++count:",
+			"for (int count in range[0, 2):",
 				"int y = random.nextInt(int(min_y), int(max_y))",
 				"double fraction = unmixLinear(min_y, max_y, y)",
 				"double chance = exp2(fraction * -4.0L)",

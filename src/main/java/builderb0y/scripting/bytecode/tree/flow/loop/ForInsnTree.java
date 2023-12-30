@@ -4,6 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -14,13 +15,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ForInsnTree implements InsnTree {
 
-	public String loopName;
+	public LoopName loopName;
 	public InsnTree initializer;
 	public ConditionTree condition;
 	public InsnTree step;
 	public InsnTree body;
 
-	public ForInsnTree(String loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
+	public ForInsnTree(LoopName loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
 		this.loopName = loopName;
 		this.initializer = initializer.asStatement();
 		this.condition = condition;

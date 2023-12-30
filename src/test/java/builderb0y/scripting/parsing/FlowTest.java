@@ -593,4 +593,163 @@ public class FlowTest extends TestCommon {
 			);
 		});
 	}
+
+	@Test
+	public void testMultiLoops() throws ScriptParsingException {
+		assertSuccess(true,
+			"""
+			class Point(int x int y)
+			ArrayList expected = new(4)
+				.$add(Point.new(1, 1))
+				.$add(Point.new(1, 2))
+				.$add(Point.new(2, 1))
+				.$add(Point.new(2, 2))
+			ArrayList actual = new(4)
+			for (int x, int y in range[1, 2]:
+				actual.add(Point.new(x, y))
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Point(int x int y)
+			ArrayList expected = new()
+			ArrayList actual = new()
+			for (int x in range[0, 5]:
+				for (int y in range[0, 5]:
+					if (y & 1 == 0: continue())
+					expected.add(Point.new(x, y))
+				)
+			)
+			for (int x, int y in range[0, 5]:
+				if (y & 1 == 0: continue())
+				actual.add(Point.new(x, y))
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Point(int x int y)
+			ArrayList expected = new()
+			ArrayList actual = new()
+			for outer (int x in range[0, 4):
+				for inner (int y in range[0, 4):
+					if (x == 2 && y == 2: break(outer))
+					expected.add(Point.new(x, y))
+				)
+			)
+			for (int x, int y in range[0, 4):
+				if (x == 2 && y == 2: break())
+				actual.add(Point.new(x, y))
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Point(int a int b int c int d)
+			ArrayList expected = new()
+			ArrayList actual = new()
+			block outer (
+				for (int a in range[0, 5):
+					for (int b in range[0, 5):
+						for (int c in range[0, 5):
+							for (int d in range[0, 5):
+								if (c & 1 != 0 || d & 1 != 0: continue())
+								if (a == 2 && b == 2 && c == 2 && d == 2: break(outer))
+								expected.add(Point.new(a, b, c, d))
+							)
+						)
+					)
+				)
+			)
+			block outer (
+				for (int a, int b in range[0, 5):
+					for (int c, int d in range[0, 5):
+						if (c & 1 != 0 || d & 1 != 0: continue())
+						if (a == 2 && b == 2 && c == 2 && d == 2: break(outer))
+						actual.add(Point.new(a, b, c, d))
+					)
+				)
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Point(int a int b int c int d)
+			ArrayList expected = new()
+			ArrayList actual = new()
+			for (int a in range[0, 5):
+				for (int b in range[0, 5):
+					for middle (int c in range[0, 5):
+						for (int d in range[0, 5):
+							if (c & 1 != 0 || d & 1 != 0: continue())
+							if (c == 2 && d == 2: break(middle))
+							expected.add(Point.new(a, b, c, d))
+						)
+					)
+				)
+			)
+			for (int a, int b in range[0, 5):
+				for (int c, int d in range[0, 5):
+					if (c & 1 != 0 || d & 1 != 0: continue())
+					if (c == 2 && d == 2: break())
+					actual.add(Point.new(a, b, c, d))
+				)
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Point(int a int b int c int d)
+			ArrayList expected = new()
+			ArrayList actual = new()
+			for (int a in range[0, 5):
+				for middle (int b in range[0, 5):
+					for (int c in range[0, 5):
+						for (int d in range[0, 5):
+							if (c == 2 && d == 2: continue(middle))
+							expected.add(Point.new(a, b, c, d))
+						)
+					)
+				)
+			)
+			for outer (int a, int b in range[0, 5):
+				for (int c, int d in range[0, 5):
+					if (c == 2 && d == 2: continue(outer))
+					actual.add(Point.new(a, b, c, d))
+				)
+			)
+			expected == actual
+			"""
+		);
+		assertSuccess(true,
+			"""
+			HashMap original = new()
+			HashMap copy = new()
+			for (int i in range[0, 5):
+				ArrayList list = new()
+				for (int j in range[0, 5): list.add(j))
+				original.put(i, list)
+				copy.put(i, ArrayList.new())
+			)
+			for (Integer key, List value in original, Integer element in value:
+				copy.get(key).as(ArrayList).add(element)
+			)
+			original == copy
+			"""
+		);
+		assertFail(
+			"""
+			Unknown variable: x
+			Candidates:
+			
+			Actual form: x""",
+			"for (int x in range[-x, x]: noop) 0"
+		);
+	}
 }

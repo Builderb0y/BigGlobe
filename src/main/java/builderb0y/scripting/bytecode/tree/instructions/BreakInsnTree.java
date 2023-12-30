@@ -15,7 +15,7 @@ public class BreakInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		method.node.visitJumpInsn(GOTO, method.scopes.findLoop(this.loopName).end.getLabel());
+		method.node.visitJumpInsn(GOTO, method.scopes.findLoopForBreak(this.loopName).end.getLabel());
 	}
 
 	@Override

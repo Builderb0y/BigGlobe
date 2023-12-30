@@ -1,6 +1,7 @@
 package builderb0y.scripting.bytecode.tree.flow.loop;
 
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
@@ -14,17 +15,17 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class WhileInsnTree implements InsnTree {
 
-	public String loopName;
+	public LoopName loopName;
 	public ConditionTree condition;
 	public InsnTree body;
 
-	public WhileInsnTree(String loopName, ConditionTree condition, InsnTree body) {
+	public WhileInsnTree(LoopName loopName, ConditionTree condition, InsnTree body) {
 		this.loopName = loopName;
 		this.condition = condition;
 		this.body = body.asStatement();
 	}
 
-	public static InsnTree createRepeat(ExpressionParser parser, String loopName, InsnTree times, InsnTree body) {
+	public static InsnTree createRepeat(ExpressionParser parser, LoopName loopName, InsnTree times, InsnTree body) {
 		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
 		VarInfo counter = new VarInfo("$counter", -1, TypeInfos.INT);
 		InsnTree init, loadLimit;

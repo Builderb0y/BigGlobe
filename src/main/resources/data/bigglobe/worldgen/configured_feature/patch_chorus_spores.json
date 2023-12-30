@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"for (int attempt = 0, attempt < 64, ++attempt:",
+			"repeat (64:",
 				"double radius = random.nextDouble(4.0L)",
 				"double angle = random.nextDouble(tau)",
 				"int x = originX + roundInt(cos(angle) * radius)",

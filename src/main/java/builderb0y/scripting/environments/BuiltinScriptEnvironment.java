@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -21,6 +22,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax;
@@ -91,7 +93,7 @@ public class BuiltinScriptEnvironment {
 
 		//////////////// functions ////////////////
 
-		.addFunction("return", (parser, name, arguments) -> {
+		.addFunction("return", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			return new CastResult(
 				parser.createReturn(
 					switch (arguments.length) {
@@ -115,82 +117,86 @@ public class BuiltinScriptEnvironment {
 
 		.addKeyword("var", makeVar())
 		.addKeyword("class", makeClass())
-		.addKeyword("if", (parser, name) -> nextIfElse(parser, false))
-		.addKeyword("unless", (parser, name) -> nextIfElse(parser, true))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, false))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (parser, receiver, name, mode) -> nextIfElse(receiver, parser, true))
-		.addKeyword("while", (parser, name) -> {
-			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+		.addKeyword("if", (ExpressionParser parser, String name) -> nextIfElse(parser, false))
+		.addKeyword("unless", (ExpressionParser parser, String name) -> nextIfElse(parser, true))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			return nextIfElse(receiver, parser, false);
+		})
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			return nextIfElse(receiver, parser, true);
+		})
+		.addKeyword("while", (ExpressionParser parser, String name) -> {
+			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			ConditionBody whileStatement = ConditionBody.parse(parser);
 			return while_(loopName, whileStatement.condition(), whileStatement.body());
 		})
-		.addKeyword("until", (parser, name) -> {
-			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+		.addKeyword("until", (ExpressionParser parser, String name) -> {
+			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			ConditionBody whileStatement = ConditionBody.parse(parser);
 			return while_(loopName, not(whileStatement.condition()), whileStatement.body());
 		})
-		.addKeyword("do", (parser, name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
+		.addKeyword("do", (ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 			case "while" -> {
-				String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 				ConditionBody whileStatement = ConditionBody.parse(parser);
 				yield doWhile(parser, loopName, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
-				String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 				ConditionBody whileStatement = ConditionBody.parse(parser);
 				yield doWhile(parser, loopName, not(whileStatement.condition()), whileStatement.body());
 			}
 			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 		})
-		.addKeyword("repeat", (parser, name) -> {
-			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
-			ScriptBody repeatStatement = ScriptBody.parse(parser, (count, parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+		.addKeyword("repeat", (ExpressionParser parser, String name) -> {
+			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
+			ScriptBody repeatStatement = ScriptBody.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
 			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 		})
-		.addKeyword("for", (parser, name) -> {
-			return ForLoop.parse(parser).buildLoop(parser);
+		.addKeyword("for", (ExpressionParser parser, String name) -> {
+			return ForLoop.parse(parser);
 		})
-		.addKeyword("switch", (parser, name) -> {
+		.addKeyword("switch", (ExpressionParser parser, String name) -> {
 			SwitchBody switchBody = SwitchBody.parse(parser);
 			return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
 		})
-		.addKeyword("block", (parser, name) -> {
-			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
+		.addKeyword("block", (ExpressionParser parser, String name) -> {
+			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			return block(loopName, ParenthesizedScript.parse(parser).contents());
 		})
-		.addKeyword("break", (parser, name) -> {
+		.addKeyword("break", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
 			return new BreakInsnTree(loopName);
 		})
-		.addKeyword("continue", (parser, name) -> {
+		.addKeyword("continue", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
 			return new ContinueInsnTree(loopName);
 		})
-		.addKeyword("compare", (parser, name) -> {
+		.addKeyword("compare", (ExpressionParser parser, String name) -> {
 			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();
 		})
 
 		//////////////// member keywords ////////////////
 
-		.addMemberKeyword(TypeInfos.OBJECT, "is", (parser, receiver, name, mode) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "is", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 			}
 			return instanceOf(receiver, type);
 		})
-		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (parser, receiver, name, mode) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 			}
 			return not(parser, instanceOf(receiver, type));
 		})
-		.addMemberKeyword(null, "as", (parser, receiver, name, mode) -> {
+		.addMemberKeyword(null, "as", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
 		})
 		.addMemberKeyword(TypeInfos.BYTE,   "isBetween", makeBetween())
@@ -316,7 +322,7 @@ public class BuiltinScriptEnvironment {
 	);
 
 	public static FunctionHandler makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
-		return new FunctionHandler.Named(name, (parser, name1, arguments) -> {
+		return new FunctionHandler.Named(name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
 				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
 			}
@@ -334,7 +340,7 @@ public class BuiltinScriptEnvironment {
 	}
 
 	public static FunctionHandler makePrint() {
-		return new FunctionHandler.Named("builtin function print(anything)", (parser, name, arguments) -> {
+		return new FunctionHandler.Named("builtin function print(anything)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			if (arguments.length == 0) {
 				throw new ScriptParsingException("Not allowed to print nothing", parser.input);
 			}
@@ -383,7 +389,7 @@ public class BuiltinScriptEnvironment {
 	}
 
 	public static KeywordHandler makeVar() {
-		return (parser, name) -> {
+		return (ExpressionParser parser, String name) -> {
 			String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
 			boolean reuse;
 			if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
@@ -400,7 +406,7 @@ public class BuiltinScriptEnvironment {
 	}
 
 	public static KeywordHandler makeClass() {
-		return (parser, name) -> {
+		return (ExpressionParser parser, String name) -> {
 			String className = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "class");
 			parser.checkType(className);
 			new UserClassDefiner(parser, className).parse();
@@ -409,7 +415,7 @@ public class BuiltinScriptEnvironment {
 	}
 
 	public static MemberKeywordHandler makeBetween() {
-		return (parser, receiver, name, mode) -> {
+		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return switch (mode) {
 				case NORMAL, NULLABLE -> {
 					yield SpecialFunctionSyntax.IsBetween.parse(parser, receiver).toTree(parser);
