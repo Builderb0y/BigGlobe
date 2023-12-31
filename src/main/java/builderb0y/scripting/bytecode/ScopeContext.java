@@ -39,14 +39,14 @@ public class ScopeContext {
 		return scope;
 	}
 
-	public Scope pushLoop(LoopName loopName) {
+	public Scope pushLoop(@NotNull LoopName loopName) {
 		Scope scope = Scope.loop(loopName);
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
 		return scope;
 	}
 
-	public Scope pushLoop(LoopName name, LabelNode continuePoint) {
+	public Scope pushLoop(@NotNull LoopName name, LabelNode continuePoint) {
 		Scope scope = this.pushLoop(name);
 		scope.continuePoint = continuePoint;
 		return scope;
@@ -130,7 +130,7 @@ public class ScopeContext {
 			return new Scope(null, null, null, Type.MANUAL, LoopName.NOT_A_LOOP);
 		}
 
-		public static Scope loop(LoopName loopName) {
+		public static Scope loop(@NotNull LoopName loopName) {
 			return new Scope(labelNode(), labelNode(), null, Type.LOOP, loopName);
 		}
 

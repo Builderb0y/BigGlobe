@@ -24,6 +24,8 @@ testing:
 
 where I left off:
 	surface blocks in the nether for hyperspeed generator?
+	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
+		add exclusion to remove ring and bridge clouds from above the main end island.
 
 changelog:
 
@@ -61,7 +63,6 @@ scripting:
 	inline getters and setters for user-defined classes.
 	scriptable loot tables.
 	scriptable advancements?
-	better candidate lists when referencing something that doesn't exist.
 
 features:
 	general:

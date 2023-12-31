@@ -9,11 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -34,15 +37,13 @@ import builderb0y.scripting.bytecode.tree.instructions.ScopedInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
-import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
-import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
+import builderb0y.scripting.environments.ScriptEnvironment.*;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserExtensionMethodDefiner;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserFunctionDefiner;
 import builderb0y.scripting.util.ArrayBuilder;
+import builderb0y.scripting.util.StringSimilarity;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -1101,7 +1102,31 @@ public class ExpressionParser {
 	}
 
 	public String listCandidates(String identifier, String prefix, String suffix) {
-		return this.environment.listCandidates(identifier).map("\t"::concat).collect(Collectors.joining("\n", prefix + "\nCandidates:\n", '\n' + suffix));
+		record DescribedStringSimilarity(IdentifierDescriptor descriptor, StringSimilarity similarity) implements Comparable<DescribedStringSimilarity> {
+
+			@Override
+			public int compareTo(@NotNull DescribedStringSimilarity that) {
+				return this.similarity.compareTo(that.similarity);
+			}
+		}
+		return (
+			this
+			.environment
+			.listIdentifiers()
+			.map((IdentifierDescriptor descriptor) -> {
+				StringSimilarity similarity = StringSimilarity.compare(identifier, descriptor.name());
+				return similarity.compareTo(StringSimilarity.NO_MATCH) > 0 ? new DescribedStringSimilarity(descriptor, similarity) : null;
+			})
+			.filter(Objects::nonNull)
+			.sorted(Comparator.reverseOrder())
+			.limit(10L)
+			.map((DescribedStringSimilarity described) -> "\t" + described.descriptor.value())
+			.collect(Collectors.joining(
+				"\n",
+				prefix + "\nCandidates:\n",
+				'\n' + suffix
+			))
+		);
 	}
 
 	public static boolean isLetter(char c) {

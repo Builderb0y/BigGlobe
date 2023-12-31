@@ -11,6 +11,7 @@ import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -146,7 +147,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
-						null,
+						new LoopName(null),
 						store(index, ldc(0)),
 						lt(
 							this,
@@ -235,7 +236,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				getBulk.scopes.withScope((MethodCompileContext getBulk_) -> {
 					VarInfo index = getBulk_.newVariable("index", TypeInfos.INT);
 					for_(
-						null,
+						new LoopName(null),
 						store(index, ldc(0)),
 						lt(this, load(index), load(sampleCount)),
 						inc(index, 1),

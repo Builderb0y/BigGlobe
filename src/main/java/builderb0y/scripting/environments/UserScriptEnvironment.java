@@ -14,10 +14,7 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.NamedType;
+import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.StackMap;
@@ -51,26 +48,31 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public Stream<String> listCandidates(String name) {
+	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-			Stream.ofNullable(this.variables.get(name))
-			.map(variable -> "Variable " + name + ": " + variable.variable),
+			this.variables.entrySet().stream().map((Map.Entry<String, LoadInsnTree> entry) -> {
+				return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue().variable);
+			}),
 
-			this.fields.entrySet().stream()
-			.filter(entry -> Objects.equals(entry.getKey().name, name))
-			.map(entry -> "Field " + entry.getKey() + ": " + entry.getValue()),
+			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
+				return MutableScriptEnvironment.prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+			}),
 
-			Stream.ofNullable(this.functions.get(name))
-			.flatMap(List::stream)
-			.map(function -> "Function " + name + ": " + function),
+			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
+				return entry.getValue().stream().map((FunctionHandler handler) -> {
+					return MutableScriptEnvironment.prefix("Function", entry.getKey(), entry.getKey(), handler);
+				});
+			}),
 
-			this.methods.entrySet().stream()
-			.filter(entry -> Objects.equals(entry.getKey().name, name))
-			.flatMap(entry -> entry.getValue().stream().map(handler -> Map.entry(entry.getKey(), handler)))
-			.map(entry -> "Method " + entry.getKey() + ": " + entry.getValue()),
+			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
+				return entry.getValue().stream().map((MethodHandler handler) -> {
+					return MutableScriptEnvironment.prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
+				});
+			}),
 
-			Stream.ofNullable(this.types.get(name))
-			.map(type -> "Type " + name + ": " + type)
+			this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
+				return MutableScriptEnvironment.prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
+			})
 		)
 		.flatMap(Function.identity());
 	}

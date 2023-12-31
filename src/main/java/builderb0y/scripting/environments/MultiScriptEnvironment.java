@@ -104,8 +104,8 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public Stream<String> listCandidates(String name) {
-		return this.environments.stream().flatMap(env -> env.listCandidates(name));
+	public Stream<IdentifierDescriptor> listIdentifiers() {
+		return this.environments.stream().flatMap(ScriptEnvironment::listIdentifiers);
 	}
 
 	@Override

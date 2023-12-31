@@ -19,6 +19,7 @@ import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.WorldColumn;
@@ -477,11 +478,21 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		}
 
 		@Override
-		public Stream<String> listCandidates(String name) {
+		public Stream<IdentifierDescriptor> listIdentifiers() {
 			return Stream.of(
-				Stream.of("worldSeed"),
-				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> String.valueOf((char)(c))),
-				Stream.ofNullable(this.inputs.get(name)).map(input -> "Input " + input.name + " @ " + input.index)
+				Stream.of(new IdentifierDescriptor("worldSeed", "long worldSeed: seed of the world")),
+
+				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> {
+					return new IdentifierDescriptor(String.valueOf((char)(c)), TaskLogger.lazyMessage(() -> {
+						return "int " + (char)(c) + ": the " + (char)(c) + " coordinate of the current position";
+					}));
+				}),
+
+				this.inputs.values().stream().map((Input input) -> {
+					return new IdentifierDescriptor(input.name, TaskLogger.lazyMessage(() -> {
+						return "double " + input.name + ": user-defined input @ " + input.index;
+					}));
+				})
 			)
 			.flatMap(Function.identity());
 		}
