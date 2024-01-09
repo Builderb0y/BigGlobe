@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:delegate",
+	"value": {
+		"delegate": "overworld/sea_level_adjusted_snow_y"
+	}
+}

@@ -38,6 +38,10 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("project_xz"),    ProjectGrid3D_XZ.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("project_yz"),    ProjectGrid3D_YZ.class);
 
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xy"),      StackedGrid_XY.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xz"),      StackedGrid_XZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_yz"),      StackedGrid_YZ.class);
+
 			REGISTRY.registerAuto(BigGlobeMod.modID("script"),          ScriptedGrid3D.class);
 		}
 	}};

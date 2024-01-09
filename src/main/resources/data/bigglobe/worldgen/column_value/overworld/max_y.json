@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:delegate",
+	"value": {
+		"delegate": "bigglobe:overworld/cliffy_height"
+	}
+}

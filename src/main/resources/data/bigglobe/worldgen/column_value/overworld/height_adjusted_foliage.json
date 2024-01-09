@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script_3d",
+	"value": {
+		"script": [
+			"`overworld/raw_foliage` - abs(y - `overworld/sea_level`) / 512.0L"
+		],
+		"cache": false
+	}
+}

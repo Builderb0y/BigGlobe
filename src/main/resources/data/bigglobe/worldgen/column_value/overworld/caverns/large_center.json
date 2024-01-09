@@ -1,0 +1,13 @@
+{
+	"type": "noise_2d",
+	"value": {
+		"type": "sum",
+		"layers": [
+			{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 64.0 },
+			{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude": 32.0 },
+			{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude": 14.0 },
+			{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  6.0 },
+			{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":  2.0 }
+		]
+	}
+}

@@ -29,12 +29,12 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 	public abstract InsnTree asStatement();
 
 	public static enum CombinedMode {
-		VOID       (UpdateOrder.VOID, false),
-		PRE        (UpdateOrder.PRE,  false),
-		POST       (UpdateOrder.POST, false),
-		VOID_ASSIGN(UpdateOrder.VOID, true),
-		PRE_ASSIGN (UpdateOrder.PRE,  true),
-		POST_ASSIGN(UpdateOrder.POST, true);
+		VOID       (UpdateOrder.VOID, false), //a += b
+		PRE        (UpdateOrder.PRE,  false), //a +: b
+		POST       (UpdateOrder.POST, false), //a :+ b
+		VOID_ASSIGN(UpdateOrder.VOID, true ), //a  = b
+		PRE_ASSIGN (UpdateOrder.PRE,  true ), //a =: b
+		POST_ASSIGN(UpdateOrder.POST, true ); //a := b
 
 		public final UpdateOrder order;
 		public final boolean isAssignment;

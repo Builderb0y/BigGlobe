@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script_2d",
+	"value": [
+		"min(",
+			"unmixLinear(-0.25L, -0.5L, `overworld/temperature`),",
+			"unmixLinear(`overworld/sea_level`, `overworld/sea_level` - `overworld/hilliness` * 128.0L, `overworld/max_y`)",
+		")"
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script_2d",
+	"value": {
+		"script": [
+			"`overworld/height_adjusted_snow_y` - `overworld/max_y`"
+		],
+		"cache": false
+	}
+}

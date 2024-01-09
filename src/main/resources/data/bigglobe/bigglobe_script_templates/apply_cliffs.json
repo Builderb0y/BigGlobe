@@ -1,0 +1,34 @@
+{
+	"type": "bigglobe:generic",
+	"script": [
+		"double halfCliffCurve(double height, double coefficient:",
+			"double product = coefficient * height",
+			"(product + height) / (product + 1.0L)",
+		")",
+
+		"double fullCliffCurve(double height, double coefficient:",
+			"height > 0.5L",
+			"? 1.0L -  0.5L * halfCliffCurve(2.0L - 2.0D * height, coefficient)",
+			":         0.5L * halfCliffCurve(       2.0D * height, coefficient)",
+		")",
+
+		"double scale = 128.0L * `overworld/hilliness`",
+		"double cliffiness = `overworld/cliffiness`",
+		"HEIGHT /= scale",
+
+		"int floor = floorInt(HEIGHT)",
+		"int ceil  = floor + 1",
+		"double mod = HEIGHT - floor",
+		"double curve = fullCliffCurve(mod, -cliffiness)",
+		"double cliffHeight = mixLinear(",
+			"`overworld/cliff_height_uncached`(floor) + floor,",
+			"`overworld/cliff_height_uncached`(ceil ) + ceil,",
+			"curve",
+		")",
+		"double newHeight = mixLinear(HEIGHT, cliffHeight, cliffiness)",
+		"return(newHeight * scale)"
+	],
+	"inputs": [
+		{ "name": "HEIGHT", "type": "double" }
+	]
+}

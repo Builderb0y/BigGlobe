@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:voronoi_2d",
+	"value": {
+		"distance": 1024,
+		"variation": 768,
+		"exports": {
+			"min_y": { "type": "double_2d" },
+			"max_y": { "type": "double_2d" }
+		}
+	}
+}

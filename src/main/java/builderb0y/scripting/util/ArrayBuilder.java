@@ -2,14 +2,20 @@ package builderb0y.scripting.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
-public class ArrayBuilder<T> extends ArrayList<T> {
+public class ArrayBuilder<T> extends ArrayList<T> implements Consumer<T> {
 
 	public ArrayBuilder() {}
 
 	public ArrayBuilder(int initialCapacity) {
 		super(initialCapacity);
+	}
+
+	@Override
+	public void accept(T t) {
+		this.add(t);
 	}
 
 	@SafeVarargs

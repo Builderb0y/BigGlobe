@@ -1,0 +1,30 @@
+{
+	"type": "bigglobe:noise_2d",
+	"value": {
+		"type": "bigglobe:script",
+		"min": 0.0,
+		"max": 24.0,
+		"script": [
+			"double magicalness = 1.0L - 0.0625L / (`overworld/magicalness` ^ 2 + 0.0625L)",
+			"double innerness = 1.0L - 0.25L / ((`overworld/glacier_crack_threshold` - 1.0L) ^ 2 + 0.25L)",
+			"maze = 24.0L - 24.0L / (maze ^ 4 + 1.0L)",
+			"return(maze * magicalness * innerness)"
+		],
+		"inputs": {
+			"maze": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 4.0 },
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 1.6 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.64 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.256 },
+					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.1024 }
+				]
+			}
+		}
+	},
+	"valid": {
+		"where": "`overworld/glacier_crack_threshold` > 1.0L && `overworld/magicalness` > 0.0L",
+		"fallback": 0.0
+	}
+}
