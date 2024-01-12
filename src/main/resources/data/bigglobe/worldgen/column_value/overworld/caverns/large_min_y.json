@@ -1,7 +1,5 @@
 {
 	"type": "double_script_2d",
-	"value": [
-		"`overworld/caverns/big_center` - `overworld/caverns/big_thickness`"
-	],
+	"value": "`overworld/caverns/big_center` - `overworld/caverns/big_thickness`",
 	"cache": false
 }

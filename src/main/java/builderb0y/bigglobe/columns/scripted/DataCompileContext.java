@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.Type;
@@ -13,7 +15,9 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseOrInsnTree;
@@ -33,6 +37,7 @@ public abstract class DataCompileContext {
 	public ClassCompileContext mainClass;
 	public MutableScriptEnvironment environment;
 	public int flagsIndex;
+	public List<DataCompileContext> children;
 
 	public DataCompileContext(ColumnEntryRegistry registry) {
 		this.registry = registry;
@@ -47,7 +52,7 @@ public abstract class DataCompileContext {
 			.addFieldInvoke("hardDistance", MethodInfo.getMethod(VoronoiDataBase.class, "get_hard_distance"))
 			.addFieldInvoke("hardDistanceSquared", MethodInfo.getMethod(VoronoiDataBase.class, "get_hard_distance_squared"))
 		);
-
+		this.children = new ArrayList<>(8);
 	}
 
 	public TypeInfo selfType() {
@@ -93,9 +98,11 @@ public abstract class DataCompileContext {
 	public void generateFlaggedGetterSetter(ColumnEntryMemory memory) {
 		int uniqueIndex = this.mainClass.memberUniquifier++;
 		int flagIndex = this.flagsIndex++;
+		memory.putTyped(ColumnEntryMemory.FLAGS_INDEX, flagIndex);
 		Identifier accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
 		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
 		String internalName = internalName(accessID, uniqueIndex);
+		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 
 		FieldCompileContext valueField = this.mainClass.newField(ACC_PUBLIC, internalName, type);
 		memory.putTyped(ColumnEntryMemory.FIELD, valueField.info);
@@ -174,9 +181,31 @@ public abstract class DataCompileContext {
 		});
 	}
 
-	public void generateComputer(MethodCompileContext method, ScriptUsage<GenericScriptTemplateUsage> script, MutableScriptEnvironment environment) throws ScriptParsingException {
-		new ScriptColumnEntryParser(script, this.mainClass, method).addEnvironment(environment).parseEntireInput().emitBytecode(method);
+	public void generateComputer(MethodCompileContext method, ScriptUsage<GenericScriptTemplateUsage> script) throws ScriptParsingException {
+		new ScriptColumnEntryParser(script, this.mainClass, method).addEnvironment(this.environment).parseEntireInput().emitBytecode(method);
 	}
+
+	public void generateGuardedComputer(
+		MethodCompileContext computeMethod,
+		MethodInfo testMethod,
+		MethodInfo actuallyComputeMethod,
+		ConstantValue fallback
+	)
+	throws ScriptParsingException {
+		computeMethod.scopes.withScope((MethodCompileContext compute) -> {
+			new IfElseInsnTree(
+				new BooleanToConditionTree(
+					invokeInstance(this.loadSelf(), testMethod)
+				),
+				return_(invokeInstance(this.loadSelf(), actuallyComputeMethod)),
+				return_(ldc(fallback)),
+				TypeInfos.VOID
+			)
+			.emitBytecode(compute);
+		});
+	}
+
+	public abstract void addFlagsFields();
 
 	public static class ColumnCompileContext extends DataCompileContext {
 
@@ -270,6 +299,15 @@ public abstract class DataCompileContext {
 		public TypeInfo voronoiBaseType() {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public void addFlagsFields() {
+			int fieldCount = this.flagsIndex >>> 5;
+			for (int field = 0; field < fieldCount; field++) {
+				this.mainClass.newField(ACC_PUBLIC, "flags_" + field, TypeInfos.INT);
+			}
+			this.children.forEach(DataCompileContext::addFlagsFields);
+		}
 	}
 
 	public static class VoronoiBaseCompileContext extends DataCompileContext {
@@ -278,6 +316,7 @@ public abstract class DataCompileContext {
 
 		public VoronoiBaseCompileContext(ColumnCompileContext parent) {
 			super(parent.registry);
+			parent.children.add(this);
 			this.flagsIndex = 3;
 			this.parent = parent;
 			this.mainClass = parent.mainClass.newInnerClass(
@@ -373,6 +412,11 @@ public abstract class DataCompileContext {
 		public TypeInfo voronoiBaseType() {
 			return this.selfType();
 		}
+
+		@Override
+		public void addFlagsFields() {
+			this.children.forEach(DataCompileContext::addFlagsFields);
+		}
 	}
 
 	public static class VoronoiImplCompileContext extends DataCompileContext {
@@ -381,6 +425,7 @@ public abstract class DataCompileContext {
 
 		public VoronoiImplCompileContext(VoronoiBaseCompileContext parent) {
 			super(parent.registry);
+			parent.children.add(this);
 			this.parent = parent;
 			this.flagsIndex = 3;
 			this.mainClass = parent.mainClass.newInnerClass(
@@ -471,6 +516,15 @@ public abstract class DataCompileContext {
 		@Override
 		public TypeInfo voronoiBaseType() {
 			return this.parent.voronoiBaseType();
+		}
+
+		@Override
+		public void addFlagsFields() {
+			int fieldCount = this.flagsIndex >>> 5;
+			for (int field = 1; field < fieldCount; field++) {
+				this.mainClass.newField(ACC_PUBLIC, "flags_" + field, TypeInfos.INT);
+			}
+			this.children.forEach(DataCompileContext::addFlagsFields);
 		}
 	}
 }

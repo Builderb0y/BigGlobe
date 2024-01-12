@@ -11,6 +11,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 
+import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -50,15 +51,13 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	public final VoronoiDiagram2D diagram;
 	public final TagKey<VoronoiSettings> values;
-	public final Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
+	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 
 	public Voronoi2DColumnEntry(
 		VoronoiDiagram2D diagram,
 		TagKey<VoronoiSettings> values,
-		Map<String, AccessSchema> exports,
-		Valid valid
+		Map<String, AccessSchema> exports
 	) {
-		super(valid);
 		this.diagram = diagram;
 		this.values  = values;
 		this.exports = exports;
@@ -219,7 +218,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	public static class VoronoiAccessSchema implements _2DAccessSchema {
 
-		public final Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
+		public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 
 		public VoronoiAccessSchema(Map<String, AccessSchema> exports) {
 			this.exports = exports;

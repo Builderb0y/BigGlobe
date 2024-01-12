@@ -3,7 +3,7 @@
 	"value": {
 		"script": [
 			"`overworld/raw_temperature` - (y - `overworld/sea_level`) / 512.0L"
-		],
-		"cache": false
-	}
+		]
+	},
+	"cache": false
 }

@@ -15,7 +15,6 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.AccessSchema.TypeContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -29,7 +28,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 
 	public static final CoderRegistry<ColumnEntry> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_value"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID(   "int_script_2d"), IntScript2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("int_script_2d"), IntScript2DColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();
@@ -46,12 +45,18 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			ENTRY = new Key<>("entry");
 		public static final Key<Identifier>
 			ACCESSOR_ID = new Key<>("accessorID");
+		public static final Key<Integer>
+			FLAGS_INDEX = new Key<>("flagsIndex");
+		public static final Key<String>
+			INTERNAL_NAME = new Key<>("internalName");
 		public static final Key<FieldInfo>
 			FIELD = new Key<>("field");
 		public static final Key<MethodCompileContext>
 			GETTER = new Key<>("getter"),
 			SETTER = new Key<>("setter"),
-			COMPUTER = new Key<>("computer");
+			TESTER = new Key<>("tester"),
+			COMPUTER = new Key<>("computer"),
+			ACTUAL_COMPUTER = new Key<>("actualComputer");
 		public static final Key<TypeContext>
 			TYPE = new Key<>("type");
 

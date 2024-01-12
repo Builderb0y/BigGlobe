@@ -30,7 +30,7 @@ public class ColumnEntryRegistry {
 	public ScriptedColumn.Factory columnFactory;
 
 	public ColumnEntryRegistry(BetterRegistry<ColumnEntry> entries, BetterRegistry<VoronoiSettings> voronois) throws ScriptParsingException {
-		this.entries = entries;
+		this.entries  = entries;
 		this.voronois = voronois;
 		this.memories = entries.streamEntries().collect(
 			Collectors.toMap(
@@ -92,5 +92,6 @@ public class ColumnEntryRegistry {
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", null);
 		}
+		columnContext.addFlagsFields();
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"type": "bigglobe:noise_3d",
+	"type": "bigglobe:double_noise_3d",
 	"value": {
 		"type": "stacked_xz",
 		"2D_grid": {

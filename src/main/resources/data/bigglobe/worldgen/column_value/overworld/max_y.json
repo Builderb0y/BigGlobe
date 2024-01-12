@@ -1,6 +1,12 @@
 {
-	"type": "bigglobe:delegate",
+	"type": "bigglobe:script_2d",
 	"value": {
-		"delegate": "bigglobe:overworld/cliffy_height"
+		"script": {
+			"debug_name": "OverworldMaxY",
+			"template": "apply_cliffs",
+			"inputs": {
+				"HEIGHT": "`bigglobe:raw_erosion`"
+			}
+		}
 	}
 }

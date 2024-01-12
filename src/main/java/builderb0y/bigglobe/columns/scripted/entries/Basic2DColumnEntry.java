@@ -1,23 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptUsage;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class Basic2DColumnEntry implements ColumnEntry {
-
-	public final @VerifyNullable Valid valid;
-	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) {}
-
-	public Basic2DColumnEntry(Valid valid) {
-		this.valid = valid;
-	}
 
 	public abstract boolean isCached();
 

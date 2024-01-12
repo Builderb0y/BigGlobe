@@ -1,5 +1,5 @@
 {
-	"type": "noise_2d",
+	"type": "double_noise_2d",
 	"value": {
 		"type": "sum",
 		"layers": [

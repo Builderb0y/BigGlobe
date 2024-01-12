@@ -25,7 +25,7 @@
 					"+ curve(`overworld/raw_erosion_2`,     2.0L)",
 				")"
 			]
-		},
-		"valid": "`overworld/max_y` > 0.0L"
-	}
+		}
+	},
+	"valid": "`overworld/max_y` > 0.0L"
 }

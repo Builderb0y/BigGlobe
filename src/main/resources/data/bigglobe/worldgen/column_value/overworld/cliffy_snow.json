@@ -1,5 +1,5 @@
 {
-	"type": "bigglobe:script_2d",
+	"type": "bigglobe:double_script_2d",
 	"value": {
 		"script": {
 			"debug_name": "OverworldMaxY",

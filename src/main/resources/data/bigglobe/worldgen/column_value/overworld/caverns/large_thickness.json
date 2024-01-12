@@ -1,6 +1,4 @@
 {
 	"type": "double_script_2d",
-	"value": [
-		"sqrt(`overworld/caverns/big_thickness_squared`)"
-	]
+	"value": "sqrt(`overworld/caverns/big_thickness_squared`)"
 }
