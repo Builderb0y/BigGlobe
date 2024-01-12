@@ -107,7 +107,6 @@ public class ExpressionParser {
 	public final ClassCompileContext clazz;
 	public final MethodCompileContext method;
 	public final RootScriptEnvironment environment;
-	public int functionUniquifier;
 
 	public ExpressionParser(String input, ClassCompileContext clazz, MethodCompileContext method) {
 		this.input = new ExpressionReader(input);

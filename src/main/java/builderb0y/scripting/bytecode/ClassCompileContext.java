@@ -14,6 +14,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
@@ -29,6 +31,8 @@ public class ClassCompileContext {
 	public TypeInfo info;
 	public Map<String, TypeInfo> definedClasses;
 	public List<ClassCompileContext> innerClasses;
+	public int memberUniquifier;
+	public List<Object> constants = new ArrayList<>();
 
 	public ClassCompileContext(int access, TypeInfo info) {
 		this.node = new ClassNode();
@@ -82,6 +86,15 @@ public class ClassCompileContext {
 		TypeInfo[] superInterfaces
 	) {
 		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false));
+	}
+
+	public ConstantValue newConstant(Object value) {
+		int which = this.constants.size();
+		this.constants.add(value);
+		return ConstantValue.dynamic(
+			ScriptClassLoader.GET_CONSTANT,
+			ConstantValue.of(which)
+		);
 	}
 
 	public byte[] toByteArray() {

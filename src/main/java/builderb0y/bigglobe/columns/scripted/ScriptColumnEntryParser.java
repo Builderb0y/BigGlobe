@@ -1,4 +1,4 @@
-package builderb0y.scripting.parsing;
+package builderb0y.bigglobe.columns.scripted;
 
 import java.util.Collections;
 import java.util.function.Consumer;
@@ -16,29 +16,32 @@ import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class TemplateScriptParser<I> extends ScriptParser<I> {
+public class ScriptColumnEntryParser extends ExpressionParser {
 
 	public final ScriptUsage<GenericScriptTemplateUsage> usage;
 
-	public TemplateScriptParser(Class<I> implementingClass, ScriptUsage<GenericScriptTemplateUsage> usage) {
-		super(implementingClass, usage.findSource(), usage.debug_name);
+	public ScriptColumnEntryParser(ScriptUsage<GenericScriptTemplateUsage> usage, ClassCompileContext clazz, MethodCompileContext method) {
+		super(usage.findSource(), clazz, method);
 		this.usage = usage;
 	}
 
 	@Override
-	public TemplateScriptParser<I> addEnvironment(ScriptEnvironment environment) {
-		return (TemplateScriptParser<I>)(super.addEnvironment(environment));
+	public ScriptColumnEntryParser addEnvironment(ScriptEnvironment environment) {
+		return (ScriptColumnEntryParser)(super.addEnvironment(environment));
 	}
 
 	@Override
-	public TemplateScriptParser<I> configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
-		return (TemplateScriptParser<I>)(super.configureEnvironment(configurator));
+	public ScriptColumnEntryParser configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
+		return (ScriptColumnEntryParser)(super.configureEnvironment(configurator));
 	}
 
 	@Override
@@ -66,8 +69,8 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 				VarInfo declaration = this.environment.user().newVariable(input.name(), type);
 				InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
 				this.environment.mutable()
-				.addVariable(input.name(), load(declaration))
-				.addVariable('$' + input.name(), inputTree);
+					.addVariable(input.name(), load(declaration))
+					.addVariable('$' + input.name(), inputTree);
 				initializers.add(initializer);
 			}
 			initializers.add(super.parseEntireInput());

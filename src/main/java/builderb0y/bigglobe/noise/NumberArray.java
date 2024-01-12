@@ -38,6 +38,7 @@ and closing a direct NumberArray on a different thread than the
 one it was allocated on can corrupt the internal state of the
 manager it belongs to, possibly leading to exceptions or segfaults!
 */
+@SuppressWarnings("ClassNameSameAsAncestorName")
 public interface NumberArray extends AutoCloseable {
 
 	public static NumberArray allocateBytesHeap(int bytes) { return new Heap.OfByte(new byte[bytes]); }
@@ -71,11 +72,11 @@ public interface NumberArray extends AutoCloseable {
 	public abstract void setF(int index, float  value);
 	public abstract void setD(int index, double value);
 
-	public default void fill(byte value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(short value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(int value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(long value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(float value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(byte   value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(short  value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(int    value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(long   value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(float  value) { this.fillFromTo(0, this.length(), value); }
 	public default void fill(double value) { this.fillFromTo(0, this.length(), value); }
 
 	public abstract void fillFromTo(int from, int to, byte value);
@@ -284,7 +285,7 @@ public interface NumberArray extends AutoCloseable {
 			public final byte[] array;
 
 			public OfByte(byte[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -313,7 +314,7 @@ public interface NumberArray extends AutoCloseable {
 			public final short[] array;
 
 			public OfShort(short[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -342,7 +343,7 @@ public interface NumberArray extends AutoCloseable {
 			public final int[] array;
 
 			public OfInt(int[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -371,7 +372,7 @@ public interface NumberArray extends AutoCloseable {
 			public final long[] array;
 
 			public OfLong(long[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -400,7 +401,7 @@ public interface NumberArray extends AutoCloseable {
 			public final float[] array;
 
 			public OfFloat(float[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -429,7 +430,7 @@ public interface NumberArray extends AutoCloseable {
 			public final double[] array;
 
 			public OfDouble(double[] array) {
-				this.array  = array;
+				this.array = array;
 			}
 
 			@Override
@@ -450,6 +451,175 @@ public interface NumberArray extends AutoCloseable {
 			@Override
 			public int length() {
 				return this.array.length;
+			}
+		}
+	}
+
+	public static abstract class Bounded implements NumberArray {
+
+		public int minIndex, maxIndex;
+
+		public Bounded() {}
+
+		public Bounded(int minIndex, int maxIndex) {
+			this.minIndex = minIndex;
+			this.maxIndex = maxIndex;
+		}
+
+		@Override
+		public void close() {}
+
+		@Override
+		public int length() {
+			return this.maxIndex - this.minIndex;
+		}
+
+		public abstract void reallocate(int capacity);
+
+		public void setBounds(int minIndex, int maxIndex) {
+			int newLength = maxIndex - minIndex;
+			if (newLength < 0) throw new NegativeArraySizeException(Integer.toString(newLength));
+			int oldLength = this.length();
+			if (oldLength < newLength) {
+				this.reallocate(Math.max(oldLength << 1, newLength));
+			}
+			this.minIndex = minIndex;
+			this.maxIndex = maxIndex;
+		}
+
+		public static class OfInt extends Bounded implements NumberArray.OfInt {
+
+			public int[] array;
+
+			public OfInt() {}
+
+			public OfInt(int minIndex, int maxIndex) {
+				super(minIndex, maxIndex);
+			}
+
+			@Override
+			public int getI(int index) {
+				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
+			}
+
+			@Override
+			public void setI(int index, int value) {
+				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, int value) {
+				from -= this.minIndex;
+				to -= this.minIndex;
+				Objects.checkFromToIndex(from, to, this.length());
+				Arrays.fill(this.array, from, to, value);
+			}
+
+			@Override
+			public void reallocate(int capacity) {
+				this.array = new int[capacity];
+			}
+		}
+
+		public static class OfLong extends Bounded implements NumberArray.OfLong {
+
+			public long[] array;
+
+			public OfLong() {}
+
+			public OfLong(int minIndex, int maxIndex) {
+				super(minIndex, maxIndex);
+			}
+
+			@Override
+			public long getL(int index) {
+				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
+			}
+
+			@Override
+			public void setL(int index, long value) {
+				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, long value) {
+				from -= this.minIndex;
+				to -= this.minIndex;
+				Objects.checkFromToIndex(from, to, this.length());
+				Arrays.fill(this.array, from, to, value);
+			}
+
+			@Override
+			public void reallocate(int capacity) {
+				this.array = new long[capacity];
+			}
+		}
+
+		public static class OfFloat extends Bounded implements NumberArray.OfFloat {
+
+			public float[] array;
+
+			public OfFloat() {}
+
+			public OfFloat(int minIndex, int maxIndex) {
+				super(minIndex, maxIndex);
+			}
+
+			@Override
+			public float getF(int index) {
+				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
+			}
+
+			@Override
+			public void setF(int index, float value) {
+				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, float value) {
+				from -= this.minIndex;
+				to -= this.minIndex;
+				Objects.checkFromToIndex(from, to, this.length());
+				Arrays.fill(this.array, from, to, value);
+			}
+
+			@Override
+			public void reallocate(int capacity) {
+				this.array = new float[capacity];
+			}
+		}
+
+		public static class OfDouble extends Bounded implements NumberArray.OfDouble {
+
+			public double[] array;
+
+			public OfDouble() {}
+
+			public OfDouble(int minIndex, int maxIndex) {
+				super(minIndex, maxIndex);
+			}
+
+			@Override
+			public double getD(int index) {
+				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
+			}
+
+			@Override
+			public void setD(int index, double value) {
+				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, double value) {
+				from -= this.minIndex;
+				to -= this.minIndex;
+				Objects.checkFromToIndex(from, to, this.length());
+				Arrays.fill(this.array, from, to, value);
+			}
+
+			@Override
+			public void reallocate(int capacity) {
+				this.array = new double[capacity];
 			}
 		}
 	}

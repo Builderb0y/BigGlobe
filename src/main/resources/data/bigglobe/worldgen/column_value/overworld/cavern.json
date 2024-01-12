@@ -1,11 +1,12 @@
 {
 	"type": "bigglobe:voronoi_2d",
-	"value": {
+	"diagram": {
 		"distance": 1024,
-		"variation": 768,
-		"exports": {
-			"min_y": { "type": "double_2d" },
-			"max_y": { "type": "double_2d" }
-		}
+		"variation": 768
+	},
+	"values": "#bigglobe:overworld_caverns",
+	"exports": {
+		"min_y": { "type": "double_2d" },
+		"max_y": { "type": "double_2d" }
 	}
 }

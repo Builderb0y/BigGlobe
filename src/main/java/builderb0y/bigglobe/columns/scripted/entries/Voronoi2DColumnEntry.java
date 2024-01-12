@@ -1,279 +1,247 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import java.util.function.BiConsumer;
+import java.lang.invoke.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.math.BigGlobeMath;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
+
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
+import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
+import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.bigglobe.settings.VoronoiDiagram2D.Cell;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.VarInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.util.TypeInfos;
 
-public class Voronoi2DColumnEntry extends ColumnEntry {
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-	public static final int
-		CELL                  = 1 << 0,
-		SOFT_DISTANCE_SQUARED = 1 << 1,
-		SOFT_DISTANCE         = 1 << 2,
-		HARD_DISTANCE         = 1 << 3,
-		ACCESSORS             = 1 << 4;
+public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
-	public VoronoiDiagram2D.Cell cell;
-	public double softDistanceSquared, softDistance, hardDistance;
-	public ColumnEntryAccessor[] accessors;
-
-	public static class Registrable extends ColumnEntryRegistrable {
-
-		public final VoronoiDiagram2D value;
-		public final Valid valid;
-
-		public Registrable(VoronoiDiagram2D value, Valid valid) {
-			this.value = value;
-			this.valid = valid;
+	public static final ColumnEntryMemory.Key<Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext>>
+		VORONOI_CONTEXT_MAP = new ColumnEntryMemory.Key<>("voronoiContextMap");
+	public static final MethodHandle RANDOMIZE;
+	static {
+		try {
+			RANDOMIZE = MethodHandles.lookup().findStatic(Voronoi2DColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, Cell.class));
 		}
-
-		@Override
-		public boolean hasEntry() {
-			return true;
-		}
-
-		@Override
-		public ColumnEntry createEntry() {
-			return new Voronoi2DColumnEntry();
-		}
-
-		@Override
-		public void createAccessors(String selfName, int slot, BiConsumer<String, ColumnEntryAccessor> accessors) {
-			accessors.accept(selfName + ".cell_x",                new               CellXAccessor(slot, this.value));
-			accessors.accept(selfName + ".cell_z",                new               CellZAccessor(slot, this.value));
-			accessors.accept(selfName + ".center_x",              new             CenterXAccessor(slot, this.value));
-			accessors.accept(selfName + ".center_z",              new             CenterZAccessor(slot, this.value));
-			accessors.accept(selfName + ".soft_distance_squared", new SoftDistanceSquaredAccessor(slot, this.value));
-			accessors.accept(selfName + ".soft_distance",         new        SoftDistanceAccessor(slot, this.value));
-			accessors.accept(selfName + ".hard_distance",         new        HardDistanceAccessor(slot, this.value));
-			accessors.accept(selfName + ".hard_distance_squared", new HardDistanceSquaredAccessor(slot, this.value));
+		catch (Exception exception) {
+			throw AutoCodecUtil.rethrow(exception);
 		}
 	}
 
-	public static abstract class Accessor extends ColumnEntryAccessor {
+	public final VoronoiDiagram2D diagram;
+	public final TagKey<VoronoiSettings> values;
+	public final Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 
-		public final VoronoiDiagram2D diagram;
+	public Voronoi2DColumnEntry(
+		VoronoiDiagram2D diagram,
+		TagKey<VoronoiSettings> values,
+		Map<String, AccessSchema> exports,
+		Valid valid
+	) {
+		super(valid);
+		this.diagram = diagram;
+		this.values  = values;
+		this.exports = exports;
+	}
 
-		public Accessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot);
-			this.diagram = diagram;
+	public static CallSite createRandomizer(MethodHandles.Lookup lookup, String name, MethodType methodType, Class<?>... options) throws Throwable {
+		if (methodType.returnType().getSuperclass() != VoronoiDataBase.class) {
+			throw new IllegalArgumentException("Invalid super class: " + methodType.returnType().getSuperclass());
+		}
+		long seed = methodType.returnType().getDeclaredField("SEED").getLong(null);
+		RandomList<VoronoiDataBase.Factory> list = new RandomList<>(options.length);
+		for (Class<?> option : options) {
+			option.asSubclass(VoronoiDataBase.class);
+			VoronoiDataBase.Factory factory = (VoronoiDataBase.Factory)(
+				LambdaMetafactory.metafactory(
+					lookup,
+					"create",
+					MethodType.methodType(VoronoiDataBase.Factory.class),
+					MethodType.methodType(VoronoiDataBase.class, VoronoiDiagram2D.Cell.class),
+					lookup.findConstructor(option, MethodType.methodType(void.class, VoronoiDiagram2D.Cell.class)),
+					MethodType.methodType(option, VoronoiDiagram2D.Cell.class)
+				)
+				.getTarget()
+				.invokeExact()
+			);
+			double weight = option.getDeclaredField("WEIGHT").getDouble(null);
+			list.add(factory, weight);
+		}
+		return new ConstantCallSite(
+			MethodHandles
+			.insertArguments(RANDOMIZE, 0, list, seed)
+			.asType(methodType)
+		);
+	}
+
+	public static VoronoiDataBase randomize(RandomList<VoronoiDataBase.Factory> factories, long baseSeed, VoronoiDiagram2D.Cell cell) {
+		return factories.getRandomElement(cell.center.getSeed(baseSeed)).create(cell);
+	}
+
+	@Override
+	public boolean isCached() {
+		return true;
+	}
+
+	@Override
+	public AccessSchema getAccessSchema() {
+		return new VoronoiAccessSchema(this.exports);
+	}
+
+	@Override
+	public void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
+		super.emitFieldGetterAndSetter(memory, context);
+		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
+		//sanity check that all implementations of this class export the same values we do.
+		for (RegistryEntry<VoronoiSettings> preset : voronoiTag) {
+			Map<String, AccessSchema> expected = preset.value().exports().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().value().getAccessSchema()));
+			if (!this.exports.equals(expected)) {
+				throw new IllegalStateException("Export mismatch between column value " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + ' ' + this.exports + " and voronoi settings " + UnregisteredObjectException.getID(preset) + ' ' + expected);
+			}
 		}
 
-		@Override
-		public void setupAndCompile(ColumnEntryRegistry registry) throws ScriptParsingException {}
-
-		public final Voronoi2DColumnEntry entry(ScriptedColumn column) {
-			return (Voronoi2DColumnEntry)(column.values[this.slot]);
+		TypeContext baseType = context.getSchemaType(this.getAccessSchema());
+		VoronoiBaseCompileContext voronoiBaseContext = (VoronoiBaseCompileContext)(Objects.requireNonNull(baseType.context()));
+		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
+		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
+		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+			voronoiBaseContext.mainClass.newMethod(entry.getValue().descriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
 		}
-
-		public final VoronoiDiagram2D.Cell cell(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			return entry.setFlags(CELL) ? entry.cell = this.diagram.getNearestCell(column.x, column.z, entry.cell) : entry.cell;
-		}
-
-		public final VoronoiDiagram2D.Cell cell(ScriptedColumn column) {
-			return this.cell(column, this.entry(column));
-		}
-
-		@Override
-		public void doPopulate(ScriptedColumn column) {
-			this.doPopulate(column, this.entry(column));
-		}
-
-		public void doPopulate(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			if (entry.setFlags(CELL)) {
-				entry.cell = this.diagram.getNearestCell(column.x, column.z, entry.cell);
+		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
+			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext);
+			voronoiContextMap.put(UnregisteredObjectException.getKey(entry), implContext);
+			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
+				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
+					context.registry.memories.get(
+						UnregisteredObjectException.getID(entry)
+					)
+				);
+				enable.value().emitFieldGetterAndSetter(enabledMemory, implContext);
+			}
+			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : entry.value().exports().entrySet()) {
+				ColumnEntryMemory exportMemory = Objects.requireNonNull(
+					context.registry.memories.get(
+						UnregisteredObjectException.getID(export.getValue())
+					)
+				);
+				AccessSchema schema = export.getValue().value().getAccessSchema();
+				implContext.mainClass.newMethod(schema.descriptor(ACC_PUBLIC, "get_" + export.getKey(), context)).scopes.withScope((MethodCompileContext delegator) -> {
+					VarInfo self = delegator.addThis();
+					VarInfo loadY = schema.requiresYLevel() ? delegator.newParameter("y", TypeInfos.INT) : null;
+					return_(
+						invokeInstance(
+							load(self),
+							exportMemory.getTyped(ColumnEntryMemory.GETTER).info,
+							loadY != null ? new InsnTree[] { load(loadY) } : InsnTree.ARRAY_FACTORY.empty()
+						)
+					)
+					.emitBytecode(delegator);
+				});
 			}
 		}
 	}
 
-	public static abstract class PositionAccessor extends Accessor {
-
-		public PositionAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
+	@Override
+	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
+		super.setupEnvironment(memory, context);
+		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().descriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
-
-		@Override
-		public AccessType getAccessType() {
-			return AccessType.INT_2D;
-		}
-
-		@Override
-		public boolean isMutable() {
-			return false;
-		}
-
-		public abstract int get(ScriptedColumn column);
-
-		@Override
-		public String valueToString(ScriptedColumn column, int y) {
-			return Integer.toString(this.get(column));
-		}
-	}
-
-	public static class CellXAccessor extends PositionAccessor {
-
-		public CellXAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public int get(ScriptedColumn column) {
-			return this.cell(column).center.cellX;
-		}
-	}
-
-	public static class CellZAccessor extends PositionAccessor {
-
-		public CellZAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public int get(ScriptedColumn column) {
-			return this.cell(column).center.cellZ;
-		}
-	}
-
-	public static class CenterXAccessor extends PositionAccessor {
-
-		public CenterXAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public int get(ScriptedColumn column) {
-			return this.cell(column).center.centerX;
-		}
-	}
-
-	public static class CenterZAccessor extends PositionAccessor {
-
-		public CenterZAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public int get(ScriptedColumn column) {
-			return this.cell(column).center.centerZ;
-		}
-	}
-
-	public static abstract class DistanceAccessor extends Accessor {
-
-		public DistanceAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public AccessType getAccessType() {
-			return AccessType.DOUBLE_2D;
-		}
-
-		public abstract double get(ScriptedColumn column);
-
-		public final double softDistanceSquared(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			return entry.setFlags(SOFT_DISTANCE_SQUARED) ? entry.softDistanceSquared = this.cell(column, entry).progressToEdgeSquaredD(column.x, column.z) : entry.softDistanceSquared;
-		}
-
-		public final double softDistance(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			return entry.setFlags(SOFT_DISTANCE) ? entry.softDistance = Math.sqrt(this.softDistanceSquared(column, entry)) : entry.softDistance;
-		}
-
-		public final double hardDistance(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			return entry.setFlags(HARD_DISTANCE) ? entry.hardDistance = this.cell(column, entry).hardProgressToEdgeD(column.x, column.z) : entry.hardDistance;
-		}
-
-		public final double hardDistanceSquared(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			return BigGlobeMath.squareD(this.hardDistance(column, entry));
-		}
-
-		@Override
-		public String valueToString(ScriptedColumn column, int y) {
-			return Double.toString(this.get(column));
-		}
-	}
-
-	public static class SoftDistanceSquaredAccessor extends DistanceAccessor {
-
-		public SoftDistanceSquaredAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public double get(ScriptedColumn column) {
-			return this.softDistanceSquared(column, this.entry(column));
-		}
-
-		@Override
-		public void doPopulate(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			if (entry.setFlags(SOFT_DISTANCE_SQUARED)) {
-				entry.softDistanceSquared = this.cell(column, entry).progressToEdgeSquaredD(column.x, column.z);
+		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
+		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
+		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
+			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
+			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
+				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
+					context.registry.memories.get(
+						UnregisteredObjectException.getID(entry)
+					)
+				);
+				enable.value().setupEnvironment(enabledMemory, implContext);
 			}
 		}
 	}
 
-	public static class SoftDistanceAccessor extends DistanceAccessor {
-
-		public SoftDistanceAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public double get(ScriptedColumn column) {
-			return this.softDistance(column, this.entry(column));
-		}
-
-		@Override
-		public void doPopulate(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			if (entry.setFlags(SOFT_DISTANCE)) {
-				entry.softDistance = Math.sqrt(this.softDistanceSquared(column, entry));
+	@Override
+	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
+		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
+		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
+		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
+			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
+			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
+				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
+					context.registry.memories.get(
+						UnregisteredObjectException.getID(entry)
+					)
+				);
+				enable.value().emitComputer(enabledMemory, implContext);
 			}
 		}
 	}
 
-	public static class HardDistanceAccessor extends DistanceAccessor {
-
-		public HardDistanceAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
-		}
-
-		@Override
-		public double get(ScriptedColumn column) {
-			return this.hardDistance(column, this.entry(column));
-		}
-
-		@Override
-		public void doPopulate(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			if (entry.setFlags(HARD_DISTANCE)) {
-				entry.hardDistance = this.cell(column, entry).hardProgressToEdgeD(column.x, column.z);
+	public static <T> void checkNotReserved(VerifyContext<T, String> context) throws VerifyException {
+		String name = context.object;
+		if (name != null) switch (name) {
+			case
+				"cell_x",
+				"cell_z",
+				"center_x",
+				"center_z",
+				"soft_distance_squared",
+				"soft_distance",
+				"hard_distance",
+				"hard_distance_squared"
+			-> {
+				throw new VerifyException(() -> "Export name " + name + " is built-in, and cannot be overridden.");
 			}
 		}
 	}
 
-	public static class HardDistanceSquaredAccessor extends DistanceAccessor {
+	public static class VoronoiAccessSchema implements _2DAccessSchema {
 
-		public HardDistanceSquaredAccessor(int slot, VoronoiDiagram2D diagram) {
-			super(slot, diagram);
+		public final Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
+
+		public VoronoiAccessSchema(Map<String, AccessSchema> exports) {
+			this.exports = exports;
 		}
 
 		@Override
-		public double get(ScriptedColumn column) {
-			return this.hardDistanceSquared(column, this.entry(column));
-		}
-
-		@Override
-		public void doPopulate(ScriptedColumn column, Voronoi2DColumnEntry entry) {
-			if (entry.setFlags(HARD_DISTANCE)) {
-				entry.hardDistance = this.cell(column, entry).hardProgressToEdgeD(column.x, column.z);
+		public TypeContext createType(ColumnCompileContext context) {
+			VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context);
+			for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+				voronoiContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.getSchemaType(entry.getValue()).type());
 			}
+			return new TypeContext(voronoiContext.mainClass.info, voronoiContext);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.exports.hashCode() ^ VoronoiAccessSchema.class.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof VoronoiAccessSchema that && this.exports.equals(that.exports);
 		}
 	}
-
-	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) {}
 }

@@ -6,23 +6,23 @@ import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateU
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
-public class IntScript2DColumnEntry extends Script2DColumnEntry {
+public class FloatScript2DColumnEntry extends Script2DColumnEntry {
 
-	public IntScript2DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Valid valid, boolean cache) {
+	public FloatScript2DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Valid valid, boolean cache) {
 		super(value, valid, cache);
 	}
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return new Int2DAccessSchema();
+		return new Float2DAccessSchema();
 	}
 
 	@RecordLike({})
-	public static class Int2DAccessSchema extends Basic2DAccessSchema {
+	public static class Float2DAccessSchema extends Basic2DAccessSchema {
 
 		@Override
 		public TypeInfo type() {
-			return TypeInfos.INT;
+			return TypeInfos.FLOAT;
 		}
 	}
 }

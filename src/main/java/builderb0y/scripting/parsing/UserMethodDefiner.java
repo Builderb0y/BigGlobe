@@ -92,7 +92,7 @@ public abstract class UserMethodDefiner {
 	public void setupMethod() {
 		this.newMethod = this.parser.clazz.newMethod(
 			this.parser.method.info.access(),
-			this.methodName + '_' + this.parser.functionUniquifier++,
+			this.methodName + '_' + this.parser.clazz.memberUniquifier++,
 			this.returnType,
 			this
 			.newParameters

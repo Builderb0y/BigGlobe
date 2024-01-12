@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 
 /**
 the ClassLoader responsible for converting script bytecode into actual classes.
@@ -28,6 +29,8 @@ the ScriptClassLoader can only {@link #findClass(String) find} classes
 which were defined with the script associated with the class loader.
 */
 public class ScriptClassLoader extends ClassLoader {
+
+	public static final MethodInfo GET_CONSTANT = MethodInfo.getMethod(ScriptClassLoader.class, "getConstant");
 
 	public static final AtomicInteger CLASS_UNIQUIFIER = new AtomicInteger();
 
@@ -61,6 +64,26 @@ public class ScriptClassLoader extends ClassLoader {
 		}
 		else {
 			throw new ClassNotFoundException(name);
+		}
+	}
+
+	public static Object getConstant(MethodHandles.Lookup lookup, Class<?> type, String name, int which) {
+		if (lookup.lookupClass().getClassLoader() instanceof ScriptClassLoader loader) {
+			ClassCompileContext context = loader.loadable.get(lookup.lookupClass().getName());
+			if (context != null) {
+				if (which >= 0 && which < context.constants.size()) {
+					return context.constants.get(which);
+				}
+				else {
+					throw new IndexOutOfBoundsException("Invalid constant with index " + which);
+				}
+			}
+			else {
+				throw new IllegalStateException("No context found for " + lookup.lookupClass());
+			}
+		}
+		else {
+			throw new IllegalCallerException("getConstant() can only be called by script classes");
 		}
 	}
 }
