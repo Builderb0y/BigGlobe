@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode;
 
+import java.lang.StackWalker.Option;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,6 +16,8 @@ import static org.objectweb.asm.Opcodes.*;
 
 @SuppressWarnings("deprecation")
 public class MethodInfo implements BytecodeEmitter {
+
+	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	public static final int PURE = Integer.MIN_VALUE;
 
@@ -128,6 +131,10 @@ public class MethodInfo implements BytecodeEmitter {
 
 	public boolean isPure() {
 		return (this.access & PURE) != 0;
+	}
+
+	public static MethodInfo inCaller(String name) {
+		return getMethod(STACK_WALKER.getCallerClass(), name);
 	}
 
 	public static MethodInfo getMethod(Class<?> in, String name) {

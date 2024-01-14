@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
@@ -12,7 +13,7 @@ import builderb0y.scripting.util.TypeInfos;
 public class IntScript2DColumnEntry extends Script2DColumnEntry {
 
 	public final @VerifyNullable Valid valid;
-	public final record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultInt(0) int fallback) implements Script2DColumnEntry.Valid {
+	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultInt(0) int fallback) implements IValid {
 
 		@Override
 		public ConstantValue getFallback() {
@@ -26,7 +27,7 @@ public class IntScript2DColumnEntry extends Script2DColumnEntry {
 	}
 
 	@Override
-	public Script2DColumnEntry.Valid valid() {
+	public IValid valid() {
 		return this.valid;
 	}
 
@@ -39,8 +40,8 @@ public class IntScript2DColumnEntry extends Script2DColumnEntry {
 	public static class Int2DAccessSchema extends Basic2DAccessSchema {
 
 		@Override
-		public TypeInfo type() {
-			return TypeInfos.INT;
+		public TypeContext createType(ColumnCompileContext context) {
+			return new TypeContext(TypeInfos.INT, null);
 		}
 	}
 }

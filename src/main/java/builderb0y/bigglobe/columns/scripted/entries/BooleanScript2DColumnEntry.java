@@ -1,19 +1,18 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.autocodec.annotations.DefaultLong;
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
-public class LongScript2DColumnEntry extends Script2DColumnEntry {
+public class BooleanScript2DColumnEntry extends Script2DColumnEntry {
 
 	public final @VerifyNullable Valid valid;
-	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultLong(0L) long fallback) implements IValid {
+	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultBoolean(false) boolean fallback) implements IValid {
 
 		@Override
 		public ConstantValue getFallback() {
@@ -21,7 +20,7 @@ public class LongScript2DColumnEntry extends Script2DColumnEntry {
 		}
 	}
 
-	public LongScript2DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Valid valid, boolean cache) {
+	public BooleanScript2DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Valid valid, boolean cache) {
 		super(value, cache);
 		this.valid = valid;
 	}
@@ -33,15 +32,15 @@ public class LongScript2DColumnEntry extends Script2DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return new Long2DAccessSchema();
+		return new Boolean2DAccessSchema();
 	}
 
 	@RecordLike({})
-	public static class Long2DAccessSchema extends Basic2DAccessSchema {
+	public static class Boolean2DAccessSchema extends Basic2DAccessSchema {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.LONG, null);
+			return new TypeContext(TypeInfos.BOOLEAN, null);
 		}
 	}
 }

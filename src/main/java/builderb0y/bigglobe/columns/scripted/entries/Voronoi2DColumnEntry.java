@@ -14,6 +14,7 @@ import net.minecraft.registry.tag.TagKey;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
@@ -23,14 +24,18 @@ import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompil
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.Cell;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.VarInfo;
+import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NullableInstanceGetFieldInsnTree;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -52,15 +57,19 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public final VoronoiDiagram2D diagram;
 	public final TagKey<VoronoiSettings> values;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
+	public final @VerifyNullable Valid valid;
+	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) {}
 
 	public Voronoi2DColumnEntry(
 		VoronoiDiagram2D diagram,
 		TagKey<VoronoiSettings> values,
-		Map<String, AccessSchema> exports
+		Map<String, AccessSchema> exports,
+		@VerifyNullable Valid valid
 	) {
 		this.diagram = diagram;
 		this.values  = values;
 		this.exports = exports;
+		this.valid   = valid;
 	}
 
 	public static CallSite createRandomizer(MethodHandles.Lookup lookup, String name, MethodType methodType, Class<?>... options) throws Throwable {
@@ -98,7 +107,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public boolean isCached() {
+	public boolean hasField() {
 		return true;
 	}
 
@@ -108,8 +117,14 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
+	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
+
+	}
+
+	@Override
 	public void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
 		super.emitFieldGetterAndSetter(memory, context);
+
 		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
 		//sanity check that all implementations of this class export the same values we do.
 		for (RegistryEntry<VoronoiSettings> preset : voronoiTag) {
@@ -121,14 +136,18 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 		TypeContext baseType = context.getSchemaType(this.getAccessSchema());
 		VoronoiBaseCompileContext voronoiBaseContext = (VoronoiBaseCompileContext)(Objects.requireNonNull(baseType.context()));
+		voronoiBaseContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "SEED", TypeInfos.LONG).node.value = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
 		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-			voronoiBaseContext.mainClass.newMethod(entry.getValue().descriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
+			voronoiBaseContext.mainClass.newMethod(entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
 		}
 		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
 			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext);
 			voronoiContextMap.put(UnregisteredObjectException.getKey(entry), implContext);
+			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = entry.value().weight();
+
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
 					context.registry.memories.get(
@@ -137,6 +156,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 				);
 				enable.value().emitFieldGetterAndSetter(enabledMemory, implContext);
 			}
+
 			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : entry.value().exports().entrySet()) {
 				ColumnEntryMemory exportMemory = Objects.requireNonNull(
 					context.registry.memories.get(
@@ -144,7 +164,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 					)
 				);
 				AccessSchema schema = export.getValue().value().getAccessSchema();
-				implContext.mainClass.newMethod(schema.descriptor(ACC_PUBLIC, "get_" + export.getKey(), context)).scopes.withScope((MethodCompileContext delegator) -> {
+				implContext.mainClass.newMethod(schema.getterDescriptor(ACC_PUBLIC, "get_" + export.getKey(), context)).scopes.withScope((MethodCompileContext delegator) -> {
 					VarInfo self = delegator.addThis();
 					VarInfo loadY = schema.requiresYLevel() ? delegator.newParameter("y", TypeInfos.INT) : null;
 					return_(
@@ -164,7 +184,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
 		super.setupEnvironment(memory, context);
 		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().descriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
+			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
 		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
@@ -183,6 +203,79 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
+		ConstantValue diagram = context.mainClass.newConstant(this.diagram);
+		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
+		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
+		MethodCompileContext actuallyCompute;
+		if (this.valid != null) {
+			/*
+			VoronoiData$Base_0 get() {
+				flags and stuff
+				return this.compute();
+			}
+
+			boolean test() {
+				return script;
+			}
+
+			VoronoiData$Base_0 compute() {
+				if (this.test()) {
+					return this.actuallyCompute();
+				}
+				else {
+					return null;
+				}
+			}
+
+			VoronoiData$Base_0 actuallyCompute() {
+				return invokedynamic[randomize](ldc(diagram).getNearestCell(this.value.?cell));
+			}
+			*/
+			String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
+			TypeInfo voronoiBaseType = context.getSchemaType(this.getAccessSchema()).type();
+			actuallyCompute = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, voronoiBaseType);
+			MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
+			context.setMethodCode(testMethod, this.valid.where());
+			context.generateGuardedComputer(memory.getTyped(ColumnEntryMemory.COMPUTER), testMethod.info, actuallyCompute.info, constant(null, voronoiBaseType));
+		}
+		else {
+			/*
+			VoronoiData$Base_0 get() {
+				flags and stuff
+				return this.compute();
+			}
+
+			VoronoiData$Base_0 compute() {
+				return invokedynamic[randomize](ldc(diagram).getNearestCell(this.value.?cell));
+			}
+			*/
+			actuallyCompute = memory.getTyped(ColumnEntryMemory.COMPUTER);
+		}
+		actuallyCompute.scopes.withScope((MethodCompileContext compute) -> {
+			VarInfo self = compute.addThis();
+			return_(
+				invokeDynamic(
+					MethodInfo.getMethod(Voronoi2DColumnEntry.class, "createRandomizer"),
+					MethodInfo.getMethod(Voronoi2DColumnEntry.class, "randomize"),
+					memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),
+					new InsnTree[] {
+						invokeInstance(
+							ldc(diagram),
+							MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
+							new NullableInstanceGetFieldInsnTree(
+								getField(
+									load(self),
+									valueField.info
+								),
+								cellField
+							)
+						)
+					}
+				)
+			)
+			.emitBytecode(compute);
+		});
+
 		RegistryEntryList<VoronoiSettings> voronoiTag = context.registry.voronois.getOrCreateTag(this.values);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
 		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
@@ -216,7 +309,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		}
 	}
 
-	public static class VoronoiAccessSchema implements _2DAccessSchema {
+	public static class VoronoiAccessSchema extends Basic2DAccessSchema {
 
 		public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 

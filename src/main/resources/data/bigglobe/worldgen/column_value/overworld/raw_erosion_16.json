@@ -1,5 +1,5 @@
 {
-	"type": "bigglobe:noise_2d",
+	"type": "bigglobe:double_noise_2d",
 	"value": {
 		"type": "sum",
 		"layers": [

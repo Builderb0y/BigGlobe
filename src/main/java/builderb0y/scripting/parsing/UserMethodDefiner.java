@@ -134,7 +134,7 @@ public abstract class UserMethodDefiner {
 		ExpressionParser newParser = new ExpressionParser(this.parser, this.newMethod);
 		this.userVariablesEnvironment.parser = newParser;
 		newParser.environment.user(this.userVariablesEnvironment).mutable(this.userParametersEnvironment);
-		InsnTree result = newParser.parseRemainingInput(true);
+		InsnTree result = newParser.parseRemainingInput(true, true);
 
 		return new MethodDeclarationInsnTree(this.newMethod, result);
 	}

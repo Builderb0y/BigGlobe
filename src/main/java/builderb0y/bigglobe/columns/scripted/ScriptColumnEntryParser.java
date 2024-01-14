@@ -21,6 +21,7 @@ import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateU
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
 import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -44,6 +45,7 @@ public class ScriptColumnEntryParser extends ExpressionParser {
 		return (ScriptColumnEntryParser)(super.configureEnvironment(configurator));
 	}
 
+	/** note: this logic should match {@link TemplateScriptParser#parseEntireInput()}. */
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
 		if (this.usage.isTemplate()) {

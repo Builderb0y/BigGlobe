@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -8,6 +9,9 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class MethodCompileContext {
 
@@ -23,6 +27,48 @@ public class MethodCompileContext {
 		this.info = info;
 		this.scopes = new ScopeContext(this);
 		this.parameters = new LinkedHashMap<>(5);
+	}
+
+	public VarInfo getParameter(String name) {
+		VarInfo parameter = this.parameters.get(name);
+		if (parameter != null) return parameter;
+		else throw new IllegalStateException("Missing parameter: " + name);
+	}
+
+	public MethodCompileContext prepareParameters(String... parameterNames) {
+		if (parameterNames.length != this.info.paramTypes.length) {
+			throw new IllegalArgumentException("Parameter mismatch: expected " + Arrays.toString(this.info.paramTypes) + ", got " + Arrays.toString(parameterNames));
+		}
+		this.scopes.pushScope();
+		if (!this.info.isStatic()) this.addThis();
+		for (int index = 0, length = parameterNames.length; index < length; index++) {
+			this.newParameter(parameterNames[index], this.info.paramTypes[index]);
+		}
+		return this;
+	}
+
+	public MethodCompileContext appendCode(String code, MutableScriptEnvironment environment) {
+		try {
+			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseRemainingInput(true, false).emitBytecode(this);
+		}
+		catch (ScriptParsingException exception) {
+			throw new RuntimeException(exception);
+		}
+		return this;
+	}
+
+	public void setCode(String code, MutableScriptEnvironment environment) {
+		try {
+			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseEntireInput().emitBytecode(this);
+		}
+		catch (ScriptParsingException exception) {
+			throw new RuntimeException(exception);
+		}
+		this.endCode();
+	}
+
+	public void endCode() {
+		this.scopes.popScope();
 	}
 
 	public int nextLocalVariableIndex() {
@@ -56,9 +102,5 @@ public class MethodCompileContext {
 
 	public VarInfo addThis() {
 		return this.newVariable("this", this.clazz.info);
-	}
-
-	public VarInfo findParameter(String name) {
-		return this.parameters.get(name);
 	}
 }

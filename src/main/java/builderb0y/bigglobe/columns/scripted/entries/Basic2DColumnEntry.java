@@ -1,54 +1,44 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class Basic2DColumnEntry implements ColumnEntry {
 
-	public abstract boolean isCached();
-
 	@Override
-	public void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
-		if (this.isCached()) {
-			context.generateFlaggedGetterSetter(memory);
-		}
-		else {
-			memory.putTyped(
-				ColumnEntryMemory.GETTER,
-				context.mainClass.newMethod(
-					ACC_PUBLIC,
-					"get_" + DataCompileContext.internalName(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID), context.mainClass.memberUniquifier++),
-					memory.getTyped(ColumnEntryMemory.TYPE).type()
+	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
+		if (this.hasField()) {
+			int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
+			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + memory.getTyped(ColumnEntryMemory.INTERNAL_NAME), memory.getTyped(ColumnEntryMemory.TYPE).type());
+			memory.putTyped(ColumnEntryMemory.COMPUTER, computer);
+			memory.getTyped(ColumnEntryMemory.GETTER).prepareParameters().setCode(
+				"""
+				int oldFlags = flagsField
+				int newFlags = oldFlags | flagsBitmask
+				if (oldFlags != newFlags:
+					flatsField = newFlags
+					return(value := compute())
 				)
+				else (
+					return(value)
+				)
+				""",
+				new MutableScriptEnvironment()
+				.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
+				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
+				.addFunctionInvoke("compute", context.loadSelf(), computer.info)
 			);
 		}
 	}
 
-	@Override
-	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
-		MethodCompileContext method = memory.getTyped(ColumnEntryMemory.GETTER);
-		context.environment.addVariableInvoke(context.loadSelf(), method.info);
-	}
-
-	public static interface _2DAccessSchema extends AccessSchema {
+	public static abstract class Basic2DAccessSchema implements AccessSchema {
 
 		@Override
-		public default boolean requiresYLevel() {
+		public boolean requiresYLevel() {
 			return false;
-		}
-	}
-
-	public static abstract class Basic2DAccessSchema implements _2DAccessSchema {
-
-		public abstract TypeInfo type();
-
-		@Override
-		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(this.type(), null);
 		}
 
 		@Override
@@ -58,7 +48,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 
 		@Override
 		public int hashCode() {
-			return this.type().hashCode();
+			return this.getClass().hashCode();
 		}
 	}
 }

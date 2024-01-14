@@ -18,7 +18,22 @@ public class AndConditionTree implements ConditionTree {
 	}
 
 	public static ConditionTree create(ConditionTree left, ConditionTree right) {
-		return new AndConditionTree(left, right);
+		if (left instanceof ConstantConditionTree leftConstant) {
+			if (right instanceof ConstantConditionTree rightConstant) {
+				return new ConstantConditionTree(leftConstant.value & rightConstant.value);
+			}
+			else {
+				return leftConstant.value ? right : leftConstant;
+			}
+		}
+		else {
+			if (right instanceof ConstantConditionTree rightConstant) {
+				return rightConstant.value ? left : rightConstant;
+			}
+			else {
+				return new AndConditionTree(left, right);
+			}
+		}
 	}
 
 	@Override

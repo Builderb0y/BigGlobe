@@ -11,19 +11,13 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
-import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseOrInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.AbstractObjectUpdaterInsnTree.ObjectUpdaterEmitters;
-import builderb0y.scripting.bytecode.tree.instructions.update.AbstractUpdaterInsnTree.CombinedMode;
-import builderb0y.scripting.bytecode.tree.instructions.update.NormalObjectUpdaterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
@@ -95,94 +89,10 @@ public abstract class DataCompileContext {
 		return 1 << index;
 	}
 
-	public void generateFlaggedGetterSetter(ColumnEntryMemory memory) {
-		int uniqueIndex = this.mainClass.memberUniquifier++;
-		int flagIndex = this.flagsIndex++;
-		memory.putTyped(ColumnEntryMemory.FLAGS_INDEX, flagIndex);
-		Identifier accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
-		String internalName = internalName(accessID, uniqueIndex);
-		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
-
-		FieldCompileContext valueField = this.mainClass.newField(ACC_PUBLIC, internalName, type);
-		memory.putTyped(ColumnEntryMemory.FIELD, valueField.info);
-		MethodCompileContext getterMethod = this.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, type);
-		memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
-		MethodCompileContext setterMethod = this.mainClass.newMethod(ACC_PUBLIC, "set_" + internalName, TypeInfos.VOID, type);
-		memory.putTyped(ColumnEntryMemory.SETTER, setterMethod);
-		MethodCompileContext computerMethod = this.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type);
-		memory.putTyped(ColumnEntryMemory.COMPUTER, computerMethod);
-
-		getterMethod.scopes.withScope((MethodCompileContext getter) -> {
-			VarInfo self = getter.addThis();
-			VarInfo oldFlags = getter.newVariable("oldFlags", TypeInfos.INT);
-			VarInfo newFlags = getter.newVariable("newFlags", TypeInfos.INT);
-			FieldInfo flagsField = this.flagsField(flagIndex);
-			store(
-				oldFlags,
-				getField(
-					load(self),
-					flagsField
-				)
-			)
-			.emitBytecode(getter);
-			store(
-				newFlags,
-				new BitwiseOrInsnTree(
-					load(oldFlags),
-					ldc(flagsFieldBitmask(flagIndex)),
-					IOR
-				)
-			)
-			.emitBytecode(getter);
-			new IfElseInsnTree(
-				IntCompareConditionTree.notEqual(load(oldFlags), load(newFlags)),
-				seq(
-					putField(
-						load(self),
-						flagsField,
-						load(newFlags)
-					),
-					return_(
-						new NormalObjectUpdaterInsnTree(
-							CombinedMode.POST_ASSIGN,
-							ObjectUpdaterEmitters.forField(
-								load(self),
-								valueField.info,
-								invokeInstance(
-									load(self),
-									computerMethod.info
-								)
-							)
-						)
-					)
-				),
-				return_(
-					getField(
-						load(self),
-						valueField.info
-					)
-				),
-				TypeInfos.VOID
-			)
-			.emitBytecode(getter);
-		});
-
-		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
-			VarInfo self = setter.addThis();
-			VarInfo value = setter.newParameter(internalName, type);
-			putField(
-				load(self),
-				valueField.info,
-				load(value)
-			)
-			.emitBytecode(setter);
-			return_(noop).emitBytecode(setter);
-		});
-	}
-
-	public void generateComputer(MethodCompileContext method, ScriptUsage<GenericScriptTemplateUsage> script) throws ScriptParsingException {
+	public void setMethodCode(MethodCompileContext method, ScriptUsage<GenericScriptTemplateUsage> script, String... parameterNames) throws ScriptParsingException {
+		method.prepareParameters(parameterNames);
 		new ScriptColumnEntryParser(script, this.mainClass, method).addEnvironment(this.environment).parseEntireInput().emitBytecode(method);
+		method.endCode();
 	}
 
 	public void generateGuardedComputer(

@@ -41,6 +41,14 @@ manager it belongs to, possibly leading to exceptions or segfaults!
 @SuppressWarnings("ClassNameSameAsAncestorName")
 public interface NumberArray extends AutoCloseable {
 
+	public static final NumberArray
+		EMPTY_BYTE   = allocateBytesHeap(0),
+		EMPTY_SHORT  = allocateShortsHeap(0),
+		EMPTY_INT    = allocateIntsHeap(0),
+		EMPTY_LONG   = allocateLongsHeap(0),
+		EMPTY_FLOAT  = allocateFloatsHeap(0),
+		EMPTY_DOUbLE = allocateDoublesHeap(0);
+
 	public static NumberArray allocateBytesHeap(int bytes) { return new Heap.OfByte(new byte[bytes]); }
 	public static NumberArray allocateShortsHeap(int shorts) { return new Heap.OfShort(new short[shorts]); }
 	public static NumberArray allocateIntsHeap(int ints) { return new Heap.OfInt(new int[ints]); }
@@ -54,6 +62,8 @@ public interface NumberArray extends AutoCloseable {
 	public static NumberArray allocateLongsDirect(int longs) { return Direct.Manager.INSTANCES.get().allocateLongs(longs); }
 	public static NumberArray allocateFloatsDirect(int floats) { return Direct.Manager.INSTANCES.get().allocateFloats(floats); }
 	public static NumberArray allocateDoublesDirect(int doubles) { return Direct.Manager.INSTANCES.get().allocateDoubles(doubles); }
+
+	public abstract Precision getPrecision();
 
 	@Override
 	public abstract void close();
@@ -151,6 +161,8 @@ public interface NumberArray extends AutoCloseable {
 
 	public static interface OfByte extends NumberArray {
 
+		@Override default Precision getPrecision() { return Precision.BYTE; }
+
 		@Override public default short getS(int index) { return this.getB(index); }
 		@Override public default int getI(int index) { return this.getB(index); }
 		@Override public default long getL(int index) { return this.getB(index); }
@@ -171,6 +183,8 @@ public interface NumberArray extends AutoCloseable {
 	}
 
 	public static interface OfShort extends NumberArray {
+
+		@Override default Precision getPrecision() { return Precision.SHORT; }
 
 		@Override public default byte getB(int index) { return (byte)(this.getS(index)); }
 		@Override public default int getI(int index) { return this.getS(index); }
@@ -193,6 +207,8 @@ public interface NumberArray extends AutoCloseable {
 
 	public static interface OfInt extends NumberArray {
 
+		@Override default Precision getPrecision() { return Precision.INT; }
+
 		@Override public default byte getB(int index) { return (byte)(this.getI(index)); }
 		@Override public default short getS(int index) { return (short)(this.getI(index)); }
 		@Override public default long getL(int index) { return this.getI(index); }
@@ -213,6 +229,8 @@ public interface NumberArray extends AutoCloseable {
 	}
 
 	public static interface OfLong extends NumberArray {
+
+		@Override default Precision getPrecision() { return Precision.LONG; }
 
 		@Override public default byte getB(int index) { return (byte)(this.getL(index)); }
 		@Override public default short getS(int index) { return (short)(this.getL(index)); }
@@ -235,6 +253,8 @@ public interface NumberArray extends AutoCloseable {
 
 	public static interface OfFloat extends NumberArray {
 
+		@Override default Precision getPrecision() { return Precision.FLOAT; }
+
 		@Override public default byte getB(int index) { return (byte)(this.getF(index)); }
 		@Override public default short getS(int index) { return (short)(this.getF(index)); }
 		@Override public default int getI(int index) { return (int)(this.getF(index)); }
@@ -255,6 +275,8 @@ public interface NumberArray extends AutoCloseable {
 	}
 
 	public static interface OfDouble extends NumberArray {
+
+		@Override default Precision getPrecision() { return Precision.DOUBLE; }
 
 		@Override public default byte getB(int index) { return (byte)(this.getD(index)); }
 		@Override public default short getS(int index) { return (short)(this.getD(index)); }
@@ -451,175 +473,6 @@ public interface NumberArray extends AutoCloseable {
 			@Override
 			public int length() {
 				return this.array.length;
-			}
-		}
-	}
-
-	public static abstract class Bounded implements NumberArray {
-
-		public int minIndex, maxIndex;
-
-		public Bounded() {}
-
-		public Bounded(int minIndex, int maxIndex) {
-			this.minIndex = minIndex;
-			this.maxIndex = maxIndex;
-		}
-
-		@Override
-		public void close() {}
-
-		@Override
-		public int length() {
-			return this.maxIndex - this.minIndex;
-		}
-
-		public abstract void reallocate(int capacity);
-
-		public void setBounds(int minIndex, int maxIndex) {
-			int newLength = maxIndex - minIndex;
-			if (newLength < 0) throw new NegativeArraySizeException(Integer.toString(newLength));
-			int oldLength = this.length();
-			if (oldLength < newLength) {
-				this.reallocate(Math.max(oldLength << 1, newLength));
-			}
-			this.minIndex = minIndex;
-			this.maxIndex = maxIndex;
-		}
-
-		public static class OfInt extends Bounded implements NumberArray.OfInt {
-
-			public int[] array;
-
-			public OfInt() {}
-
-			public OfInt(int minIndex, int maxIndex) {
-				super(minIndex, maxIndex);
-			}
-
-			@Override
-			public int getI(int index) {
-				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
-			}
-
-			@Override
-			public void setI(int index, int value) {
-				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
-			}
-
-			@Override
-			public void fillFromTo(int from, int to, int value) {
-				from -= this.minIndex;
-				to -= this.minIndex;
-				Objects.checkFromToIndex(from, to, this.length());
-				Arrays.fill(this.array, from, to, value);
-			}
-
-			@Override
-			public void reallocate(int capacity) {
-				this.array = new int[capacity];
-			}
-		}
-
-		public static class OfLong extends Bounded implements NumberArray.OfLong {
-
-			public long[] array;
-
-			public OfLong() {}
-
-			public OfLong(int minIndex, int maxIndex) {
-				super(minIndex, maxIndex);
-			}
-
-			@Override
-			public long getL(int index) {
-				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
-			}
-
-			@Override
-			public void setL(int index, long value) {
-				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
-			}
-
-			@Override
-			public void fillFromTo(int from, int to, long value) {
-				from -= this.minIndex;
-				to -= this.minIndex;
-				Objects.checkFromToIndex(from, to, this.length());
-				Arrays.fill(this.array, from, to, value);
-			}
-
-			@Override
-			public void reallocate(int capacity) {
-				this.array = new long[capacity];
-			}
-		}
-
-		public static class OfFloat extends Bounded implements NumberArray.OfFloat {
-
-			public float[] array;
-
-			public OfFloat() {}
-
-			public OfFloat(int minIndex, int maxIndex) {
-				super(minIndex, maxIndex);
-			}
-
-			@Override
-			public float getF(int index) {
-				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
-			}
-
-			@Override
-			public void setF(int index, float value) {
-				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
-			}
-
-			@Override
-			public void fillFromTo(int from, int to, float value) {
-				from -= this.minIndex;
-				to -= this.minIndex;
-				Objects.checkFromToIndex(from, to, this.length());
-				Arrays.fill(this.array, from, to, value);
-			}
-
-			@Override
-			public void reallocate(int capacity) {
-				this.array = new float[capacity];
-			}
-		}
-
-		public static class OfDouble extends Bounded implements NumberArray.OfDouble {
-
-			public double[] array;
-
-			public OfDouble() {}
-
-			public OfDouble(int minIndex, int maxIndex) {
-				super(minIndex, maxIndex);
-			}
-
-			@Override
-			public double getD(int index) {
-				return this.array[Objects.checkIndex(index - this.minIndex, this.length())];
-			}
-
-			@Override
-			public void setD(int index, double value) {
-				this.array[Objects.checkIndex(index - this.minIndex, this.length())] = value;
-			}
-
-			@Override
-			public void fillFromTo(int from, int to, double value) {
-				from -= this.minIndex;
-				to -= this.minIndex;
-				Objects.checkFromToIndex(from, to, this.length());
-				Arrays.fill(this.array, from, to, value);
-			}
-
-			@Override
-			public void reallocate(int capacity) {
-				this.array = new double[capacity];
 			}
 		}
 	}
@@ -1079,6 +932,8 @@ public interface NumberArray extends AutoCloseable {
 			this.length   = length;
 		}
 
+		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }
+
 		@Override public void close() {}
 
 		@Override public byte getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length)); }
@@ -1122,6 +977,8 @@ public interface NumberArray extends AutoCloseable {
 			this.length   = length;
 		}
 
+		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }
+
 		@Override public void close() {}
 
 		@Override public byte getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length) + this.offset); }
@@ -1152,5 +1009,14 @@ public interface NumberArray extends AutoCloseable {
 			Objects.checkFromIndexSize(offset, length, this.length);
 			return this.delegate.sliceOffsetLength(offset + this.offset, length);
 		}
+	}
+
+	public static enum Precision {
+		BYTE,
+		SHORT,
+		INT,
+		LONG,
+		FLOAT,
+		DOUBLE;
 	}
 }

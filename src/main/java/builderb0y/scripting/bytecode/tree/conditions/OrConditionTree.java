@@ -18,7 +18,22 @@ public class OrConditionTree implements ConditionTree {
 	}
 
 	public static ConditionTree create(ConditionTree left, ConditionTree right) {
-		return new OrConditionTree(left, right);
+		if (left instanceof ConstantConditionTree leftConstant) {
+			if (right instanceof ConstantConditionTree rightConstant) {
+				return new ConstantConditionTree(leftConstant.value | rightConstant.value);
+			}
+			else {
+				return leftConstant.value ? leftConstant : right;
+			}
+		}
+		else {
+			if (right instanceof ConstantConditionTree rightConstant) {
+				return rightConstant.value ? rightConstant : left;
+			}
+			else {
+				return new OrConditionTree(left, right);
+			}
+		}
 	}
 
 	@Override

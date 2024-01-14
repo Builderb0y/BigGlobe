@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode;
 
+import java.lang.StackWalker.Option;
 import java.lang.reflect.Field;
 
 import builderb0y.scripting.util.ReflectionData;
@@ -7,6 +8,8 @@ import builderb0y.scripting.util.ReflectionData;
 import static org.objectweb.asm.Opcodes.*;
 
 public class FieldInfo implements Typeable {
+
+	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	public int access;
 	public TypeInfo owner;
@@ -27,6 +30,10 @@ public class FieldInfo implements Typeable {
 		if (type.isVoid()) {
 			throw new IllegalArgumentException("Cannot have a field of type void: " + this);
 		}
+	}
+
+	public static FieldInfo inCaller(String name) {
+		return getField(STACK_WALKER.getCallerClass(), name);
 	}
 
 	public static FieldInfo getField(Class<?> in, String name) {

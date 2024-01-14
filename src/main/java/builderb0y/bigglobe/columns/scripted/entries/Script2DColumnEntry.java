@@ -1,17 +1,17 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.DefaultInt;
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.Numeric3DColumnEntry.IValid;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
-import static org.objectweb.asm.Opcodes.*;
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 
@@ -24,15 +24,15 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public boolean isCached() {
+	public boolean hasField() {
 		return this.cache;
 	}
 
-	public abstract Valid valid();
+	public abstract IValid valid();
 
 	@Override
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		Valid valid = this.valid();
+		IValid valid = this.valid();
 		if (this.cache) {
 			if (valid != null) {
 				/*
@@ -68,14 +68,14 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 					"actually_compute_" + memory.getTyped(ColumnEntryMemory.INTERNAL_NAME),
 					memory.getTyped(ColumnEntryMemory.TYPE).type()
 				);
-				context.generateComputer(testMethod, valid.where());
+				context.setMethodCode(testMethod, valid.where());
 				context.generateGuardedComputer(
 					memory.getTyped(ColumnEntryMemory.COMPUTER),
 					testMethod.info,
 					actuallyCompute.info,
 					valid.getFallback()
 				);
-				context.generateComputer(actuallyCompute, this.value);
+				context.setMethodCode(actuallyCompute, this.value);
 			}
 			else {
 				/*
@@ -88,7 +88,7 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 					return script;
 				}
 				*/
-				context.generateComputer(memory.getTyped(ColumnEntryMemory.COMPUTER), this.value);
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.COMPUTER), this.value);
 			}
 		}
 		else {
@@ -122,8 +122,8 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 					memory.getTyped(ColumnEntryMemory.COMPUTER).info,
 					valid.getFallback()
 				);
-				context.generateComputer(testMethod, valid.where());
-				context.generateComputer(memory.getTyped(ColumnEntryMemory.COMPUTER), this.value);
+				context.setMethodCode(testMethod, valid.where());
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.COMPUTER), this.value);
 			}
 			else {
 				/*
@@ -131,12 +131,21 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 					return script;
 				}
 				*/
-				context.generateComputer(memory.getTyped(ColumnEntryMemory.GETTER), this.value);
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.GETTER), this.value);
 			}
 		}
 	}
 
-	public static interface Valid {
+	@Override
+	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
+		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
+			VarInfo self = setter.addThis();
+			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).type());
+			putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value)).emitBytecode(setter);
+		});
+	}
+
+	public static interface IValid {
 
 		public abstract ScriptUsage<GenericScriptTemplateUsage> where();
 

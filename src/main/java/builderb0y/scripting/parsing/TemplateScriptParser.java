@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import org.objectweb.asm.tree.MethodNode;
 
+import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -41,6 +42,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 		return (TemplateScriptParser<I>)(super.configureEnvironment(configurator));
 	}
 
+	/** note: this logic should match {@link ScriptColumnEntryParser#parseEntireInput()}. */
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
 		if (this.usage.isTemplate()) {

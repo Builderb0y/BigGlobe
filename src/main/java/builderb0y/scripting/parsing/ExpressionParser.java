@@ -208,10 +208,10 @@ public class ExpressionParser {
 	}
 
 	public InsnTree parseEntireInput() throws ScriptParsingException {
-		return this.parseRemainingInput(false);
+		return this.parseRemainingInput(false, true);
 	}
 
-	public InsnTree parseRemainingInput(boolean expectClose) throws ScriptParsingException {
+	public InsnTree parseRemainingInput(boolean expectClose, boolean return_) throws ScriptParsingException {
 		try {
 			int expectedUserStackSize = this.environment.user().getStackSize();
 			this.environment.user().push();
@@ -224,7 +224,7 @@ public class ExpressionParser {
 			if (this.environment.user().getStackSize() != expectedUserStackSize) {
 				throw new IllegalStateException("User defined variable scope out of sync!");
 			}
-			if (!tree.jumpsUnconditionally()) {
+			if (return_ && !tree.jumpsUnconditionally()) {
 				tree = this.createReturn(tree);
 			}
 			return tree;
