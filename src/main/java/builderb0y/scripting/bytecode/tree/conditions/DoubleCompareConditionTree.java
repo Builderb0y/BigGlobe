@@ -23,7 +23,7 @@ public class DoubleCompareConditionTree extends IntCompareConditionTree {
 		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
-			return new ConstantConditionTree(ifConstant.test(leftConstant.asDouble(), rightConstant.asDouble()));
+			return ConstantConditionTree.of(ifConstant.test(leftConstant.asDouble(), rightConstant.asDouble()));
 		}
 		else {
 			return new DoubleCompareConditionTree(left, right, opcode, toIntOpcode);

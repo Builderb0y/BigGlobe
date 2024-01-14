@@ -21,7 +21,7 @@ public class BooleanToConditionTree extends IntCompareZeroConditionTree {
 			bool = bool.cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 			ConstantValue constant = bool.getConstantValue();
 			if (constant.isConstant()) {
-				return new ConstantConditionTree(constant.asBoolean());
+				return ConstantConditionTree.of(constant.asBoolean());
 			}
 			return new BooleanToConditionTree(bool);
 		}

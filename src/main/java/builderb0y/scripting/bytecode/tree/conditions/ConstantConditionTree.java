@@ -8,10 +8,18 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 
 public class ConstantConditionTree implements ConditionTree {
 
+	public static final ConstantConditionTree
+		TRUE  = new ConstantConditionTree(true ),
+		FALSE = new ConstantConditionTree(false);
+
 	public final boolean value;
 
 	public ConstantConditionTree(boolean value) {
 		this.value = value;
+	}
+
+	public static ConstantConditionTree of(boolean value) {
+		return value ? TRUE : FALSE;
 	}
 
 	@Override

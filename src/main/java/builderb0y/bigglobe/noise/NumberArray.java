@@ -4,8 +4,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Objects;
 
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.*;
 
 /**
@@ -55,6 +57,7 @@ public interface NumberArray extends AutoCloseable {
 	public static NumberArray allocateLongsHeap(int longs) { return new Heap.OfLong(new long[longs]); }
 	public static NumberArray allocateFloatsHeap(int floats) { return new Heap.OfFloat(new float[floats]); }
 	public static NumberArray allocateDoublesHeap(int doubles) { return new Heap.OfDouble(new double[doubles]); }
+	public static NumberArray allocateBooleansHeap(int booleans) {}
 
 	public static NumberArray allocateBytesDirect(int bytes) { return Direct.Manager.INSTANCES.get().allocateBytes(bytes); }
 	public static NumberArray allocateShortsDirect(int shorts) { return Direct.Manager.INSTANCES.get().allocateShorts(shorts); }
@@ -62,32 +65,36 @@ public interface NumberArray extends AutoCloseable {
 	public static NumberArray allocateLongsDirect(int longs) { return Direct.Manager.INSTANCES.get().allocateLongs(longs); }
 	public static NumberArray allocateFloatsDirect(int floats) { return Direct.Manager.INSTANCES.get().allocateFloats(floats); }
 	public static NumberArray allocateDoublesDirect(int doubles) { return Direct.Manager.INSTANCES.get().allocateDoubles(doubles); }
+	public static NumberArray allocateBooleansDirect(int booleans) {}
 
 	public abstract Precision getPrecision();
 
 	@Override
 	public abstract void close();
 
-	public abstract byte   getB(int index);
-	public abstract short  getS(int index);
-	public abstract int    getI(int index);
-	public abstract long   getL(int index);
-	public abstract float  getF(int index);
-	public abstract double getD(int index);
+	public abstract byte    getB(int index);
+	public abstract short   getS(int index);
+	public abstract int     getI(int index);
+	public abstract long    getL(int index);
+	public abstract float   getF(int index);
+	public abstract double  getD(int index);
+	public abstract boolean getZ(int index);
 
-	public abstract void setB(int index, byte   value);
-	public abstract void setS(int index, short  value);
-	public abstract void setI(int index, int    value);
-	public abstract void setL(int index, long   value);
-	public abstract void setF(int index, float  value);
-	public abstract void setD(int index, double value);
+	public abstract void setB(int index, byte    value);
+	public abstract void setS(int index, short   value);
+	public abstract void setI(int index, int     value);
+	public abstract void setL(int index, long    value);
+	public abstract void setF(int index, float   value);
+	public abstract void setD(int index, double  value);
+	public abstract void setZ(int index, boolean value);
 
-	public default void fill(byte   value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(short  value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(int    value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(long   value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(float  value) { this.fillFromTo(0, this.length(), value); }
-	public default void fill(double value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(byte    value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(short   value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(int     value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(long    value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(float   value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(double  value) { this.fillFromTo(0, this.length(), value); }
+	public default void fill(boolean value) { this.fillFromTo(0, this.length(), value); }
 
 	public abstract void fillFromTo(int from, int to, byte value);
 	public abstract void fillFromTo(int from, int to, short value);
@@ -95,6 +102,7 @@ public interface NumberArray extends AutoCloseable {
 	public abstract void fillFromTo(int from, int to, long value);
 	public abstract void fillFromTo(int from, int to, float value);
 	public abstract void fillFromTo(int from, int to, double value);
+	public abstract void fillFromTo(int from, int to, boolean value);
 
 	public default void add(int index, byte   value) { this.setB(index, (byte)(this.getB(index) + value)); }
 	public default void add(int index, short  value) { this.setS(index, (short)(this.getB(index) + value)); }
@@ -138,6 +146,9 @@ public interface NumberArray extends AutoCloseable {
 	public default void max(int index, float  value) { this.setF(index, Math.max(this.getF(index), value)); }
 	public default void max(int index, double value) { this.setD(index, Math.max(this.getD(index), value)); }
 
+	public default void and(int index, boolean value) { this.setZ(index, this.getZ(index) & value); }
+	public default void or (int index, boolean value) { this.setZ(index, this.getZ(index) | value); }
+
 	public abstract int length();
 
 	public default NumberArray prefix(int length) {
@@ -168,18 +179,21 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default long getL(int index) { return this.getB(index); }
 		@Override public default float getF(int index) { return this.getB(index); }
 		@Override public default double getD(int index) { return this.getB(index); }
+		@Override public default boolean getZ(int index) { return this.getB(index) != 0; }
 
 		@Override public default void setS(int index, short value) { this.setB(index, (byte)(value)); }
 		@Override public default void setI(int index, int value) { this.setB(index, (byte)(value)); }
 		@Override public default void setL(int index, long value) { this.setB(index, (byte)(value)); }
 		@Override public default void setF(int index, float value) { this.setB(index, (byte)(value)); }
 		@Override public default void setD(int index, double value) { this.setB(index, (byte)(value)); }
+		@Override public default void setZ(int index, boolean value) { this.setB(index, value ? ((byte)(1)) : ((byte)(0))); }
 
-		@Override default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (byte)(value)); }
-		@Override default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (byte)(value)); }
-		@Override default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (byte)(value)); }
-		@Override default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (byte)(value)); }
-		@Override default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (byte)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? ((byte)(1)) : ((byte)(0))); }
 	}
 
 	public static interface OfShort extends NumberArray {
@@ -191,18 +205,21 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default long getL(int index) { return this.getS(index); }
 		@Override public default float getF(int index) { return this.getS(index); }
 		@Override public default double getD(int index) { return this.getS(index); }
+		@Override public default boolean getZ(int index) { return this.getS(index) != 0; }
 
 		@Override public default void setB(int index, byte value) { this.setS(index, value); }
 		@Override public default void setI(int index, int value) { this.setS(index, (short)(value)); }
 		@Override public default void setL(int index, long value) { this.setS(index, (short)(value)); }
 		@Override public default void setF(int index, float value) { this.setS(index, (short)(value)); }
 		@Override public default void setD(int index, double value) { this.setS(index, (short)(value)); }
+		@Override public default void setZ(int index, boolean value) { this.setS(index, value ? ((short)(1)) : ((short)(0))); }
 
-		@Override default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (short)(value)); }
-		@Override default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (short)(value)); }
-		@Override default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (short)(value)); }
-		@Override default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (short)(value)); }
-		@Override default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (short)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? ((short)(1)) : ((short)(0))); }
 	}
 
 	public static interface OfInt extends NumberArray {
@@ -214,18 +231,21 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default long getL(int index) { return this.getI(index); }
 		@Override public default float getF(int index) { return this.getI(index); }
 		@Override public default double getD(int index) { return this.getI(index); }
+		@Override public default boolean getZ(int index) { return this.getI(index) != 0; }
 
 		@Override public default void setB(int index, byte value) { this.setI(index, value); }
 		@Override public default void setS(int index, short value) { this.setI(index, value); }
 		@Override public default void setL(int index, long value) { this.setI(index, (int)(value)); }
 		@Override public default void setF(int index, float value) { this.setI(index, (int)(value)); }
 		@Override public default void setD(int index, double value) { this.setI(index, (int)(value)); }
+		@Override public default void setZ(int index, boolean value) { this.setI(index, value ? 1 : 0); }
 
-		@Override default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (int)(value)); }
-		@Override default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (int)(value)); }
-		@Override default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (int)(value)); }
-		@Override default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (int)(value)); }
-		@Override default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (int)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? 1 : 0); }
 	}
 
 	public static interface OfLong extends NumberArray {
@@ -237,18 +257,21 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default int getI(int index) { return (int)(this.getL(index)); }
 		@Override public default float getF(int index) { return this.getL(index); }
 		@Override public default double getD(int index) { return this.getL(index); }
+		@Override public default boolean getZ(int index) { return this.getL(index) != 0L; }
 
 		@Override public default void setB(int index, byte value) { this.setL(index, value); }
 		@Override public default void setS(int index, short value) { this.setL(index, value); }
 		@Override public default void setI(int index, int value) { this.setL(index, value); }
 		@Override public default void setF(int index, float value) { this.setL(index, (int)(value)); }
 		@Override public default void setD(int index, double value) { this.setL(index, (int)(value)); }
+		@Override public default void setZ(int index, boolean value) { this.setL(index, value ? 1L : 0L); }
 
-		@Override default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (long)(value)); }
-		@Override default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (long)(value)); }
-		@Override default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (long)(value)); }
-		@Override default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (long)(value)); }
-		@Override default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (long)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? 1L : 0L); }
 	}
 
 	public static interface OfFloat extends NumberArray {
@@ -260,18 +283,25 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default int getI(int index) { return (int)(this.getF(index)); }
 		@Override public default long getL(int index) { return (long)(this.getF(index)); }
 		@Override public default double getD(int index) { return this.getF(index); }
+		@Override public default boolean getZ(int index) { return toZ(this.getF(index)); }
 
 		@Override public default void setB(int index, byte value) { this.setF(index, value); }
 		@Override public default void setS(int index, short value) { this.setF(index, value); }
 		@Override public default void setI(int index, int value) { this.setF(index, value); }
 		@Override public default void setL(int index, long value) { this.setF(index, value); }
 		@Override public default void setD(int index, double value) { this.setF(index, (float)(value)); }
+		@Override public default void setZ(int index, boolean value) { this.setF(index, value ? 1.0F : 0.0F); }
 
-		@Override default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (float)(value)); }
-		@Override default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (float)(value)); }
-		@Override default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (float)(value)); }
-		@Override default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (float)(value)); }
-		@Override default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) { this.fillFromTo(from, to, (float)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? 1.0F : 0.0F); }
+
+		public static boolean toZ(float value) {
+			return value != 0.0F && value == value;
+		}
 	}
 
 	public static interface OfDouble extends NumberArray {
@@ -283,18 +313,51 @@ public interface NumberArray extends AutoCloseable {
 		@Override public default int getI(int index) { return (int)(this.getD(index)); }
 		@Override public default long getL(int index) { return (long)(this.getD(index)); }
 		@Override public default float getF(int index) { return (float)(this.getD(index)); }
+		@Override public default boolean getZ(int index) { return toZ(this.getD(index)); }
 
 		@Override public default void setB(int index, byte value) { this.setD(index, value); }
 		@Override public default void setS(int index, short value) { this.setD(index, value); }
 		@Override public default void setI(int index, int value) { this.setD(index, value); }
 		@Override public default void setL(int index, long value) { this.setD(index, value); }
 		@Override public default void setF(int index, float value) { this.setD(index, value); }
+		@Override public default void setZ(int index, boolean value) { this.setD(index, value ? 1.0D : 0.0D); }
 
-		@Override default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (double)(value)); }
-		@Override default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (double)(value)); }
-		@Override default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (double)(value)); }
-		@Override default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (double)(value)); }
-		@Override default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, byte value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, short value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, int value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, long value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, float value) { this.fillFromTo(from, to, (double)(value)); }
+		@Override public default void fillFromTo(int from, int to, boolean value) { this.fillFromTo(from, to, value ? 1.0D : 0.0D); }
+
+		public static boolean toZ(double value) {
+			return value != 0.0D && value == value;
+		}
+	}
+
+	public static interface OfBoolean extends NumberArray {
+
+		@Override public default Precision getPrecision() { return Precision.BOOLEAN; }
+
+		@Override public default byte getB(int index) { return this.getZ(index) ? ((byte)(1)) : ((byte)(0)); }
+		@Override public default short getS(int index) { return this.getZ(index) ? ((short)(1)) : ((short)(0)); }
+		@Override public default int getI(int index) { return this.getZ(index) ? 1 : 0; }
+		@Override public default long getL(int index) { return this.getZ(index) ? 1L : 0L; }
+		@Override public default float getF(int index) { return this.getZ(index) ? 1.0F : 0.0F; }
+		@Override public default double getD(int index) { return this.getZ(index) ? 1.0D : 0.0D; }
+
+		@Override public default void setB(int index, byte value) { this.setZ(index, value != 0); }
+		@Override public default void setS(int index, short value) { this.setZ(index, value != 0); }
+		@Override public default void setI(int index, int value) { this.setZ(index, value != 0); }
+		@Override public default void setL(int index, long value) { this.setZ(index, value != 0L); }
+		@Override public default void setF(int index, float value) { this.setZ(index, OfFloat.toZ(value)); }
+		@Override public default void setD(int index, double value) { this.setZ(index, OfDouble.toZ(value)); }
+
+		@Override public default void fillFromTo(int from, int to, byte value) {this.fillFromTo(from, to, value != 0); }
+		@Override public default void fillFromTo(int from, int to, short value) {this.fillFromTo(from, to, value != 0); }
+		@Override public default void fillFromTo(int from, int to, int value) {this.fillFromTo(from, to, value != 0); }
+		@Override public default void fillFromTo(int from, int to, long value) {this.fillFromTo(from, to, value != 0L); }
+		@Override public default void fillFromTo(int from, int to, float value) {this.fillFromTo(from, to, OfFloat.toZ(value)); }
+		@Override public default void fillFromTo(int from, int to, double value) {this.fillFromTo(from, to, OfDouble.toZ(value)); }
 	}
 
 	public static abstract class Heap implements NumberArray {
@@ -474,6 +537,118 @@ public interface NumberArray extends AutoCloseable {
 			public int length() {
 				return this.array.length;
 			}
+		}
+
+		public static class OfBoolean extends Heap implements NumberArray.OfBoolean {
+
+			public final BitSetWithLength array;
+
+			public OfBoolean(BitSetWithLength array) {
+				this.array = array;
+			}
+
+			@Override
+			public boolean getZ(int index) {
+				return this.array.get(index);
+			}
+
+			@Override
+			public void setZ(int index, boolean value) {
+				this.array.set(index, value);
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, boolean value) {
+				this.array.set(from, to, value);
+			}
+
+			@Override
+			public int length() {
+				return this.array.length;
+			}
+		}
+	}
+
+	public static class BitSetWithLength extends BitSet {
+
+		public final int length;
+
+		public BitSetWithLength(int length) {
+			super(length);
+			this.length = length;
+		}
+
+		@Override
+		public void flip(int bitIndex) {
+			super.flip(Objects.checkIndex(bitIndex, this.length));
+		}
+
+		@Override
+		public void flip(int fromIndex, int toIndex) {
+			super.flip(Objects.checkFromToIndex(fromIndex, toIndex, this.length), toIndex);
+		}
+
+		@Override
+		public void set(int bitIndex) {
+			super.set(Objects.checkIndex(bitIndex, this.length));
+		}
+
+		@Override
+		public void set(int bitIndex, boolean value) {
+			super.set(Objects.checkIndex(bitIndex, this.length), value);
+		}
+
+		@Override
+		public void set(int fromIndex, int toIndex) {
+			super.set(Objects.checkFromToIndex(fromIndex, toIndex, this.length), toIndex);
+		}
+
+		@Override
+		public void set(int fromIndex, int toIndex, boolean value) {
+			super.set(Objects.checkFromToIndex(fromIndex, toIndex, this.length), toIndex, value);
+		}
+
+		@Override
+		public void clear(int bitIndex) {
+			super.clear(Objects.checkIndex(bitIndex, this.length));
+		}
+
+		@Override
+		public void clear(int fromIndex, int toIndex) {
+			super.clear(Objects.checkFromToIndex(fromIndex, toIndex, this.length), toIndex);
+		}
+
+		@Override
+		public boolean get(int bitIndex) {
+			return super.get(Objects.checkIndex(bitIndex, this.length));
+		}
+
+		@NotNull
+		@Override
+		public BitSet get(int fromIndex, int toIndex) {
+			return super.get(Objects.checkFromToIndex(fromIndex, toIndex, this.length), toIndex);
+		}
+
+		@Override
+		public void and(@NotNull BitSet set) {
+			super.and(set);
+		}
+
+		@Override
+		public void or(@NotNull BitSet set) {
+			Objects.checkIndex(set.length(), this.length);
+			super.or(set);
+		}
+
+		@Override
+		public void xor(@NotNull BitSet set) {
+			Objects.checkIndex(set.length(), this.length);
+			super.xor(set);
+		}
+
+		@Override
+		public void andNot(@NotNull BitSet set) {
+			super.andNot(set);
 		}
 	}
 
@@ -811,6 +986,46 @@ public interface NumberArray extends AutoCloseable {
 			}
 		}
 
+		public static class OfBoolean extends Direct implements NumberArray.OfBoolean {
+
+			public OfBoolean(Manager manager, int byteLength) {
+				super(manager, byteLength, Byte.BYTES);
+			}
+
+			public OfBoolean(Manager manager, int byteOffset, int byteLength) {
+				super(manager, byteOffset, byteLength, Byte.BYTES);
+			}
+
+			@Override
+			public boolean getZ(int index) {
+				return (((byte)(BYTE_ACCESS.get(this.manager.base, Objects.checkIndex(index >> 8, this.byteLength) + this.byteOffset))) & (1 << (index & 7))) != 0;
+			}
+
+			@Override
+			public void setZ(int index, boolean value) {
+				int byteIndex = Objects.checkIndex(index >> 3, this.byteLength) + this.byteOffset;
+				if (value) {
+					BYTE_ACCESS.set(this.manager.base, byteIndex, (byte)(((byte)(BYTE_ACCESS.get(this.manager.base, byteIndex))) |  (1 << (index & 7))));
+				}
+				else {
+					BYTE_ACCESS.set(this.manager.base, byteIndex, (byte)(((byte)(BYTE_ACCESS.get(this.manager.base, byteIndex))) & ~(1 << (index & 7))));
+				}
+			}
+
+			@Override
+			public void fillFromTo(int from, int to, boolean value) {
+				int firstByteIndex = Objects.checkFromToIndex(from >> 3, to >> 3, this.byteLength);
+				int lastByteIndex = (to - 1) >> 3;
+				byte[] base = this.manager.base;
+				todo: finish this.
+			}
+
+			@Override
+			public int length() {
+				return this.byteLength << 3;
+			}
+		}
+
 		/**
 		manages a region of memory backed by a byte[],
 		keeping track of how much of it is used at any given time.
@@ -1017,6 +1232,7 @@ public interface NumberArray extends AutoCloseable {
 		INT,
 		LONG,
 		FLOAT,
-		DOUBLE;
+		DOUBLE,
+		BOOLEAN;
 	}
 }

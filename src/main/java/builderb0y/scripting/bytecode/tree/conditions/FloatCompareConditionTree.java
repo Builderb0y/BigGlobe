@@ -23,7 +23,7 @@ public class FloatCompareConditionTree extends IntCompareConditionTree {
 		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
-			return new ConstantConditionTree(ifConstant.test(leftConstant.asFloat(), rightConstant.asFloat()));
+			return ConstantConditionTree.of(ifConstant.test(leftConstant.asFloat(), rightConstant.asFloat()));
 		}
 		else {
 			return new FloatCompareConditionTree(left, right, compare, toInt);

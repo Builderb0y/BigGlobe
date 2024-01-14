@@ -122,10 +122,15 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			else throw new IllegalArgumentException("Key " + key + " not in " + this);
 		}
 
-		@SuppressWarnings("unchecked")
 		public <T> void putTyped(Key<T> key, T value) {
 			if (this.putIfAbsent(key, value) != null) {
 				throw new IllegalStateException(key + " already present in " + this);
+			}
+		}
+
+		public <T> void replaceTyped(Key<T> key, T oldValue, T newValue) {
+			if (!this.replace(key, oldValue, newValue)) {
+				throw new IllegalStateException(key + " was bound to " + this.get(key) + " when trying to replace " + oldValue + " with " + newValue + " in " + this);
 			}
 		}
 

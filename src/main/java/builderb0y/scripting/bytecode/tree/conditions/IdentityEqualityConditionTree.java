@@ -40,7 +40,7 @@ public class IdentityEqualityConditionTree implements ConditionTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && leftConstant.asJavaObject() == null) {
 			if (rightConstant.isConstant() && rightConstant.asJavaObject() == null) {
-				return new ConstantConditionTree(equal);
+				return ConstantConditionTree.of(equal);
 			}
 			else {
 				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);

@@ -20,7 +20,7 @@ public class AndConditionTree implements ConditionTree {
 	public static ConditionTree create(ConditionTree left, ConditionTree right) {
 		if (left instanceof ConstantConditionTree leftConstant) {
 			if (right instanceof ConstantConditionTree rightConstant) {
-				return new ConstantConditionTree(leftConstant.value & rightConstant.value);
+				return ConstantConditionTree.of(leftConstant.value & rightConstant.value);
 			}
 			else {
 				return leftConstant.value ? right : leftConstant;

@@ -22,7 +22,7 @@ public class LongCompareConditionTree extends IntCompareConditionTree {
 		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
-			return new ConstantConditionTree(ifConstant.test(leftConstant.asLong(), rightConstant.asLong()));
+			return ConstantConditionTree.of(ifConstant.test(leftConstant.asLong(), rightConstant.asLong()));
 		}
 		else {
 			return new LongCompareConditionTree(left, right, opcode);

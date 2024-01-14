@@ -29,7 +29,7 @@ public class IntCompareConditionTree implements ConditionTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant()) {
 			if (rightConstant.isConstant()) {
-				return new ConstantConditionTree(ifConstant.test(leftConstant.asInt(), rightConstant.asInt()));
+				return ConstantConditionTree.of(ifConstant.test(leftConstant.asInt(), rightConstant.asInt()));
 			}
 			else {
 				if (leftConstant.asInt() == 0) {

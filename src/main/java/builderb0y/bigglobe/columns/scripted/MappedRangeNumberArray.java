@@ -19,6 +19,8 @@ public class MappedRangeNumberArray {
 		REALLOCATE_MIN  = MethodInfo.inCaller("reallocateMin"),
 		REALLOCATE_MAX  = MethodInfo.inCaller("reallocateMax"),
 		REALLOCATE_BOTH = MethodInfo.inCaller("reallocateBoth"),
+		GET_B = MethodInfo.getMethod(NumberArray.class, "getB"),
+		GET_S = MethodInfo.getMethod(NumberArray.class, "getS"),
 		GET_I = MethodInfo.getMethod(NumberArray.class, "getI"),
 		GET_L = MethodInfo.getMethod(NumberArray.class, "getL"),
 		GET_F = MethodInfo.getMethod(NumberArray.class, "getF"),

@@ -32,6 +32,7 @@ public abstract class DataCompileContext {
 	public MutableScriptEnvironment environment;
 	public int flagsIndex;
 	public List<DataCompileContext> children;
+	public MethodCompileContext constructor;
 
 	public DataCompileContext(ColumnEntryRegistry registry) {
 		this.registry = registry;
@@ -130,7 +131,7 @@ public abstract class DataCompileContext {
 				type(ScriptedColumn.class),
 				new TypeInfo[0]
 			);
-			this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, TypeInfos.LONG, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT).scopes.withScope((MethodCompileContext constructor) -> {
+			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, TypeInfos.LONG, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT)).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo
 					self = constructor.addThis(),
 					seed = constructor.newParameter("seed", TypeInfos.LONG),
@@ -138,26 +139,24 @@ public abstract class DataCompileContext {
 					z    = constructor.newParameter("z",    TypeInfos.INT ),
 					minY = constructor.newParameter("minY", TypeInfos.INT ),
 					maxY = constructor.newParameter("maxY", TypeInfos.INT );
-				return_(
-					invokeInstance(
-						load(self),
-						new MethodInfo(
-							ACC_PUBLIC,
-							type(ScriptedColumn.class),
-							"<init>",
-							TypeInfos.VOID,
-							TypeInfos.LONG,
-							TypeInfos.INT,
-							TypeInfos.INT,
-							TypeInfos.INT,
-							TypeInfos.INT
-						),
-						load(seed),
-						load(x),
-						load(z),
-						load(minY),
-						load(maxY)
-					)
+				invokeInstance(
+					load(self),
+					new MethodInfo(
+						ACC_PUBLIC,
+						type(ScriptedColumn.class),
+						"<init>",
+						TypeInfos.VOID,
+						TypeInfos.LONG,
+						TypeInfos.INT,
+						TypeInfos.INT,
+						TypeInfos.INT,
+						TypeInfos.INT
+					),
+					load(seed),
+					load(x),
+					load(z),
+					load(minY),
+					load(maxY)
 				)
 				.emitBytecode(constructor);
 			});
@@ -236,7 +235,7 @@ public abstract class DataCompileContext {
 				new TypeInfo[0]
 			);
 			FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.mainClass.info);
-			this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class)).scopes.withScope((MethodCompileContext constructor) -> {
+			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class))).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo
 					self     = constructor.addThis(),
 					column   = constructor.newParameter("column", type(ScriptedColumn.class)),
@@ -258,7 +257,6 @@ public abstract class DataCompileContext {
 				)
 				.emitBytecode(constructor);
 				putField(load(self), columnField.info, load(column)).emitBytecode(constructor);
-				return_(noop).emitBytecode(constructor);
 			});
 			this.mainClass.newMethod(ACC_PUBLIC, "column", type(ScriptedColumn.class) /* do not use synthetic subclass */).scopes.withScope((MethodCompileContext columnGetter) -> {
 				VarInfo self = columnGetter.addThis();
@@ -344,29 +342,27 @@ public abstract class DataCompileContext {
 				parent.mainClass.info,
 				new TypeInfo[0]
 			);
-			this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class)).scopes.withScope((MethodCompileContext constructor) -> {
+			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class))).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo
 					self     = constructor.addThis(),
 					column   = constructor.newParameter("column", type(ScriptedColumn.class)),
 					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class)),
 					baseSeed = constructor.newParameter("baseSeed", TypeInfos.LONG);
-				return_(
-					invokeInstance(
-						load(self),
-						new MethodInfo(
-							ACC_PUBLIC,
-							parent.mainClass.info,
-							"<init>",
-							TypeInfos.VOID,
-							type(ScriptedColumn.class),
-							type(VoronoiDiagram2D.Cell.class),
-							TypeInfos.LONG
-						),
-						load(self),
-						load(column),
-						load(cell),
-						load(baseSeed)
-					)
+				invokeInstance(
+					load(self),
+					new MethodInfo(
+						ACC_PUBLIC,
+						parent.mainClass.info,
+						"<init>",
+						TypeInfos.VOID,
+						type(ScriptedColumn.class),
+						type(VoronoiDiagram2D.Cell.class),
+						TypeInfos.LONG
+					),
+					load(self),
+					load(column),
+					load(cell),
+					load(baseSeed)
 				)
 				.emitBytecode(constructor);
 			});
