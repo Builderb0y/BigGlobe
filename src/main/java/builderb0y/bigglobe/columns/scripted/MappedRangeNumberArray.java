@@ -77,12 +77,13 @@ public class MappedRangeNumberArray {
 			requiredLength = Math.max(requiredLength, this.array.length() << 1);
 			this.array.close();
 			this.array = switch (this.array.getPrecision()) {
-				case BYTE   -> NumberArray.allocateBytesHeap  (requiredLength);
-				case SHORT  -> NumberArray.allocateShortsHeap (requiredLength);
-				case INT    -> NumberArray.allocateIntsHeap   (requiredLength);
-				case LONG   -> NumberArray.allocateLongsHeap  (requiredLength);
-				case FLOAT  -> NumberArray.allocateFloatsHeap (requiredLength);
-				case DOUBLE -> NumberArray.allocateDoublesHeap(requiredLength);
+				case BYTE    -> NumberArray.allocateBytesHeap   (requiredLength);
+				case SHORT   -> NumberArray.allocateShortsHeap  (requiredLength);
+				case INT     -> NumberArray.allocateIntsHeap    (requiredLength);
+				case LONG    -> NumberArray.allocateLongsHeap   (requiredLength);
+				case FLOAT   -> NumberArray.allocateFloatsHeap  (requiredLength);
+				case DOUBLE  -> NumberArray.allocateDoublesHeap (requiredLength);
+				case BOOLEAN -> NumberArray.allocateBooleansHeap(requiredLength);
 			};
 		}
 	}
