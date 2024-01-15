@@ -39,7 +39,6 @@ one it was allocated on can corrupt the internal state of the
 manager it belongs to, possibly leading to exceptions,
 including exceptions thrown from other locations than where the NumberArray is closed!
 */
-//todo: test booleans, add toString() for all types.
 @SuppressWarnings({ "ClassNameSameAsAncestorName", "unused", "ImplicitNumericConversion", "OverloadedMethodsWithSameNumberOfParameters", "SameParameterValue", "NumericCastThatLosesPrecision" })
 public interface NumberArray extends AutoCloseable {
 
@@ -69,6 +68,34 @@ public interface NumberArray extends AutoCloseable {
 	public static NumberArray allocateBooleansDirect(int booleans) { return Direct.Manager.INSTANCES.get().allocateBooleans(booleans); }
 
 	public abstract Precision getPrecision();
+
+	public default String toStringImpl() {
+		int length = this.length();
+		if (length == 0) return "[]";
+		Precision precision = this.getPrecision();
+		StringBuilder builder = new StringBuilder(this.length() * switch (precision) {
+			case BYTE -> 6;
+			case SHORT -> 8;
+			case INT -> 11;
+			case LONG -> 22;
+			case FLOAT -> 22;
+			case DOUBLE -> 22;
+			case BOOLEAN -> 7;
+		}).append('[');
+		for (int index = 0; index < length; index++) {
+			switch (precision) {
+				case BYTE    -> builder.append(this.getB(index));
+				case SHORT   -> builder.append(this.getS(index));
+				case INT     -> builder.append(this.getI(index));
+				case LONG    -> builder.append(this.getL(index));
+				case FLOAT   -> builder.append(this.getF(index));
+				case DOUBLE  -> builder.append(this.getD(index));
+				case BOOLEAN -> builder.append(this.getZ(index));
+			}
+			if (index != length - 1) builder.append(", ");
+		}
+		return builder.append(']').toString();
+	}
 
 	@Override
 	public abstract void close();
@@ -366,6 +393,11 @@ public interface NumberArray extends AutoCloseable {
 		@Override
 		public void close() {}
 
+		@Override
+		public String toString() {
+			return this.toStringImpl();
+		}
+
 		public static class OfByte extends Heap implements NumberArray.OfByte {
 
 			public final byte[] array;
@@ -567,14 +599,15 @@ public interface NumberArray extends AutoCloseable {
 
 			@Override
 			public void fillFromTo(int from, int to, boolean value) {
+				if (from == to) return;
 				//similar logic as BitSet, but working with a byte[] instead of a long[].
 				int firstByteIndex = Objects.checkFromToIndex(from, to, this.bitLength) >> 3;
 				int lastByteIndex = (to - 1) >> 3;
-				byte firstByteMask = (byte)(255 << from);
-				byte lastByteMask  = (byte)(255 >>> -to);
+				byte firstByteMask = (byte)(255 << (from & 7));
+				byte lastByteMask  = (byte)(255 >>> ((-to) & 7));
 				byte[] base = this.array;
 				if (value) {
-					if (firstByteMask == lastByteMask) {
+					if (firstByteIndex == lastByteIndex) {
 						base[firstByteIndex] |= (byte)(firstByteMask & lastByteMask);
 					}
 					else {
@@ -586,7 +619,7 @@ public interface NumberArray extends AutoCloseable {
 					}
 				}
 				else {
-					if (firstByteMask == lastByteMask) {
+					if (firstByteIndex == lastByteIndex) {
 						base[firstByteIndex] &= (byte)(~(firstByteMask & lastByteMask));
 					}
 					else {
@@ -668,6 +701,11 @@ public interface NumberArray extends AutoCloseable {
 				this.freeable = false;
 			}
 			this.manager = null;
+		}
+
+		@Override
+		public String toString() {
+			return this.toStringImpl();
 		}
 
 		public static class OfByte extends Direct implements NumberArray.OfByte {
@@ -967,21 +1005,21 @@ public interface NumberArray extends AutoCloseable {
 					this.manager.base[byteIndex] |= (byte)(1 << (index & 7));
 				}
 				else {
-					this.manager.base[byteIndex] &= (byte)(~(1 << index & 7));
+					this.manager.base[byteIndex] &= (byte)(~(1 << (index & 7)));
 				}
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, boolean value) {
-				Objects.checkFromToIndex(from, to, this.bitLength);
+				if (from == to) return;
 				//similar logic as BitSet, but working with a byte[] instead of a long[].
-				int firstByteIndex = (from >> 3) + this.byteOffset;
+				int firstByteIndex = (Objects.checkFromToIndex(from, to, this.bitLength) >> 3) + this.byteOffset;
 				int lastByteIndex  = ((to - 1) >> 3) + this.byteOffset;
-				byte firstByteMask = (byte)(255 << from);
-				byte lastByteMask  = (byte)(255 >>> -to);
+				byte firstByteMask = (byte)(255 << (from & 7));
+				byte lastByteMask  = (byte)(255 >>> ((-to) & 7));
 				byte[] base = this.manager.base;
 				if (value) {
-					if (firstByteMask == lastByteMask) {
+					if (firstByteIndex == lastByteIndex) {
 						base[firstByteIndex] |= (byte)(firstByteMask & lastByteMask);
 					}
 					else {
@@ -993,7 +1031,7 @@ public interface NumberArray extends AutoCloseable {
 					}
 				}
 				else {
-					if (firstByteMask == lastByteMask) {
+					if (firstByteIndex == lastByteIndex) {
 						base[firstByteIndex] &= (byte)(~(firstByteMask & lastByteMask));
 					}
 					else {
@@ -1137,6 +1175,11 @@ public interface NumberArray extends AutoCloseable {
 			this.length   = length;
 		}
 
+		@Override
+		public String toString() {
+			return this.toStringImpl();
+		}
+
 		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }
 
 		@Override public void close() {}
@@ -1183,6 +1226,11 @@ public interface NumberArray extends AutoCloseable {
 			this.delegate = delegate;
 			this.offset   = offset;
 			this.length   = length;
+		}
+
+		@Override
+		public String toString() {
+			return this.toStringImpl();
 		}
 
 		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }

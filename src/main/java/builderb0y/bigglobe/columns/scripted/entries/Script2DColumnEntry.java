@@ -2,7 +2,6 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.Numeric3DColumnEntry.IValid;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;

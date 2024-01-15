@@ -33,22 +33,4 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 			);
 		}
 	}
-
-	public static abstract class Basic2DAccessSchema implements AccessSchema {
-
-		@Override
-		public boolean requiresYLevel() {
-			return false;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			return other != null && other.getClass() == this.getClass();
-		}
-
-		@Override
-		public int hashCode() {
-			return this.getClass().hashCode();
-		}
-	}
 }

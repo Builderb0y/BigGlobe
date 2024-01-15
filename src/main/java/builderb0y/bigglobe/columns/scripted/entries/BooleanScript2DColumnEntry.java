@@ -1,13 +1,12 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchemas.Boolean2DAccessSchema;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.util.TypeInfos;
 
 public class BooleanScript2DColumnEntry extends Script2DColumnEntry {
 
@@ -32,15 +31,6 @@ public class BooleanScript2DColumnEntry extends Script2DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return new Boolean2DAccessSchema();
-	}
-
-	@RecordLike({})
-	public static class Boolean2DAccessSchema extends Basic2DAccessSchema {
-
-		@Override
-		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.BOOLEAN, null);
-		}
+		return Boolean2DAccessSchema.INSTANCE;
 	}
 }

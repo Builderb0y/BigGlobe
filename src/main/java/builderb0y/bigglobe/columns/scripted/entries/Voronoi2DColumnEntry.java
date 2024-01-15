@@ -18,8 +18,9 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
@@ -113,7 +114,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return new VoronoiAccessSchema(this.exports);
+		return new Voronoi2DAccessSchema(this.exports);
 	}
 
 	@Override
@@ -306,34 +307,6 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			-> {
 				throw new VerifyException(() -> "Export name " + name + " is built-in, and cannot be overridden.");
 			}
-		}
-	}
-
-	public static class VoronoiAccessSchema extends Basic2DAccessSchema {
-
-		public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
-
-		public VoronoiAccessSchema(Map<String, AccessSchema> exports) {
-			this.exports = exports;
-		}
-
-		@Override
-		public TypeContext createType(ColumnCompileContext context) {
-			VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context);
-			for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-				voronoiContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.getSchemaType(entry.getValue()).type());
-			}
-			return new TypeContext(voronoiContext.mainClass.info, voronoiContext);
-		}
-
-		@Override
-		public int hashCode() {
-			return this.exports.hashCode() ^ VoronoiAccessSchema.class.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return obj instanceof VoronoiAccessSchema that && this.exports.equals(that.exports);
 		}
 	}
 }

@@ -13,12 +13,13 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.FieldCompileContext;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -32,6 +33,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_2d"), FloatScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_2d"), DoubleScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_2d"), BooleanScript2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("int_script_3d"), IntScript3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("long_script_3d"), LongScript3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_3d"), FloatScript3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_3d"), DoubleScript3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_3d"), BooleanScript3DColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();
@@ -151,46 +157,6 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 				return this.name;
 			}
 		}
-	}
-
-	@UseCoder(name = "REGISTRY", in = AccessSchema.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-	public static interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
-
-		public static final CoderRegistry<AccessSchema> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_entry_access_schema"));
-
-		public abstract TypeContext createType(ColumnCompileContext context);
-
-		public abstract boolean requiresYLevel();
-
-		public default MethodInfo getterDescriptor(int flags, String name, DataCompileContext context) {
-			return new MethodInfo(
-				flags,
-				context.selfType(),
-				name,
-				context.getSchemaType(this).type(),
-				this.requiresYLevel()
-				? new TypeInfo[] { TypeInfos.INT }
-				: TypeInfo.ARRAY_FACTORY.empty()
-			);
-		}
-
-		public default MethodInfo setterDescriptor(int flags, String name, DataCompileContext context) {
-			return new MethodInfo(
-				flags,
-				context.selfType(),
-				name,
-				TypeInfos.VOID,
-				this.requiresYLevel()
-				? new TypeInfo[] { TypeInfos.INT, context.getSchemaType(this).type() }
-				: new TypeInfo[] { context.getSchemaType(this).type() }
-			);
-		}
-
-		@Override
-		public abstract boolean equals(Object other);
-
-		@Override
-		public abstract int hashCode();
 	}
 
 	public static record TypeContext(@NotNull TypeInfo type, @Nullable DataCompileContext context) {}

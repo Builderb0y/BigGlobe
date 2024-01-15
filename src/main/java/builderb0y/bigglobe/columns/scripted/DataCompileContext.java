@@ -10,7 +10,6 @@ import org.objectweb.asm.Type;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
@@ -19,8 +18,10 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

@@ -17,7 +17,6 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.parsing.ExpressionReader;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -72,7 +71,7 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, columnContext);
 		}
 		try {
-			this.columnClass = new ScriptClassLoader(columnContext.mainClass).defineMainClass();
+			this.columnClass = new ScriptClassLoader(columnContext.mainClass).defineMainClass().asSubclass(ScriptedColumn.class);
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
 					MethodHandles.lookup(),

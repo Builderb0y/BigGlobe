@@ -3,14 +3,11 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -143,30 +140,5 @@ public abstract class Numeric3DColumnEntry implements ColumnEntry {
 		public abstract ScriptUsage<GenericScriptTemplateUsage> max_y();
 
 		public abstract ConstantValue getFallback();
-	}
-
-	public static abstract class Numeric3DAccessSchema implements AccessSchema {
-
-		public abstract TypeInfo type();
-
-		@Override
-		public boolean requiresYLevel() {
-			return true;
-		}
-
-		@Override
-		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(this.type(), null);
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			return other != null && other.getClass() == this.getClass();
-		}
-
-		@Override
-		public int hashCode() {
-			return this.type().hashCode();
-		}
 	}
 }
