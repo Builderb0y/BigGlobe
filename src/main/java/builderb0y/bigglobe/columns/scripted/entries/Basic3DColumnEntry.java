@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
+import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -17,8 +17,6 @@ import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -32,7 +30,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 		VALID_MIN_Y = new ColumnEntryMemory.Key<>("validMinY"),
 		VALID_MAX_Y = new ColumnEntryMemory.Key<>("validMaxY");
 
-	public abstract IValid valid();
+	public abstract _3DValid valid();
 
 	@Override
 	public void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {
@@ -57,7 +55,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		IValid valid = this.valid();
+		_3DValid valid = this.valid();
 		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasField()) {
@@ -243,7 +241,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
 					default -> throw new IllegalStateException("Unsupported type: " + type);
 				})
-				.addVariableConstant("fallback", valid != null ? valid.getFallback() : ConstantValue.of(0))
+				.addVariableConstant("fallback", valid != null ? valid.getFallback(type) : ConstantValue.of(0))
 				.addFunctionInvoke("compute", context.loadSelf(), computeOneMethod.info)
 			);
 
@@ -278,7 +276,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						new IfElseInsnTree(
 							condition_,
 							return_(invokeInstance(load(self), computeOneMethod.info, y)),
-							return_(ldc(valid.getFallback())),
+							return_(ldc(valid.getFallback(type))),
 							TypeInfos.VOID
 						)
 						.emitBytecode(getter);
@@ -321,16 +319,5 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				default -> throw new IllegalStateException("Unsupported type: " + type);
 			})
 		);
-	}
-
-	public static interface IValid {
-
-		public abstract @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where();
-
-		public abstract @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y();
-
-		public abstract @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y();
-
-		public abstract ConstantValue getFallback();
 	}
 }

@@ -1,24 +1,22 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class Basic2DColumnEntry implements ColumnEntry {
 
-	public abstract IValid valid();
+	public abstract _2DValid valid();
 
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		IValid valid = this.valid();
+		_2DValid valid = this.valid();
 		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasField()) {
@@ -96,12 +94,5 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 				memory.putTyped(ColumnEntryMemory.COMPUTER, getterMethod);
 			}
 		}
-	}
-
-	public static interface IValid {
-
-		public abstract ScriptUsage<GenericScriptTemplateUsage> where();
-
-		public abstract ConstantValue getFallback(TypeInfo type);
 	}
 }

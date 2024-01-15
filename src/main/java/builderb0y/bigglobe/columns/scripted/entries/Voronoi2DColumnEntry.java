@@ -24,6 +24,7 @@ import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -59,7 +60,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public final TagKey<VoronoiSettings> values;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 	public final @VerifyNullable Valid valid;
-	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) implements IValid {
+	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) implements _2DValid {
 
 		@Override
 		public ConstantValue getFallback(TypeInfo type) {
@@ -80,7 +81,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public IValid valid() {
+	public _2DValid valid() {
 		return this.valid;
 	}
 

@@ -1,37 +1,24 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.autocodec.annotations.DefaultLong;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Long3DAccessSchema;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.bigglobe.columns.scripted.Valids.Long3DValid;
+import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public class LongScript3DColumnEntry extends Script3DColumnEntry {
 
-	public final @VerifyNullable Valid valid;
-	public static record Valid(
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y,
-		@DefaultLong(0L) long fallback
-	)
-	implements IValid {
+	public final @VerifyNullable Long3DValid valid;
 
-		@Override
-		public ConstantValue getFallback() {
-			return ConstantValue.of(this.fallback);
-		}
-	}
-
-	public LongScript3DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Valid valid, boolean cache) {
+	public LongScript3DColumnEntry(ScriptUsage<GenericScriptTemplateUsage> value, Long3DValid valid, boolean cache) {
 		super(value, cache);
 		this.valid = valid;
 	}
 
 	@Override
-	public IValid valid() {
+	public _3DValid valid() {
 		return this.valid;
 	}
 
