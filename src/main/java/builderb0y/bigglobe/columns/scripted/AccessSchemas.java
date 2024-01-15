@@ -171,9 +171,6 @@ public class AccessSchemas {
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
 			VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context);
-			for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-				voronoiContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.getSchemaType(entry.getValue()).exposedType());
-			}
 			return new TypeContext(voronoiContext.mainClass.info, voronoiContext.mainClass.info, voronoiContext);
 		}
 

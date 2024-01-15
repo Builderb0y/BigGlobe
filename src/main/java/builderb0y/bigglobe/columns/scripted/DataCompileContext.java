@@ -255,7 +255,7 @@ public abstract class DataCompileContext {
 				new TypeInfo[0]
 			);
 			FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.mainClass.info);
-			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class))).scopes.withScope((MethodCompileContext constructor) -> {
+			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class), TypeInfos.LONG)).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo
 					self     = constructor.addThis(),
 					column   = constructor.newParameter("column", this.columnType()),
@@ -350,11 +350,11 @@ public abstract class DataCompileContext {
 
 		public final VoronoiBaseCompileContext parent;
 
-		public VoronoiImplCompileContext(VoronoiBaseCompileContext parent) {
+		public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, long seed) {
 			super(parent.registry);
 			parent.children.add(this);
 			this.parent = parent;
-			this.flagsIndex = 3;
+			this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
 			this.mainClass = parent.mainClass.newInnerClass(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				Type.getInternalName(VoronoiDataBase.class) + "$Generated$Impl_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
@@ -365,8 +365,7 @@ public abstract class DataCompileContext {
 				VarInfo
 					self     = constructor.addThis(),
 					column   = constructor.newParameter("column", type(ScriptedColumn.class)),
-					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class)),
-					baseSeed = constructor.newParameter("baseSeed", TypeInfos.LONG);
+					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class));
 				invokeInstance(
 					load(self),
 					new MethodInfo(
@@ -381,7 +380,7 @@ public abstract class DataCompileContext {
 					load(self),
 					load(column),
 					load(cell),
-					load(baseSeed)
+					ldc(seed)
 				)
 				.emitBytecode(constructor);
 			});

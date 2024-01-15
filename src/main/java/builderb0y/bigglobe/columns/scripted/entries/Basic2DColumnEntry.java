@@ -103,7 +103,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
 			VarInfo self = setter.addThis();
 			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
-			putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value)).emitBytecode(setter);
+			return_(putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setter);
 		});
 	}
 

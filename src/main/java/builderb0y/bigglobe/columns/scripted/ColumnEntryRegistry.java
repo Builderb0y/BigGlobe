@@ -84,7 +84,7 @@ public class ColumnEntryRegistry {
 			ScriptClassLoader loader = new ScriptClassLoader(columnContext.mainClass);
 			if (CLASS_DUMP_DIRECTORY != null) try {
 				for (ClassCompileContext context : loader.loadable.values()) {
-					String baseName = context.info.getSimpleName();
+					String baseName = context.info.getSimpleClassName();
 					Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 					Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
 				}
@@ -98,12 +98,12 @@ public class ColumnEntryRegistry {
 					MethodHandles.lookup(),
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class, int.class),
+					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class),
 					MethodHandles.lookup().findConstructor(
 						this.columnClass,
-						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class, int.class)
+						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class)
 					),
-					MethodType.methodType(this.columnClass, long.class, int.class, int.class, int.class, int.class, int.class)
+					MethodType.methodType(this.columnClass, long.class, int.class, int.class, int.class, int.class)
 				)
 				.getTarget()
 				.invokeExact()

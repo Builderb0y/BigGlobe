@@ -126,6 +126,11 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
+	public boolean isSettable() {
+		return false;
+	}
+
+	@Override
 	public AccessSchema getAccessSchema() {
 		return new Voronoi2DAccessSchema(this.exports);
 	}
@@ -158,7 +163,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			voronoiBaseContext.mainClass.newMethod(entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
 		}
 		for (RegistryEntry<VoronoiSettings> entry : voronoiTag) {
-			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext);
+			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(entry)));
 			voronoiContextMap.put(UnregisteredObjectException.getKey(entry), implContext);
 			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = entry.value().weight();
 
@@ -225,7 +230,13 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			return_(
 				invokeDynamic(
 					MethodInfo.getMethod(Voronoi2DColumnEntry.class, "createRandomizer"),
-					MethodInfo.getMethod(Voronoi2DColumnEntry.class, "randomize"),
+					new MethodInfo(
+						ACC_PUBLIC | ACC_STATIC,
+						TypeInfos.OBJECT, //ignored.
+						"randomize",
+						memory.getTyped(ColumnEntryMemory.TYPE).exposedType(),
+						type(VoronoiDiagram2D.Cell.class)
+					),
 					memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),
 					new InsnTree[] {
 						invokeInstance(

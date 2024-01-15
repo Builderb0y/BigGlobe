@@ -43,6 +43,8 @@ public abstract class ScriptedColumn {
 	/** also subclassed at runtime. */
 	public static abstract class VoronoiDataBase {
 
+		public static final int BUILTIN_FLAG_COUNT = 3;
+
 		/* public final synthetic ScriptedColumn$Generated_XXX column; */
 		public final VoronoiDiagram2D.Cell cell;
 		public final long seed;

@@ -283,6 +283,11 @@ public class TypeInfo {
 		return name.substring(start + 1);
 	}
 
+	public String getSimpleClassName() {
+		String internalName = this.getInternalName();
+		return internalName.substring(internalName.lastIndexOf('/') + 1);
+	}
+
 	public int getOpcode(int base) {
 		return this.name.getOpcode(base);
 	}
