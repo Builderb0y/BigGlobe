@@ -3,7 +3,7 @@
 	"value": {
 		"template": "bigglobe:apply_cliffs",
 		"inputs": {
-			"HEIGHT": "`bigglobe:raw_erosion`"
+			"HEIGHT": "`bigglobe:overworld/raw_erosion`"
 		}
 	}
 }

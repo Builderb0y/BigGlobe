@@ -44,7 +44,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.INT, null);
+			return new TypeContext(TypeInfos.INT, TypeInfos.INT, null);
 		}
 	}
 
@@ -55,7 +55,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.LONG, null);
+			return new TypeContext(TypeInfos.LONG, TypeInfos.LONG, null);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.FLOAT, null);
+			return new TypeContext(TypeInfos.FLOAT, TypeInfos.FLOAT, null);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.DOUBLE, null);
+			return new TypeContext(TypeInfos.DOUBLE, TypeInfos.DOUBLE, null);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.BOOLEAN, null);
+			return new TypeContext(TypeInfos.BOOLEAN, TypeInfos.BOOLEAN, null);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class AccessSchemas {
 
 		@Override
 		public boolean requiresYLevel() {
-			return false;
+			return true;
 		}
 	}
 
@@ -107,7 +107,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.INT, null);
+			return new TypeContext(TypeInfos.INT, MappedRangeNumberArray.TYPE, null);
 		}
 	}
 
@@ -118,7 +118,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.LONG, null);
+			return new TypeContext(TypeInfos.LONG, MappedRangeNumberArray.TYPE, null);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.FLOAT, null);
+			return new TypeContext(TypeInfos.FLOAT, MappedRangeNumberArray.TYPE, null);
 		}
 	}
 
@@ -140,7 +140,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.DOUBLE, null);
+			return new TypeContext(TypeInfos.DOUBLE, MappedRangeNumberArray.TYPE, null);
 		}
 	}
 
@@ -151,7 +151,7 @@ public class AccessSchemas {
 
 		@Override
 		public TypeContext createType(ColumnCompileContext context) {
-			return new TypeContext(TypeInfos.BOOLEAN, null);
+			return new TypeContext(TypeInfos.BOOLEAN, MappedRangeNumberArray.TYPE, null);
 		}
 	}
 
@@ -172,9 +172,9 @@ public class AccessSchemas {
 		public TypeContext createType(ColumnCompileContext context) {
 			VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context);
 			for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-				voronoiContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.getSchemaType(entry.getValue()).type());
+				voronoiContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.getSchemaType(entry.getValue()).exposedType());
 			}
-			return new TypeContext(voronoiContext.mainClass.info, voronoiContext);
+			return new TypeContext(voronoiContext.mainClass.info, voronoiContext.mainClass.info, voronoiContext);
 		}
 
 		@Override

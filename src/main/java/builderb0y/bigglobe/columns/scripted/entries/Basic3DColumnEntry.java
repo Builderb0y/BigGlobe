@@ -44,7 +44,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				getStatic(
 					ACC_PUBLIC | ACC_STATIC | ACC_FINAL,
 					type(NumberArray.class),
-					"EMPTY_" + memory.getTyped(ColumnEntryMemory.TYPE).type().getSort().name(),
+					"EMPTY_" + memory.getTyped(ColumnEntryMemory.TYPE).exposedType().getSort().name(),
 					type(NumberArray.class)
 				)
 			)
@@ -55,7 +55,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
 		_3DValid valid = this.valid();
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasField()) {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
@@ -63,9 +63,9 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			MethodCompileContext computeAllMethod = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, TypeInfos.VOID);
 			MethodCompileContext actuallyComputeAll = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, TypeInfos.VOID);
 			memory.putTyped(COMPUTE_ALL, actuallyComputeAll);
-			MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, type, TypeInfos.INT);
+			MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, type.exposedType(), TypeInfos.INT);
 			memory.putTyped(EXTRACT, extractMethod);
-			MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type, TypeInfos.INT);
+			MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type.exposedType(), TypeInfos.INT);
 			memory.putTyped(COMPUTE_ONE, computeOneMethod);
 
 			getterMethod.prepareParameters("y").setCode(
@@ -83,13 +83,15 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagIndex))
 				.addFunctionInvoke("compute", context.loadSelf(), computeAllMethod.info)
 				.addFunctionInvoke("extract", context.loadSelf(), extractMethod.info)
+				.addVariableLoad("y", getterMethod.getParameter("y"))
 			);
 			String source;
 			MutableScriptEnvironment environment = (
 				new MutableScriptEnvironment()
 				.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
-				.addMethodInvokes(MappedRangeNumberArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateNone", "invalidate")
+				.addMethodInvokes(MappedRangeNumberArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
 				.addVariable("this", context.loadSelf())
+				.addVariable("column", context.loadColumn())
 				.addFunctionInvoke("actuallyCompute", context.loadSelf(), actuallyComputeAll.info)
 			);
 			if (valid != null) {
@@ -113,7 +115,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						if (valid.max_y() != null) {
 							source = """
 								if (test():
-									valueField.reallocateBoth(minY(), maxY())
+									valueField.reallocateBoth(column, minY(), maxY())
 									actuallyCompute()
 								)
 								else (
@@ -124,7 +126,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						else {
 							source = """
 								if (test():
-									valueField.reallocateMin(minY())
+									valueField.reallocateMin(column, minY())
 									actuallyCompute()
 								)
 								else (
@@ -137,7 +139,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						if (valid.max_y() != null) {
 							source = """
 								if (test():
-									valueField.reallocateMax(maxY())
+									valueField.reallocateMax(column, maxY())
 									actuallyCompute()
 								)
 								else (
@@ -148,7 +150,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						else {
 							source = """
 								if (test():
-									valueField.reallocateNone()
+									valueField.reallocateNone(column, )
 									actuallyCompute()
 								)
 								else (
@@ -162,13 +164,13 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 					if (valid.min_y() != null) {
 						if (valid.max_y() != null) {
 							source = """
-								valueField.reallocateBoth(minY(), maxY())
+								valueField.reallocateBoth(column, minY(), maxY())
 								actuallyCompute()
 							""";
 						}
 						else {
 							source = """
-								valueField.reallocateMin(minY())
+								valueField.reallocateMin(column, minY())
 								actuallyCompute()
 							""";
 						}
@@ -176,13 +178,13 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 					else {
 						if (valid.max_y() != null) {
 							source = """
-								valueField.reallocateMax(maxY())
+								valueField.reallocateMax(column, maxY())
 								actuallyCompute()
 							""";
 						}
 						else {
 							source = """
-								valueField.reallocateNone()
+								valueField.reallocateNone(column)
 								actuallyCompute()
 							""";
 						}
@@ -191,7 +193,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			}
 			else {
 				source = """
-					valueField.reallocateNone()
+					valueField.reallocateNone(column)
 					actuallyCompute()
 				""";
 			}
@@ -201,7 +203,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				var array = arrayField
 				unless (array.valid: return(fallback))
 				if (y >= array.minCached && y < array.maxCached:
-					return array.array.get(y - array.minCached)
+					return(array.array.get(y - array.minCached))
 				)
 				"""
 				+ (
@@ -223,14 +225,14 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				),
 				new MutableScriptEnvironment()
 				.addVariableLoad("y", extractMethod.getParameter("y"))
-				.addVariable("arrayField", getField(load(extractMethod.getParameter("this")), valueField.info))
+				.addVariable("arrayField", getField(context.loadSelf(), valueField.info))
 				.addFieldGet("valid", MappedRangeNumberArray.VALID)
 				.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
 				.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
 				.addFieldGet("minAccessible", MappedRangeNumberArray.MIN_ACCESSIBLE)
 				.addFieldGet("maxAccessible", MappedRangeNumberArray.MAX_ACCESSIBLE)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-				.addMethodInvoke("get", switch (type.getSort()) {
+				.addMethodInvoke("get", switch (type.exposedType().getSort()) {
 					case BYTE -> MappedRangeNumberArray.GET_B;
 					case SHORT -> MappedRangeNumberArray.GET_S;
 					case INT -> MappedRangeNumberArray.GET_I;
@@ -240,7 +242,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
 					default -> throw new IllegalStateException("Unsupported type: " + type);
 				})
-				.addVariableConstant("fallback", valid != null ? valid.getFallback(type) : ConstantValue.of(0))
+				.addVariableConstant("fallback", valid != null ? valid.getFallback(type.exposedType()) : ConstantValue.of(0))
 				.addFunctionInvoke("compute", context.loadSelf(), computeOneMethod.info)
 			);
 
@@ -267,7 +269,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				}
 				if (condition != ConstantConditionTree.TRUE) {
 					final ConditionTree condition_ = condition;
-					MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type, TypeInfos.INT);
+					MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type.exposedType(), TypeInfos.INT);
 					memory.putTyped(COMPUTE_ONE, computeOneMethod);
 					getterMethod.scopes.withScope((MethodCompileContext getter) -> {
 						VarInfo self = getter.addThis();
@@ -275,7 +277,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 						new IfElseInsnTree(
 							condition_,
 							return_(invokeInstance(load(self), computeOneMethod.info, y)),
-							return_(ldc(valid.getFallback(type))),
+							return_(ldc(valid.getFallback(type.exposedType()))),
 							TypeInfos.VOID
 						)
 						.emitBytecode(getter);
@@ -285,6 +287,9 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 					memory.putTyped(COMPUTE_ONE, getterMethod);
 				}
 			}
+			else {
+				memory.putTyped(COMPUTE_ONE, getterMethod);
+			}
 		}
 	}
 
@@ -292,7 +297,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		setterMethod.prepareParameters("y", "value").setCode(
 			"""
 			var array = valueField
@@ -307,7 +312,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
 			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("set", switch (type.getSort()) {
+			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.SET_B;
 				case SHORT   -> MappedRangeNumberArray.SET_S;
 				case INT     -> MappedRangeNumberArray.SET_I;
@@ -327,13 +332,13 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 		_3DValid valid = this.valid();
 		if (valid != null) {
 			if (valid.where() != null) {
-				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where());
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where(), false);
 			}
 			if (valid.min_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MIN_Y), valid.min_y());
+				context.setMethodCode(memory.getTyped(VALID_MIN_Y), valid.min_y(), false);
 			}
 			if (valid.max_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MAX_Y), valid.max_y());
+				context.setMethodCode(memory.getTyped(VALID_MAX_Y), valid.max_y(), false);
 			}
 		}
 		this.populateComputeOne(memory, context, memory.getTyped(COMPUTE_ONE));

@@ -2,7 +2,7 @@
 	"type": "bigglobe:float_script_2d",
 	"value": [
 		"min(",
-			"unmixLinear(-0.25I, -0.5I, `bigglobe:overworld/temperature`),",
+			"unmixLinear(-0.25I, -0.5I, `bigglobe:overworld/raw_temperature`),",
 			"float(unmixLinear(`bigglobe:overworld/sea_level`, `bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 128.0L, `bigglobe:overworld/surface_y`))",
 		")"
 	]

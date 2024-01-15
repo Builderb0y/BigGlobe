@@ -1301,7 +1301,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 		@Override
 		public String toString() {
-			return (this.owner != null ? this.owner.getClassName() : "<any name>") + '.' + this.name;
+			return (this.owner != null ? this.owner.getClassName() : "<any type>") + '.' + this.name;
 		}
 	}
 

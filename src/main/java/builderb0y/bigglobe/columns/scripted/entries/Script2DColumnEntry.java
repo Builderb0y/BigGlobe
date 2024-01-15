@@ -24,6 +24,6 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		context.setMethodCode(computeMethod, this.value);
+		context.setMethodCode(computeMethod, this.value, false);
 	}
 }

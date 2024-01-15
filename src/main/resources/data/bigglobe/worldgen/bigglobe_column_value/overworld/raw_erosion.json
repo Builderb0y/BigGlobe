@@ -6,7 +6,7 @@
 			"value = abs(value)",
 			"value *= mixLinear(value, 2.0L - value, sharpness)",
 			"value = value * -2.0L + 1.0L",
-			"value * amplifier",
+			"value * amplitude",
 		")",
 		"sharpness * (",
 			"+ curve(`bigglobe:overworld/raw_erosion_512`, 512.0L)",

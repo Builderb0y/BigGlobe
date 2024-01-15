@@ -846,7 +846,7 @@ public class ExpressionParser {
 			return switch (suffix) {
 				case 'f', 'F', 'd', 'D' -> {
 					this.input.onCharRead(suffix);
-					throw new ScriptParsingException("This isn't a C-family language. Doubles are suffixed by 'L', and floats are not suffixed by anything.", this.input);
+					throw new ScriptParsingException("This isn't a C-family language. Doubles are suffixed by 'L', and floats are suffixed by 'I'.", this.input);
 				}
 				case 'l', 'L' -> {
 					this.input.onCharRead(suffix);

@@ -486,7 +486,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.bootstrapArgs = bootstrapArgs;
 			this.dynamic = new ConstantDynamic(
 				bootstrapMethod.name,
-				bootstrapMethod.returnType.getDescriptor(),
+				type.getDescriptor(),
 				new Handle(
 					H_INVOKESTATIC,
 					bootstrapMethod.owner.getInternalName(),

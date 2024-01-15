@@ -23,6 +23,7 @@ import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
@@ -230,6 +231,8 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 						invokeInstance(
 							ldc(diagram),
 							MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
+							getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x")),
+							getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z")),
 							new NullableInstanceGetFieldInsnTree(
 								getField(
 									load(self),

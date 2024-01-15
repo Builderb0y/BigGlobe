@@ -27,12 +27,12 @@ public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException {
-		context.setMethodCode(computeOneMethod, this.value, "y");
+		context.setMethodCode(computeOneMethod, this.value, true);
 	}
 
 	@Override
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		computeAllMethod.prepareParameters("y").setCode(
 			"""
 			var array = valueField
@@ -49,7 +49,7 @@ public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
 			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("set", switch (type.getSort()) {
+			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.SET_B;
 				case SHORT   -> MappedRangeNumberArray.SET_S;
 				case INT     -> MappedRangeNumberArray.SET_I;

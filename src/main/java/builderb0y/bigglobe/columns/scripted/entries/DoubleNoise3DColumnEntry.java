@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchemas.Double3DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float3DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
@@ -41,7 +42,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return Float3DAccessSchema.INSTANCE;
+		return Double3DAccessSchema.INSTANCE;
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 	@Override
 	public void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException {
 		computeOneMethod.prepareParameters("y").setCode(
-			"return(grid.getValue(column.seed # salt, column.x, y, column.z)",
+			"return(grid.getValue(column.seed # salt, column.x, y, column.z))",
 			new MutableScriptEnvironment()
 			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
 			.addMethodInvoke(Grid3D.class, "getValue")

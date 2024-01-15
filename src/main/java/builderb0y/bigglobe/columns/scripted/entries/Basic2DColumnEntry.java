@@ -19,12 +19,12 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
 		_2DValid valid = this.valid();
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasField()) {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 			int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
-			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type);
+			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.exposedType());
 			getterMethod.prepareParameters().setCode(
 				"""
 				int oldFlags = flagsField
@@ -45,7 +45,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 			);
 
 			if (valid != null) {
-				MethodCompileContext actualComputer = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type);
+				MethodCompileContext actualComputer = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type.exposedType());
 				memory.putTyped(ColumnEntryMemory.COMPUTER, actualComputer);
 
 				MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
@@ -63,7 +63,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 					new MutableScriptEnvironment()
 					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
 					.addFunctionInvoke("compute", context.loadSelf(), actualComputer.info)
-					.addVariableConstant("fallback", valid.getFallback(type))
+					.addVariableConstant("fallback", valid.getFallback(type.exposedType()))
 				);
 			}
 			else {
@@ -72,7 +72,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 		}
 		else {
 			if (valid != null) {
-				MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type);
+				MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.exposedType());
 				memory.putTyped(ColumnEntryMemory.COMPUTER, computer);
 				MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
 				memory.putTyped(ColumnEntryMemory.VALID_WHERE, testMethod);
@@ -89,7 +89,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 					new MutableScriptEnvironment()
 					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
 					.addFunctionInvoke("compute", context.loadSelf(), computer.info)
-					.addVariableConstant("fallback", valid.getFallback(type))
+					.addVariableConstant("fallback", valid.getFallback(type.exposedType()))
 				);
 			}
 			else {
@@ -102,7 +102,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
 		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
 			VarInfo self = setter.addThis();
-			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).type());
+			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
 			putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value)).emitBytecode(setter);
 		});
 	}
@@ -113,7 +113,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		_2DValid valid = this.valid();
 		if (valid != null && valid.where() != null) {
-			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where());
+			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where(), false);
 		}
 		this.populateCompute(memory, context, memory.getTyped(ColumnEntryMemory.COMPUTER));
 	}

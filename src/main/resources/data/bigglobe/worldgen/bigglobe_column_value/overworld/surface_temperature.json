@@ -1,4 +1,4 @@
 {
 	"type": "bigglobe:float_script_2d",
-	"value": "`bigglobe:overworld/height_adjusted_temperature`(`bigglobe:overworld/surface_y`)"
+	"value": "`bigglobe:overworld/height_adjusted_temperature`(ceilInt(`bigglobe:overworld/surface_y`))"
 }

@@ -79,6 +79,7 @@ public class ColumnEntryRegistry {
 		for (ColumnEntryMemory memory : filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, columnContext);
 		}
+		columnContext.prepareForCompile();
 		try {
 			ScriptClassLoader loader = new ScriptClassLoader(columnContext.mainClass);
 			if (CLASS_DUMP_DIRECTORY != null) try {
@@ -109,7 +110,7 @@ public class ColumnEntryRegistry {
 			);
 		}
 		catch (Throwable throwable) {
-			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", null);
+			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
 		columnContext.addFlagsFields();
 	}

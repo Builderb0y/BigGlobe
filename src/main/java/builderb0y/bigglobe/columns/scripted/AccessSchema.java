@@ -38,10 +38,10 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 			flags,
 			context.selfType(),
 			name,
-			context.getSchemaType(this).type(),
+			context.getSchemaType(this).exposedType(),
 			this.requiresYLevel()
-				? new TypeInfo[] { TypeInfos.INT }
-				: TypeInfo.ARRAY_FACTORY.empty()
+			? new TypeInfo[] { TypeInfos.INT }
+			: TypeInfo.ARRAY_FACTORY.empty()
 		);
 	}
 
@@ -52,8 +52,8 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 			name,
 			TypeInfos.VOID,
 			this.requiresYLevel()
-				? new TypeInfo[] { TypeInfos.INT, context.getSchemaType(this).type() }
-				: new TypeInfo[] { context.getSchemaType(this).type() }
+			? new TypeInfo[] { TypeInfos.INT, context.getSchemaType(this).exposedType() }
+			: new TypeInfo[] { context.getSchemaType(this).exposedType() }
 		);
 	}
 

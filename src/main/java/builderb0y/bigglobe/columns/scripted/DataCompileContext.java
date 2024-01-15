@@ -9,6 +9,7 @@ import org.objectweb.asm.Type;
 
 import net.minecraft.util.Identifier;
 
+import builderb0y.autocodec.util.ArrayFactories;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -17,6 +18,7 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptClassLoader;
@@ -69,6 +71,11 @@ public abstract class DataCompileContext {
 
 	public abstract TypeInfo voronoiBaseType();
 
+	public void prepareForCompile() {
+		this.constructor.node.visitInsn(RETURN);
+		this.children.forEach(DataCompileContext::prepareForCompile);
+	}
+
 	public static String internalName(Identifier selfID, int fieldIndex) {
 		StringBuilder builder = (
 			new StringBuilder(selfID.getNamespace().length() + selfID.getPath().length() + 16)
@@ -91,9 +98,21 @@ public abstract class DataCompileContext {
 		return 1 << index;
 	}
 
-	public void setMethodCode(MethodCompileContext method, ScriptUsage<GenericScriptTemplateUsage> script, String... parameterNames) throws ScriptParsingException {
-		method.prepareParameters(parameterNames);
-		new ScriptColumnEntryParser(script, this.mainClass, method).addEnvironment(this.environment).parseEntireInput().emitBytecode(method);
+	public void setMethodCode(
+		MethodCompileContext method,
+		ScriptUsage<GenericScriptTemplateUsage> script,
+		boolean includeY
+	)
+	throws ScriptParsingException {
+		method.prepareParameters(includeY ? new String[] { "y" } : new String[0]);
+		new ScriptColumnEntryParser(script, this.mainClass, method)
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(this.environment)
+		.configureEnvironment((MutableScriptEnvironment environment) -> {
+			if (includeY) environment.addVariableLoad(method.getParameter("y"));
+		})
+		.parseEntireInput()
+		.emitBytecode(method);
 		method.endCode();
 	}
 

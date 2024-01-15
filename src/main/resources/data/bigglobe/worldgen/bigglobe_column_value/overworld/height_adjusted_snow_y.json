@@ -2,7 +2,7 @@
 	"type": "bigglobe:double_script_2d",
 	"value": [
 		"double snowHeight = `bigglobe:overworld/cliffy_snow`",
-		"snowHeight + (-2.0L + snowHeight * 0.015625L + `bigglobe:overworld/temperature` * -4.0L)"
+		"snowHeight + (-2.0L + snowHeight * 0.015625L + `bigglobe:overworld/raw_temperature` * -4.0L)"
 	],
 	"valid": {
 		"where": "`bigglobe:overworld/surface_y` > 0.0L"
