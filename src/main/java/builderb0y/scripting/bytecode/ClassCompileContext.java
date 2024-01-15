@@ -88,10 +88,11 @@ public class ClassCompileContext {
 		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false));
 	}
 
-	public ConstantValue newConstant(Object value) {
+	public ConstantValue newConstant(Object value, TypeInfo type) {
 		int which = this.constants.size();
 		this.constants.add(value);
 		return ConstantValue.dynamic(
+			type,
 			ScriptClassLoader.GET_CONSTANT,
 			ConstantValue.of(which)
 		);

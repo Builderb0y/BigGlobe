@@ -216,7 +216,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		ConstantValue diagram = context.mainClass.newConstant(this.diagram);
+		ConstantValue diagram = context.mainClass.newConstant(this.diagram, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
 		MethodCompileContext actuallyCompute;

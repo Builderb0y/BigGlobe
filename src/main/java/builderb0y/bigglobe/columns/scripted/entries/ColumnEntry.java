@@ -33,11 +33,15 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_2d"), FloatScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_2d"), DoubleScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_2d"), BooleanScript2DColumnEntry.class);
+
 		REGISTRY.registerAuto(BigGlobeMod.modID("int_script_3d"), IntScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("long_script_3d"), LongScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_3d"), FloatScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_3d"), DoubleScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_3d"), BooleanScript3DColumnEntry.class);
+
+		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_2d"), FloatNoise2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_2d"), DoubleNoise2DColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();

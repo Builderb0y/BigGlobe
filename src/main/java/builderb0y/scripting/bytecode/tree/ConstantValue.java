@@ -59,7 +59,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 	}
 
 	public static ConstantValue dynamic(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
-		return new DynamicConstantValue(bootstrapMethod, bootstrapArgs);
+		return new DynamicConstantValue(bootstrapMethod.returnType, bootstrapMethod, bootstrapArgs);
+	}
+
+	public static ConstantValue dynamic(TypeInfo type, MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
+		return new DynamicConstantValue(type, bootstrapMethod, bootstrapArgs);
 	}
 
 	public abstract byte    asByte   ();
@@ -471,11 +475,13 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 	public static class DynamicConstantValue extends NonConstantValue {
 
+		public final TypeInfo type;
 		public final MethodInfo bootstrapMethod;
 		public final ConstantValue[] bootstrapArgs;
 		public final ConstantDynamic dynamic;
 
-		public DynamicConstantValue(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
+		public DynamicConstantValue(TypeInfo type, MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
+			this.type = type;
 			this.bootstrapMethod = bootstrapMethod;
 			this.bootstrapArgs = bootstrapArgs;
 			this.dynamic = new ConstantDynamic(
@@ -506,7 +512,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public TypeInfo getTypeInfo() {
-			return this.bootstrapMethod.returnType;
+			return this.type;
 		}
 
 		@Override

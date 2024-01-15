@@ -5,10 +5,11 @@ import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
-import static org.objectweb.asm.Opcodes.*;
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class Basic2DColumnEntry implements ColumnEntry {
 
@@ -94,5 +95,14 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 				memory.putTyped(ColumnEntryMemory.COMPUTER, getterMethod);
 			}
 		}
+	}
+
+	@Override
+	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
+		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
+			VarInfo self = setter.addThis();
+			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).type());
+			putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value)).emitBytecode(setter);
+		});
 	}
 }
