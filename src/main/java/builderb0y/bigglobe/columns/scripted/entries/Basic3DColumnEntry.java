@@ -65,8 +65,8 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 			int flagIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
 			MethodCompileContext computeAllMethod = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, TypeInfos.VOID);
-			MethodCompileContext actualComputeAll = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, TypeInfos.VOID);
-			memory.putTyped(COMPUTE_ALL, actualComputeAll);
+			MethodCompileContext actuallyComputeAll = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, TypeInfos.VOID);
+			memory.putTyped(COMPUTE_ALL, actuallyComputeAll);
 			MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, type, TypeInfos.INT);
 			memory.putTyped(EXTRACT, extractMethod);
 			MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type, TypeInfos.INT);
@@ -94,7 +94,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
 				.addMethodInvokes(MappedRangeNumberArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateNone", "invalidate")
 				.addVariable("this", context.loadSelf())
-				.addFunctionInvoke("actuallyCompute", context.loadSelf(), actualComputeAll.info)
+				.addFunctionInvoke("actuallyCompute", context.loadSelf(), actuallyComputeAll.info)
 			);
 			if (valid != null) {
 				if (valid.where() != null) {
@@ -247,6 +247,8 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				.addVariableConstant("fallback", valid != null ? valid.getFallback() : ConstantValue.of(0))
 				.addFunctionInvoke("compute", context.loadSelf(), computeOneMethod.info)
 			);
+
+			this.populateComputeAll(memory, context, actuallyComputeAll);
 		}
 		else {
 			if (valid != null) {
@@ -290,6 +292,8 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 		}
 	}
 
+	public abstract void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod);
+
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
 		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE).type();
@@ -308,12 +312,12 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 			.addMethodInvoke("set", switch (type.getSort()) {
-				case BYTE -> MappedRangeNumberArray.SET_B;
-				case SHORT -> MappedRangeNumberArray.SET_S;
-				case INT -> MappedRangeNumberArray.SET_I;
-				case LONG -> MappedRangeNumberArray.SET_L;
-				case FLOAT -> MappedRangeNumberArray.SET_F;
-				case DOUBLE -> MappedRangeNumberArray.SET_D;
+				case BYTE    -> MappedRangeNumberArray.SET_B;
+				case SHORT   -> MappedRangeNumberArray.SET_S;
+				case INT     -> MappedRangeNumberArray.SET_I;
+				case LONG    -> MappedRangeNumberArray.SET_L;
+				case FLOAT   -> MappedRangeNumberArray.SET_F;
+				case DOUBLE  -> MappedRangeNumberArray.SET_D;
 				case BOOLEAN -> MappedRangeNumberArray.SET_Z;
 				default -> throw new IllegalStateException("Unsupported type: " + type);
 			})
