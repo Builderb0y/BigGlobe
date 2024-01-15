@@ -42,6 +42,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_2d"), FloatNoise2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_2d"), DoubleNoise2DColumnEntry.class);
+
+		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_3d"), FloatNoise3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_3d"), DoubleNoise3DColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();

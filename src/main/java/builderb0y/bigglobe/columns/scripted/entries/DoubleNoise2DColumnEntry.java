@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchemas.Double2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.Valids.Double2DValid;
+import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -14,14 +18,26 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class DoubleNoise2DColumnEntry extends Basic2DColumnEntry {
+public class DoubleNoise2DColumnEntry extends Basic2DColumnEntry {
 
 	public final Grid2D value;
+	public final Double2DValid valid;
 	public final boolean cache;
 
-	public DoubleNoise2DColumnEntry(Grid2D value, boolean cache) {
+	public DoubleNoise2DColumnEntry(Grid2D value, Double2DValid valid, boolean cache) {
 		this.value = value;
+		this.valid = valid;
 		this.cache = cache;
+	}
+
+	@Override
+	public _2DValid valid() {
+		return this.valid;
+	}
+
+	@Override
+	public AccessSchema getAccessSchema() {
+		return Double2DAccessSchema.INSTANCE;
 	}
 
 	@Override
