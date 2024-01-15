@@ -1,6 +1,0 @@
-{
-	"type": "bigglobe:script_2d",
-	"value": {
-		"script": "`overworld/height_adjusted_temperature`(`overworld/max_y`)"
-	}
-}

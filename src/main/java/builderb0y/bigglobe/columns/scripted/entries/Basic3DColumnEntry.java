@@ -36,22 +36,20 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 	@Override
 	public void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {
 		ColumnEntry.super.populateField(memory, context, getterMethod);
-		if (this.hasField()) {
-			new PutFieldInsnTree(
-				context.loadSelf(),
-				memory.getTyped(ColumnEntryMemory.FIELD).info,
-				newInstance(
-					MappedRangeNumberArray.CONSTRUCT,
-					getStatic(
-						ACC_PUBLIC | ACC_STATIC | ACC_FINAL,
-						type(NumberArray.class),
-						"EMPTY_" + memory.getTyped(ColumnEntryMemory.TYPE).type().getSort().name(),
-						type(NumberArray.class)
-					)
+		new PutFieldInsnTree(
+			context.loadSelf(),
+			memory.getTyped(ColumnEntryMemory.FIELD).info,
+			newInstance(
+				MappedRangeNumberArray.CONSTRUCT,
+				getStatic(
+					ACC_PUBLIC | ACC_STATIC | ACC_FINAL,
+					type(NumberArray.class),
+					"EMPTY_" + memory.getTyped(ColumnEntryMemory.TYPE).type().getSort().name(),
+					type(NumberArray.class)
 				)
 			)
-			.emitBytecode(context.constructor);
-		}
+		)
+		.emitBytecode(context.constructor);
 	}
 
 	@Override

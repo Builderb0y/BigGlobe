@@ -74,13 +74,13 @@ public class Valids {
 
 	public static record Int2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultInt(0) int fallback) implements _2DValid, IntValid {}
 	public static record Long2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultLong(0L) long fallback) implements _2DValid, LongValid {}
-	public static record Float2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultFloat(0.0F) float fallback) implements _2DValid, FloatValid {}
-	public static record Double2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultDouble(0.0D) double fallback) implements _2DValid, DoubleValid {}
+	public static record Float2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultFloat(Float.NaN) float fallback) implements _2DValid, FloatValid {}
+	public static record Double2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultDouble(Double.NaN) double fallback) implements _2DValid, DoubleValid {}
 	public static record Boolean2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultBoolean(false) boolean fallback) implements _2DValid, BooleanValid {}
 
 	public static record Int3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultInt(0) int fallback) implements _3DValid, IntValid {}
 	public static record Long3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultLong(0L) long fallback) implements _3DValid, LongValid {}
-	public static record Float3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultFloat(0.0F) float fallback) implements _3DValid, FloatValid {}
-	public static record Double3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultDouble(0.0D) double fallback) implements _3DValid, DoubleValid {}
+	public static record Float3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultFloat(Float.NaN) float fallback) implements _3DValid, FloatValid {}
+	public static record Double3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultDouble(Double.NaN) double fallback) implements _3DValid, DoubleValid {}
 	public static record Boolean3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultBoolean(false) boolean fallback) implements _3DValid, BooleanValid {}
 }

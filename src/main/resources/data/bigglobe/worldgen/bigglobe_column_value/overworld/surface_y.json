@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:double_script_2d",
+	"value": {
+		"template": "bigglobe:apply_cliffs",
+		"inputs": {
+			"HEIGHT": "`bigglobe:raw_erosion`"
+		}
+	}
+}

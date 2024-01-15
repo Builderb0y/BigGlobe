@@ -1,6 +1,0 @@
-{
-	"type": "bigglobe:script_2d",
-	"value": [
-		"`overworld/height_adjusted_foliage`(`overworld/max_y`)"
-	]
-}

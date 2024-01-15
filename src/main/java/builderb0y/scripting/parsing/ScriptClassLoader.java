@@ -1,11 +1,18 @@
 package builderb0y.scripting.parsing;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup.ClassOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.fabricmc.loader.api.FabricLoader;
+import org.apache.commons.io.file.PathUtils;
+
+import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 
@@ -42,6 +49,43 @@ public class ScriptClassLoader extends ClassLoader {
 		this.clazz = clazz;
 		this.loadable = new HashMap<>(2);
 		this.recursiveAddClasses(clazz);
+	}
+
+	public static Path initDumpDirectory(String enabledProperty, String directoryName) {
+		if (Boolean.getBoolean(enabledProperty)) {
+			Path classDumpDirectory = FabricLoader.getInstance().getGameDir().resolve(directoryName);
+			if (Files.isDirectory(classDumpDirectory)) try {
+				PathUtils.cleanDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to clean the previous session's script dump output.
+					Dumping of generated classes has been disabled to prevent ambiguity over which file is from which session.
+					Please empty the class dump directory manually when you get a chance.
+					""",
+					exception
+				);
+				return null;
+			}
+			else try {
+				Files.createDirectory(classDumpDirectory);
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error(
+					"""
+					An error occurred while trying to create the script dump directory.
+					Dumping of generated classes has been disabled as there is nowhere to put them.
+					""",
+					exception
+				);
+				return null;
+			}
+			return classDumpDirectory;
+		}
+		else {
+			return null;
+		}
 	}
 
 	public Class<?> defineMainClass() throws ClassNotFoundException {

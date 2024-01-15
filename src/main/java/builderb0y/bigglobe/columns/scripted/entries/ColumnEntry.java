@@ -50,6 +50,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("long_constant"), LongConstantColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_constant"), FloatConstantColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_constant"), DoubleConstantColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_constant"), BooleanConstantColumnEntry.class);
+
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi_2d"), Voronoi2DColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();
@@ -67,8 +70,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		int flagIndex = context.flagsIndex++;
 		memory.putTyped(ColumnEntryMemory.FLAGS_INDEX, flagIndex);
 		Identifier accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
-		TypeContext type = context.getSchemaType(this.getAccessSchema());
-		memory.putTyped(ColumnEntryMemory.TYPE, type);
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		String internalName = DataCompileContext.internalName(accessID, uniqueIndex);
 		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 

@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
@@ -23,10 +25,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class FloatNoise2DColumnEntry extends Basic2DColumnEntry {
 
 	public final Grid2D value;
-	public final Float2DValid valid;
-	public final boolean cache;
+	public final @VerifyNullable Float2DValid valid;
+	public final @DefaultBoolean(true) boolean cache;
 
-	public FloatNoise2DColumnEntry(Grid2D value, Float2DValid valid, boolean cache) {
+	public FloatNoise2DColumnEntry(Grid2D value, @VerifyNullable Float2DValid valid, boolean cache) {
 		this.value = value;
 		this.valid = valid;
 		this.cache = cache;

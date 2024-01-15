@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:float_script_2d",
+	"value": "float(`bigglobe:overworld/height_adjusted_snow_y` - `bigglobe:overworld/surface_y`)",
+	"cache": false
+}

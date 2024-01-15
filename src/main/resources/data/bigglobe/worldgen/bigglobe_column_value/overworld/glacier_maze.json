@@ -1,12 +1,12 @@
 {
-	"type": "bigglobe:noise_2d",
+	"type": "bigglobe:double_noise_2d",
 	"value": {
 		"type": "bigglobe:script",
 		"min": 0.0,
 		"max": 24.0,
 		"script": [
-			"double magicalness = 1.0L - 0.0625L / (`overworld/magicalness` ^ 2 + 0.0625L)",
-			"double innerness = 1.0L - 0.25L / ((`overworld/glacier_crack_threshold` - 1.0L) ^ 2 + 0.25L)",
+			"double magicalness = 1.0L - 0.0625L / (`bigglobe:overworld/magicalness` ^ 2 + 0.0625L)",
+			"double innerness = 1.0L - 0.25L / ((`bigglobe:overworld/glacier_crack_threshold` - 1.0L) ^ 2 + 0.25L)",
 			"maze = 24.0L - 24.0L / (maze ^ 4 + 1.0L)",
 			"return(maze * magicalness * innerness)"
 		],
@@ -24,7 +24,7 @@
 		}
 	},
 	"valid": {
-		"where": "`overworld/glacier_crack_threshold` > 1.0L && `overworld/magicalness` > 0.0L",
+		"where": "`bigglobe:overworld/glacier_crack_threshold` > 1.0L && `bigglobe:overworld/magicalness` > 0.0L",
 		"fallback": 0.0
 	}
 }

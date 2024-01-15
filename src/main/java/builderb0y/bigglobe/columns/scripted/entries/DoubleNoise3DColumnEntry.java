@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float3DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
@@ -23,10 +25,10 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 		CONSTANT_GRID = new ColumnEntryMemory.Key<>("constantGrid");
 
 	public final Grid3D value;
-	public final Float3DValid valid;
-	public final boolean cache;
+	public final @VerifyNullable Float3DValid valid;
+	public final @DefaultBoolean(true) boolean cache;
 
-	public DoubleNoise3DColumnEntry(Grid3D value, Float3DValid valid, boolean cache) {
+	public DoubleNoise3DColumnEntry(Grid3D value, @VerifyNullable Float3DValid valid, boolean cache) {
 		this.value = value;
 		this.valid = valid;
 		this.cache = cache;

@@ -1,0 +1,4 @@
+{
+	"type": "bigglobe:double_script_2d",
+	"value": "sqrt(`bigglobe:overworld/caverns/big_thickness_squared`)"
+}

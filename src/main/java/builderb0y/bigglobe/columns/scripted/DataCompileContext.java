@@ -239,7 +239,7 @@ public abstract class DataCompileContext {
 			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class))).scopes.withScope((MethodCompileContext constructor) -> {
 				VarInfo
 					self     = constructor.addThis(),
-					column   = constructor.newParameter("column", type(ScriptedColumn.class)),
+					column   = constructor.newParameter("column", this.columnType()),
 					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class)),
 					baseSeed = constructor.newParameter("baseSeed", TypeInfos.LONG);
 				invokeInstance(
@@ -252,7 +252,6 @@ public abstract class DataCompileContext {
 						type(VoronoiDiagram2D.Cell.class),
 						TypeInfos.LONG
 					),
-					load(self),
 					load(cell),
 					load(baseSeed)
 				)

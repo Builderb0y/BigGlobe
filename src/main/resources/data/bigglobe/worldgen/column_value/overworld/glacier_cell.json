@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:voronoi_2d",
-	"value": {
-		"distance": 32,
-		"variation": 24
-	},
-	"valid": "`overworld/glacier_crack_threshold` > 0.0L"
-}

@@ -56,7 +56,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		}
 	}
 
-	public final VoronoiDiagram2D diagram;
+	public final VoronoiDiagram2D value;
 	public final TagKey<VoronoiSettings> values;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 	public final @VerifyNullable Valid valid;
@@ -69,12 +69,12 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	public Voronoi2DColumnEntry(
-		VoronoiDiagram2D diagram,
+		VoronoiDiagram2D value,
 		TagKey<VoronoiSettings> values,
 		Map<String, AccessSchema> exports,
 		@VerifyNullable Valid valid
 	) {
-		this.diagram = diagram;
+		this.value   = value;
 		this.values  = values;
 		this.exports = exports;
 		this.valid   = valid;
@@ -116,7 +116,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	public static VoronoiDataBase randomize(RandomList<VoronoiDataBase.Factory> factories, long baseSeed, VoronoiDiagram2D.Cell cell) {
-		return factories.getRandomElement(cell.center.getSeed(baseSeed)).create(cell);
+		return factories.isEmpty() ? null : factories.getRandomElement(cell.center.getSeed(baseSeed)).create(cell);
 	}
 
 	@Override
@@ -216,7 +216,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		ConstantValue diagram = context.mainClass.newConstant(this.diagram, type(VoronoiDiagram2D.class));
+		ConstantValue diagram = context.mainClass.newConstant(this.value, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
 		memory.getTyped(ColumnEntryMemory.COMPUTER).scopes.withScope((MethodCompileContext compute) -> {

@@ -59,6 +59,7 @@ import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.columns.OverworldColumn.CavernCell;
 import builderb0y.bigglobe.columns.OverworldColumn.SkylandCell;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.*;
@@ -107,8 +108,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public static final AutoCoder<BigGlobeOverworldChunkGenerator> OVERWORLD_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(BigGlobeOverworldChunkGenerator.class);
 	public static final Codec<BigGlobeOverworldChunkGenerator> OVERWORLD_CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OVERWORLD_CODER);
 
-	@EncodeInline
-	public final OverworldSettings settings;
+	public final @EncodeInline OverworldSettings settings;
+	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
 
 	public final transient OverworldOreFeature.Config[] oreConfigs;
 	public final transient LinkedFlowerConfig[] flowerGroups;
@@ -133,7 +134,8 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		#endif
 		OverworldSettings settings,
 		SortedFeatures configuredFeatures,
-		SortedStructures sortedStructures
+		SortedStructures sortedStructures,
+		ColumnEntryRegistry columnEntryRegistry
 	) {
 		super(
 			#if MC_VERSION == MC_1_19_2
@@ -151,6 +153,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 			configuredFeatures,
 			sortedStructures
 		);
+		this.    columnEntryRegistry = columnEntryRegistry;
 		this.               settings = settings;
 		this.             rockLayers = LinkedRockLayerConfig.OVERWORLD_FACTORY.link(configuredFeatures);
 		this.           flowerGroups = LinkedFlowerConfig.FACTORY.link(configuredFeatures);

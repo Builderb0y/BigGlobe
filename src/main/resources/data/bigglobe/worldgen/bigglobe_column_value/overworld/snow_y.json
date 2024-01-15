@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:double_script_2d",
+	"value": [
+		"double snowHeight = `bigglobe:overworld/height_adjusted_snow_y`",
+		"double terrainHeight = `bigglobe:overworld/surface_y`",
+		"if (finalHeight - `bigglobe:overworld/sea_level` < 32.0L:",
+			"snowHeight = mixLinear(",
+				"finalHeight,",
+				"snowHeight,",
+				"unmixSmooth((terrainHeight - `bigglobe:overworld/sea_level`) / 32.0L)",
+			")",
+		")",
+		"snowHeight"
+	],
+	"valid": {
+		"where": "`bigglobe:overworld/surface_y` > 0.0L"
+	}
+}

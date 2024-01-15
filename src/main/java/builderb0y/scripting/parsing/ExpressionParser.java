@@ -14,8 +14,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import net.fabricmc.loader.api.FabricLoader;
-import org.apache.commons.io.file.PathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.util.CheckClassAdapter;
 
@@ -57,45 +55,7 @@ this abstract syntax tree is represented with {@link InsnTree}.
 @SuppressWarnings("ErrorNotRethrown")
 public class ExpressionParser {
 
-	public static final Path CLASS_DUMP_DIRECTORY;
-	static {
-		Path classDumpDirectory;
-		if (Boolean.getBoolean("builderb0y.bytecode.dumpGeneratedClasses")) {
-			classDumpDirectory = FabricLoader.getInstance().getGameDir().resolve("builderb0y_bytecode_class_dump");
-			if (Files.isDirectory(classDumpDirectory)) try {
-				PathUtils.cleanDirectory(classDumpDirectory);
-			}
-			catch (IOException exception) {
-				ScriptLogger.LOGGER.error(
-					"""
-					An error occurred while trying to clean the previous session's script dump output.
-					Dumping of generated classes has been disabled to prevent ambiguity over which file is from which session.
-					Please empty the class dump directory manually when you get a chance.
-					""",
-					exception
-				);
-				classDumpDirectory = null;
-			}
-			else try {
-				Files.createDirectory(classDumpDirectory);
-			}
-			catch (IOException exception) {
-				ScriptLogger.LOGGER.error(
-					"""
-					An error occurred while trying to create the script dump directory.
-					Dumping of generated classes has been disabled as there is nowhere to put them.
-					""",
-					exception
-				);
-				classDumpDirectory = null;
-			}
-		}
-		else {
-			classDumpDirectory = null;
-		}
-		CLASS_DUMP_DIRECTORY = classDumpDirectory;
-		ScriptLogger.LOGGER.info("Class dumping is " + (classDumpDirectory != null ? "enabled" : "disabled") + '.');
-	}
+	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bytecode.dumpScripts", "bigglobe_scripts");
 
 	public static final MethodInfo
 		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants");
@@ -156,17 +116,12 @@ public class ExpressionParser {
 		}
 	}
 
-	public static void dump(ClassCompileContext context) throws IOException {
-		String baseName = context.info.getSimpleName();
-		Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-		Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
-	}
-
 	public Class<?> compile() throws Throwable {
 		if (CLASS_DUMP_DIRECTORY != null) try {
 			String baseName = this.clazz.info.getSimpleName();
 			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-src.txt"), this.input.input, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-			dump(this.clazz);
+			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), this.clazz.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+			Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), this.clazz.toByteArray(), StandardOpenOption.CREATE_NEW);
 		}
 		catch (IOException exception) {
 			ScriptLogger.LOGGER.error("", exception);

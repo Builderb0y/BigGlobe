@@ -1,0 +1,4 @@
+{
+	"type": "bigglobe:float_script_2d",
+	"value": "`bigglobe:overworld/height_adjusted_foliage`(`bigglobe:overworld/surface_y`)"
+}

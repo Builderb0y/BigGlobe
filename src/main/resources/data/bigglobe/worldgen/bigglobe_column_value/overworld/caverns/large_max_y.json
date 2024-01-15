@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:double_script_2d",
+	"value": "`bigglobe:overworld/caverns/big_center` + `bigglobe:overworld/caverns/big_thickness`",
+	"cache": false
+}

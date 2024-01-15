@@ -1,8 +1,13 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import java.io.IOException;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -16,17 +21,21 @@ import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileCont
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class ColumnEntryRegistry {
 
+	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
+
 	public final BetterRegistry<ColumnEntry> entries;
 	public final BetterRegistry<VoronoiSettings> voronois;
-	public final Map<Identifier, ColumnEntryMemory> memories;
-	public Class<? extends ScriptedColumn> columnClass;
-	public ScriptedColumn.Factory columnFactory;
+	public final transient Map<Identifier, ColumnEntryMemory> memories;
+	public transient Class<? extends ScriptedColumn> columnClass;
+	public transient ScriptedColumn.Factory columnFactory;
 
 	public ColumnEntryRegistry(BetterRegistry<ColumnEntry> entries, BetterRegistry<VoronoiSettings> voronois) throws ScriptParsingException {
 		this.entries  = entries;
@@ -71,7 +80,18 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, columnContext);
 		}
 		try {
-			this.columnClass = new ScriptClassLoader(columnContext.mainClass).defineMainClass().asSubclass(ScriptedColumn.class);
+			ScriptClassLoader loader = new ScriptClassLoader(columnContext.mainClass);
+			if (CLASS_DUMP_DIRECTORY != null) try {
+				for (ClassCompileContext context : loader.loadable.values()) {
+					String baseName = context.info.getSimpleName();
+					Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+					Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
+				}
+			}
+			catch (IOException exception) {
+				ScriptLogger.LOGGER.error("", exception);
+			}
+			this.columnClass = loader.defineMainClass().asSubclass(ScriptedColumn.class);
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
 					MethodHandles.lookup(),

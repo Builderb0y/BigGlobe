@@ -1,6 +1,4 @@
 {
 	"type": "bigglobe:int_constant",
-	"value": {
-		"value": 0
-	}
+	"value": 0
 }
