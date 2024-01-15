@@ -17,6 +17,7 @@ import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -319,5 +320,24 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				default -> throw new IllegalStateException("Unsupported type: " + type);
 			})
 		);
+	}
+
+	public abstract void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException;
+
+	@Override
+	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
+		_3DValid valid = this.valid();
+		if (valid != null) {
+			if (valid.where() != null) {
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where());
+			}
+			if (valid.min_y() != null) {
+				context.setMethodCode(memory.getTyped(VALID_MIN_Y), valid.min_y());
+			}
+			if (valid.max_y() != null) {
+				context.setMethodCode(memory.getTyped(VALID_MAX_Y), valid.max_y());
+			}
+		}
+		this.populateComputeOne(memory, context, memory.getTyped(COMPUTE_ONE));
 	}
 }

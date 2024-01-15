@@ -7,6 +7,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -104,5 +105,16 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).type());
 			putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value)).emitBytecode(setter);
 		});
+	}
+
+	public abstract void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException;
+
+	@Override
+	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
+		_2DValid valid = this.valid();
+		if (valid != null && valid.where() != null) {
+			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), valid.where());
+		}
+		this.populateCompute(memory, context, memory.getTyped(ColumnEntryMemory.COMPUTER));
 	}
 }

@@ -215,56 +215,11 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
+	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		ConstantValue diagram = context.mainClass.newConstant(this.diagram, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
-		MethodCompileContext actuallyCompute;
-		if (this.valid != null) {
-			/*
-			VoronoiData$Base_0 get() {
-				flags and stuff
-				return this.compute();
-			}
-
-			boolean test() {
-				return script;
-			}
-
-			VoronoiData$Base_0 compute() {
-				if (this.test()) {
-					return this.actuallyCompute();
-				}
-				else {
-					return null;
-				}
-			}
-
-			VoronoiData$Base_0 actuallyCompute() {
-				return invokedynamic[randomize](ldc(diagram).getNearestCell(this.value.?cell));
-			}
-			*/
-			String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
-			TypeInfo voronoiBaseType = context.getSchemaType(this.getAccessSchema()).type();
-			actuallyCompute = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, voronoiBaseType);
-			MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
-			context.setMethodCode(testMethod, this.valid.where());
-			context.generateGuardedComputer(memory.getTyped(ColumnEntryMemory.COMPUTER), testMethod.info, actuallyCompute.info, constant(null, voronoiBaseType));
-		}
-		else {
-			/*
-			VoronoiData$Base_0 get() {
-				flags and stuff
-				return this.compute();
-			}
-
-			VoronoiData$Base_0 compute() {
-				return invokedynamic[randomize](ldc(diagram).getNearestCell(this.value.?cell));
-			}
-			*/
-			actuallyCompute = memory.getTyped(ColumnEntryMemory.COMPUTER);
-		}
-		actuallyCompute.scopes.withScope((MethodCompileContext compute) -> {
+		memory.getTyped(ColumnEntryMemory.COMPUTER).scopes.withScope((MethodCompileContext compute) -> {
 			VarInfo self = compute.addThis();
 			return_(
 				invokeDynamic(

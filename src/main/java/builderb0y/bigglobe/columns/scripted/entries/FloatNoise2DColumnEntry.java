@@ -48,10 +48,9 @@ public class FloatNoise2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		MethodCompileContext computerMethod = memory.getTyped(ColumnEntryMemory.COMPUTER);
+	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		ConstantValue gridConstant = context.mainClass.newConstant(this.value, type(Grid2D.class));
-		computerMethod.scopes.withScope((MethodCompileContext computer) -> {
+		computeMethod.scopes.withScope((MethodCompileContext computer) -> {
 			computer.addThis();
 			InsnTree x = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x"));
 			InsnTree z = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z"));

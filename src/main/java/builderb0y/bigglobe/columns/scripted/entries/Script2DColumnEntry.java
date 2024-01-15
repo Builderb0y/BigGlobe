@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
@@ -22,7 +23,7 @@ public abstract class Script2DColumnEntry extends Basic2DColumnEntry {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		context.setMethodCode(memory.getTyped(ColumnEntryMemory.COMPUTER), this.value);
+	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
+		context.setMethodCode(computeMethod, this.value);
 	}
 }

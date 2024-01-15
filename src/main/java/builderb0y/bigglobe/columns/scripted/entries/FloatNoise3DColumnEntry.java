@@ -86,13 +86,11 @@ public class FloatNoise3DColumnEntry extends Basic3DColumnEntry {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		ConstantValue constantGrid = memory.getTyped(CONSTANT_GRID);
-		MethodCompileContext computeOneMethod = memory.getTyped(COMPUTE_ONE);
+	public void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException {
 		computeOneMethod.prepareParameters("y").setCode(
 			"return(float(grid.getValue(column.seed # salt, column.x, y, column.z))",
 			new MutableScriptEnvironment()
-			.addVariableConstant("grid", constantGrid)
+			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
 			.addMethodInvoke(Grid3D.class, "getValue")
 			.addVariable("column", context.loadColumn())
 			.addFieldGet(ScriptedColumn.class, "seed")

@@ -26,8 +26,8 @@ public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		context.setMethodCode(memory.getTyped(COMPUTE_ONE), this.value, "y");
+	public void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException {
+		context.setMethodCode(computeOneMethod, this.value, "y");
 	}
 
 	@Override
