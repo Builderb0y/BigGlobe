@@ -4,6 +4,7 @@ import builderb0y.autocodec.annotations.DefaultFloat;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float2DAccessSchema;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
@@ -14,7 +15,7 @@ public class FloatScript2DColumnEntry extends Script2DColumnEntry {
 	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultFloat(Float.NaN) float fallback) implements IValid {
 
 		@Override
-		public ConstantValue getFallback() {
+		public ConstantValue getFallback(TypeInfo type) {
 			return ConstantValue.of(this.fallback);
 		}
 	}

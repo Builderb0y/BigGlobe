@@ -4,6 +4,7 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Boolean2DAccessSchema;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
@@ -14,7 +15,7 @@ public class BooleanScript2DColumnEntry extends Script2DColumnEntry {
 	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultBoolean(false) boolean fallback) implements IValid {
 
 		@Override
-		public ConstantValue getFallback() {
+		public ConstantValue getFallback(TypeInfo type) {
 			return ConstantValue.of(this.fallback);
 		}
 	}

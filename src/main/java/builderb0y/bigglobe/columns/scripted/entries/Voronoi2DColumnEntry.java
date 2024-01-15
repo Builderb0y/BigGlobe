@@ -59,7 +59,13 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public final TagKey<VoronoiSettings> values;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 	public final @VerifyNullable Valid valid;
-	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) {}
+	public static record Valid(ScriptUsage<GenericScriptTemplateUsage> where) implements IValid {
+
+		@Override
+		public ConstantValue getFallback(TypeInfo type) {
+			return ConstantValue.of(null, type);
+		}
+	}
 
 	public Voronoi2DColumnEntry(
 		VoronoiDiagram2D diagram,
@@ -71,6 +77,11 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		this.values  = values;
 		this.exports = exports;
 		this.valid   = valid;
+	}
+
+	@Override
+	public IValid valid() {
+		return this.valid;
 	}
 
 	public static CallSite createRandomizer(MethodHandles.Lookup lookup, String name, MethodType methodType, Class<?>... options) throws Throwable {

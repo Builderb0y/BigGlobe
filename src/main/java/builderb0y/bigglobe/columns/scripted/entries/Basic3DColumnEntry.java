@@ -29,7 +29,6 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 		COMPUTE_ONE = new ColumnEntryMemory.Key<>("computeOne"),
 		COMPUTE_ALL = new ColumnEntryMemory.Key<>("computeAll"),
 		EXTRACT     = new ColumnEntryMemory.Key<>("extract"),
-		VALID_WHERE = new ColumnEntryMemory.Key<>("validWhere"),
 		VALID_MIN_Y = new ColumnEntryMemory.Key<>("validMinY"),
 		VALID_MAX_Y = new ColumnEntryMemory.Key<>("validMaxY");
 
@@ -99,7 +98,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 			if (valid != null) {
 				if (valid.where() != null) {
 					MethodCompileContext test = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
-					memory.putTyped(VALID_WHERE, test);
+					memory.putTyped(ColumnEntryMemory.VALID_WHERE, test);
 					environment.addFunctionInvoke("test", context.loadSelf(), test.info);
 				}
 				if (valid.min_y() != null) {
@@ -256,7 +255,7 @@ public abstract class Basic3DColumnEntry implements ColumnEntry {
 				InsnTree y = load("y", 1, TypeInfos.INT);
 				if (valid.where() != null) {
 					MethodCompileContext test = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
-					memory.putTyped(VALID_WHERE, test);
+					memory.putTyped(ColumnEntryMemory.VALID_WHERE, test);
 					condition = and(condition, new BooleanToConditionTree(invokeInstance(context.loadSelf(), test.info)));
 				}
 				if (valid.min_y() != null) {

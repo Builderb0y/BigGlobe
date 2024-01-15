@@ -112,7 +112,8 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		public static final Key<MethodCompileContext>
 			GETTER = new Key<>("getter"),
 			SETTER = new Key<>("setter"),
-			COMPUTER = new Key<>("computer");
+			COMPUTER = new Key<>("computer"),
+			VALID_WHERE = new Key<>("validWhere");
 		public static final Key<TypeContext>
 			TYPE = new Key<>("type");
 
