@@ -4,7 +4,6 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;

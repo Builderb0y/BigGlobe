@@ -4,7 +4,6 @@ import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;

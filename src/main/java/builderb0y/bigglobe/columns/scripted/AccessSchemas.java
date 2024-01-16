@@ -12,8 +12,6 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
 import builderb0y.scripting.util.TypeInfos;
 
-import static org.objectweb.asm.Opcodes.*;
-
 public class AccessSchemas {
 
 	public static abstract class AbstractAccessSchema implements AccessSchema {

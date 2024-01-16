@@ -6,7 +6,6 @@ import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;

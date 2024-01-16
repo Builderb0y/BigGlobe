@@ -20,6 +20,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -50,6 +51,16 @@ public class ColumnEntryRegistry {
 		for (Map.Entry<Identifier, ColumnEntryMemory> entry : this.memories.entrySet()) {
 			entry.getValue().putTyped(ColumnEntryMemory.TYPE, columnContext.getSchemaType(entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema()));
 		}
+		voronois.streamEntries().forEach((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
+			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
+			if (columnEntry instanceof Voronoi2DColumnEntry voronoiColumnEntry) {
+				voronoiColumnEntry.options.add(voronoiEntry);
+			}
+			else {
+				throw new IllegalArgumentException("voronoi_settings " + UnregisteredObjectException.getID(voronoiEntry) + " is owned by column_value " + UnregisteredObjectException.getID(voronoiEntry.value().owner()) + " but this column value is not of type voronoi_2d.");
+			}
+		});
+
 		Set<Identifier> voronoiDisabled = (
 			voronois
 			.streamEntries()
@@ -112,6 +123,5 @@ public class ColumnEntryRegistry {
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
-		columnContext.addFlagsFields();
 	}
 }

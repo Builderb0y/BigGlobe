@@ -11,9 +11,8 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
 
 public record VoronoiSettings(
+	RegistryEntry<ColumnEntry> owner,
 	double weight,
 	RegistryEntry<ColumnEntry> @DefaultEmpty [] enables,
 	@DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, RegistryEntry<ColumnEntry>> exports
-) {
-
-}
+) {}

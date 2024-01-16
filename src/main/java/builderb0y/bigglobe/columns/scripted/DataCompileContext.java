@@ -9,7 +9,6 @@ import org.objectweb.asm.Type;
 
 import net.minecraft.util.Identifier;
 
-import builderb0y.autocodec.util.ArrayFactories;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -136,8 +135,6 @@ public abstract class DataCompileContext {
 		});
 	}
 
-	public abstract void addFlagsFields();
-
 	public static class ColumnCompileContext extends DataCompileContext {
 
 		public final Map<AccessSchema, TypeContext> accessSchemaTypeInfos = new HashMap<>(16);
@@ -230,12 +227,11 @@ public abstract class DataCompileContext {
 		}
 
 		@Override
-		public void addFlagsFields() {
-			int fieldCount = this.flagsIndex >>> 5;
-			for (int field = 0; field < fieldCount; field++) {
-				this.mainClass.newField(ACC_PUBLIC, "flags_" + field, TypeInfos.INT);
+		public void prepareForCompile() {
+			for (int index = 0, max = this.flagsIndex >>> 5; index <= max; index++) {
+				this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
 			}
-			this.children.forEach(DataCompileContext::addFlagsFields);
+			super.prepareForCompile();
 		}
 	}
 
@@ -339,11 +335,6 @@ public abstract class DataCompileContext {
 		public TypeInfo voronoiBaseType() {
 			return this.selfType();
 		}
-
-		@Override
-		public void addFlagsFields() {
-			this.children.forEach(DataCompileContext::addFlagsFields);
-		}
 	}
 
 	public static class VoronoiImplCompileContext extends DataCompileContext {
@@ -377,7 +368,6 @@ public abstract class DataCompileContext {
 						type(VoronoiDiagram2D.Cell.class),
 						TypeInfos.LONG
 					),
-					load(self),
 					load(column),
 					load(cell),
 					ldc(seed)
@@ -443,12 +433,11 @@ public abstract class DataCompileContext {
 		}
 
 		@Override
-		public void addFlagsFields() {
-			int fieldCount = this.flagsIndex >>> 5;
-			for (int field = 1; field < fieldCount; field++) {
-				this.mainClass.newField(ACC_PUBLIC, "flags_" + field, TypeInfos.INT);
+		public void prepareForCompile() {
+			for (int index = 1, max = this.flagsIndex >>> 5; index <= max; index++) {
+				this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
 			}
-			this.children.forEach(DataCompileContext::addFlagsFields);
+			super.prepareForCompile();
 		}
 	}
 }
