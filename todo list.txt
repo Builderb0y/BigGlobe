@@ -32,6 +32,7 @@ where I left off:
 	do not calculate counts manually in SectionGenerationContext, as this will conflict with lithium.
 		call vanilla method instead.
 	remove ability for scripts to print things on the client in multiplayer.
+	make coral only spawn where temperature is high.
 
 changelog:
 
