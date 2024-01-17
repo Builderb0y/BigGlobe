@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
+import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.ClassCompileContext;
@@ -41,17 +42,14 @@ public class ScriptClassLoader extends ClassLoader {
 
 	public static final AtomicInteger CLASS_UNIQUIFIER = new AtomicInteger();
 
-	public ClassCompileContext clazz;
 	public Map<String, ClassCompileContext> loadable;
 
-	public ScriptClassLoader(ClassCompileContext clazz) {
+	public ScriptClassLoader() {
 		super(ScriptClassLoader.class.getClassLoader());
-		this.clazz = clazz;
 		this.loadable = new HashMap<>(2);
-		this.recursiveAddClasses(clazz);
 	}
 
-	public static Path initDumpDirectory(String enabledProperty, String directoryName) {
+	public static @Nullable Path initDumpDirectory(String enabledProperty, String directoryName) {
 		if (Boolean.getBoolean(enabledProperty)) {
 			Path classDumpDirectory = FabricLoader.getInstance().getGameDir().resolve(directoryName);
 			if (Files.isDirectory(classDumpDirectory)) try {
@@ -88,8 +86,9 @@ public class ScriptClassLoader extends ClassLoader {
 		}
 	}
 
-	public Class<?> defineMainClass() throws ClassNotFoundException {
-		return this.loadClass(this.clazz.info.getClassName());
+	public Class<?> defineClass(ClassCompileContext clazz) throws ClassNotFoundException {
+		this.recursiveAddClasses(clazz);
+		return this.loadClass(clazz.info.getClassName());
 	}
 
 	public void recursiveAddClasses(ClassCompileContext clazz) {

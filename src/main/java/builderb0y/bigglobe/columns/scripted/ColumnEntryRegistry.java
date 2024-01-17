@@ -35,8 +35,10 @@ public class ColumnEntryRegistry {
 	public final BetterRegistry<ColumnEntry> entries;
 	public final BetterRegistry<VoronoiSettings> voronois;
 	public final transient Map<Identifier, ColumnEntryMemory> memories;
-	public transient Class<? extends ScriptedColumn> columnClass;
-	public transient ScriptedColumn.Factory columnFactory;
+	public final transient Class<? extends ScriptedColumn> columnClass;
+	public final transient ScriptedColumn.Factory columnFactory;
+	public final transient ColumnCompileContext columnContext;
+	public final transient ScriptClassLoader loader;
 
 	public ColumnEntryRegistry(BetterRegistry<ColumnEntry> entries, BetterRegistry<VoronoiSettings> voronois) throws ScriptParsingException {
 		this.entries  = entries;
@@ -47,9 +49,9 @@ public class ColumnEntryRegistry {
 				ColumnEntryMemory::new
 			)
 		);
-		DataCompileContext columnContext = new ColumnCompileContext(this);
+		this.columnContext = new ColumnCompileContext(this);
 		for (Map.Entry<Identifier, ColumnEntryMemory> entry : this.memories.entrySet()) {
-			entry.getValue().putTyped(ColumnEntryMemory.TYPE, columnContext.getSchemaType(entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema()));
+			entry.getValue().putTyped(ColumnEntryMemory.TYPE, this.columnContext.getSchemaType(entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema()));
 		}
 		voronois.streamEntries().forEach((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
 			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
@@ -82,19 +84,19 @@ public class ColumnEntryRegistry {
 			.toList()
 		);
 		for (ColumnEntryMemory memory : filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).emitFieldGetterAndSetter(memory, columnContext);
+			memory.getTyped(ColumnEntryMemory.ENTRY).emitFieldGetterAndSetter(memory, this.columnContext);
 		}
 		for (ColumnEntryMemory memory : filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, columnContext);
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, this.columnContext);
 		}
 		for (ColumnEntryMemory memory : filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, columnContext);
+			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, this.columnContext);
 		}
-		columnContext.prepareForCompile();
+		this.columnContext.prepareForCompile();
 		try {
-			ScriptClassLoader loader = new ScriptClassLoader(columnContext.mainClass);
+			this.loader = new ScriptClassLoader();
 			if (CLASS_DUMP_DIRECTORY != null) try {
-				for (ClassCompileContext context : loader.loadable.values()) {
+				for (ClassCompileContext context : this.loader.loadable.values()) {
 					String baseName = context.info.getSimpleClassName();
 					Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 					Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
@@ -103,7 +105,7 @@ public class ColumnEntryRegistry {
 			catch (IOException exception) {
 				ScriptLogger.LOGGER.error("", exception);
 			}
-			this.columnClass = loader.defineMainClass().asSubclass(ScriptedColumn.class);
+			this.columnClass = this.loader.defineClass(this.columnContext.mainClass).asSubclass(ScriptedColumn.class);
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
 					MethodHandles.lookup(),

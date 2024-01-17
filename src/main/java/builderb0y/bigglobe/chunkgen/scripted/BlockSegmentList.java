@@ -9,6 +9,16 @@ public class BlockSegmentList extends SegmentList<BlockState> implements BlockSe
 	}
 
 	@Override
+	public int minY() {
+		return this.minY;
+	}
+
+	@Override
+	public int maxY() {
+		return this.maxY + 1;
+	}
+
+	@Override
 	public void accept(int minY, int maxY, BlockState state) {
 		this.addSegment(minY, maxY - 1 /* convert to inclusive */, state);
 	}
@@ -16,6 +26,11 @@ public class BlockSegmentList extends SegmentList<BlockState> implements BlockSe
 	@Override
 	public BlockSegmentList split(int minY, int maxY) {
 		return new BlockSegmentList(Math.max(this.minY, minY), Math.min(this.maxY, maxY - 1 /* convert to inclusive */));
+	}
+
+	@Override
+	public void mergeAndKeepEverywhere(BlockSegmentList that) {
+		this.addAllSegments(that);
 	}
 
 	@Override

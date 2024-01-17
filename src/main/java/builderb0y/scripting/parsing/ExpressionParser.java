@@ -126,7 +126,7 @@ public class ExpressionParser {
 		catch (IOException exception) {
 			ScriptLogger.LOGGER.error("", exception);
 		}
-		return new ScriptClassLoader(this.clazz).defineMainClass();
+		return new ScriptClassLoader().defineClass(this.clazz);
 	}
 
 	public StringBuilder fatalError() {

@@ -15,7 +15,7 @@ public class Simple2DLayer extends Layer {
 	}
 
 	@Override
-	public void emitSelfLayers(ScriptedColumn column, BlockSegmentConsumer consumer) {
-
+	public <B extends BlockSegmentConsumer<B>> void emitSelfSegments(ScriptedColumn column, B consumer) {
+		consumer.accept(this.validMinY(column), this.validMaxY(column), this.state);
 	}
 }
