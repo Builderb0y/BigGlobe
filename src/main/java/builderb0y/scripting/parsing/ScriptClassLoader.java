@@ -110,12 +110,12 @@ public class ScriptClassLoader extends ClassLoader {
 		}
 	}
 
-	public static Object getConstant(MethodHandles.Lookup lookup, Class<?> type, String name, int which) {
+	public static Object getConstant(MethodHandles.Lookup lookup, String name, Class<?> type, int which) {
 		if (lookup.lookupClass().getClassLoader() instanceof ScriptClassLoader loader) {
 			ClassCompileContext context = loader.loadable.get(lookup.lookupClass().getName());
 			if (context != null) {
 				if (which >= 0 && which < context.constants.size()) {
-					return context.constants.get(which);
+					return type.cast(context.constants.get(which));
 				}
 				else {
 					throw new IndexOutOfBoundsException("Invalid constant with index " + which);

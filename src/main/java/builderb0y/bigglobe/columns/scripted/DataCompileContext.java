@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -176,6 +177,10 @@ public abstract class DataCompileContext {
 					load(maxY)
 				)
 				.emitBytecode(constructor);
+			});
+			this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class)).scopes.withScope((MethodCompileContext lookup) -> {
+				lookup.addThis();
+				return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
 			});
 		}
 

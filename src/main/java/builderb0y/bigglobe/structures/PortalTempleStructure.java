@@ -65,8 +65,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		int x = context.chunkPos().getStartX() | (permuter.nextInt() & 15);
 		int z = context.chunkPos().getStartZ() | (permuter.nextInt() & 15);
 		VerticalBlockSample sample = context.chunkGenerator().getColumnSample(x, z, context.world(), context.noiseConfig());
-		int minY = context.chunkGenerator().getMinimumY();
-		int maxY = minY + context.chunkGenerator().getWorldHeight();
+		int minY = context.world().getBottomY();
+		int maxY = context.world().getTopY();
 		for (int startAttempt = 0; startAttempt < 16; startAttempt++) {
 			int y = permuter.nextInt(minY, maxY);
 			if (sample.getState(y).isAir()) {

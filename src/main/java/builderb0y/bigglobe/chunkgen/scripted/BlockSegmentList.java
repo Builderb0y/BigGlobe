@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 public class BlockSegmentList extends SegmentList<BlockState> implements BlockSegmentConsumer<BlockSegmentList> {
 
 	public BlockSegmentList(int minY, int maxY) {
-		super(minY, maxY);
+		super(minY, maxY - 1 /* convert to inclusive */);
 	}
 
 	@Override
@@ -15,7 +15,7 @@ public class BlockSegmentList extends SegmentList<BlockState> implements BlockSe
 
 	@Override
 	public int maxY() {
-		return this.maxY + 1;
+		return this.maxY + 1 /* convert to exclusive */;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class BlockSegmentList extends SegmentList<BlockState> implements BlockSe
 
 	@Override
 	public BlockSegmentList split(int minY, int maxY) {
-		return new BlockSegmentList(Math.max(this.minY, minY), Math.min(this.maxY, maxY - 1 /* convert to inclusive */));
+		return new BlockSegmentList(Math.max(this.minY, minY), Math.min(this.maxY, maxY - 1 /* convert to inclusive */) + 1 /* back to exclusive */);
 	}
 
 	@Override

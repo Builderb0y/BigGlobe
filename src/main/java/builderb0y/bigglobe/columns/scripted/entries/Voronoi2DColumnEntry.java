@@ -51,11 +51,12 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			throw AutoCodecUtil.rethrow(exception);
 		}
 	}
+	public static final ColumnEntryMemory.Key<List<RegistryEntry<VoronoiSettings>>>
+		OPTIONS = new ColumnEntryMemory.Key<>("options");
 
 	public final VoronoiDiagram2D value;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 	public final @VerifyNullable NullObject2DValid valid;
-	public final transient List<RegistryEntry<VoronoiSettings>> options;
 
 	public Voronoi2DColumnEntry(
 		VoronoiDiagram2D value,
@@ -65,7 +66,6 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		this.value   = value;
 		this.exports = exports;
 		this.valid   = valid;
-		this.options = new ArrayList<>(8);
 	}
 
 	@Override
@@ -131,8 +131,9 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
 		super.emitFieldGetterAndSetter(memory, context);
 
+		List<RegistryEntry<VoronoiSettings>> options = memory.addOrGet(OPTIONS, () -> new ArrayList<>(0));
 		//sanity check that all implementations of this class export the same values we do.
-		for (RegistryEntry<VoronoiSettings> preset : this.options) {
+		for (RegistryEntry<VoronoiSettings> preset : options) {
 			Map<String, AccessSchema> expected = preset.value().exports().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, RegistryEntry<ColumnEntry>> entry) -> entry.getValue().value().getAccessSchema()));
 			if (!this.exports.equals(expected)) {
 				throw new IllegalStateException("Export mismatch between column value " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + ' ' + this.exports + " and voronoi settings " + UnregisteredObjectException.getID(preset) + ' ' + expected);
@@ -148,7 +149,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
 			voronoiBaseContext.mainClass.newMethod(entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
 		}
-		for (RegistryEntry<VoronoiSettings> entry : this.options) {
+		for (RegistryEntry<VoronoiSettings> entry : options) {
 			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(entry)));
 			voronoiContextMap.put(UnregisteredObjectException.getKey(entry), implContext);
 			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = entry.value().weight();
@@ -191,8 +192,9 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
 			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
+		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
-		for (RegistryEntry<VoronoiSettings> entry : this.options) {
+		for (RegistryEntry<VoronoiSettings> entry : options) {
 			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
@@ -243,8 +245,9 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			.emitBytecode(compute);
 		});
 
+		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
-		for (RegistryEntry<VoronoiSettings> entry : this.options) {
+		for (RegistryEntry<VoronoiSettings> entry : options) {
 			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(

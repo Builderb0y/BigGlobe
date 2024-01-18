@@ -36,7 +36,7 @@ public class Simple3DLayer extends Layer {
 		boolean haveState = this.compiledCondition.get(column, minY);
 		for (int y = minY; ++y < maxY;) {
 			boolean nextState = this.compiledCondition.get(column, y);
-			if (haveState ^ nextState) {
+			if (haveState != nextState) {
 				if (haveState) consumer.accept(start, y, this.state);
 				haveState = nextState;
 				start = y;

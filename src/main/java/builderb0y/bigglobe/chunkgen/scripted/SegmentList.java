@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +19,20 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 	public SegmentList(int minY, int maxY) {
 		this.minY = minY;
 		this.maxY = maxY;
+	}
+
+	public T[] flatten(IntFunction<T[]> arrayConstructor) {
+		T[] array = arrayConstructor.apply(this.maxY - this.minY + 1);
+		for (int segmentIndex = 0, size = this.size(); segmentIndex < size; segmentIndex++) {
+			Segment<T> segment = this.get(segmentIndex);
+			int minIndex = segment.minY - this.minY;
+			int maxIndex = segment.maxY - this.minY;
+			T object = segment.value;
+			for (int objectIndex = minIndex; objectIndex <= maxIndex; objectIndex++) {
+				array[objectIndex] = object;
+			}
+		}
+		return array;
 	}
 
 	public void fillEmptySpace(T object) {

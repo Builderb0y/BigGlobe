@@ -8,10 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -55,8 +52,9 @@ public class ColumnEntryRegistry {
 		}
 		voronois.streamEntries().forEach((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
 			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
-			if (columnEntry instanceof Voronoi2DColumnEntry voronoiColumnEntry) {
-				voronoiColumnEntry.options.add(voronoiEntry);
+			if (columnEntry instanceof Voronoi2DColumnEntry) {
+				ColumnEntryMemory memory = this.memories.get(UnregisteredObjectException.getID(voronoiEntry.value().owner()));
+				memory.addOrGet(Voronoi2DColumnEntry.OPTIONS, () -> new ArrayList<>(8)).add(voronoiEntry);
 			}
 			else {
 				throw new IllegalArgumentException("voronoi_settings " + UnregisteredObjectException.getID(voronoiEntry) + " is owned by column_value " + UnregisteredObjectException.getID(voronoiEntry.value().owner()) + " but this column value is not of type voronoi_2d.");
@@ -106,13 +104,14 @@ public class ColumnEntryRegistry {
 				ScriptLogger.LOGGER.error("", exception);
 			}
 			this.columnClass = this.loader.defineClass(this.columnContext.mainClass).asSubclass(ScriptedColumn.class);
+			MethodHandles.Lookup lookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-					MethodHandles.lookup(),
+					lookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
 					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class),
-					MethodHandles.lookup().findConstructor(
+					lookup.findConstructor(
 						this.columnClass,
 						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class)
 					),

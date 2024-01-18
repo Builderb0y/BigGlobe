@@ -128,41 +128,8 @@ public class SectionGenerationContext {
 		}
 	}
 
-	/**
-	the vanilla implementation uses an Int2IntOpenHashMap,
-	when a simple short[] is sufficient.
-	*/
 	public void recalculateCounts() {
-		Palette<BlockState> palette = this.palette();
-		PaletteStorage storage = this.storage();
-		int paletteSize = palette.getSize();
-		short[] counts = new short[paletteSize];
-		storage.forEach((int id) -> counts[id]++);
-		int nonEmpty      = 0;
-		int tickingBlocks = 0;
-		int tickingFluids = 0;
-		for (int id = 0; id < paletteSize; id++) {
-			BlockState blockState = palette.get(id);
-			FluidState fluidState = blockState.getFluidState();
-			//note: ChunkSection.setBlockState() and ChunkSection.calculateCounts()
-			//have different logic for accumulating counts, and in particular,
-			//these 2 implementations produce different results.
-			//it also doesn't help that ChunkSection.hasRandomFluidTicks()
-			//simply returns nonEmptyFluidCount > 0.
-			//I believe that the backing field, nonEmptyFluidCount, is misnamed,
-			//and should be named randomTickingFluidCount instead.
-			//the code that follows here is my "best guess" at what the correct code should be,
-			//even though it produces different results than *both* vanilla implementations.
-			if (!blockState.isAir()) {
-				int count = counts[id];
-				nonEmpty += count;
-				if (blockState.hasRandomTicks()) tickingBlocks += count;
-				if (fluidState.hasRandomTicks()) tickingFluids += count;
-			}
-		}
-		this.setNonEmpty(nonEmpty);
-		this.setRandomTickingBlocks(tickingBlocks);
-		this.setRandomTickingFluids(tickingFluids);
+		this.section.calculateCounts();
 	}
 
 	@Override

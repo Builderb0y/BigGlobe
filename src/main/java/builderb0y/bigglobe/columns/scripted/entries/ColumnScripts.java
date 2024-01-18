@@ -41,22 +41,27 @@ public interface ColumnScripts extends Script {
 			TypeInfo[] actualTypes = bridgeTypes.clone();
 			actualTypes[0] = registry.columnContext.mainClass.info;
 			boolean requiresY = bridgeTypes.length == 2;
-			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, implementingMethod.getName(), returnType, actualTypes);
-			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC | ACC_BRIDGE, implementingMethod.getName(), returnType, bridgeTypes);
+			//making the actual method static is a horrible hack
+			//to allow the column's parameter index to be 0,
+			//which itself is required because that's what the
+			//column entries expect when populating the environment.
+			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC | ACC_STATIC, implementingMethod.getName(), returnType, actualTypes);
+			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC, implementingMethod.getName(), returnType, bridgeTypes);
 			bridgeMethod.scopes.withScope((MethodCompileContext bridge) -> {
-				VarInfo self = bridge.addThis();
+				bridge.addThis();
 				VarInfo column = bridge.newParameter("column", type(ScriptedColumn.class));
 				if (requiresY) {
 					VarInfo y = bridge.newParameter("y", TypeInfos.INT);
-					return_(invokeInstance(load(self), actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]), load(y))).emitBytecode(bridge);
+					return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]), load(y))).emitBytecode(bridge);
 				}
 				else {
-					return_(invokeInstance(load(self), actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]))).emitBytecode(bridgeMethod);
+					return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]))).emitBytecode(bridgeMethod);
 				}
 			});
 			if (requiresY) actualMethod.prepareParameters("column", "y");
 			else actualMethod.prepareParameters("column");
-			new ScriptColumnEntryParser(usage, clazz, actualMethod)
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod);
+			parser
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addEnvironment(registry.columnContext.environment)
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
@@ -65,11 +70,13 @@ public interface ColumnScripts extends Script {
 			.parseEntireInput()
 			.emitBytecode(actualMethod);
 			actualMethod.endCode();
+			clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING).scopes.withScope(return_(ldc(usage.findSource()))::emitBytecode);
+			clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING).scopes.withScope(return_(ldc(usage.debug_name, TypeInfos.STRING))::emitBytecode);
 			try {
 				return type.cast(registry.loader.defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
-			catch (Exception exception) {
-				throw new ScriptParsingException("An exception occurred while trying to define the script class", exception, null);
+			catch (Throwable throwable) {
+				throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);
 			}
 		}
 	}

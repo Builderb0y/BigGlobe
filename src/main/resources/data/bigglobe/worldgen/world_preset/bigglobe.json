@@ -3,8 +3,35 @@
 		"minecraft:overworld": {
 			"type": "bigglobe:overworld",
 			"generator": {
-				"type": "bigglobe:overworld",
+				"type": "bigglobe:scripted",
 				"value": {
+					"reload_dimension": "minecraft:overworld",
+					"height": {
+						"min_y": -1024,
+						"max_y":  1024,
+						"sea_level": 0
+					},
+					"layer": {
+						"state": "minecraft:air",
+						"children": [
+							{
+								"type": "bigglobe:simple_2d",
+								"state": "minecraft:stone",
+								"valid": {
+									"max_y": "ceilInt(`bigglobe:overworld/surface_y`) - 1"
+								}
+							},
+							{
+								"type": "bigglobe:simple_2d",
+								"state": "minecraft:water[level=0]",
+								"valid": {
+									"max_y": "`bigglobe:overworld/sea_level`"
+								}
+							}
+						]
+					}
+				},
+				"old_value": {
 					"height": {
 						"min_y": -1024,
 						"max_y":  1024,

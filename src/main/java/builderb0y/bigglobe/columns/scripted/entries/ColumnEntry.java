@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -158,6 +159,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			if (this.putIfAbsent(key, value) != null) {
 				throw new IllegalStateException(key + " already present in " + this);
 			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> T addOrGet(Key<T> key, Supplier<T> valueSupplier) {
+			return (T)(this.computeIfAbsent(key, k -> valueSupplier.get()));
 		}
 
 		public <T> void replaceTyped(Key<T> key, T oldValue, T newValue) {

@@ -3,6 +3,8 @@ package builderb0y.bigglobe.chunkgen.scripted;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
@@ -15,6 +17,7 @@ import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateU
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 
+@UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
