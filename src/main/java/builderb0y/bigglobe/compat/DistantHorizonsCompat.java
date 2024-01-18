@@ -19,16 +19,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
+import builderb0y.bigglobe.chunkgen.*;
 import builderb0y.bigglobe.compat.dhChunkGen.DhEndWorldGenerator;
 import builderb0y.bigglobe.compat.dhChunkGen.DhNetherWorldGenerator;
 import builderb0y.bigglobe.compat.dhChunkGen.DhOverworldWorldGenerator;
+import builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
 public class DistantHorizonsCompat {
@@ -117,22 +116,30 @@ public class DistantHorizonsCompat {
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				public void onLevelLoad(DhApiEventParam<EventParam> param) {
 					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
-					if (
-						levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld &&
-						serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeChunkGenerator chunkGenerator
-					) {
-						if (BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.hyperspeedGeneration) {
-							DhWorldGeneratorFactory factory = GENERATOR_FACTORIES.get(chunkGenerator.getClass());
-							if (factory != null) {
-								BigGlobeMod.LOGGER.info("Initializing hyperspeed DH world generator.");
-								DhApi.worldGenOverrides.registerWorldGeneratorOverride(levelWrapper, factory.create(levelWrapper, serverWorld, chunkGenerator));
+					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
+						ChunkGenerator generator = serverWorld.getChunkManager().getChunkGenerator();
+						if (generator instanceof BigGlobeScriptedChunkGenerator chunkGenerator) {
+							if (BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.hyperspeedGeneration) {
+								DhApi.worldGenOverrides.registerWorldGeneratorOverride(levelWrapper, new DhScriptedWorldGenerator(levelWrapper, serverWorld, chunkGenerator));
 							}
 							else {
-								BigGlobeMod.LOGGER.warn("Don't know how to initialize hyperspeed world generator for unknown chunk generator subclass: " + chunkGenerator.getClass());
+								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
 							}
 						}
-						else {
-							BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
+						else if (generator instanceof BigGlobeChunkGenerator chunkGenerator) {
+							if (BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.hyperspeedGeneration) {
+								DhWorldGeneratorFactory factory = GENERATOR_FACTORIES.get(chunkGenerator.getClass());
+								if (factory != null) {
+									BigGlobeMod.LOGGER.info("Initializing hyperspeed DH world generator.");
+									DhApi.worldGenOverrides.registerWorldGeneratorOverride(levelWrapper, factory.create(levelWrapper, serverWorld, chunkGenerator));
+								}
+								else {
+									BigGlobeMod.LOGGER.warn("Don't know how to initialize hyperspeed world generator for unknown chunk generator subclass: " + chunkGenerator.getClass());
+								}
+							}
+							else {
+								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
+							}
 						}
 					}
 				}

@@ -35,6 +35,8 @@ where I left off:
 	make coral only spawn where temperature is high.
 
 changelog:
+	4.0:
+		Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
@@ -121,6 +123,11 @@ features:
 					perhaps all scripts could be synced,
 					and the seed in the generator could be strongly hashed for all values?
 				how to handle surface depth with derivative information available?
+					solved:
+						generate the surface in 2x2 areas at a time.
+						64 generation tasks will be submitted per chunk instead of 256.
+						when one position is valid, but adjacent isn't:
+							use scratch column for accessing *other* adjacent.
 				how to "link" voronoi cells to column values?
 					~~perhaps I could have a "valid" flag for column values,
 					possibly with a restricted Y range.~~
