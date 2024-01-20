@@ -1,7 +1,6 @@
 package builderb0y.scripting;
 
 import java.util.Arrays;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -11,11 +10,17 @@ import org.opentest4j.AssertionFailedError;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.util.ThrowingRunnable;
+import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCommon {
@@ -38,18 +43,20 @@ public class TestCommon {
 		try {
 			fail(String.valueOf(evaluate(script)));
 		}
-		catch (ScriptParsingException expected) {
-			assertEquals(message, expected.getMessage());
+		catch (Exception expected) {
+			if (!expected.getMessage().startsWith(message)) {
+				throw new AssertionFailedError(null, message, expected.getMessage());
+			}
 		}
 	}
 
 	public static Object evaluate(String input) throws ScriptParsingException {
 		return (
-			new ScriptParser<>(Supplier.class, input)
+			new ScriptParser<>(ObjectSupplier.class, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addEnvironment(JavaUtilScriptEnvironment.ALL)
 			.parse()
-			.get()
+			.getAsObject()
 		);
 	}
 

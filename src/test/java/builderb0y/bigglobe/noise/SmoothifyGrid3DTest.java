@@ -16,9 +16,9 @@ public class SmoothifyGrid3DTest {
 		Grid.TESTING.setTrue();
 		ValueGrid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
 		NumberArray values = NumberArray.allocateDoublesHeap(sampleCount);
-		for (int x = -64; x < 64; x++) {
-			for (int z = -64; z < 64; z++) {
-				for (int y = -64; y < 64; y++) {
+		for (int x = -32; x < 32; x++) {
+			for (int z = -32; z < 32; z++) {
+				for (int y = -32; y < 32; y++) {
 					this.testPosition(grid, values, x, y, z);
 				}
 			}

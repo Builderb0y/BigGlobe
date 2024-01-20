@@ -31,8 +31,8 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXYZ(
 						ColumnValue.REGISTRY,
-						load("column", 1, type(WorldColumn.class)),
-						load("y", 2, TypeInfos.DOUBLE)
+						load("column", type(WorldColumn.class)),
+						load("y", TypeInfos.DOUBLE)
 					)
 					.addXZ("x", "z")
 					.addY("y")
@@ -41,12 +41,12 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 				)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(
-					load("random", 6, type(RandomGenerator.class))
+					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()
-					.addVariableLoad("slope_squared", 4, TypeInfos.DOUBLE)
+					.addVariableLoad("slope_squared", TypeInfos.DOUBLE)
 				)
 				.parse()
 			);

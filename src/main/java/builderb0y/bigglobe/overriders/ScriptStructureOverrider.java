@@ -25,9 +25,9 @@ public interface ScriptStructureOverrider extends Overrider {
 
 	public static final MutableScriptEnvironment START_MOVE_DH_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariableLoad("start", 1, StructureStartWrapper.TYPE)
+		.addVariableLoad("start", StructureStartWrapper.TYPE)
 		.addMethodInvokeStatic(ScriptStructureOverrider.class, "move")
-		.addVariableLoad("distantHorizons", 4, TypeInfos.BOOLEAN)
+		.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 	);
 
 	public abstract boolean override(StructureStartWrapper start, WorldColumn column, RandomGenerator random, boolean distantHorizons);
@@ -52,15 +52,15 @@ public interface ScriptStructureOverrider extends Overrider {
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
-						load("column", 2, type(WorldColumn.class))
+						load("column", type(WorldColumn.class))
 					)
 					.build()
 				)
 				.addEnvironment(RandomScriptEnvironment.create(
-					load("random", 3, type(RandomGenerator.class))
+					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(JavaUtilScriptEnvironment.randomOnly(
-					load("random", 3, type(RandomGenerator.class))
+					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 			);

@@ -1,12 +1,11 @@
-package builderb0y.bigglobe.columns.scripted.entries;
+package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -18,15 +17,19 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface ColumnScripts extends Script {
+public interface ColumnScript extends Script {
 
-	public static class BaseHolder<S extends ColumnScripts> extends ScriptHolder<S> {
+	public static class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> {
+
+		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, S script) {
+			super(usage, script);
+		}
 
 		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry, Class<S> type) throws ScriptParsingException {
 			super(usage, createScript(usage, registry, type));
 		}
 
-		public static <S extends ColumnScripts> S createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry, Class<S> type) throws ScriptParsingException {
+		public static <S extends ColumnScript> S createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry, Class<S> type) throws ScriptParsingException {
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
@@ -37,41 +40,41 @@ public interface ColumnScripts extends Script {
 			clazz.addNoArgConstructor(ACC_PUBLIC);
 			Method implementingMethod = ScriptParser.findImplementingMethod(type);
 			TypeInfo returnType = type(implementingMethod.getReturnType());
-			TypeInfo[] bridgeTypes = types(implementingMethod.getParameterTypes());
-			TypeInfo[] actualTypes = bridgeTypes.clone();
-			actualTypes[0] = registry.columnContext.mainClass.info;
-			boolean requiresY = bridgeTypes.length == 2;
-			//making the actual method static is a horrible hack
-			//to allow the column's parameter index to be 0,
-			//which itself is required because that's what the
-			//column entries expect when populating the environment.
-			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC | ACC_STATIC, implementingMethod.getName(), returnType, actualTypes);
-			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC, implementingMethod.getName(), returnType, bridgeTypes);
-			bridgeMethod.scopes.withScope((MethodCompileContext bridge) -> {
-				bridge.addThis();
-				VarInfo column = bridge.newParameter("column", type(ScriptedColumn.class));
-				if (requiresY) {
-					VarInfo y = bridge.newParameter("y", TypeInfos.INT);
-					return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]), load(y))).emitBytecode(bridge);
-				}
-				else {
-					return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(column), actualTypes[0]))).emitBytecode(bridgeMethod);
-				}
-			});
-			if (requiresY) actualMethod.prepareParameters("column", "y");
-			else actualMethod.prepareParameters("column");
+			LazyVarInfo[] bridgeParams = new LazyVarInfo[implementingMethod.getParameterCount()];
+			LazyVarInfo bridgeColumn = bridgeParams[0] = new LazyVarInfo("column", type(ScriptedColumn.class));
+			LazyVarInfo y = bridgeParams.length > 1 ? (bridgeParams[1] = new LazyVarInfo("y", TypeInfos.INT)) : null;
+			LazyVarInfo[] actualParams = bridgeParams.clone();
+			actualParams[0] = new LazyVarInfo(actualParams[0].name, registry.columnContext.mainClass.info);
+			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, implementingMethod.getName(), returnType, actualParams);
+			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, implementingMethod.getName(), returnType, bridgeParams);
+
+			if (y != null) {
+				return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info), load(y))).emitBytecode(bridgeMethod);
+			}
+			else {
+				return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info))).emitBytecode(bridgeMethod);
+			}
+			bridgeMethod.endCode();
+
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod);
 			parser
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
 			.addEnvironment(registry.columnContext.environment)
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
-				if (requiresY) environment.addVariableLoad(actualMethod.getParameter("y"));
+				if (y != null) environment.addVariableLoad(y);
 			})
 			.parseEntireInput()
 			.emitBytecode(actualMethod);
 			actualMethod.endCode();
-			clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING).scopes.withScope(return_(ldc(usage.findSource()))::emitBytecode);
-			clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING).scopes.withScope(return_(ldc(usage.debug_name, TypeInfos.STRING))::emitBytecode);
+
+			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
+			return_(ldc(usage.findSource())).emitBytecode(getSource);
+			getSource.endCode();
+
+			MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);
+			return_(ldc(usage.debug_name, TypeInfos.STRING)).emitBytecode(getDebugName);
+			getDebugName.endCode();
+
 			try {
 				return type.cast(registry.loader.defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
@@ -81,7 +84,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnToIntScript extends ColumnScripts {
+	public static interface ColumnToIntScript extends ColumnScript {
 
 		public abstract int get(ScriptedColumn column);
 
@@ -104,7 +107,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnYToIntScript extends ColumnScripts {
+	public static interface ColumnYToIntScript extends ColumnScript {
 
 		public abstract int get(ScriptedColumn column, int y);
 
@@ -127,7 +130,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnToLongScript extends ColumnScripts {
+	public static interface ColumnToLongScript extends ColumnScript {
 
 		public abstract long get(ScriptedColumn column);
 
@@ -150,7 +153,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnYToLongScript extends ColumnScripts {
+	public static interface ColumnYToLongScript extends ColumnScript {
 
 		public abstract long get(ScriptedColumn column, int y);
 
@@ -173,7 +176,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnToFloatScript extends ColumnScripts {
+	public static interface ColumnToFloatScript extends ColumnScript {
 
 		public abstract float get(ScriptedColumn column);
 
@@ -196,7 +199,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnYToFloatScript extends ColumnScripts {
+	public static interface ColumnYToFloatScript extends ColumnScript {
 
 		public abstract float get(ScriptedColumn column, int y);
 
@@ -219,7 +222,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnToDoubleScript extends ColumnScripts {
+	public static interface ColumnToDoubleScript extends ColumnScript {
 
 		public abstract double get(ScriptedColumn column);
 
@@ -242,7 +245,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnYToDoubleScript extends ColumnScripts {
+	public static interface ColumnYToDoubleScript extends ColumnScript {
 
 		public abstract double get(ScriptedColumn column, int y);
 
@@ -265,7 +268,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnToBooleanScript extends ColumnScripts {
+	public static interface ColumnToBooleanScript extends ColumnScript {
 
 		public abstract boolean get(ScriptedColumn column);
 
@@ -288,7 +291,7 @@ public interface ColumnScripts extends Script {
 		}
 	}
 
-	public static interface ColumnYToBooleanScript extends ColumnScripts {
+	public static interface ColumnYToBooleanScript extends ColumnScript {
 
 		public abstract boolean get(ScriptedColumn column, int y);
 

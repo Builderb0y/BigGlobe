@@ -8,6 +8,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.*;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.util.TypeInfos;
@@ -32,6 +33,22 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 	public abstract TypeContext createType(ColumnCompileContext context);
 
 	public abstract boolean requiresYLevel();
+
+	public default LazyVarInfo[] getterParameters() {
+		return (
+			this.requiresYLevel()
+			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
+			: LazyVarInfo.ARRAY_FACTORY.empty()
+		);
+	}
+
+	public default LazyVarInfo[] setterParameters(DataCompileContext context) {
+		return (
+			this.requiresYLevel()
+			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.getSchemaType(this).exposedType()) }
+			: new LazyVarInfo[] { new LazyVarInfo("value", context.getSchemaType(this).exposedType()) }
+		);
+	}
 
 	public default MethodInfo getterDescriptor(int flags, String name, DataCompileContext context) {
 		return new MethodInfo(

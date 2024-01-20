@@ -42,7 +42,7 @@ public class UserClassDefiner {
 
 	public List<FieldCompileContext> parse() throws ScriptParsingException {
 		List<FieldCompileContext> fields = this.parseFields();
-		List<FieldCompileContext> nonDefaulted = fields.stream().filter(field -> field.initializer == null).toList();
+		List<FieldCompileContext> nonDefaulted = fields.stream().filter((FieldCompileContext field) -> field.initializer == null).toList();
 		this.addConstructors(fields, nonDefaulted);
 		this.addToString(fields);
 		this.addEquals(fields);
@@ -73,13 +73,20 @@ public class UserClassDefiner {
 				}
 			}
 			FieldInfo fieldInfo = field.info;
-			this.innerClass.newMethod(ACC_PUBLIC, fieldName, type).scopes.withScope((MethodCompileContext getter) -> {
-				return_(getField(load("parser", 0, this.innerClassType), fieldInfo)).emitBytecode(getter);
-			});
-			this.innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, fieldInfo.type).scopes.withScope((MethodCompileContext setter) -> {
-				putField(load("parser", 0, this.innerClassType), fieldInfo, load(fieldInfo.name, 1, fieldInfo.type)).emitBytecode(setter);
+			{
+				MethodCompileContext getter = this.innerClass.newMethod(ACC_PUBLIC, fieldName, type);
+				LazyVarInfo self = new LazyVarInfo("this", getter.clazz.info);
+				return_(getField(load(self), fieldInfo)).emitBytecode(getter);
+				getter.endCode();
+			}
+			{
+				MethodCompileContext setter = this.innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, new LazyVarInfo(fieldName, fieldInfo.type));
+				LazyVarInfo self = new LazyVarInfo("this", setter.clazz.info);
+				LazyVarInfo value = new LazyVarInfo(fieldInfo.name, fieldInfo.type);
+				putField(load(self), fieldInfo, load(value)).emitBytecode(setter);
 				return_(noop).emitBytecode(setter);
-			});
+				setter.endCode();
+			}
 
 			this.parser.input.hasOperatorAfterWhitespace(",,");
 		}
@@ -87,162 +94,223 @@ public class UserClassDefiner {
 	}
 
 	public void addConstructors(List<FieldCompileContext> fields, List<FieldCompileContext> nonDefaulted) {
-		this.innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID).scopes.withScope((MethodCompileContext constructor) -> {
-			VarInfo constructorParser = constructor.addThis();
-			invokeInstance(load(constructorParser), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+		{
+			MethodCompileContext noArgConstructor = this.innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID);
+			LazyVarInfo self = new LazyVarInfo("this", noArgConstructor.clazz.info);
+			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(noArgConstructor);
 			for (FieldCompileContext field : fields) {
 				if (field.initializer != null) {
 					putField(
-						load(constructorParser),
+						load(self),
 						new FieldInfo(ACC_PUBLIC, this.innerClassType, field.name(), field.info.type),
 						ldc(field.initializer)
 					)
-					.emitBytecode(constructor);
+					.emitBytecode(noArgConstructor);
 				}
 			}
-			return_(noop).emitBytecode(constructor);
-		});
-		if (!fields.isEmpty()) {
-			this.innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo constructorParser = constructor.addThis();
-				invokeInstance(load(constructorParser), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
-				for (FieldCompileContext field : fields) {
-					putField(
-						load(constructorParser),
-						new FieldInfo(ACC_PUBLIC, this.innerClassType, field.name(), field.info.type),
-						load(constructor.newParameter(field.name(), field.info.type))
-					)
-					.emitBytecode(constructor);
-				}
-				return_(noop).emitBytecode(constructor);
-			});
+			return_(noop).emitBytecode(noArgConstructor);
 		}
+
+		if (!fields.isEmpty()) {
+			MethodCompileContext fullArgConstructor = this.innerClass.newMethod(
+				ACC_PUBLIC,
+				"<init>",
+				TypeInfos.VOID,
+				fields
+				.stream()
+				.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
+			);
+			LazyVarInfo self = new LazyVarInfo("this", fullArgConstructor.clazz.info);
+			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(fullArgConstructor);
+			for (FieldCompileContext field : fields) {
+				putField(
+					load(self),
+					new FieldInfo(ACC_PUBLIC, this.innerClassType, field.name(), field.info.type),
+					load(field.name(), field.info.type)
+				)
+				.emitBytecode(fullArgConstructor);
+			}
+			return_(noop).emitBytecode(fullArgConstructor);
+			fullArgConstructor.endCode();
+		}
+
 		if (nonDefaulted.size() != fields.size() && !nonDefaulted.isEmpty()) {
-			this.innerClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo constructorParser = constructor.addThis();
-				invokeInstance(load(constructorParser), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
-				for (FieldCompileContext field : fields) {
-					putField(
-						load(constructorParser),
-						new FieldInfo(ACC_PUBLIC, this.innerClassType, field.info.name, field.info.type),
-						field.initializer != null ? ldc(field.initializer) : load(constructor.newParameter(field.name(), field.info.type))
-					)
-					.emitBytecode(constructor);
-				}
-				return_(noop).emitBytecode(constructor);
-			});
+			MethodCompileContext someArgsConstructor = this.innerClass.newMethod(
+				ACC_PUBLIC,
+				"<init>",
+				TypeInfos.VOID,
+				nonDefaulted
+				.stream()
+				.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
+			);
+			LazyVarInfo self = new LazyVarInfo("this", someArgsConstructor.clazz.info);
+			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(someArgsConstructor);
+			for (FieldCompileContext field : fields) {
+				putField(
+					load(self),
+					new FieldInfo(ACC_PUBLIC, this.innerClassType, field.info.name, field.info.type),
+					field.initializer != null ? ldc(field.initializer) : load(field.name(), field.info.type)
+				)
+				.emitBytecode(someArgsConstructor);
+			}
+			return_(noop).emitBytecode(someArgsConstructor);
 		}
 	}
 
 	public void addToString(List<FieldCompileContext> fields) {
-		this.innerClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodParser = method.addThis();
-			StringBuilder pattern = new StringBuilder(this.className).append('(');
-			for (FieldCompileContext field : fields) {
-				pattern.append(field.name()).append(": ").append('\u0001').append(", ");
-			}
-			pattern.setLength(pattern.length() - 2);
-			pattern.append(')');
-			return_(
-				invokeDynamic(
-					MAKE_CONCAT_WITH_CONSTANTS,
-					new MethodInfo(
-						ACC_PUBLIC | ACC_STATIC,
-						TypeInfos.OBJECT,
-						"toString",
-						TypeInfos.STRING,
-						fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)
-					),
-					new ConstantValue[] {
-						constant(pattern.toString())
-					},
-					fields
-					.stream()
-					.map(field -> getField(load(methodParser), field.info))
-					.toArray(InsnTree.ARRAY_FACTORY)
-				)
+		MethodCompileContext toString = this.innerClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
+		LazyVarInfo self = new LazyVarInfo("this", toString.clazz.info);
+		StringBuilder pattern = new StringBuilder(this.className).append('(');
+		for (FieldCompileContext field : fields) {
+			pattern.append(field.name()).append(": ").append('\u0001').append(", ");
+		}
+		pattern.setLength(pattern.length() - 2);
+		pattern.append(')');
+		return_(
+			invokeDynamic(
+				MAKE_CONCAT_WITH_CONSTANTS,
+				new MethodInfo(
+					ACC_PUBLIC | ACC_STATIC,
+					TypeInfos.OBJECT,
+					"toString",
+					TypeInfos.STRING,
+					fields.stream().map((FieldCompileContext field) -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)
+				),
+				new ConstantValue[] {
+					constant(pattern.toString())
+				},
+				fields
+				.stream()
+				.map((FieldCompileContext field) -> getField(load(self), field.info))
+				.toArray(InsnTree.ARRAY_FACTORY)
 			)
-			.emitBytecode(method);
-		});
+		)
+		.emitBytecode(toString);
 	}
 
 	public void addHashCode(List<FieldCompileContext> fields) {
-		this.innerClass.newMethod(ACC_PUBLIC, "hashCode", TypeInfos.INT).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodParser = method.addThis();
-			if (fields.isEmpty()) {
-				return_(ldc(0)).emitBytecode(method);
-			}
-			else {
+		MethodCompileContext hashCode = this.innerClass.newMethod(ACC_PUBLIC, "hashCode", TypeInfos.INT);
+		LazyVarInfo self = new LazyVarInfo("this", hashCode.clazz.info);
+		if (fields.isEmpty()) {
+			return_(ldc(0)).emitBytecode(hashCode);
+		}
+		else {
+			invokeStatic(
+				HASH_MIX,
+				ArrayExtensions.computeHashCode(
+					getField(load(self), fields.get(0).info)
+				)
+			)
+			.emitBytecode(hashCode);
+			for (int index = 1, size = fields.size(); index < size; index++) {
 				invokeStatic(
 					HASH_MIX,
-					ArrayExtensions.computeHashCode(
-						getField(load(methodParser), fields.get(0).info)
-					)
-				)
-				.emitBytecode(method);
-				for (int index = 1, size = fields.size(); index < size; index++) {
-					invokeStatic(
-						HASH_MIX,
-						add(
-							this.parser,
-							getFromStack(TypeInfos.INT),
-							ArrayExtensions.computeHashCode(
-								getField(load(methodParser), fields.get(index).info)
-							)
+					add(
+						this.parser,
+						getFromStack(TypeInfos.INT),
+						ArrayExtensions.computeHashCode(
+							getField(load(self), fields.get(index).info)
 						)
 					)
-					.emitBytecode(method);
-				}
-				return_(getFromStack(TypeInfos.INT)).emitBytecode(method);
+				)
+				.emitBytecode(hashCode);
 			}
-		});
+			return_(getFromStack(TypeInfos.INT)).emitBytecode(hashCode);
+		}
+		hashCode.endCode();
 	}
 
 	public void addEquals(List<FieldCompileContext> fields) {
-		this.innerClass.newMethod(ACC_PUBLIC, "equals", TypeInfos.BOOLEAN, TypeInfos.OBJECT).scopes.withScope((MethodCompileContext method) -> {
-			VarInfo methodParser = method.addThis();
-			VarInfo object = method.newParameter("object", TypeInfos.OBJECT);
-			if (fields.isEmpty()) {
-				return_(instanceOf(load(object), this.innerClassType)).emitBytecode(method);
-			}
-			else {
-				VarInfo that = method.newVariable("that", this.innerClassType);
+		MethodCompileContext equals = this.innerClass.newMethod(ACC_PUBLIC, "equals", TypeInfos.BOOLEAN, new LazyVarInfo("object", TypeInfos.OBJECT));
+		LazyVarInfo self = new LazyVarInfo("this", equals.clazz.info);
+		LazyVarInfo object = new LazyVarInfo("object", TypeInfos.OBJECT);
+		if (fields.isEmpty()) {
+			return_(instanceOf(load(object), this.innerClassType)).emitBytecode(equals);
+		}
+		else {
+			LazyVarInfo that = equals.scopes.addVariable("that", this.innerClassType);
+			ifThen(
+				not(condition(this.parser, instanceOf(load(object), this.innerClassType))),
+				return_(ldc(false))
+			)
+			.emitBytecode(equals);
+			store(that, load(object).cast(this.parser, this.innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(equals);
+			for (FieldCompileContext field : fields) {
 				ifThen(
-					not(condition(this.parser, instanceOf(load(object), this.innerClassType))),
+					not(
+						condition(
+							this.parser,
+							ArrayExtensions.computeEquals(
+								this.parser,
+								getField(load(self), field.info),
+								getField(load(that), field.info)
+							)
+						)
+					),
 					return_(ldc(false))
 				)
-				.emitBytecode(method);
-				store(that, load(object).cast(this.parser, this.innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(method);
-				for (FieldCompileContext field : fields) {
-					ifThen(
-						not(
-							condition(
-								this.parser,
-								ArrayExtensions.computeEquals(
-									this.parser,
-									getField(load(methodParser), field.info),
-									getField(load(that), field.info)
-								)
-							)
-						),
-						return_(ldc(false))
-					)
-					.emitBytecode(method);
-				}
-				return_(ldc(true)).emitBytecode(method);
+				.emitBytecode(equals);
 			}
-		});
+			return_(ldc(true)).emitBytecode(equals);
+		}
+		equals.endCode();
 	}
 
 	public void exposeToScript(List<FieldCompileContext> fields, List<FieldCompileContext> nonDefaulted) {
 		this.parser.environment.user().types.put(this.className, this.innerClassType);
-		this.parser.environment.user().addConstructor(this.innerClassType, new MethodInfo(ACC_PUBLIC, this.innerClassType, "<init>", TypeInfos.VOID));
+		this
+		.parser
+		.environment
+		.user()
+		.addConstructor(
+			this.innerClassType,
+			new MethodInfo(
+				ACC_PUBLIC,
+				this.innerClassType,
+				"<init>",
+				TypeInfos.VOID
+			)
+		);
 		if (!fields.isEmpty()) {
-			this.parser.environment.user().addConstructor(this.innerClassType, new MethodInfo(ACC_PUBLIC, this.innerClassType, "<init>", TypeInfos.VOID, fields.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+			this
+			.parser
+			.environment
+			.user()
+			.addConstructor(
+				this.innerClassType,
+				new MethodInfo(
+					ACC_PUBLIC,
+					this.innerClassType,
+					"<init>",
+					TypeInfos.VOID,
+					fields
+					.stream()
+					.map((FieldCompileContext field) -> field.info.type)
+					.toArray(TypeInfo.ARRAY_FACTORY)
+				)
+			);
 			if (nonDefaulted.size() != fields.size()) {
-				this.parser.environment.user().addConstructor(this.innerClassType, new MethodInfo(ACC_PUBLIC, this.innerClassType, "<init>", TypeInfos.VOID, nonDefaulted.stream().map(field -> field.info.type).toArray(TypeInfo.ARRAY_FACTORY)));
+				this
+				.parser
+				.environment
+				.user()
+				.addConstructor(
+					this.innerClassType,
+					new MethodInfo(
+						ACC_PUBLIC,
+						this.innerClassType,
+						"<init>",
+						TypeInfos.VOID,
+						nonDefaulted
+						.stream()
+						.map((FieldCompileContext field) -> field.info.type)
+						.toArray(TypeInfo.ARRAY_FACTORY)
+					)
+				);
 			}
 		}
-		fields.stream().map(field -> field.info).forEach(this.parser.environment.user()::addFieldGetterAndSetter);
+		fields.stream().map((FieldCompileContext field) -> field.info).forEach(this.parser.environment.user()::addFieldGetterAndSetter);
 	}
 }

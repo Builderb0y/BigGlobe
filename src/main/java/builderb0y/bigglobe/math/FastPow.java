@@ -253,6 +253,7 @@ public class FastPow {
 
 	//////////////////////////////// bytecode generation ////////////////////////////////
 
+	//only used when synchronized on CACHE, so it's safe to have this be non-atomic.
 	public static int counter;
 
 	public static CacheEntry createCacheEntry(int power) {
@@ -277,10 +278,8 @@ public class FastPow {
 		}
 
 		MethodCompileContext getPower = clazz.newMethod(ACC_PUBLIC, "getPower", TypeInfos.INT);
-		getPower.scopes.pushScope();
-		getPower.addThis();
 		return_(ldc(power)).emitBytecode(getPower);
-		getPower.scopes.popScope();
+		getPower.endCode();
 
 		clazz.addToString("FastPowOperator(" + power + ')');
 
@@ -290,11 +289,11 @@ public class FastPow {
 	public static void emitPositive(ClassCompileContext clazz, int power) {
 		emitMethods(
 			clazz,
-			(MethodCompileContext intMethod, VarInfo operand) -> {
+			(MethodCompileContext intMethod, LazyVarInfo operand) -> {
 				emitNormalInstructions(intMethod, operand, power, Integer.MAX_VALUE);
 				intMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
 			},
-			(MethodCompileContext floatMethod, VarInfo operand) -> {
+			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
 				if (!emitNormalInstructions(floatMethod, operand, power, 8)) {
 					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
@@ -310,7 +309,7 @@ public class FastPow {
 	public static void emitNegative(ClassCompileContext clazz, int power) {
 		emitMethods(
 			clazz,
-			(MethodCompileContext intMethod, VarInfo operand) -> {
+			(MethodCompileContext intMethod, LazyVarInfo operand) -> {
 				operand.emitLoad(intMethod);
 				intMethod.node.visitMethodInsn(
 					INVOKESTATIC,
@@ -321,7 +320,7 @@ public class FastPow {
 				);
 				intMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
 			},
-			(MethodCompileContext floatMethod, VarInfo operand) -> {
+			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
 				if (emitNormalInstructions(floatMethod, operand, power, 8)) {
 					floatMethod.node.instructions.insert(first, new InsnNode(operand.type.isDoubleWidth() ? DCONST_1 : FCONST_1));
@@ -339,13 +338,13 @@ public class FastPow {
 	}
 
 	public static void emitZero(ClassCompileContext clazz) {
-		emitMethods(clazz, (MethodCompileContext method, VarInfo operand) -> {
+		emitMethods(clazz, (MethodCompileContext method, LazyVarInfo operand) -> {
 			return_(ldc(1, operand.type)).emitBytecode(method);
 		});
 	}
 
-	public static boolean emitNormalInstructions(MethodCompileContext method, VarInfo operand, int power, int limit) {
-		method.node.visitVarInsn(operand.type.getOpcode(ILOAD), operand.index);
+	public static boolean emitNormalInstructions(MethodCompileContext method, LazyVarInfo operand, int power, int limit) {
+		method.node.visitVarInsn(operand.type.getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
 		int bit = Integer.highestOneBit(power);
 		//read bits from most significant to least significant.
 		//bit will eventually underflow to 0.
@@ -355,7 +354,7 @@ public class FastPow {
 			method.node.visitInsn(operand.type.getOpcode(IMUL));
 			if ((power & bit) != 0) {
 				if (--limit < 0) return false;
-				method.node.visitVarInsn(operand.type.getOpcode(ILOAD), operand.index);
+				method.node.visitVarInsn(operand.type.getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
 				method.node.visitInsn(operand.type.getOpcode(IMUL));
 			}
 		}
@@ -363,7 +362,7 @@ public class FastPow {
 	}
 
 	/** returns an InsnTree which represents Math.pow(operand, power). */
-	public static InsnTree fallback(VarInfo operand, int power) {
+	public static InsnTree fallback(LazyVarInfo operand, int power) {
 		return CastingSupport.primitiveCast(
 			invokeStatic(
 				MATH_POW,
@@ -382,26 +381,26 @@ public class FastPow {
 	}
 
 	public static void emitMethods(ClassCompileContext clazz, MethodPopulator intConsumer, MethodPopulator floatConsumer) {
-		clazz.newMethod(ACC_PUBLIC, "applyAsInt",       TypeInfos.INT,    TypeInfos.INT   ).scopes.withScope(  intConsumer);
-		clazz.newMethod(ACC_PUBLIC, "applyAsLong",      TypeInfos.LONG,   TypeInfos.LONG  ).scopes.withScope(  intConsumer);
-		clazz.newMethod(ACC_PUBLIC, "applyAsFloat",     TypeInfos.FLOAT,  TypeInfos.FLOAT ).scopes.withScope(floatConsumer);
-		clazz.newMethod(ACC_PUBLIC, "applyAsDouble",    TypeInfos.DOUBLE, TypeInfos.DOUBLE).scopes.withScope(floatConsumer);
-		clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.INT,    TypeInfos.INT   ).scopes.withScope(  intConsumer);
-		clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.LONG,   TypeInfos.LONG  ).scopes.withScope(  intConsumer);
-		clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.FLOAT,  TypeInfos.FLOAT ).scopes.withScope(floatConsumer);
-		clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.DOUBLE, TypeInfos.DOUBLE).scopes.withScope(floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsInt",       TypeInfos.INT,      intConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsLong",      TypeInfos.LONG,     intConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsFloat",     TypeInfos.FLOAT,  floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsDouble",    TypeInfos.DOUBLE, floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.INT,      intConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.LONG,     intConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.FLOAT,  floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.DOUBLE, floatConsumer);
 	}
 
-	public static interface MethodPopulator extends Consumer<MethodCompileContext> {
+	public static void emitMethod(ClassCompileContext clazz, int flags, String name, TypeInfo type, MethodPopulator populator) {
+		LazyVarInfo operand = new LazyVarInfo("operand", type);
+		MethodCompileContext method = clazz.newMethod(flags, name, type, operand);
+		populator.populate(method, operand);
+		method.endCode();
+	}
 
-		public abstract void populate(MethodCompileContext method, VarInfo operand);
+	public static interface MethodPopulator {
 
-		@Override
-		public default void accept(MethodCompileContext method) {
-			if (!method.info.isStatic()) method.addThis();
-			VarInfo operand = method.newParameter("operand", method.info.returnType);
-			this.populate(method, operand);
-		}
+		public abstract void populate(MethodCompileContext method, LazyVarInfo operand);
 	}
 
 	public static CacheEntry defineClass(ClassCompileContext clazz) {

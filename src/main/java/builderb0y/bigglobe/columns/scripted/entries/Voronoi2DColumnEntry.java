@@ -147,7 +147,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
 		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
-			voronoiBaseContext.mainClass.newMethod(entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext));
+			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext.selfType(), entry.getValue().getterParameters());
 		}
 		for (RegistryEntry<VoronoiSettings> entry : options) {
 			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(entry)));
@@ -170,18 +170,18 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 					)
 				);
 				AccessSchema schema = export.getValue().value().getAccessSchema();
-				implContext.mainClass.newMethod(schema.getterDescriptor(ACC_PUBLIC, "get_" + export.getKey(), implContext)).scopes.withScope((MethodCompileContext delegator) -> {
-					VarInfo self = delegator.addThis();
-					VarInfo loadY = schema.requiresYLevel() ? delegator.newParameter("y", TypeInfos.INT) : null;
-					return_(
-						invokeInstance(
-							load(self),
-							exportMemory.getTyped(ColumnEntryMemory.GETTER).info,
-							loadY != null ? new InsnTree[] { load(loadY) } : InsnTree.ARRAY_FACTORY.empty()
-						)
+				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.selfType(), schema.getterParameters());
+				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
+				LazyVarInfo loadY = schema.requiresYLevel() ? new LazyVarInfo("y", TypeInfos.INT) : null;
+				return_(
+					invokeInstance(
+						load(self),
+						exportMemory.getTyped(ColumnEntryMemory.GETTER).info,
+						loadY != null ? new InsnTree[] { load(loadY) } : InsnTree.ARRAY_FACTORY.empty()
 					)
-					.emitBytecode(delegator);
-				});
+				)
+				.emitBytecode(delegator);
+				delegator.endCode();
 			}
 		}
 	}
@@ -212,38 +212,37 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		ConstantValue diagram = context.mainClass.newConstant(this.value, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
-		memory.getTyped(ColumnEntryMemory.COMPUTER).scopes.withScope((MethodCompileContext compute) -> {
-			VarInfo self = compute.addThis();
-			return_(
-				invokeDynamic(
-					MethodInfo.getMethod(Voronoi2DColumnEntry.class, "createRandomizer"),
-					new MethodInfo(
-						ACC_PUBLIC | ACC_STATIC,
-						TypeInfos.OBJECT, //ignored.
-						"randomize",
-						memory.getTyped(ColumnEntryMemory.TYPE).exposedType(),
-						type(VoronoiDiagram2D.Cell.class)
-					),
-					memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),
-					new InsnTree[] {
-						invokeInstance(
-							ldc(diagram),
-							MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
-							getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x")),
-							getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z")),
-							new NullableInstanceGetFieldInsnTree(
-								getField(
-									load(self),
-									valueField.info
-								),
-								cellField
-							)
+		LazyVarInfo self = new LazyVarInfo("this", computeMethod.clazz.info);
+		return_(
+			invokeDynamic(
+				MethodInfo.getMethod(Voronoi2DColumnEntry.class, "createRandomizer"),
+				new MethodInfo(
+					ACC_PUBLIC | ACC_STATIC,
+					TypeInfos.OBJECT, //ignored.
+					"randomize",
+					memory.getTyped(ColumnEntryMemory.TYPE).exposedType(),
+					type(VoronoiDiagram2D.Cell.class)
+				),
+				memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),
+				new InsnTree[] {
+					invokeInstance(
+						ldc(diagram),
+						MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
+						getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x")),
+						getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z")),
+						new NullableInstanceGetFieldInsnTree(
+							getField(
+								load(self),
+								valueField.info
+							),
+							cellField
 						)
-					}
-				)
+					)
+				}
 			)
-			.emitBytecode(compute);
-		});
+		)
+		.emitBytecode(computeMethod);
+		computeMethod.endCode();
 
 		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);

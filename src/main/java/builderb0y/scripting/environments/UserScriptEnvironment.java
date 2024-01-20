@@ -6,10 +6,7 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -17,6 +14,7 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.StackList;
 import builderb0y.scripting.util.StackMap;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -25,7 +23,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public ExpressionParser parser;
-	public StackMap<String,         LoadInsnTree    > variables;
+	public StackMap<String,         PendingLocal    > variables;
 	public StackMap<NamedType,      FieldInfo       > fields;
 	public StackMap<String,    List<FunctionHandler>> functions;
 	public StackMap<NamedType, List<MethodHandler  >> methods;
@@ -50,8 +48,8 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-			this.variables.entrySet().stream().map((Map.Entry<String, LoadInsnTree> entry) -> {
-				return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue().variable);
+			this.variables.entrySet().stream().map((Map.Entry<String, PendingLocal> entry) -> {
+				return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
 
 			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
@@ -77,18 +75,49 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		.flatMap(Function.identity());
 	}
 
+	public void reserveVariable(String name) {
+		PendingLocal old = this.variables.putIfAbsent(name, new PendingLocal(name));
+		if (old != null) throw new IllegalArgumentException("Variable '" + name + "' has already been declared in this scope.");
+	}
+
+	public void setVariableType(String name, TypeInfo type) {
+		PendingLocal variable = this.variables.get(name);
+		if (variable == null) throw new IllegalArgumentException("Variable '" + name + "' has not yet been declared in this scope.");
+		if (variable.type != null) throw new IllegalStateException("Variable '" + type + "' is already of type " + variable.type + " when trying to set the type to " + type);
+		variable.type = type;
+	}
+
+	public void reserveVariable(String name, TypeInfo type) {
+		PendingLocal old = this.variables.putIfAbsent(name, new PendingLocal(name, type));
+		if (old != null) throw new IllegalArgumentException("Variable '" + name + "' has already been declared in this scope.");
+	}
+
+	public void assignVariable(String name) {
+		PendingLocal local = this.variables.get(name);
+		if (local == null) throw new IllegalArgumentException("Variable '" + name + "' has not yet been declared in this scope.");
+		if (local.assigned) throw new IllegalStateException("Variable '" + name + "' has already been assigned.");
+		local.assigned = true;
+	}
+
+	public void reserveAndAssignVariable(String name, TypeInfo type) {
+		PendingLocal newLocal = new PendingLocal(name, type);
+		newLocal.assigned = true;
+		PendingLocal old = this.variables.putIfAbsent(name, newLocal);
+		if (old != null) throw new IllegalArgumentException("Variable '" + name + "' has already been declared in this scope.");
+	}
+
 	public void addFunction(String name, FunctionHandler functionHandler) {
-		this.functions.computeIfAbsent(name, $ -> new ArrayList<>(4)).add(functionHandler);
+		this.functions.computeIfAbsent(name, (String ignored) -> new ArrayList<>(4)).add(functionHandler);
 	}
 
 	public void addFieldGetterAndSetter(FieldInfo field) {
 		NamedType namedType = new NamedType(field.owner, field.name);
 		this.fields.put(namedType, field);
-		List<MethodHandler> handlers = this.methods.computeIfAbsent(namedType, $ -> new ArrayList<>(2));
+		List<MethodHandler> handlers = this.methods.computeIfAbsent(namedType, (NamedType ignored) -> new ArrayList<>(2));
 		MethodInfo getter = new MethodInfo(ACC_PUBLIC, field.owner, field.name, field.type);
 		MethodInfo setter = new MethodInfo(ACC_PUBLIC, field.owner, field.name, TypeInfos.VOID, field.type);
 		handlers.add(
-			(parser, receiver, name, mode, arguments) -> {
+			(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 				return switch (arguments.length) {
 					case 0 -> {
 						yield new CastResult(mode.makeInvoker(parser, receiver, getter), false);
@@ -107,15 +136,15 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public void addMethod(TypeInfo owner, String name, MethodHandler handler) {
-		this.methods.computeIfAbsent(new NamedType(owner, name), $ -> new ArrayList<>(4)).add(handler);
+		this.methods.computeIfAbsent(new NamedType(owner, name), (NamedType ignored) -> new ArrayList<>(4)).add(handler);
 	}
 
 	public void addClassFunction(String name, MethodHandler methodHandler) {
-		this.methods.computeIfAbsent(new NamedType(TypeInfos.CLASS, name), $ -> new ArrayList<>(4)).add(methodHandler);
+		this.methods.computeIfAbsent(new NamedType(TypeInfos.CLASS, name), (NamedType ignored) -> new ArrayList<>(4)).add(methodHandler);
 	}
 
 	public void addClassFunction(TypeInfo type, String name, MethodInfo method) {
-		this.addClassFunction(name, (parser, receiver, name1, mode, arguments) -> {
+		this.addClassFunction(name, (ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
@@ -126,7 +155,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public void addConstructor(TypeInfo type, MethodInfo method) {
-		this.addClassFunction("new", (parser, receiver, name1, mode, arguments) -> {
+		this.addClassFunction("new", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 			ConstantValue constant = receiver.getConstantValue();
 			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
@@ -140,7 +169,8 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
-		return this.variables.get(name);
+		PendingLocal local = this.variables.get(name);
+		return local != null ? local.loader() : null;
 	}
 
 	@Override
@@ -203,36 +233,6 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		return this.variables.hasNewElements();
 	}
 
-	public VarInfo newVariable(String name, TypeInfo type) {
-		try {
-			this.parser.checkVariable(name);
-		}
-		catch (ScriptParsingException exception) {
-			throw new RuntimeException(exception.getMessage(), exception);
-		}
-		VarInfo variable = new VarInfo(name, -1, type);
-		this.variables.put(name, load(variable));
-		return variable;
-	}
-
-	public void addVariable(VarInfo variable) {
-		try {
-			this.parser.checkVariable(variable.name);
-		}
-		catch (ScriptParsingException exception) {
-			throw new RuntimeException(exception.getMessage(), exception);
-		}
-		this.variables.put(variable.name, load(variable));
-	}
-
-	public Stream<VarInfo> streamVariables() {
-		return this.variables.values().stream().map(load -> load.variable);
-	}
-
-	public Iterable<VarInfo> getVariables() {
-		return this.streamVariables()::iterator;
-	}
-
 	public void push() {
 		this.variables.push();
 		this.fields   .push();
@@ -255,5 +255,36 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public int getStackSize() {
 		return this.variables.sizes.size();
+	}
+
+	public static class PendingLocal {
+
+		public String name;
+		public TypeInfo type;
+		public boolean assigned;
+
+		public PendingLocal(String name) {
+			this.name = name;
+		}
+
+		public PendingLocal(String name, TypeInfo type) {
+			this.name = name;
+			this.type = type;
+		}
+
+		public LazyVarInfo variable() {
+			if (this.type == null) throw new IllegalArgumentException("Variable '" + this.name + "' has not had its type inferred yet.");
+			if (!this.assigned) throw new IllegalArgumentException("Variable '" + this.name + "' has not been assigned to yet.");
+			return new LazyVarInfo(this.name, this.type);
+		}
+
+		public LoadInsnTree loader() {
+			return load(this.variable());
+		}
+
+		@Override
+		public String toString() {
+			return this.name + " : " + (this.type != null ? this.type.toString() : "(type not yet inferred)") + (this.assigned ? " (available)" : " (not yet assigned to)");
+		}
 	}
 }

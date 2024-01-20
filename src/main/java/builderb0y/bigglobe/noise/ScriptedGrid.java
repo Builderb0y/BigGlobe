@@ -1,11 +1,9 @@
 package builderb0y.bigglobe.noise;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -174,12 +172,12 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			return new FieldNode(ACC_PUBLIC | ACC_FINAL, this.name, this.info.desc, null, null);
 		}
 
-		public VarInfo newGridParameter(MethodCompileContext method) {
-			return method.newParameter(this.name, this.info.type);
+		public LazyVarInfo gridParameter() {
+			return new LazyVarInfo(this.name, this.info.type);
 		}
 
-		public VarInfo newDoubleParameter(MethodCompileContext method) {
-			return method.newParameter(this.name, TypeInfos.DOUBLE);
+		public LazyVarInfo doubleParameter() {
+			return new LazyVarInfo(this.name, TypeInfos.DOUBLE);
 		}
 	}
 
@@ -211,12 +209,24 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					ACC_PUBLIC | ACC_STATIC,
 					"evaluate",
 					TypeInfos.DOUBLE,
-					types(WorldColumn.class, 'I', gridTypeInfo.dimensions, 'D', gridInputs.size())
+					params(gridTypeInfo, gridInputs)
 				)
 			);
 			this.usage = usage;
 			this.gridInputs = gridInputs;
 			this.gridTypeInfo = gridTypeInfo;
+		}
+
+		public static LazyVarInfo[] params(GridTypeInfo gridTypeInfo, LinkedHashMap<String, Input> gridInputs) {
+			List<LazyVarInfo> list = new ArrayList<>(gridTypeInfo.dimensions + gridInputs.size() + 1);
+			list.add(new LazyVarInfo("column", type(WorldColumn.class)));
+			for (int dimension = gridTypeInfo.dimensions; dimension > 0; dimension--) {
+				list.add(new LazyVarInfo(coordName(dimension), TypeInfos.INT));
+			}
+			for (String name : gridInputs.keySet()) {
+				list.add(new LazyVarInfo(name, TypeInfos.DOUBLE));
+			}
+			return list.toArray(new LazyVarInfo[list.size()]);
 		}
 
 		public Parser(ScriptUsage<ScriptedGridTemplateUsage<G>> usage, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo) {
@@ -296,90 +306,85 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			for (Input input : this.gridInputs.values()) {
 				this.clazz.node.fields.add(input.fieldNode());
 			}
-			this
-			.clazz
-			.newMethod(
+			MethodCompileContext constructor = this.clazz.newMethod(
 				ACC_PUBLIC,
 				"<init>",
 				TypeInfos.VOID,
-				repeat(this.gridTypeInfo.type, this.gridInputs.size())
-			)
-			.scopes
-			.withScope((MethodCompileContext constructor) -> {
-				VarInfo thisVar = constructor.addThis();
-				invokeInstance(load(thisVar), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+				this
+				.gridInputs
+				.keySet()
+				.stream()
+				.map((String name) -> new LazyVarInfo(name, this.gridTypeInfo.type))
+				.toArray(LazyVarInfo[]::new)
+			);
+			LazyVarInfo self = new LazyVarInfo("this", constructor.clazz.info);
+			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
+			constructor.node.visitLabel(label());
+			for (Input input : this.gridInputs.values()) {
+				LazyVarInfo parameter = input.gridParameter();
+				new PutFieldInsnTree(
+					new LoadInsnTree(self),
+					input.fieldInfo(constructor), new LoadInsnTree(parameter)
+				)
+				.emitBytecode(constructor);
 				constructor.node.visitLabel(label());
-				for (Input input : this.gridInputs.values()) {
-					VarInfo parameter = input.newGridParameter(constructor);
-					assert parameter.index == input.index + 1 : "Parameters out of order!";
-					new PutFieldInsnTree(
-						new LoadInsnTree(thisVar),
-						input.fieldInfo(constructor), new LoadInsnTree(parameter)
-					)
-					.emitBytecode(constructor);
-					constructor.node.visitLabel(label());
-				}
-				constructor.node.visitInsn(RETURN);
-			});
+			}
+			constructor.node.visitInsn(RETURN);
+			constructor.endCode();
 		}
 
 		public void addGetValue() {
 			int dimensions = this.gridTypeInfo.dimensions;
-			this.clazz.newMethod(
+			List<LazyVarInfo> list = new ArrayList<>(dimensions + 1);
+			list.add(new LazyVarInfo("seed", TypeInfos.LONG));
+			for (int dimension = 0; dimension < dimensions; dimension++) {
+				list.add(new LazyVarInfo(coordName(dimension), TypeInfos.INT));
+			}
+			MethodCompileContext getValue = this.clazz.newMethod(
 				ACC_PUBLIC,
 				"getValue",
 				TypeInfos.DOUBLE,
-				types('J', 'I', dimensions)
-			)
-			.scopes.withScope((MethodCompileContext getValue) -> {
-				VarInfo thisVar = getValue.addThis();
-				VarInfo seed = getValue.newParameter("seed", TypeInfos.LONG);
-				VarInfo[] coordinates = new VarInfo[dimensions];
-				for (int dimension = 0; dimension < dimensions; dimension++) {
-					coordinates[dimension] = getValue.newParameter(coordName(dimension), TypeInfos.INT);
-				}
-				GET_SECRET_COLUMN.emitBytecode(getValue);
-				for (int dimension = 0; dimension < dimensions; dimension++) {
-					load(coordinates[dimension]).emitBytecode(getValue);
-				}
-				for (Input input : this.gridInputs.values()) {
-					invokeInstance(
-						getField(
-							load(thisVar),
-							input.fieldInfo(getValue)
-						),
-						new MethodInfo(
-							ACC_PUBLIC | ACC_INTERFACE,
-							this.gridTypeInfo.type,
-							"getValue",
-							TypeInfos.DOUBLE,
-							types('J', 'I', dimensions)
-						),
-						Stream.concat(
-							Stream.of(load(seed)),
-							Arrays.stream(coordinates).map(InsnTrees::load)
-						)
-						.toArray(InsnTree[]::new)
+				list.toArray(new LazyVarInfo[list.size()])
+			);
+			LazyVarInfo thisVar = new LazyVarInfo("this", getValue.clazz.info);
+			LazyVarInfo seed = new LazyVarInfo("seed", TypeInfos.LONG);
+			LazyVarInfo[] coordinates = new LazyVarInfo[dimensions];
+			for (int dimension = 0; dimension < dimensions; dimension++) {
+				coordinates[dimension] = new LazyVarInfo(coordName(dimension), TypeInfos.INT);
+			}
+			GET_SECRET_COLUMN.emitBytecode(getValue);
+			for (int dimension = 0; dimension < dimensions; dimension++) {
+				load(coordinates[dimension]).emitBytecode(getValue);
+			}
+			for (Input input : this.gridInputs.values()) {
+				invokeInstance(
+					getField(
+						load(thisVar),
+						input.fieldInfo(getValue)
+					),
+					new MethodInfo(
+						ACC_PUBLIC | ACC_INTERFACE,
+						this.gridTypeInfo.type,
+						"getValue",
+						TypeInfos.DOUBLE,
+						types('J', 'I', dimensions)
+					),
+					Stream.concat(
+						Stream.of(load(seed)),
+						Arrays.stream(coordinates).map(InsnTrees::load)
 					)
-					.emitBytecode(getValue);
-				}
-				getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
-				getValue.node.visitInsn(DRETURN);
-			});
+					.toArray(InsnTree[]::new)
+				)
+				.emitBytecode(getValue);
+			}
+			getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
+			getValue.node.visitInsn(DRETURN);
+			getValue.endCode();
 		}
 
 		public void addEvaluate() throws ScriptParsingException {
-			int dimensions = this.gridTypeInfo.dimensions;
-			this.method.scopes.pushScope();
-			this.method.newParameter("column", type(WorldColumn.class));
-			for (int dimension = 0; dimension < dimensions; dimension++) {
-				this.method.newParameter(coordName(dimension), TypeInfos.INT);
-			}
-			for (Input input : this.gridInputs.values()) {
-				input.newDoubleParameter(this.method);
-			}
 			this.parseEntireInput().emitBytecode(this.method);
-			this.method.scopes.popScope();
+			this.method.endCode();
 		}
 
 		@Override
@@ -390,7 +395,25 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			}
 			if (this.usage.isTemplate()) {
 				ScriptedGridTemplateUsage<G> gridUsage = this.usage.getTemplate();
-				gridUsage.validateInputs(this.gridInputs.entrySet().stream().map(entry -> Map.entry(entry.getKey(), entry.getValue().<G>grid())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), message -> new ScriptParsingException(message.get(), null));
+				gridUsage.validateInputs(
+					this
+					.gridInputs
+					.entrySet()
+					.stream()
+					.map(
+						(Map.Entry<String, Input> entry) -> Map.entry(
+							entry.getKey(),
+							entry.getValue().<G>grid()
+						)
+					)
+					.collect(
+						Collectors.toMap(
+							Map.Entry::getKey,
+							Map.Entry::getValue
+						)
+					),
+					(Supplier<String> message) -> new ScriptParsingException(message.get(), null)
+				);
 				ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
 				for (RequiredInput input : gridUsage.actualTemplate.getRequiredInputs()) {
 					String inputSource = gridUsage.getProvidedInputs().get(input.name());
@@ -399,7 +422,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), this.method.info);
 					ExpressionParser parserCopy = new ExpressionParser(inputSource, classCopy, methodCopy);
 					parserCopy.environment.mutable(new MutableScriptEnvironment().addAll(this.environment.mutable()));
-					FunctionHandler handler = new FunctionHandler.Named("invalid", (parser, name, arguments) -> {
+					FunctionHandler handler = new FunctionHandler.Named("invalid", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 						throw new ScriptParsingException(name + " is not allowed in script inputs", parser.input);
 					});
 					parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
@@ -407,8 +430,10 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					if (type == null) {
 						throw new ScriptParsingException("Unknown type: " + input.type(), null);
 					}
+					this.environment.user().reserveVariable(input.name(), type);
 					InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
-					VarInfo declaration = this.environment.user().newVariable(input.name(), type);
+					this.environment.user().assignVariable(input.name());
+					LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
 					InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
 					this.environment.mutable()
 						.addVariable(input.name(), load(declaration))
@@ -424,10 +449,9 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		}
 
 		public void addSource() {
-			this.clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING).scopes.withScope((MethodCompileContext getSource) -> {
-				getSource.addThis();
-				return_(ldc(this.input.getSource())).emitBytecode(getSource);
-			});
+			MethodCompileContext getSource = this.clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
+			return_(ldc(this.input.getSource())).emitBytecode(getSource);
+			getSource.endCode();
 		}
 
 		public void addToString() {
@@ -443,7 +467,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			return String.valueOf((char)('x' + dimension));
 		}
 
-		public static InsnTree maybeAdd(ExpressionParser parser, VarInfo variable, VarInfo index, int variableDimension, int methodDimension) {
+		public static InsnTree maybeAdd(ExpressionParser parser, LazyVarInfo variable, LazyVarInfo index, int variableDimension, int methodDimension) {
 			return variableDimension == methodDimension ? add(parser, load(variable), load(index)) : load(variable);
 		}
 
@@ -470,11 +494,10 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			if (name.length() == 1) {
 				char c = name.charAt(0);
 				if (c >= 'x' && c < 'x' + this.gridTypeInfo.dimensions) {
-					return load(name, c - 'x' + 1, TypeInfos.INT);
+					return load(name, TypeInfos.INT);
 				}
 			}
-			Input input = this.inputs.get(name);
-			return input == null ? null : load(name, (input.index << 1) + this.gridTypeInfo.dimensions + 1, TypeInfos.DOUBLE);
+			return this.inputs.containsKey(name) ? load(name, TypeInfos.DOUBLE) : null;
 		}
 
 		@Override

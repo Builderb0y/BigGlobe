@@ -2,11 +2,13 @@ package builderb0y.scripting.bytecode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.LabelNode;
+
+import builderb0y.scripting.util.StackMap;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -14,19 +16,36 @@ public class ScopeContext {
 
 	public MethodCompileContext method;
 	public List<Scope> stack;
+	public StackMap<LazyVarInfo, Integer> localVariables;
+	public int currentLocalVariableIndex;
 
 	public ScopeContext(MethodCompileContext method) {
 		this.method = method;
 		this.stack = new ArrayList<>(8);
+		this.localVariables = new StackMap<>(16);
 	}
 
-	public void withScope(Consumer<MethodCompileContext> action) {
-		this.pushScope();
-		action.accept(this.method);
-		this.popScope();
+	public void addVariable(LazyVarInfo variable) {
+		if (this.localVariables.putIfAbsent(variable, this.currentLocalVariableIndex) != null) {
+			throw new IllegalArgumentException("Variable " + variable + " already declared in this scope.");
+		}
+		this.currentLocalVariableIndex += variable.type.getSize();
+	}
+
+	public LazyVarInfo addVariable(String name, TypeInfo type) {
+		LazyVarInfo variable = new LazyVarInfo(name, type);
+		this.addVariable(variable);
+		return variable;
+	}
+
+	public int getVariableIndex(LazyVarInfo variable) {
+		Integer index = this.localVariables.get(variable);
+		if (index != null) return index.intValue();
+		else throw new IllegalArgumentException("Variable " + variable + " not declared in this scope.");
 	}
 
 	public Scope pushScope() {
+		this.localVariables.push();
 		Scope scope = Scope.normal();
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
@@ -34,12 +53,14 @@ public class ScopeContext {
 	}
 
 	public Scope pushManualScope() {
+		this.localVariables.push();
 		Scope scope = Scope.manual();
 		this.stack.add(scope);
 		return scope;
 	}
 
 	public Scope pushLoop(@NotNull LoopName loopName) {
+		this.localVariables.push();
 		Scope scope = Scope.loop(loopName);
 		this.stack.add(scope);
 		this.method.node.instructions.add(scope.start);
@@ -47,21 +68,23 @@ public class ScopeContext {
 	}
 
 	public Scope pushLoop(@NotNull LoopName name, LabelNode continuePoint) {
-		Scope scope = this.pushLoop(name);
+		Scope scope = this.pushLoop(name); //will push localVariables.
 		scope.continuePoint = continuePoint;
 		return scope;
 	}
 
 	public void popScope() {
+		this.localVariables.pop();
 		Scope scope = this.stack.remove(this.stack.size() - 1);
 		this.method.node.instructions.add(scope.end);
 	}
 
 	public void popLoop() {
-		this.popScope();
+		this.popScope(); //will pop localVariables.
 	}
 
 	public void popManualScope() {
+		this.localVariables.pop();
 		this.stack.remove(this.stack.size() - 1);
 	}
 

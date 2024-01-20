@@ -82,11 +82,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 			FieldCompileContext valueField = context.mainClass.newField(ACC_PUBLIC, internalName, type.fieldType());
 			memory.putTyped(ColumnEntryMemory.FIELD, valueField);
-			MethodCompileContext getterMethod = context.mainClass.newMethod(this.getAccessSchema().getterDescriptor(ACC_PUBLIC, "get_" + internalName, context));
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, context.selfType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			if (this.isSettable()) {
-				MethodCompileContext setterMethod = context.mainClass.newMethod(this.getAccessSchema().setterDescriptor(ACC_PUBLIC, "set_" + internalName, context));
+				MethodCompileContext setterMethod = context.mainClass.newMethod(ACC_PUBLIC, "set_" + internalName, context.selfType(), this.getAccessSchema().setterParameters(context));
 				memory.putTyped(ColumnEntryMemory.SETTER, setterMethod);
 
 				this.populateField(memory, context, valueField);
@@ -99,7 +99,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			}
 		}
 		else {
-			MethodCompileContext getterMethod = context.mainClass.newMethod(this.getAccessSchema().getterDescriptor(ACC_PUBLIC, "get_" + internalName, context));
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, context.selfType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			this.populateGetter(memory, context, getterMethod);

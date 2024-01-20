@@ -85,8 +85,7 @@ public class ExpressionParser {
 		this.clazz = from.clazz;
 		this.method = method;
 		this.currentLine = from.currentLine;
-		this.environment = new RootScriptEnvironment(from.environment);
-		this.environment.user().parser = this;
+		this.environment = from.environment;
 	}
 
 	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
@@ -974,14 +973,18 @@ public class ExpressionParser {
 					if (!varName.isEmpty()) { //variable or method declaration.
 						if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 							this.verifyName(varName, "variable");
+							this.environment.user().reserveVariable(varName, type);
 							InsnTree initializer = this.nextVariableInitializer(type, true);
-							VarInfo variable = this.environment.user().newVariable(varName, type);
+							this.environment.user().assignVariable(varName);
+							LazyVarInfo variable = new LazyVarInfo(varName, type);
 							return new VariableDeclareAssignInsnTree(variable, initializer);
 						}
 						else if (this.input.hasOperatorAfterWhitespace(":=")) { //also variable declaration.
 							this.verifyName(varName, "variable");
+							this.environment.user().reserveVariable(varName, type);
 							InsnTree initializer = this.nextVariableInitializer(type, true);
-							VarInfo variable = this.environment.user().newVariable(varName, type);
+							this.environment.user().assignVariable(varName);
+							LazyVarInfo variable = new LazyVarInfo(varName, type);
 							return new VariableDeclarePostAssignInsnTree(variable, initializer);
 						}
 						else if (this.input.hasAfterWhitespace('(')) { //function declaration.

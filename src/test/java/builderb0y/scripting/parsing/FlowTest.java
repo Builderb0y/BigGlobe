@@ -17,7 +17,7 @@ public class FlowTest extends TestCommon {
 		assertSuccess(1, "if ( yes : noop ) ,, 1");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, 2");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, return ( 2 )");
-		assertFail("Not a statement", "if (yes: 1) 2");
+		assertFail("Not a statement: ConstantInsnTree of type byte (constant: 1 of type byte)", "if (yes: 1) 2");
 		assertFail("Not a statement", "if (yes: 1) else (2) 3");
 		assertSuccess(1,
 			"""
@@ -490,13 +490,11 @@ public class FlowTest extends TestCommon {
 			list
 			"""
 		);
-		assertFail("Variable 'x' is already defined in this scope", "for (int x in range[int x := 5, x + 5]: noop)");
+		assertFail("Variable 'x' has already been declared in this scope.", "for (int x in range[int x := 5, x + 5]: noop)");
 		assertFail(
 			"""
 			Unknown variable: x
-			Candidates:
-
-			Actual form: x""",
+			Candidates:""",
 			"for (int number in range[int x := 5, 10]: print(x))"
 		);
 	}
@@ -744,11 +742,7 @@ public class FlowTest extends TestCommon {
 			"""
 		);
 		assertFail(
-			"""
-			Unknown variable: x
-			Candidates:
-			
-			Actual form: x""",
+			"Variable 'x' has not been assigned to yet.",
 			"for (int x in range[-x, x]: noop) 0"
 		);
 	}

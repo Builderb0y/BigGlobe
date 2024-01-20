@@ -33,7 +33,7 @@ public interface CommandScript extends Script {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
 		public static final InsnTree
-			LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+			LOAD_WORLD = load("world", WorldWrapper.TYPE),
 			LOAD_RANDOM = new IdentityCastInsnTree(
 				getField(
 					LOAD_WORLD,
@@ -55,15 +55,15 @@ public interface CommandScript extends Script {
 			.addEnvironment(
 				ColumnScriptEnvironmentBuilder.createVariableXYZ(
 					ColumnValue.REGISTRY,
-					load("column", 2, type(WorldColumn.class))
+					load("column", type(WorldColumn.class))
 				)
 				.build()
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("originX", 3, TypeInfos.INT)
-				.addVariableLoad("originY", 4, TypeInfos.INT)
-				.addVariableLoad("originZ", 5, TypeInfos.INT)
+				.addVariableLoad("originX", TypeInfos.INT)
+				.addVariableLoad("originY", TypeInfos.INT)
+				.addVariableLoad("originZ", TypeInfos.INT)
 			)
 			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)

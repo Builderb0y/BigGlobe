@@ -20,7 +20,7 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 
 	public static final MutableScriptEnvironment EXCLUDE_SURFACE_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addFunctionInvoke(load("context", 1, type(Context.class)), Context.class, "excludeSurface")
+		.addFunctionInvoke(load("context", type(Context.class)), Context.class, "excludeSurface")
 	);
 
 	public abstract void override(Context context);

@@ -3,6 +3,7 @@ package builderb0y.scripting.parsing;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
@@ -10,10 +11,7 @@ import org.jetbrains.annotations.TestOnly;
 import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.util.TypeFormatter;
-import builderb0y.scripting.bytecode.ClassCompileContext;
-import builderb0y.scripting.bytecode.ClassType;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.optimization.ClassOptimizer;
@@ -43,15 +41,13 @@ public class ScriptParser<I> extends ExpressionParser {
 
 		clazz.addNoArgConstructor(ACC_PUBLIC);
 
-		clazz
-		.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING)
-		.scopes
-		.withScope(return_(ldc(input))::emitBytecode);
+		MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
+		return_(ldc(input)).emitBytecode(getSource);
+		getSource.endCode();
 
-		clazz
-		.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING)
-		.scopes
-		.withScope(return_(ldc(debugName, TypeInfos.STRING))::emitBytecode);
+		MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);
+		return_(ldc(debugName)).emitBytecode(getDebugName);
+		getDebugName.endCode();
 
 		StringBuilder toString = new StringBuilder(input.length() + 128).append(TypeFormatter.getSimpleClassName(implementingClass)).append("::").append(implementingMethod.getName());
 		if (debugName != null) toString.append(" (").append(debugName).append(')');
@@ -75,7 +71,14 @@ public class ScriptParser<I> extends ExpressionParser {
 				ACC_PUBLIC,
 				implementingMethod.getName(),
 				type(implementingMethod.getReturnType()),
-				types(implementingMethod.getParameterTypes())
+				Arrays.stream(implementingMethod.getParameters())
+				.peek((Parameter parameter) -> {
+					if (!parameter.isNamePresent()) {
+						throw new IllegalArgumentException("Attempt to create script from interface with unnamed parameters: " + implementingClass);
+					}
+				})
+				.map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType())))
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
 			)
 		);
 	}
@@ -148,13 +151,8 @@ public class ScriptParser<I> extends ExpressionParser {
 	}
 
 	public void toBytecode() throws ScriptParsingException {
-		this.method.scopes.pushScope();
-		this.method.addThis();
-		for (Parameter parameter : this.implementingMethod.getParameters()) {
-			this.method.newParameter(parameter.getName(), type(parameter.getType()));
-		}
 		this.parseEntireInput().emitBytecode(this.method);
-		this.method.scopes.popScope();
+		this.method.endCode();
 	}
 
 	public I toScript() throws ScriptParsingException {

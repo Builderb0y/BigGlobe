@@ -192,7 +192,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 		public static class Holder extends ScriptHolder<FeatureScript> implements FeatureScript {
 
 			public static final InsnTree
-				LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+				LOAD_WORLD = load("world", WorldWrapper.TYPE),
 				LOAD_RANDOM = new IdentityCastInsnTree(
 					getField(
 						LOAD_WORLD,
@@ -213,10 +213,10 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 					.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 					.addEnvironment(
 						new MutableScriptEnvironment()
-						.addVariableLoad("originX", 2, TypeInfos.INT)
-						.addVariableLoad("originY", 3, TypeInfos.INT)
-						.addVariableLoad("originZ", 4, TypeInfos.INT)
-						.addVariableLoad("distantHorizons", 5, TypeInfos.BOOLEAN)
+						.addVariableLoad("originX", TypeInfos.INT)
+						.addVariableLoad("originY", TypeInfos.INT)
+						.addVariableLoad("originZ", TypeInfos.INT)
+						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 						.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 						.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" ))))
 					)
@@ -230,13 +230,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 								type(ColumnLookup.class)
 							),
 							new DefaultLookupPosition(
-								load("originX", 2, TypeInfos.INT),
+								load("originX", TypeInfos.INT),
 								new OpcodeCastInsnTree(
-									load("originY", 3, TypeInfos.INT),
+									load("originY", TypeInfos.INT),
 									I2D,
 									TypeInfos.DOUBLE
 								),
-								load("originZ", 4, TypeInfos.INT)
+								load("originZ", TypeInfos.INT)
 							)
 						)
 						.build()

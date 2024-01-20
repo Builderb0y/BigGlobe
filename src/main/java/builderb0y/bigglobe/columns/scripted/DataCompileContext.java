@@ -73,6 +73,7 @@ public abstract class DataCompileContext {
 
 	public void prepareForCompile() {
 		this.constructor.node.visitInsn(RETURN);
+		this.constructor.endCode();
 		this.children.forEach(DataCompileContext::prepareForCompile);
 	}
 
@@ -104,12 +105,11 @@ public abstract class DataCompileContext {
 		boolean includeY
 	)
 	throws ScriptParsingException {
-		method.prepareParameters(includeY ? new String[] { "y" } : new String[0]);
 		new ScriptColumnEntryParser(script, this.mainClass, method)
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(this.environment)
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
-			if (includeY) environment.addVariableLoad(method.getParameter("y"));
+			if (includeY) environment.addVariableLoad("y", TypeInfos.INT);
 		})
 		.parseEntireInput()
 		.emitBytecode(method);
@@ -123,17 +123,15 @@ public abstract class DataCompileContext {
 		ConstantValue fallback
 	)
 	throws ScriptParsingException {
-		computeMethod.scopes.withScope((MethodCompileContext compute) -> {
-			new IfElseInsnTree(
-				new BooleanToConditionTree(
-					invokeInstance(this.loadSelf(), testMethod)
-				),
-				return_(invokeInstance(this.loadSelf(), actuallyComputeMethod)),
-				return_(ldc(fallback)),
-				TypeInfos.VOID
-			)
-			.emitBytecode(compute);
-		});
+		new IfElseInsnTree(
+			new BooleanToConditionTree(
+				invokeInstance(this.loadSelf(), testMethod)
+			),
+			return_(invokeInstance(this.loadSelf(), actuallyComputeMethod)),
+			return_(ldc(fallback)),
+			TypeInfos.VOID
+		)
+		.emitBytecode(computeMethod);
 	}
 
 	public static class ColumnCompileContext extends DataCompileContext {
@@ -149,14 +147,19 @@ public abstract class DataCompileContext {
 				type(ScriptedColumn.class),
 				new TypeInfo[0]
 			);
-			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, TypeInfos.LONG, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT, TypeInfos.INT)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo
-					self = constructor.addThis(),
-					seed = constructor.newParameter("seed", TypeInfos.LONG),
-					x    = constructor.newParameter("x",    TypeInfos.INT ),
-					z    = constructor.newParameter("z",    TypeInfos.INT ),
-					minY = constructor.newParameter("minY", TypeInfos.INT ),
-					maxY = constructor.newParameter("maxY", TypeInfos.INT );
+			{
+				LazyVarInfo self, seed, x, z, minY, maxY;
+				this.constructor = this.mainClass.newMethod(
+					ACC_PUBLIC,
+					"<init>",
+					TypeInfos.VOID,
+					seed = new LazyVarInfo("seed", TypeInfos.LONG),
+					x    = new LazyVarInfo("x",    TypeInfos.INT),
+					z    = new LazyVarInfo("z",    TypeInfos.INT),
+					minY = new LazyVarInfo("minY", TypeInfos.INT),
+					maxY = new LazyVarInfo("maxY", TypeInfos.INT)
+				);
+				self = new LazyVarInfo("this", this.constructor.clazz.info);
 				invokeInstance(
 					load(self),
 					new MethodInfo(
@@ -176,12 +179,12 @@ public abstract class DataCompileContext {
 					load(minY),
 					load(maxY)
 				)
-				.emitBytecode(constructor);
-			});
-			this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class)).scopes.withScope((MethodCompileContext lookup) -> {
-				lookup.addThis();
+				.emitBytecode(this.constructor);
+			}
+			{
+				MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
 				return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
-			});
+			}
 		}
 
 		@Override
@@ -198,7 +201,7 @@ public abstract class DataCompileContext {
 
 		@Override
 		public InsnTree loadSelf() {
-			return load("this", 0, this.mainClass.info);
+			return load("this", this.mainClass.info);
 		}
 
 		@Override
@@ -256,12 +259,18 @@ public abstract class DataCompileContext {
 				new TypeInfo[0]
 			);
 			FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.mainClass.info);
-			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class), TypeInfos.LONG)).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo
-					self     = constructor.addThis(),
-					column   = constructor.newParameter("column", this.columnType()),
-					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class)),
-					baseSeed = constructor.newParameter("baseSeed", TypeInfos.LONG);
+
+			{
+				LazyVarInfo column, cell, baseSeed;
+				this.constructor = this.mainClass.newMethod(
+					ACC_PUBLIC,
+					"<init>",
+					TypeInfos.VOID,
+					column = new LazyVarInfo("column", type(ScriptedColumn.class)),
+					cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class)),
+					baseSeed = new LazyVarInfo("baseSeed", TypeInfos.LONG)
+				);
+				LazyVarInfo self = new LazyVarInfo("this", this.constructor.clazz.info);
 				invokeInstance(
 					load(self),
 					new MethodInfo(
@@ -275,19 +284,21 @@ public abstract class DataCompileContext {
 					load(cell),
 					load(baseSeed)
 				)
-				.emitBytecode(constructor);
-				putField(load(self), columnField.info, load(column)).emitBytecode(constructor);
-			});
-			this.mainClass.newMethod(ACC_PUBLIC, "column", type(ScriptedColumn.class) /* do not use synthetic subclass */).scopes.withScope((MethodCompileContext columnGetter) -> {
-				VarInfo self = columnGetter.addThis();
+				.emitBytecode(this.constructor);
+				putField(load(self), columnField.info, load(column)).emitBytecode(this.constructor);
+			}
+
+			{
+				MethodCompileContext column = this.mainClass.newMethod(ACC_PUBLIC, "column", type(ScriptedColumn.class) /* do not use synthetic subclass, because we want to override. */);
+				LazyVarInfo self = new LazyVarInfo("this", column.clazz.info);
 				return_(
 					getField(
 						load(self),
 						columnField.info
 					)
 				)
-				.emitBytecode(columnGetter);
-			});
+				.emitBytecode(column);
+			}
 		}
 
 		@Override
@@ -297,7 +308,7 @@ public abstract class DataCompileContext {
 
 		@Override
 		public InsnTree loadSelf() {
-			return load("this", 0, this.selfType());
+			return load("this", this.selfType());
 		}
 
 		@Override
@@ -357,28 +368,32 @@ public abstract class DataCompileContext {
 				parent.mainClass.info,
 				new TypeInfo[0]
 			);
-			(this.constructor = this.mainClass.newMethod(ACC_PUBLIC, "<init>", TypeInfos.VOID, type(ScriptedColumn.class), type(VoronoiDiagram2D.Cell.class))).scopes.withScope((MethodCompileContext constructor) -> {
-				VarInfo
-					self     = constructor.addThis(),
-					column   = constructor.newParameter("column", type(ScriptedColumn.class)),
-					cell     = constructor.newParameter("cell",   type(VoronoiDiagram2D.Cell.class));
-				invokeInstance(
-					load(self),
-					new MethodInfo(
-						ACC_PUBLIC,
-						parent.mainClass.info,
-						"<init>",
-						TypeInfos.VOID,
-						type(ScriptedColumn.class),
-						type(VoronoiDiagram2D.Cell.class),
-						TypeInfos.LONG
-					),
-					load(column),
-					load(cell),
-					ldc(seed)
-				)
-				.emitBytecode(constructor);
-			});
+
+			LazyVarInfo column, cell;
+			this.constructor = this.mainClass.newMethod(
+				ACC_PUBLIC,
+				"<init>",
+				TypeInfos.VOID,
+				column = new LazyVarInfo("column", type(ScriptedColumn.class)),
+				cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class))
+			);
+			LazyVarInfo self = new LazyVarInfo("this", this.constructor.clazz.info);
+			invokeInstance(
+				load(self),
+				new MethodInfo(
+					ACC_PUBLIC,
+					parent.mainClass.info,
+					"<init>",
+					TypeInfos.VOID,
+					type(ScriptedColumn.class),
+					type(VoronoiDiagram2D.Cell.class),
+					TypeInfos.LONG
+				),
+				load(column),
+				load(cell),
+				ldc(seed)
+			)
+			.emitBytecode(this.constructor);
 		}
 
 		@Override
@@ -388,7 +403,7 @@ public abstract class DataCompileContext {
 
 		@Override
 		public InsnTree loadSelf() {
-			return load("this", 0, this.selfType());
+			return load("this", this.selfType());
 		}
 
 		@Override

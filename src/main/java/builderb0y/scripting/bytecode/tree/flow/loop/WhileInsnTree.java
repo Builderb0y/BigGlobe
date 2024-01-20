@@ -1,10 +1,10 @@
 package builderb0y.scripting.bytecode.tree.flow.loop;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -27,7 +27,7 @@ public class WhileInsnTree implements InsnTree {
 
 	public static InsnTree createRepeat(ExpressionParser parser, LoopName loopName, InsnTree times, InsnTree body) {
 		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
-		VarInfo counter = new VarInfo("$counter", -1, TypeInfos.INT);
+		LazyVarInfo counter = new LazyVarInfo(parser.method.mangleName("counter"), TypeInfos.INT);
 		InsnTree init, loadLimit;
 		if (times.getConstantValue().isConstant()) {
 			//var counter = 0
@@ -45,7 +45,7 @@ public class WhileInsnTree implements InsnTree {
 			//	body
 			//	++counter
 			//)
-			VarInfo limit = new VarInfo("$limit", -1, TypeInfos.INT);
+			LazyVarInfo limit = new LazyVarInfo(parser.method.mangleName("limit"), TypeInfos.INT);
 			init = seq(
 				new VariableDeclareAssignInsnTree(limit, times),
 				new VariableDeclareAssignInsnTree(counter, ldc(0))

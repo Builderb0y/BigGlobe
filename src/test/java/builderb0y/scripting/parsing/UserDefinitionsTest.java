@@ -1,10 +1,9 @@
 package builderb0y.scripting.parsing;
 
-import java.util.function.Function;
-
 import it.unimi.dsi.fastutil.HashCommon;
 import org.junit.jupiter.api.Test;
 
+import builderb0y.scripting.ScriptInterfaces.ObjectUnaryOperator;
 import builderb0y.scripting.TestCommon;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
@@ -27,12 +26,18 @@ public class UserDefinitionsTest extends TestCommon {
 
 	@Test
 	public void testDuplicateVariables() {
-		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, int tmp = 2 ,, 3");
-		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
+		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, int tmp = 2 ,, 3");
+		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
+	}
+
+	@Test
+	public void testSelfReferencingVariables() {
+		assertFail("Variable 'x' has not been assigned to yet.", "int x = x");
+		assertFail("Variable 'x' has not had its type inferred yet.", "var x = x");
 	}
 
 	public static String unknown(String varName) {
-		return "Unknown variable: " + varName + "\nCandidates:\n\nActual form: " + varName;
+		return "Unknown variable: " + varName + "\nCandidates:";
 	}
 
 	@Test
@@ -211,8 +216,24 @@ public class UserDefinitionsTest extends TestCommon {
 			return ( squared == 16 && x == 2 ? 1.0L : 0.0L )
 			"""
 		);
-		assertFail("Variable 'a' is already defined in this scope", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
-		assertFail("Variable 'a' is already defined in this scope", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
+		assertFail("Variable 'a' has already been declared in this scope.", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
+		assertFail("Variable 'a' has already been declared in this scope.", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
+		assertFail("Variable 'x' has not been assigned to yet.",
+			"""
+			int x = (
+				int square(: x * x)
+				square()
+			)
+			"""
+		);
+		assertFail("Variable 'x' has not had its type inferred yet.",
+			"""
+			var x = (
+				int square(: x * x)
+				square()
+			)
+			"""
+		);
 	}
 
 	@Test
@@ -343,16 +364,15 @@ public class UserDefinitionsTest extends TestCommon {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testNestedFunctions() throws ScriptParsingException {
 		Object expected = new Object();
 		Object actual = (
 			new ScriptParser<>(
-				Function.class,
+				ObjectUnaryOperator.class,
 				"""
 				Object a ( :
 					Object b ( :
-						return ( object )
+						return ( x )
 					)
 					return ( b ( ) )
 				)
@@ -361,10 +381,10 @@ public class UserDefinitionsTest extends TestCommon {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("object", 1, TypeInfos.OBJECT)
+				.addVariableLoad("x", TypeInfos.OBJECT)
 			)
 			.parse()
-			.apply(expected)
+			.applyAsObject(expected)
 		);
 		assertEquals(expected, actual);
 	}

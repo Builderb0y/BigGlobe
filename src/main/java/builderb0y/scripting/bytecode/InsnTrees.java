@@ -144,15 +144,15 @@ public class InsnTrees implements ExtendedOpcodes {
 		return ldc(constantAbsent(type));
 	}
 
-	public static LoadInsnTree load(VarInfo info) {
-		return new LoadInsnTree(info);
+	public static LoadInsnTree load(LazyVarInfo variable) {
+		return new LoadInsnTree(variable);
 	}
 
-	public static InsnTree load(String name, int index, TypeInfo type) {
-		return new LoadInsnTree(new VarInfo(name, index, type));
+	public static LoadInsnTree load(String name, TypeInfo type) {
+		return new LoadInsnTree(new LazyVarInfo(name, type));
 	}
 
-	public static InsnTree store(VarInfo variable, InsnTree value) {
+	public static InsnTree store(LazyVarInfo variable, InsnTree value) {
 		return new StoreInsnTree(variable, value);
 	}
 
@@ -256,7 +256,7 @@ public class InsnTrees implements ExtendedOpcodes {
 		return SquareInsnTree.create(value);
 	}
 
-	public static InsnTree inc(VarInfo variable, int amount) {
+	public static InsnTree inc(LazyVarInfo variable, int amount) {
 		return IncrementInsnTree.create(variable, amount);
 	}
 

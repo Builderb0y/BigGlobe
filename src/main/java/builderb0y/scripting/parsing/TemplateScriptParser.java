@@ -7,10 +7,7 @@ import java.util.function.Supplier;
 import org.objectweb.asm.tree.MethodNode;
 
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.scripting.bytecode.ClassCompileContext;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
@@ -64,8 +61,10 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 				if (type == null) {
 					throw new ScriptParsingException("Unknown type: " + input.type(), null);
 				}
+				this.environment.user().reserveVariable(input.name(), type);
 				InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
-				VarInfo declaration = this.environment.user().newVariable(input.name(), type);
+				this.environment.user().assignVariable(input.name());
+				LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
 				InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
 				this.environment.mutable()
 				.addVariable(input.name(), load(declaration))

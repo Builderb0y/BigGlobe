@@ -1,12 +1,12 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
-import java.util.function.*;
-
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.opentest4j.AssertionFailedError;
 
+import builderb0y.scripting.ScriptInterfaces.*;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -15,6 +15,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("all")
 @Execution(ExecutionMode.CONCURRENT)
 public class BinaryInsnTreeTest extends OperatorTest {
 
@@ -45,7 +46,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING INT INT");
 		for (String operator : INT_INT_OPERATORS) {
 			System.out.println(operator);
-			IntBinaryOperator varVar = new ScriptParser<>(IntBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.INT).addVariableLoad("y", 2, TypeInfos.INT)).parse();
+			IntBinaryOperator varVar = new ScriptParser<>(IntBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT).addVariableLoad("y", TypeInfos.INT)).parse();
 			for (int left : INTS) {
 				for (int right : INTS) {
 					boolean expectFail = (
@@ -81,8 +82,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 							};
 						}
 					});
-					Object b = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.INT)).parse().applyAsInt(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, left + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.INT)).parse().applyAsInt(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT)).parse().applyAsInt(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(IntUnaryOperator.class, left + " " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT)).parse().applyAsInt(right));
 					Object d = get(expectFail, () -> varVar.applyAsInt(left, right));
 					assertExceptionEquals(a, b);
 					assertExceptionEquals(a, c);
@@ -97,7 +98,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING LONG LONG");
 		for (String operator : LONG_LONG_OPERATORS) {
 			System.out.println(operator);
-			LongBinaryOperator varVar = new ScriptParser<>(LongBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG).addVariableLoad("y", 3, TypeInfos.LONG)).parse();
+			LongBinaryOperator varVar = new ScriptParser<>(LongBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.LONG).addVariableLoad("y", TypeInfos.LONG)).parse();
 			for (long left : LONGS) {
 				for (long right : LONGS) {
 					boolean expectFail = (
@@ -133,8 +134,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 							};
 						}
 					});
-					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right + "L").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG)).parse().applyAsLong(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, left + "L " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.LONG)).parse().applyAsLong(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right + "L").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.LONG)).parse().applyAsLong(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, left + "L " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.LONG)).parse().applyAsLong(right));
 					Object d = get(expectFail, () -> varVar.applyAsLong(left, right));
 					assertExceptionEquals(a, b);
 					assertExceptionEquals(a, c);
@@ -149,7 +150,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING LONG INT");
 		for (String operator : LONG_INT_OPERATORS) {
 			System.out.println(operator);
-			LongIntToLongOperator varVar = new ScriptParser<>(LongIntToLongOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG).addVariableLoad("y", 3, TypeInfos.INT)).parse();
+			LongIntToLongOperator varVar = new ScriptParser<>(LongIntToLongOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.LONG).addVariableLoad("y", TypeInfos.INT)).parse();
 			for (long left : LONGS) {
 				for (int right : INTS) {
 					boolean expectFail = (
@@ -157,8 +158,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> new ScriptParser<>(LongSupplier.class, left + "L " + operator + " " + right).parse().getAsLong());
-					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.LONG)).parse().applyAsLong(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(IntToLongFunction.class, left + "L " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.INT)).parse().applyAsLong(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(LongUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.LONG)).parse().applyAsLong(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(IntToLongOperator.class, left + "L " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT)).parse().applyAsLong(right));
 					Object d = get(expectFail, () -> varVar.applyAsLong(left, right));
 					assertExceptionEquals(a, b);
 					assertExceptionEquals(a, c);
@@ -173,7 +174,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING FLOAT FLOAT");
 		for (String operator : FLOAT_FLOAT_OPERATORS) {
 			System.out.println(operator);
-			FloatBinaryOperator varVar = new ScriptParser<>(FloatBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.FLOAT).addVariableLoad("y", 2, TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
+			FloatBinaryOperator varVar = new ScriptParser<>(FloatBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.FLOAT).addVariableLoad("y", TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
 			for (float left : FLOATS) {
 				for (float right : FLOATS) {
 					boolean expectFail = (
@@ -181,8 +182,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> new ScriptParser<>(FloatSupplier.class, FLOAT_FORMAT.format(left) + " " + operator + " " + FLOAT_FORMAT.format(right)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsFloat());
-					Object b = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, "x " + operator + " " + FLOAT_FORMAT.format(right)).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, FLOAT_FORMAT.format(left) + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, "x " + operator + " " + FLOAT_FORMAT.format(right)).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, FLOAT_FORMAT.format(left) + " " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(right));
 					Object d = get(expectFail, () -> varVar.applyAsFloat(left, right));
 					assertSimilar(operator, a, b);
 					assertSimilar(operator, a, c);
@@ -197,7 +198,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING FLOAT INT");
 		for (String operator : FLOAT_INT_OPERATORS) {
 			System.out.println(operator);
-			FloatIntToFloatOperator varVar = new ScriptParser<>(FloatIntToFloatOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.FLOAT).addVariableLoad("y", 2, TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
+			FloatIntToFloatOperator varVar = new ScriptParser<>(FloatIntToFloatOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.FLOAT).addVariableLoad("y", TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
 			for (float left : FLOATS) {
 				for (int right : INTS) {
 					boolean expectFail = (
@@ -205,8 +206,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> new ScriptParser<>(FloatSupplier.class, FLOAT_FORMAT.format(left) + " " + operator + " " + right).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsFloat());
-					Object b = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(IntToFloatOperator.class, FLOAT_FORMAT.format(left) + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(FloatUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x",TypeInfos.FLOAT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(IntToFloatOperator.class, FLOAT_FORMAT.format(left) + " " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsFloat(right));
 					Object d = get(expectFail, () -> varVar.applyAsFloat(left, right));
 					assertSimilar(operator, a, b);
 					assertSimilar(operator, a, c);
@@ -221,7 +222,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING DOUBLE DOUBLE");
 		for (String operator : DOUBLE_DOUBLE_OPERATORS) {
 			System.out.println(operator);
-			DoubleBinaryOperator varVar = new ScriptParser<>(DoubleBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.DOUBLE).addVariableLoad("y", 3, TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
+			DoubleBinaryOperator varVar = new ScriptParser<>(DoubleBinaryOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.DOUBLE).addVariableLoad("y", TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
 			for (double left : DOUBLES) {
 				for (double right : DOUBLES) {
 					boolean expectFail = (
@@ -229,8 +230,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> new ScriptParser<>(DoubleSupplier.class, DOUBLE_FORMAT.format(left) + " " + operator + " " + DOUBLE_FORMAT.format(right)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsDouble());
-					Object b = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, "x " + operator + " " + DOUBLE_FORMAT.format(right)).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, DOUBLE_FORMAT.format(left) + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, "x " + operator + " " + DOUBLE_FORMAT.format(right)).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, DOUBLE_FORMAT.format(left) + " " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(right));
 					Object d = get(expectFail, () -> varVar.applyAsDouble(left, right));
 					assertSimilar(operator, a, b);
 					assertSimilar(operator, a, c);
@@ -245,7 +246,7 @@ public class BinaryInsnTreeTest extends OperatorTest {
 		System.out.println("TESTING DOUBLE INT");
 		for (String operator : DOUBLE_INT_OPERATORS) {
 			System.out.println(operator);
-			DoubleIntToDoubleOperator varVar = new ScriptParser<>(DoubleIntToDoubleOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.DOUBLE).addVariableLoad("y", 3, TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
+			DoubleIntToDoubleOperator varVar = new ScriptParser<>(DoubleIntToDoubleOperator.class, "x " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.DOUBLE).addVariableLoad("y", TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse();
 			for (double left : DOUBLES) {
 				for (int right : INTS) {
 					boolean expectFail = (
@@ -253,8 +254,8 @@ public class BinaryInsnTreeTest extends OperatorTest {
 						(operator == "^" && left == 0 && right < 0)
 					);
 					Object a = get(expectFail, () -> new ScriptParser<>(DoubleSupplier.class, DOUBLE_FORMAT.format(left) + " " + operator + " " + right).addEnvironment(MathScriptEnvironment.INSTANCE).parse().getAsDouble());
-					Object b = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", 1, TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(left));
-					Object c = get(expectFail, () -> new ScriptParser<>(IntToDoubleFunction.class, DOUBLE_FORMAT.format(left) + " " + operator + " y").addEnvironment(new MutableScriptEnvironment().addVariableLoad("y", 1, TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(right));
+					Object b = get(expectFail, () -> new ScriptParser<>(DoubleUnaryOperator.class, "x " + operator + " " + right).addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.DOUBLE)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(left));
+					Object c = get(expectFail, () -> new ScriptParser<>(IntToDoubleOperator.class, DOUBLE_FORMAT.format(left) + " " + operator + " x").addEnvironment(new MutableScriptEnvironment().addVariableLoad("x", TypeInfos.INT)).addEnvironment(MathScriptEnvironment.INSTANCE).parse().applyAsDouble(right));
 					Object d = get(expectFail, () -> varVar.applyAsDouble(left, right));
 					assertSimilar(operator, a, b);
 					assertSimilar(operator, a, c);
@@ -322,52 +323,20 @@ public class BinaryInsnTreeTest extends OperatorTest {
 			assertSame(a, b);
 		}
 		else if (a instanceof Throwable || b instanceof Throwable) {
-			assertSame(a.getClass(), b.getClass());
+			if (a.getClass() != b.getClass()) {
+				if (a instanceof Throwable throwable) {
+					System.err.println("a:");
+					throwable.printStackTrace();
+				}
+				if (b instanceof Throwable throwable) {
+					System.out.println("b:");
+					throwable.printStackTrace();
+				}
+				throw new AssertionFailedError(null, a, b);
+			}
 		}
 		else {
 			assertEquals(a, b);
 		}
-	}
-
-	@FunctionalInterface
-	public static interface LongIntToLongOperator {
-
-		public abstract long applyAsLong(long left, int right);
-	}
-
-	@FunctionalInterface
-	public static interface FloatSupplier {
-
-		public abstract float getAsFloat();
-	}
-
-	@FunctionalInterface
-	public static interface FloatUnaryOperator {
-
-		public abstract float applyAsFloat(float operand);
-	}
-
-	@FunctionalInterface
-	public static interface FloatBinaryOperator {
-
-		public abstract float applyAsFloat(float left, float right);
-	}
-
-	@FunctionalInterface
-	public static interface IntToFloatOperator {
-
-		public abstract float applyAsFloat(int operand);
-	}
-
-	@FunctionalInterface
-	public static interface FloatIntToFloatOperator {
-
-		public abstract float applyAsFloat(float left, int right);
-	}
-
-	@FunctionalInterface
-	public static interface DoubleIntToDoubleOperator {
-
-		public abstract double applyAsDouble(double left, int right);
 	}
 }

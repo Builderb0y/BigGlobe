@@ -1,11 +1,10 @@
 package builderb0y.scripting.bytecode.tree.flow.compare;
 
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongToIntFunction;
-
 import org.junit.jupiter.api.Test;
 
+import builderb0y.scripting.ScriptInterfaces.IntBinaryOperator;
+import builderb0y.scripting.ScriptInterfaces.IntUnaryOperator;
+import builderb0y.scripting.ScriptInterfaces.LongToIntOperator;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -37,8 +36,8 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.INT)
-				.addVariableLoad("y", 2, TypeInfos.INT)
+				.addVariableLoad("x", TypeInfos.INT)
+				.addVariableLoad("y", TypeInfos.INT)
 			)
 			.parse()
 		);
@@ -64,7 +63,7 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.INT)
+				.addVariableLoad("x", TypeInfos.INT)
 			)
 			.parse()
 		);
@@ -88,8 +87,8 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.LONG)
-				.addVariableLoad("y", 3, TypeInfos.LONG)
+				.addVariableLoad("x", TypeInfos.LONG)
+				.addVariableLoad("y", TypeInfos.LONG)
 			)
 			.parse()
 		);
@@ -103,14 +102,14 @@ public class CompareInsnTreeTest {
 	@FunctionalInterface
 	public static interface LongComparator {
 
-		public abstract int applyAsLong(long a, long b);
+		public abstract int applyAsLong(long x, long y);
 	}
 
 	@Test
 	public void testZeroLong() throws ScriptParsingException {
-		LongToIntFunction operator = (
+		LongToIntOperator operator = (
 			new ScriptParser<>(
-				LongToIntFunction.class,
+				LongToIntOperator.class,
 				"""
 				compare (x:
 					case (>: 3)
@@ -121,7 +120,7 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.LONG)
+				.addVariableLoad("x", TypeInfos.LONG)
 			)
 			.parse()
 		);
@@ -146,8 +145,8 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.FLOAT)
-				.addVariableLoad("y", 2, TypeInfos.FLOAT)
+				.addVariableLoad("x", TypeInfos.FLOAT)
+				.addVariableLoad("y", TypeInfos.FLOAT)
 			)
 			.parse()
 		);
@@ -161,7 +160,7 @@ public class CompareInsnTreeTest {
 	@FunctionalInterface
 	public static interface FloatComparator {
 
-		public abstract int applyAsFloat(float a, float b);
+		public abstract int applyAsFloat(float x, float y);
 	}
 
 	@Test
@@ -180,7 +179,7 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.FLOAT)
+				.addVariableLoad("x", TypeInfos.FLOAT)
 			)
 			.parse()
 		);
@@ -192,7 +191,7 @@ public class CompareInsnTreeTest {
 	@FunctionalInterface
 	public static interface FloatZeroComparator {
 
-		public abstract int applyAsFloat(float a);
+		public abstract int applyAsFloat(float x);
 	}
 
 	@Test
@@ -211,8 +210,8 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.DOUBLE)
-				.addVariableLoad("y", 3, TypeInfos.DOUBLE)
+				.addVariableLoad("x", TypeInfos.DOUBLE)
+				.addVariableLoad("y", TypeInfos.DOUBLE)
 			)
 			.parse()
 		);
@@ -226,7 +225,7 @@ public class CompareInsnTreeTest {
 	@FunctionalInterface
 	public static interface DoubleComparator {
 
-		public abstract int applyAsDouble(double a, double b);
+		public abstract int applyAsDouble(double x, double y);
 	}
 
 	@Test
@@ -245,7 +244,7 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, TypeInfos.DOUBLE)
+				.addVariableLoad("x", TypeInfos.DOUBLE)
 			)
 			.parse()
 		);
@@ -257,7 +256,7 @@ public class CompareInsnTreeTest {
 	@FunctionalInterface
 	public static interface DoubleZeroComparator {
 
-		public abstract int applyAsDouble(double a);
+		public abstract int applyAsDouble(double x);
 	}
 
 	@Test
@@ -276,8 +275,8 @@ public class CompareInsnTreeTest {
 			)
 			.addEnvironment(
 				new MutableScriptEnvironment()
-				.addVariableLoad("x", 1, type(Numbers.class))
-				.addVariableLoad("y", 2, type(Numbers.class))
+				.addVariableLoad("x", type(Numbers.class))
+				.addVariableLoad("y", type(Numbers.class))
 			)
 			.parse()
 		);
@@ -290,7 +289,7 @@ public class CompareInsnTreeTest {
 
 	public static interface NumbersComparator {
 
-		public abstract int applyAsNumber(Numbers left, Numbers right);
+		public abstract int applyAsNumber(Numbers x, Numbers y);
 	}
 
 	public static enum Numbers {

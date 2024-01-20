@@ -31,13 +31,13 @@ public interface ScriptedBranchShape extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()
-					.addVariableLoad("fraction", 1, TypeInfos.DOUBLE)
+					.addVariableLoad("fraction", TypeInfos.DOUBLE)
 				)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXYZ(
 						ColumnValue.REGISTRY,
-						load("column", 3, type(WorldColumn.class)),
-						load("y", 4, TypeInfos.DOUBLE)
+						load("column", type(WorldColumn.class)),
+						load("y", TypeInfos.DOUBLE)
 					)
 					.addXZ("x", "z")
 					.addY("y")
@@ -45,7 +45,7 @@ public interface ScriptedBranchShape extends Script {
 					.build()
 				)
 				.addEnvironment(RandomScriptEnvironment.create(
-					load("random", 6, type(RandomGenerator.class))
+					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()

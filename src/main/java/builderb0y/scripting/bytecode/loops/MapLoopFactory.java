@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.loops;
 
 import java.util.List;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -32,8 +33,10 @@ public class MapLoopFactory implements LoopFactory {
 			variables.get(0),
 			variables.get(1),
 			new VariableDeclareAssignInsnTree(
-				"$iterator",
-				TypeInfos.ITERATOR,
+				new LazyVarInfo(
+					parser.method.mangleName("iterator"),
+					TypeInfos.ITERATOR
+				),
 				invokeInstance(
 					invokeInstance(this.map, ForMapIteratorInsnTree.ENTRY_SET),
 					AbstractForIteratorInsnTree.ITERATOR

@@ -8,6 +8,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.util.TypeInfos;
 
 public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 
@@ -32,7 +33,7 @@ public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 	@Override
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
 		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
-		computeAllMethod.prepareParameters("y").setCode(
+		computeAllMethod.setCode(
 			"""
 			var array = valueField
 			int minY = array.minCached
@@ -44,7 +45,7 @@ public abstract class Script3DColumnEntry extends Basic3DColumnEntry {
 			""",
 			new MutableScriptEnvironment()
 			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-			.addVariableLoad(computeAllMethod.getParameter("y"))
+			.addVariableLoad("y", TypeInfos.INT)
 			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
 			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)

@@ -395,8 +395,11 @@ public class BuiltinScriptEnvironment {
 			if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
 			else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
 			else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+			parser.environment.user().reserveVariable(varName);
 			InsnTree initializer = parser.nextSingleExpression();
-			VarInfo variable = parser.environment.user().newVariable(varName, initializer.getTypeInfo());
+			parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
+			parser.environment.user().assignVariable(varName);
+			LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
 			return (
 				reuse
 				? new VariableDeclarePostAssignInsnTree(variable, initializer)

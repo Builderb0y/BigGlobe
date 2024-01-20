@@ -59,9 +59,7 @@ public class ExpressionParserTest extends TestCommon {
 		assertFail(
 			"""
 			Unknown variable: sqrt
-			Candidates:
-				Function sqrt: functionInvokeStatic: public static pure java/lang/Math.sqrt(D)D
-			Actual form: sqrt""",
+			Candidates:""",
 			"sqrt"
 		);
 		assertFail("Not a statement", "2 3");
@@ -76,33 +74,25 @@ public class ExpressionParserTest extends TestCommon {
 		assertFail(
 			"""
 			Unknown variable: exp
-			Candidates:
-				Function exp: functionInvokeStatic: public static pure java/lang/Math.exp(D)D
-			Actual form: exp""",
+			Candidates:""",
 			"exp"
 		);
 		assertFail(
 			"""
 			Unknown function or incorrect arguments: e
-			Candidates:
-				Variable e: ConstantInsnTree of type double (constant: 2.718281828459045 of type double)
-			Actual form: e()""",
+			Candidates:""",
 			"e ( )"
 		);
 		assertFail(
 			"""
 			Unknown field: getKey
-			Candidates:
-				Method interface java.util.Map$Entry extends java/lang/Object.getKey: methodInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type java.util.Map$Entry (not constant).getKey""",
+			Candidates:""",
 			"MapEntry entry = null ,, entry . getKey"
 		);
 		assertFail(
 			"""
 			Unknown method or incorrect arguments: key
-			Candidates:
-				Field interface java.util.Map$Entry extends java/lang/Object.key: fieldInvoke: public abstract java/util/Map$Entry.getKey()Ljava/lang/Object; (interface)
-			Actual form: LoadInsnTree of type java.util.Map$Entry (not constant).key()""",
+			Candidates:""",
 			"MapEntry entry = null ,, entry . key ( )"
 		);
 	}

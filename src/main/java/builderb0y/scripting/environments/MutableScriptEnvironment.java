@@ -232,16 +232,16 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////// load ////////////////
 
-	public MutableScriptEnvironment addVariableLoad(String name, VarInfo variable) {
+	public MutableScriptEnvironment addVariableLoad(String name, LazyVarInfo variable) {
 		return this.addVariable(name, load(variable));
 	}
 
-	public MutableScriptEnvironment addVariableLoad(VarInfo variable) {
+	public MutableScriptEnvironment addVariableLoad(LazyVarInfo variable) {
 		return this.addVariable(variable.name, load(variable));
 	}
 
-	public MutableScriptEnvironment addVariableLoad(String name, int index, TypeInfo type) {
-		return this.addVariable(name, load(name, index, type));
+	public MutableScriptEnvironment addVariableLoad(String name, TypeInfo type) {
+		return this.addVariable(name, load(name, type));
 	}
 
 	//////////////// getField ////////////////

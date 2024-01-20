@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode.loops;
 
 import java.util.List;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
@@ -27,8 +28,10 @@ public class RandomAccessListLoopFactory implements LoopFactory {
 				loopName,
 				variables.get(0),
 				new VariableDeclareAssignInsnTree(
-					"$listForIteration",
-					this.list.getTypeInfo(),
+					new LazyVarInfo(
+						parser.method.mangleName("listForIteration"),
+						this.list.getTypeInfo()
+					),
 					this.list
 				),
 				body
@@ -42,8 +45,10 @@ public class RandomAccessListLoopFactory implements LoopFactory {
 					variables.get(0),
 					variables.get(1),
 					new VariableDeclareAssignInsnTree(
-						"$listForIteration",
-						this.list.getTypeInfo(),
+						new LazyVarInfo(
+							parser.method.mangleName("listForIteration"),
+							this.list.getTypeInfo()
+						),
 						this.list
 					),
 					body

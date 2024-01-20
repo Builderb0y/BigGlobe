@@ -24,7 +24,7 @@ public interface OverworldCavernOverrider extends OverworldFlatOverrider {
 		new MutableScriptEnvironment()
 		.addVariable("cavernCenterY", FlatOverrider.createVariableFromField(OverworldColumn.class, "cavernCenter"))
 		.addVariable("cavernThicknessSquared", FlatOverrider.createVariableFromField(OverworldColumn.class, "cavernThicknessSquared"))
-		.addVariable("exclusionMultiplier", invokeStatic(MethodInfo.getMethod(OverworldCavernOverrider.class, "getExclusionMultiplier"), load("column", 2, type(OverworldColumn.class))))
+		.addVariable("exclusionMultiplier", invokeStatic(MethodInfo.getMethod(OverworldCavernOverrider.class, "getExclusionMultiplier"), load("column", type(OverworldColumn.class))))
 		.configure((MutableScriptEnvironment environment) -> {
 			for (Method method : ReflectionData.forClass(OverworldCavernOverrider.class).getDeclaredMethods("getOverlap")) {
 				environment.addFunction("getOverlap", FlatOverrider.createColumnFunction(MethodInfo.forMethod(method), OverworldColumn.class));

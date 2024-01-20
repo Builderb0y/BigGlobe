@@ -10,6 +10,7 @@ import builderb0y.bigglobe.scripting.environments.ItemScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -67,7 +68,7 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment(environment -> environment.addVariableLoad("input", 1, type(CraftingGrid.class)))
+					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
 					.parse()
 				);
 			}
@@ -103,7 +104,7 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment(environment -> environment.addVariableLoad("input", 1, type(CraftingGrid.class)))
+					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
 					.parse()
 				);
 			}
@@ -140,10 +141,10 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment(environment -> {
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
 						environment
-						.addVariableLoad("input", 1, type(CraftingGrid.class))
-						.addVariableLoad("output", 2, type(CraftingGrid.class))
+						.addVariableLoad("input", type(CraftingGrid.class))
+						.addVariableLoad("output", type(CraftingGrid.class))
 						;
 					})
 					.parse()

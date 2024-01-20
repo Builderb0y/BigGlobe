@@ -89,7 +89,7 @@ public class VariableUpdaterInsnTree extends AbstractUpdaterInsnTree {
 		TypeInfo postType
 	) {
 
-		public static VariableUpdaterEmitters forVariable(VarInfo variable, InsnTree updater) {
+		public static VariableUpdaterEmitters forLazyVariable(LazyVarInfo variable, InsnTree updater) {
 			return new VariableUpdaterEmitters(variable::emitLoad, variable::emitStore, updater, variable.type, updater.getTypeInfo());
 		}
 

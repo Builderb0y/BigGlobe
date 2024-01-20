@@ -52,14 +52,12 @@ public class FloatNoise2DColumnEntry extends Basic2DColumnEntry {
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		ConstantValue gridConstant = context.mainClass.newConstant(this.value, type(Grid2D.class));
-		computeMethod.scopes.withScope((MethodCompileContext computer) -> {
-			computer.addThis();
-			InsnTree x = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x"));
-			InsnTree z = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z"));
-			long salt = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
-			InsnTree originalSeed = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "seed"));
-			InsnTree saltedSeed = new BitwiseXorInsnTree(originalSeed, ldc(salt), LXOR);
-			return_(CastingSupport.primitiveCast(invokeInstance(ldc(gridConstant), MethodInfo.getMethod(Grid2D.class, "getValue"), saltedSeed, x, z), TypeInfos.FLOAT)).emitBytecode(computer);
-		});
+		InsnTree x = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x"));
+		InsnTree z = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z"));
+		long salt = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+		InsnTree originalSeed = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "seed"));
+		InsnTree saltedSeed = new BitwiseXorInsnTree(originalSeed, ldc(salt), LXOR);
+		return_(CastingSupport.primitiveCast(invokeInstance(ldc(gridConstant), MethodInfo.getMethod(Grid2D.class, "getValue"), saltedSeed, x, z), TypeInfos.FLOAT)).emitBytecode(computeMethod);
+		computeMethod.endCode();
 	}
 }

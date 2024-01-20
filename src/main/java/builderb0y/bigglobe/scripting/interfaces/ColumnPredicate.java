@@ -30,7 +30,7 @@ public interface ColumnPredicate extends Script {
 		public static ColumnScriptEnvironmentBuilder setupParser(ScriptParser<ColumnPredicate> parser) {
 			ColumnScriptEnvironmentBuilder builder = (
 				ColumnScriptEnvironmentBuilder
-				.createFixedXZVariableY(ColumnValue.REGISTRY, load("column", 1, type(WorldColumn.class)), null)
+				.createFixedXZVariableY(ColumnValue.REGISTRY, load("column", type(WorldColumn.class)), null)
 				.trackUsedValues()
 				.addXZ("x", "z")
 			);

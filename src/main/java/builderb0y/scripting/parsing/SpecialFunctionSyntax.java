@@ -7,11 +7,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.InsnTrees;
-import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.loops.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -216,6 +213,10 @@ public class SpecialFunctionSyntax {
 				return result;
 			}
 			else {
+				//clear any local variables tryParseEnhanced() may have created.
+				parser.environment.user().pop();
+				parser.environment.user().push();
+
 				parser.input.setCursor(afterOpen);
 				InsnTree initializer = parser.nextScript();
 				parser.input.expectOperatorAfterWhitespace(",");
@@ -231,7 +232,7 @@ public class SpecialFunctionSyntax {
 		}
 
 		public static @Nullable InsnTree tryParseEnhanced(ExpressionParser parser, LoopName loopName) throws ScriptParsingException {
-			List<VarInfo> variables = new ArrayList<>(4);
+			List<LazyVarInfo> variables = new ArrayList<>(4);
 			variables:
 			while (true) {
 				String typeName = parser.input.readIdentifierOrNullAfterWhitespace();
@@ -240,7 +241,8 @@ public class SpecialFunctionSyntax {
 				if (type == null) return null;
 				String varName = parser.input.readIdentifierOrNullAfterWhitespace();
 				if (varName == null) return null;
-				variables.add(new VarInfo(varName, -1, type));
+				parser.environment.user().reserveVariable(varName, type);
+				variables.add(new LazyVarInfo(varName, type));
 				if (parser.input.hasIdentifierAfterWhitespace("in")) {
 					LoopFactory loopFactory = tryParseRange(parser);
 					if (loopFactory == null) {
@@ -268,7 +270,7 @@ public class SpecialFunctionSyntax {
 							throw new ScriptParsingException("in clause must be of type Iterable, Iterator, Map, or range", parser.input);
 						}
 					}
-					List<VariableDeclarationInsnTree> declarations = variables.stream().peek(parser.environment.user()::addVariable).map(VariableDeclarationInsnTree::new).toList();
+					List<VariableDeclarationInsnTree> declarations = variables.stream().peek((LazyVarInfo variable) -> parser.environment.user().assignVariable(variable.name)).map(VariableDeclarationInsnTree::new).toList();
 					return switch (parser.input.readOperatorAfterWhitespace()) {
 						case ":" -> loopFactory.createLoop(parser, loopName, declarations, parser.nextScript().asStatement());
 						case "," -> {

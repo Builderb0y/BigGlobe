@@ -3,17 +3,16 @@ package builderb0y.scripting.bytecode.tree.flow.loop;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.AddInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.SubtractInsnTree;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -25,9 +24,12 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 		boolean ascending,
 		InsnTree lowerBound,
 		boolean lowerBoundInclusive,
+		LazyVarInfo lowerBoundVariable,
 		InsnTree upperBound,
 		boolean upperBoundInclusive,
+		LazyVarInfo upperBoundVariable,
 		InsnTree step,
+		LazyVarInfo stepVariable,
 		InsnTree body
 	) {
 		super(
@@ -36,9 +38,12 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 			ascending,
 			lowerBound,
 			lowerBoundInclusive,
+			lowerBoundVariable,
 			upperBound,
 			upperBoundInclusive,
+			upperBoundVariable,
 			step,
+			stepVariable,
 			body
 		);
 	}
@@ -50,30 +55,25 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 
 		this.variable.emitBytecode(method);
 		InsnTree lowerBound = this.lowerBound, upperBound = this.upperBound;
-		if (!lowerBound.getConstantValue().isConstant() || !upperBound.getConstantValue().isConstant()) {
-			VarInfo lowerBoundVariable = null, upperBoundVariable = null;
-			if (!lowerBound.getConstantValue().isConstant()) {
-				lowerBoundVariable = method.newVariable("$lowerBound", TypeInfos.INT);
-			}
-			if (!upperBound.getConstantValue().isConstant()) {
-				upperBoundVariable = method.newVariable("$upperBound", TypeInfos.INT);
-			}
+		if (this.lowerBoundVariable != null || this.upperBoundVariable != null) {
+			if (this.lowerBoundVariable != null) method.scopes.addVariable(this.lowerBoundVariable);
+			if (this.upperBoundVariable != null) method.scopes.addVariable(this.upperBoundVariable);
 			method.scopes.pushScope();
-			if (lowerBoundVariable != null) {
-				store(lowerBoundVariable, lowerBound).emitBytecode(method);
-				lowerBound = load(lowerBoundVariable);
+			if (this.lowerBoundVariable != null) {
+				store(this.lowerBoundVariable, lowerBound).emitBytecode(method);
+				lowerBound = load(this.lowerBoundVariable);
 			}
-			if (upperBoundVariable != null) {
-				store(upperBoundVariable, upperBound).emitBytecode(method);
-				upperBound = load(upperBoundVariable);
+			if (this.upperBoundVariable != null) {
+				store(this.upperBoundVariable, upperBound).emitBytecode(method);
+				upperBound = load(this.upperBoundVariable);
 			}
 			method.scopes.popScope();
 		}
 		InsnTree step = this.step;
-		if (!step.getConstantValue().isConstant()) {
-			VarInfo stepVariable = method.newVariable("$step", TypeInfos.INT);
-			store(stepVariable, step).emitBytecode(method);
-			step = load(stepVariable);
+		if (this.stepVariable != null) {
+			method.scopes.addVariable(this.stepVariable);
+			store(this.stepVariable, step).emitBytecode(method);
+			step = load(this.stepVariable);
 		}
 		if (this.ascending) {
 			store(this.variable.variable, lowerBound).emitBytecode(method);
@@ -91,7 +91,7 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 				ConstantValue constantStep = step.getConstantValue();
 				int stepSize;
 				if (constantStep.isConstant() && (stepSize = constantStep.asInt()) >= Short.MIN_VALUE && stepSize <= Short.MAX_VALUE) {
-					method.node.visitIincInsn(this.variable.variable.index, stepSize);
+					method.node.visitIincInsn(method.scopes.getVariableIndex(this.variable.variable), stepSize);
 				}
 				else {
 					store(this.variable.variable, new AddInsnTree(load(this.variable.variable), step, IADD)).emitBytecode(method);
@@ -103,7 +103,7 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 				ConstantValue constantStep = step.getConstantValue();
 				int stepSize;
 				if (constantStep.isConstant() && (stepSize = constantStep.asInt()) >= Short.MIN_VALUE && stepSize <= Short.MAX_VALUE) {
-					method.node.visitIincInsn(this.variable.variable.index, stepSize);
+					method.node.visitIincInsn(method.scopes.getVariableIndex(this.variable.variable), stepSize);
 				}
 				else {
 					store(this.variable.variable, new AddInsnTree(load(this.variable.variable), step, IADD)).emitBytecode(method);
@@ -134,7 +134,7 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 				ConstantValue constantStep = step.getConstantValue();
 				int stepSize;
 				if (constantStep.isConstant() && (stepSize = -constantStep.asInt()) >= Short.MIN_VALUE && stepSize <= Short.MAX_VALUE) {
-					method.node.visitIincInsn(this.variable.variable.index, stepSize);
+					method.node.visitIincInsn(method.scopes.getVariableIndex(this.variable.variable), stepSize);
 				}
 				else {
 					store(this.variable.variable, new SubtractInsnTree(load(this.variable.variable), step, ISUB)).emitBytecode(method);
@@ -146,7 +146,7 @@ public class ForIntRangeInsnTree extends AbstractForRangeInsnTree {
 				ConstantValue constantStep = step.getConstantValue();
 				int stepSize;
 				if (constantStep.isConstant() && (stepSize = -constantStep.asInt()) >= Short.MIN_VALUE && stepSize <= Short.MAX_VALUE) {
-					method.node.visitIincInsn(this.variable.variable.index, stepSize);
+					method.node.visitIincInsn(method.scopes.getVariableIndex(this.variable.variable), stepSize);
 				}
 				else {
 					store(this.variable.variable, new SubtractInsnTree(load(this.variable.variable), step, ISUB)).emitBytecode(method);

@@ -3,8 +3,8 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -24,7 +24,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 			int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
 			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.exposedType());
-			getterMethod.prepareParameters().setCode(
+			getterMethod.setCode(
 				"""
 				int oldFlags = flagsField
 				int newFlags = oldFlags | flagsBitmask
@@ -50,7 +50,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 				MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
 				memory.putTyped(ColumnEntryMemory.VALID_WHERE, testMethod);
 
-				computer.prepareParameters().setCode(
+				computer.setCode(
 					"""
 					if (test():
 						return(compute())
@@ -76,7 +76,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 				MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
 				memory.putTyped(ColumnEntryMemory.VALID_WHERE, testMethod);
 
-				getterMethod.prepareParameters().setCode(
+				getterMethod.setCode(
 					"""
 					if (test():
 						return(compute())
@@ -99,11 +99,10 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		setterMethod.scopes.withScope((MethodCompileContext setter) -> {
-			VarInfo self = setter.addThis();
-			VarInfo value = setter.newParameter("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
-			return_(putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setter);
-		});
+		LazyVarInfo self = new LazyVarInfo("this", setterMethod.clazz.info);
+		LazyVarInfo value = new LazyVarInfo("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
+		return_(putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setterMethod);
+		setterMethod.scopes.popScope();
 	}
 
 	public abstract void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException;

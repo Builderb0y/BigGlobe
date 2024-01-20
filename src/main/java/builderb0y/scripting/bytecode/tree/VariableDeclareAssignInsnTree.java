@@ -1,19 +1,13 @@
 package builderb0y.scripting.bytecode.tree;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.VarInfo;
 
 public class VariableDeclareAssignInsnTree extends VariableDeclarationInsnTree {
 
 	public InsnTree initializer;
 
-	public VariableDeclareAssignInsnTree(String name, TypeInfo type, InsnTree initializer) {
-		super(name, type);
-		this.initializer = initializer;
-	}
-
-	public VariableDeclareAssignInsnTree(VarInfo variable, InsnTree initializer) {
+	public VariableDeclareAssignInsnTree(LazyVarInfo variable, InsnTree initializer) {
 		super(variable);
 		this.initializer = initializer;
 	}

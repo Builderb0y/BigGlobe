@@ -1,9 +1,8 @@
 package builderb0y.scripting.bytecode.tree.instructions.update;
 
-import java.util.function.BooleanSupplier;
-
 import org.junit.jupiter.api.Test;
 
+import builderb0y.scripting.ScriptInterfaces.BooleanSupplier;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -208,6 +207,7 @@ public class StaticFieldUpdateInsnTreeTest {
 				.addVariableGetStatics(StaticFieldUpdateInsnTreeTest.class, "x", "y", "b")
 			)
 			.parse()
+			.getAsBoolean()
 		);
 	}
 }

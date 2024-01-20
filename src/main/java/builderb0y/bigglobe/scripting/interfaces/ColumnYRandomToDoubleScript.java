@@ -38,8 +38,8 @@ public interface ColumnYRandomToDoubleScript extends Script {
 			ColumnScriptEnvironmentBuilder columnYScriptEnvironment = (
 				ColumnScriptEnvironmentBuilder.createFixedXYZ(
 					ColumnValue.REGISTRY,
-					load("column", 1, type(WorldColumn.class)),
-					load("y", 2, TypeInfos.DOUBLE)
+					load("column", type(WorldColumn.class)),
+					load("y", TypeInfos.DOUBLE)
 				)
 				.addXZ("x", "z")
 				.addY("y")
@@ -50,7 +50,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(columnYScriptEnvironment.build())
 				.addEnvironment(RandomScriptEnvironment.create(
-					load("random", 4, type(RandomGenerator.class))
+					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse()

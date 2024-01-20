@@ -2,10 +2,7 @@ package builderb0y.scripting.bytecode;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -121,38 +118,30 @@ public class ClassCompileContext {
 	}
 
 	public void addNoArgConstructor(int access) {
-		this.newMethod(access, "<init>", TypeInfos.VOID).scopes.withScope(method -> {
-			VarInfo thisVar = method.addThis();
-			return_(
-				invokeInstance(
-					load(thisVar),
-					//super constructor access doesn't actually matter for this use case.
-					new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
-				)
+		MethodCompileContext constructor = this.newMethod(access, "<init>", TypeInfos.VOID);
+		LazyVarInfo self = new LazyVarInfo("this", constructor.clazz.info);
+		return_(
+			invokeInstance(
+				load(self),
+				//super constructor access doesn't actually matter for this use case.
+				new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
 			)
-			.emitBytecode(method);
-		});
+		)
+		.emitBytecode(constructor);
+		constructor.endCode();
 	}
 
-	public void addToString(String toString) {
-		this.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING).scopes.withScope(method -> {
-			method.addThis();
-			return_(ldc(toString)).emitBytecode(method);
-		});
+	public void addToString(String string) {
+		MethodCompileContext toString = this.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
+		return_(ldc(string)).emitBytecode(toString);
 	}
 
-	public MethodCompileContext newMethod(int access, String name, TypeInfo returnType, TypeInfo... paramTypes) {
+	public MethodCompileContext newMethod(int access, String name, TypeInfo returnType, LazyVarInfo... parameters) {
 		access |= this.node.access & ACC_INTERFACE;
-		return this.newMethod(new MethodInfo(access, this.info, name, returnType, paramTypes));
-	}
-
-	public MethodCompileContext newMethod(MethodInfo info) {
-		if (!info.owner.equals(this.info)) {
-			throw new IllegalArgumentException("Attempt to add method from a different class: Expected " + this.info + ", got " + info.owner);
-		}
+		MethodInfo info = new MethodInfo(access, this.info, name, returnType, CollectionTransformer.convertArray(parameters, TypeInfo[]::new, LazyVarInfo::type));
 		MethodNode method = new MethodNode(info.access(), info.name, info.getDescriptor(), null, null);
 		this.node.methods.add(method);
-		return new MethodCompileContext(this, method, info);
+		return new MethodCompileContext(this, method, info, CollectionTransformer.convertArray(parameters, String[]::new, LazyVarInfo::name));
 	}
 
 	public FieldCompileContext newField(FieldInfo info) {

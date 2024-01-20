@@ -105,9 +105,9 @@ public class CastInsnTreeTest {
 
 	public void test(CastMode mode, TypeInfo from, TypeInfo to, int... expectedOpcodes) {
 		ClassCompileContext clazz = clazz();
-		MethodCompileContext method = clazz.newMethod(ACC_PUBLIC, "test", TypeInfos.VOID);
+		MethodCompileContext method = clazz.newMethod(ACC_PUBLIC, "test", TypeInfos.VOID, new LazyVarInfo("x", from));
 		ExpressionParser parser = new ExpressionParser("", clazz, method);
-		load("x", 0, from).cast(parser, to, mode).emitBytecode(method);
+		getFromStack(from).cast(parser, to, mode).emitBytecode(method);
 		this.checkInstructions(method.node, expectedOpcodes);
 		if (!mode.implicit) {
 			this.assertFail(mode.toImplicit(), from, to);
@@ -119,7 +119,7 @@ public class CastInsnTreeTest {
 			ClassCompileContext clazz = clazz();
 			MethodCompileContext method = clazz.newMethod(ACC_PUBLIC, "test", TypeInfos.VOID);
 			ExpressionParser parser = new ExpressionParser("", clazz, method);
-			load("x", 0, from).cast(parser, to, mode);
+			getFromStack(from).cast(parser, to, mode);
 			fail();
 		}
 		catch (ClassCastException expected) {}

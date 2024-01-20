@@ -1,9 +1,8 @@
 package builderb0y.scripting.environments;
 
-import java.util.function.IntSupplier;
-
 import org.junit.jupiter.api.Test;
 
+import builderb0y.scripting.ScriptInterfaces.IntSupplier;
 import builderb0y.scripting.TestCommon;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;

@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.objectweb.asm.tree.LabelNode;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.ScopeContext.Scope;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
@@ -70,7 +70,7 @@ public class ForIndexedRandomAccessListInsnTree extends AbstractForIteratorInsnT
 		LabelNode continuePoint = labelNode(), restart = labelNode();
 		Scope scope = method.scopes.pushLoop(this.loopName, continuePoint);
 		this.list.emitBytecode(method);
-		VarInfo sizeVariable = method.newVariable("$size", TypeInfos.INT);
+		LazyVarInfo sizeVariable = method.scopes.addVariable(method.mangleName("size"), TypeInfos.INT);
 		this.list.variable.emitLoad(method);
 		LIST_SIZE.emitBytecode(method);
 		sizeVariable.emitStore(method);
@@ -88,7 +88,7 @@ public class ForIndexedRandomAccessListInsnTree extends AbstractForIteratorInsnT
 		castAndStore(this.elementVariable, method);
 		this.body.emitBytecode(method);
 		method.node.instructions.add(continuePoint);
-		method.node.visitIincInsn(this.indexVariable.variable.index, 1);
+		method.node.visitIincInsn(method.scopes.getVariableIndex(this.indexVariable.variable), 1);
 		method.node.visitJumpInsn(GOTO, restart.getLabel());
 
 		method.scopes.popScope();

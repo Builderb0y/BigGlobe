@@ -9,11 +9,8 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.ScopeContext;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -39,7 +36,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		.addEnvironment(
 			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 				ColumnValue.REGISTRY,
-				load("column", 0, type(WorldColumn.class)),
+				load("column", type(WorldColumn.class)),
 				null
 			)
 			.build()
@@ -88,162 +85,170 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulkX) -> {
-				Input input = this.gridInputs.values().iterator().next();
-				VarInfo thisVar     = getBulkX.addThis();
-				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
-				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
-				VarInfo samples     = getBulkX.newParameter("samples", NUMBER_ARRAY);
-				VarInfo sampleCount = getBulkX.newVariable ("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulkX.newVariable ("column", type(WorldColumn.class));
+			LazyVarInfo self, seed, x, samples, sampleCount, column;
+			MethodCompileContext getBulk = this.clazz.newMethod(
+				ACC_PUBLIC,
+				methodInfo.name,
+				TypeInfos.VOID,
+				seed = new LazyVarInfo("seed", TypeInfos.LONG),
+				x = new LazyVarInfo("x", TypeInfos.INT),
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+			);
+			self = new LazyVarInfo("this", getBulk.clazz.info);
+			sampleCount = new LazyVarInfo("sampleCount", TypeInfos.INT);
+			column = new LazyVarInfo("column", type(WorldColumn.class));
+			Input input = this.gridInputs.values().iterator().next();
 
-				//sampleCount = samples.length();
-				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulkX);
-				//if (sampleCount <= 0) return;
-				ifThen(
-					le(
-						this,
-						load(sampleCount),
-						ldc(0)
-					),
-					return_(noop)
-				)
-				.emitBytecode(getBulkX);
-				//get column.
-				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
-				//fill samples with input.
-					invokeInstance(
-					getField(
-						load(thisVar),
-						input.fieldInfo(getBulkX)
-					),
-					methodInfo,
-					load(seed),
-					load(startX),
-					load(samples)
-				)
-				.emitBytecode(getBulkX);
-				getBulkX.node.visitLabel(label());
-				//replace samples with evaluation results.
-				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
-					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
-					for_(
-						new LoopName(null),
-						store(index, ldc(0)),
-						lt(this, load(index), load(sampleCount)),
-						inc(index, 1),
-						numberArrayStore(
-							load(samples),
-							load(index),
-							invokeStatic(
-								new MethodInfo(
-									ACC_PUBLIC | INVOKESTATIC,
-									getBulkX_.clazz.info,
-									"evaluate",
-									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'D')
-								),
-								load(column),
-								add(this, load(startX), load(index)),
-								numberArrayLoad(load(samples), load(index))
-							)
-						)
+			//sampleCount = samples.length();
+			store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
+			//if (sampleCount <= 0) return;
+			ifThen(
+				le(
+					this,
+					load(sampleCount),
+					ldc(0)
+				),
+				return_(noop)
+			)
+			.emitBytecode(getBulk);
+			//get column.
+			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
+			//fill samples with input.
+				invokeInstance(
+				getField(
+					load(self),
+					input.fieldInfo(getBulk)
+				),
+				methodInfo,
+				load(seed),
+				load(x),
+				load(samples)
+			)
+			.emitBytecode(getBulk);
+			getBulk.node.visitLabel(label());
+			//replace samples with evaluation results.
+			getBulk.scopes.pushScope();
+			LazyVarInfo index = getBulk.scopes.addVariable("index", TypeInfos.INT);
+			for_(
+				new LoopName(null),
+				store(index, ldc(0)),
+				lt(this, load(index), load(sampleCount)),
+				inc(index, 1),
+				numberArrayStore(
+					load(samples),
+					load(index),
+					invokeStatic(
+						new MethodInfo(
+							ACC_PUBLIC | INVOKESTATIC,
+							getBulk.clazz.info,
+							"evaluate",
+							TypeInfos.DOUBLE,
+							types(WorldColumn.class, 'I', 'D')
+						),
+						load(column),
+						InsnTrees.add(this, load(x), load(index)),
+						numberArrayLoad(load(samples), load(index))
 					)
-					.emitBytecode(getBulkX_);
-				});
-				//return.
-				return_(noop).emitBytecode(getBulkX);
-			});
+				)
+			)
+			.emitBytecode(getBulk);
+			getBulk.scopes.popScope();
+			//return.
+			return_(noop).emitBytecode(getBulk);
 		}
 
 		@Override
 		public void addGetBulkMany(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			this.clazz.newMethod(methodInfo.changeOwner(this.clazz.info)).scopes.withScope((MethodCompileContext getBulkX) -> {
-				VarInfo thisVar     = getBulkX.addThis();
-				VarInfo seed        = getBulkX.newParameter("seed", TypeInfos.LONG);
-				VarInfo startX      = getBulkX.newParameter("startX", TypeInfos.INT);
-				VarInfo samples     = getBulkX.newParameter("samples", NUMBER_ARRAY);
-				VarInfo sampleCount = getBulkX.newVariable ("sampleCount", TypeInfos.INT);
-				VarInfo column      = getBulkX.newVariable ("column", type(WorldColumn.class));
+			LazyVarInfo self, seed, x, samples, sampleCount, column;
+			MethodCompileContext getBulk = this.clazz.newMethod(
+				ACC_PUBLIC,
+				methodInfo.name,
+				TypeInfos.VOID,
+				seed = new LazyVarInfo("seed", TypeInfos.LONG),
+				x = new LazyVarInfo("x", TypeInfos.INT),
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+			);
+			self = new LazyVarInfo("this", getBulk.clazz.info);
+			sampleCount = getBulk.scopes.addVariable("sampleCount", TypeInfos.INT);
+			column = getBulk.scopes.addVariable("column", type(WorldColumn.class));
 
-				//declare scratch arrays.
-				VarInfo[] scratches = new VarInfo[this.gridInputs.size()];
-				for (Input input : this.gridInputs.values()) {
-					scratches[input.index] = getBulkX.newVariable(input.name, NUMBER_ARRAY);
-				}
-				//sampleCount = samples.length();
-				store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulkX);
-				//if (sampleCount <= 0) return;
-				ifThen(
-					le(
-						this,
-						load(sampleCount),
-						ldc(0)
-					),
-					return_(noop)
+			//declare scratch arrays.
+			LazyVarInfo[] scratches = new LazyVarInfo[this.gridInputs.size()];
+			for (Input input : this.gridInputs.values()) {
+				scratches[input.index] = getBulk.scopes.addVariable(input.name, NUMBER_ARRAY);
+			}
+			//sampleCount = samples.length();
+			store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
+			//if (sampleCount <= 0) return;
+			ifThen(
+				le(
+					this,
+					load(sampleCount),
+					ldc(0)
+				),
+				return_(noop)
+			)
+			.emitBytecode(getBulk);
+			//get column.
+			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
+			//allocate scratch arrays.
+			for (Input input : this.gridInputs.values()) {
+				store(
+					scratches[input.index],
+					newNumberArray(load(sampleCount))
 				)
-				.emitBytecode(getBulkX);
-				//get column.
-				store(column, GET_SECRET_COLUMN).emitBytecode(getBulkX);
-				//allocate scratch arrays.
-				for (Input input : this.gridInputs.values()) {
-					store(
-						scratches[input.index],
-						newNumberArray(load(sampleCount))
-					)
-					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(label());
-				}
-				//fill scratch arrays.
-				for (Input input : this.gridInputs.values()) {
-					invokeInstance(
-						getField(load(thisVar), input.fieldInfo(getBulkX)),
-						methodInfo,
-						load(seed),
-						load(startX),
-						load(scratches[input.index])
-					)
-					.emitBytecode(getBulkX);
-					getBulkX.node.visitLabel(label());
-				}
-				//fill samples.
-				getBulkX.scopes.withScope((MethodCompileContext getBulkX_) -> {
-					VarInfo index = getBulkX_.newVariable("index", TypeInfos.INT);
-					for_(
-						new LoopName(null),
-						store(index, ldc(0)),
-						lt(this, load(index), load(sampleCount)),
-						inc(index, 1),
-						numberArrayStore(
-							load(samples),
-							load(index),
-							invokeStatic(
-								new MethodInfo(
-									ACC_PUBLIC | ACC_STATIC,
-									getBulkX_.clazz.info,
-									"evaluate",
-									TypeInfos.DOUBLE,
-									types(WorldColumn.class, 'I', 'D', this.gridInputs.size())
-								),
-								Stream.concat(
-									Stream.of(
-										load(column),
-										add(this, load(startX), load(index))
-									),
-									this.gridInputs.values().stream().map(input -> (
-										numberArrayLoad(load(scratches[input.index]), load(index))
-									))
-								)
-								.toArray(InsnTree.ARRAY_FACTORY)
-							)
+				.emitBytecode(getBulk);
+				getBulk.node.visitLabel(label());
+			}
+			//fill scratch arrays.
+			for (Input input : this.gridInputs.values()) {
+				invokeInstance(
+					getField(load(self), input.fieldInfo(getBulk)),
+					methodInfo,
+					load(seed),
+					load(x),
+					load(scratches[input.index])
+				)
+				.emitBytecode(getBulk);
+				getBulk.node.visitLabel(label());
+			}
+			//fill samples.
+			getBulk.scopes.pushScope();
+			LazyVarInfo index = getBulk.scopes.addVariable("index", TypeInfos.INT);
+			for_(
+				new LoopName(null),
+				store(index, ldc(0)),
+				lt(this, load(index), load(sampleCount)),
+				inc(index, 1),
+				numberArrayStore(
+					load(samples),
+					load(index),
+					invokeStatic(
+						new MethodInfo(
+							ACC_PUBLIC | ACC_STATIC,
+							getBulk.clazz.info,
+							"evaluate",
+							TypeInfos.DOUBLE,
+							types(WorldColumn.class, 'I', 'D', this.gridInputs.size())
+						),
+						Stream.concat(
+							Stream.of(
+								load(column),
+								add(this, load(x), load(index))
+							),
+							this.gridInputs.values().stream().map((Input input) -> (
+								numberArrayLoad(load(scratches[input.index]), load(index))
+							))
 						)
+						.toArray(InsnTree.ARRAY_FACTORY)
 					)
-					.emitBytecode(getBulkX_);
-				});
-				//return.
-				return_(noop).emitBytecode(getBulkX);
-			});
+				)
+			)
+			.emitBytecode(getBulk);
+			getBulk.scopes.popScope();
+			//return.
+			return_(noop).emitBytecode(getBulk);
 		}
 	}
 }

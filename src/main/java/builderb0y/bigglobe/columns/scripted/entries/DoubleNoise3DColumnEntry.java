@@ -16,6 +16,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -58,7 +59,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 	@Override
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
 		ConstantValue constantGrid = memory.getTyped(CONSTANT_GRID);
-		computeAllMethod.prepareParameters().setCode(
+		computeAllMethod.setCode(
 			"""
 			grid.getBulkY(
 				column.seed # salt,
@@ -86,7 +87,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public void populateComputeOne(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeOneMethod) throws ScriptParsingException {
-		computeOneMethod.prepareParameters("y").setCode(
+		computeOneMethod.setCode(
 			"return(grid.getValue(column.seed # salt, column.x, y, column.z))",
 			new MutableScriptEnvironment()
 			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
@@ -95,7 +96,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 			.addFieldGet(ScriptedColumn.class, "seed")
 			.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
 			.addFieldGet(ScriptedColumn.class, "x")
-			.addVariableLoad(computeOneMethod.getParameter("y"))
+			.addVariableLoad("y", TypeInfos.INT)
 			.addFieldGet(ScriptedColumn.class, "z")
 		);
 	}

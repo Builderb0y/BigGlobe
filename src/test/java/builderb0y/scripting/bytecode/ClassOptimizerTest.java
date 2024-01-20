@@ -1,12 +1,11 @@
 package builderb0y.scripting.bytecode;
 
-import java.util.function.Supplier;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
+import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
 import builderb0y.scripting.TestCommon;
 import builderb0y.scripting.optimization.ClassOptimizer;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -131,9 +130,8 @@ public class ClassOptimizerTest extends TestCommon {
 		dumpBytecode("return(Integer(switch(1: case(1, 2, 3: 1i) default(0i))))");
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void dumpBytecode(String script) throws ScriptParsingException {
-		ScriptParser<Supplier<Object>> parser = new ScriptParser<>((Class)(Supplier.class), script);
+		ScriptParser<ObjectSupplier> parser = new ScriptParser<>(ObjectSupplier.class, script);
 		parser.toBytecode();
 		System.out.println("################################################################");
 		System.out.println("INITIAL:");

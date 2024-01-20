@@ -33,8 +33,8 @@ public interface ColumnYToDoubleScript extends Script {
 			ColumnScriptEnvironmentBuilder builder = (
 				ColumnScriptEnvironmentBuilder.createFixedXYZ(
 					ColumnValue.REGISTRY,
-					load("column", 1, type(WorldColumn.class)),
-					load("y", 2, TypeInfos.DOUBLE)
+					load("column", type(WorldColumn.class)),
+					load("y", TypeInfos.DOUBLE)
 				)
 				.trackUsedValues()
 				.addXZ("x", "z")

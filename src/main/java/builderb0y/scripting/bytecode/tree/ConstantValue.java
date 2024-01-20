@@ -1,6 +1,7 @@
 package builderb0y.scripting.bytecode.tree;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
@@ -27,8 +28,8 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 	public static ConstantValue of(double   value) { return new DoubleConstantValue(value); }
 	public static ConstantValue of(char     value) { return new    IntConstantValue(value); }
 	public static ConstantValue of(boolean  value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(String   value) { return new StringConstantValue(value); }
-	public static ConstantValue of(TypeInfo value) { return new  ClassConstantValue(value); }
+	public static ConstantValue of(String   value) { return value == null ? new NullConstantValue(TypeInfos.STRING) : new StringConstantValue(value); }
+	public static ConstantValue of(TypeInfo value) { return new  ClassConstantValue(Objects.requireNonNull(value, "Attempt to LDC null.class")); }
 
 	public static ConstantValue of(Object object, TypeInfo type) {
 		if (object == null) return new NullConstantValue(type);

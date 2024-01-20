@@ -34,15 +34,13 @@ public class DynamicConstantTest {
 		clazz.addNoArgConstructor(ACC_PUBLIC);
 
 		MethodCompileContext getConstant = clazz.newMethod(ACC_PUBLIC, "getConstant", TypeInfos.INT);
-		getConstant.scopes.pushScope();
-		getConstant.addThis();
 		return_(
 			ldc(
 				MethodInfo.getMethod(DynamicConstantTest.class, "getConstant")
 			)
 		)
 		.emitBytecode(getConstant);
-		getConstant.scopes.popScope();
+		getConstant.endCode();
 
 		System.out.println("Defining...");
 		MethodHandles.Lookup lookup = MethodHandles.lookup().defineHiddenClass(clazz.toByteArray(), true);

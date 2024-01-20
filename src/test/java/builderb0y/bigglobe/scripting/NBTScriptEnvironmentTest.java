@@ -2,13 +2,13 @@ package builderb0y.bigglobe.scripting;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
 import net.minecraft.nbt.*;
 
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
+import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -147,6 +147,6 @@ public class NBTScriptEnvironmentTest {
 	}
 
 	public static Object evaluate(String script) throws ScriptParsingException {
-		return new ScriptParser<>(Supplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.INSTANCE).parse().get();
+		return new ScriptParser<>(ObjectSupplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.INSTANCE).parse().getAsObject();
 	}
 }

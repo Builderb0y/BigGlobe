@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnScripts.ColumnYToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBooleanScript;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;

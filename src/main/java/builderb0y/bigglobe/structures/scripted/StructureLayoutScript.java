@@ -43,7 +43,7 @@ public interface StructureLayoutScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
 
-		public static final InsnTree LOAD_RANDOM = load("random", 3, type(RandomGenerator.class));
+		public static final InsnTree LOAD_RANDOM = load("random", type(RandomGenerator.class));
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
 			super(
@@ -61,13 +61,13 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(
 					new MutableScriptEnvironment()
 
-					.addVariableLoad("originX", 1, TypeInfos.INT)
-					.addVariableLoad("originZ", 2, TypeInfos.INT)
+					.addVariableLoad("originX", TypeInfos.INT)
+					.addVariableLoad("originZ", TypeInfos.INT)
 
 					.addVariable(
 						"worldSeed",
 						getField(
-							load("column", 4, type(WorldColumn.class)),
+							load("column", type(WorldColumn.class)),
 							ColumnScriptEnvironmentBuilder.SEED
 						)
 					)
@@ -78,7 +78,7 @@ public interface StructureLayoutScript extends Script {
 							"getBiomeFromColumn(int x, int y, int z)",
 							Handlers
 							.builder(Holder.class, "getBiome")
-							.addImplicitArgument(load("column", 4, type(WorldColumn.class)))
+							.addImplicitArgument(load("column", type(WorldColumn.class)))
 							.addArguments("III")
 							.buildFunction()
 						)
@@ -91,14 +91,14 @@ public interface StructureLayoutScript extends Script {
 					.addFieldGet(ScriptedStructure.Piece.class, "data")
 					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
-					.addVariableLoad("pieces", 5, type(CheckedList.class))
+					.addVariableLoad("pieces", type(CheckedList.class))
 
-					.addVariableLoad("distantHorizons", 6, TypeInfos.BOOLEAN)
+					.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 				)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
-						load("column", 4, type(WorldColumn.class))
+						load("column", type(WorldColumn.class))
 					)
 					.build()
 				)

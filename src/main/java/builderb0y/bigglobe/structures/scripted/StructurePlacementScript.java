@@ -41,7 +41,7 @@ public interface StructurePlacementScript extends Script {
 	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
 
 		public static final InsnTree
-			LOAD_WORLD = load("world", 1, WorldWrapper.TYPE),
+			LOAD_WORLD = load("world", WorldWrapper.TYPE),
 			LOAD_RANDOM = new IdentityCastInsnTree(
 				getField(
 					LOAD_WORLD,
@@ -63,24 +63,24 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(
 					new MutableScriptEnvironment()
-					.addVariableLoad("minX",  3, TypeInfos.INT)
-					.addVariableLoad("minY",  4, TypeInfos.INT)
-					.addVariableLoad("minZ",  5, TypeInfos.INT)
-					.addVariableLoad("maxX",  6, TypeInfos.INT)
-					.addVariableLoad("maxY",  7, TypeInfos.INT)
-					.addVariableLoad("maxZ",  8, TypeInfos.INT)
-					.addVariableLoad("midX",  9, TypeInfos.INT)
-					.addVariableLoad("midY", 10, TypeInfos.INT)
-					.addVariableLoad("midZ", 11, TypeInfos.INT)
-					.addVariableLoad("data", 12, NbtScriptEnvironment.NBT_COMPOUND_TYPE)
-					.addVariableLoad("distantHorizons", 13, TypeInfos.BOOLEAN)
+					.addVariableLoad("minX", TypeInfos.INT)
+					.addVariableLoad("minY", TypeInfos.INT)
+					.addVariableLoad("minZ", TypeInfos.INT)
+					.addVariableLoad("maxX", TypeInfos.INT)
+					.addVariableLoad("maxY", TypeInfos.INT)
+					.addVariableLoad("maxZ", TypeInfos.INT)
+					.addVariableLoad("midX", TypeInfos.INT)
+					.addVariableLoad("midY", TypeInfos.INT)
+					.addVariableLoad("midZ", TypeInfos.INT)
+					.addVariableLoad("data", NbtScriptEnvironment.NBT_COMPOUND_TYPE)
+					.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 				)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
-						load("column", 2, type(WorldColumn.class))
+						load("column", type(WorldColumn.class))
 					)
 					.build()
 				)

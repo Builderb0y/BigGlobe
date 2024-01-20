@@ -1,9 +1,9 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.VarInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.IncrementUpdateInsnTree;
@@ -14,17 +14,21 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class LoadInsnTree implements InsnTree {
 
-	public VarInfo variable;
+	public LazyVarInfo variable;
 
-	public LoadInsnTree(VarInfo variable) {
+	public LoadInsnTree(LazyVarInfo variable) {
 		this.variable = variable;
+	}
+
+	public LazyVarInfo variable() {
+		return this.variable;
 	}
 
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
 			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW);
-			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forVariable(this.variable, cast));
+			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forLazyVariable(this.variable, cast));
 		}
 		if ((op == UpdateOp.ADD || op == UpdateOp.SUBTRACT) && this.getTypeInfo().getSort() == Sort.INT) {
 			ConstantValue constant = rightValue.getConstantValue();
@@ -38,7 +42,7 @@ public class LoadInsnTree implements InsnTree {
 			}
 		}
 		InsnTree updater = op.createUpdater(parser, this.getTypeInfo(), rightValue);
-		return new VariableUpdaterInsnTree(order, false, VariableUpdaterEmitters.forVariable(this.variable, updater));
+		return new VariableUpdaterInsnTree(order, false, VariableUpdaterEmitters.forLazyVariable(this.variable, updater));
 	}
 
 	@Override

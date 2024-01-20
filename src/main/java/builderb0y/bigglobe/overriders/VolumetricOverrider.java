@@ -28,7 +28,7 @@ public interface VolumetricOverrider extends Overrider {
 
 	public static final ScriptEnvironment STRUCTURE_START_EXCLUDE_ENVIRONMENT = (
 		new MutableScriptEnvironment().configure((MutableScriptEnvironment environment) -> {
-			InsnTree loadContext = load("context", 1, type(Context.class));
+			InsnTree loadContext = load("context", type(Context.class));
 			environment
 			.addVariableGetField(loadContext, Context.class, "structureStarts")
 			.addFunctionMultiInvokes(loadContext, Context.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
@@ -258,7 +258,7 @@ public interface VolumetricOverrider extends Overrider {
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(
 						getField(
-							load("context", 1, type(contextClass)),
+							load("context", type(contextClass)),
 							FieldInfo.getField(Context.class, "column")
 						)
 					)
@@ -267,7 +267,7 @@ public interface VolumetricOverrider extends Overrider {
 					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
 						getField(
-							load("context", 1, type(contextClass)),
+							load("context", type(contextClass)),
 							FieldInfo.getField(Context.class, "column")
 						),
 						null

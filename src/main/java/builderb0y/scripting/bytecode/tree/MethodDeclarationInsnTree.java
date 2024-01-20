@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode.tree;
 
+import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.util.TypeInfos;
@@ -13,18 +14,25 @@ updates all the captured variables' indexes.
 */
 public class MethodDeclarationInsnTree implements InsnTree {
 
-	public MethodCompileContext method;
+	public int access;
+	public String name;
+	public TypeInfo returnType;
+	public LazyVarInfo[] parameters;
 	public InsnTree body;
 
-	public MethodDeclarationInsnTree(MethodCompileContext method, InsnTree body) {
-		this.method = method;
+	public MethodDeclarationInsnTree(int access, String name, TypeInfo returnType, LazyVarInfo[] parameters, InsnTree body) {
+		this.access = access;
+		this.name = name;
+		this.returnType = returnType;
+		this.parameters = parameters;
 		this.body = body;
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		this.body.emitBytecode(this.method);
-		this.method.scopes.popScope();
+		MethodCompileContext newMethod = method.clazz.newMethod(this.access, this.name, this.returnType, this.parameters);
+		this.body.emitBytecode(newMethod);
+		newMethod.scopes.popScope();
 	}
 
 	@Override

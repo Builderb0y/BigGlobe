@@ -33,6 +33,7 @@ where I left off:
 		call vanilla method instead.
 	remove ability for scripts to print things on the client in multiplayer.
 	make coral only spawn where temperature is high.
+	I think I still need a clear() method for ScriptedColumn.
 
 changelog:
 	4.0:

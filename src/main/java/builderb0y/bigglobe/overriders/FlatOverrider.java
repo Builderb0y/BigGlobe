@@ -24,7 +24,7 @@ public interface FlatOverrider extends Overrider {
 
 	public static final MutableScriptEnvironment STRUCTURE_STARTS_ENVIRONMENT = (
 		new MutableScriptEnvironment()
-		.addVariableLoad("structureStarts", 1, type(ScriptStructures.class))
+		.addVariableLoad("structureStarts", type(ScriptStructures.class))
 	);
 
 	public abstract void override(ScriptStructures structureStarts, WorldColumn column);
@@ -32,7 +32,7 @@ public interface FlatOverrider extends Overrider {
 	public static VariableHandler createVariableFromStaticGetterAndSetter(Class<?> in, Class<? extends WorldColumn> columnClass, String getterName, String setterName) {
 		MethodInfo getter = MethodInfo.getMethod(in, getterName);
 		MethodInfo setter = MethodInfo.getMethod(in, setterName);
-		InsnTree loadColumn = load("column", 2, type(columnClass));
+		InsnTree loadColumn = load("column", type(columnClass));
 		return new VariableHandler.Named(getter + " <-> " + setter, (ExpressionParser parser, String name) -> {
 			return new GetterSetterInsnTree(loadColumn, getter, setter);
 		});
@@ -40,13 +40,13 @@ public interface FlatOverrider extends Overrider {
 
 	public static VariableHandler createVariableFromField(Class<? extends WorldColumn> columnClass, String fieldName) {
 		FieldInfo field = FieldInfo.getField(columnClass, fieldName);
-		InsnTree loadColumn = load("column", 2, type(columnClass));
+		InsnTree loadColumn = load("column", type(columnClass));
 		InsnTree getField = getField(loadColumn, field);
 		return new VariableHandler.Named(field.toString(), (parser, name) -> getField);
 	}
 
 	public static FunctionHandler createColumnFunction(MethodInfo method, Class<? extends WorldColumn> columnClass) {
-		InsnTree loadColumn = load("column", 2, type(columnClass));
+		InsnTree loadColumn = load("column", type(columnClass));
 		return new FunctionHandler.Named(method.toString(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 			InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, prefixedArguments);
@@ -71,13 +71,13 @@ public interface FlatOverrider extends Overrider {
 				.addEnvironment(STRUCTURE_STARTS_ENVIRONMENT)
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(
-						load("column", 2, type(WorldColumn.class))
+						load("column", type(WorldColumn.class))
 					)
 				)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
-						load("column", 2, type(WorldColumn.class)),
+						load("column", type(WorldColumn.class)),
 						null
 					)
 					.addXZ("x", "z")
