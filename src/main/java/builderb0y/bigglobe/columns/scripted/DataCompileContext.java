@@ -266,7 +266,7 @@ public abstract class DataCompileContext {
 					ACC_PUBLIC,
 					"<init>",
 					TypeInfos.VOID,
-					column = new LazyVarInfo("column", type(ScriptedColumn.class)),
+					column = new LazyVarInfo("column", parent.columnType()),
 					cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class)),
 					baseSeed = new LazyVarInfo("baseSeed", TypeInfos.LONG)
 				);

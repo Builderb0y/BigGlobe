@@ -26,17 +26,15 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface VolumetricOverrider extends Overrider {
 
-	public static final ScriptEnvironment STRUCTURE_START_EXCLUDE_ENVIRONMENT = (
-		new MutableScriptEnvironment().configure((MutableScriptEnvironment environment) -> {
-			InsnTree loadContext = load("context", type(Context.class));
-			environment
+	public static MutableScriptEnvironment structureStartExcludeEnvironment(InsnTree loadContext) {
+		return (
+			new MutableScriptEnvironment()
 			.addVariableGetField(loadContext, Context.class, "structureStarts")
 			.addFunctionMultiInvokes(loadContext, Context.class, "exclude", "excludeCuboid", "excludeCylinder", "excludeSphere")
 			.addVariableRenamedGetField(loadContext, "volumeMinY", Context.class, "minY")
 			.addVariableRenamedGetField(loadContext, "volumeMaxY", Context.class, "maxY")
-			;
-		})
-	);
+		);
+	}
 
 	public abstract void override(Context context);
 
@@ -254,7 +252,11 @@ public interface VolumetricOverrider extends Overrider {
 			super(
 				usage,
 				parser
-				.addEnvironment(STRUCTURE_START_EXCLUDE_ENVIRONMENT)
+				.addEnvironment(
+					structureStartExcludeEnvironment(
+						load("context", type(contextClass))
+					)
+				)
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(
 						getField(

@@ -23,7 +23,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 		if (this.hasField()) {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 			int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
-			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.exposedType());
+			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.fieldType());
 			getterMethod.setCode(
 				"""
 				int oldFlags = flagsField

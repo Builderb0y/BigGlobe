@@ -70,6 +70,7 @@ public class IfElseInsnTree implements InsnTree {
 		this.condition.emitBytecode(method, null, scope.end.getLabel());
 		this.trueBody.emitBytecode(method);
 		scope.cycle();
+		method.scopes.cycleScope();
 		method.node.visitJumpInsn(GOTO, scope.end.getLabel());
 		method.node.instructions.add(scope.start);
 		this.falseBody.emitBytecode(method);

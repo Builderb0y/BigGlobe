@@ -22,6 +22,7 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -32,6 +33,7 @@ public class ColumnEntryRegistry {
 	public final BetterRegistry<ColumnEntry> entries;
 	public final BetterRegistry<VoronoiSettings> voronois;
 	public final transient Map<Identifier, ColumnEntryMemory> memories;
+	public final transient List<ColumnEntryMemory> filteredMemories;
 	public final transient Class<? extends ScriptedColumn> columnClass;
 	public final transient ScriptedColumn.Factory columnFactory;
 	public final transient ColumnCompileContext columnContext;
@@ -70,7 +72,7 @@ public class ColumnEntryRegistry {
 			.map(UnregisteredObjectException::getID)
 			.collect(Collectors.toSet())
 		);
-		List<ColumnEntryMemory> filteredMemories = (
+		this.filteredMemories = (
 			this
 			.memories
 			.entrySet()
@@ -81,13 +83,13 @@ public class ColumnEntryRegistry {
 			.map(Map.Entry::getValue)
 			.toList()
 		);
-		for (ColumnEntryMemory memory : filteredMemories) {
+		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitFieldGetterAndSetter(memory, this.columnContext);
 		}
-		for (ColumnEntryMemory memory : filteredMemories) {
+		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, this.columnContext);
 		}
-		for (ColumnEntryMemory memory : filteredMemories) {
+		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, this.columnContext);
 		}
 		this.columnContext.prepareForCompile();

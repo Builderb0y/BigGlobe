@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,6 +17,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandle
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.parsing.ScriptTemplate.ScriptTemplateUsage;
 import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -39,43 +41,44 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 		return (TemplateScriptParser<I>)(super.configureEnvironment(configurator));
 	}
 
-	/** note: this logic should match {@link ScriptColumnEntryParser#parseEntireInput()}. */
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
 		if (this.usage.isTemplate()) {
 			GenericScriptTemplateUsage genericUsage = this.usage.getTemplate();
 			genericUsage.validateInputs((Supplier<String> message) -> new ScriptParsingException(message.get(), null));
-			ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
-			for (RequiredInput input : genericUsage.actualTemplate.getRequiredInputs()) {
-				String inputSource = genericUsage.getProvidedInputs().get(input.name());
-				assert inputSource != null;
-				ClassCompileContext classCopy = new ClassCompileContext(this.clazz.node.access, this.clazz.info);
-				MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), this.method.info);
-				ExpressionParser parserCopy = new ExpressionParser(inputSource, classCopy, methodCopy);
-				parserCopy.environment.mutable(new MutableScriptEnvironment().addAll(this.environment.mutable()));
-				FunctionHandler handler = new FunctionHandler.Named("invalid", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					throw new ScriptParsingException(name + " is not allowed in script inputs", parser.input);
-				});
-				parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
-				TypeInfo type = parserCopy.environment.getType(this, input.type());
-				if (type == null) {
-					throw new ScriptParsingException("Unknown type: " + input.type(), null);
-				}
-				this.environment.user().reserveVariable(input.name(), type);
-				InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
-				this.environment.user().assignVariable(input.name());
-				LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
-				InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
-				this.environment.mutable()
-				.addVariable(input.name(), load(declaration))
-				.addVariable('$' + input.name(), inputTree);
-				initializers.add(initializer);
-			}
+			ArrayBuilder<InsnTree> initializers = parseInitializers(this, genericUsage);
 			initializers.add(super.parseEntireInput());
 			return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
 		}
 		else {
 			return super.parseEntireInput();
 		}
+	}
+
+	public static ArrayBuilder<InsnTree> parseInitializers(ExpressionParser parser, ScriptTemplateUsage usage) throws ScriptParsingException {
+		ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
+		for (RequiredInput input : usage.getActualTemplate().getRequiredInputs()) {
+			String inputSource = usage.getProvidedInputs().get(input.name());
+			assert inputSource != null;
+			TypeInfo type = parser.environment.getType(parser, input.type());
+			if (type == null) {
+				throw new ScriptParsingException("Unknown type: " + input.type(), null);
+			}
+			ExpressionParser parserCopy = new InnerMethodExpressionParser(parser, inputSource, type);
+			FunctionHandler handler = new FunctionHandler.Named("invalid", (ExpressionParser parser_, String name, InsnTree... arguments) -> {
+				throw new ScriptParsingException(name + " is not allowed in script inputs", parser_.input);
+			});
+			parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
+			parser.environment.user().reserveVariable(input.name(), type);
+			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
+			parser.environment.user().assignVariable(input.name());
+			LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
+			InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
+			parser.environment.mutable()
+			.addVariable(input.name(), load(declaration))
+			.addVariable('$' + input.name(), inputTree);
+			initializers.add(initializer);
+		}
+		return initializers;
 	}
 }

@@ -14,16 +14,13 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.Valids.NullObject2DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
-import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -33,6 +30,7 @@ import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.NullableInstanceGetFieldInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -204,6 +202,14 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 				);
 				enable.value().setupEnvironment(enabledMemory, implContext);
 			}
+		}
+	}
+
+	@Override
+	public void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
+		super.setupExternalEnvironment(memory, context, environment, loadColumn);
+		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+			environment.addMethodInvoke(entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
 	}
 

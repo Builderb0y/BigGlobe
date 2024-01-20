@@ -32,8 +32,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public interface StructureLayoutScript extends Script {
 
 	public abstract void layout(
-		int x,
-		int z,
+		int originX,
+		int originZ,
 		RandomGenerator random,
 		WorldColumn column,
 		List<StructurePiece> pieces,
@@ -91,7 +91,7 @@ public interface StructureLayoutScript extends Script {
 					.addFieldGet(ScriptedStructure.Piece.class, "data")
 					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
-					.addVariableLoad("pieces", type(CheckedList.class))
+					.addVariableLoad("pieces", type(List.class))
 
 					.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 				)
@@ -108,15 +108,15 @@ public interface StructureLayoutScript extends Script {
 
 		@Override
 		public void layout(
-			int x,
-			int z,
+			int originX,
+			int originZ,
 			RandomGenerator random,
 			WorldColumn column,
 			List<StructurePiece> pieces,
 			boolean distantHorizons
 		) {
 			try {
-				this.script.layout(x, z, random, column, pieces, distantHorizons);
+				this.script.layout(originX, originZ, random, column, pieces, distantHorizons);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

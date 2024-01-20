@@ -149,6 +149,11 @@ public class Handlers {
 			return this.invalidateCache();
 		}
 
+		public Builder addImplicitArgumentOfType(InsnTree tree, Class<?> type) {
+			this.arguments.add(new ImplicitArgument(tree, type));
+			return this.invalidateCache();
+		}
+
 		public Builder addNestedArgument(Builder builder) {
 			if (this.usesReceiver() && builder.usesReceiver()) {
 				throw new IllegalArgumentException("Attempt to add receiver argument twice.");
@@ -385,6 +390,14 @@ public class Handlers {
 		public ImplicitArgument(InsnTree tree) {
 			this.tree = tree;
 			this.clazz = tree.getTypeInfo().toClass();
+		}
+
+		public ImplicitArgument(InsnTree tree, Class<?> clazz) {
+			this.tree = tree;
+			this.clazz = clazz;
+			if (!clazz.isAssignableFrom(tree.getTypeInfo().toClass())) {
+				throw new IllegalArgumentException(tree + " is not a subclass of " + clazz);
+			}
 		}
 
 		@Override

@@ -174,7 +174,7 @@ public class ColumnScriptEnvironmentBuilder {
 						Handlers
 						.builder(ColumnValue.class, "getValue")
 						.addImplicitArgument(COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)))
-						.addImplicitArgument(loadColumn)
+						.addImplicitArgumentOfType(loadColumn, WorldColumn.class)
 						.addRequiredArgument(TypeInfos.DOUBLE)
 						.also(addToUsed(environment, value))
 						.buildFunction()
@@ -220,7 +220,8 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.inCaller("invokeGetValue")
-						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "IDI")
+						.addImplicitArgumentOfType(loadColumn, WorldColumn.class)
+						.addArguments(COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "IDI")
 						.also(addToUsed(environment, value))
 						.buildFunction()
 					);
@@ -230,7 +231,8 @@ public class ColumnScriptEnvironmentBuilder {
 						name,
 						Handlers
 						.inCaller("invokeGetValueWithoutY")
-						.addArguments(loadColumn, COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "II")
+						.addImplicitArgumentOfType(loadColumn, WorldColumn.class)
+						.addArguments(COLUMN_VALUE_CONSTANT_FACTORY.createConstant(constant(name)), "II")
 						.also(addToUsed(environment, value))
 						.buildFunction()
 					);
@@ -285,7 +287,7 @@ public class ColumnScriptEnvironmentBuilder {
 					name,
 					Handlers
 					.builder(ColumnScriptEnvironmentBuilder.class, getter.fixedPositionInternalName)
-					.addImplicitArgument(this.loadColumn)
+					.addImplicitArgumentOfType(this.loadColumn, WorldColumn.class)
 					.buildVariable()
 				);
 			}
@@ -301,8 +303,10 @@ public class ColumnScriptEnvironmentBuilder {
 			for (String name : getter.exposedNames) {
 				this.mutable.addFunction(
 					name,
-					Handlers.inCaller(getter.variablePositionInternalName)
-					.addArguments(this.loadColumn, int.class, int.class)
+					Handlers
+					.inCaller(getter.variablePositionInternalName)
+					.addImplicitArgumentOfType(this.loadColumn, WorldColumn.class)
+					.addArguments("II")
 					.buildFunction()
 				);
 			}

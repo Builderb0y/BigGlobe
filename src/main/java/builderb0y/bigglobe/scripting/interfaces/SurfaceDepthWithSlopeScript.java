@@ -19,7 +19,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface SurfaceDepthWithSlopeScript extends Script {
 
-	public abstract double evaluate(WorldColumn column, double y, double slopeSquared, RandomGenerator random);
+	public abstract double evaluate(WorldColumn column, double y, double slope_squared, RandomGenerator random);
 
 	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceDepthWithSlopeScript> implements SurfaceDepthWithSlopeScript {
@@ -53,9 +53,9 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 		}
 
 		@Override
-		public double evaluate(WorldColumn column, double y, double slopeSquared, RandomGenerator random) {
+		public double evaluate(WorldColumn column, double y, double slope_squared, RandomGenerator random) {
 			try {
-				return this.script.evaluate(column, y, slopeSquared, random);
+				return this.script.evaluate(column, y, slope_squared, random);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

@@ -64,20 +64,20 @@ public interface FlatOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends FlatOverrider> extends Overrider.Holder<T_Overrider> implements FlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser) throws ScriptParsingException {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser, Class<? extends WorldColumn> columnClass) throws ScriptParsingException {
 			super(
 				usage,
 				parser
 				.addEnvironment(STRUCTURE_STARTS_ENVIRONMENT)
 				.addEnvironment(
 					Overrider.createDistanceEnvironment(
-						load("column", type(WorldColumn.class))
+						load("column", type(columnClass))
 					)
 				)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
-						load("column", type(WorldColumn.class)),
+						load("column", type(columnClass)),
 						null
 					)
 					.addXZ("x", "z")

@@ -20,7 +20,10 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -78,15 +81,15 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		String internalName = DataCompileContext.internalName(accessID, uniqueIndex);
 		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 
+		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 		if (this.hasField()) {
-			TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
 			FieldCompileContext valueField = context.mainClass.newField(ACC_PUBLIC, internalName, type.fieldType());
 			memory.putTyped(ColumnEntryMemory.FIELD, valueField);
-			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, context.selfType(), this.getAccessSchema().getterParameters());
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, type.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			if (this.isSettable()) {
-				MethodCompileContext setterMethod = context.mainClass.newMethod(ACC_PUBLIC, "set_" + internalName, context.selfType(), this.getAccessSchema().setterParameters(context));
+				MethodCompileContext setterMethod = context.mainClass.newMethod(ACC_PUBLIC, "set_" + internalName, TypeInfos.VOID, this.getAccessSchema().setterParameters(context));
 				memory.putTyped(ColumnEntryMemory.SETTER, setterMethod);
 
 				this.populateField(memory, context, valueField);
@@ -99,7 +102,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			}
 		}
 		else {
-			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, context.selfType(), this.getAccessSchema().getterParameters());
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, type.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			this.populateGetter(memory, context, getterMethod);
@@ -112,6 +115,15 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		}
 		else {
 			context.environment.addVariableRenamedInvoke(context.loadSelf(), memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
+		}
+	}
+
+	public default void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
+		if (this.getAccessSchema().requiresYLevel()) {
+			environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), loadColumn, memory.getTyped(ColumnEntryMemory.GETTER).info);
+		}
+		else {
+			environment.addVariableRenamedInvoke(loadColumn, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
 	}
 

@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.LabelNode;
 
 import builderb0y.scripting.util.StackMap;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -86,6 +85,11 @@ public class ScopeContext {
 	public void popManualScope() {
 		this.localVariables.pop();
 		this.stack.remove(this.stack.size() - 1);
+	}
+
+	public void cycleScope() {
+		this.localVariables.pop();
+		this.localVariables.push();
 	}
 
 	public Scope peekScope() {

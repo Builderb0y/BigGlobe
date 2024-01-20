@@ -33,6 +33,7 @@ public abstract class UserMethodDefiner {
 
 	public List<LoadInsnTree> implicitParameters;
 	public UserParameterList userParameters;
+	public MethodInfo newMethod;
 
 	public UserMethodDefiner(ExpressionParser parser, String methodName, TypeInfo returnType) {
 		this.parser = parser;
@@ -45,6 +46,7 @@ public abstract class UserMethodDefiner {
 		this.userParameters = UserParameterList.parse(this.parser);
 		this.addBuiltinParameters();
 		this.addCapturedParameters();
+		this.newMethod = this.createMethodInfo();
 		this.makeMethodCallable();
 		return this.parseMethodBody();
 	}
@@ -107,22 +109,18 @@ public abstract class UserMethodDefiner {
 		return new MethodInfo(
 			this.parser.method.info.access(),
 			this.parser.clazz.info,
-			this.methodName,
+			this.methodName + '_' + this.parser.clazz.memberUniquifier++,
 			this.returnType,
 			parameterTypes.toArray(TypeInfo.ARRAY_FACTORY)
 		);
 	}
 
+	public abstract MethodInfo createMethodInfo();
+
 	public abstract void makeMethodCallable();
 
 	public ExpressionParser createChildParser() {
-		ExpressionParser parser = new ExpressionParser(this.parser, this.parser.method) {
-
-			@Override
-			public TypeInfo getMainReturnType() {
-				return UserMethodDefiner.this.returnType;
-			}
-		};
+		ExpressionParser parser = new InnerMethodExpressionParser(this.parser, this.returnType);
 		for (UserParameter parameter : this.userParameters.parameters()) {
 			parser.environment.user().reserveAndAssignVariable(parameter.name(), parameter.type());
 		}
@@ -146,9 +144,9 @@ public abstract class UserMethodDefiner {
 
 	public InsnTree createMethodDeclaration(Stream<LazyVarInfo> parameters, InsnTree body) {
 		return new MethodDeclarationInsnTree(
-			this.parser.method.info.access(),
-			this.methodName,
-			this.returnType,
+			this.newMethod.access(),
+			this.newMethod.name,
+			this.newMethod.returnType,
 			parameters.toArray(LazyVarInfo.ARRAY_FACTORY),
 			body
 		);
@@ -161,13 +159,18 @@ public abstract class UserMethodDefiner {
 		}
 
 		@Override
-		public void makeMethodCallable() {
-			MethodInfo method = this.createMethodInfo(
+		public MethodInfo createMethodInfo() {
+			return this.createMethodInfo(
 				Stream.concat(
 					this.streamUserParameterTypes(),
 					this.streamImplicitParameterTypes()
 				)
 			);
+		}
+
+		@Override
+		public void makeMethodCallable() {
+			MethodInfo method = this.newMethod;
 			TypeInfo callerInfo = this.parser.clazz.info;
 			this.parser.environment.user().addFunction(
 				this.methodName,
@@ -214,8 +217,8 @@ public abstract class UserMethodDefiner {
 		}
 
 		@Override
-		public void makeMethodCallable() {
-			MethodInfo method = this.createMethodInfo(
+		public MethodInfo createMethodInfo() {
+			return this.createMethodInfo(
 				Stream.of(
 					Stream.of(this.typeBeingExtended),
 					this.streamUserParameterTypes(),
@@ -223,6 +226,11 @@ public abstract class UserMethodDefiner {
 				)
 				.flatMap(Function.identity())
 			);
+		}
+
+		@Override
+		public void makeMethodCallable() {
+			MethodInfo method = this.newMethod;
 			TypeInfo callerInfo = this.parser.clazz.info;
 			this.parser.environment.user().addMethod(
 				this.typeBeingExtended,

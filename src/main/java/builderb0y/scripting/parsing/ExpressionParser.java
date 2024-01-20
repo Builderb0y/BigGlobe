@@ -80,12 +80,24 @@ public class ExpressionParser {
 	this constructor is intended for user-defined functions only.
 	see {@link UserMethodDefiner}.
 	*/
-	public ExpressionParser(ExpressionParser from, MethodCompileContext method) {
+	public ExpressionParser(ExpressionParser from) {
 		this.input = from.input;
 		this.clazz = from.clazz;
-		this.method = method;
+		this.method = from.method;
 		this.currentLine = from.currentLine;
 		this.environment = from.environment;
+	}
+
+	/**
+	this constructor is intended for template scripts only.
+	see {@link TemplateScriptParser#parseEntireInput()}.
+	*/
+	public ExpressionParser(ExpressionParser from, String newInput) {
+		this.input = new ExpressionReader(newInput);
+		this.clazz = from.clazz;
+		this.method = from.method;
+		this.environment = new RootScriptEnvironment(from.environment);
+		this.environment.user().parser = this;
 	}
 
 	public ExpressionParser addEnvironment(ScriptEnvironment environment) {

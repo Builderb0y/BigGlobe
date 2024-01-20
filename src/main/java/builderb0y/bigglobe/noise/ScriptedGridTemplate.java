@@ -67,6 +67,11 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 		}
 
 		@Override
+		public ScriptTemplate getActualTemplate() {
+			return this.actualTemplate;
+		}
+
+		@Override
 		public Map<String, String> getProvidedInputs() {
 			return this.inputs;
 		}

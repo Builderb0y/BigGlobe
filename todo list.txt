@@ -34,6 +34,9 @@ where I left off:
 	remove ability for scripts to print things on the client in multiplayer.
 	make coral only spawn where temperature is high.
 	I think I still need a clear() method for ScriptedColumn.
+	make user class declaration into another InsnTree?
+	make user method declaration no longer an InsnTree?
+	make fields on InsnTree's final.
 
 changelog:
 	4.0:

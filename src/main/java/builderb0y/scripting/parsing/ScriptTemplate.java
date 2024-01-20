@@ -35,6 +35,8 @@ public interface ScriptTemplate extends CoderRegistryTyped<ScriptTemplate> {
 
 		public abstract RegistryEntry<ScriptTemplate> getEntry();
 
+		public abstract ScriptTemplate getActualTemplate();
+
 		public abstract Map<String, String> getProvidedInputs();
 
 		public default <X extends Throwable> void validateInputs(Function<Supplier<String>, X> exceptionFactory) throws X {

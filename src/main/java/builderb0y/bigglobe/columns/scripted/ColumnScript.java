@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.objectweb.asm.Type;
 
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -49,22 +50,20 @@ public interface ColumnScript extends Script {
 			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, implementingMethod.getName(), returnType, bridgeParams);
 
 			if (y != null) {
-				return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info), load(y))).emitBytecode(bridgeMethod);
+				return_(invokeInstance(load("this", clazz.info), actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info), load(y))).emitBytecode(bridgeMethod);
 			}
 			else {
-				return_(invokeStatic(actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info))).emitBytecode(bridgeMethod);
+				return_(invokeInstance(load("this", clazz.info), actualMethod.info, new DirectCastInsnTree(load(bridgeColumn), registry.columnContext.mainClass.info))).emitBytecode(bridgeMethod);
 			}
 			bridgeMethod.endCode();
 
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod);
-			parser
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(registry.columnContext.environment)
-			.configureEnvironment((MutableScriptEnvironment environment) -> {
-				if (y != null) environment.addVariableLoad(y);
-			})
-			.parseEntireInput()
-			.emitBytecode(actualMethod);
+			MutableScriptEnvironment environment = new MutableScriptEnvironment().addAll(MathScriptEnvironment.INSTANCE);
+			if (y != null) environment.addVariableLoad(y);
+			for (ColumnEntryMemory memory : registry.filteredMemories) {
+				memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, registry.columnContext, environment, load("column", registry.columnContext.columnType()));
+			}
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
+			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();
 
 			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);

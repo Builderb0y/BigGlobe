@@ -220,7 +220,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		public static LazyVarInfo[] params(GridTypeInfo gridTypeInfo, LinkedHashMap<String, Input> gridInputs) {
 			List<LazyVarInfo> list = new ArrayList<>(gridTypeInfo.dimensions + gridInputs.size() + 1);
 			list.add(new LazyVarInfo("column", type(WorldColumn.class)));
-			for (int dimension = gridTypeInfo.dimensions; dimension > 0; dimension--) {
+			for (int dimension = 0; dimension < gridTypeInfo.dimensions; dimension++) {
 				list.add(new LazyVarInfo(coordName(dimension), TypeInfos.INT));
 			}
 			for (String name : gridInputs.keySet()) {
@@ -414,32 +414,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 					),
 					(Supplier<String> message) -> new ScriptParsingException(message.get(), null)
 				);
-				ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
-				for (RequiredInput input : gridUsage.actualTemplate.getRequiredInputs()) {
-					String inputSource = gridUsage.getProvidedInputs().get(input.name());
-					assert inputSource != null;
-					ClassCompileContext classCopy = new ClassCompileContext(this.clazz.node.access, this.clazz.info);
-					MethodCompileContext methodCopy = new MethodCompileContext(classCopy, new MethodNode(), this.method.info);
-					ExpressionParser parserCopy = new ExpressionParser(inputSource, classCopy, methodCopy);
-					parserCopy.environment.mutable(new MutableScriptEnvironment().addAll(this.environment.mutable()));
-					FunctionHandler handler = new FunctionHandler.Named("invalid", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-						throw new ScriptParsingException(name + " is not allowed in script inputs", parser.input);
-					});
-					parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
-					TypeInfo type = parserCopy.environment.getType(this, input.type());
-					if (type == null) {
-						throw new ScriptParsingException("Unknown type: " + input.type(), null);
-					}
-					this.environment.user().reserveVariable(input.name(), type);
-					InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
-					this.environment.user().assignVariable(input.name());
-					LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
-					InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
-					this.environment.mutable()
-						.addVariable(input.name(), load(declaration))
-						.addVariable('$' + input.name(), inputTree);
-					initializers.add(initializer);
-				}
+				ArrayBuilder<InsnTree> initializers = TemplateScriptParser.parseInitializers(this, gridUsage);
 				initializers.add(super.parseEntireInput());
 				return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
 			}

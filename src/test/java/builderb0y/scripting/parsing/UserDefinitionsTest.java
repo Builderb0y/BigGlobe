@@ -171,6 +171,29 @@ public class UserDefinitionsTest extends TestCommon {
 			z
 			"""
 		);
+		assertSuccess(2,
+			"""
+			boolean condition = true
+			if ( condition :
+				int x = 2
+			)
+			else (
+				int x = 2
+			)
+			2
+			"""
+		);
+		assertSuccess(2,
+			"""
+			int s = 2
+			switch ( s :
+				case ( 1 : int x = 2 )
+				case ( 2 : int x = 2 )
+				case ( 3 : int x = 2 )
+			)
+			s
+			"""
+		);
 	}
 
 	@Test
@@ -231,6 +254,21 @@ public class UserDefinitionsTest extends TestCommon {
 			var x = (
 				int square(: x * x)
 				square()
+			)
+			"""
+		);
+		assertSuccess(4,
+			"""
+			return(
+				(
+					int two(: 2)
+					two()
+				)
+				+
+				(
+					int two(: 2)
+					two()
+				)
 			)
 			"""
 		);
@@ -333,6 +371,21 @@ public class UserDefinitionsTest extends TestCommon {
 			class One ( int x = 1 )
 			One one = new ( 2 )
 			one . x
+			"""
+		);
+		assertSuccess(4,
+			"""
+			return(
+				(
+					class C(int x)
+					C.new(2).x
+				)
+				+
+				(
+					class C(int x)
+					C.new(2).x
+				)
+			)
 			"""
 		);
 	}

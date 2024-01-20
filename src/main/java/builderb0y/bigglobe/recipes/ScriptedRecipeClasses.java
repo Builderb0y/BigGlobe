@@ -52,7 +52,7 @@ public class ScriptedRecipeClasses {
 
 	public static interface CraftingMatchesScript extends Script {
 
-		public abstract boolean matches(CraftingGrid grid);
+		public abstract boolean matches(CraftingGrid input);
 
 		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript {
@@ -88,7 +88,7 @@ public class ScriptedRecipeClasses {
 
 	public static interface CraftingOutputScript extends Script {
 
-		public abstract ItemStack output(CraftingGrid grid);
+		public abstract ItemStack output(CraftingGrid input);
 
 		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript {
