@@ -67,6 +67,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -227,12 +228,37 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				int minY = chunk.getBottomY();
 				int maxY = chunk.getTopY();
 				BlockSegmentList[] lists = new BlockSegmentList[256];
-				Async.loop(256, (int index) -> {
-					ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, startX | (index & 15), startZ | (index >>> 4), minY, maxY);
-					BlockSegmentList list = new BlockSegmentList(minY, maxY);
-					this.layer.emitSegments(column, list);
-					lists[index] = list;
-				});
+				try (AsyncRunner async = new AsyncRunner()) {
+					for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
+						final int offsetZ_ = offsetZ;
+						for (int offsetX = 0; offsetX < 16; offsetX += 2) {
+							final int offsetX_ = offsetX;
+							async.submit(() -> {
+								int quadX = startX | offsetX_;
+								int quadZ = startZ | offsetZ_;
+								ScriptedColumn
+									column00 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ,     minY, maxY),
+									column01 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ,     minY, maxY),
+									column10 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ | 1, minY, maxY),
+									column11 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ | 1, minY, maxY);
+								BlockSegmentList
+									list00 = new BlockSegmentList(minY, maxY),
+									list01 = new BlockSegmentList(minY, maxY),
+									list10 = new BlockSegmentList(minY, maxY),
+									list11 = new BlockSegmentList(minY, maxY);
+								this.layer.emitSegments(column00, column01, column10, column11, list00);
+								this.layer.emitSegments(column01, column00, column11, column10, list01);
+								this.layer.emitSegments(column10, column11, column00, column01, list10);
+								this.layer.emitSegments(column11, column10, column01, column00, list11);
+								int baseIndex = (offsetZ_ << 4) | offsetX_;
+								lists[baseIndex     ] = list00;
+								lists[baseIndex ^  1] = list01;
+								lists[baseIndex ^ 16] = list10;
+								lists[baseIndex ^ 17] = list11;
+							});
+						}
+					}
+				}
 				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;

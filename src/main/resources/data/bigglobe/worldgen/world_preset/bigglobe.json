@@ -19,7 +19,23 @@
 								"state": "minecraft:stone",
 								"valid": {
 									"max_y": "ceilInt(`bigglobe:overworld/surface_y`) - 1"
-								}
+								},
+								"top_surface": [
+									"double slopeSquared = (",
+										"+ dx(`bigglobe:overworld/surface_y`) ^ 2",
+										"+ dz(`bigglobe:overworld/surface_y`) ^ 2",
+									")",
+									"int depth = floorInt(",
+										"+ (columnSeed # 16x0F191DC7C72871EAL).nextDouble(3.0L, 7.0L) ;base randomness",
+										"- (slopeSquared * 3.0L) ;less depth when slope is high",
+										"- (`bigglobe:overworld/surface_y` - `bigglobe:overworld/sea_level`) / 512.0L ;less depth at higher Y levels",
+										"+ (`bigglobe:overworld/raw_foliage` * 2.0L) ;more depth when foliage is high",
+									")",
+									"if (depth > 0:",
+										"setBlockStates(originY - depth, originY, 'minecraft:dirt')",
+										"setBlockState(originY, 'minecraft:grass_block')",
+									")"
+								]
 							},
 							{
 								"type": "bigglobe:simple_2d",

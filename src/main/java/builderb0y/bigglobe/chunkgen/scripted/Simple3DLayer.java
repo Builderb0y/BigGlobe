@@ -2,6 +2,7 @@ package builderb0y.bigglobe.chunkgen.scripted;
 
 import net.minecraft.block.BlockState;
 
+import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -16,8 +17,15 @@ public class Simple3DLayer extends Layer {
 	public final ScriptUsage<GenericScriptTemplateUsage> condition;
 	public ColumnYToBooleanScript.Holder compiledCondition;
 
-	public Simple3DLayer(@VerifyNullable Valid valid, Layer[] children, BlockState state, ScriptUsage<GenericScriptTemplateUsage> condition) {
-		super(valid, children);
+	public Simple3DLayer(
+		@VerifyNullable Valid valid,
+		Layer @DefaultEmpty [] children,
+		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> top_surface,
+		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> bottom_surface,
+		BlockState state,
+		ScriptUsage<GenericScriptTemplateUsage> condition
+	) {
+		super(valid, children, top_surface, bottom_surface);
 		this.state = state;
 		this.condition = condition;
 	}
@@ -29,7 +37,7 @@ public class Simple3DLayer extends Layer {
 	}
 
 	@Override
-	public <B extends BlockSegmentConsumer<B>> void emitSelfSegments(ScriptedColumn column, B consumer) {
+	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList consumer) {
 		int minY = Math.max(this.validMinY(column), consumer.minY());
 		int maxY = Math.min(this.validMaxY(column), consumer.minY());
 		int start = minY;
@@ -37,11 +45,11 @@ public class Simple3DLayer extends Layer {
 		for (int y = minY; ++y < maxY;) {
 			boolean nextState = this.compiledCondition.get(column, y);
 			if (haveState != nextState) {
-				if (haveState) consumer.accept(start, y, this.state);
+				if (haveState) consumer.setBlockStates(start, y, this.state);
 				haveState = nextState;
 				start = y;
 			}
 		}
-		if (haveState) consumer.accept(start, maxY, this.state);
+		if (haveState) consumer.setBlockStates(start, maxY, this.state);
 	}
 }

@@ -2,7 +2,9 @@ package builderb0y.scripting.bytecode.tree;
 
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.TypeInfos;
 
 /**
@@ -26,6 +28,16 @@ public class MethodDeclarationInsnTree implements InsnTree {
 		this.returnType = returnType;
 		this.parameters = parameters;
 		this.body = body;
+	}
+
+	public MethodInfo createMethodInfo(TypeInfo owner) {
+		return new MethodInfo(
+			this.access,
+			owner,
+			this.name,
+			this.returnType,
+			CollectionTransformer.convertArray(this.parameters, TypeInfo.ARRAY_FACTORY, LazyVarInfo::type)
+		);
 	}
 
 	@Override

@@ -37,6 +37,7 @@ where I left off:
 	make user class declaration into another InsnTree?
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
+	add distantHorizons variable for all column scripts.
 
 changelog:
 	4.0:

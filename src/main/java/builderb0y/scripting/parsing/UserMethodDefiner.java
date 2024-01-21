@@ -1,13 +1,10 @@
 package builderb0y.scripting.parsing;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
-import org.objectweb.asm.tree.ParameterNode;
 
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -19,30 +16,26 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
-import builderb0y.scripting.environments.UserScriptEnvironment.PendingLocal;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList.UserParameter;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class UserMethodDefiner {
+public abstract class UserMethodDefiner extends VariableCapturer {
 
-	public final ExpressionParser parser;
 	public final String methodName;
 	public final TypeInfo returnType;
 
-	public List<LoadInsnTree> implicitParameters;
 	public UserParameterList userParameters;
 	public MethodInfo newMethod;
 
 	public UserMethodDefiner(ExpressionParser parser, String methodName, TypeInfo returnType) {
-		this.parser = parser;
+		super(parser);
 		this.methodName = methodName;
 		this.returnType = returnType;
 	}
 
 	public InsnTree parse() throws ScriptParsingException {
-		this.implicitParameters = new ArrayList<>(16);
 		this.userParameters = UserParameterList.parse(this.parser);
 		this.addBuiltinParameters();
 		this.addCapturedParameters();
@@ -51,47 +44,11 @@ public abstract class UserMethodDefiner {
 		return this.parseMethodBody();
 	}
 
-	public void addBuiltinParameters() {
-		TypeInfo[] types = this.parser.method.info.paramTypes;
-		List<ParameterNode> parameters = this.parser.method.node.parameters;
-		int offset = this.parser.method.info.isStatic() ? 0 : 1;
-		for (int index = offset, size = parameters.size(); index < size; index++) {
-			this.implicitParameters.add(load(parameters.get(index).name, types[index - offset]));
-		}
-	}
-
-	public void addCapturedParameters() {
-		for (PendingLocal value : this.parser.environment.user().variables.values()) {
-			if (value.assigned) {
-				this.implicitParameters.add(value.loader());
-			}
-		}
-	}
-
-	public Stream<TypeInfo> streamImplicitParameterTypes() {
-		return (
-			this
-			.implicitParameters
-			.stream()
-			.map(LoadInsnTree::variable)
-			.map(LazyVarInfo::type)
-		);
-	}
-
 	public Stream<TypeInfo> streamUserParameterTypes() {
 		return (
 			Arrays
 			.stream(this.userParameters.parameters())
 			.map(UserParameter::type)
-		);
-	}
-
-	public Stream<LazyVarInfo> streamImplicitParameters() {
-		return (
-			this
-			.implicitParameters
-			.stream()
-			.map(LoadInsnTree::variable)
 		);
 	}
 

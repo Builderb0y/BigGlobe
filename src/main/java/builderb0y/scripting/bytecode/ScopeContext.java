@@ -28,6 +28,15 @@ public class ScopeContext {
 		if (this.localVariables.putIfAbsent(variable, this.currentLocalVariableIndex) != null) {
 			throw new IllegalArgumentException("Variable " + variable + " already declared in this scope.");
 		}
+		Scope scope = this.peekScope();
+		this.method.node.visitLocalVariable(
+			variable.name,
+			variable.type().getDescriptor(),
+			null,
+			scope.start.getLabel(),
+			scope.end.getLabel(),
+			this.currentLocalVariableIndex
+		);
 		this.currentLocalVariableIndex += variable.type.getSize();
 	}
 

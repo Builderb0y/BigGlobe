@@ -34,7 +34,7 @@ public interface ColumnScript extends Script {
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
-				Type.getInternalName(type) + "$Generated$" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+				Type.getInternalName(type) + '$' + (usage.debug_name != null ? usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,
 				new TypeInfo[] { type(type) }
 			);

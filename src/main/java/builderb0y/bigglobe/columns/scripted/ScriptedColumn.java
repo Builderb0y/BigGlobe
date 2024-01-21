@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 
 /** subclassed at runtime to add necessary fields. */
@@ -17,6 +18,10 @@ public abstract class ScriptedColumn {
 		this.z = z;
 		this.minY = minY;
 		this.maxY = maxY;
+	}
+
+	public long columnSeed() {
+		return Permuter.permute(this.seed, this.x, this.z);
 	}
 
 	public abstract void clear();

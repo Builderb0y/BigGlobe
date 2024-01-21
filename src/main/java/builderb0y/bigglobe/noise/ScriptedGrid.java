@@ -237,7 +237,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 				new ClassCompileContext(
 					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 					ClassType.CLASS,
-					Type.getInternalName(gridTypeInfo.parserClass) + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+					Type.getInternalName(gridTypeInfo.parserClass) + '$' + (usage.debug_name != null ? usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
 					new TypeInfo[] { TypeInfo.of(gridTypeInfo.gridClass), TypeInfo.of(Script.class) }
 				)

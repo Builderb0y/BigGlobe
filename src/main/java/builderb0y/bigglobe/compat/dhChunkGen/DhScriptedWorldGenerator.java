@@ -22,6 +22,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.AsyncRunner;
@@ -93,31 +94,51 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
 		try (AsyncRunner async = new AsyncRunner()) {
-			for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
-				final int columnIndex_ = columnIndex;
-				async.submit(() -> {
-					ScriptedColumn column = factory.create(
-						this.chunkGenerator.seed,
-						startX | (columnIndex_ & 15),
-						startZ | (columnIndex_ >>> 4),
-						this.chunkGenerator.height.min_y(),
-						this.chunkGenerator.height.max_y()
-					);
-					DataPointListBuilder builder = (DataPointListBuilder)(results.getDataPoints(column.x & 15, column.z & 15));
-					builder.query[0] = this.chunkGenerator.biomeRegistry.getOrCreateEntry(BiomeKeys.PLAINS);
-					builder.biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(builder.query, this.level);
-					BlockSegmentList list = new BlockSegmentList(chunkBottomY, chunkTopY);
-					this.chunkGenerator.layer.emitSegments(column, list);
-					for (int index = list.size(); --index >= 0;) {
-						Segment<BlockState> segment = list.get(index);
-						if (segment.value.isAir()) continue;
-						builder.add(segment.value, segment.minY, segment.maxY + 1);
-						builder.lightLevel = Math.max(builder.lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY - segment.minY + 1), 0);
-					}
-				});
+			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
+				final int offsetZ_ = offsetZ;
+				for (int offsetX = 0; offsetX < 16; offsetX += 2) {
+					final int offsetX_ = offsetX;
+					async.submit(() -> {
+						long seed = this.chunkGenerator.seed;
+						int minY = this.chunkGenerator.height.min_y();
+						int maxY = this.chunkGenerator.height.max_y();
+						RootLayer layer = this.chunkGenerator.layer;
+						int quadX = startX | offsetX_;
+						int quadZ = startZ | offsetZ_;
+						ScriptedColumn
+							column00 = factory.create(seed, quadX,     quadZ,     minY, maxY),
+							column01 = factory.create(seed, quadX | 1, quadZ,     minY, maxY),
+							column10 = factory.create(seed, quadX,     quadZ | 1, minY, maxY),
+							column11 = factory.create(seed, quadX | 1, quadZ | 1, minY, maxY);
+						BlockSegmentList
+							list00 = new BlockSegmentList(minY, maxY),
+							list01 = new BlockSegmentList(minY, maxY),
+							list10 = new BlockSegmentList(minY, maxY),
+							list11 = new BlockSegmentList(minY, maxY);
+						layer.emitSegments(column00, column01, column10, column11, list00);
+						layer.emitSegments(column01, column00, column11, column10, list01);
+						layer.emitSegments(column10, column11, column00, column01, list10);
+						layer.emitSegments(column11, column10, column01, column00, list11);
+						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_,     offsetZ_    )), list00);
+						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_ ^ 1, offsetZ_    )), list01);
+						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_,     offsetZ_ ^ 1)), list10);
+						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_ ^ 1, offsetZ_ ^ 1)), list11);
+					});
+				}
 			}
 		}
 		return results;
+	}
+
+	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
+		builder.query[0] = this.chunkGenerator.biomeRegistry.getOrCreateEntry(BiomeKeys.PLAINS);
+		builder.biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(builder.query, this.level);
+		for (int index = segments.size(); --index >= 0;) {
+			Segment<BlockState> segment = segments.get(index);
+			if (segment.value.isAir()) continue;
+			builder.add(segment.value, segment.minY, segment.maxY + 1);
+			builder.lightLevel = Math.max(builder.lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY - segment.minY + 1), 0);
+		}
 	}
 
 	@Override
