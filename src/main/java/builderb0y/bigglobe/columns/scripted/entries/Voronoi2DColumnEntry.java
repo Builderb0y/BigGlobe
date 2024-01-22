@@ -15,6 +15,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.*;
+import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
@@ -215,7 +216,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		ConstantValue diagram = context.mainClass.newConstant(this.value, type(VoronoiDiagram2D.class));
+		ConstantValue diagram = ConstantValue.ofManual(this.value, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
 		LazyVarInfo self = new LazyVarInfo("this", computeMethod.clazz.info);

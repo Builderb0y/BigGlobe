@@ -312,4 +312,50 @@ public interface ColumnScript extends Script {
 			}
 		}
 	}
+
+	public static interface ColumnToObjectScript extends ColumnScript {
+
+		public abstract Object get(ScriptedColumn column);
+
+		public static class Holder extends BaseHolder<ColumnToObjectScript> implements ColumnToObjectScript {
+
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
+				super(usage, registry, ColumnToObjectScript.class);
+			}
+
+			@Override
+			public Object get(ScriptedColumn column) {
+				try {
+					return this.script.get(column);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return false;
+				}
+			}
+		}
+	}
+
+	public static interface ColumnYToObjectScript extends ColumnScript {
+
+		public abstract Object get(ScriptedColumn column, int y);
+
+		public static class Holder extends BaseHolder<ColumnYToObjectScript> implements ColumnYToObjectScript {
+
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
+				super(usage, registry, ColumnYToObjectScript.class);
+			}
+
+			@Override
+			public Object get(ScriptedColumn column, int y) {
+				try {
+					return this.script.get(column, y);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return false;
+				}
+			}
+		}
+	}
 }

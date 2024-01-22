@@ -2,15 +2,19 @@ package builderb0y.bigglobe.columns.scripted;
 
 import java.util.Map;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
 import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class AccessSchemas {
 
@@ -26,6 +30,8 @@ public class AccessSchemas {
 			return obj != null && this.getClass() == obj.getClass();
 		}
 	}
+
+	//////////////////////////////// 2D ////////////////////////////////
 
 	public static abstract class _2DAccessSchema extends AbstractAccessSchema {
 
@@ -90,6 +96,28 @@ public class AccessSchemas {
 		}
 	}
 
+	public static class Block2DAccessSchema extends _2DAccessSchema {
+
+		public static final Block2DAccessSchema INSTANCE = new Block2DAccessSchema();
+
+		@Override
+		public TypeContext createType(ColumnCompileContext context) {
+			return new TypeContext(type(Block.class), type(Block.class), null);
+		}
+	}
+
+	public static class BlockState2DAccessSchema extends _2DAccessSchema {
+
+		public static final BlockState2DAccessSchema INSTANCE = new BlockState2DAccessSchema();
+
+		@Override
+		public TypeContext createType(ColumnCompileContext context) {
+			return new TypeContext(type(BlockState.class), type(BlockState.class), null);
+		}
+	}
+
+	//////////////////////////////// 3D ////////////////////////////////
+
 	public static abstract class _3DAccessSchema extends AbstractAccessSchema {
 
 		@Override
@@ -152,6 +180,28 @@ public class AccessSchemas {
 			return new TypeContext(TypeInfos.BOOLEAN, MappedRangeNumberArray.TYPE, null);
 		}
 	}
+
+	public static class Block3DAccessSchema extends _3DAccessSchema {
+
+		public static final Block3DAccessSchema INSTANCE = new Block3DAccessSchema();
+
+		@Override
+		public TypeContext createType(ColumnCompileContext context) {
+			return new TypeContext(type(Block.class), type(Block.class), null);
+		}
+	}
+
+	public static class BlockState3DAccessSchema extends _3DAccessSchema {
+
+		public static final BlockState3DAccessSchema INSTANCE = new BlockState3DAccessSchema();
+
+		@Override
+		public TypeContext createType(ColumnCompileContext context) {
+			return new TypeContext(type(BlockState.class), type(BlockState.class), null);
+		}
+	}
+
+	//////////////////////////////// voronoi ////////////////////////////////
 
 	public static class Voronoi2DAccessSchema implements AccessSchema {
 

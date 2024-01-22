@@ -24,14 +24,14 @@ public class MethodCompileContext {
 		this.node = node;
 		this.info = info;
 		this.scopes = new ScopeContext(this);
-		this.scopes.pushScope();
+		if (!info.isAbstract()) this.scopes.pushScope();
 		if (!info.isStatic()) {
 			this.node.visitParameter("this", 0);
-			this.scopes.addVariable("this", clazz.info);
+			if (!info.isAbstract()) this.scopes.addVariable("this", clazz.info);
 		}
 		for (int index = 0, length = parameterNames.length; index < length; index++) {
 			this.node.visitParameter(parameterNames[index], 0);
-			this.scopes.addVariable(parameterNames[index], info.paramTypes[index]);
+			if (!info.isAbstract()) this.scopes.addVariable(parameterNames[index], info.paramTypes[index]);
 		}
 	}
 

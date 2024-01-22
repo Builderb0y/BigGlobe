@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.optimization.ClassOptimizer;
 
 /**
 the ClassLoader responsible for converting script bytecode into actual classes.
@@ -92,6 +93,7 @@ public class ScriptClassLoader extends ClassLoader {
 	}
 
 	public void recursiveAddClasses(ClassCompileContext clazz) {
+		ClassOptimizer.DEFAULT.optimize(clazz.node);
 		this.loadable.put(clazz.info.getClassName(), clazz);
 		for (ClassCompileContext innerClass : clazz.innerClasses) {
 			this.recursiveAddClasses(innerClass);

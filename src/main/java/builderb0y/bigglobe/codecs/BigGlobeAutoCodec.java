@@ -221,6 +221,7 @@ public class BigGlobeAutoCodec {
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
 							}
+							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUEncoder(Structure.Config.CODEC.codec(), false));
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
@@ -256,6 +257,7 @@ public class BigGlobeAutoCodec {
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
 							}
+							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUDecoder(Structure.Config.CODEC.codec(), false));
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));

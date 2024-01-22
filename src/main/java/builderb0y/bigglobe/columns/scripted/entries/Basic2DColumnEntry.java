@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
@@ -102,7 +103,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 		LazyVarInfo self = new LazyVarInfo("this", setterMethod.clazz.info);
 		LazyVarInfo value = new LazyVarInfo("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
 		return_(putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setterMethod);
-		setterMethod.scopes.popScope();
+		setterMethod.endCode();
 	}
 
 	public abstract void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException;

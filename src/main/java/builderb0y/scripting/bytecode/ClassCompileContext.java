@@ -28,6 +28,7 @@ public class ClassCompileContext {
 	public TypeInfo info;
 	public Map<String, TypeInfo> definedClasses;
 	public List<ClassCompileContext> innerClasses;
+	public List<MethodCompileContext> innerMethods;
 	public int memberUniquifier;
 	public List<Object> constants = new ArrayList<>();
 
@@ -46,6 +47,7 @@ public class ClassCompileContext {
 		);
 		this.node.visitSource("Script", null);
 		this.innerClasses = new ArrayList<>(2);
+		this.innerMethods = new ArrayList<>(8);
 	}
 
 	public ClassCompileContext(ClassCompileContext parent, int access, TypeInfo info) {
@@ -63,6 +65,7 @@ public class ClassCompileContext {
 		);
 		this.node.visitSource(info.getSimpleName(), null);
 		this.innerClasses = new ArrayList<>(0);
+		this.innerMethods = new ArrayList<>(8);
 	}
 
 	public ClassCompileContext(
@@ -86,8 +89,11 @@ public class ClassCompileContext {
 	}
 
 	public ConstantValue newConstant(Object value, TypeInfo type) {
-		int which = this.constants.size();
-		this.constants.add(value);
+		int which = this.constants.indexOf(value);
+		if (which < 0) {
+			which = this.constants.size();
+			this.constants.add(value);
+		}
 		return ConstantValue.dynamic(
 			type,
 			ScriptClassLoader.GET_CONSTANT,
@@ -96,6 +102,11 @@ public class ClassCompileContext {
 	}
 
 	public byte[] toByteArray() {
+		for (MethodCompileContext method : this.innerMethods) {
+			if (!method.scopes.stack.isEmpty()) {
+				throw new IllegalStateException(this.node.name + '.' + method.node.name + "() has not had its scope fully popped yet!");
+			}
+		}
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS) {
 
 			@Override
@@ -134,14 +145,17 @@ public class ClassCompileContext {
 	public void addToString(String string) {
 		MethodCompileContext toString = this.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
 		return_(ldc(string)).emitBytecode(toString);
+		toString.endCode();
 	}
 
 	public MethodCompileContext newMethod(int access, String name, TypeInfo returnType, LazyVarInfo... parameters) {
 		access |= this.node.access & ACC_INTERFACE;
 		MethodInfo info = new MethodInfo(access, this.info, name, returnType, CollectionTransformer.convertArray(parameters, TypeInfo[]::new, LazyVarInfo::type));
-		MethodNode method = new MethodNode(info.access(), info.name, info.getDescriptor(), null, null);
-		this.node.methods.add(method);
-		return new MethodCompileContext(this, method, info, CollectionTransformer.convertArray(parameters, String[]::new, LazyVarInfo::name));
+		MethodNode methodNode = new MethodNode(info.access(), info.name, info.getDescriptor(), null, null);
+		this.node.methods.add(methodNode);
+		MethodCompileContext methodCompileContext = new MethodCompileContext(this, methodNode, info, CollectionTransformer.convertArray(parameters, String[]::new, LazyVarInfo::name));
+		this.innerMethods.add(methodCompileContext);
+		return methodCompileContext;
 	}
 
 	public FieldCompileContext newField(FieldInfo info) {

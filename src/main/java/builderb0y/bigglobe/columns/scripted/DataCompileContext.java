@@ -11,7 +11,7 @@ import org.objectweb.asm.Type;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
+import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -184,6 +184,7 @@ public abstract class DataCompileContext {
 			{
 				MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
 				return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
+				lookup.endCode();
 			}
 		}
 
@@ -298,6 +299,7 @@ public abstract class DataCompileContext {
 					)
 				)
 				.emitBytecode(column);
+				column.endCode();
 			}
 		}
 

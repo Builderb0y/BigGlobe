@@ -1,10 +1,14 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import net.minecraft.block.BlockState;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class Valids {
 
@@ -77,6 +81,16 @@ public class Valids {
 	public static record Float2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultFloat(Float.NaN) float fallback) implements _2DValid, FloatValid {}
 	public static record Double2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultDouble(Double.NaN) double fallback) implements _2DValid, DoubleValid {}
 	public static record Boolean2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @DefaultBoolean(false) boolean fallback) implements _2DValid, BooleanValid {}
+	public static record BlockState2DValid(ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable BlockState fallback) implements _2DValid {
+
+		@Override
+		public ConstantValue getFallback(TypeInfo type) {
+			if (!type.extendsOrImplements(type(BlockState.class))) {
+				throw new IllegalArgumentException("Expected BlockState, got " + type);
+			}
+			return ConstantValue.ofManual(this.fallback, type);
+		}
+	}
 	public static record NullObject2DValid(ScriptUsage<GenericScriptTemplateUsage> where) implements _2DValid {
 
 		@Override
@@ -90,5 +104,14 @@ public class Valids {
 	public static record Float3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultFloat(Float.NaN) float fallback) implements _3DValid, FloatValid {}
 	public static record Double3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultDouble(Double.NaN) double fallback) implements _3DValid, DoubleValid {}
 	public static record Boolean3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @DefaultBoolean(false) boolean fallback) implements _3DValid, BooleanValid {}
+	public static record BlockState3DValid(@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y, @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y, @VerifyNullable BlockState fallback) implements _3DValid {
 
+		@Override
+		public ConstantValue getFallback(TypeInfo type) {
+			if (!type.extendsOrImplements(type(BlockState.class))) {
+				throw new IllegalArgumentException("Expected BlockState, got " + type);
+			}
+			return ConstantValue.ofManual(this.fallback, type);
+		}
+	}
 }

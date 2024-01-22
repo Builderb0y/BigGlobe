@@ -13,6 +13,7 @@ import net.minecraft.registry.Registry;
 #if MC_VERSION > MC_1_19_2
 	import net.minecraft.registry.RegistryWrapper;
 #endif
+@Deprecated //minecraft will hopefully be making blocks data-driven in the future.
 public class BlockArgumentParserVersions {
 
 	#if MC_VERSION == MC_1_19_2

@@ -30,14 +30,18 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 	public static ConstantValue of(boolean  value) { return new    IntConstantValue(value); }
 	public static ConstantValue of(String   value) { return value == null ? new NullConstantValue(TypeInfos.STRING) : new StringConstantValue(value); }
 	public static ConstantValue of(TypeInfo value) { return new  ClassConstantValue(Objects.requireNonNull(value, "Attempt to LDC null.class")); }
+	public static ConstantValue ofNull(TypeInfo type) { return new NullConstantValue(type); }
+	public static ConstantValue ofManual(Object object, TypeInfo type) { return object == null ? ofNull(type) : new ManualConstantValue(object, type); }
 
 	public static ConstantValue of(Object object, TypeInfo type) {
-		if (object == null) return new NullConstantValue(type);
-		if (object instanceof String s && type.equals(TypeInfos.STRING)) {
-			return new StringConstantValue(s);
+		if (object == null) {
+			return ofNull(type);
+		}
+		else if (object instanceof String s && type.equals(TypeInfos.STRING)) {
+			return of(s);
 		}
 		else if (object instanceof TypeInfo t && type.equals(TypeInfos.CLASS)) {
-			return new ClassConstantValue(t);
+			return of(t);
 		}
 		else if (object instanceof Character c) {
 			object = Integer.valueOf(c.charValue());
@@ -45,18 +49,22 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		else if (object instanceof Boolean b) {
 			object = Integer.valueOf(b.booleanValue() ? 1 : 0);
 		}
-		Number number = (Number)(object);
-		return switch (type.getSort()) {
-			case BYTE    -> of(number.byteValue());
-			case SHORT   -> of(number.shortValue());
-			case INT     -> of(number.intValue());
-			case LONG    -> of(number.longValue());
-			case FLOAT   -> of(number.floatValue());
-			case DOUBLE  -> of(number.doubleValue());
-			case CHAR    -> of((char)(number.intValue()));
-			case BOOLEAN -> of(number.intValue() != 0);
-			case VOID, OBJECT, ARRAY -> throw new IllegalArgumentException(type.toString());
-		};
+		if (object instanceof Number number && type.isNumber()) {
+			return switch (type.getSort()) {
+				case BYTE    -> of(number.byteValue());
+				case SHORT   -> of(number.shortValue());
+				case INT     -> of(number.intValue());
+				case LONG    -> of(number.longValue());
+				case FLOAT   -> of(number.floatValue());
+				case DOUBLE  -> of(number.doubleValue());
+				case CHAR    -> of((char)(number.intValue()));
+				case BOOLEAN -> of(number.intValue() != 0);
+				case VOID, OBJECT, ARRAY -> throw new IllegalArgumentException(type.toString());
+			};
+		}
+		else {
+			return new ManualConstantValue(object, type);
+		}
 	}
 
 	public static ConstantValue dynamic(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
@@ -524,6 +532,42 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override
 		public String toString() {
 			return this.dynamic.toString();
+		}
+	}
+
+	public static class ManualConstantValue extends NonConstantValue {
+
+		public final Object value;
+		public final TypeInfo type;
+
+		public ManualConstantValue(Object value, TypeInfo type) {
+			this.value = value;
+			this.type = type;
+		}
+
+		@Override
+		public Object asJavaObject() {
+			return this.value;
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.type;
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			method.clazz.newConstant(this.value, this.type).emitBytecode(method);
+		}
+
+		@Override
+		public boolean isConstantOrDynamic() {
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return this.value + " of type " + this.type;
 		}
 	}
 

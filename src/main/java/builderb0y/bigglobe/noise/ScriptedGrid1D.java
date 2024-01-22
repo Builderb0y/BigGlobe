@@ -155,6 +155,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 
 		@Override
@@ -249,6 +250,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 	}
 }

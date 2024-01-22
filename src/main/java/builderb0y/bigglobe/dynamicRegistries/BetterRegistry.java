@@ -117,4 +117,9 @@ public interface BetterRegistry<T> {
 	public static <T> Stream<T> castStream(Stream<? extends T> stream) {
 		return (Stream<T>)(stream);
 	}
+
+	public static interface Lookup {
+
+		public abstract <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key);
+	}
 }

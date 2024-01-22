@@ -182,6 +182,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 
 		@Override
@@ -278,6 +279,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 	}
 }

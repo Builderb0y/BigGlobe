@@ -52,7 +52,7 @@ public class DoubleNoise3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
-		memory.putTyped(CONSTANT_GRID, context.mainClass.newConstant(this.value, type(Grid3D.class)));
+		memory.putTyped(CONSTANT_GRID, ConstantValue.ofManual(this.value, type(Grid3D.class)));
 		super.emitFieldGetterAndSetter(memory, context);
 	}
 

@@ -3,9 +3,6 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
@@ -15,11 +12,11 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -37,12 +34,14 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_2d"), FloatScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_2d"), DoubleScript2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_2d"), BooleanScript2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_script_2d"), BlockStateScript2DColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("int_script_3d"), IntScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("long_script_3d"), LongScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_script_3d"), FloatScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_script_3d"), DoubleScript3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_script_3d"), BooleanScript3DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_script_3d"), BlockStateScript3DColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_2d"), FloatNoise2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_2d"), DoubleNoise2DColumnEntry.class);
@@ -55,6 +54,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_constant"), FloatConstantColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_constant"), DoubleConstantColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_constant"), BooleanConstantColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_constant"), BlockStateConstantColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi_2d"), Voronoi2DColumnEntry.class);
 	}};
@@ -202,6 +202,4 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			}
 		}
 	}
-
-	public static record TypeContext(@NotNull TypeInfo exposedType, @NotNull TypeInfo fieldType, @Nullable DataCompileContext context) {}
 }

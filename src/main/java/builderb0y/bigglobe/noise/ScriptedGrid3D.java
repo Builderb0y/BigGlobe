@@ -200,6 +200,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 
 		@Override
@@ -302,6 +303,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
+			getBulk.endCode();
 		}
 	}
 }

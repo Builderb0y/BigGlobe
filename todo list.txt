@@ -38,6 +38,9 @@ where I left off:
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
 	add distantHorizons variable for all column scripts.
+	option to specify that a grid column entry should use the hashed world seed,
+		not the seed that's been xor'd with the permutation of the entry's ID.
+		or better yet, a "salt" field.
 
 changelog:
 	4.0:

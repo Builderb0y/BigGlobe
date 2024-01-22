@@ -146,7 +146,6 @@ public class ScriptParser<I> extends ExpressionParser {
 
 	public I parse() throws ScriptParsingException {
 		this.toBytecode();
-		ClassOptimizer.DEFAULT.optimize(this.clazz.node);
 		return this.toScript();
 	}
 

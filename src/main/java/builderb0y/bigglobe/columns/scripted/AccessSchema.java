@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -7,7 +10,6 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.*;
 import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.TypeContext;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -23,6 +25,7 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_2d"), Float2DAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_2d"), Double2DAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_2d"), Boolean2DAccessSchema.class);
+
 		REGISTRY.registerAuto(BigGlobeMod.modID("int_3d"), Int3DAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("long_3d"), Long3DAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_3d"), Float3DAccessSchema.class);
@@ -79,4 +82,18 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 
 	@Override
 	public abstract int hashCode();
+
+	public static record TypeContext(
+		/** the type returned by the getter method. */
+		@NotNull TypeInfo exposedType,
+		/** the type of the backing field. */
+		@NotNull TypeInfo fieldType,
+		/**
+		if this schema requires a new class to represent,
+		then this component represents a DataCompileContext
+		which is responsible for compiling that class.
+		otherwise, this component holds null.
+		*/
+		@Nullable DataCompileContext context
+	) {}
 }

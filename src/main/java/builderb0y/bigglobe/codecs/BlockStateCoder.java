@@ -6,20 +6,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.state.property.Property;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.poi.PointOfInterestTypes;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -27,11 +28,16 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.codecs.registries.BetterHardCodedRegistryCoder;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static final BlockStateCoder INSTANCE = new BlockStateCoder("BlockStateCoder.INSTANCE");
+
+	public static final AutoCoder<BetterRegistry<Block>> BLOCK_REGISTRY_CODER = new BetterHardCodedRegistryCoder<>(RegistryVersions.block());
 
 	public BlockStateCoder(String toString) {
 		super(toString);
@@ -67,15 +73,15 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		if (context.isEmpty()) return null;
 		String string = context.tryAsString();
 		if (string != null) try {
-			BlockResult result = BlockArgumentParserVersions.block(string, false);
-			Set<Property<?>> missing = new HashSet<>(result.blockState().getProperties());
-			missing.removeAll(result.properties().keySet());
+			BetterRegistry<Block> blockRegistry = context.decodeWith(BLOCK_REGISTRY_CODER);
+			BlockProperties blockProperties = decodeState(blockRegistry, string);
+			Set<Property<?>> missing = blockProperties.missing();
 			if (!missing.isEmpty()) {
 				context.logger().logErrorLazy(() -> "Missing properties: " + missing);
 			}
-			return result.blockState();
+			return blockProperties.state();
 		}
-		catch (CommandSyntaxException exception) {
+		catch (RuntimeException exception) {
 			throw new DecodeException(exception);
 		}
 		else {
@@ -87,10 +93,65 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
+	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
+		int openBracket = input.indexOf('[');
+		Identifier blockID = new Identifier(openBracket >= 0 ? input.substring(0, openBracket) : input);
+		Block block = blockRegistry.getOrCreateEntry(RegistryKey.of(RegistryKeyVersions.block(), blockID)).value();
+		BlockState state = block.getDefaultState();
+		if (openBracket >= 0) {
+			if (block.getStateManager().getProperties().isEmpty()) {
+				throw new IllegalArgumentException("Block " + blockID + " has no properties, but input string specified an opening '[' anyway.");
+			}
+			int closeBracket = input.indexOf(']');
+			if (closeBracket != input.length() - 1) {
+				throw new IllegalArgumentException("Closing ']' must be the last character in the input string: " + input);
+			}
+			String[] split = input.substring(openBracket + 1, closeBracket).split(",");
+			Map<Property<?>, Comparable<?>> properties = new Object2ObjectOpenHashMap<>(split.length);
+			for (String pair : split) {
+				int equals = pair.indexOf('=');
+				if (equals < 0) {
+					throw new IllegalArgumentException("Expected '=' somewhere in " + pair);
+				}
+				String propertyName = pair.substring(0, equals);
+				Property property = block.getStateManager().getProperty(propertyName);
+				if (property == null) {
+					throw new IllegalArgumentException("Block " + blockID + " has no such property named " + propertyName + " for input " + input);
+				}
+				String valueString = pair.substring(equals + 1);
+				Comparable value = (Comparable)(property.parse(valueString).orElse(null));
+				if (value == null) {
+					throw new IllegalArgumentException("Value " + valueString + " is not applicable for property " + propertyName + " for input " + input);
+				}
+				state = state.with(property, value);
+				properties.put(property, value);
+			}
+			return new BlockProperties(block, state, properties);
+		}
+		else {
+			return new BlockProperties(block, state, Collections.emptyMap());
+		}
+	}
+
+	public static record BlockProperties(Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
+
+		public Set<Property<?>> missing() {
+			Collection<Property<?>> properties = this.block.getStateManager().getProperties();
+			if (properties.size() == this.properties.size()) return Collections.emptySet();
+			Set<Property<?>> set = new HashSet<>(properties);
+			set.removeAll(this.properties.keySet());
+			return set;
+		}
+	}
+
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BlockState> context) throws EncodeException {
 		BlockState state = context.input;
 		if (state == null) return context.empty();
+		return context.createString(encodeState(state));
+	}
+
+	public static String encodeState(BlockState state) {
 		StringBuilder builder = new StringBuilder(64);
 		Optional<RegistryKey<Block>> key = state.getRegistryEntry().getKey();
 		if (key.isPresent()) builder.append(key.get().getValue());
@@ -105,7 +166,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			}
 			builder.append(']');
 		}
-		return context.createString(builder.toString());
+		return state.toString();
 	}
 
 	public static <T extends Comparable<T>> void appendProperty(StringBuilder builder, BlockState state, Property<T> property) {

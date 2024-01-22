@@ -49,12 +49,12 @@ public class DoubleNoise2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		ConstantValue gridConstant = context.mainClass.newConstant(this.value, type(Grid2D.class));
 		InsnTree x = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x"));
 		InsnTree z = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z"));
 		long salt = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 		InsnTree originalSeed = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "seed"));
 		InsnTree saltedSeed = new BitwiseXorInsnTree(originalSeed, ldc(salt), LXOR);
-		return_(invokeInstance(ldc(gridConstant), MethodInfo.getMethod(Grid2D.class, "getValue"), saltedSeed, x, z)).emitBytecode(computeMethod);
+		return_(invokeInstance(ldc(this.value, type(Grid2D.class)), MethodInfo.getMethod(Grid2D.class, "getValue"), saltedSeed, x, z)).emitBytecode(computeMethod);
+		computeMethod.endCode();
 	}
 }

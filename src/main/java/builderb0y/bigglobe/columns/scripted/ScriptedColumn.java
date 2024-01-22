@@ -24,6 +24,10 @@ public abstract class ScriptedColumn {
 		return Permuter.permute(this.seed, this.x, this.z);
 	}
 
+	public long columnSeed(long salt) {
+		return Permuter.permute(this.seed ^ salt, this.x, this.z);
+	}
+
 	public abstract void clear();
 
 	public void setPosUnchecked(int x, int z, int minY, int maxY) {

@@ -19,10 +19,10 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -30,8 +30,7 @@ public class ColumnEntryRegistry {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
 
-	public final BetterRegistry<ColumnEntry> entries;
-	public final BetterRegistry<VoronoiSettings> voronois;
+	public final BetterRegistry.Lookup registries;
 	public final transient Map<Identifier, ColumnEntryMemory> memories;
 	public final transient List<ColumnEntryMemory> filteredMemories;
 	public final transient Class<? extends ScriptedColumn> columnClass;
@@ -39,9 +38,10 @@ public class ColumnEntryRegistry {
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
 
-	public ColumnEntryRegistry(BetterRegistry<ColumnEntry> entries, BetterRegistry<VoronoiSettings> voronois) throws ScriptParsingException {
-		this.entries  = entries;
-		this.voronois = voronois;
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries) throws ScriptParsingException {
+		this.registries = registries;
+		BetterRegistry<ColumnEntry> entries = registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
+		BetterRegistry<VoronoiSettings> voronois = registries.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
 		this.memories = entries.streamEntries().collect(
 			Collectors.toMap(
 				UnregisteredObjectException::getID,

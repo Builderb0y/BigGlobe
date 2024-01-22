@@ -17,6 +17,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;

@@ -133,6 +133,10 @@ public class MethodInfo implements BytecodeEmitter {
 		return (this.access & PURE) != 0;
 	}
 
+	public boolean isAbstract() {
+		return (this.access & ACC_ABSTRACT) != 0;
+	}
+
 	public static MethodInfo inCaller(String name) {
 		return getMethod(STACK_WALKER.getCallerClass(), name);
 	}
