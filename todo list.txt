@@ -41,6 +41,7 @@ where I left off:
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
+	make nether ores not require a biome field.
 
 changelog:
 	4.0:

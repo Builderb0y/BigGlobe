@@ -23,7 +23,7 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 	@AddPseudoField("replace")
 	public static class Config extends OreFeature.Config {
 
-		public final TagKey<Biome> biomes;
+		public final @VerifyNullable TagKey<Biome> biomes;
 
 		public Config(
 			ColumnYToDoubleScript.Holder chance,
@@ -31,7 +31,7 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 			BlockState2ObjectMap<BlockState> blocks,
 			@VerifyNormal @VerifyNullable BlockState place,
 			@VerifyNormal @VerifyNullable BlockState replace,
-			TagKey<Biome> biomes
+			@VerifyNullable TagKey<Biome> biomes
 		) {
 			super(chance, radius, blocks);
 			if (place != null && replace != null) {
@@ -43,7 +43,7 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 
 		@Override
 		public boolean canSpawnAt(WorldColumn column, int y) {
-			return column.getBiome(y).isIn(this.biomes);
+			return this.biomes == null || column.getBiome(y).isIn(this.biomes);
 		}
 
 		//backwards compatibility.
