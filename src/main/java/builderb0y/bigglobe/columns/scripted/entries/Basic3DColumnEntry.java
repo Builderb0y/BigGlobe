@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
 import builderb0y.bigglobe.noise.NumberArray;

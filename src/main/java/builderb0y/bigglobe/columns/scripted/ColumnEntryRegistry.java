@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;

@@ -1,6 +1,10 @@
 package builderb0y.scripting.parsing;
 
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -17,6 +21,11 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.Mirror;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.ThrowingFunction;
@@ -1119,6 +1128,23 @@ public class ExpressionParser {
 		}
 		return name;
 	}
+
+	public static <T_Encoded> void verifyName(VerifyContext<T_Encoded, String> context) throws VerifyException {
+		String name = context.object;
+		if (name == null) return;
+		if (name.isEmpty()) throw new VerifyException(() -> context.pathToStringBuilder().append(" must not be empty").toString());
+		if (name.equals("_")) throw new VerifyException(() -> context.pathToStringBuilder().append(" must not be _ as it is a reserved word in java").toString());
+		if (!isLetter(name.charAt(0))) throw new VerifyException(() -> context.pathToStringBuilder().append(" must start with an ASCII letter or underscore").toString());
+		for (int index = 1, length = name.length(); index < length; index++) {
+			if (!isLetterOrNumber(name.charAt(index))) throw new VerifyException(() -> context.pathToStringBuilder().append(" must contain only ASCII letters, numbers, and underscores").toString());
+		}
+	}
+
+	@Mirror(UseVerifier.class)
+	@Target(ElementType.TYPE_USE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@UseVerifier(name = "verifyName", in = ExpressionParser.class, usage = MemberUsage.METHOD_IS_HANDLER)
+	public static @interface IdentifierName {}
 
 	public void beginCodeBlock() throws ScriptParsingException {
 		this.input.expectAfterWhitespace('(');

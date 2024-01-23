@@ -10,6 +10,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 import static org.objectweb.asm.Opcodes.*;
 
 public interface ConstantValue extends Typeable, BytecodeEmitter {
@@ -30,7 +31,7 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 	public static ConstantValue of(boolean  value) { return new    IntConstantValue(value); }
 	public static ConstantValue of(String   value) { return value == null ? new NullConstantValue(TypeInfos.STRING) : new StringConstantValue(value); }
 	public static ConstantValue of(TypeInfo value) { return new  ClassConstantValue(Objects.requireNonNull(value, "Attempt to LDC null.class")); }
-	public static ConstantValue ofNull(TypeInfo type) { return new NullConstantValue(type); }
+	public static ConstantValue ofNull(TypeInfo type) { return type.isPrimitive() ? constantAbsent(type) : new NullConstantValue(type); }
 	public static ConstantValue ofManual(Object object, TypeInfo type) { return object == null ? ofNull(type) : new ManualConstantValue(object, type); }
 
 	public static ConstantValue of(Object object, TypeInfo type) {

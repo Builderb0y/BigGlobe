@@ -1,6 +1,10 @@
 {
-	"type": "bigglobe:double_script_2d",
-	"value": [
+	"type": "bigglobe:script",
+	"params": {
+		"return_type": "double",
+		"is_3d": false
+	},
+	"script": [
 		"double snowHeight = `bigglobe:overworld/height_adjusted_snow_y`",
 		"double terrainHeight = `bigglobe:overworld/surface_y`",
 		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",

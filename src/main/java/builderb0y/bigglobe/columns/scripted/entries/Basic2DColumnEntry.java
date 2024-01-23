@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.LazyVarInfo;
@@ -24,7 +24,7 @@ public abstract class Basic2DColumnEntry implements ColumnEntry {
 		if (this.hasField()) {
 			FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 			int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
-			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.fieldType());
+			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.commonType());
 			getterMethod.setCode(
 				"""
 				int oldFlags = flagsField

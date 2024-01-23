@@ -1,5 +1,9 @@
 {
-	"type": "bigglobe:float_script_3d",
-	"value": "`bigglobe:overworld/raw_temperature` - float(y - `bigglobe:overworld/sea_level`) / 512.0I",
+	"type": "bigglobe:script",
+	"params": {
+		"return_type": "float",
+		"is_3d": true
+	},
+	"script": "`bigglobe:overworld/raw_temperature` - float(y - `bigglobe:overworld/sea_level`) / 512.0I",
 	"cache": false
 }

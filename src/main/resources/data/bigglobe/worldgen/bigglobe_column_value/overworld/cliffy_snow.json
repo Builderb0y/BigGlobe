@@ -1,9 +1,16 @@
 {
-	"type": "bigglobe:double_script_2d",
-	"value": {
+	"type": "bigglobe:script",
+	"params": {
+		"return_type": "double",
+		"is_3d": false
+	},
+	"script": {
 		"template": "bigglobe:apply_cliffs",
 		"inputs": {
 			"HEIGHT": "`bigglobe:overworld/raw_snow`"
 		}
+	},
+	"valid": {
+		"where": "`bigglobe:overworld/surface_y` > 0.0L"
 	}
 }

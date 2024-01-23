@@ -1,4 +1,8 @@
 {
-	"type": "bigglobe:float_script_2d",
-	"value": "`bigglobe:overworld/height_adjusted_foliage`(ceilInt(`bigglobe:overworld/surface_y`))"
+	"type": "bigglobe:script",
+	"params": {
+		"return_type": "float",
+		"is_3d": false
+	},
+	"script": "`bigglobe:overworld/height_adjusted_foliage`(ceilInt(`bigglobe:overworld/surface_y`))"
 }

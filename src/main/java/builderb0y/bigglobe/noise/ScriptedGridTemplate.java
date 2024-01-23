@@ -11,6 +11,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MultiLine;
+import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptTemplate;
 
 public class ScriptedGridTemplate implements ScriptTemplate {
@@ -39,13 +40,13 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 		return this.script_inputs;
 	}
 
-	public static record GridInput(String name) {}
+	public static record GridInput(@IdentifierName String name) {}
 
 	public static class ScriptedGridTemplateUsage<G extends Grid> implements ScriptTemplateUsage {
 
 		public final RegistryEntry<ScriptTemplate> template;
 		public final transient ScriptedGridTemplate actualTemplate;
-		public final @DefaultEmpty Map<String, String> inputs;
+		public final @DefaultEmpty Map<@IdentifierName String, String> inputs;
 
 		public ScriptedGridTemplateUsage(
 			RegistryEntry<ScriptTemplate> template,

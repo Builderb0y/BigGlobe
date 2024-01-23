@@ -15,6 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate;
+import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 @UseCoder(name = "REGISTRY", in = ScriptTemplate.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface ScriptTemplate extends CoderRegistryTyped<ScriptTemplate> {
@@ -29,7 +30,7 @@ public interface ScriptTemplate extends CoderRegistryTyped<ScriptTemplate> {
 
 	public abstract List<RequiredInput> getRequiredInputs();
 
-	public record RequiredInput(String name, String type) {}
+	public record RequiredInput(@IdentifierName String name, String type) {}
 
 	public static interface ScriptTemplateUsage {
 

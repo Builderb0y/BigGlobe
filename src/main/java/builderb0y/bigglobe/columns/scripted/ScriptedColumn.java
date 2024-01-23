@@ -52,13 +52,13 @@ public abstract class ScriptedColumn {
 	/** also subclassed at runtime. */
 	public static abstract class VoronoiDataBase {
 
-		public static final int BUILTIN_FLAG_COUNT = 3;
+		public static final int BUILTIN_FLAG_COUNT = 4;
 
 		/* public final synthetic ScriptedColumn$Generated_XXX column; */
 		public final VoronoiDiagram2D.Cell cell;
 		public final long seed;
 		public int flags_0;
-		public double softDistanceSquared, softDistance, hardDistance;
+		public double softDistanceSquared, softDistance, hardDistance, euclideanDistance;
 
 		public VoronoiDataBase(VoronoiDiagram2D.Cell cell, long baseSeed) {
 			this.cell = cell;
@@ -121,6 +121,22 @@ public abstract class ScriptedColumn {
 
 		public double get_hard_distance_squared() {
 			return BigGlobeMath.squareD(this.get_hard_distance());
+		}
+
+		public double get_euclidean_distance_squared() {
+			return BigGlobeMath.squareD(this.column().x - this.get_center_x(), this.column().z - this.get_center_z());
+		}
+
+		public double get_euclidean_distance() {
+			int oldFlags = this.flags_0;
+			int newFlags = oldFlags | 8;
+			if (oldFlags != newFlags) {
+				this.flags_0 = newFlags;
+				return this.euclideanDistance = Math.sqrt(this.get_euclidean_distance_squared());
+			}
+			else {
+				return this.euclideanDistance;
+			}
 		}
 
 		public static interface Factory {

@@ -2,9 +2,9 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float3DAccessSchema;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.Valids.Float3DValid;

@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted;
+package builderb0y.bigglobe.columns.scripted.schemas;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +9,8 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.*;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -20,17 +21,8 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 
 	public static final CoderRegistry<AccessSchema> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_entry_access_schema"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("int_2d"), Int2DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long_2d"), Long2DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float_2d"), Float2DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double_2d"), Double2DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_2d"), Boolean2DAccessSchema.class);
-
-		REGISTRY.registerAuto(BigGlobeMod.modID("int_3d"), Int3DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long_3d"), Long3DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float_3d"), Float3DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double_3d"), Double3DAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_3d"), Boolean3DAccessSchema.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("primitive"), PrimitiveAccessSchema.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"), Voronoi2DAccessSchema.class);
 	}};
 
 	public abstract TypeContext createType(ColumnCompileContext context);
@@ -48,8 +40,8 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 	public default LazyVarInfo[] setterParameters(DataCompileContext context) {
 		return (
 			this.requiresYLevel()
-			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.getSchemaType(this).exposedType()) }
-			: new LazyVarInfo[] { new LazyVarInfo("value", context.getSchemaType(this).exposedType()) }
+			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.root().getSchemaType(this).exposedType()) }
+			: new LazyVarInfo[] { new LazyVarInfo("value", context.root().getSchemaType(this).exposedType()) }
 		);
 	}
 
@@ -58,7 +50,7 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 			flags,
 			context.selfType(),
 			name,
-			context.getSchemaType(this).exposedType(),
+			context.root().getSchemaType(this).exposedType(),
 			this.requiresYLevel()
 			? new TypeInfo[] { TypeInfos.INT }
 			: TypeInfo.ARRAY_FACTORY.empty()
@@ -72,8 +64,8 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 			name,
 			TypeInfos.VOID,
 			this.requiresYLevel()
-			? new TypeInfo[] { TypeInfos.INT, context.getSchemaType(this).exposedType() }
-			: new TypeInfo[] { context.getSchemaType(this).exposedType() }
+			? new TypeInfo[] { TypeInfos.INT, context.root().getSchemaType(this).exposedType() }
+			: new TypeInfo[] { context.root().getSchemaType(this).exposedType() }
 		);
 	}
 
@@ -95,5 +87,15 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 		otherwise, this component holds null.
 		*/
 		@Nullable DataCompileContext context
-	) {}
+	) {
+
+		public TypeInfo commonType() {
+			if (this.exposedType.equals(this.fieldType)) {
+				return this.exposedType;
+			}
+			else {
+				throw new IllegalStateException("Type mismatch between field type " + this.fieldType + " and exposed type " + this.exposedType);
+			}
+		}
+	}
 }

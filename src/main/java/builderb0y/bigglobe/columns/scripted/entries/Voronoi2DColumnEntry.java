@@ -15,10 +15,12 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.*;
-import builderb0y.bigglobe.columns.scripted.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiImplCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.Valids.NullObject2DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
@@ -139,7 +141,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			}
 		}
 
-		TypeContext baseType = context.getSchemaType(this.getAccessSchema());
+		TypeContext baseType = context.root().getSchemaType(this.getAccessSchema());
 		VoronoiBaseCompileContext voronoiBaseContext = (VoronoiBaseCompileContext)(Objects.requireNonNull(baseType.context()));
 		voronoiBaseContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "SEED", TypeInfos.LONG).node.value = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 
@@ -155,7 +157,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.registry.memories.get(
+					context.root().registry.memories.get(
 						UnregisteredObjectException.getID(enable)
 					)
 				);
@@ -164,7 +166,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : entry.value().exports().entrySet()) {
 				ColumnEntryMemory exportMemory = Objects.requireNonNull(
-					context.registry.memories.get(
+					context.root().registry.memories.get(
 						UnregisteredObjectException.getID(export.getValue())
 					)
 				);
@@ -197,7 +199,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.registry.memories.get(
+					context.root().registry.memories.get(
 						UnregisteredObjectException.getID(enable)
 					)
 				);
@@ -257,7 +259,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
 			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
 				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.registry.memories.get(
+					context.root().registry.memories.get(
 						UnregisteredObjectException.getID(enable)
 					)
 				);

@@ -15,6 +15,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -125,7 +126,7 @@ public class DecisionTreeSettings {
 
 		@Override
 		public ConditionTree createCondition(long seed, DataCompileContext context, @Nullable InsnTree loadY) {
-			ColumnEntryMemory memory = context.registry.memories.get(this.column_value);
+			ColumnEntryMemory memory = context.root().registry.memories.get(this.column_value);
 			if (memory == null) {
 				throw new DecisionTreeException("Unknown column value: " + this.column_value);
 			}

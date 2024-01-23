@@ -9,9 +9,10 @@ import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext.VoronoiBaseCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

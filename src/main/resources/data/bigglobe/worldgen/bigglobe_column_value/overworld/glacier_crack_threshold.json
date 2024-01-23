@@ -1,9 +1,20 @@
 {
-	"type": "bigglobe:float_script_2d",
-	"value": [
+	"type": "bigglobe:script",
+	"params": {
+		"return_type": "float",
+		"is_3d": false
+	},
+	"script": [
 		"min(",
 			"unmixLinear(-0.25I, -0.5I, `bigglobe:overworld/raw_temperature`),",
-			"float(unmixLinear(`bigglobe:overworld/sea_level`, `bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 128.0L, `bigglobe:overworld/surface_y`))",
+			"float(unmixLinear(",
+				"`bigglobe:overworld/sea_level`,",
+				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 128.0L,",
+				"`bigglobe:overworld/surface_y`",
+			"))",
 		")"
-	]
+	],
+	"valid": {
+		"where": "`bigglobe:overworld/surface_y` < 0.0L"
+	}
 }

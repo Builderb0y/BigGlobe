@@ -35,6 +35,15 @@ public class MethodCompileContext {
 		}
 	}
 
+	public void appendCode(String code, MutableScriptEnvironment environment) {
+		try {
+			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseRemainingInput(false, false).emitBytecode(this);
+		}
+		catch (ScriptParsingException exception) {
+			throw new RuntimeException(exception);
+		}
+	}
+
 	public void setCode(String code, MutableScriptEnvironment environment) {
 		try {
 			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseEntireInput().emitBytecode(this);

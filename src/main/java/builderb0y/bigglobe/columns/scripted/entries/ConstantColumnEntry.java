@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.ScriptParsingException;
 

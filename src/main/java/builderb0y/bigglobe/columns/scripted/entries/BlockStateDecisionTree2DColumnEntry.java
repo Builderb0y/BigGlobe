@@ -4,9 +4,9 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchemas.BlockState2DAccessSchema;
-import builderb0y.bigglobe.columns.scripted.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valids.BlockState2DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
