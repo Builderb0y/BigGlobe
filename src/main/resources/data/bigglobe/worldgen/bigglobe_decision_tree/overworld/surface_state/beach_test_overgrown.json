@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "range",
+		"min": 2.0,
+		"max": 6.0,
+		"column_value": "bigglobe:overworld/surface_y"
+	},
+	"if_true": "bigglobe:overworld/surface_state/overgrown_beach",
+	"if_false": "bigglobe:overworld/surface_state/beach"
+}

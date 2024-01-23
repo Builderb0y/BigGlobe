@@ -139,8 +139,8 @@ public class Permuter implements RandomGenerator {
 
 	/** same as {@link jdk.internal.util.random.RandomSupport#mixStafford13(long)}. */
 	public static long stafford(long z) {
-		z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
-		z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+		z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L;
+		z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL;
 		return z ^ (z >>> 31);
 	}
 

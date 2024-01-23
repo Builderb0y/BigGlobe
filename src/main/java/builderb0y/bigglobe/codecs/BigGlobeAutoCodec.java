@@ -63,6 +63,7 @@ import builderb0y.autocodec.verifiers.FloatRangeVerifier;
 import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
+import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -141,6 +142,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY);
 	public static final RegistryCoders<ColumnEntry>                     COLUMN_ENTRY_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 	public static final RegistryCoders<VoronoiSettings>                 VORONOI_SETTINGS_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<DecisionTreeSettings>            DECISION_TREE_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<CombinedStructureScripts>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS    = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<LocalNetherSettings>             LOCAL_NETHER_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalNetherSettings                   .class), BigGlobeDynamicRegistries.LOCAL_NETHER_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<OverworldBiomeLayout>            OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(OverworldBiomeLayout                  .class), BigGlobeDynamicRegistries.OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY);
@@ -171,6 +173,7 @@ public class BigGlobeAutoCodec {
 		SCRIPT_TEMPLATE_REGISTRY_CODERS,
 		COLUMN_ENTRY_REGISTRY_CODERS,
 		VORONOI_SETTINGS_REGISTRY_CODERS,
+		DECISION_TREE_SETTINGS_REGISTRY_CODERS,
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
 		LOCAL_NETHER_SETTINGS_REGISTRY_CODERS,
 		OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS,

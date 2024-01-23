@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:block_state_decision_tree_2d",
+	"value": "bigglobe:overworld/surface_state/test_beach",
+	"seed": "bigglobe:overworld/surface_state",
+	"cache": false
+}

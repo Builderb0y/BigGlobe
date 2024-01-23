@@ -56,6 +56,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_constant"), BooleanConstantColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_constant"), BlockStateConstantColumnEntry.class);
 
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_2d"), BlockStateDecisionTree2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_3d"), BlockStateDecisionTree3DColumnEntry.class);
+
 		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi_2d"), Voronoi2DColumnEntry.class);
 	}};
 
