@@ -104,9 +104,8 @@ public interface SurfaceScript extends Script {
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))
 			);
-			for (ColumnEntryMemory memory : registry.filteredMemories) {
-				memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, registry.columnContext, environment, load("mainColumn", registry.columnContext.columnType()));
-			}
+			registry.setupExternalEnvironment(environment, load("mainColumn", registry.columnContext.columnType()));
+
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();

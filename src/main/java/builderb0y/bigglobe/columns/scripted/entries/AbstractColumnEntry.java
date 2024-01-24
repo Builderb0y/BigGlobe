@@ -8,7 +8,8 @@ import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -58,19 +59,19 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public boolean hasValid() {
-		return this.valid != null && this.valid.isUseful(this.getAccessSchema().is3D());
+		return this.valid != null && this.valid.isUseful(this.getAccessSchema().is_3d());
 	}
 
 	public boolean is3D() {
-		return this.getAccessSchema().is3D();
+		return this.getAccessSchema().is_3d();
 	}
 
 	@Override
 	public void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {
 		ColumnEntry.super.populateField(memory, context, getterMethod);
 		if (this.is3D()) {
-			TypeContext typeContext = context.root().getSchemaType(this.getAccessSchema());
-			boolean primitive = typeContext.exposedType().isPrimitive();
+			AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
+			boolean primitive = accessContext.exposedType().isPrimitive();
 			Class<?> arrayClass = primitive ? MappedRangeNumberArray.class : MappedRangeObjectArray.class;
 			context.constructor.appendCode(
 				"valueField = Array.new(empty)",
@@ -81,8 +82,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 				.addVariable(
 					"empty",
 					primitive
-					? getStatic(FieldInfo.getField(NumberArray.class, "EMPTY_" + typeContext.exposedType().getSort().name()))
-					: new NewArrayWithLengthInsnTree(typeContext.exposedType(), ldc(0))
+					? getStatic(FieldInfo.getField(NumberArray.class, "EMPTY_" + accessContext.exposedType().getSort().name()))
+					: new NewArrayWithLengthInsnTree(accessContext.exposedType(), ldc(0))
 				)
 			);
 		}
@@ -110,16 +111,16 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 
 	public void populateGetterWithField3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		int flagIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 
 		MethodCompileContext computeAllMethod = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, TypeInfos.VOID);
 		MethodCompileContext actuallyComputeAll = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, TypeInfos.VOID);
 		memory.putTyped(COMPUTE_ALL, actuallyComputeAll);
-		MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
+		MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, accessContext.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
 		memory.putTyped(COMPUTE_ONE, computeOneMethod);
-		MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, type.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
+		MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, accessContext.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
 		memory.putTyped(EXTRACT, extractMethod);
 
 		getterMethod.setCode(
@@ -157,7 +158,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public void populateGetterWithoutField3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasValid()) {
 			ConditionTree condition = ConstantConditionTree.TRUE;
@@ -177,14 +178,14 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 				memory.putTyped(VALID_MAX_Y, maxY);
 				condition = and(condition, IntCompareConditionTree.lessThan(y, invokeInstance(context.loadSelf(), maxY.info)));
 			}
-			MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, type.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
+			MethodCompileContext computeOneMethod = context.mainClass.newMethod(ACC_PUBLIC, "actually_compute_" + internalName, accessContext.exposedType(), new LazyVarInfo("y", TypeInfos.INT));
 			memory.putTyped(COMPUTE_ONE, computeOneMethod);
 
 			LazyVarInfo self = new LazyVarInfo("this", getterMethod.clazz.info);
 			new IfElseInsnTree(
 				condition,
 				return_(invokeInstance(load(self), computeOneMethod.info, y)),
-				return_(ldc(this.valid.getFallback(type.exposedType()))),
+				return_(ldc(this.valid.getFallback(accessContext.exposedType()))),
 				TypeInfos.VOID
 			)
 				.emitBytecode(getterMethod);
@@ -197,7 +198,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 
 	public void populateGetterWithField2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
 		int flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext type = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
@@ -242,10 +243,10 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public void populateGetterWithoutField2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		String internalName = memory.getTyped(ColumnEntryMemory.INTERNAL_NAME);
 		if (this.hasValid()) {
-			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, type.exposedType());
+			MethodCompileContext computer = context.mainClass.newMethod(ACC_PUBLIC, "compute_" + internalName, accessContext.exposedType());
 			memory.putTyped(ColumnEntryMemory.COMPUTER, computer);
 			MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
 			memory.putTyped(ColumnEntryMemory.VALID_WHERE, testMethod);
@@ -255,7 +256,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 				new MutableScriptEnvironment()
 				.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
 				.addFunctionInvoke("compute", context.loadSelf(), computer.info)
-				.addVariableConstant("fallback", this.valid.getFallback(type.exposedType()))
+				.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
 			);
 		}
 		else {
@@ -264,7 +265,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public void populateExtract(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext extractMethod) {
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		extractMethod.setCode(
 			"""
 			var array = arrayField
@@ -299,7 +300,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 				.addFieldGet("minAccessible", MappedRangeArray.MIN_ACCESSIBLE)
 				.addFieldGet("maxAccessible", MappedRangeArray.MAX_ACCESSIBLE)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-				.addMethodInvoke("get", switch (type.exposedType().getSort()) {
+				.addMethodInvoke("get", switch (accessContext.exposedType().getSort()) {
 					case BYTE    -> MappedRangeNumberArray.GET_B;
 					case SHORT   -> MappedRangeNumberArray.GET_S;
 					case INT     -> MappedRangeNumberArray.GET_I;
@@ -307,9 +308,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 					case FLOAT   -> MappedRangeNumberArray.GET_F;
 					case DOUBLE  -> MappedRangeNumberArray.GET_D;
 					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
-					default -> throw new IllegalStateException("Unsupported type: " + type);
+					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
-				.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(type.exposedType()) : ConstantValue.of(0))
+				.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(accessContext.exposedType()) : ConstantValue.of(0))
 				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
 		);
 	}
@@ -422,7 +423,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		computeAllMethod.setCode(
 			"""
 			var array = valueField
@@ -439,7 +440,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
 			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
+			.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.SET_B;
 				case SHORT   -> MappedRangeNumberArray.SET_S;
 				case INT     -> MappedRangeNumberArray.SET_I;
@@ -447,7 +448,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 				case FLOAT   -> MappedRangeNumberArray.SET_F;
 				case DOUBLE  -> MappedRangeNumberArray.SET_D;
 				case BOOLEAN -> MappedRangeNumberArray.SET_Z;
-				default -> throw new IllegalStateException("Unsupported type: " + type);
+				default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 			})
 			.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
 		);
@@ -455,7 +456,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		if (this.getAccessSchema().is3D()) {
+		if (this.getAccessSchema().is_3d()) {
 			this.populateSetter3D(memory, context, setterMethod);
 		}
 		else {
@@ -464,13 +465,13 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	public void populateSetter2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		LazyVarInfo value = new LazyVarInfo("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
+		LazyVarInfo value = new LazyVarInfo("value", memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType());
 		return_(putField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setterMethod);
 		setterMethod.endCode();
 	}
 
 	public void populateSetter3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		setterMethod.setCode(
 			"""
 			var array = valueField
@@ -481,11 +482,11 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			new MutableScriptEnvironment()
 				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
 				.addVariableLoad("y", TypeInfos.INT)
-				.addVariableLoad("value", type.exposedType())
+				.addVariableLoad("value", accessContext.exposedType())
 				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
 				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-				.addMethodInvoke("set", switch (type.exposedType().getSort()) {
+				.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
 					case BYTE    -> MappedRangeNumberArray.SET_B;
 					case SHORT   -> MappedRangeNumberArray.SET_S;
 					case INT     -> MappedRangeNumberArray.SET_I;
@@ -493,14 +494,14 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 					case FLOAT   -> MappedRangeNumberArray.SET_F;
 					case DOUBLE  -> MappedRangeNumberArray.SET_D;
 					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
-					default -> throw new IllegalStateException("Unsupported type: " + type);
+					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
 		);
 	}
 
 	@Override
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		if (this.getAccessSchema().is3D()) {
+		if (this.getAccessSchema().is_3d()) {
 			this.emitCompute3D(memory, context);
 		}
 		else {

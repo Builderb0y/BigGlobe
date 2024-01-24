@@ -5,11 +5,7 @@ import java.util.List;
 
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;

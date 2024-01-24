@@ -1,17 +1,29 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ParameterNode;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.ClassAccessSchema;
+import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType.ClassColumnValueField;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -19,14 +31,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class CustomClassCompileContext extends DataCompileContext {
 
 	public final ColumnCompileContext parent;
+	public final MemberKeywordHandler newHandler;
 
-	public CustomClassCompileContext(ColumnCompileContext parent, ClassAccessSchema schema) {
+	public CustomClassCompileContext(ColumnCompileContext parent, ClassColumnValueType spec) {
 		parent.children.add(this);
 		this.parent = parent;
-		this.mainClass = new ClassCompileContext(
+		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
-			ClassType.CLASS,
-			Type.getObjectType(Type.getInternalName(ScriptedColumn.class) + '$' + schema.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement()),
+			Type.getInternalName(ScriptedColumn.class) + '$' + spec.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
@@ -34,29 +46,50 @@ public class CustomClassCompileContext extends DataCompileContext {
 			ACC_PUBLIC,
 			"<init>",
 			TypeInfos.VOID,
-			schema
-			.fields
-			.entrySet()
-			.stream()
-			.map((Map.Entry<String, AccessSchema> entry) -> new LazyVarInfo(
-				entry.getKey(),
-				parent.getSchemaType(entry.getValue()).exposedType()
+			Arrays.stream(spec.fieldsInOrder)
+			.map((ClassColumnValueField field) -> new LazyVarInfo(
+				field.name(),
+				parent.getTypeContext(field.type()).type()
 			))
 			.toArray(LazyVarInfo.ARRAY_FACTORY)
 		);
+		invokeInstance(load("this", this.mainClass.info), MethodInfo.getConstructor(Object.class)).emitBytecode(this.constructor);
 		LoadInsnTree loadSelf = load(new LazyVarInfo("this", this.mainClass.info));
-		for (Map.Entry<String, AccessSchema> entry : schema.fields.entrySet()) {
-			FieldCompileContext field = this.mainClass.newField(ACC_PUBLIC, entry.getKey(), parent.getSchemaType(entry.getValue()).exposedType());
+		for (ClassColumnValueField field : spec.fieldsInOrder) {
+			FieldCompileContext fieldContext = this.mainClass.newField(ACC_PUBLIC, field.name(), parent.getTypeContext(field.type()).type());
 			putField(
 				loadSelf,
-				field.info,
+				fieldContext.info,
 				load(
-					entry.getKey(),
-					parent.getSchemaType(entry.getValue()).exposedType()
+					field.name(),
+					parent.getTypeContext(field.type()).type()
 				)
 			)
 			.emitBytecode(this.constructor);
 		}
+		this.newHandler = new MemberKeywordHandler.Named("Constructor for " + spec.name, (ExpressionParser parser, InsnTree receiver, String theStringNew, MemberKeywordMode mode) -> {
+			NamedValues namedValues = NamedValues.parse(parser, null, (ExpressionParser theSameParser, String name) -> {
+				if (!spec.fields.containsKey(name)) {
+					throw new ScriptParsingException("Unknown field: " + name + "; valid fields are: " + spec.fields, theSameParser.input);
+				}
+			});
+			Map<String, InsnTree> lookup = Arrays.stream(namedValues.values()).collect(Collectors.toMap(NamedValue::name, NamedValue::value));
+			InsnTree[] args = new InsnTree[this.constructor.info.paramTypes.length];
+			List<ParameterNode> parameters = this.constructor.node.parameters;
+			for (int index = 0, size = parameters.size(); index < size; index++) {
+				String name = parameters.get(index).name;
+				InsnTree tree = lookup.get(name);
+				if (tree == null) throw new ScriptParsingException("Must specify " + name, parser.input);
+				args[index] = tree;
+			}
+			//todo: create synthetic permute method to preserve left-to-right evaluation order.
+			return newInstance(this.constructor.info, args);
+		});
+		parent
+		.root()
+		.environment
+		.addType(spec.name, this.mainClass.info)
+		.addMemberKeyword(this.mainClass.info, "new", this.newHandler);
 	}
 
 	@Override

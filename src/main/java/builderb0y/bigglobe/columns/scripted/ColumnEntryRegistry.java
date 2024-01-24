@@ -18,11 +18,16 @@ import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -50,7 +55,9 @@ public class ColumnEntryRegistry {
 		);
 		this.columnContext = new ColumnCompileContext(this);
 		for (Map.Entry<Identifier, ColumnEntryMemory> entry : this.memories.entrySet()) {
-			entry.getValue().putTyped(ColumnEntryMemory.TYPE, this.columnContext.getSchemaType(entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema()));
+			AccessSchema accessSchema = entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema();
+			entry.getValue().putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
+			entry.getValue().putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
 		}
 		voronois.streamEntries().forEach((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
 			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
@@ -125,6 +132,15 @@ public class ColumnEntryRegistry {
 		}
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
+		}
+	}
+
+	public void setupExternalEnvironment(MutableScriptEnvironment environment, InsnTree loadColumn) {
+		for (ColumnEntryMemory memory : this.filteredMemories) {
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, loadColumn);
+		}
+		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
+			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment, loadColumn);
 		}
 	}
 }

@@ -16,7 +16,9 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
@@ -95,17 +97,17 @@ public class NbtScriptEnvironment {
 		.addFunction("nbtByteArray", array(NBT_BYTE_ARRAY_CONSTRUCTOR))
 		.addFunction("nbtIntArray", array(NBT_INT_ARRAY_CONSTRUCTOR))
 		.addFunction("nbtLongArray", array(NBT_LONG_ARRAY_CONSTRUCTOR))
-		.addFunction("nbtList", (parser, name, arguments) -> {
+		.addFunction("nbtList", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
 		})
-		.addKeyword("nbtCompound", (parser, name) -> {
-			NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE);
+		.addKeyword("nbtCompound", (ExpressionParser parser, String name) -> {
+			NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE,  null);
 			return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
 		})
 
 		.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
-		.addMethod(NBT_ELEMENT_TYPE, "", (parser, receiver, name, mode, arguments) -> {
+		.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 			if (arguments.length != 1) {
 				throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 			}
@@ -121,7 +123,7 @@ public class NbtScriptEnvironment {
 			}
 		})
 
-		.addField(NBT_ELEMENT_TYPE, null, (parser, receiver, name, mode) -> {
+		.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 			return NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
 				case NORMAL -> GetMethodMode.NORMAL;
 				case NULLABLE -> GetMethodMode.NULLABLE;
@@ -189,7 +191,7 @@ public class NbtScriptEnvironment {
 	}
 
 	public static FunctionHandler array(MethodInfo method) {
-		return (parser, name, arguments) -> {
+		return (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			return new CastResult(
 				invokeStatic(
 					method,

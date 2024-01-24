@@ -1,6 +1,9 @@
 {
 	"result": {
-		"type": "block_state_constant",
-		"state": "minecraft:coarse_dirt"
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:coarse_dirt",
+			"subsurfaceState": "minecraft:coarse_dirt"
+		}
 	}
 }

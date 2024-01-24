@@ -12,7 +12,8 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
@@ -58,11 +59,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		String internalName = DataCompileContext.internalName(accessID, uniqueIndex);
 		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 
-		TypeContext type = memory.getTyped(ColumnEntryMemory.TYPE);
+		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		if (this.hasField()) {
-			FieldCompileContext valueField = context.mainClass.newField(ACC_PUBLIC, internalName, type.fieldType());
+			FieldCompileContext valueField = context.mainClass.newField(ACC_PUBLIC, internalName, accessContext.fieldType());
 			memory.putTyped(ColumnEntryMemory.FIELD, valueField);
-			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, type.exposedType(), this.getAccessSchema().getterParameters());
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, accessContext.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			if (this.isSettable()) {
@@ -79,7 +80,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			}
 		}
 		else {
-			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, type.exposedType(), this.getAccessSchema().getterParameters());
+			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, accessContext.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
 
 			this.populateGetter(memory, context, getterMethod);
@@ -87,7 +88,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	}
 
 	public default void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
-		if (this.getAccessSchema().is3D()) {
+		if (this.getAccessSchema().is_3d()) {
 			context.environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), context.loadSelf(), memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
 		else {
@@ -96,7 +97,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	}
 
 	public default void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
-		if (this.getAccessSchema().is3D()) {
+		if (this.getAccessSchema().is_3d()) {
 			environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), loadColumn, memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
 		else {
@@ -130,7 +131,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 			COMPUTER = new Key<>("computer"),
 			VALID_WHERE = new Key<>("validWhere");
 		public static final Key<TypeContext>
-			TYPE = new Key<>("type");
+			TYPE_CONTEXT = new Key<>("typeContext");
+		public static final Key<AccessContext>
+			ACCESS_CONTEXT = new Key<>("accessContext");
 
 		public ColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
 			this.putTyped(ACCESSOR_ID, UnregisteredObjectException.getID(entry));

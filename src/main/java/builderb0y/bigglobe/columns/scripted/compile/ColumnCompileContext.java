@@ -10,7 +10,9 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -22,7 +24,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ColumnCompileContext extends DataCompileContext {
 
 	public final ColumnEntryRegistry registry;
-	public final Map<AccessSchema, TypeContext> accessSchemaTypeInfos = new HashMap<>(16);
+	public final Map<ColumnValueType, TypeContext> columnValueTypeInfos = new HashMap<>(16);
+	public final Map<AccessSchema, AccessContext> accessSchemaTypeInfos = new HashMap<>(16);
 
 	public ColumnCompileContext(ColumnEntryRegistry registry) {
 		this.registry = registry;
@@ -99,13 +102,22 @@ public class ColumnCompileContext extends DataCompileContext {
 		return new MutableScriptEnvironment().addAll(this.environment);
 	}
 
-	public TypeContext getSchemaType(AccessSchema schema) {
+	public TypeContext getTypeContext(ColumnValueType type) {
 		//note: do not use computeIfAbsent(),
 		//because schema.createType(this) could recursively create other types.
-		TypeContext result = this.accessSchemaTypeInfos.get(schema);
+		TypeContext result = this.columnValueTypeInfos.get(type);
 		if (result == null) {
-			result = schema.createType(this);
-			this.accessSchemaTypeInfos.put(schema, result);
+			this.columnValueTypeInfos.put(type, result = type.createType(this));
+		}
+		return result;
+	}
+
+	public AccessContext getAccessContext(AccessSchema schema) {
+		//note: do not use computeIfAbsent(),
+		//because schema.createType(this) could recursively create other types.
+		AccessContext result = this.accessSchemaTypeInfos.get(schema);
+		if (result == null) {
+			this.accessSchemaTypeInfos.put(schema, result = schema.createType(this));
 		}
 		return result;
 	}

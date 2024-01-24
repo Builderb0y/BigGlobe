@@ -22,8 +22,9 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.DoubleAccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.FloatAccessSchema;
+import builderb0y.bigglobe.columns.scripted.types.AbstractColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.DoubleColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.FloatColumnValueType;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -60,7 +61,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		super(params, valid, cache);
 		this.grid2D = grid2D;
 		this.grid3D = grid3D;
-		if (!(params instanceof FloatAccessSchema) && !(params instanceof DoubleAccessSchema)) {
+		if (!(params.type() instanceof FloatColumnValueType || params.type() instanceof DoubleColumnValueType)) {
 			throw new IllegalArgumentException("params for noise should be of type float or double.");
 		}
 	}
@@ -109,7 +110,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		InsnTree originalSeed = getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "seed"));
 		InsnTree saltedSeed = new BitwiseXorInsnTree(originalSeed, ldc(salt), LXOR);
 		InsnTree getValueInvoker = invokeInstance(ldc(memory.getTyped(CONSTANT_GRID)), MethodInfo.getMethod(this.is3D() ? Grid3D.class : Grid2D.class, "getValue"), saltedSeed, x, z);
-		if (this.params instanceof FloatAccessSchema) getValueInvoker = new OpcodeCastInsnTree(getValueInvoker, D2F, TypeInfos.FLOAT);
+		if (this.params.type() instanceof FloatColumnValueType) getValueInvoker = new OpcodeCastInsnTree(getValueInvoker, D2F, TypeInfos.FLOAT);
 		return_(getValueInvoker).emitBytecode(computeMethod);
 		computeMethod.endCode();
 	}
@@ -154,7 +155,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			AccessSchema params = context.getMember("params").decodeWith(this.params);
 			Valid valid = context.getMember("valid").decodeWith(this.valid);
 			boolean cache = context.getMember("cache").decodeWith(this.cache);
-			if (params.is3D()) {
+			if (params.is_3d()) {
 				Grid3D grid = context.getMember("grid").decodeWith(this.grid3D);
 				return new NoiseColumnEntry(params, valid, cache, null, grid);
 			}
@@ -174,7 +175,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 					"valid", context.input(entry.valid).encodeWith(this.valid),
 					"cache", context.input(entry.cache).encodeWith(this.cache),
 					"grid", (
-						entry.params.is3D()
+						entry.params.is_3d()
 						? context.input(entry.grid3D).encodeWith(this.grid3D)
 						: context.input(entry.grid2D).encodeWith(this.grid2D)
 					)

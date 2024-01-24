@@ -1,38 +1,37 @@
-package builderb0y.bigglobe.columns.scripted.schemas;
+package builderb0y.bigglobe.columns.scripted.types;
 
 import java.util.Set;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
 
+import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class BlockStateAccessSchema extends AbstractAccessSchema {
+@RecordLike({})
+public class BlockStateColumnValueType extends AbstractColumnValueType {
 
-	public static final TypeInfo BLOCK_STATE_TYPE = type(BlockState.class);
-
-	public BlockStateAccessSchema(boolean is_3d) {
-		super(is_3d, BLOCK_STATE_TYPE);
+	@Override
+	public TypeInfo getTypeInfo() {
+		return type(BlockState.class);
 	}
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		BetterRegistry<Block> registry = context.registry.registries.getRegistry(RegistryKeyVersions.block());
-		BlockProperties blockProperties = BlockStateCoder.decodeState(registry, (String)(object));
+		String string = (String)(object);
+		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeyVersions.block()), string);
 		Set<Property<?>> missing = blockProperties.missing();
 		if (!missing.isEmpty()) {
-			BigGlobeMod.LOGGER.warn("Missing properties for block " + blockProperties.id() + ": " + missing);
+			BigGlobeMod.LOGGER.warn("Missing properties for " + string + ": " + missing);
 		}
-		return ldc(blockProperties.state(), BLOCK_STATE_TYPE);
+		return ldc(blockProperties.state(), type(BlockState.class));
 	}
 }

@@ -59,9 +59,8 @@ public interface ColumnScript extends Script {
 
 			MutableScriptEnvironment environment = new MutableScriptEnvironment().addAll(MathScriptEnvironment.INSTANCE);
 			if (y != null) environment.addVariableLoad(y);
-			for (ColumnEntryMemory memory : registry.filteredMemories) {
-				memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, registry.columnContext, environment, load("column", registry.columnContext.columnType()));
-			}
+			registry.setupExternalEnvironment(environment, load("column", registry.columnContext.columnType()));
+
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();

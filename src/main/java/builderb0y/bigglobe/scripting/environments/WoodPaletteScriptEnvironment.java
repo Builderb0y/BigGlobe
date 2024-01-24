@@ -75,7 +75,7 @@ public class WoodPaletteScriptEnvironment {
 						loadRandom,
 						getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()))
 					);
-					NamedValues namedValues = NamedValues.parse(parser, TypeInfos.COMPARABLE);
+					NamedValues namedValues = NamedValues.parse(parser, TypeInfos.COMPARABLE, null);
 					for (NamedValue value : namedValues.values()) {
 						tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
 					}

@@ -1,6 +1,9 @@
 {
 	"result": {
-		"type": "block_state_constant",
-		"state": "minecraft:podzol[snowy=false]"
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:podzol[snowy=false]",
+			"subsurfaceState": "minecraft:dirt"
+		}
 	}
 }

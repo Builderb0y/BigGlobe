@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
@@ -13,10 +12,12 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.Any;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -68,17 +69,18 @@ public class DecisionTreeSettings {
 
 	public InsnTree createInsnTree(
 		RegistryEntry<DecisionTreeSettings> selfEntry,
+		AccessSchema accessSchema,
 		DataCompileContext context,
 		@Nullable InsnTree loadY
 	) {
 		try {
 			if (this.result != null) {
-				return this.result.createResult(context, loadY);
+				return this.result.createResult(context, accessSchema, loadY);
 			}
 			else {
 				ConditionTree condition = this.condition.createCondition(selfEntry, context, loadY);
-				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, context, loadY);
-				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, context, loadY);
+				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, accessSchema, context, loadY);
+				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, accessSchema, context, loadY);
 				if (!ifTrue.getTypeInfo().equals(ifFalse.getTypeInfo())) {
 					throw new DecisionTreeException(UnregisteredObjectException.getKey(this.if_true) + " and " + UnregisteredObjectException.getKey(this.if_false) + " do not have the same return type.");
 				}
@@ -253,23 +255,23 @@ public class DecisionTreeSettings {
 
 		public static final CoderRegistry<DecisionTreeResult> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("decision_tree_result"));
 		public static final Object INITIALIZER = new Object() {{
-			REGISTRY.registerAuto(BigGlobeMod.modID("block_state_constant"), BlockStateConstantDecisionTreeResult.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantDecisionTreeResult.class);
 		}};
 
-		public abstract InsnTree createResult(DataCompileContext context, @Nullable InsnTree loadY);
+		public abstract InsnTree createResult(DataCompileContext context, AccessSchema accessSchema, @Nullable InsnTree loadY);
 	}
 
-	public static class BlockStateConstantDecisionTreeResult implements DecisionTreeResult {
+	public static class ConstantDecisionTreeResult implements DecisionTreeResult {
 
-		public final BlockState state;
+		public final @Any Object value;
 
-		public BlockStateConstantDecisionTreeResult(BlockState state) {
-			this.state = state;
+		public ConstantDecisionTreeResult(@Any Object value) {
+			this.value = value;
 		}
 
 		@Override
-		public InsnTree createResult(DataCompileContext context, @Nullable InsnTree loadY) {
-			return ldc(this.state, type(BlockState.class));
+		public InsnTree createResult(DataCompileContext context, AccessSchema schema, @Nullable InsnTree loadY) {
+			return schema.createConstant(this.value, context.root());
 		}
 	}
 

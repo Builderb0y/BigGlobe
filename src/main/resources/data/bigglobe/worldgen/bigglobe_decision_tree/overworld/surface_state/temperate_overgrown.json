@@ -1,6 +1,9 @@
 {
 	"result": {
-		"type": "block_state_constant",
-		"state": "bigglobe:overgrown_podzol[snowy=false]"
+		"type": "constant",
+		"value": {
+			"surfaceState": "bigglobe:overgrown_podzol[snowy=false]",
+			"subsurfaceState": "minecraft:dirt"
+		}
 	}
 }

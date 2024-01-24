@@ -1,7 +1,10 @@
 {
 	"type": "bigglobe:voronoi",
 	"params": {
-		"type": "bigglobe:voronoi",
+		"type": {
+			"type": "bigglobe:voronoi",
+			"name": "OverworldGlacierCell"
+		},
 		"is_3d": false
 	},
 	"diagram": {

@@ -30,13 +30,13 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public void populateCompute2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		return_(this.root.value().createInsnTree(this.root, context, null)).emitBytecode(computeMethod);
+		return_(this.root.value().createInsnTree(this.root, this.params, context, null)).emitBytecode(computeMethod);
 		computeMethod.endCode();
 	}
 
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		return_(this.root.value().createInsnTree(this.root, context, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
+		return_(this.root.value().createInsnTree(this.root, this.params, context, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
 		computeMethod.endCode();
 	}
 }

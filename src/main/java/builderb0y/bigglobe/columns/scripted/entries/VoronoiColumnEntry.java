@@ -19,8 +19,9 @@ import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
-import builderb0y.bigglobe.columns.scripted.schemas.VoronoiAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -61,7 +62,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	) {
 		super(params, valid, true);
 		this.diagram = diagram;
-		if (!(params instanceof VoronoiAccessSchema)) {
+		if (!(params.type() instanceof VoronoiColumnValueType)) {
 			throw new IllegalArgumentException("params must be of type 'bigglobe:voronoi' when column value type is 'bigglobe:voronoi'");
 		}
 	}
@@ -111,7 +112,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	}
 
 	public Map<String, AccessSchema> exports() {
-		return ((VoronoiAccessSchema)(this.params)).exports;
+		return ((VoronoiColumnValueType)(this.params.type())).exports;
 	}
 
 	@Override
@@ -132,7 +133,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 			}
 		}
 
-		TypeContext baseType = context.root().getSchemaType(this.getAccessSchema());
+		AccessContext baseType = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		VoronoiBaseCompileContext voronoiBaseContext = (VoronoiBaseCompileContext)(Objects.requireNonNull(baseType.context()));
 		voronoiBaseContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "SEED", TypeInfos.LONG).node.value = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 
@@ -164,7 +165,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 				AccessSchema schema = export.getValue().value().getAccessSchema();
 				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.selfType(), schema.getterParameters());
 				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
-				LazyVarInfo loadY = schema.is3D() ? new LazyVarInfo("y", TypeInfos.INT) : null;
+				LazyVarInfo loadY = schema.is_3d() ? new LazyVarInfo("y", TypeInfos.INT) : null;
 				return_(
 					invokeInstance(
 						load(self),
@@ -220,7 +221,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 					ACC_PUBLIC | ACC_STATIC,
 					TypeInfos.OBJECT, //ignored.
 					"randomize",
-					memory.getTyped(ColumnEntryMemory.TYPE).exposedType(),
+					memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
 					type(VoronoiDiagram2D.Cell.class)
 				),
 				memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),

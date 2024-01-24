@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
@@ -368,12 +369,13 @@ public class SpecialFunctionSyntax {
 
 		public static record NamedValue(String name, InsnTree value) {}
 
-		public static NamedValues parse(ExpressionParser parser, @Nullable TypeInfo valueType) throws ScriptParsingException {
+		public static NamedValues parse(ExpressionParser parser, @Nullable TypeInfo valueType, @Nullable NameChecker nameChecker) throws ScriptParsingException {
 			parser.beginCodeBlock();
 			List<NamedValue> namedValues = new ArrayList<>(8);
 			if (parser.input.peekAfterWhitespace() != ')') {
 				while (true) {
 					String name = parser.input.expectIdentifierAfterWhitespace();
+					if (nameChecker != null) nameChecker.checkName(parser, name);
 					parser.input.expectOperatorAfterWhitespace(":");
 					InsnTree value = parser.nextScript();
 					if (valueType != null) {
@@ -387,6 +389,12 @@ public class SpecialFunctionSyntax {
 			}
 			boolean hasNewVariables = parser.endCodeBlock();
 			return new NamedValues(namedValues.toArray(new NamedValue[namedValues.size()]), hasNewVariables);
+		}
+
+		@FunctionalInterface
+		public static interface NameChecker {
+
+			public abstract void checkName(ExpressionParser parser, String name) throws ScriptParsingException;
 		}
 	}
 

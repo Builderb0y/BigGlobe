@@ -3,89 +3,81 @@ package builderb0y.bigglobe.columns.scripted.schemas;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseCoder;
-import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.codecs.CoderRegistry;
-import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
+import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.util.TypeInfos;
 
-@UseCoder(name = "REGISTRY", in = AccessSchema.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
+public record AccessSchema(ColumnValueType type, boolean is_3d) {
 
-	public static final CoderRegistry<AccessSchema> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_entry_access_schema"));
-	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("byte"       ),       ByteAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("short"      ),      ShortAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("int"        ),        IntAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long"       ),       LongAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float"      ),      FloatAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double"     ),     DoubleAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"    ),    BooleanAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("class"      ),      ClassAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"    ),  VoronoiAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"), BlockStateAccessSchema.class);
-	}};
+	public AccessContext createType(ColumnCompileContext context) {
+		TypeContext typeContext = context.getTypeContext(this.type);
+		if (this.is_3d) {
+			if (typeContext.type().isPrimitive()) {
+				return new AccessContext(typeContext.type(), InsnTrees.type(MappedRangeNumberArray.class), typeContext.context());
+			}
+			else {
+				return new AccessContext(typeContext.type(), InsnTrees.type(MappedRangeObjectArray.class), typeContext.context());
+			}
+		}
+		else {
+			return new AccessContext(typeContext.type(), typeContext.type(), typeContext.context());
+		}
+	}
 
-	public abstract boolean is3D();
+	public InsnTree createConstant(Object object, ColumnCompileContext context) {
+		return this.type.createConstant(object, context);
+	}
 
-	public abstract TypeContext createType(ColumnCompileContext context);
-
-	public abstract InsnTree createConstant(Object object, ColumnCompileContext context);
-
-	public default LazyVarInfo[] getterParameters() {
+	public LazyVarInfo[] getterParameters() {
 		return (
-			this.is3D()
+			this.is_3d
 			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
 			: LazyVarInfo.ARRAY_FACTORY.empty()
 		);
 	}
 
-	public default LazyVarInfo[] setterParameters(DataCompileContext context) {
+	public LazyVarInfo[] setterParameters(DataCompileContext context) {
 		return (
-			this.is3D()
-			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.root().getSchemaType(this).exposedType()) }
-			: new LazyVarInfo[] { new LazyVarInfo("value", context.root().getSchemaType(this).exposedType()) }
+			this.is_3d
+			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
+			: new LazyVarInfo[] { new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
 		);
 	}
 
-	public default MethodInfo getterDescriptor(int flags, String name, DataCompileContext context) {
+	public MethodInfo getterDescriptor(int flags, String name, DataCompileContext context) {
 		return new MethodInfo(
 			flags,
 			context.selfType(),
 			name,
-			context.root().getSchemaType(this).exposedType(),
-			this.is3D()
+			context.root().getAccessContext(this).exposedType(),
+			this.is_3d
 			? new TypeInfo[] { TypeInfos.INT }
 			: TypeInfo.ARRAY_FACTORY.empty()
 		);
 	}
 
-	public default MethodInfo setterDescriptor(int flags, String name, DataCompileContext context) {
+	public MethodInfo setterDescriptor(int flags, String name, DataCompileContext context) {
 		return new MethodInfo(
 			flags,
 			context.selfType(),
 			name,
 			TypeInfos.VOID,
-			this.is3D()
-			? new TypeInfo[] { TypeInfos.INT, context.root().getSchemaType(this).exposedType() }
-			: new TypeInfo[] { context.root().getSchemaType(this).exposedType() }
+			this.is_3d
+			? new TypeInfo[] { TypeInfos.INT, context.root().getAccessContext(this).exposedType() }
+			: new TypeInfo[] { context.root().getAccessContext(this).exposedType() }
 		);
 	}
 
-	@Override
-	public abstract boolean equals(Object other);
-
-	@Override
-	public abstract int hashCode();
-
-	public static record TypeContext(
+	public static record AccessContext(
 		/** the type returned by the getter method. */
 		@NotNull TypeInfo exposedType,
 		/** the type of the backing field. */

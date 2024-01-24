@@ -1,12 +1,15 @@
 {
 	"type": "bigglobe:voronoi",
 	"params": {
-		"type": "bigglobe:voronoi",
-		"is_3d": false,
-		"exports": {
-			"min_y": { "type": "double", "is_3d": false },
-			"max_y": { "type": "double", "is_3d": false }
-		}
+		"type": {
+			"type": "bigglobe:voronoi",
+			"name": "OverworldCavernCell",
+			"exports": {
+				"min_y": { "type": "double", "is_3d": false },
+				"max_y": { "type": "double", "is_3d": false }
+			}
+		},
+		"is_3d": false
 	},
 	"diagram": {
 		"distance": 1024,
