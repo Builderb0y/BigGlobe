@@ -434,22 +434,22 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			)
 			""",
 			new MutableScriptEnvironment()
-				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addVariableLoad("y", TypeInfos.INT)
-				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
-				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-				.addMethodInvoke("set", switch (type.exposedType().getSort()) {
-					case BYTE    -> MappedRangeNumberArray.SET_B;
-					case SHORT   -> MappedRangeNumberArray.SET_S;
-					case INT     -> MappedRangeNumberArray.SET_I;
-					case LONG    -> MappedRangeNumberArray.SET_L;
-					case FLOAT   -> MappedRangeNumberArray.SET_F;
-					case DOUBLE  -> MappedRangeNumberArray.SET_D;
-					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
-					default -> throw new IllegalStateException("Unsupported type: " + type);
-				})
-				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
+			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+			.addVariableLoad("y", TypeInfos.INT)
+			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
+			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
+				case BYTE    -> MappedRangeNumberArray.SET_B;
+				case SHORT   -> MappedRangeNumberArray.SET_S;
+				case INT     -> MappedRangeNumberArray.SET_I;
+				case LONG    -> MappedRangeNumberArray.SET_L;
+				case FLOAT   -> MappedRangeNumberArray.SET_F;
+				case DOUBLE  -> MappedRangeNumberArray.SET_D;
+				case BOOLEAN -> MappedRangeNumberArray.SET_Z;
+				default -> throw new IllegalStateException("Unsupported type: " + type);
+			})
+			.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
 		);
 	}
 

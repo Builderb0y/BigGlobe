@@ -47,6 +47,9 @@ where I left off:
 	make new AccessSchema for registry values, or possibly expand PrimitiveAccessSchema.
 		either way, make sure scripts can output registry values.
 	create ClassColumnEntry.
+	Basic2DColumnEntry is now only used by Voronoi2DColumnEntry.
+		make voronoi extend AbstractColumnEntry next.
+		then remove both basic column entries.
 
 changelog:
 	4.0:

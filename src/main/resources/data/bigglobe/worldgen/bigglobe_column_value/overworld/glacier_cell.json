@@ -1,6 +1,6 @@
 {
 	"type": "bigglobe:voronoi_2d",
-	"value": {
+	"diagram": {
 		"distance": 32,
 		"variation": 24
 	},

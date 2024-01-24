@@ -55,16 +55,16 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	public static final ColumnEntryMemory.Key<List<RegistryEntry<VoronoiSettings>>>
 		OPTIONS = new ColumnEntryMemory.Key<>("options");
 
-	public final VoronoiDiagram2D value;
+	public final VoronoiDiagram2D diagram;
 	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 	public final @VerifyNullable NullObject2DValid valid;
 
 	public Voronoi2DColumnEntry(
-		VoronoiDiagram2D value,
+		VoronoiDiagram2D diagram,
 		Map<String, AccessSchema> exports,
 		@VerifyNullable NullObject2DValid valid
 	) {
-		this.value   = value;
+		this.diagram = diagram;
 		this.exports = exports;
 		this.valid   = valid;
 	}
@@ -218,7 +218,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		ConstantValue diagram = ConstantValue.ofManual(this.value, type(VoronoiDiagram2D.class));
+		ConstantValue diagram = ConstantValue.ofManual(this.diagram, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
 		LazyVarInfo self = new LazyVarInfo("this", computeMethod.clazz.info);

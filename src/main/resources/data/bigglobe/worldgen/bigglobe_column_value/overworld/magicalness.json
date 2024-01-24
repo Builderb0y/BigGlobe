@@ -1,6 +1,10 @@
 {
-	"type": "bigglobe:float_noise_2d",
-	"value": {
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
 		"type": "sum",
 		"layers": [
 			{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 1.0 },
