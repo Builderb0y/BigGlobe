@@ -30,17 +30,14 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	public static final CoderRegistry<ColumnEntry> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_value"));
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptColumnEntry.class);
-
 		REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_2d"), FloatNoise2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_2d"), DoubleNoise2DColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_3d"), FloatNoise3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_3d"), DoubleNoise3DColumnEntry.class);
-
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_2d"), BlockStateDecisionTree2DColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_3d"), BlockStateDecisionTree3DColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi_2d"), Voronoi2DColumnEntry.class);
 	}};

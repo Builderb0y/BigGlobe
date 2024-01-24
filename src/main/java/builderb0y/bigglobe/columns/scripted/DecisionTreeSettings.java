@@ -68,18 +68,17 @@ public class DecisionTreeSettings {
 
 	public InsnTree createInsnTree(
 		RegistryEntry<DecisionTreeSettings> selfEntry,
-		long seed,
 		DataCompileContext context,
 		@Nullable InsnTree loadY
 	) {
 		try {
 			if (this.result != null) {
-				return this.result.createResult(seed, context, loadY);
+				return this.result.createResult(context, loadY);
 			}
 			else {
-				ConditionTree condition = this.condition.createCondition(seed, context, loadY);
-				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, Permuter.permute(seed, 1), context, loadY);
-				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, Permuter.permute(seed, -1), context, loadY);
+				ConditionTree condition = this.condition.createCondition(selfEntry, context, loadY);
+				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, context, loadY);
+				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, context, loadY);
 				if (!ifTrue.getTypeInfo().equals(ifFalse.getTypeInfo())) {
 					throw new DecisionTreeException(UnregisteredObjectException.getKey(this.if_true) + " and " + UnregisteredObjectException.getKey(this.if_false) + " do not have the same return type.");
 				}
@@ -101,7 +100,7 @@ public class DecisionTreeSettings {
 			REGISTRY.registerAuto(BigGlobeMod.modID("range"), RangeDecisionTreeCondition.class);
 		}};
 
-		public abstract ConditionTree createCondition(long seed, DataCompileContext context, @Nullable InsnTree loadY);
+		public abstract ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, @Nullable InsnTree loadY);
 	}
 
 	public static class RangeDecisionTreeCondition implements DecisionTreeCondition {
@@ -125,7 +124,7 @@ public class DecisionTreeSettings {
 		}
 
 		@Override
-		public ConditionTree createCondition(long seed, DataCompileContext context, @Nullable InsnTree loadY) {
+		public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, @Nullable InsnTree loadY) {
 			ColumnEntryMemory memory = context.root().registry.memories.get(this.column_value);
 			if (memory == null) {
 				throw new DecisionTreeException("Unknown column value: " + this.column_value);
@@ -142,7 +141,7 @@ public class DecisionTreeSettings {
 						invokeInstance(
 							context.loadColumn(),
 							MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class),
-							ldc(seed)
+							ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
 						)
 					),
 					invokeStatic(
@@ -172,7 +171,7 @@ public class DecisionTreeSettings {
 						invokeInstance(
 							context.loadColumn(),
 							MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class),
-							ldc(seed)
+							ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
 						)
 					),
 					invokeStatic(
@@ -257,7 +256,7 @@ public class DecisionTreeSettings {
 			REGISTRY.registerAuto(BigGlobeMod.modID("block_state_constant"), BlockStateConstantDecisionTreeResult.class);
 		}};
 
-		public abstract InsnTree createResult(long seed, DataCompileContext context, @Nullable InsnTree loadY);
+		public abstract InsnTree createResult(DataCompileContext context, @Nullable InsnTree loadY);
 	}
 
 	public static class BlockStateConstantDecisionTreeResult implements DecisionTreeResult {
@@ -269,7 +268,7 @@ public class DecisionTreeSettings {
 		}
 
 		@Override
-		public InsnTree createResult(long seed, DataCompileContext context, @Nullable InsnTree loadY) {
+		public InsnTree createResult(DataCompileContext context, @Nullable InsnTree loadY) {
 			return ldc(this.state, type(BlockState.class));
 		}
 	}
