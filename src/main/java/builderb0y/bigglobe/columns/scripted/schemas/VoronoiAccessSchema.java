@@ -7,14 +7,14 @@ import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.Voronoi2DColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class Voronoi2DAccessSchema implements AccessSchema {
+public class VoronoiAccessSchema implements AccessSchema {
 
-	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
+	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = VoronoiColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 
-	public Voronoi2DAccessSchema(Map<String, AccessSchema> exports) {
+	public VoronoiAccessSchema(Map<String, AccessSchema> exports) {
 		this.exports = exports;
 	}
 
@@ -36,11 +36,11 @@ public class Voronoi2DAccessSchema implements AccessSchema {
 
 	@Override
 	public int hashCode() {
-		return this.exports.hashCode() ^ Voronoi2DAccessSchema.class.hashCode();
+		return this.exports.hashCode() ^ VoronoiAccessSchema.class.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof Voronoi2DAccessSchema that && this.exports.equals(that.exports);
+		return obj instanceof VoronoiAccessSchema that && this.exports.equals(that.exports);
 	}
 }

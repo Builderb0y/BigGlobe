@@ -33,7 +33,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("noise"),                NoiseColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"),              ScriptColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi_2d"),       Voronoi2DColumnEntry.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"),            VoronoiColumnEntry.class);
 	}};
 
 	public abstract AccessSchema getAccessSchema();

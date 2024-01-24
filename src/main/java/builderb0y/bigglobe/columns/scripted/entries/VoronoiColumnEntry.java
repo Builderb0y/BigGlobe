@@ -7,23 +7,20 @@ import java.util.stream.Collectors;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.autocodec.annotations.DefaultEmpty;
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.scripted.*;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.Valid;
+import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
-import builderb0y.bigglobe.columns.scripted.schemas.Voronoi2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.Valids.NullObject2DValid;
-import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
+import builderb0y.bigglobe.columns.scripted.schemas.VoronoiAccessSchema;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -39,14 +36,14 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
+public class VoronoiColumnEntry extends AbstractColumnEntry {
 
 	public static final ColumnEntryMemory.Key<Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext>>
 		VORONOI_CONTEXT_MAP = new ColumnEntryMemory.Key<>("voronoiContextMap");
 	public static final MethodHandle RANDOMIZE;
 	static {
 		try {
-			RANDOMIZE = MethodHandles.lookup().findStatic(Voronoi2DColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, Cell.class));
+			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, Cell.class));
 		}
 		catch (Exception exception) {
 			throw AutoCodecUtil.rethrow(exception);
@@ -56,22 +53,17 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		OPTIONS = new ColumnEntryMemory.Key<>("options");
 
 	public final VoronoiDiagram2D diagram;
-	public final @DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = Voronoi2DColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
-	public final @VerifyNullable NullObject2DValid valid;
 
-	public Voronoi2DColumnEntry(
+	public VoronoiColumnEntry(
 		VoronoiDiagram2D diagram,
-		Map<String, AccessSchema> exports,
-		@VerifyNullable NullObject2DValid valid
+		AccessSchema params,
+		@VerifyNullable Valid valid
 	) {
+		super(params, valid, true);
 		this.diagram = diagram;
-		this.exports = exports;
-		this.valid   = valid;
-	}
-
-	@Override
-	public _2DValid valid() {
-		return this.valid;
+		if (!(params instanceof VoronoiAccessSchema)) {
+			throw new IllegalArgumentException("params must be of type 'bigglobe:voronoi' when column value type is 'bigglobe:voronoi'");
+		}
 	}
 
 	public static CallSite createRandomizer(MethodHandles.Lookup lookup, String name, MethodType methodType, Class<?>... options) throws Throwable {
@@ -118,9 +110,8 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		return false;
 	}
 
-	@Override
-	public AccessSchema getAccessSchema() {
-		return new Voronoi2DAccessSchema(this.exports);
+	public Map<String, AccessSchema> exports() {
+		return ((VoronoiAccessSchema)(this.params)).exports;
 	}
 
 	@Override
@@ -136,8 +127,8 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 		//sanity check that all implementations of this class export the same values we do.
 		for (RegistryEntry<VoronoiSettings> preset : options) {
 			Map<String, AccessSchema> expected = preset.value().exports().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, RegistryEntry<ColumnEntry>> entry) -> entry.getValue().value().getAccessSchema()));
-			if (!this.exports.equals(expected)) {
-				throw new IllegalStateException("Export mismatch between column value " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + ' ' + this.exports + " and voronoi settings " + UnregisteredObjectException.getID(preset) + ' ' + expected);
+			if (!this.exports().equals(expected)) {
+				throw new IllegalStateException("Export mismatch between column value " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + ' ' + this.exports() + " and voronoi settings " + UnregisteredObjectException.getID(preset) + ' ' + expected);
 			}
 		}
 
@@ -147,7 +138,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
-		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext.selfType(), entry.getValue().getterParameters());
 		}
 		for (RegistryEntry<VoronoiSettings> entry : options) {
@@ -190,7 +181,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	@Override
 	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
 		super.setupEnvironment(memory, context);
-		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
 		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
@@ -211,20 +202,20 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 	@Override
 	public void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
 		super.setupExternalEnvironment(memory, context, environment, loadColumn);
-		for (Map.Entry<String, AccessSchema> entry : this.exports.entrySet()) {
+		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			environment.addMethodInvoke(entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
 		}
 	}
 
 	@Override
-	public void populateCompute(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
+	public void populateCompute2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		ConstantValue diagram = ConstantValue.ofManual(this.diagram, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
 		LazyVarInfo self = new LazyVarInfo("this", computeMethod.clazz.info);
 		return_(
 			invokeDynamic(
-				MethodInfo.getMethod(Voronoi2DColumnEntry.class, "createRandomizer"),
+				MethodInfo.getMethod(VoronoiColumnEntry.class, "createRandomizer"),
 				new MethodInfo(
 					ACC_PUBLIC | ACC_STATIC,
 					TypeInfos.OBJECT, //ignored.
@@ -266,6 +257,11 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 				enable.value().emitComputer(enabledMemory, implContext);
 			}
 		}
+	}
+
+	@Override
+	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
+		throw new UnsupportedOperationException();
 	}
 
 	public static <T> void checkNotReserved(VerifyContext<T, String> context) throws VerifyException {

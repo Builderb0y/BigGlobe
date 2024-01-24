@@ -29,7 +29,7 @@ public interface AccessSchema extends CoderRegistryTyped<AccessSchema> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("double"     ),     DoubleAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"    ),    BooleanAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("class"      ),      ClassAccessSchema.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"    ),  Voronoi2DAccessSchema.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"    ),  VoronoiAccessSchema.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"), BlockStateAccessSchema.class);
 	}};
 

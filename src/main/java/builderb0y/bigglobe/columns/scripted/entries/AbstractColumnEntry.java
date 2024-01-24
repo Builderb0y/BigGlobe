@@ -215,10 +215,10 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			)
 			""",
 			new MutableScriptEnvironment()
-				.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
-				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
-				.addFunctionInvoke("compute", context.loadSelf(), computer.info)
-				.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
+			.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
+			.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
+			.addFunctionInvoke("compute", context.loadSelf(), computer.info)
+			.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
 		);
 
 		if (this.hasValid()) {

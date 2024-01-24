@@ -1,10 +1,13 @@
 {
-	"type": "bigglobe:voronoi_2d",
+	"type": "bigglobe:voronoi",
+	"params": {
+		"type": "bigglobe:voronoi",
+		"is_3d": false
+	},
 	"diagram": {
 		"distance": 32,
 		"variation": 24
 	},
-	"values": "bigglobe:empty",
 	"valid": {
 		"where": "`bigglobe:overworld/glacier_crack_threshold` > 0.0L"
 	}

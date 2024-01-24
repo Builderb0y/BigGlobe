@@ -1,11 +1,15 @@
 {
-	"type": "bigglobe:voronoi_2d",
+	"type": "bigglobe:voronoi",
+	"params": {
+		"type": "bigglobe:voronoi",
+		"is_3d": false,
+		"exports": {
+			"min_y": { "type": "double", "is_3d": false },
+			"max_y": { "type": "double", "is_3d": false }
+		}
+	},
 	"diagram": {
 		"distance": 1024,
 		"variation": 768
-	},
-	"exports": {
-		"min_y": { "type": "double", "is_3d": false },
-		"max_y": { "type": "double", "is_3d": false }
 	}
 }
