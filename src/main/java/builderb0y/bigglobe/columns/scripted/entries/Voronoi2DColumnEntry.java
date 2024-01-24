@@ -18,7 +18,7 @@ import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
-import builderb0y.bigglobe.columns.scripted.AccessSchemas.Voronoi2DAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.Voronoi2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
@@ -173,7 +173,7 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 				AccessSchema schema = export.getValue().value().getAccessSchema();
 				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.selfType(), schema.getterParameters());
 				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
-				LazyVarInfo loadY = schema.requiresYLevel() ? new LazyVarInfo("y", TypeInfos.INT) : null;
+				LazyVarInfo loadY = schema.is3D() ? new LazyVarInfo("y", TypeInfos.INT) : null;
 				return_(
 					invokeInstance(
 						load(self),
@@ -279,7 +279,9 @@ public class Voronoi2DColumnEntry extends Basic2DColumnEntry {
 				"soft_distance_squared",
 				"soft_distance",
 				"hard_distance",
-				"hard_distance_squared"
+				"hard_distance_squared",
+				"euclidean_distance_squared",
+				"euclidean_distance"
 			-> {
 				throw new VerifyException(() -> "Export name " + name + " is built-in, and cannot be overridden.");
 			}

@@ -64,7 +64,12 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			};
 		}
 		else {
-			return new ManualConstantValue(object, type);
+			if (TypeInfo.of(object.getClass()).extendsOrImplements(type)) {
+				return new ManualConstantValue(object, type);
+			}
+			else {
+				throw new ClassCastException("Cannot create constant of type " + type + " from " + object);
+			}
 		}
 	}
 

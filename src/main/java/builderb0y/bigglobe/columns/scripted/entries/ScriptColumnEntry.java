@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -36,13 +37,13 @@ public class ScriptColumnEntry implements ColumnEntry {
 		VALID_MIN_Y = new ColumnEntryMemory.Key<>("validMinY"),
 		VALID_MAX_Y = new ColumnEntryMemory.Key<>("validMaxY");
 
-	public final PrimitiveAccessSchema params;
+	public final AccessSchema params;
 	public final ScriptUsage<GenericScriptTemplateUsage> script;
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
 
 	public ScriptColumnEntry(
-		PrimitiveAccessSchema params,
+		AccessSchema params,
 		ScriptUsage<GenericScriptTemplateUsage> script,
 		@VerifyNullable Valid valid,
 		boolean cache
@@ -64,11 +65,11 @@ public class ScriptColumnEntry implements ColumnEntry {
 	}
 
 	public boolean hasValid() {
-		return this.valid != null && this.valid.isUseful(this.getAccessSchema().requiresYLevel());
+		return this.valid != null && this.valid.isUseful(this.getAccessSchema().is3D());
 	}
 
 	public boolean is3D() {
-		return this.getAccessSchema().requiresYLevel();
+		return this.getAccessSchema().is3D();
 	}
 
 	@Override
@@ -252,11 +253,11 @@ public class ScriptColumnEntry implements ColumnEntry {
 			new MutableScriptEnvironment()
 			.addVariableLoad("y", TypeInfos.INT)
 			.addVariable("arrayField", getField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info))
-			.addFieldGet("valid", MappedRangeNumberArray.VALID)
-			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
-			.addFieldGet("minAccessible", MappedRangeNumberArray.MIN_ACCESSIBLE)
-			.addFieldGet("maxAccessible", MappedRangeNumberArray.MAX_ACCESSIBLE)
+			.addFieldGet("valid", MappedRangeArray.VALID)
+			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+			.addFieldGet("minAccessible", MappedRangeArray.MIN_ACCESSIBLE)
+			.addFieldGet("maxAccessible", MappedRangeArray.MAX_ACCESSIBLE)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 			.addMethodInvoke("get", switch (type.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.GET_B;
@@ -395,8 +396,8 @@ public class ScriptColumnEntry implements ColumnEntry {
 			new MutableScriptEnvironment()
 			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
 			.addVariableLoad("y", TypeInfos.INT)
-			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
+			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.SET_B;
@@ -453,7 +454,7 @@ public class ScriptColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		if (this.getAccessSchema().requiresYLevel()) {
+		if (this.getAccessSchema().is3D()) {
 			this.populateSetter3D(memory, context, setterMethod);
 		}
 		else {
@@ -462,9 +463,8 @@ public class ScriptColumnEntry implements ColumnEntry {
 	}
 
 	public void populateSetter2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		LazyVarInfo self = new LazyVarInfo("this", setterMethod.clazz.info);
 		LazyVarInfo value = new LazyVarInfo("value", memory.getTyped(ColumnEntryMemory.TYPE).exposedType());
-		return_(putField(load(self), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setterMethod);
+		return_(putField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info, load(value))).emitBytecode(setterMethod);
 		setterMethod.endCode();
 	}
 
@@ -481,8 +481,8 @@ public class ScriptColumnEntry implements ColumnEntry {
 			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
 			.addVariableLoad("y", TypeInfos.INT)
 			.addVariableLoad("value", type.exposedType())
-			.addFieldGet("minCached", MappedRangeNumberArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeNumberArray.MAX_CACHED)
+			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
 			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 			.addMethodInvoke("set", switch (type.exposedType().getSort()) {
 				case BYTE    -> MappedRangeNumberArray.SET_B;
@@ -499,7 +499,7 @@ public class ScriptColumnEntry implements ColumnEntry {
 
 	@Override
 	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-		if (this.getAccessSchema().requiresYLevel()) {
+		if (this.getAccessSchema().is3D()) {
 			this.emitCompute3D(memory, context);
 		}
 		else {

@@ -31,18 +31,13 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptColumnEntry.class);
 
+		REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantColumnEntry.class);
+
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_2d"), FloatNoise2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_2d"), DoubleNoise2DColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("float_noise_3d"), FloatNoise3DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("double_noise_3d"), DoubleNoise3DColumnEntry.class);
-
-		REGISTRY.registerAuto(BigGlobeMod.modID("int_constant"), IntConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long_constant"), LongConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float_constant"), FloatConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double_constant"), DoubleConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean_constant"), BooleanConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_constant"), BlockStateConstantColumnEntry.class);
 
 		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_2d"), BlockStateDecisionTree2DColumnEntry.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("block_state_decision_tree_3d"), BlockStateDecisionTree3DColumnEntry.class);
@@ -101,7 +96,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	}
 
 	public default void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
-		if (this.getAccessSchema().requiresYLevel()) {
+		if (this.getAccessSchema().is3D()) {
 			context.environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), context.loadSelf(), memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
 		else {
@@ -110,7 +105,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	}
 
 	public default void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
-		if (this.getAccessSchema().requiresYLevel()) {
+		if (this.getAccessSchema().is3D()) {
 			environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), loadColumn, memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
 		else {

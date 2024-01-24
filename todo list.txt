@@ -43,6 +43,10 @@ where I left off:
 		or better yet, a "salt" field.
 	make nether ores not require a biome field.
 	rename some of the "value" fields in JSON.
+	merge noise and script column entry classes.
+	make new AccessSchema for registry values, or possibly expand PrimitiveAccessSchema.
+		either way, make sure scripts can output registry values.
+	create ClassColumnEntry.
 
 changelog:
 	4.0:

@@ -3,11 +3,13 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.Valids.Float2DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
+import builderb0y.bigglobe.columns.scripted.schemas.FloatAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.PrimitiveAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.PrimitiveAccessSchema.PrimitiveType;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.CastingSupport;
@@ -40,7 +42,7 @@ public class FloatNoise2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return Float2DAccessSchema.INSTANCE;
+		return new FloatAccessSchema(false);
 	}
 
 	@Override

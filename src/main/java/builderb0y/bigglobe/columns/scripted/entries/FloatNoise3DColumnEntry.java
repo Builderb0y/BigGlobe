@@ -3,12 +3,14 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.AccessSchemas.Float3DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.Valids.Float3DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
+import builderb0y.bigglobe.columns.scripted.schemas.FloatAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.PrimitiveAccessSchema;
+import builderb0y.bigglobe.columns.scripted.schemas.PrimitiveAccessSchema.PrimitiveType;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -42,7 +44,7 @@ public class FloatNoise3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return Float3DAccessSchema.INSTANCE;
+		return new FloatAccessSchema(true);
 	}
 
 	@Override

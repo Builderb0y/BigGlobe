@@ -5,11 +5,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.AccessSchemas.BlockState2DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valids.BlockState2DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._2DValid;
+import builderb0y.bigglobe.columns.scripted.schemas.BlockStateAccessSchema;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.AutoSeed;
@@ -58,6 +58,6 @@ public class BlockStateDecisionTree2DColumnEntry extends Basic2DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return BlockState2DAccessSchema.INSTANCE;
+		return new BlockStateAccessSchema(false);
 	}
 }

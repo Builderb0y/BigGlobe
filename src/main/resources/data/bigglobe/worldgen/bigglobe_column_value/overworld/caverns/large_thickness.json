@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:script",
 	"params": {
-		"return_type": "double",
+		"type": "double",
 		"is_3d": false
 	},
 	"script": "sqrt(`bigglobe:overworld/caverns/large_thickness_squared`)"

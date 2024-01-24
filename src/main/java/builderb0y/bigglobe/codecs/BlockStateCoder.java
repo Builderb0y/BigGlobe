@@ -126,14 +126,14 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 				state = state.with(property, value);
 				properties.put(property, value);
 			}
-			return new BlockProperties(block, state, properties);
+			return new BlockProperties(blockID, block, state, properties);
 		}
 		else {
-			return new BlockProperties(block, state, Collections.emptyMap());
+			return new BlockProperties(blockID, block, state, Collections.emptyMap());
 		}
 	}
 
-	public static record BlockProperties(Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
+	public static record BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
 
 		public Set<Property<?>> missing() {
 			Collection<Property<?>> properties = this.block.getStateManager().getProperties();

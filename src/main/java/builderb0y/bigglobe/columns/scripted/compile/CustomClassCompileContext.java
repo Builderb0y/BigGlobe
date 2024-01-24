@@ -6,7 +6,6 @@ import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.TypeContext;
 import builderb0y.bigglobe.columns.scripted.schemas.ClassAccessSchema;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -27,7 +26,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 		this.mainClass = new ClassCompileContext(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 			ClassType.CLASS,
-			Type.getObjectType(Type.getInternalName(ScriptedColumn.class) + '$' + schema.class_name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement()),
+			Type.getObjectType(Type.getInternalName(ScriptedColumn.class) + '$' + schema.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement()),
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
@@ -36,7 +35,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 			"<init>",
 			TypeInfos.VOID,
 			schema
-			.exports
+			.fields
 			.entrySet()
 			.stream()
 			.map((Map.Entry<String, AccessSchema> entry) -> new LazyVarInfo(
@@ -46,7 +45,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 			.toArray(LazyVarInfo.ARRAY_FACTORY)
 		);
 		LoadInsnTree loadSelf = load(new LazyVarInfo("this", this.mainClass.info));
-		for (Map.Entry<String, AccessSchema> entry : schema.exports.entrySet()) {
+		for (Map.Entry<String, AccessSchema> entry : schema.fields.entrySet()) {
 			FieldCompileContext field = this.mainClass.newField(ACC_PUBLIC, entry.getKey(), parent.getSchemaType(entry.getValue()).exposedType());
 			putField(
 				loadSelf,

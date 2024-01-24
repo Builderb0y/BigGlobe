@@ -291,5 +291,14 @@ public class DecisionTreeSettings {
 		public DecisionTreeException(Throwable cause) {
 			super(cause);
 		}
+
+		@Override
+		public String getLocalizedMessage() {
+			StringBuilder builder = new StringBuilder(super.getLocalizedMessage());
+			for (String detail : this.details) {
+				builder.append("\n\t").append(detail);
+			}
+			return builder.toString();
+		}
 	}
 }

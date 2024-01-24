@@ -4,11 +4,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.AccessSchemas.BlockState3DAccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valids.BlockState3DValid;
 import builderb0y.bigglobe.columns.scripted.Valids._3DValid;
+import builderb0y.bigglobe.columns.scripted.schemas.BlockStateAccessSchema;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.AutoSeed;
@@ -55,7 +55,7 @@ public class BlockStateDecisionTree3DColumnEntry extends Basic3DColumnEntry {
 
 	@Override
 	public AccessSchema getAccessSchema() {
-		return BlockState3DAccessSchema.INSTANCE;
+		return new BlockStateAccessSchema(true);
 	}
 
 	@Override
