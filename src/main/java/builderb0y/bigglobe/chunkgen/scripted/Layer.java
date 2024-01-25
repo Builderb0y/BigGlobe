@@ -49,37 +49,57 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public void emitSegments(ScriptedColumn column, ScriptedColumn altX, ScriptedColumn altZ, ScriptedColumn altXZ, BlockSegmentList segments) {
 		if (this.validWhere(column)) {
-			BlockSegmentList bounded = segments.split(this.validMinY(column), this.validMaxY(column));
+			BlockSegmentList bounded = segments.split(segments.minY(), segments.maxY());
 			this.emitSelfSegments(column, bounded);
 
-			if (this.bottomSurface != null) {
-				for (int segmentIndex = 0, segmentCount = bounded.size(); segmentIndex < segmentCount; segmentIndex++) {
-					this.bottomSurface.generateSurface(
-						column,
-						altX,
-						altZ,
-						altXZ,
-						bounded.get(segmentIndex).minY,
-						bounded
-					);
-				}
-			}
+			if (this.bottomSurface != null || this.topSurface != null) {
+				int[] bottomSurfaces = null, topSurfaces = null;
 
-			if (this.topSurface != null) {
-				for (int segmentIndex = 0, segmentCount = bounded.size(); segmentIndex < segmentCount; segmentIndex++) {
-					this.topSurface.generateSurface(
-						column,
-						altX,
-						altZ,
-						altXZ,
-						bounded.get(segmentIndex).maxY,
-						bounded
-					);
+				if (this.bottomSurface != null) {
+					int size = bounded.size();
+					bottomSurfaces = new int[size];
+					for (int index = 0; index < size; index++) {
+						bottomSurfaces[index] = bounded.get(index).minY;
+					}
+				}
+
+				if (this.topSurface != null) {
+					int size = bounded.size();
+					topSurfaces = new int[size];
+					for (int index = 0; index < size; index++) {
+						topSurfaces[index] = bounded.get(index).maxY;
+					}
+				}
+
+				if (this.bottomSurface != null) {
+					for (int segmentIndex = 0, segmentCount = bottomSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
+						this.bottomSurface.generateSurface(
+							column,
+							altX,
+							altZ,
+							altXZ,
+							bottomSurfaces[segmentIndex],
+							bounded
+						);
+					}
+				}
+
+				if (this.topSurface != null) {
+					for (int segmentIndex = 0, segmentCount = topSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
+						this.topSurface.generateSurface(
+							column,
+							altX,
+							altZ,
+							altXZ,
+							topSurfaces[segmentIndex],
+							bounded
+						);
+					}
 				}
 			}
 
 			if (this.children.length != 0) {
-				BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
+				BlockSegmentList split = bounded.split(this.validMinY(column), this.validMaxY(column));
 				BlockSegmentList split2 = split.split(split.minY(), split.maxY());
 				for (Layer child : this.children) {
 					child.emitSegments(column, altX, altZ, altXZ, split2);

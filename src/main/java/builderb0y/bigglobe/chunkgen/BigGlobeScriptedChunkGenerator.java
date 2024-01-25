@@ -2,11 +2,15 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.regex.Pattern;
 
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
@@ -20,6 +24,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -62,14 +67,20 @@ import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema.AccessContext;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.CollectionTransformer;
 
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
@@ -84,6 +95,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public static record Height(int min_y, int max_y, int sea_level) {}
 	public final Height height;
 	public transient long seed;
+	public DisplayEntry[] debugDisplay = new DisplayEntry[0];
 
 	public BigGlobeScriptedChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
@@ -352,6 +364,63 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
-
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, pos.getX(), pos.getZ(), this.height.min_y, this.height.max_y);
+		for (DisplayEntry entry : this.debugDisplay) {
+			try {
+				text.add(entry.id + ": " + entry.handle.invokeExact(column, pos.getY()));
+			}
+			catch (Throwable exception) {
+				text.add(entry.id + ": " + exception);
+			}
+		}
 	}
+
+	public void setDisplay(String regex) {
+		if (regex == null) {
+			this.debugDisplay = new DisplayEntry[0];
+			return;
+		}
+		Pattern pattern = Pattern.compile(regex);
+		List<DisplayEntry> displayEntries = new ArrayList<>();
+		MethodHandles.Lookup lookup;
+		try {
+			lookup = (MethodHandles.Lookup)(this.columnEntryRegistry.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
+		}
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", exception);
+			return;
+		}
+		for (Map.Entry<Identifier, ColumnEntryMemory> entry : (Iterable<? extends Map.Entry<Identifier, ColumnEntryMemory>>)(this.columnEntryRegistry.memories.entrySet().stream().sorted(Map.Entry.comparingByKey())::iterator)) {
+			if (pattern.matcher(entry.getKey().toString()).find()) {
+				MethodCompileContext getter = entry.getValue().getTyped(ColumnEntryMemory.GETTER);
+				if (getter.clazz == this.columnEntryRegistry.columnContext.mainClass) try {
+					MethodHandle handle = lookup.findVirtual(
+						this.columnEntryRegistry.columnClass,
+						getter.info.name,
+						MethodType.methodType(
+							getter.info.returnType.toClass(this.columnEntryRegistry.loader),
+							CollectionTransformer.convertArray(
+								getter.info.paramTypes,
+								Class<?>[]::new,
+								(TypeInfo info) -> info.toClass(this.columnEntryRegistry.loader)
+							)
+						)
+					);
+					if (handle.type().parameterCount() < 2) {
+						handle = MethodHandles.dropArguments(handle, 1, int.class);
+					}
+					//primitive -> Object, because doing primitive -> String would
+					//require special-casing every primitive type, and I am lazy.
+					handle = handle.asType(MethodType.methodType(Object.class, ScriptedColumn.class, int.class));
+					displayEntries.add(new DisplayEntry(entry.getKey(), handle));
+				}
+				catch (Throwable throwable) {
+					BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", throwable);
+				}
+			}
+		}
+		this.debugDisplay = displayEntries.toArray(new DisplayEntry[displayEntries.size()]);
+	}
+
+	public static record DisplayEntry(Identifier id, MethodHandle handle) {}
 }

@@ -1,9 +1,8 @@
 {
 	"condition": {
 		"type": "range",
-		"min": 0.375,
-		"max": 0.625,
-		"smooth_min": false,
+		"min": 0.5,
+		"max": 1.0,
 		"column_value": "bigglobe:overworld/surface_foliage"
 	},
 	"if_true": "bigglobe:overworld/surface_state/temperate_forest",

@@ -103,11 +103,7 @@ public class ColumnEntryRegistry {
 		try {
 			this.loader = new ScriptClassLoader();
 			if (CLASS_DUMP_DIRECTORY != null) try {
-				for (ClassCompileContext context : this.loader.loadable.values()) {
-					String baseName = context.info.getSimpleClassName();
-					Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-					Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
-				}
+				recursiveDumpClasses(this.columnContext.mainClass);
 			}
 			catch (IOException exception) {
 				ScriptLogger.LOGGER.error("", exception);
@@ -132,6 +128,15 @@ public class ColumnEntryRegistry {
 		}
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
+		}
+	}
+
+	public static void recursiveDumpClasses(ClassCompileContext context) throws IOException {
+		String baseName = context.info.getSimpleClassName();
+		Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+		Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
+		for (ClassCompileContext innerClass : context.innerClasses) {
+			recursiveDumpClasses(innerClass);
 		}
 	}
 

@@ -36,7 +36,7 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 			ACC_PUBLIC,
 			"<init>",
 			TypeInfos.VOID,
-			column = new LazyVarInfo("column", type(ScriptedColumn.class)),
+			column = new LazyVarInfo("column", parent.root().columnType()),
 			cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class))
 		);
 		LazyVarInfo self = new LazyVarInfo("this", this.constructor.clazz.info);
@@ -47,7 +47,7 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 				parent.mainClass.info,
 				"<init>",
 				TypeInfos.VOID,
-				type(ScriptedColumn.class),
+				parent.root().columnType(),
 				type(VoronoiDiagram2D.Cell.class),
 				TypeInfos.LONG
 			),

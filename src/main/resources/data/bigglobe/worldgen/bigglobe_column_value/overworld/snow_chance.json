@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "float(`bigglobe:overworld/height_adjusted_snow_y` - `bigglobe:overworld/surface_y`)",
+	"script": "float(`bigglobe:overworld/snow_y` - `bigglobe:overworld/surface_y`)",
 	"cache": false
 }

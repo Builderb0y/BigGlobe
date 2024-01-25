@@ -44,7 +44,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	public static final MethodHandle RANDOMIZE;
 	static {
 		try {
-			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, Cell.class));
+			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, ScriptedColumn.class, Cell.class));
 		}
 		catch (Exception exception) {
 			throw AutoCodecUtil.rethrow(exception);
@@ -76,13 +76,16 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		for (Class<?> option : options) {
 			option.asSubclass(VoronoiDataBase.class);
 			VoronoiDataBase.Factory factory = (VoronoiDataBase.Factory)(
-				LambdaMetafactory.metafactory(
+				LambdaMetafactory.altMetafactory(
 					lookup,
 					"create",
 					MethodType.methodType(VoronoiDataBase.Factory.class),
-					MethodType.methodType(VoronoiDataBase.class, VoronoiDiagram2D.Cell.class),
-					lookup.findConstructor(option, MethodType.methodType(void.class, VoronoiDiagram2D.Cell.class)),
-					MethodType.methodType(option, VoronoiDiagram2D.Cell.class)
+					MethodType.methodType(VoronoiDataBase.class, lookup.lookupClass(), VoronoiDiagram2D.Cell.class),
+					lookup.findConstructor(option, MethodType.methodType(void.class, lookup.lookupClass(), VoronoiDiagram2D.Cell.class)),
+					MethodType.methodType(option, lookup.lookupClass(), VoronoiDiagram2D.Cell.class),
+					LambdaMetafactory.FLAG_BRIDGES,
+					1,
+					MethodType.methodType(VoronoiDataBase.class, ScriptedColumn.class, VoronoiDiagram2D.Cell.class)
 				)
 				.getTarget()
 				.invokeExact()
@@ -97,8 +100,8 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		);
 	}
 
-	public static VoronoiDataBase randomize(RandomList<VoronoiDataBase.Factory> factories, long baseSeed, VoronoiDiagram2D.Cell cell) {
-		return factories.isEmpty() ? null : factories.getRandomElement(cell.center.getSeed(baseSeed)).create(cell);
+	public static VoronoiDataBase randomize(RandomList<VoronoiDataBase.Factory> factories, long baseSeed, ScriptedColumn column, VoronoiDiagram2D.Cell cell) {
+		return factories.isEmpty() ? null : factories.getRandomElement(cell.center.getSeed(baseSeed)).create(column, cell);
 	}
 
 	@Override
@@ -140,7 +143,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
-			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), voronoiBaseContext.selfType(), entry.getValue().getterParameters());
+			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.root().getTypeContext(entry.getValue().type()).type(), entry.getValue().getterParameters());
 		}
 		for (RegistryEntry<VoronoiSettings> entry : options) {
 			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(entry)));
@@ -163,7 +166,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 					)
 				);
 				AccessSchema schema = export.getValue().value().getAccessSchema();
-				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.selfType(), schema.getterParameters());
+				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.root().getTypeContext(schema.type()).type(), schema.getterParameters());
 				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
 				LazyVarInfo loadY = schema.is_3d() ? new LazyVarInfo("y", TypeInfos.INT) : null;
 				return_(
@@ -213,7 +216,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		ConstantValue diagram = ConstantValue.ofManual(this.diagram, type(VoronoiDiagram2D.class));
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		FieldInfo cellField = FieldInfo.getField(VoronoiDataBase.class, "cell");
-		LazyVarInfo self = new LazyVarInfo("this", computeMethod.clazz.info);
+		InsnTree self = context.loadSelf();
 		return_(
 			invokeDynamic(
 				MethodInfo.getMethod(VoronoiColumnEntry.class, "createRandomizer"),
@@ -222,10 +225,12 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 					TypeInfos.OBJECT, //ignored.
 					"randomize",
 					memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
+					context.root().columnType(),
 					type(VoronoiDiagram2D.Cell.class)
 				),
 				memory.getTyped(VORONOI_CONTEXT_MAP).values().stream().map((DataCompileContext impl) -> constant(impl.mainClass.info)).toArray(ConstantValue[]::new),
 				new InsnTree[] {
+					self,
 					invokeInstance(
 						ldc(diagram),
 						MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
@@ -233,7 +238,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 						getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z")),
 						new NullableInstanceGetFieldInsnTree(
 							getField(
-								load(self),
+								self,
 								valueField.info
 							),
 							cellField

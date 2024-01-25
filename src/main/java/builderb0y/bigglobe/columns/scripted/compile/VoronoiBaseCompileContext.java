@@ -27,7 +27,7 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 			type(VoronoiDataBase.class),
 			new TypeInfo[0]
 		);
-		FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.mainClass.info);
+		FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.columnType());
 
 		{
 			LazyVarInfo column, cell, baseSeed;

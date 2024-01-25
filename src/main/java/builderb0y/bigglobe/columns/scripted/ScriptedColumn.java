@@ -141,7 +141,7 @@ public abstract class ScriptedColumn {
 
 		public static interface Factory {
 
-			public abstract VoronoiDataBase create(VoronoiDiagram2D.Cell cell);
+			public abstract VoronoiDataBase create(ScriptedColumn column, VoronoiDiagram2D.Cell cell);
 		}
 	}
 }
