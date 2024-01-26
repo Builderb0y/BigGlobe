@@ -14,4 +14,9 @@ public class BlockColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return type(Block.class);
 	}
+
+	@Override
+	public String toString() {
+		return "block";
+	}
 }

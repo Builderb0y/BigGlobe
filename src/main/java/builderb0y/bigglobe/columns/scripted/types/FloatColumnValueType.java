@@ -11,4 +11,9 @@ public class FloatColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.FLOAT;
 	}
+
+	@Override
+	public String toString() {
+		return "float";
+	}
 }

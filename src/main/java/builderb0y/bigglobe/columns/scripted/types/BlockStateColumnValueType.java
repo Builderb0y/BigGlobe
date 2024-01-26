@@ -34,4 +34,9 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 		}
 		return ldc(blockProperties.state(), type(BlockState.class));
 	}
+
+	@Override
+	public String toString() {
+		return "block_state";
+	}
 }

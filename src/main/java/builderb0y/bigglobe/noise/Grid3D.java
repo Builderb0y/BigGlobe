@@ -117,4 +117,9 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			samples.setD(index, this.getValue(seed, x, y, startZ + index));
 		}
 	}
+
+	@Override
+	public default int getDimensions() {
+		return 3;
+	}
 }

@@ -60,4 +60,9 @@ public interface Grid1D extends Grid, CoderRegistryTyped<Grid1D> {
 			samples.setD(index, this.getValue(seed, startX + index));
 		}
 	}
+
+	@Override
+	public default int getDimensions() {
+		return 1;
+	}
 }

@@ -69,6 +69,8 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
+import builderb0y.bigglobe.noise.Grid;
+import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
 import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
@@ -140,6 +142,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<WorldPreset>                     WORLD_PRESET_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WorldPreset                           .class), RegistryKeyVersions.worldPreset());
 	public static final RegistryCoders<WoodPalette>                     WOOD_PALETTE_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WoodPalette                           .class), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY);
 	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY);
+	public static final RegistryCoders<Grid>                            GRID_TEMPLATE_REGISTRY_CODERS                 = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY);
 	public static final RegistryCoders<ColumnEntry>                     COLUMN_ENTRY_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 	public static final RegistryCoders<VoronoiSettings>                 VORONOI_SETTINGS_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<DecisionTreeSettings>            DECISION_TREE_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY);
@@ -171,6 +174,7 @@ public class BigGlobeAutoCodec {
 		WORLD_PRESET_REGISTRY_CODERS,
 		WOOD_PALETTE_REGISTRY_CODERS,
 		SCRIPT_TEMPLATE_REGISTRY_CODERS,
+		GRID_TEMPLATE_REGISTRY_CODERS,
 		COLUMN_ENTRY_REGISTRY_CODERS,
 		VORONOI_SETTINGS_REGISTRY_CODERS,
 		DECISION_TREE_SETTINGS_REGISTRY_CODERS,
@@ -208,6 +212,7 @@ public class BigGlobeAutoCodec {
 				@Override
 				public void setup() {
 					super.setup();
+					this.addFactoryBefore(LookupEncoderFactory.class, GridRegistryEntryCoder.ENCODER_FACTORY);
 					this.getFactory(EnumEncoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
 
@@ -244,6 +249,7 @@ public class BigGlobeAutoCodec {
 				@Override
 				public void setup() {
 					super.setup();
+					this.addFactoryBefore(LookupDecoderFactory.class, GridRegistryEntryCoder.DECODER_FACTORY);
 					this.getFactory(EnumDecoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
 

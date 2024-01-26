@@ -11,4 +11,9 @@ public class ByteColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.BYTE;
 	}
+
+	@Override
+	public String toString() {
+		return "byte";
+	}
 }

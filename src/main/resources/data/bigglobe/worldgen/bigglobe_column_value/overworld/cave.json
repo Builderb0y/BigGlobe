@@ -1,0 +1,36 @@
+{
+	"type": "bigglobe:voronoi",
+	"params": {
+		"type": {
+			"type": "bigglobe:voronoi",
+			"name": "OverworldCaveCell",
+			"exports": {
+				"noise": { "type": "float", "is_3d": true },
+				"depth": { "type": "int", "is_3d": false },
+				"surface_depth": { "type": "float", "is_3d": false },
+				"floor_states": {
+					"type": "bigglobe:class",
+					"name": "CaveFloorStates",
+					"fields": {
+						"top": "block_state",
+						"under": "block_state"
+					},
+					"is_3d": false
+				},
+				"ceiling_states": {
+					"type": "bigglobe:class",
+					"name": "CaveCeilingStates",
+					"fields": {
+						"bottom": "block_state",
+						"above": "block_state"
+					}
+				}
+			}
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 512,
+		"variation": 384
+	}
+}

@@ -99,7 +99,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 			}
 
 			if (this.children.length != 0) {
-				BlockSegmentList split = bounded.split(this.validMinY(column), this.validMaxY(column));
+				BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
 				BlockSegmentList split2 = split.split(split.minY(), split.maxY());
 				for (Layer child : this.children) {
 					child.emitSegments(column, altX, altZ, altXZ, split2);

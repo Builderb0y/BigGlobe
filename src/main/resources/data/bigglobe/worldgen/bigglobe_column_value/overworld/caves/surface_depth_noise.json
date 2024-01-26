@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 4.0 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 2.0 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 1.0 }
+		]
+	}
+}

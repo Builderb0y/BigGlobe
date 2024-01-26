@@ -11,4 +11,9 @@ public class LongColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.LONG;
 	}
+
+	@Override
+	public String toString() {
+		return "long";
+	}
 }

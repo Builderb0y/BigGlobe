@@ -11,4 +11,9 @@ public class BooleanColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.BOOLEAN;
 	}
+
+	@Override
+	public String toString() {
+		return "boolean";
+	}
 }

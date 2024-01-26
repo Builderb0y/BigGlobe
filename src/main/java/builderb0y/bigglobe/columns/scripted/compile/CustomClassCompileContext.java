@@ -9,7 +9,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ParameterNode;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType.ClassColumnValueField;
 import builderb0y.scripting.bytecode.*;
@@ -21,7 +20,6 @@ import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;

@@ -8,7 +8,7 @@ import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
-import builderb0y.bigglobe.columns.scripted.schemas.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
@@ -41,11 +41,20 @@ public class VoronoiColumnValueType implements ColumnValueType {
 
 	@Override
 	public int hashCode() {
-		return this.exports.hashCode() ^ VoronoiColumnValueType.class.hashCode();
+		return this.name.hashCode() * 31 + this.exports.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof VoronoiColumnValueType that && this.exports.equals(that.exports);
+		return this == obj || (
+			obj instanceof VoronoiColumnValueType that &&
+			this.name.equals(that.name) &&
+			this.exports.equals(that.exports)
+		);
+	}
+
+	@Override
+	public String toString() {
+		return "{ type: voronoi, name: " + this.name + ", exports: " + this.exports + " }";
 	}
 }

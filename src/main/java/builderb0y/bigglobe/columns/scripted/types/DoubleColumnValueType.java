@@ -11,4 +11,9 @@ public class DoubleColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.DOUBLE;
 	}
+
+	@Override
+	public String toString() {
+		return "double";
+	}
 }

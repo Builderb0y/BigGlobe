@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:constant",
+	"params": {
+		"type": "bigglobe:class",
+		"name": "CaveFloorStates",
+		"fields": {
+			"top": "block_state",
+			"under": "block_state"
+		},
+		"is_3d": false
+	},
+	"value": {
+		"top": "minecraft:moss_block",
+		"under": "minecraft:moss_block"
+	}
+}

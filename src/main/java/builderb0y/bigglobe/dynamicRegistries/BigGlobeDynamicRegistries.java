@@ -19,6 +19,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
@@ -43,6 +44,7 @@ import builderb0y.scripting.parsing.ScriptTemplate;
 public class BigGlobeDynamicRegistries {
 
 	public static final RegistryKey<Registry<ScriptTemplate>>                  SCRIPT_TEMPLATE_REGISTRY_KEY                 = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_script_templates"));
+	public static final RegistryKey<Registry<Grid>>                            GRID_TEMPLATE_REGISTRY_KEY                   = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_noise_sources"));
 	public static final RegistryKey<Registry<ColumnEntry>>                     COLUMN_ENTRY_REGISTRY_KEY                    = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_column_value"));
 	public static final RegistryKey<Registry<VoronoiSettings>>                 VORONOI_SETTINGS_REGISTRY_KEY                = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_voronoi_settings"));
 	public static final RegistryKey<Registry<DecisionTreeSettings>>            DECISION_TREE_SETTINGS_REGISTRY_KEY          = RegistryKey.ofRegistry(BigGlobeMod.modID("worldgen/bigglobe_decision_tree"));
@@ -59,6 +61,7 @@ public class BigGlobeDynamicRegistries {
 		public static final List<Info<?>> INFOS = new ArrayList<>(9);
 		static {
 			INFOS.add(info(SCRIPT_TEMPLATE_REGISTRY_KEY,                 ScriptTemplate              .class, null));
+			INFOS.add(info(GRID_TEMPLATE_REGISTRY_KEY,                   Grid                        .class, null));
 			INFOS.add(info(COLUMN_ENTRY_REGISTRY_KEY,                    ColumnEntry                 .class, null));
 			INFOS.add(info(VORONOI_SETTINGS_REGISTRY_KEY,                VoronoiSettings             .class, null));
 			INFOS.add(info(DECISION_TREE_SETTINGS_REGISTRY_KEY,          DecisionTreeSettings        .class, null));
@@ -97,6 +100,7 @@ public class BigGlobeDynamicRegistries {
 				0,
 				Arrays.asList(
 					new RegistryLoader.Entry<>(       SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate      .class)),
+					new RegistryLoader.Entry<>(         GRID_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Grid                .class)),
 					new RegistryLoader.Entry<>(          COLUMN_ENTRY_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ColumnEntry         .class)),
 					new RegistryLoader.Entry<>(      VORONOI_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(VoronoiSettings     .class)),
 					new RegistryLoader.Entry<>(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class))

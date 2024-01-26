@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.schemas;
+package builderb0y.bigglobe.columns.scripted;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -11,4 +11,9 @@ public class ShortColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.SHORT;
 	}
+
+	@Override
+	public String toString() {
+		return "short";
+	}
 }

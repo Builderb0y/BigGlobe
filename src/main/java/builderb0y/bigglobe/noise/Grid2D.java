@@ -90,4 +90,9 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 			samples.setD(index, this.getValue(seed, x, startY + index));
 		}
 	}
+
+	@Override
+	public default int getDimensions() {
+		return 2;
+	}
 }

@@ -11,4 +11,9 @@ public class IntColumnValueType extends AbstractColumnValueType {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.INT;
 	}
+
+	@Override
+	public String toString() {
+		return "int";
+	}
 }

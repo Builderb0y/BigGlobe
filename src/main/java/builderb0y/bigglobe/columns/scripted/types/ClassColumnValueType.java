@@ -69,15 +69,21 @@ public class ClassColumnValueType implements ColumnValueType {
 
 	@Override
 	public int hashCode() {
-		return this.fields.hashCode() ^ ClassColumnValueType.class.hashCode();
+		return this.name.hashCode() * 31 + this.fields.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof ClassColumnValueType that &&
+			this.name.equals(that.name) &&
 			this.fields.equals(that.fields)
 		);
+	}
+
+	@Override
+	public String toString() {
+		return "{ type: class, name: " + this.name + ", fields: " + this.fields + " }";
 	}
 
 	public static record ClassColumnValueField(String name, ColumnValueType type) {}

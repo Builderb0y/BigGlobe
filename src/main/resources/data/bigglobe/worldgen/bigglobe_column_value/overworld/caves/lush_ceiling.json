@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:constant",
+	"params": {
+		"type": "bigglobe:class",
+		"name": "CaveCeilingStates",
+		"fields": {
+			"bottom": "block_state",
+			"above": "block_state"
+		},
+		"is_3d": false
+	},
+	"value": {
+		"bottom": "minecraft:moss_block",
+		"above": "minecraft:moss_block"
+	}
+}

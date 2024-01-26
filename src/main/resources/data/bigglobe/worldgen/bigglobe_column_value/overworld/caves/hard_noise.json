@@ -1,0 +1,42 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "script",
+		"script": {
+			"template": "bigglobe:grids/overworld_cave",
+			"inputs": {
+				"lower_primary_width": "48.0L",
+				"upper_primary_width": "8.0L",
+				"secondary_width": "8.0L"
+			}
+		},
+		"min": 0.0,
+		"max": 1.0,
+		"inputs": {
+			"primary1": {
+				"type": "template",
+				"template": "bigglobe:unbiased_cave_primary_1"
+			},
+			"primary2": {
+				"type": "template",
+				"template": "bigglobe:unbiased_cave_primary_2"
+			},
+			"secondary1": {
+				"type": "template",
+				"template": "bigglobe:unbiased_cave_secondary_1"
+			},
+			"secondary2": {
+				"type": "template",
+				"template": "bigglobe:unbiased_cave_secondary_2"
+			}
+		}
+	},
+	"valid": {
+		"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - 512",
+		"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
+	}
+}
