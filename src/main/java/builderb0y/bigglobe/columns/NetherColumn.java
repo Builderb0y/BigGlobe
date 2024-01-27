@@ -132,15 +132,12 @@ public class NetherColumn extends WorldColumn {
 				noise = this.caveNoise = NumberArray.allocateFloatsHeap(this.settings.height());
 			}
 			LocalCell cell = this.getLocalCell();
-			NumberArray noise_ = noise; //lambdas -_-
-			ScriptedGrid.SECRET_COLUMN.run(this, () ->
-				cell.settings.caves.noise().getBulkY(
-					cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
-					this.x,
-					this.settings.min_y,
-					this.z,
-					noise_
-				)
+			cell.settings.caves.noise().getBulkY(
+				cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
+				this.x,
+				this.settings.min_y,
+				this.z,
+				noise
 			);
 			this.runCaveOverriders(noise);
 		}
@@ -156,13 +153,11 @@ public class NetherColumn extends WorldColumn {
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () ->
-			cell.settings.caves.noise().getValue(
-				cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
-				this.x,
-				y,
-				this.z
-			)
+		double noise = cell.settings.caves.noise().getValue(
+			cell.voronoiCell.center.getSeed(this.seed ^ 0xCACD037B0560050BL),
+			this.x,
+			y,
+			this.z
 		);
 		return this.runCaveOverriders(noise, y);
 	}
@@ -270,15 +265,13 @@ public class NetherColumn extends WorldColumn {
 				noise = this.cavernNoise = NumberArray.allocateFloatsHeap(this.settings.maxCavernRange);
 			}
 			slice = noise.prefix(cell.settings.caverns.range());
-			ScriptedGrid.SECRET_COLUMN.run(this, () -> {
-				cell.settings.caverns.noise().getBulkY(
-					cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
-					this.x,
-					cell.settings.caverns.min_y(),
-					this.z,
-					slice
-				);
-			});
+			cell.settings.caverns.noise().getBulkY(
+				cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L),
+				this.x,
+				cell.settings.caverns.min_y(),
+				this.z,
+				slice
+			);
 			this.runCavernOverriders(slice);
 		}
 		else {
@@ -296,7 +289,7 @@ public class NetherColumn extends WorldColumn {
 			}
 		}
 		LocalCell cell = this.getLocalCell();
-		double noise = ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.caverns.noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z));
+		double noise = cell.settings.caverns.noise().getValue(cell.voronoiCell.center.getSeed(this.seed ^ 0x4E5DCB0DE78F7512L), this.x, y, this.z);
 		return this.runCavernOverriders(noise, y);
 	}
 

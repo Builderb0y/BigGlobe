@@ -106,10 +106,10 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;
 						ScriptedColumn
-							column00 = factory.create(seed, quadX,     quadZ,     minY, maxY),
-							column01 = factory.create(seed, quadX | 1, quadZ,     minY, maxY),
-							column10 = factory.create(seed, quadX,     quadZ | 1, minY, maxY),
-							column11 = factory.create(seed, quadX | 1, quadZ | 1, minY, maxY);
+							column00 = factory.create(seed, quadX,     quadZ,     minY, maxY, true),
+							column01 = factory.create(seed, quadX | 1, quadZ,     minY, maxY, true),
+							column10 = factory.create(seed, quadX,     quadZ | 1, minY, maxY, true),
+							column11 = factory.create(seed, quadX | 1, quadZ | 1, minY, maxY, true);
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),

@@ -63,7 +63,48 @@
 								],
 								"children": [
 									{
-										"type": "bigglobe:simple_3d"
+										"type": "bigglobe:simple_3d",
+										"state": "minecraft:air",
+										"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
+										"top_surface": [
+											"if (`bigglobe:overworld/cave`.ceiling_states.bottom != BlockState('minecraft:air'):",
+												"float rawDepth = `bigglobe:overworld/cave`.ceiling_depth",
+												"if (rawDepth > 0.0L:",
+													"++originY",
+													"int high = originY + floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(originY).nextFloat(rawDepth))",
+													"for (int up in range(originY, high]:",
+														"if (getBlockState(up) != null:",
+															"high = up - 1",
+															"break()",
+														")",
+													")",
+													"setBlockStates(originY + 1, high + 1, `bigglobe:overworld/cave`.ceiling_states.above)",
+													"setBlockState(originY, `bigglobe:overworld/cave`.ceiling_states.bottom)",
+												")",
+											")"
+										],
+										"bottom_surface": [
+											"if (`bigglobe:overworld/cave`.floor_states.top != BlockState('minecraft:air'):",
+												"float rawDepth = `bigglobe:overworld/cave`.floor_depth",
+												"if (rawDepth > 0.0L:",
+													"--originY",
+													"int low = originY - floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(originY).nextFloat(rawDepth))",
+													"for (int down in -range[low, originY):",
+														"if (getBlockState(down) != null:",
+															"low = down + 1",
+															"break()",
+														")",
+													")",
+													"setBlockStates(low, originY, `bigglobe:overworld/cave`.floor_states.under)",
+													"setBlockState(originY, `bigglobe:overworld/cave`.floor_states.top)",
+												")",
+											")"
+										],
+										"valid": {
+											"where": "!distantHorizons",
+											"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/cave`.depth",
+											"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
+										}
 									}
 								]
 							},
@@ -466,8 +507,19 @@
 		"minecraft:the_nether": {
 			"type": "bigglobe:nether",
 			"generator": {
-				"type": "bigglobe:nether",
+				"type": "bigglobe:scripted",
 				"value": {
+					"reload_dimension": "minecraft:the_nether",
+					"height": {
+						"min_y": 0,
+						"max_y": 1024,
+						"sea_level": 0
+					},
+					"layer": {
+						"state": "minecraft:air"
+					}
+				},
+				"old_value": {
 					"min_y": 0,
 					"max_y": 1024,
 					"biome_placement": {
@@ -483,8 +535,19 @@
 		"minecraft:the_end": {
 			"type": "bigglobe:end",
 			"generator": {
-				"type": "bigglobe:end",
+				"type": "bigglobe:scripted",
 				"value": {
+					"reload_dimension": "minecraft:the_end",
+					"height": {
+						"min_y": -512,
+						"max_y": 512,
+						"sea_level": 0
+					},
+					"layer": {
+						"state": "minecraft:air"
+					}
+				},
+				"old_value": {
 					"min_y": -512,
 					"max_y":  512,
 					"warp_x": { "type": "sine_sum", "scale": 512.0, "amplitude": 1.0, "iterations": 16 },

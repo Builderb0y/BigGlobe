@@ -58,17 +58,4 @@ public class DisplayColumnsClientCommand {
 		if (world == null) return null;
 		return world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator displayer ? displayer : null;
 	}
-
-	public static @Nullable ScriptedColumn getColumn(int x, int z) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.getServer() == null || client.world == null) return null;
-		ServerWorld world = client.getServer().getWorld(client.world.getRegistryKey());
-		if (world == null) return null;
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			return generator.columnEntryRegistry.columnFactory.create(generator.seed, x, z, generator.height.min_y(), generator.height.max_y());
-		}
-		else {
-			return null;
-		}
-	}
 }

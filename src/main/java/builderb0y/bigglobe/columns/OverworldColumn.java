@@ -140,9 +140,7 @@ public class OverworldColumn extends WorldColumn {
 
 	public void getRawErosionAndSnow() {
 		if (this.setFlag(RAW_EROSION_AND_SNOW)) {
-			ScriptedGrid.SECRET_COLUMN.accept(this, (OverworldColumn self) -> {
-				self.settings.height.getErosionAndSnow(self);
-			});
+			this.settings.height.getErosionAndSnow(this);
 		}
 	}
 
@@ -299,10 +297,9 @@ public class OverworldColumn extends WorldColumn {
 	public double getGlacierBottomHeightD() {
 		return (
 			this.setFlag(GLACIER_BOTTOM_HEIGHT)
-			? this.glacierBottomHeight = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				self -> self.getDouble(
-					self.settings.glaciers,
+			? this.glacierBottomHeight = (
+				this.getDouble(
+					this.settings.glaciers,
 					(me, glaciers) -> glaciers.bottom_height().getValue(me.seed, me.x, me.z)
 				)
 			)
@@ -313,10 +310,9 @@ public class OverworldColumn extends WorldColumn {
 	public double getGlacierTopHeightD() {
 		return (
 			this.setFlag(GLACIER_TOP_HEIGHT)
-			? this.glacierTopHeight = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				self -> self.getDouble(
-					self.settings.glaciers,
+			? this.glacierTopHeight = (
+				this.getDouble(
+					this.settings.glaciers,
 					(me, glaciers) -> glaciers.top_height().getValue(me.seed, me.x, me.z)
 				)
 			)
@@ -376,7 +372,7 @@ public class OverworldColumn extends WorldColumn {
 		CaveCell cell = this.getCaveCell();
 		if (cell == null) return null;
 		if (this.setFlag(CAVE_NOISE)) {
-			ScriptedGrid.SECRET_COLUMN.accept(this, self -> cell.settings.getBulkY(self));
+			cell.settings.getBulkY(this);
 		}
 		return this.caveNoise.prefix(cell.settings.depth);
 	}
@@ -392,7 +388,7 @@ public class OverworldColumn extends WorldColumn {
 		else {
 			CaveCell cell = this.getCaveCell();
 			if (cell == null) return Double.NaN;
-			return ScriptedGrid.SECRET_COLUMN.get(this, () -> cell.settings.getValue(this, y));
+			return cell.settings.getValue(this, y);
 		}
 	}
 

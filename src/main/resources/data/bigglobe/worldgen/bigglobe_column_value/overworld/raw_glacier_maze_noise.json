@@ -1,0 +1,21 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 4.0 },
+			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 1.6 },
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.64 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.256 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.1024 }
+		]
+	},
+	"valid": {
+		"where": "`bigglobe:overworld/glacier_crack_threshold` > 1.0L && `bigglobe:overworld/magicalness` > 0.0L",
+		"fallback": 0.0
+	}
+}

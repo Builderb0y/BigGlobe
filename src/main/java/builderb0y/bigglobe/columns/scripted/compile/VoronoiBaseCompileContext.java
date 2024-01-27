@@ -15,10 +15,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiBaseCompileContext extends DataCompileContext {
 
-	public final ColumnCompileContext parent;
-
 	public VoronoiBaseCompileContext(ColumnCompileContext parent) {
-		parent.children.add(this);
+		super(parent);
 		this.flagsIndex = 3;
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
@@ -72,21 +70,6 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public ColumnCompileContext root() {
-		return this.parent.root();
-	}
-
-	@Override
-	public MutableScriptEnvironment environment() {
-		return this.parent.environment().addAll(this.environment);
-	}
-
-	@Override
-	public InsnTree loadSelf() {
-		return load("this", this.selfType());
-	}
-
-	@Override
 	public InsnTree loadColumn() {
 		return getField(
 			this.loadSelf(),
@@ -100,25 +83,7 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public InsnTree loadSeed() {
-		return getField(
-			this.loadSelf(),
-			new FieldInfo(
-				ACC_PUBLIC,
-				type(VoronoiDataBase.class),
-				"seed",
-				TypeInfos.LONG
-			)
-		);
-	}
-
-	@Override
 	public FieldInfo flagsField(int index) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public TypeInfo voronoiBaseType() {
-		return this.selfType();
 	}
 }

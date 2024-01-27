@@ -68,6 +68,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -230,6 +231,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		StructureAccessor structureAccessor,
 		Chunk chunk
 	) {
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
@@ -246,10 +248,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								int quadX = startX | offsetX_;
 								int quadZ = startZ | offsetZ_;
 								ScriptedColumn
-									column00 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ,     minY, maxY),
-									column01 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ,     minY, maxY),
-									column10 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ | 1, minY, maxY),
-									column11 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ | 1, minY, maxY);
+									column00 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ,     minY, maxY, distantHorizons),
+									column01 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ,     minY, maxY, distantHorizons),
+									column10 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ | 1, minY, maxY, distantHorizons),
+									column11 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ | 1, minY, maxY, distantHorizons);
 								BlockSegmentList
 									list00 = new BlockSegmentList(minY, maxY),
 									list01 = new BlockSegmentList(minY, maxY),
@@ -335,7 +337,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, x, z, world.getBottomY(), world.getTopY());
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, x, z, world.getBottomY(), world.getTopY(), distantHorizons);
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		for (int index = list.size(); --index >= 0;) {
@@ -349,7 +352,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, x, z, world.getBottomY(), world.getTopY());
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, x, z, world.getBottomY(), world.getTopY(), distantHorizons);
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
@@ -361,7 +365,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, pos.getX(), pos.getZ(), this.height.min_y, this.height.max_y);
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, pos.getX(), pos.getZ(), this.height.min_y, this.height.max_y, false);
 		for (DisplayEntry entry : this.debugDisplay) {
 			try {
 				text.add(entry.id + ": " + entry.handle.invokeExact(column, pos.getY()));

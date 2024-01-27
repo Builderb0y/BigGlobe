@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.noise;
 
 /** a Grid implementation with a single constant value at all locations. */
-public class ConstantGrid implements Grid {
+public abstract class ConstantGrid implements Grid {
 
 	public final double value;
 

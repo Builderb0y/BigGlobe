@@ -159,9 +159,8 @@ public class EndColumn extends WorldColumn {
 	public double getWarpX() {
 		return (
 			this.setFlag(WARP_X)
-			? this.warpX = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.warp_x.getValue(self.seed, self.x, self.z)
+			? this.warpX = (
+				this.settings.warp_x.getValue(this.seed, this.x, this.z)
 			)
 			: this.warpX
 		);
@@ -170,9 +169,8 @@ public class EndColumn extends WorldColumn {
 	public double getWarpZ() {
 		return (
 			this.setFlag(WARP_Z)
-			? this.warpZ = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.warp_z.getValue(self.seed, self.x, self.z)
+			? this.warpZ = (
+				this.settings.warp_z.getValue(this.seed, this.x, this.z)
 			)
 			: this.warpZ
 		);
@@ -208,9 +206,7 @@ public class EndColumn extends WorldColumn {
 				nestNoise = this.nestNoise = NumberArray.allocateFloatsHeap(this.settings.nest.verticalSamples());
 			}
 			int startY = this.settings.nest.min_y();
-			ScriptedGrid.SECRET_COLUMN.accept(this, nestNoise, (NumberArray noise) -> {
-				this.settings.nest.shape().getBulkY(this.seed, this.x, startY, this.z, noise);
-			});
+			this.settings.nest.shape().getBulkY(this.seed, this.x, startY, this.z, nestNoise);
 		}
 		return nestNoise;
 	}
@@ -220,9 +216,7 @@ public class EndColumn extends WorldColumn {
 	}
 
 	public double getNestNoise(int y) {
-		return ScriptedGrid.SECRET_COLUMN.apply(this, (EndColumn self) -> {
-			return self.settings.nest.shape().getValue(self.seed, self.x, y, self.z);
-		});
+		return this.settings.nest.shape().getValue(this.seed, this.x, y, this.z);
 	}
 
 	//////////////////////////////// mountains ////////////////////////////////
@@ -230,9 +224,8 @@ public class EndColumn extends WorldColumn {
 	public double getMountainCenterY() {
 		return (
 			this.setFlag(MOUNTAIN_CENTER_Y)
-			? this.mountainCenterY = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.mountains.center_y().getValue(self.seed, self.x, self.z)
+			? this.mountainCenterY = (
+				this.settings.mountains.center_y().getValue(this.seed, this.x, this.z)
 			)
 			: this.mountainCenterY
 		);
@@ -241,9 +234,8 @@ public class EndColumn extends WorldColumn {
 	public double getMountainThickness() {
 		return (
 			this.setFlag(MOUNTAIN_THICKNESS)
-			? this.mountainThickness = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.mountains.thickness().evaluate(self, self.getMountainCenterY())
+			? this.mountainThickness = (
+				this.settings.mountains.thickness().evaluate(this, this.getMountainCenterY())
 			)
 			: this.mountainThickness
 		);
@@ -252,9 +244,8 @@ public class EndColumn extends WorldColumn {
 	public double getFoliage() {
 		return (
 			this.setFlag(FOLIAGE)
-			? this.foliage = ScriptedGrid.SECRET_COLUMN.apply(
-				this,
-				(EndColumn self) -> self.settings.mountains.foliage().getValue(this.seed, this.x, this.z)
+			? this.foliage = (
+				this.settings.mountains.foliage().getValue(this.seed, this.x, this.z)
 			)
 			: this.foliage
 		);
@@ -345,9 +336,7 @@ public class EndColumn extends WorldColumn {
 				lowerRingCloudNoise = this.lowerRingCloudNoise = NumberArray.allocateFloatsHeap(ringCloudSettings.verticalSamples());
 			}
 			int startY = this.getLowerRingCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, lowerRingCloudNoise, (NumberArray noise) -> {
-				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
-			});
+			ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, lowerRingCloudNoise);
 			double noiseMax = ringCloudSettings.noise().maxValue();
 			for (int index = 0, length = lowerRingCloudNoise.length(); index < length; index++) {
 				lowerRingCloudNoise.sub(index, (horizontalBias + this.getLowerRingCloudVerticalBias(index + startY)) * noiseMax);
@@ -416,9 +405,7 @@ public class EndColumn extends WorldColumn {
 				upperRingCloudNoise = this.upperRingCloudNoise = NumberArray.allocateFloatsHeap(ringCloudSettings.verticalSamples());
 			}
 			int startY = this.getUpperRingCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, upperRingCloudNoise, (NumberArray noise) -> {
-				ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
-			});
+			ringCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, upperRingCloudNoise);
 			double noiseMax = ringCloudSettings.noise().maxValue();
 			for (int index = 0, length = upperRingCloudNoise.length(); index < length; index++) {
 				upperRingCloudNoise.sub(index, (horizontalBias + this.getUpperRingCloudVerticalBias(index + startY)) * noiseMax);
@@ -534,9 +521,7 @@ public class EndColumn extends WorldColumn {
 				lowerBridgeCloudNoise = this.lowerBridgeCloudNoise = NumberArray.allocateFloatsHeap(bridgeCloudSettings.verticalSamples());
 			}
 			int startY = this.getLowerBridgeCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, lowerBridgeCloudNoise, (NumberArray noise) -> {
-				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
-			});
+			bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, lowerBridgeCloudNoise);
 			double noiseMax = bridgeCloudSettings.noise().maxValue();
 			for (int index = 0, length = lowerBridgeCloudNoise.length(); index < length; index++) {
 				lowerBridgeCloudNoise.sub(index, (horizontalBias + this.getLowerBridgeCloudVerticalBias(index + startY)) * noiseMax);
@@ -601,9 +586,7 @@ public class EndColumn extends WorldColumn {
 				upperBridgeCloudNoise = this.upperBridgeCloudNoise = NumberArray.allocateFloatsHeap(bridgeCloudSettings.verticalSamples());
 			}
 			int startY = this.getUpperBridgeCloudSampleStartY();
-			ScriptedGrid.SECRET_COLUMN.accept(this, upperBridgeCloudNoise, (NumberArray noise) -> {
-				bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, noise);
-			});
+			bridgeCloudSettings.noise().getBulkY(this.seed, this.x, startY, this.z, upperBridgeCloudNoise);
 			double noiseMax = bridgeCloudSettings.noise().maxValue();
 			for (int index = 0, length = upperBridgeCloudNoise.length(); index < length; index++) {
 				upperBridgeCloudNoise.sub(index, (horizontalBias + this.getUpperBridgeCloudVerticalBias(index + startY)) * noiseMax);

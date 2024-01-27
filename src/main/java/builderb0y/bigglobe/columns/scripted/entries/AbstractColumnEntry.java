@@ -133,20 +133,20 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			return(extract(y))
 			""",
 			new MutableScriptEnvironment()
-				.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagIndex))
-				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagIndex))
-				.addFunctionInvoke("compute", context.loadSelf(), computeAllMethod.info)
-				.addFunctionInvoke("extract", context.loadSelf(), extractMethod.info)
-				.addVariableLoad("y", TypeInfos.INT)
+			.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagIndex))
+			.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagIndex))
+			.addFunctionInvoke("compute", context.loadSelf(), computeAllMethod.info)
+			.addFunctionInvoke("extract", context.loadSelf(), extractMethod.info)
+			.addVariableLoad("y", TypeInfos.INT)
 		);
 
 		MutableScriptEnvironment computeEnvironment = (
 			new MutableScriptEnvironment()
-				.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
-				.addMethodInvokes(MappedRangeNumberArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
-				.addVariable("this", context.loadSelf())
-				.addVariable("column", context.loadColumn())
-				.addFunctionInvoke("actuallyCompute", context.loadSelf(), actuallyComputeAll.info)
+			.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
+			.addMethodInvokes(MappedRangeArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
+			.addVariable("this", context.loadSelf())
+			.addVariable("column", context.loadColumn())
+			.addFunctionInvoke("actuallyCompute", context.loadSelf(), actuallyComputeAll.info)
 		);
 
 		String computeSource = this.getComputeSource(memory, context, computeEnvironment);
@@ -275,20 +275,20 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			"""
 			+ (
 				this.hasValid()
-					? (
+				? (
 					this.valid.min_y() != null
-						? (
+					? (
 						this.valid.max_y() != null
-							? "if (y >= array.minAccessible && y < array.maxAccessible: return(compute(y))\nreturn(fallback)"
-							: "if (y >= array.minAccessible: return(compute(y))\nreturn(fallback)"
+						? "if (y >= array.minAccessible && y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
+						: "if (y >= array.minAccessible: return(compute(y)))\nreturn(fallback)"
 					)
 						: (
 						this.valid.max_y() != null
-							? "if (y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
-							: "return(compute(y))"
+						? "if (y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
+						: "return(compute(y))"
 					)
 				)
-					: "return(compute(y))"
+				: "return(compute(y))"
 			),
 			new MutableScriptEnvironment()
 				.addVariableLoad("y", TypeInfos.INT)

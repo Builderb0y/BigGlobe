@@ -13,6 +13,7 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -87,16 +88,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		}
 	}
 
-	public default void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
-		if (this.getAccessSchema().is_3d()) {
-			context.environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), context.loadSelf(), memory.getTyped(ColumnEntryMemory.GETTER).info);
-		}
-		else {
-			context.environment.addVariableRenamedInvoke(context.loadSelf(), memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
-		}
+	public default void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context, InsnTree loadHolder) {
+		context.addAccessor(loadHolder, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
 	}
 
-	public default void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
+	public default void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
 		if (this.getAccessSchema().is_3d()) {
 			environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), loadColumn, memory.getTyped(ColumnEntryMemory.GETTER).info);
 		}
@@ -110,7 +106,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupEnvironment(ColumnEntryMemory, DataCompileContext)},
+	{@link #setupEnvironment(ColumnEntryMemory, DataCompileContext, InsnTree)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {

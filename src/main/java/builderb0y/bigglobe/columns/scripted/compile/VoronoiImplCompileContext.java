@@ -2,7 +2,6 @@ package builderb0y.bigglobe.columns.scripted.compile;
 
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -10,7 +9,6 @@ import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -18,11 +16,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiImplCompileContext extends DataCompileContext {
 
-	public final VoronoiBaseCompileContext parent;
-
 	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, long seed) {
-		parent.children.add(this);
-		this.parent = parent;
+		super(parent);
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -59,42 +54,14 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public ColumnCompileContext root() {
-		return this.parent.root();
-	}
-
-	@Override
-	public MutableScriptEnvironment environment() {
-		return this.parent.environment().addAll(this.environment);
-	}
-
-	@Override
-	public InsnTree loadSelf() {
-		return load("this", this.selfType());
-	}
-
-	@Override
 	public InsnTree loadColumn() {
 		return getField(
 			this.loadSelf(),
 			new FieldInfo(
 				ACC_PUBLIC,
-				this.voronoiBaseType(),
+				this.parent.selfType(),
 				"column",
 				this.root().columnType()
-			)
-		);
-	}
-
-	@Override
-	public InsnTree loadSeed() {
-		return getField(
-			this.loadSelf(),
-			new FieldInfo(
-				ACC_PUBLIC,
-				type(VoronoiDataBase.class),
-				"seed",
-				TypeInfos.LONG
 			)
 		);
 	}
@@ -107,11 +74,6 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 			"flags_" + (index >>> 5),
 			TypeInfos.INT
 		);
-	}
-
-	@Override
-	public TypeInfo voronoiBaseType() {
-		return this.parent.voronoiBaseType();
 	}
 
 	@Override

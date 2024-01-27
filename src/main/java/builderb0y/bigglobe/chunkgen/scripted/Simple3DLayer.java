@@ -39,7 +39,7 @@ public class Simple3DLayer extends Layer {
 	@Override
 	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList consumer) {
 		int minY = Math.max(this.validMinY(column), consumer.minY());
-		int maxY = Math.min(this.validMaxY(column), consumer.minY());
+		int maxY = Math.min(this.validMaxY(column), consumer.maxY());
 		int start = minY;
 		boolean haveState = this.compiledCondition.get(column, minY);
 		for (int y = minY; ++y < maxY;) {

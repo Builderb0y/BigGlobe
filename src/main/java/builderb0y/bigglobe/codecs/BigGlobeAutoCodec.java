@@ -142,17 +142,11 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<WorldPreset>                     WORLD_PRESET_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WorldPreset                           .class), RegistryKeyVersions.worldPreset());
 	public static final RegistryCoders<WoodPalette>                     WOOD_PALETTE_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WoodPalette                           .class), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY);
 	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY);
-	public static final RegistryCoders<Grid>                            GRID_TEMPLATE_REGISTRY_CODERS                 = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY);
+	public static final RegistryCoders<Grid>                            GRID_TEMPLATE_REGISTRY_CODERS                 = new RegistryCoders<>(ReifiedType.from(Grid                                  .class), BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY);
 	public static final RegistryCoders<ColumnEntry>                     COLUMN_ENTRY_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 	public static final RegistryCoders<VoronoiSettings>                 VORONOI_SETTINGS_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<DecisionTreeSettings>            DECISION_TREE_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<CombinedStructureScripts>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS    = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
-	public static final RegistryCoders<LocalNetherSettings>             LOCAL_NETHER_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalNetherSettings                   .class), BigGlobeDynamicRegistries.LOCAL_NETHER_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<OverworldBiomeLayout>            OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(OverworldBiomeLayout                  .class), BigGlobeDynamicRegistries.OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY);
-	public static final RegistryCoders<EndBiomeLayout>                  END_BIOME_LAYOUT_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(EndBiomeLayout                        .class), BigGlobeDynamicRegistries.END_BIOME_LAYOUT_REGISTRY_KEY);
-	public static final RegistryCoders<LocalSkylandSettings>            LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(LocalSkylandSettings                  .class), BigGlobeDynamicRegistries.LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<LocalOverworldCaveSettings>      LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(LocalOverworldCaveSettings            .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<LocalOverworldCavernSettings>    LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS         = new RegistryCoders<>(ReifiedType.from(LocalOverworldCavernSettings          .class), BigGlobeDynamicRegistries.LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -179,12 +173,6 @@ public class BigGlobeAutoCodec {
 		VORONOI_SETTINGS_REGISTRY_CODERS,
 		DECISION_TREE_SETTINGS_REGISTRY_CODERS,
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
-		LOCAL_NETHER_SETTINGS_REGISTRY_CODERS,
-		OVERWORLD_BIOME_LAYOUT_REGISTRY_CODERS,
-		END_BIOME_LAYOUT_REGISTRY_CODERS,
-		LOCAL_SKYLAND_SETTINGS_REGISTRY_CODERS,
-		LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_CODERS,
-		LOCAL_CAVERN_SETTINGS_REGISTRY_CODERS,
 	};
 
 	@SuppressWarnings("OverrideOnly") //it should allow super calls. that should be a thing.

@@ -98,7 +98,6 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			.addMethodInvoke(NumberArray.class, "prefix")
 			.addFieldGet(MappedRangeNumberArray.MAX_CACHED)
 		);
-
 	}
 
 	@Override
@@ -117,7 +116,9 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		computeMethod.setCode(
-			"return(grid.getValue(column.seed # salt, column.x, y, column.z))",
+			this.params.type() instanceof FloatColumnValueType
+			? "return(float(grid.getValue(column.seed # salt, column.x, y, column.z)))"
+			: "return(grid.getValue(column.seed # salt, column.x, y, column.z))",
 			new MutableScriptEnvironment()
 			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
 			.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")

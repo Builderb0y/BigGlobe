@@ -26,9 +26,8 @@ public class VariableCapturer {
 	public void addBuiltinParameters() {
 		TypeInfo[] types = this.parser.method.info.paramTypes;
 		List<ParameterNode> parameters = this.parser.method.node.parameters;
-		int offset = this.parser.method.info.isStatic() ? 0 : 1;
-		for (int index = offset, size = parameters.size(); index < size; index++) {
-			this.implicitParameters.add(load(parameters.get(index).name, types[index - offset]));
+		for (int index = 0, size = parameters.size(); index < size; index++) {
+			this.implicitParameters.add(load(parameters.get(index).name, types[index]));
 		}
 	}
 

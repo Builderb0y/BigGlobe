@@ -32,7 +32,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 	public final MemberKeywordHandler newHandler;
 
 	public CustomClassCompileContext(ColumnCompileContext parent, ClassColumnValueType spec) {
-		parent.children.add(this);
+		super(parent);
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -91,37 +91,12 @@ public class CustomClassCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public ColumnCompileContext root() {
-		return this.parent.root();
-	}
-
-	@Override
-	public MutableScriptEnvironment environment() {
-		return this.parent.environment().addAll(this.environment);
-	}
-
-	@Override
-	public InsnTree loadSelf() {
-		return load("this", this.selfType());
-	}
-
-	@Override
 	public InsnTree loadColumn() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public InsnTree loadSeed() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public FieldInfo flagsField(int index) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public TypeInfo voronoiBaseType() {
 		throw new UnsupportedOperationException();
 	}
 }

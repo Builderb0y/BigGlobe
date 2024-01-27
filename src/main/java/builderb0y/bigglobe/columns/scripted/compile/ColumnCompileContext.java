@@ -15,7 +15,6 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -28,6 +27,7 @@ public class ColumnCompileContext extends DataCompileContext {
 	public final Map<AccessSchema, AccessContext> accessSchemaTypeInfos = new HashMap<>(16);
 
 	public ColumnCompileContext(ColumnEntryRegistry registry) {
+		super(null);
 		this.registry = registry;
 
 		this
@@ -52,7 +52,7 @@ public class ColumnCompileContext extends DataCompileContext {
 			new TypeInfo[0]
 		);
 		{
-			LazyVarInfo self, seed, x, z, minY, maxY;
+			LazyVarInfo self, seed, x, z, minY, maxY, distantHorizons;
 			this.constructor = this.mainClass.newMethod(
 				ACC_PUBLIC,
 				"<init>",
@@ -61,7 +61,8 @@ public class ColumnCompileContext extends DataCompileContext {
 				x = new LazyVarInfo("x", TypeInfos.INT),
 				z = new LazyVarInfo("z", TypeInfos.INT),
 				minY = new LazyVarInfo("minY", TypeInfos.INT),
-				maxY = new LazyVarInfo("maxY", TypeInfos.INT)
+				maxY = new LazyVarInfo("maxY", TypeInfos.INT),
+				distantHorizons = new LazyVarInfo("distantHorizons", TypeInfos.BOOLEAN)
 			);
 			self = new LazyVarInfo("this", this.constructor.clazz.info);
 			invokeInstance(
@@ -75,31 +76,23 @@ public class ColumnCompileContext extends DataCompileContext {
 					TypeInfos.INT,
 					TypeInfos.INT,
 					TypeInfos.INT,
-					TypeInfos.INT
+					TypeInfos.INT,
+					TypeInfos.BOOLEAN
 				),
 				load(seed),
 				load(x),
 				load(z),
 				load(minY),
-				load(maxY)
+				load(maxY),
+				load(distantHorizons)
 			)
-				.emitBytecode(this.constructor);
+			.emitBytecode(this.constructor);
 		}
 		{
 			MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
 			return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
 			lookup.endCode();
 		}
-	}
-
-	@Override
-	public ColumnCompileContext root() {
-		return this;
-	}
-
-	@Override
-	public MutableScriptEnvironment environment() {
-		return new MutableScriptEnvironment().addAll(this.environment);
 	}
 
 	public TypeContext getTypeContext(ColumnValueType type) {
@@ -122,11 +115,6 @@ public class ColumnCompileContext extends DataCompileContext {
 		return result;
 	}
 
-	@Override
-	public InsnTree loadSelf() {
-		return load("this", this.mainClass.info);
-	}
-
 	public TypeInfo columnType() {
 		return this.mainClass.info;
 	}
@@ -137,11 +125,6 @@ public class ColumnCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public InsnTree loadSeed() {
-		return getField(this.loadColumn(), new FieldInfo(ACC_PUBLIC, type(ScriptedColumn.class), "seed", TypeInfos.LONG));
-	}
-
-	@Override
 	public FieldInfo flagsField(int index) {
 		return new FieldInfo(
 			ACC_PUBLIC,
@@ -149,11 +132,6 @@ public class ColumnCompileContext extends DataCompileContext {
 			"flags_" + (index >>> 5),
 			TypeInfos.INT
 		);
-	}
-
-	@Override
-	public TypeInfo voronoiBaseType() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

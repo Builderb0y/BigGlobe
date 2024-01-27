@@ -8,7 +8,9 @@ import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -57,9 +59,17 @@ public interface ColumnScript extends Script {
 			}
 			bridgeMethod.endCode();
 
-			MutableScriptEnvironment environment = new MutableScriptEnvironment().addAll(MathScriptEnvironment.INSTANCE);
+			LoadInsnTree loadMainColumn = load("column", registry.columnContext.columnType());
+			MutableScriptEnvironment environment = (
+				new MutableScriptEnvironment()
+				.addAll(MathScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
+				.addVariableRenamedGetField(loadMainColumn, "worldSeed", FieldInfo.getField(ScriptedColumn.class, "seed"))
+				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class))
+			);
 			if (y != null) environment.addVariableLoad(y);
-			registry.setupExternalEnvironment(environment, load("column", registry.columnContext.columnType()));
+			registry.setupExternalEnvironment(environment, loadMainColumn);
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);

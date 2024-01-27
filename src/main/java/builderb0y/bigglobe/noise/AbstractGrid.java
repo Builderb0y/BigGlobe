@@ -3,7 +3,7 @@ package builderb0y.bigglobe.noise;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.bigglobe.settings.Seed;
 
-public class AbstractGrid implements Grid {
+public abstract class AbstractGrid implements Grid {
 
 	public final Seed salt;
 	public final @VerifyFloatRange(min = 0.0D, minInclusive = false) double amplitude;

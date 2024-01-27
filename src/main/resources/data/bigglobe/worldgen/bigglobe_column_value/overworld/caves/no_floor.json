@@ -12,7 +12,7 @@
 		"is_3d": false
 	},
 	"value": {
-		"top": "minecraft:moss_block",
-		"under": "minecraft:moss_block"
+		"top": "minecraft:air",
+		"under": "minecraft:air"
 	}
 }

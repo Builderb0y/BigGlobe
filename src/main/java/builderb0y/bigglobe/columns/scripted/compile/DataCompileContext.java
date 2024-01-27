@@ -21,34 +21,50 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class DataCompileContext {
 
-	public ClassCompileContext mainClass;
-	public MutableScriptEnvironment environment;
-	public int flagsIndex;
+	public DataCompileContext parent;
 	public List<DataCompileContext> children;
+	public ClassCompileContext mainClass;
 	public MethodCompileContext constructor;
+	public int flagsIndex;
+	public MutableScriptEnvironment environment;
 
-	public DataCompileContext() {
-		this.environment = new MutableScriptEnvironment();
+	public DataCompileContext(DataCompileContext parent) {
+		this.parent = parent;
 		this.children = new ArrayList<>(8);
+		if (parent != null) parent.children.add(this);
+		this.environment = new MutableScriptEnvironment();
 	}
 
 	public TypeInfo selfType() {
 		return this.mainClass.info;
 	}
 
-	public abstract ColumnCompileContext root();
+	public ColumnCompileContext root() {
+		DataCompileContext context = this;
+		for (DataCompileContext next; (next = context.parent) != null; context = next);
+		return (ColumnCompileContext)(context);
+	}
 
-	public abstract MutableScriptEnvironment environment();
+	public void copyEnvironment(MutableScriptEnvironment environment) {
+		environment.addAll(this.environment);
+	}
 
-	public abstract InsnTree loadSelf();
+	public InsnTree loadSelf() {
+		return load("this", this.mainClass.info);
+	}
 
 	public abstract InsnTree loadColumn();
 
-	public abstract InsnTree loadSeed();
-
 	public abstract FieldInfo flagsField(int index);
 
-	public abstract TypeInfo voronoiBaseType();
+	public void addAccessor(InsnTree loadHolder, String name, MethodInfo getter) {
+		if (getter.paramTypes.length > 0) {
+			this.environment.addFunctionInvoke(name, loadHolder, getter);
+		}
+		else {
+			this.environment.addVariableRenamedInvoke(loadHolder, name, getter);
+		}
+	}
 
 	public void prepareForCompile() {
 		this.constructor.node.visitInsn(RETURN);
@@ -88,9 +104,9 @@ public abstract class DataCompileContext {
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(MinecraftScriptEnvironment.create())
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.addEnvironment(this.environment)
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) environment.addVariableLoad("y", TypeInfos.INT);
+			this.copyEnvironment(environment);
 		})
 		.parseEntireInput()
 		.emitBytecode(method);

@@ -2,7 +2,6 @@ package builderb0y.bigglobe.noise;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -11,7 +10,6 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
@@ -20,22 +18,16 @@ import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.ScriptLogger;
-import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.ScriptTemplate.RequiredInput;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -43,10 +35,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
-	public static final TypeInfo NUMBER_ARRAY = type(NumberArray.class);
-	public static final ScopeLocal<WorldColumn> SECRET_COLUMN = new ScopeLocal<>();
-	public static final InsnTree GET_SECRET_COLUMN = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getSecretColumn"));
-	public static final InsnTree GET_WORLD_SEED = invokeStatic(MethodInfo.getMethod(ScriptedGrid.class, "getWorldSeed"));
+	public static final TypeInfo NUMBER_ARRAY_TYPE = type(NumberArray.class);
 
 	public final ScriptUsage<ScriptedGridTemplateUsage<G>> script;
 	public final @DefaultEmpty Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
@@ -59,15 +48,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		this.inputs = inputs;
 		this.min = min;
 		this.max = max;
-	}
-
-	public static WorldColumn getSecretColumn() {
-		return SECRET_COLUMN.getCurrent();
-	}
-
-	public static long getWorldSeed() {
-		WorldColumn column = SECRET_COLUMN.getCurrent();
-		return column != null ? column.seed : 0L;
 	}
 
 	public abstract Grid getDelegate();
@@ -219,7 +199,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		public static LazyVarInfo[] params(GridTypeInfo gridTypeInfo, LinkedHashMap<String, Input> gridInputs) {
 			List<LazyVarInfo> list = new ArrayList<>(gridTypeInfo.dimensions + gridInputs.size() + 1);
-			list.add(new LazyVarInfo("column", type(WorldColumn.class)));
 			for (int dimension = 0; dimension < gridTypeInfo.dimensions; dimension++) {
 				list.add(new LazyVarInfo(coordName(dimension), TypeInfos.INT));
 			}
@@ -352,7 +331,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 			for (int dimension = 0; dimension < dimensions; dimension++) {
 				coordinates[dimension] = new LazyVarInfo(coordName(dimension), TypeInfos.INT);
 			}
-			GET_SECRET_COLUMN.emitBytecode(getValue);
 			for (int dimension = 0; dimension < dimensions; dimension++) {
 				load(coordinates[dimension]).emitBytecode(getValue);
 			}
@@ -377,7 +355,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 				)
 				.emitBytecode(getValue);
 			}
-			getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + type(WorldColumn.class).getDescriptor() + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
+			getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
 			getValue.node.visitInsn(DRETURN);
 			getValue.endCode();
 		}
@@ -463,9 +441,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		@Override
 		public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
-			if (name.equals("worldSeed")) {
-				return GET_WORLD_SEED;
-			}
 			if (name.length() == 1) {
 				char c = name.charAt(0);
 				if (c >= 'x' && c < 'x' + this.gridTypeInfo.dimensions) {
@@ -477,9 +452,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 
 		@Override
 		public Stream<IdentifierDescriptor> listIdentifiers() {
-			return Stream.of(
-				Stream.of(new IdentifierDescriptor("worldSeed", "long worldSeed: seed of the world")),
-
+			return Stream.concat(
 				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> {
 					return new IdentifierDescriptor(String.valueOf((char)(c)), TaskLogger.lazyMessage(() -> {
 						return "int " + (char)(c) + ": the " + (char)(c) + " coordinate of the current position";
@@ -491,8 +464,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 						return "double " + input.name + ": user-defined input @ " + input.index;
 					}));
 				})
-			)
-			.flatMap(Function.identity());
+			);
 		}
 	}
 }

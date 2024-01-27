@@ -4,17 +4,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.objectweb.asm.Opcodes;
-
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
-import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
@@ -35,19 +31,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.addEnvironment(
-			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
-				ColumnValue.REGISTRY,
-				load("column", type(WorldColumn.class)),
-				new OpcodeCastInsnTree(
-					load("y", TypeInfos.INT),
-					Opcodes.I2D,
-					TypeInfos.DOUBLE
-				)
-			)
-			.build()
-		);
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		this.delegate = parser.parse();
 	}
 
@@ -128,7 +112,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			LazyVarInfo self, seed, x, y, z, samples, sampleCount, column;
+			LazyVarInfo self, seed, x, y, z, samples, sampleCount;
 			MethodCompileContext getBulk = this.clazz.newMethod(
 				ACC_PUBLIC,
 				methodInfo.name,
@@ -137,11 +121,10 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				x = new LazyVarInfo("x", TypeInfos.INT),
 				y = new LazyVarInfo("y", TypeInfos.INT),
 				z = new LazyVarInfo("z", TypeInfos.INT),
-				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY_TYPE)
 			);
 			self = new LazyVarInfo("this", getBulk.clazz.info);
 			sampleCount = getBulk.scopes.addVariable("sampleCount", TypeInfos.INT);
-			column = getBulk.scopes.addVariable("column", type(WorldColumn.class));
 			Input input = this.gridInputs.values().iterator().next();
 
 			//sampleCount = samples.length();
@@ -152,8 +135,6 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				return_(noop)
 			)
 			.emitBytecode(getBulk);
-			//get column.
-			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 			//fill samples with input.
 			invokeInstance(
 				getField(
@@ -186,9 +167,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 							getBulk.clazz.info,
 							"evaluate",
 							TypeInfos.DOUBLE,
-							types(WorldColumn.class, 'I', 'I', 'I', 'D', this.gridInputs.size())
+							types('I', 'I', 'I', 'D', this.gridInputs.size())
 						),
-						load(column),
 						maybeAdd(this, x, index, 0, methodDimension),
 						maybeAdd(this, y, index, 1, methodDimension),
 						maybeAdd(this, z, index, 2, methodDimension),
@@ -206,7 +186,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 		@Override
 		public void addGetBulkMany(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			LazyVarInfo self, seed, x, y, z, samples, sampleCount, column;
+			LazyVarInfo self, seed, x, y, z, samples, sampleCount;
 			MethodCompileContext getBulk = this.clazz.newMethod(
 				ACC_PUBLIC,
 				methodInfo.name,
@@ -215,16 +195,15 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				x = new LazyVarInfo("x", TypeInfos.INT),
 				y = new LazyVarInfo("y", TypeInfos.INT),
 				z = new LazyVarInfo("z", TypeInfos.INT),
-				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY_TYPE)
 			);
 			self = new LazyVarInfo("this", getBulk.clazz.info);
 			sampleCount = getBulk.scopes.addVariable("sampleCount", TypeInfos.INT);
-			column = getBulk.scopes.addVariable("column", type(WorldColumn.class));
 
 			//declare scratch arrays.
 			LazyVarInfo[] scratches = new LazyVarInfo[this.gridInputs.size()];
 			for (Input input : this.gridInputs.values()) {
-				scratches[input.index] = getBulk.scopes.addVariable(input.name, NUMBER_ARRAY);
+				scratches[input.index] = getBulk.scopes.addVariable(input.name, NUMBER_ARRAY_TYPE);
 			}
 			//sampleCount = samples.length();
 			store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
@@ -234,8 +213,6 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 				return_(noop)
 			)
 			.emitBytecode(getBulk);
-			//get column.
-			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 			//allocate scratch arrays.
 			for (Input input : this.gridInputs.values()) {
 				store(
@@ -279,11 +256,10 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 							getBulk.clazz.info,
 							"evaluate",
 							TypeInfos.DOUBLE,
-							types(WorldColumn.class, 'I', 'I', 'I', 'D', this.gridInputs.size())
+							types('I', 'I', 'I', 'D', this.gridInputs.size())
 						),
 						Stream.concat(
 							Stream.of(
-								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
 								maybeAdd(this, y, index, 1, methodDimension),
 								maybeAdd(this, z, index, 2, methodDimension)

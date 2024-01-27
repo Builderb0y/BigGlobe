@@ -93,7 +93,7 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitFieldGetterAndSetter(memory, this.columnContext);
 		}
 		for (ColumnEntryMemory memory : this.filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, this.columnContext);
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, this.columnContext, this.columnContext.loadSelf());
 		}
 		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, this.columnContext);
@@ -114,12 +114,12 @@ public class ColumnEntryRegistry {
 					lookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class),
+					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class, boolean.class),
 					lookup.findConstructor(
 						this.columnClass,
-						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class)
+						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class, boolean.class)
 					),
-					MethodType.methodType(this.columnClass, long.class, int.class, int.class, int.class, int.class)
+					MethodType.methodType(this.columnClass, long.class, int.class, int.class, int.class, int.class, boolean.class)
 				)
 				.getTarget()
 				.invokeExact()

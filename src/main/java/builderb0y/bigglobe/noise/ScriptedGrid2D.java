@@ -4,10 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
-import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -34,15 +31,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.addEnvironment(
-			ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
-				ColumnValue.REGISTRY,
-				load("column", type(WorldColumn.class)),
-				null
-			)
-			.build()
-		);
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		this.delegate = parser.parse();
 	}
 
@@ -105,7 +94,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		@Override
 		public void addGetBulkOne(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			LazyVarInfo self, seed, x, y, samples, sampleCount, column;
+			LazyVarInfo self, seed, x, y, samples, sampleCount;
 			MethodCompileContext getBulk = this.clazz.newMethod(
 				ACC_PUBLIC,
 				methodInfo.name,
@@ -113,11 +102,10 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				seed = new LazyVarInfo("seed", TypeInfos.LONG),
 				x = new LazyVarInfo("x", TypeInfos.INT),
 				y = new LazyVarInfo("y", TypeInfos.INT),
-				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY_TYPE)
 			);
 			self = new LazyVarInfo("this", getBulk.clazz.info);
 			sampleCount = getBulk.scopes.addVariable("sampleCount", TypeInfos.INT);
-			column = getBulk.scopes.addVariable("column", type(WorldColumn.class));
 			Input firstInput = this.gridInputs.values().iterator().next();
 
 			//sampleCount = samples.length();
@@ -132,8 +120,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				return_(noop)
 			)
 			.emitBytecode(getBulk);
-			//get column.
-			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 			//fill samples with firstInput.
 			invokeInstance(
 				getField(
@@ -169,9 +155,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							getBulk.clazz.info,
 							"evaluate",
 							TypeInfos.DOUBLE,
-							types(WorldColumn.class, 'I', 'I', 'D', this.gridInputs.size())
+							types('I', 'I', 'D', this.gridInputs.size())
 						),
-						load(column),
 						maybeAdd(this, x, index, 0, methodDimension),
 						maybeAdd(this, y, index, 1, methodDimension),
 						numberArrayLoad(load(samples), load(index))
@@ -188,7 +173,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 		@Override
 		public void addGetBulkMany(int methodDimension) {
 			MethodInfo methodInfo = GET_BULK[methodDimension];
-			LazyVarInfo self, seed, x, y, samples, sampleCount, column;
+			LazyVarInfo self, seed, x, y, samples, sampleCount;
 			MethodCompileContext getBulk = this.clazz.newMethod(
 				ACC_PUBLIC,
 				methodInfo.name,
@@ -196,16 +181,15 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				seed = new LazyVarInfo("seed", TypeInfos.LONG),
 				x = new LazyVarInfo("x", TypeInfos.INT),
 				y = new LazyVarInfo("y", TypeInfos.INT),
-				samples = new LazyVarInfo("samples", NUMBER_ARRAY)
+				samples = new LazyVarInfo("samples", NUMBER_ARRAY_TYPE)
 			);
 			self = new LazyVarInfo("this", getBulk.clazz.info);
 			sampleCount = getBulk.scopes.addVariable("sampleCount", TypeInfos.INT);
-			column = getBulk.scopes.addVariable("column", type(WorldColumn.class));
 
 			//declare scratch arrays.
 			LazyVarInfo[] scratches = new LazyVarInfo[this.gridInputs.size()];
 			for (Input input : this.gridInputs.values()) {
-				scratches[input.index] = getBulk.scopes.addVariable(input.name, NUMBER_ARRAY);
+				scratches[input.index] = getBulk.scopes.addVariable(input.name, NUMBER_ARRAY_TYPE);
 			}
 			//sampleCount = samples.length();
 			store(sampleCount, numberArrayLength(load(samples))).emitBytecode(getBulk);
@@ -215,8 +199,6 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				return_(noop)
 			)
 			.emitBytecode(getBulk);
-			//get column.
-			store(column, GET_SECRET_COLUMN).emitBytecode(getBulk);
 			//allocate scratch arrays.
 			for (Input input : this.gridInputs.values()) {
 				store(
@@ -259,11 +241,10 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							getBulk.clazz.info,
 							"evaluate",
 							TypeInfos.DOUBLE,
-							types(WorldColumn.class, 'I', 'I', 'D', this.gridInputs.size())
+							types('I', 'I', 'D', this.gridInputs.size())
 						),
 						Stream.concat(
 							Stream.of(
-								load(column),
 								maybeAdd(this, x, index, 0, methodDimension),
 								maybeAdd(this, y, index, 1, methodDimension)
 							),

@@ -89,22 +89,22 @@ public interface SurfaceScript extends Script {
 			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
+			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnContext.columnType());
 			MutableScriptEnvironment environment = (
 				new MutableScriptEnvironment()
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addAll(MinecraftScriptEnvironment.create())
 				.addVariableLoad("originY", TypeInfos.INT)
-				.addVariableRenamedGetField(load("mainColumn", registry.columnContext.columnType()), "worldSeed", FieldInfo.getField(ScriptedColumn.class, "seed"))
-				.addVariableRenamedInvoke(load("mainColumn", registry.columnContext.columnType()), "columnSeed", MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class))
-				.addFunctionInvoke("columnSeed", load("mainColumn", registry.columnContext.columnType()), MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class))
-				.addVariableGetField(load("mainColumn", registry.columnContext.columnType()), FieldInfo.getField(ScriptedColumn.class, "x"))
-				.addVariableGetField(load("mainColumn", registry.columnContext.columnType()), FieldInfo.getField(ScriptedColumn.class, "z"))
+				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
+				.addVariableRenamedGetField(loadMainColumn, "worldSeed", FieldInfo.getField(ScriptedColumn.class, "seed"))
+				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class))
+				.addFunctionInvoke("columnSeed", loadMainColumn, MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class))
 				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates")
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))
 			);
-			registry.setupExternalEnvironment(environment, load("mainColumn", registry.columnContext.columnType()));
+			registry.setupExternalEnvironment(environment, loadMainColumn);
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);

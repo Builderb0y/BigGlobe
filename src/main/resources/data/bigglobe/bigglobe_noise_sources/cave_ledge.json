@@ -1,8 +1,0 @@
-{
-	"dimensions": 3,
-	"type": "sum",
-	"layers": [
-		{ "type": "smooth", "scaleX": 32, "scaleY": 8, "scaleZ": 32, "amplitude": 0.25  },
-		{ "type": "smooth", "scaleX": 16, "scaleY": 4, "scaleZ": 16, "amplitude": 0.125 }
-	]
-}

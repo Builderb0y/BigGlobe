@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.objectweb.asm.tree.MethodNode;
@@ -24,9 +25,10 @@ public class MethodCompileContext {
 		this.node = node;
 		this.info = info;
 		this.scopes = new ScopeContext(this);
+		this.node.parameters = new ArrayList<>(parameterNames.length);
 		if (!info.isAbstract()) this.scopes.pushScope();
 		if (!info.isStatic()) {
-			this.node.visitParameter("this", 0);
+			//this.node.visitParameter("this", 0);
 			if (!info.isAbstract()) this.scopes.addVariable("this", clazz.info);
 		}
 		for (int index = 0, length = parameterNames.length; index < length; index++) {

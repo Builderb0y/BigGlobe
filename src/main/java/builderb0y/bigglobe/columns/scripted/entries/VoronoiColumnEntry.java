@@ -15,9 +15,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
-import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.*;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
@@ -40,6 +38,10 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 
 	public static final ColumnEntryMemory.Key<Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext>>
 		VORONOI_CONTEXT_MAP = new ColumnEntryMemory.Key<>("voronoiContextMap");
+	public static final ColumnEntryMemory.Key<Map<MemoryMapLookup, ColumnEntryMemory>>
+		MEMORY_MAP = new ColumnEntryMemory.Key<>("memoryMap");
+	public static record MemoryMapLookup(RegistryEntry<VoronoiSettings> voronoiSettings, RegistryEntry<ColumnEntry> columnEntry) {}
+
 	public static final MethodHandle RANDOMIZE;
 	static {
 		try {
@@ -62,7 +64,10 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		super(params, valid, true);
 		this.diagram = diagram;
 		if (!(params.type() instanceof VoronoiColumnValueType)) {
-			throw new IllegalArgumentException("params must be of type 'bigglobe:voronoi' when column value type is 'bigglobe:voronoi'");
+			throw new IllegalArgumentException("params.type must be 'bigglobe:voronoi' when column value type is 'bigglobe:voronoi'");
+		}
+		if (params.is_3d()) {
+			throw new IllegalArgumentException("params.is_3d must be false when column value is 'bigglobe:voronoi'");
 		}
 	}
 
@@ -144,26 +149,33 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.root().getTypeContext(entry.getValue().type()).type(), entry.getValue().getterParameters());
 		}
-		for (RegistryEntry<VoronoiSettings> entry : options) {
-			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(entry)));
-			voronoiContextMap.put(UnregisteredObjectException.getKey(entry), implContext);
-			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = entry.value().weight();
+		Map<MemoryMapLookup, ColumnEntryMemory> memoryMap = new HashMap<>();
+		memory.putTyped(MEMORY_MAP, memoryMap);
+		for (RegistryEntry<VoronoiSettings> voronoiEntry : options) {
+			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(voronoiEntry)));
+			voronoiContextMap.put(UnregisteredObjectException.getKey(voronoiEntry), implContext);
+			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = voronoiEntry.value().weight();
 
-			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
-				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.root().registry.memories.get(
-						UnregisteredObjectException.getID(enable)
-					)
-				);
+			for (RegistryEntry<ColumnEntry> enable : voronoiEntry.value().enables()) {
+				ColumnEntryMemory enabledMemory = new ColumnEntryMemory(enable);
+				AccessSchema accessSchema = enable.value().getAccessSchema();
+				enabledMemory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, context.root().getTypeContext(accessSchema.type()));
+				enabledMemory.putTyped(ColumnEntryMemory.ACCESS_CONTEXT, context.root().getAccessContext(accessSchema));
+				if (memoryMap.putIfAbsent(new MemoryMapLookup(voronoiEntry, enable), enabledMemory) != null) {
+					throw new IllegalStateException("old already in memoryMap");
+				}
 				enable.value().emitFieldGetterAndSetter(enabledMemory, implContext);
 			}
 
-			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : entry.value().exports().entrySet()) {
-				ColumnEntryMemory exportMemory = Objects.requireNonNull(
-					context.root().registry.memories.get(
-						UnregisteredObjectException.getID(export.getValue())
-					)
-				);
+			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : voronoiEntry.value().exports().entrySet()) {
+				ColumnEntryMemory exportMemory = memoryMap.get(new MemoryMapLookup(voronoiEntry, export.getValue()));
+				if (exportMemory == null) {
+					exportMemory = Objects.requireNonNull(
+						context.root().registry.memories.get(
+							UnregisteredObjectException.getID(export.getValue())
+						)
+					);
+				}
 				AccessSchema schema = export.getValue().value().getAccessSchema();
 				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.root().getTypeContext(schema.type()).type(), schema.getterParameters());
 				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
@@ -182,31 +194,49 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	}
 
 	@Override
-	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context) {
-		super.setupEnvironment(memory, context);
-		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
-			context.environment.addVariableRenamedInvoke(context.loadSelf(), entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
+	public void setupEnvironment(ColumnEntryMemory memory, DataCompileContext context, InsnTree loadHolder) {
+		super.setupEnvironment(memory, context, loadHolder);
+		context.environment.addType(((VoronoiColumnValueType)(this.params.type())).name, context.root().getTypeContext(this.params.type()).type());
+		if (context.parent == null) {
+			for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
+				context.addAccessor(loadHolder, entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
+			}
 		}
 		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
-		for (RegistryEntry<VoronoiSettings> entry : options) {
-			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
-			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
-				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.root().registry.memories.get(
-						UnregisteredObjectException.getID(enable)
-					)
-				);
-				enable.value().setupEnvironment(enabledMemory, implContext);
+		Map<MemoryMapLookup, ColumnEntryMemory> memoryMap = memory.getTyped(MEMORY_MAP);
+		for (RegistryEntry<VoronoiSettings> voronoiEntry : options) {
+			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(voronoiEntry)));
+			InsnTree loadImplContext = implContext.loadSelf();
+			for (RegistryEntry<ColumnEntry> enable : voronoiEntry.value().enables()) {
+				ColumnEntryMemory enabledMemory = memoryMap.get(new MemoryMapLookup(voronoiEntry, enable));
+				if (enabledMemory == null) {
+					throw new IllegalStateException("memoryMap does not contain " + voronoiEntry + " / " + enable);
+				}
+				enable.value().setupEnvironment(enabledMemory, implContext, loadImplContext);
+			}
+			InsnTree loadColumn = implContext.loadColumn();
+			for (ColumnEntryMemory filteredMemory : context.root().registry.filteredMemories) {
+				ColumnEntry columnEntry = filteredMemory.getTyped(ColumnEntryMemory.ENTRY);
+				if (!(columnEntry instanceof VoronoiColumnEntry)) {
+					columnEntry.setupEnvironment(filteredMemory, implContext, loadColumn);
+				}
 			}
 		}
 	}
 
 	@Override
-	public void setupExternalEnvironment(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
+	public void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
 		super.setupExternalEnvironment(memory, context, environment, loadColumn);
+		DataCompileContext selfContext = context.root().getAccessContext(this.getAccessSchema()).context();
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
-			environment.addMethodInvoke(entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context));
+			MethodInfo method = entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), selfContext);
+			if (entry.getValue().is_3d()) {
+				environment.addMethodInvoke(entry.getKey(), method);
+			}
+			else {
+				environment.addFieldInvoke(entry.getKey(), method);
+			}
 		}
 	}
 
@@ -251,14 +281,14 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 
 		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
 		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = memory.getTyped(VORONOI_CONTEXT_MAP);
-		for (RegistryEntry<VoronoiSettings> entry : options) {
-			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(entry)));
-			for (RegistryEntry<ColumnEntry> enable : entry.value().enables()) {
-				ColumnEntryMemory enabledMemory = Objects.requireNonNull(
-					context.root().registry.memories.get(
-						UnregisteredObjectException.getID(enable)
-					)
-				);
+		Map<MemoryMapLookup, ColumnEntryMemory> memoryMap = memory.getTyped(MEMORY_MAP);
+		for (RegistryEntry<VoronoiSettings> voronoiEntry : options) {
+			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(voronoiEntry)));
+			for (RegistryEntry<ColumnEntry> enable : voronoiEntry.value().enables()) {
+				ColumnEntryMemory enabledMemory = memoryMap.get(new MemoryMapLookup(voronoiEntry, enable));
+				if (enabledMemory == null) {
+					throw new IllegalStateException(voronoiEntry + " / " + enable + " not in " + memoryMap);
+				}
 				enable.value().emitComputer(enabledMemory, implContext);
 			}
 		}

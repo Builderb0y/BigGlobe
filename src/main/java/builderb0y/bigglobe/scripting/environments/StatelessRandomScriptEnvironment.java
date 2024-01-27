@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import com.google.common.collect.ObjectArrays;
+
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
@@ -16,7 +18,7 @@ public class StatelessRandomScriptEnvironment {
 			if (arguments.length == 0) {
 				return new CastResult(add(parser, receiver, ldc(Permuter.PHI64)), false);
 			}
-			return RandomScriptEnvironment.createSeed(parser, arguments);
+			return RandomScriptEnvironment.createSeed(parser, ObjectArrays.concat(receiver, arguments));
 		}))
 		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextBoolean", boolean.class, long.class)
 		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, long.class, float.class)

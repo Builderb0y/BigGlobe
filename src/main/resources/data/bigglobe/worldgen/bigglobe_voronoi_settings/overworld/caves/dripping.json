@@ -1,0 +1,22 @@
+{
+	"weight": 1.0,
+	"owner": "bigglobe:overworld/cave",
+	"enables": [
+		"bigglobe:overworld/caves/hard_noise",
+		"bigglobe:overworld/caves/hard_depth",
+		"bigglobe:overworld/caves/hard_width",
+		"bigglobe:overworld/caves/surface_depth_noise",
+		"bigglobe:overworld/caves/unbiased_primary_noise",
+		"bigglobe:overworld/caves/unbiased_secondary_noise",
+		"bigglobe:overworld/caves/dripping_floor",
+		"bigglobe:overworld/caves/dripping_ceiling"
+	],
+	"exports": {
+		"noise":          "bigglobe:overworld/caves/hard_noise",
+		"depth":          "bigglobe:overworld/caves/hard_depth",
+		"floor_depth":    "bigglobe:overworld/caves/surface_depth_noise",
+		"ceiling_depth":  "bigglobe:overworld/caves/surface_depth_noise",
+		"floor_states":   "bigglobe:overworld/caves/dripping_floor",
+		"ceiling_states": "bigglobe:overworld/caves/dripping_ceiling"
+	}
+}

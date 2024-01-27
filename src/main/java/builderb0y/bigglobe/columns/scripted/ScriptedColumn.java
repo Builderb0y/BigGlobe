@@ -11,13 +11,15 @@ public abstract class ScriptedColumn {
 	public int x, z;
 	/** the upper and lower bounds of the area that can be cached. */
 	public int minY, maxY;
+	public boolean distantHorizons;
 
-	public ScriptedColumn(long seed, int x, int z, int minY, int maxY) {
+	public ScriptedColumn(long seed, int x, int z, int minY, int maxY, boolean distantHorizons) {
 		this.seed = seed;
 		this.x = x;
 		this.z = z;
 		this.minY = minY;
 		this.maxY = maxY;
+		this.distantHorizons = distantHorizons;
 	}
 
 	public long columnSeed() {
@@ -30,23 +32,24 @@ public abstract class ScriptedColumn {
 
 	public abstract void clear();
 
-	public void setPosUnchecked(int x, int z, int minY, int maxY) {
+	public void setPosUnchecked(int x, int z, int minY, int maxY, boolean distantHorizons) {
 		this.x = x;
 		this.z = z;
 		this.minY = minY;
 		this.maxY = maxY;
+		this.distantHorizons = distantHorizons;
 		this.clear();
 	}
 
-	public void setPos(int x, int z, int minY, int maxY) {
-		if (this.x != x || this.z != z || this.minY != minY || this.maxY != maxY) {
-			this.setPosUnchecked(x, z, minY, maxY);
+	public void setPos(int x, int z, int minY, int maxY, boolean distantHorizons) {
+		if (this.x != x || this.z != z || this.minY != minY || this.maxY != maxY || this.distantHorizons != distantHorizons) {
+			this.setPosUnchecked(x, z, minY, maxY, distantHorizons);
 		}
 	}
 
 	public static interface Factory {
 
-		public abstract ScriptedColumn create(long seed, int x, int z, int minY, int maxY);
+		public abstract ScriptedColumn create(long seed, int x, int z, int minY, int maxY, boolean distantHorizons);
 	}
 
 	/** also subclassed at runtime. */

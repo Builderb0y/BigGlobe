@@ -1,46 +1,27 @@
 {
-	"type": "bigglobe:noise",
+	"type": "bigglobe:script",
 	"params": {
 		"type": "float",
 		"is_3d": true
 	},
-	"grid": {
-		"type": "script",
-		"script": {
-			"template": "bigglobe:grids/overworld_cave_ledge",
-			"inputs": {
-				"lower_primary_width": "64.0L",
-				"upper_primary_width": "8.0L",
-				"secondary_width": "8.0L"
-			}
-		},
-		"min": 0.0,
-		"max": 1.0,
-		"inputs": {
-			"primary1": {
-				"type": "template",
-				"template": "bigglobe:biased_cave_primary_1"
-			},
-			"primary2": {
-				"type": "template",
-				"template": "bigglobe:biased_cave_primary_2"
-			},
-			"secondary1": {
-				"type": "template",
-				"template": "bigglobe:biased_cave_secondary_1"
-			},
-			"secondary2": {
-				"type": "template",
-				"template": "bigglobe:biased_cave_secondary_2"
-			},
-			"ledge": {
-				"type": "template",
-				"template": "bigglobe:cave_ledge"
-			}
-		}
-	},
+	"script": [
+		"float curve(float valueSquared, float width:",
+			"return(valueSquared / (valueSquared + width ^ 2))",
+		")",
+		"return(",
+			"curve(",
+				"`bigglobe:overworld/caves/biased_primary_noise`(y),",
+				"`bigglobe:overworld/caves/easy_width`(y)",
+			")",
+			"* curve(",
+				"`bigglobe:overworld/caves/biased_secondary_noise`(y),",
+				"8.0I",
+			")",
+			"+ `bigglobe:overworld/caves/ledge_noise`(y)",
+		")"
+	],
 	"valid": {
-		"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - 512",
+		"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/caves/easy_depth`",
 		"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
 	}
 }
