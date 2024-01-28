@@ -44,7 +44,7 @@ public class UserClassDefiner {
 		List<FieldCompileContext> fields = this.parseFields();
 		List<FieldCompileContext> nonDefaulted = fields.stream().filter((FieldCompileContext field) -> field.initializer == null).toList();
 		this.addConstructors(fields, nonDefaulted);
-		this.addToString(fields);
+		addToString(this.innerClass, this.className, fields);
 		this.addEquals(fields);
 		this.addHashCode(fields);
 		this.exposeToScript(fields, nonDefaulted);
@@ -159,10 +159,10 @@ public class UserClassDefiner {
 		}
 	}
 
-	public void addToString(List<FieldCompileContext> fields) {
-		MethodCompileContext toString = this.innerClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
+	public static void addToString(ClassCompileContext innerClass, String className, List<FieldCompileContext> fields) {
+		MethodCompileContext toString = innerClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
 		LazyVarInfo self = new LazyVarInfo("this", toString.clazz.info);
-		StringBuilder pattern = new StringBuilder(this.className).append('(');
+		StringBuilder pattern = new StringBuilder(className).append('(');
 		for (FieldCompileContext field : fields) {
 			pattern.append(field.name()).append(": ").append('\u0001').append(", ");
 		}
@@ -188,6 +188,7 @@ public class UserClassDefiner {
 			)
 		)
 		.emitBytecode(toString);
+		toString.endCode();
 	}
 
 	public void addHashCode(List<FieldCompileContext> fields) {

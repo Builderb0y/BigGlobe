@@ -282,7 +282,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 						? "if (y >= array.minAccessible && y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
 						: "if (y >= array.minAccessible: return(compute(y)))\nreturn(fallback)"
 					)
-						: (
+					: (
 						this.valid.max_y() != null
 						? "if (y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
 						: "return(compute(y))"

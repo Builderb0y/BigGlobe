@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
+import builderb0y.scripting.parsing.UserClassDefiner;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -53,6 +55,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 		);
 		invokeInstance(load("this", this.mainClass.info), MethodInfo.getConstructor(Object.class)).emitBytecode(this.constructor);
 		LoadInsnTree loadSelf = load(new LazyVarInfo("this", this.mainClass.info));
+		List<FieldCompileContext> fieldCompileContexts = new ArrayList<>(spec.fieldsInOrder.length);
 		for (ClassColumnValueField field : spec.fieldsInOrder) {
 			FieldCompileContext fieldContext = this.mainClass.newField(ACC_PUBLIC, field.name(), parent.getTypeContext(field.type()).type());
 			putField(
@@ -65,6 +68,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 			)
 			.emitBytecode(this.constructor);
 		}
+		UserClassDefiner.addToString(this.mainClass, spec.name, fieldCompileContexts);
 		this.newHandler = new MemberKeywordHandler.Named("Constructor for " + spec.name, (ExpressionParser parser, InsnTree receiver, String theStringNew, MemberKeywordMode mode) -> {
 			NamedValues namedValues = NamedValues.parse(parser, null, (ExpressionParser theSameParser, String name) -> {
 				if (!spec.fields.containsKey(name)) {

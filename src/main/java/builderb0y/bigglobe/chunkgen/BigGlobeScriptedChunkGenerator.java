@@ -391,7 +391,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", exception);
 			return;
 		}
-		for (Map.Entry<Identifier, ColumnEntryMemory> entry : (Iterable<? extends Map.Entry<Identifier, ColumnEntryMemory>>)(this.columnEntryRegistry.memories.entrySet().stream().sorted(Map.Entry.comparingByKey())::iterator)) {
+		for (Map.Entry<Identifier, ColumnEntryMemory> entry : (Iterable<? extends Map.Entry<Identifier, ColumnEntryMemory>>)(this.columnEntryRegistry.filteredMemories.stream().map(memory -> Map.entry(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID), memory)).sorted(Map.Entry.comparingByKey())::iterator)) {
 			if (pattern.matcher(entry.getKey().toString()).find()) {
 				MethodCompileContext getter = entry.getValue().getTyped(ColumnEntryMemory.GETTER);
 				if (getter.clazz == this.columnEntryRegistry.columnContext.mainClass) try {

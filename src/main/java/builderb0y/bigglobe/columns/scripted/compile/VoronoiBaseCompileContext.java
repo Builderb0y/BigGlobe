@@ -7,7 +7,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -15,13 +14,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiBaseCompileContext extends DataCompileContext {
 
-	public VoronoiBaseCompileContext(ColumnCompileContext parent) {
+	public VoronoiBaseCompileContext(ColumnCompileContext parent, String name) {
 		super(parent);
 		this.flagsIndex = 3;
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_ABSTRACT | ACC_SYNTHETIC,
-			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(VoronoiDataBase.class),
 			new TypeInfo[0]
 		);

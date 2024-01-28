@@ -15,7 +15,7 @@ import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 public class VoronoiColumnValueType implements ColumnValueType {
 
-	public final String name;
+	public final @IdentifierName String name;
 	public final @DefaultEmpty Map<@IdentifierName @UseVerifier(name = "checkNotReserved", in = VoronoiColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, AccessSchema> exports;
 
 	public VoronoiColumnValueType(String name, Map<String, AccessSchema> exports) {
@@ -25,7 +25,7 @@ public class VoronoiColumnValueType implements ColumnValueType {
 
 	@Override
 	public TypeContext createType(ColumnCompileContext context) {
-		VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context);
+		VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context, this.name);
 		return new TypeContext(voronoiContext.mainClass.info, voronoiContext);
 	}
 

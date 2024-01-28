@@ -152,7 +152,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		Map<MemoryMapLookup, ColumnEntryMemory> memoryMap = new HashMap<>();
 		memory.putTyped(MEMORY_MAP, memoryMap);
 		for (RegistryEntry<VoronoiSettings> voronoiEntry : options) {
-			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, Permuter.permute(0L, UnregisteredObjectException.getID(voronoiEntry)));
+			VoronoiImplCompileContext implContext = new VoronoiImplCompileContext(voronoiBaseContext, voronoiEntry);
 			voronoiContextMap.put(UnregisteredObjectException.getKey(voronoiEntry), implContext);
 			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = voronoiEntry.value().weight();
 

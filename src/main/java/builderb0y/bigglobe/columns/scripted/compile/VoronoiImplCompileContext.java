@@ -2,12 +2,14 @@ package builderb0y.bigglobe.columns.scripted.compile;
 
 import org.objectweb.asm.Type;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.LazyVarInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
@@ -16,14 +18,16 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiImplCompileContext extends DataCompileContext {
 
-	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, long seed) {
+	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, RegistryEntry<VoronoiSettings> entry) {
 		super(parent);
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
+		String name = internalName(UnregisteredObjectException.getID(entry), ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement());
+		long seed = Permuter.permute(0L, UnregisteredObjectException.getID(entry));
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
-			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Impl_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Impl_" + name,
 			parent.mainClass.info,
-			new TypeInfo[0]
+			TypeInfo.ARRAY_FACTORY.empty()
 		);
 
 		LazyVarInfo column, cell;
@@ -51,6 +55,10 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 			ldc(seed)
 		)
 		.emitBytecode(this.constructor);
+
+		MethodCompileContext toString = this.mainClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
+		return_(ldc("voronoi_settings: " + UnregisteredObjectException.getID(entry))).emitBytecode(toString);
+		toString.endCode();
 	}
 
 	@Override
