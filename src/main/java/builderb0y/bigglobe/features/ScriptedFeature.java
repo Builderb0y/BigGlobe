@@ -20,10 +20,8 @@ import builderb0y.autocodec.annotations.UseName;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -184,8 +182,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> {
 				LOAD_COLUMN = getField(LOAD_WORLD, FieldInfo.getField(WorldWrapper.class, "column")),
 				DISTANT_HORIZONS = getField(LOAD_COLUMN, FieldInfo.getField(ScriptedColumn.class, "distantHorizons"));
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override

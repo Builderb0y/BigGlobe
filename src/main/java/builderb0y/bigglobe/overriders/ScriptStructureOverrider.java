@@ -6,7 +6,6 @@ import net.minecraft.structure.StructurePiece;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -41,8 +40,8 @@ public interface ScriptStructureOverrider extends Overrider {
 
 	public static class Holder extends Overrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

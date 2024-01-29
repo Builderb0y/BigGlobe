@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.scripting.interfaces;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -15,8 +14,8 @@ public interface HeightAdjustmentScript extends Script {
 
 	public static abstract class Holder extends ScriptHolder<HeightAdjustmentScript> implements HeightAdjustmentScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override
@@ -33,8 +32,8 @@ public interface HeightAdjustmentScript extends Script {
 
 	public static class TemperatureHolder extends Holder {
 
-		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
-			super(usage, betterRegistryLookup);
+		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override
@@ -59,8 +58,8 @@ public interface HeightAdjustmentScript extends Script {
 
 	public static class FoliageHolder extends Holder {
 
-		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
-			super(usage, betterRegistryLookup);
+		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

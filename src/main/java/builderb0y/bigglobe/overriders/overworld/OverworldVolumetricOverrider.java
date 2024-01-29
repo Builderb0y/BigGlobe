@@ -2,7 +2,6 @@ package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -78,8 +77,8 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 
 	public static class Holder extends VolumetricOverrider.Holder<OverworldVolumetricOverrider> implements OverworldVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

@@ -4,7 +4,6 @@ import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -66,8 +65,8 @@ public interface FlatOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends FlatOverrider> extends Overrider.Holder<T_Overrider> implements FlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		public abstract Class<? extends WorldColumn> getColumnClass();

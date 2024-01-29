@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.overriders.end;
 
 import builderb0y.bigglobe.columns.EndColumn;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
@@ -85,8 +84,8 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 
 	public static class Holder extends VolumetricOverrider.Holder<EndVolumetricOverrider> implements EndVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

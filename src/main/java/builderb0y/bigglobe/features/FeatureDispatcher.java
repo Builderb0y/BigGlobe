@@ -2,7 +2,6 @@ package builderb0y.bigglobe.features;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -40,8 +39,8 @@ public interface FeatureDispatcher extends Script {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
+			super(usage);
 		}
 
 		@Override

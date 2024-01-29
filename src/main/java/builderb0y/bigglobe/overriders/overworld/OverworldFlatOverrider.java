@@ -2,7 +2,6 @@ package builderb0y.bigglobe.overriders.overworld;
 
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
@@ -20,8 +19,8 @@ public interface OverworldFlatOverrider extends FlatOverrider {
 
 	public static abstract class Holder<T_Overrider extends OverworldFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements OverworldFlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

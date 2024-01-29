@@ -6,7 +6,6 @@ import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
@@ -18,9 +17,8 @@ public abstract class ScriptHolder<S extends Script> implements Script, DelayedC
 	public transient S script;
 	public transient long nextWarning = Long.MIN_VALUE;
 
-	public ScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+	public ScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 		this.usage = usage;
-		betterRegistryLookup.getColumnEntryRegistryHolder().bigglobe_delayCompile(this);
 	}
 
 	public void onError(Throwable throwable) {

@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.structures.scripted;
 
-import java.util.List;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.nbt.NbtCompound;
@@ -9,7 +8,6 @@ import net.minecraft.structure.StructurePiece;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
@@ -45,8 +43,8 @@ public interface StructureLayoutScript extends Script {
 
 		public static final InsnTree LOAD_RANDOM = load("random", type(RandomGenerator.class));
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

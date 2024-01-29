@@ -4,7 +4,6 @@ import net.minecraft.nbt.NbtCompound;
 
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -33,8 +32,8 @@ public interface StructurePlacementScript extends Script {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

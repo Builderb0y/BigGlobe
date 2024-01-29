@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -22,8 +21,8 @@ public interface ColumnScript extends Script {
 
 	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> {
 
-		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override
@@ -99,8 +98,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToIntScript> implements ColumnToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -127,8 +126,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToIntScript> implements ColumnYToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -155,8 +154,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToLongScript> implements ColumnToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -183,8 +182,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToLongScript> implements ColumnYToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -211,8 +210,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToFloatScript> implements ColumnToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -239,8 +238,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToFloatScript> implements ColumnYToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -267,8 +266,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToDoubleScript> implements ColumnToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -295,8 +294,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -323,8 +322,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToBooleanScript> implements ColumnToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -351,8 +350,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -379,8 +378,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToObjectScript> implements ColumnToObjectScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override
@@ -407,8 +406,8 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToObjectScript> implements ColumnYToObjectScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-				super(usage, betterRegistryLookup);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
 			}
 
 			@Override

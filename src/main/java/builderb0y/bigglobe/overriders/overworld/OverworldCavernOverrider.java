@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import net.minecraft.structure.StructurePiece;
 
 import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -57,8 +56,8 @@ public interface OverworldCavernOverrider extends OverworldFlatOverrider {
 
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldCavernOverrider> implements OverworldCavernOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		@Override

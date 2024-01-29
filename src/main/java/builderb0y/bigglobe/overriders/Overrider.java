@@ -9,7 +9,6 @@ import net.minecraft.util.math.BlockBox;
 
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -110,8 +109,8 @@ public interface Overrider extends Script {
 
 	public static abstract class Holder<T_Overrider extends Overrider> extends ScriptHolder<T_Overrider> implements Overrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
-			super(usage, betterRegistryLookup);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
 
 		public abstract Class<T_Overrider> getScriptClass();

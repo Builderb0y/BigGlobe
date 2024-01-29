@@ -11,12 +11,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.Nullable;
-
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
-import builderb0y.autocodec.annotations.AddPseudoField;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.util.TypeFormatter;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -26,6 +29,7 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.mixinInterfaces.ColumnEntryRegistryHolder;
+import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
@@ -161,21 +165,27 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	@AddPseudoField("betterRegistryLookup")
+	@UseVerifier(name = "postConstruct", in = DelayedCompileable.class, usage = MemberUsage.METHOD_IS_HANDLER, strict = false)
 	public static interface DelayedCompileable {
 
 		/** called when the {@link ColumnEntryRegistry} is constructed. */
 		public abstract void compile(ColumnEntryRegistry registry) throws ScriptParsingException;
 
 		/**
-		most classes implementing this interface will need to take the lookup
-		as a constructor parameter so that they can add themselves to it via
-		{@link ColumnEntryRegistryHolder#bigglobe_delayCompile(DelayedCompileable)}.
-		in order for that to work with AutoCodec, there needs to be a dummy field for it.
-		so, that's what this method is. it prevents me from needing to add a field to implementation.
+		I need to add the ScriptHolder to the ColumnEntryRegistryHolder after
+		it's constructed, including after subclass constructors have run.
+		this is not the intended use for verifiers, but it works.
 		*/
-		public default BetterRegistry.@Nullable Lookup betterRegistryLookup() {
-			return null;
+		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, ScriptHolder<?>> context) throws VerifyException {
+			ScriptHolder<?> holder = context.object;
+			if (holder == null) return;
+
+			if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
+				((ColumnEntryRegistryHolder)(registryOps)).bigglobe_delayCompile(holder);
+			}
+			else {
+				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(holder.getClass()) + " was decoded using a non-registry ops: " + context.ops);
+			}
 		}
 	}
 }
