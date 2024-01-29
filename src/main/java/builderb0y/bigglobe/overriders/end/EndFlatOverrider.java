@@ -2,12 +2,11 @@ package builderb0y.bigglobe.overriders.end;
 
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface EndFlatOverrider extends FlatOverrider {
 
@@ -19,10 +18,15 @@ public interface EndFlatOverrider extends FlatOverrider {
 		this.override(structureStarts, (EndColumn)(column));
 	}
 
-	public static class Holder<T_Overrider extends EndFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements EndFlatOverrider {
+	public static abstract class Holder<T_Overrider extends EndFlatOverrider> extends FlatOverrider.Holder<T_Overrider> implements EndFlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser) throws ScriptParsingException {
-			super(usage, parser, EndColumn.class);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<? extends WorldColumn> getColumnClass() {
+			return EndColumn.class;
 		}
 
 		@Override

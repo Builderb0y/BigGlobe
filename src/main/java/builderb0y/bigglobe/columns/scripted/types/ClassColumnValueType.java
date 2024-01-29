@@ -53,7 +53,7 @@ public class ClassColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public void setupExternalEnvironment(TypeContext typeContext, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
+	public void setupExternalEnvironment(TypeContext typeContext, ColumnCompileContext context, MutableScriptEnvironment environment) {
 		environment.addType(this.name, typeContext.type());
 		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {
 			environment.addFieldGet(

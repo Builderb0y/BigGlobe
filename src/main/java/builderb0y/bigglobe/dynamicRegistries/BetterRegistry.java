@@ -10,6 +10,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 
+import builderb0y.bigglobe.mixinInterfaces.ColumnEntryRegistryHolder;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION > MC_1_19_2
@@ -121,5 +122,7 @@ public interface BetterRegistry<T> {
 	public static interface Lookup {
 
 		public abstract <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key);
+
+		public abstract ColumnEntryRegistryHolder getColumnEntryRegistryHolder();
 	}
 }

@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.overriders.end;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface EndHeightOverrider extends EndFlatOverrider {
 
@@ -39,15 +37,20 @@ public interface EndHeightOverrider extends EndFlatOverrider {
 		column.mountainThickness = (maxY - minY) * 0.5D;
 	}
 
-	@Wrapper
 	public static class Holder extends EndFlatOverrider.Holder<EndHeightOverrider> implements EndHeightOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(EndHeightOverrider.class, usage)
-				.addEnvironment(Y_LEVELS_ENVIRONMENT)
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return super.setupEnvironment(environment).addAll(Y_LEVELS_ENVIRONMENT);
+		}
+
+		@Override
+		public Class<EndHeightOverrider> getScriptClass() {
+			return EndHeightOverrider.class;
 		}
 	}
 }

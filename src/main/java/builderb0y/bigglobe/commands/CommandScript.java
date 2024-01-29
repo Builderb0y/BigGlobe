@@ -32,26 +32,18 @@ public interface CommandScript extends Script {
 	public static class Parser extends ScriptParser<CommandScript> {
 
 		public static final Method IMPLEMENTING_METHOD = ReflectionData.forClass(CommandScript.class).getDeclaredMethod("evaluate");
-		public static final InsnTree
-			LOAD_WORLD = load("world", WorldWrapper.TYPE),
-			LOAD_RANDOM = new IdentityCastInsnTree(
-				getField(
-					LOAD_WORLD,
-					FieldInfo.getField(WorldWrapper.class, "permuter")
-				),
-				type(RandomGenerator.class)
-			);
+		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
 		public Parser(String input) {
 			super(CommandScript.class, IMPLEMENTING_METHOD, input, (String)(null));
 			this
-			.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
+			.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(LOAD_WORLD))
-			.addEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
-			.addEnvironment(CoordinatorScriptEnvironment.create(LOAD_WORLD))
+			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+			.addEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+			.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 			.addEnvironment(NbtScriptEnvironment.INSTANCE)
-			.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
+			.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 			.addEnvironment(
 				ColumnScriptEnvironmentBuilder.createVariableXYZ(
 					ColumnValue.REGISTRY,
@@ -65,9 +57,9 @@ public interface CommandScript extends Script {
 				.addVariableLoad("originY", TypeInfos.INT)
 				.addVariableLoad("originZ", TypeInfos.INT)
 			)
-			.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+			.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(StructureTemplateScriptEnvironment.create(LOAD_WORLD));
+			.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf));
 		}
 
 		@Override

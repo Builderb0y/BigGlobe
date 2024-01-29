@@ -5,8 +5,6 @@ import net.minecraft.block.BlockState;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptUsage;
 
 public class Simple2DLayer extends Layer {
 
@@ -15,8 +13,8 @@ public class Simple2DLayer extends Layer {
 	public Simple2DLayer(
 		@VerifyNullable Valid valid,
 		Layer @DefaultEmpty [] children,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> top_surface,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> bottom_surface,
+		SurfaceScript.@VerifyNullable Holder top_surface,
+		SurfaceScript.@VerifyNullable Holder bottom_surface,
 		BlockState state
 	) {
 		super(valid, children, top_surface, bottom_surface);

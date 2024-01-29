@@ -10,10 +10,15 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 
@@ -22,19 +27,24 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 	public @Nullable ColumnYToDoubleScript script;
 
 	public LocateNoiseLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ScriptParser<>(ColumnYToDoubleScript.class, script, null);
-		this.usedValues = ColumnYToDoubleScript.Holder.setupParser(this.parser).usedValues;
-		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
-		keywords.remove("class");
-		keywords.remove("while");
-		keywords.remove("until");
-		keywords.remove("do");
-		keywords.remove("repeat");
-		keywords.remove("for");
-		keywords.remove("block");
-		keywords.remove("break");
-		keywords.remove("continue");
+		ColumnScriptEnvironmentBuilder builder = (
+			ColumnScriptEnvironmentBuilder.createFixedXYZ(
+				ColumnValue.REGISTRY,
+				load("column", type(WorldColumn.class)),
+				load("y", TypeInfos.DOUBLE)
+			)
+			.trackUsedValues()
+			.addXZ("x", "z")
+			.addY("y")
+			.addSeed("worldSeed")
+		);
+		this.parser = (
+			new ScriptParser<>(ColumnYToDoubleScript.class, script, null)
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(builder.build())
+		);
 		this.parser.toBytecode();
+		this.usedValues = builder.usedValues;
 	}
 
 	public ColumnYToDoubleScript getScript() {

@@ -4,6 +4,7 @@ import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -15,8 +16,9 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -64,20 +66,27 @@ public interface FlatOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends FlatOverrider> extends Overrider.Holder<T_Overrider> implements FlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser, Class<? extends WorldColumn> columnClass) throws ScriptParsingException {
-			super(
-				usage,
-				parser
-				.addEnvironment(STRUCTURE_STARTS_ENVIRONMENT)
-				.addEnvironment(
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		public abstract Class<? extends WorldColumn> getColumnClass();
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return (
+				super
+				.setupEnvironment(environment)
+				.addAll(STRUCTURE_STARTS_ENVIRONMENT)
+				.addAll(
 					Overrider.createDistanceEnvironment(
-						load("column", type(columnClass))
+						load("column", type(this.getColumnClass()))
 					)
 				)
-				.addEnvironment(
+				.addAll(
 					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
-						load("column", type(columnClass)),
+						load("column", type(this.getColumnClass())),
 						null
 					)
 					.addXZ("x", "z")

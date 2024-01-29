@@ -19,20 +19,117 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.InfoHolder;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class RandomScriptEnvironment {
 
-	public static final MethodInfo
-		CONSTRUCTOR            = MethodInfo.findConstructor(Permuter       .class,                       long   .class                                     ),
-		PERMUTE_INT            = MethodInfo.findMethod     (Permuter       .class, "permute",            long   .class,            long.class, int   .class).pure(),
-		NEXT_INT_1             = MethodInfo.findMethod     (RandomGenerator.class, "nextInt",            int    .class,            int .class              ),
-		NEXT_BOOLEAN           = MethodInfo.findMethod     (RandomGenerator.class, "nextBoolean",        boolean.class                                     ),
-		NEXT_CHANCED_BOOLEAN_F = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float .class),
-		NEXT_CHANCED_BOOLEAN_D = MethodInfo.findMethod     (Permuter       .class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class),
-		ASSERT_FAIL            = MethodInfo.findConstructor(AssertionError .class,                       String .class                                     );
+	public static final RandomGeneratorInfo RNG_INFO = new RandomGeneratorInfo();
+	public static class RandomGeneratorInfo extends InfoHolder {
+
+		public MethodInfo nextBoolean;
+		@Disambiguate(name = "nextFloat", returnType = float.class, paramTypes = {})
+		public MethodInfo nextFloat;
+		@Disambiguate(name = "nextFloat", returnType = float.class, paramTypes = { float.class })
+		public MethodInfo nextFloatBound;
+		@Disambiguate(name = "nextFloat", returnType = float.class, paramTypes = { float.class, float.class })
+		public MethodInfo nextFloatOriginBound;
+
+		@Disambiguate(name = "nextDouble", returnType = double.class, paramTypes = {})
+		public MethodInfo nextDouble;
+		@Disambiguate(name = "nextDouble", returnType = double.class, paramTypes = { double.class })
+		public MethodInfo nextDoubleBound;
+		@Disambiguate(name = "nextDouble", returnType = double.class, paramTypes = { double.class, double.class })
+		public MethodInfo nextDoubleOriginBound;
+
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = {})
+		public MethodInfo nextInt;
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class })
+		public MethodInfo nextIntBound;
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class, int.class })
+		public MethodInfo nextIntOriginBound;
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = {})
+		public MethodInfo nextLong;
+
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class })
+		public MethodInfo nextLongBound;
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class, long.class })
+		public MethodInfo nextLongOriginBound;
+		@Disambiguate(name = "nextGaussian", returnType = double.class, paramTypes = {})
+		public MethodInfo nextGaussian;
+
+		@Disambiguate(name = "nextGaussian", returnType = double.class, paramTypes = { double.class, double.class })
+		public MethodInfo nextGaussianMeanDev;
+		public MethodInfo nextExponential;
+
+		public RandomGeneratorInfo() {
+			super(RandomGenerator.class);
+		}
+	}
+
+	public static final PermuterInfo PERMUTER_INFO = new PermuterInfo();
+	public static class PermuterInfo extends InfoHolder {
+
+		@Disambiguate(name = "new", returnType = void.class, paramTypes = { long.class })
+		public MethodInfo constructor;
+
+		@Disambiguate(name = "permute", returnType = long.class, paramTypes = { long.class, int.class })
+		public MethodInfo permuteI;
+
+		public MethodInfo nextUniformInt, toUniformInt, nextPositiveInt, toPositiveInt;
+		@Disambiguate(name = "nextBoundedInt", returnType = int.class, paramTypes = { long.class, int.class })
+		public MethodInfo nextIntBound;
+		@Disambiguate(name = "nextBoundedInt", returnType = int.class, paramTypes = { long.class, int.class, int.class })
+		public MethodInfo nextIntOriginBound;
+
+		public MethodInfo nextUniformLong, toUniformLong, nextPositiveLong, toPositiveLong;
+		@Disambiguate(name = "nextBoundedLong", returnType = long.class, paramTypes = { long.class, long.class })
+		public MethodInfo nextLongBound;
+		@Disambiguate(name = "nextBoundedLong", returnType = long.class, paramTypes = { long.class, long.class, long.class })
+		public MethodInfo nextLongOriginBound;
+
+		public MethodInfo nextUniformFloat, toUniformFloat, nextPositiveFloat, toPositiveFloat;
+		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { float.class, float.class })
+		public MethodInfo nextFloatBound;
+		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { float.class, float.class, float.class })
+		public MethodInfo nextFloatOriginBound;
+
+		@Disambiguate(name = "nextUniformDouble", returnType = double.class, paramTypes = { long.class })
+		public MethodInfo nextUniformDouble;
+		public MethodInfo toUniformDouble, nextPositiveDouble, toPositiveDouble;
+		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { double.class, double.class })
+		public MethodInfo nextDoubleBound;
+		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { double.class, double.class, double.class })
+		public MethodInfo nextDoubleOriginBound;
+
+		public MethodInfo nextBoolean, toBoolean;
+		@Disambiguate(name = "nextChancedBoolean", returnType = boolean.class, paramTypes = { long.class, float.class })
+		public MethodInfo nextChancedBooleanF;
+		@Disambiguate(name = "nextChancedBoolean", returnType = boolean.class, paramTypes = { long.class, double.class })
+		public MethodInfo nextChancedBooleanD;
+		@Disambiguate(name = "toChancedBoolean", returnType = boolean.class, paramTypes = { long.class, float.class })
+		public MethodInfo toChancedBooleanF;
+		@Disambiguate(name = "toChancedBoolean", returnType = boolean.class, paramTypes = { long.class, double.class })
+		public MethodInfo toChancedBooleanD;
+
+		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { long.class, float.class })
+		public MethodInfo roundRandomlyIF;
+		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { long.class, double.class })
+		public MethodInfo roundRandomlyID;
+		@Disambiguate(name = "roundRandomlyL", returnType = int.class, paramTypes = { long.class, float.class })
+		public MethodInfo roundRandomlyLF;
+		@Disambiguate(name = "roundRandomlyL", returnType = int.class, paramTypes = { long.class, double.class })
+		public MethodInfo roundRandomlyLD;
+
+		public PermuterInfo() {
+			super(Permuter.class);
+		}
+	}
+
+	public static final MethodInfo ASSERT_FAIL = MethodInfo.findConstructor(AssertionError.class, String.class);
+
 
 	public static MutableScriptEnvironment create(InsnTree loader) {
 		return (
@@ -42,12 +139,30 @@ public class RandomScriptEnvironment {
 			.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (parser, name, arguments) -> {
 				if (arguments.length == 0) return null;
 				CastResult seed = createSeed(parser, arguments);
-				return new CastResult(newInstance(CONSTRUCTOR, seed.tree()), seed.requiredCasting());
+				return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
 			}))
-			.addMethodInvoke(RandomGenerator.class, "nextBoolean")
-			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, float.class)
-			.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, RandomGenerator.class, double.class)
-			.addMethodMultiInvokes(RandomGenerator.class, "nextInt", "nextLong", "nextFloat", "nextDouble", "nextGaussian", "nextExponential")
+			.addMethodInvoke("nextInt", RNG_INFO.nextInt)
+			.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
+			.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLong)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
+			.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.nextChancedBooleanF)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.nextChancedBooleanD)
+			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
+			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
+			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.roundRandomlyIF)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.roundRandomlyID)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.roundRandomlyLF)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.roundRandomlyLD)
 			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
@@ -73,12 +188,12 @@ public class RandomScriptEnvironment {
 							case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
 						}
 					)
-					.apply(loader, actualReceiver -> {
+					.apply(loader, (InsnTree actualReceiver) -> {
 						return switch_(
 							parser,
 							invokeInstance(
 								actualReceiver,
-								NEXT_INT_1,
+								RNG_INFO.nextIntBound,
 								ldc(arguments.length)
 							),
 							cases
@@ -87,10 +202,6 @@ public class RandomScriptEnvironment {
 					false
 				);
 			}))
-			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, float.class)
-			.addMethodRenamedInvokeStaticSpecific("roundInt", Permuter.class, "roundRandomlyI", int.class, RandomGenerator.class, double.class)
-			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, float.class)
-			.addMethodRenamedInvokeStaticSpecific("roundLong", Permuter.class, "roundRandomlyL", long.class, RandomGenerator.class, double.class)
 			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name, mode) -> {
 				return wrapRandomIf(parser, receiver, false, mode);
 			})
@@ -106,7 +217,7 @@ public class RandomScriptEnvironment {
 		for (int index = 1, length = arguments.length; index < length; index++) {
 			InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
 			needCasting |= next != arguments[index];
-			seed = invokeStatic(PERMUTE_INT, seed, next);
+			seed = invokeStatic(PERMUTER_INFO.permuteI, seed, next);
 		}
 		return new CastResult(seed, needCasting);
 	}
@@ -126,13 +237,13 @@ public class RandomScriptEnvironment {
 			}
 			body = parser.nextScript();
 			conditionInsnTree = invokeStatic(
-				sort == Sort.FLOAT ? NEXT_CHANCED_BOOLEAN_F : NEXT_CHANCED_BOOLEAN_D,
+				sort == Sort.FLOAT ? PERMUTER_INFO.nextChancedBooleanF : PERMUTER_INFO.nextChancedBooleanD,
 				receiver,
 				firstPart
 			);
 		}
 		else { //random.if(a)
-			conditionInsnTree = invokeInstance(receiver, NEXT_BOOLEAN);
+			conditionInsnTree = invokeInstance(receiver, RNG_INFO.nextBoolean);
 			body = firstPart;
 		}
 		parser.endCodeBlock();

@@ -80,8 +80,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 	public default void setupExternalEnvironment(
 		TypeContext typeContext,
 		ColumnCompileContext context,
-		MutableScriptEnvironment environment,
-		InsnTree loadColumn
+		MutableScriptEnvironment environment
 	) {}
 
 	@Override

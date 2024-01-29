@@ -4,9 +4,9 @@ import java.util.random.RandomGenerator;
 
 import net.minecraft.structure.StructurePiece;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -14,9 +14,7 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -41,28 +39,36 @@ public interface ScriptStructureOverrider extends Overrider {
 		}
 	}
 
-	@Wrapper
 	public static class Holder extends Overrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(ScriptStructureOverrider.class, usage)
-				.addEnvironment(START_MOVE_DH_ENVIRONMENT)
-				.addEnvironment(
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<ScriptStructureOverrider> getScriptClass() {
+			return ScriptStructureOverrider.class;
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return (
+				super.setupEnvironment(environment)
+				.addAll(START_MOVE_DH_ENVIRONMENT)
+				.addAll(
 					ColumnScriptEnvironmentBuilder.createVariableXYZ(
 						ColumnValue.REGISTRY,
 						load("column", type(WorldColumn.class))
 					)
 					.build()
 				)
-				.addEnvironment(RandomScriptEnvironment.create(
+				.addAll(RandomScriptEnvironment.create(
 					load("random", type(RandomGenerator.class))
 				))
-				.addEnvironment(JavaUtilScriptEnvironment.randomOnly(
+				.addAll(JavaUtilScriptEnvironment.randomOnly(
 					load("random", type(RandomGenerator.class))
 				))
-				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 			);
 		}
 

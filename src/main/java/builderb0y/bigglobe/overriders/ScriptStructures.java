@@ -13,11 +13,11 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
-import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 
 public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 

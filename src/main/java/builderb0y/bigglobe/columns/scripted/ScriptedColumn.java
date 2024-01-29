@@ -3,9 +3,64 @@ package builderb0y.bigglobe.columns.scripted;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
+import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.util.BoundInfoHolder;
+import builderb0y.scripting.util.InfoHolder;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 /** subclassed at runtime to add necessary fields. */
 public abstract class ScriptedColumn {
+
+	public static final Info INFO = new Info();
+	public static class Info extends InfoHolder {
+
+		public FieldInfo seed, x, z, minY, maxY, distantHorizons;
+		public MethodInfo unsaltedSeed, saltedSeed;
+
+		public InsnTree seed(InsnTree loadColumn) {
+			return getField(loadColumn, this.seed);
+		}
+
+		public InsnTree x(InsnTree loadColumn) {
+			return getField(loadColumn, this.x);
+		}
+
+		public InsnTree z(InsnTree loadColumn) {
+			return getField(loadColumn, this.z);
+		}
+
+		public InsnTree minY(InsnTree loadColumn) {
+			return getField(loadColumn, this.minY);
+		}
+
+		public InsnTree maxY(InsnTree loadColumn) {
+			return getField(loadColumn, this.maxY);
+		}
+
+		public InsnTree distantHorizons(InsnTree loadColumn) {
+			return getField(loadColumn, this.distantHorizons);
+		}
+
+		public InsnTree unsaltedSeed(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.unsaltedSeed);
+		}
+
+		public InsnTree saltedSeed(InsnTree loadColumn, InsnTree salt) {
+			return invokeInstance(loadColumn, this.saltedSeed, salt);
+		}
+	}
+
+	public static class BoundInfo extends BoundInfoHolder {
+
+		public InsnTree seed, x, z, minY, maxY;
+
+		public BoundInfo(InfoHolder holder, InsnTree loadSelf) {
+			super(holder, loadSelf);
+		}
+	}
 
 	public final long seed;
 	public int x, z;
@@ -22,28 +77,32 @@ public abstract class ScriptedColumn {
 		this.distantHorizons = distantHorizons;
 	}
 
-	public long columnSeed() {
+	public long unsaltedSeed() {
 		return Permuter.permute(this.seed, this.x, this.z);
 	}
 
-	public long columnSeed(long salt) {
+	public long saltedSeed(long salt) {
 		return Permuter.permute(this.seed ^ salt, this.x, this.z);
 	}
 
 	public abstract void clear();
 
-	public void setPosUnchecked(int x, int z, int minY, int maxY, boolean distantHorizons) {
-		this.x = x;
-		this.z = z;
-		this.minY = minY;
-		this.maxY = maxY;
-		this.distantHorizons = distantHorizons;
-		this.clear();
+	public void setPos(int x, int z) {
+		if (this.x != x || this.z != z) {
+			this.x = x;
+			this.z = z;
+			this.clear();
+		}
 	}
 
-	public void setPos(int x, int z, int minY, int maxY, boolean distantHorizons) {
+	public void setParams(int x, int z, int minY, int maxY, boolean distantHorizons) {
 		if (this.x != x || this.z != z || this.minY != minY || this.maxY != maxY || this.distantHorizons != distantHorizons) {
-			this.setPosUnchecked(x, z, minY, maxY, distantHorizons);
+			this.x = x;
+			this.z = z;
+			this.minY = minY;
+			this.maxY = maxY;
+			this.distantHorizons = distantHorizons;
+			this.clear();
 		}
 	}
 

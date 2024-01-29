@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.interfaces;
 
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -12,10 +13,10 @@ public interface HeightAdjustmentScript extends Script {
 
 	public abstract double evaluate(double baseValue, double seaLevel, double y);
 
-	public static class Holder extends ScriptHolder<HeightAdjustmentScript> implements HeightAdjustmentScript {
+	public static abstract class Holder extends ScriptHolder<HeightAdjustmentScript> implements HeightAdjustmentScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, HeightAdjustmentScript script) {
-			super(usage, script);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
 		}
 
 		@Override
@@ -30,12 +31,15 @@ public interface HeightAdjustmentScript extends Script {
 		}
 	}
 
-	@Wrapper
 	public static class TemperatureHolder extends Holder {
 
-		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
+		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = (
 				new TemplateScriptParser<>(HeightAdjustmentScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
@@ -53,12 +57,15 @@ public interface HeightAdjustmentScript extends Script {
 		}
 	}
 
-	@Wrapper
 	public static class FoliageHolder extends Holder {
 
-		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
+		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = (
 				new TemplateScriptParser<>(HeightAdjustmentScript.class, usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(

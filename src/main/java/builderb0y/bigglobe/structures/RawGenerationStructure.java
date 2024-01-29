@@ -4,7 +4,7 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.structure.Structure;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 
@@ -28,14 +28,14 @@ public interface RawGenerationStructure {
 
 			public long worldSeed, pieceSeed;
 			public Chunk chunk;
-			public BigGlobeChunkGenerator generator;
+			public BigGlobeScriptedChunkGenerator generator;
 			public ChunkOfColumns<? extends WorldColumn> columns;
 			public boolean distantHorizons;
 
 			public Context(
 				long pieceSeed,
 				Chunk chunk,
-				BigGlobeChunkGenerator generator,
+				BigGlobeScriptedChunkGenerator generator,
 				ChunkOfColumns<? extends WorldColumn> columns,
 				boolean distantHorizons
 			) {

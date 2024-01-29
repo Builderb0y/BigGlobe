@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -16,11 +17,8 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -248,28 +246,35 @@ public interface VolumetricOverrider extends Overrider {
 
 	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends Overrider.Holder<T_Overrider> implements VolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, TemplateScriptParser<T_Overrider> parser, Class<? extends Context> contextClass) throws ScriptParsingException {
-			super(
-				usage,
-				parser
-				.addEnvironment(
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		public abstract Class<? extends Context> getContextClass();
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return (
+				super
+				.setupEnvironment(environment)
+				.addAll(
 					structureStartExcludeEnvironment(
-						load("context", type(contextClass))
+						load("context", type(this.getContextClass()))
 					)
 				)
-				.addEnvironment(
+				.addAll(
 					Overrider.createDistanceEnvironment(
 						getField(
-							load("context", type(contextClass)),
+							load("context", type(this.getContextClass())),
 							FieldInfo.getField(Context.class, "column")
 						)
 					)
 				)
-				.addEnvironment(
+				.addAll(
 					ColumnScriptEnvironmentBuilder.createFixedXZVariableY(
 						ColumnValue.REGISTRY,
 						getField(
-							load("context", type(contextClass)),
+							load("context", type(this.getContextClass())),
 							FieldInfo.getField(Context.class, "column")
 						),
 						null

@@ -1,11 +1,9 @@
-package builderb0y.bigglobe.structures.scripted;
+package builderb0y.bigglobe.features;
 
-import net.minecraft.nbt.NbtCompound;
-
-import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -18,52 +16,52 @@ import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
-public interface StructurePlacementScript extends Script {
+public interface FeatureDispatcher extends Script {
 
-	public abstract void place(
-		WorldWrapper world,
-		int minX, int minY, int minZ,
-		int maxX, int maxY, int maxZ,
-		int midX, int midY, int midZ,
-		NbtCompound data
-	);
+	public abstract void generate(WorldWrapper world);
 
-	@EncodeInline
-	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
+	public static class DualFeatureDispatcher {
+		public final Holder raw, normal;
+
+		public DualFeatureDispatcher(Holder raw, Holder normal) {
+			this.raw = raw;
+			this.normal = normal;
+		}
+	}
+
+	public static int minX(WorldWrapper world) { return world.coordination.mutableArea().getMinX(); }
+	public static int minY(WorldWrapper world) { return world.coordination.mutableArea().getMinY(); }
+	public static int minZ(WorldWrapper world) { return world.coordination.mutableArea().getMinZ(); }
+	public static int maxX(WorldWrapper world) { return world.coordination.mutableArea().getMaxX(); }
+	public static int maxY(WorldWrapper world) { return world.coordination.mutableArea().getMaxY(); }
+	public static int maxZ(WorldWrapper world) { return world.coordination.mutableArea().getMaxZ(); }
+
+	public static class Holder extends ScriptHolder<FeatureDispatcher> implements FeatureDispatcher {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
 			super(usage, betterRegistryLookup);
 		}
 
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(StructurePlacementScript.class, usage)
+				new TemplateScriptParser<>(FeatureDispatcher.class, this.usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-				.addEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
 				.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.addEnvironment(NbtScriptEnvironment.INSTANCE)
-				.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironmentWithLookup(
 						environment
-						.addVariableLoad("minX", TypeInfos.INT)
-						.addVariableLoad("minY", TypeInfos.INT)
-						.addVariableLoad("minZ", TypeInfos.INT)
-						.addVariableLoad("maxX", TypeInfos.INT)
-						.addVariableLoad("maxY", TypeInfos.INT)
-						.addVariableLoad("maxZ", TypeInfos.INT)
-						.addVariableLoad("midX", TypeInfos.INT)
-						.addVariableLoad("midY", TypeInfos.INT)
-						.addVariableLoad("midZ", TypeInfos.INT)
-						.addVariableLoad("data", NbtScriptEnvironment.NBT_COMPOUND_TYPE)
+						.addVariableLoad("originX", TypeInfos.INT)
+						.addVariableLoad("originY", TypeInfos.INT)
+						.addVariableLoad("originZ", TypeInfos.INT)
 						.addVariable("distantHorizons", WORLD.distantHorizons),
 						WORLD.loadSelf
 					);
@@ -73,24 +71,12 @@ public interface StructurePlacementScript extends Script {
 		}
 
 		@Override
-		public void place(
-			WorldWrapper world,
-			int minX, int minY, int minZ,
-			int maxX, int maxY, int maxZ,
-			int midX, int midY, int midZ,
-			NbtCompound data
-		) {
+		public void generate(WorldWrapper world) {
 			try {
-				this.script.place(
-					world,
-					minX, minY, minZ,
-					maxX, maxY, maxZ,
-					midX, midY, midZ,
-					data
-				);
+				this.script.generate(world);
 			}
 			catch (Throwable throwable) {
-				this.onError(throwable);
+				BigGlobeMod.LOGGER.error("Exception generating features in area " + world.coordination.mutableArea(), throwable);
 			}
 		}
 	}

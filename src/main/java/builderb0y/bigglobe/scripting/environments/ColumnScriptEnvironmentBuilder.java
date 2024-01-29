@@ -12,6 +12,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
+import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.Column;
 import builderb0y.bigglobe.columns.ColumnValue;
@@ -30,6 +31,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@Deprecated
 public class ColumnScriptEnvironmentBuilder {
 
 	public static final MethodInfo

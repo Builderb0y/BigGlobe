@@ -202,7 +202,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
-			return Coordinator.forChunk(context.chunk, context.columns::getColumnChecked).inBox(WorldUtil.chunkBox(context.chunk), false).translate(this.x(), this.y(), this.z());
+			return Coordinator.forChunk(context.chunk).inBox(WorldUtil.chunkBox(context.chunk), false).translate(this.x(), this.y(), this.z());
 		}
 
 		public Palette palette() {

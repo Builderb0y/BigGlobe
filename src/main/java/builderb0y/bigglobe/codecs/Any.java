@@ -19,6 +19,11 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.ObjectOps;
 
+/**
+when applied to type Object, indicates that the decoded
+object is allowed to be "any" kind of object. hence the name.
+intended for cases where you need to store raw JSON data for further processing later.
+*/
 @Mirror(UseCoder.class)
 @Target(ElementType.TYPE_USE)
 @Retention(RetentionPolicy.RUNTIME)

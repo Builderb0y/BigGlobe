@@ -20,24 +20,24 @@ public class StatelessRandomScriptEnvironment {
 			}
 			return RandomScriptEnvironment.createSeed(parser, ObjectArrays.concat(receiver, arguments));
 		}))
-		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextBoolean", boolean.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, long.class, float.class)
-		.addMethodRenamedInvokeStaticSpecific("nextBoolean", Permuter.class, "nextChancedBoolean", boolean.class, long.class, double.class)
+		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveInt)
+		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntBound)
+		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntOriginBound)
 
-		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextUniformInt", int.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextBoundedInt", int.class, long.class, int.class)
-		.addMethodRenamedInvokeStaticSpecific("nextInt", Permuter.class, "nextBoundedInt", int.class, long.class, int.class, int.class)
+		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveLong)
+		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongBound)
+		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongOriginBound)
 
-		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextUniformLong", long.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextBoundedLong", long.class, long.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextLong", Permuter.class, "nextBoundedLong", long.class, long.class, long.class, long.class)
+		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveFloat)
+		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatBound)
+		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatOriginBound)
 
-		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextPositiveFloat", float.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextBoundedFloat", float.class, long.class, float.class)
-		.addMethodRenamedInvokeStaticSpecific("nextFloat", Permuter.class, "nextBoundedFloat", float.class, long.class, float.class, float.class)
+		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveDouble)
+		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleBound)
+		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleOriginBound)
 
-		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextPositiveDouble", double.class, long.class)
-		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextBoundedDouble", double.class, long.class, double.class)
-		.addMethodRenamedInvokeStaticSpecific("nextDouble", Permuter.class, "nextBoundedDouble", double.class, long.class, double.class, double.class)
+		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextBoolean)
+		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF)
+		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD)
 	);
 }

@@ -9,7 +9,7 @@ import org.objectweb.asm.Type;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -42,8 +42,13 @@ public interface SurfaceScript extends Script {
 
 	public static class Holder extends ScriptHolder<SurfaceScript> implements SurfaceScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-			super(usage, createScript(usage, registry));
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) throws ScriptParsingException {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = createScript(this.usage, registry);
 		}
 
 		public static SurfaceScript createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
@@ -130,7 +135,7 @@ public interface SurfaceScript extends Script {
 			return (ExpressionParser parser, String name) -> {
 				parser.input.expectAfterWhitespace('(');
 				parser.environment.user().push();
-				ExpressionParser newParser = new AnyTypeExpressionParser(parser);
+				ExpressionParser newParser = new AnyNumericTypeExpressionParser(parser);
 				newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
 					throw new ScriptParsingException("For technical reasons, you cannot return from inside a dx block", parser1.input);
 				}));
@@ -238,9 +243,9 @@ public interface SurfaceScript extends Script {
 		}
 	}
 
-	public static class AnyTypeExpressionParser extends ExpressionParser {
+	public static class AnyNumericTypeExpressionParser extends ExpressionParser {
 
-		public AnyTypeExpressionParser(ExpressionParser from) {
+		public AnyNumericTypeExpressionParser(ExpressionParser from) {
 			super(from);
 		}
 

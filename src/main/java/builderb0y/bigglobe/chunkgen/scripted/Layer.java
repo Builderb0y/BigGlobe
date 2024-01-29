@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
-import org.jetbrains.annotations.Nullable;
-
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -9,13 +7,9 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer> {
@@ -28,16 +22,13 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public final @VerifyNullable Valid valid;
 	public final Layer @DefaultEmpty [] children;
-	public transient ColumnToBooleanScript.@Nullable Holder validWhere;
-	public transient ColumnToIntScript.@Nullable Holder validMinY, validMaxY;
-	public final @VerifyNullable ScriptUsage<GenericScriptTemplateUsage> top_surface, bottom_surface;
-	public transient SurfaceScript.@VerifyNullable Holder topSurface, bottomSurface;
+	public final SurfaceScript.@VerifyNullable Holder top_surface, bottom_surface;
 
 	public Layer(
 		@VerifyNullable Valid valid,
 		Layer @DefaultEmpty [] children,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> top_surface,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> bottom_surface
+		SurfaceScript.@VerifyNullable Holder top_surface,
+		SurfaceScript.@VerifyNullable Holder bottom_surface
 	) {
 		this.valid = valid;
 		this.children = children;
@@ -52,10 +43,10 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 			BlockSegmentList bounded = segments.split(segments.minY(), segments.maxY());
 			this.emitSelfSegments(column, bounded);
 
-			if (this.bottomSurface != null || this.topSurface != null) {
+			if (this.bottom_surface != null || this.top_surface != null) {
 				int[] bottomSurfaces = null, topSurfaces = null;
 
-				if (this.bottomSurface != null) {
+				if (this.bottom_surface != null) {
 					int size = bounded.size();
 					bottomSurfaces = new int[size];
 					for (int index = 0; index < size; index++) {
@@ -63,7 +54,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 					}
 				}
 
-				if (this.topSurface != null) {
+				if (this.top_surface != null) {
 					int size = bounded.size();
 					topSurfaces = new int[size];
 					for (int index = 0; index < size; index++) {
@@ -71,9 +62,9 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 					}
 				}
 
-				if (this.bottomSurface != null) {
+				if (this.bottom_surface != null) {
 					for (int segmentIndex = 0, segmentCount = bottomSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
-						this.bottomSurface.generateSurface(
+						this.bottom_surface.generateSurface(
 							column,
 							altX,
 							altZ,
@@ -84,9 +75,9 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 					}
 				}
 
-				if (this.topSurface != null) {
+				if (this.top_surface != null) {
 					for (int segmentIndex = 0, segmentCount = topSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
-						this.topSurface.generateSurface(
+						this.top_surface.generateSurface(
 							column,
 							altX,
 							altZ,
@@ -131,47 +122,24 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 		}
 	}
 
-	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-		Valid valid = this.valid;
-		if (valid != null) {
-			if (valid.where != null) {
-				this.validWhere = new ColumnToBooleanScript.Holder(valid.where, registry);
-			}
-			if (valid.min_y != null) {
-				this.validMinY = new ColumnToIntScript.Holder(valid.min_y, registry);
-			}
-			if (valid.max_y != null) {
-				this.validMaxY = new ColumnToIntScript.Holder(valid.max_y, registry);
-			}
-		}
-		if (this.top_surface != null) {
-			this.topSurface = new SurfaceScript.Holder(this.top_surface, registry);
-		}
-		if (this.bottom_surface != null) {
-			this.bottomSurface = new SurfaceScript.Holder(this.bottom_surface, registry);
-		}
-		if (this.children != null) {
-			for (Layer child : this.children) {
-				child.compile(registry);
-			}
-		}
-	}
-
 	public boolean validWhere(ScriptedColumn column) {
-		return this.validWhere == null || this.validWhere.get(column);
+		ColumnToBooleanScript.Holder where = this.valid.where;
+		return where == null || where.get(column);
 	}
 
 	public int validMinY(ScriptedColumn column) {
-		return this.validMinY == null ? Integer.MIN_VALUE : this.validMinY.get(column);
+		ColumnToIntScript.Holder minY = this.valid.min_y;
+		return minY == null ? Integer.MIN_VALUE : minY.get(column);
 	}
 
 	public int validMaxY(ScriptedColumn column) {
-		return this.validMaxY == null ? Integer.MAX_VALUE : this.validMaxY.get(column);
+		ColumnToIntScript.Holder maxY = this.valid.max_y;
+		return maxY == null ? Integer.MAX_VALUE : maxY.get(column);
 	}
 
 	public static record Valid(
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y,
-		@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y
+		ColumnToBooleanScript.@VerifyNullable Holder where,
+		ColumnToIntScript.@VerifyNullable Holder min_y,
+		ColumnToIntScript.@VerifyNullable Holder max_y
 	) {}
 }

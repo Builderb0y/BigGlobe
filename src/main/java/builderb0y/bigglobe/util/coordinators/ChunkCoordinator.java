@@ -20,11 +20,9 @@ import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 public class ChunkCoordinator extends ScratchPosCoordinator {
 
 	public final Chunk chunk;
-	public final ColumnLookup biomeColumn;
 
-	public ChunkCoordinator(Chunk chunk, ColumnLookup biomeColumn) {
+	public ChunkCoordinator(Chunk chunk) {
 		this.chunk = chunk;
-		this.biomeColumn = biomeColumn;
 	}
 
 	@Override
@@ -78,14 +76,6 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
-	}
-
-	@Override
-	public void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {
-		action.accept(
-			this.scratchPos.set(x, y, z),
-			this.biomeColumn.lookupColumn(x, z).getBiome(y)
-		);
 	}
 
 	@Override

@@ -6,9 +6,10 @@ import java.util.random.RandomGenerator;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePiece;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
@@ -36,18 +37,21 @@ public interface StructureLayoutScript extends Script {
 		int originZ,
 		RandomGenerator random,
 		WorldColumn column,
-		List<StructurePiece> pieces,
+		CheckedList<StructurePiece> pieces,
 		boolean distantHorizons
 	);
 
-	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
 
 		public static final InsnTree LOAD_RANDOM = load("random", type(RandomGenerator.class));
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = (
 				new TemplateScriptParser<>(StructureLayoutScript.class, usage)
 				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -91,7 +95,7 @@ public interface StructureLayoutScript extends Script {
 					.addFieldGet(ScriptedStructure.Piece.class, "data")
 					.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 
-					.addVariableLoad("pieces", type(List.class))
+					.addVariableLoad("pieces", type(CheckedList.class))
 
 					.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN)
 				)
@@ -112,7 +116,7 @@ public interface StructureLayoutScript extends Script {
 			int originZ,
 			RandomGenerator random,
 			WorldColumn column,
-			List<StructurePiece> pieces,
+			CheckedList<StructurePiece> pieces,
 			boolean distantHorizons
 		) {
 			try {

@@ -78,16 +78,6 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {
-		WorldColumn column = this.column;
-		if (column == null) {
-			column = this.column = WorldColumn.forWorld(this.world, 0, 0);
-		}
-		column.setPos(x, z);
-		action.accept(this.scratchPos.set(x, y, z), column.getBiome(y));
-	}
-
-	@Override
 	public void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.world.getChunk(x >> 4, z >> 4));
 	}

@@ -11,9 +11,12 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -22,6 +25,7 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.mixinInterfaces.ColumnEntryRegistryHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
@@ -144,7 +148,34 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, loadColumn);
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment, loadColumn);
+			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
+		}
+	}
+
+	public void setupExternalEnvironmentWithLookup(MutableScriptEnvironment environment, InsnTree loadLookup) {
+		for (ColumnEntryMemory memory : this.filteredMemories) {
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironmentWithLookup(memory, this.columnContext, environment, loadLookup);
+		}
+		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
+			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
+		}
+	}
+
+	@AddPseudoField("betterRegistryLookup")
+	public static interface DelayedCompileable {
+
+		/** called when the {@link ColumnEntryRegistry} is constructed. */
+		public abstract void compile(ColumnEntryRegistry registry) throws ScriptParsingException;
+
+		/**
+		most classes implementing this interface will need to take the lookup
+		as a constructor parameter so that they can add themselves to it via
+		{@link ColumnEntryRegistryHolder#bigglobe_delayCompile(DelayedCompileable)}.
+		in order for that to work with AutoCodec, there needs to be a dummy field for it.
+		so, that's what this method is. it prevents me from needing to add a field to implementation.
+		*/
+		public default BetterRegistry.@Nullable Lookup betterRegistryLookup() {
+			return null;
 		}
 	}
 }

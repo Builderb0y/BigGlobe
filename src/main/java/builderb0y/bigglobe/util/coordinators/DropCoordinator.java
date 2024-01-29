@@ -73,11 +73,6 @@ public class DropCoordinator implements Coordinator {
 	@Override public <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {}
 	@Override public <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {}
 
-	@Override public void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<RegistryEntry<Biome>> action) {}
-	@Override public void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<RegistryEntry<Biome>>... actions) {}
-
 	@Override public void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {}
 	@Override public void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<Chunk> action) {}
 	@Override public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<Chunk> action) {}

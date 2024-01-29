@@ -6,7 +6,10 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
@@ -31,7 +34,6 @@ import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.FixedBiomeSource;
@@ -45,10 +47,7 @@ import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
-import builderb0y.autocodec.annotations.EncodeInline;
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseCoder;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
@@ -65,6 +64,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -74,12 +74,13 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.CollectionTransformer;
 
+@AddPseudoField("betterRegistryLookup")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
@@ -89,8 +90,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final @VerifyNullable String reload_dimension;
 	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
 	public final RootLayer layer;
-	public final BetterRegistry<Biome> biomeRegistry;
-	public static record Height(int min_y, int max_y, int sea_level) {}
+	public static record Height(@VerifyDivisibleBy16 int min_y, @VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y, int sea_level) {}
 	public final Height height;
 	public transient long seed;
 	public DisplayEntry[] debugDisplay = new DisplayEntry[0];
@@ -100,25 +100,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			BetterRegistry<StructureSet> structureSetRegistry,
 		#endif
 		@VerifyNullable String reload_dimension,
-		BetterRegistry<Biome> biomeRegistry,
-		ColumnEntryRegistry columnEntryRegistry,
+		BetterRegistry.Lookup betterRegistryLookup,
 		RootLayer layer,
 		Height height
-	)
-	throws ScriptParsingException {
+	) {
 		super(
 			#if (MC_VERSION == MC_1_19_2)
 				((BetterHardCodedRegistry<StructureSet>)(structureSetRegistry)).registry,
 				Optional.empty(),
 			#endif
-			new FixedBiomeSource(biomeRegistry.getOrCreateEntry(BiomeKeys.PLAINS))
+			new FixedBiomeSource(betterRegistryLookup.getRegistry(RegistryKeyVersions.biome()).getOrCreateEntry(BiomeKeys.PLAINS))
 		);
 		this.reload_dimension = reload_dimension;
-		this.biomeRegistry = biomeRegistry;
-		this.columnEntryRegistry = columnEntryRegistry;
+		this.columnEntryRegistry = betterRegistryLookup.getColumnEntryRegistryHolder().bigglobe_getColumnEntryRegistry();
 		this.layer = layer;
 		this.height = height;
-		layer.compile(columnEntryRegistry);
+	}
+
+	public BetterRegistry.@Nullable Lookup betterRegistryLookup() {
+		return null;
 	}
 
 	public static void init() {

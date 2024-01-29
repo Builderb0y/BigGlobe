@@ -14,7 +14,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -23,12 +22,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.LazyInBox;
@@ -61,8 +57,8 @@ public interface Coordinator {
 	creates a Coordinator which delegates all calls to the provided chunk,
 	without performing any pre-processing on the coordinates.
 	*/
-	public static Coordinator forChunk(Chunk chunk, ColumnLookup biomeColumn) {
-		return new ChunkCoordinator(chunk, biomeColumn);
+	public static Coordinator forChunk(Chunk chunk) {
+		return new ChunkCoordinator(chunk);
 	}
 
 	/**
@@ -361,32 +357,6 @@ public interface Coordinator {
 
 	public default <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		this.genericLine(x, y, z, dx, dy, dz, length, blockEntityType, action, LineBiConsumer.getBlockEntitiesByType());
-	}
-
-	/**
-	invokes the action at the (possibly pre-processed)
-	coordinates, using the Biome at those
-	coordinates as the extra argument for the action.
-	note: the biome is fetched via a {@link WorldColumn},
-	not through {@link StructureWorldAccess#getBiome(BlockPos)}.
-	this can sometimes provide more accurate biome sampling,
-	due to the fact that chunks only store on biome for every 4x4x4 volume,
-	but columns can compute the biome for every block.
-	*/
-	public default void getBiome(int x, int y, int z, CoordinateConsumer<RegistryEntry<Biome>> action) {
-		this.genericPos(x, y, z, action, CoordinatorConsumer.getBiome());
-	}
-
-	public default void getBiomeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<RegistryEntry<Biome>> action) {
-		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getBiome());
-	}
-
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<RegistryEntry<Biome>> action) {
-		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getBiome());
-	}
-
-	public default void getBiomeLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<RegistryEntry<Biome>>... actions) {
-		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getBiome(), actions);
 	}
 
 	/**

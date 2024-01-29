@@ -1,12 +1,10 @@
 package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -14,23 +12,26 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ColumnScript extends Script {
 
-	public static class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> {
+	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> {
 
-		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, S script) {
-			super(usage, script);
+		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
 		}
 
-		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry, Class<S> type) throws ScriptParsingException {
-			super(usage, createScript(usage, registry, type));
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = createScript(this.usage, registry, this.getScriptClass());
 		}
+
+		public abstract Class<S> getScriptClass();
 
 		public static <S extends ColumnScript> S createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry, Class<S> type) throws ScriptParsingException {
 			ClassCompileContext clazz = new ClassCompileContext(
@@ -98,8 +99,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToIntScript> implements ColumnToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToIntScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToIntScript> getScriptClass() {
+				return ColumnToIntScript.class;
 			}
 
 			@Override
@@ -121,8 +127,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToIntScript> implements ColumnYToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToIntScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToIntScript> getScriptClass() {
+				return ColumnYToIntScript.class;
 			}
 
 			@Override
@@ -144,8 +155,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToLongScript> implements ColumnToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToLongScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToLongScript> getScriptClass() {
+				return ColumnToLongScript.class;
 			}
 
 			@Override
@@ -167,8 +183,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToLongScript> implements ColumnYToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToLongScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToLongScript> getScriptClass() {
+				return ColumnYToLongScript.class;
 			}
 
 			@Override
@@ -190,8 +211,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToFloatScript> implements ColumnToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToFloatScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToFloatScript> getScriptClass() {
+				return ColumnToFloatScript.class;
 			}
 
 			@Override
@@ -213,8 +239,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToFloatScript> implements ColumnYToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToFloatScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToFloatScript> getScriptClass() {
+				return ColumnYToFloatScript.class;
 			}
 
 			@Override
@@ -236,8 +267,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToDoubleScript> implements ColumnToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToDoubleScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToDoubleScript> getScriptClass() {
+				return ColumnToDoubleScript.class;
 			}
 
 			@Override
@@ -259,8 +295,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToDoubleScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToDoubleScript> getScriptClass() {
+				return ColumnYToDoubleScript.class;
 			}
 
 			@Override
@@ -282,8 +323,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToBooleanScript> implements ColumnToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToBooleanScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToBooleanScript> getScriptClass() {
+				return ColumnToBooleanScript.class;
 			}
 
 			@Override
@@ -305,8 +351,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToBooleanScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToBooleanScript> getScriptClass() {
+				return ColumnYToBooleanScript.class;
 			}
 
 			@Override
@@ -328,8 +379,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnToObjectScript> implements ColumnToObjectScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnToObjectScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnToObjectScript> getScriptClass() {
+				return ColumnToObjectScript.class;
 			}
 
 			@Override
@@ -351,8 +407,13 @@ public interface ColumnScript extends Script {
 
 		public static class Holder extends BaseHolder<ColumnYToObjectScript> implements ColumnYToObjectScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
-				super(usage, registry, ColumnYToObjectScript.class);
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public Class<ColumnYToObjectScript> getScriptClass() {
+				return ColumnYToObjectScript.class;
 			}
 
 			@Override

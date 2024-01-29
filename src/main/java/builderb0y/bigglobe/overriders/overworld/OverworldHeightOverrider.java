@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.overriders.overworld;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 
@@ -17,15 +15,20 @@ public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 		.addVariable("snowY",    FlatOverrider.createVariableFromField(OverworldColumn.class, "snowHeight"))
 	);
 
-	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldHeightOverrider> implements OverworldHeightOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(OverworldHeightOverrider.class, usage)
-				.addEnvironment(Y_LEVELS_ENVIRONMENT)
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<OverworldHeightOverrider> getScriptClass() {
+			return OverworldHeightOverrider.class;
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return super.setupEnvironment(environment).addAll(Y_LEVELS_ENVIRONMENT);
 		}
 	}
 }

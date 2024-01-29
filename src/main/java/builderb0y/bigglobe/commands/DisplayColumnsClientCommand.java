@@ -23,9 +23,9 @@ public class DisplayColumnsClientCommand {
 		dispatcher.register(
 			ClientCommandManager
 			.literal(BigGlobeMod.MODID + ":displayColumns")
-			.requires((FabricClientCommandSource source) -> getGenerator() != null)
+			.requires((FabricClientCommandSource source) -> getGenerator(source) != null)
 			.executes((CommandContext<FabricClientCommandSource> context) -> {
-				BigGlobeScriptedChunkGenerator generator = getGenerator();
+				BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 				if (generator != null) {
 					generator.setDisplay(null);
 					return 1;
@@ -38,7 +38,7 @@ public class DisplayColumnsClientCommand {
 				ClientCommandManager
 				.argument("filter", StringArgumentType.greedyString())
 				.executes((CommandContext<FabricClientCommandSource> context) -> {
-					BigGlobeScriptedChunkGenerator generator = getGenerator();
+					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 					if (generator != null) {
 						generator.setDisplay(context.getArgument("filter", String.class));
 						return 1;
@@ -51,8 +51,8 @@ public class DisplayColumnsClientCommand {
 		);
 	}
 
-	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator() {
-		MinecraftClient client = MinecraftClient.getInstance();
+	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(FabricClientCommandSource source) {
+		MinecraftClient client = source.getClient();
 		if (client.getServer() == null || client.world == null) return null;
 		ServerWorld world = client.getServer().getWorld(client.world.getRegistryKey());
 		if (world == null) return null;

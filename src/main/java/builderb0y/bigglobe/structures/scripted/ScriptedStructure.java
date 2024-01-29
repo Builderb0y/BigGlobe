@@ -26,6 +26,7 @@ import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -63,7 +64,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			new StructurePosition(
 				new BlockPos(x, y, z),
 				collector -> {
-					List<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
+					CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
 					this.layout.layout(x, z, permuter, column, pieces, distantHorizons);
 					for (StructurePiece piece : pieces) {
 						collector.addPiece(piece);
@@ -245,7 +246,6 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				new WorldWrapper(
 					new ChunkDelegator(
 						context.chunk,
-						context.generator::column,
 						context.worldSeed
 					),
 					new Permuter(context.pieceSeed),
@@ -260,14 +260,20 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 							effectiveMaxZ
 						),
 						chunkBox
+					),
+					context.generator.columnEntryRegistry.columnFactory.create(
+						context.generator.seed,
+						0,
+						0,
+						minY,
+						maxY,
+						context.distantHorizons
 					)
 				),
-				context.generator.column(0, 0),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				this.data,
-				context.distantHorizons
+				this.data
 			);
 		}
 
@@ -281,6 +287,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
+			if (!(chunkGenerator instanceof BigGlobeScriptedChunkGenerator generator)) return;
 			int minX = this.originalBoundingBox.getMinX();
 			int minY = this.originalBoundingBox.getMinY();
 			int minZ = this.originalBoundingBox.getMinZ();
@@ -298,7 +305,6 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			int effectiveMaxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
 
 			Permuter permuter = Permuter.from(random);
-			WorldColumn column = WorldColumn.forWorld(world, 0, 0);
 
 			this.placement.object().placement.place(
 				new WorldWrapper(
@@ -315,14 +321,20 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 							effectiveMaxZ
 						),
 						WorldUtil.surroundingChunkBox(chunkPos, world)
+					),
+					generator.columnEntryRegistry.columnFactory.create(
+						generator.seed,
+						0,
+						0,
+						effectiveMinY,
+						effectiveMaxY,
+						DistantHorizonsCompat.isOnDistantHorizonThread()
 					)
 				),
-				column,
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				this.data,
-				DistantHorizonsCompat.isOnDistantHorizonThread()
+				this.data
 			);
 		}
 	}

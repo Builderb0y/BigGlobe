@@ -2,22 +2,25 @@ package builderb0y.bigglobe.scripting;
 
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseName;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptUsage;
 
-public class ScriptHolder<S extends Script> implements Script {
+public abstract class ScriptHolder<S extends Script> implements Script, DelayedCompileable {
 
-	public final @UseName("script") ScriptUsage<GenericScriptTemplateUsage> usage;
-	public final transient S script;
+	public final @UseName("script") @EncodeInline ScriptUsage<GenericScriptTemplateUsage> usage;
+	public transient S script;
 	public transient long nextWarning = Long.MIN_VALUE;
 
-	public ScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage, S script) {
+	public ScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
 		this.usage = usage;
-		this.script = script;
+		betterRegistryLookup.getColumnEntryRegistryHolder().bigglobe_delayCompile(this);
 	}
 
 	public void onError(Throwable throwable) {

@@ -136,9 +136,12 @@ public class ColumnCompileContext extends DataCompileContext {
 
 	@Override
 	public void prepareForCompile() {
+		MethodCompileContext clear = this.mainClass.newMethod(ACC_PUBLIC, "clear", TypeInfos.VOID);
 		for (int index = 0, max = this.flagsIndex >>> 5; index <= max; index++) {
-			this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
+			FieldCompileContext flagsField = this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
+			putField(this.loadSelf(), flagsField.info, ldc(0)).emitBytecode(clear);
 		}
+		clear.endCode();
 		super.prepareForCompile();
 	}
 }

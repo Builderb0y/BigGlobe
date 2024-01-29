@@ -1,14 +1,18 @@
 package builderb0y.bigglobe.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -25,20 +29,30 @@ public class EvaluateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires(source -> source.hasPermissionLevel(4))
+			.requires((ServerCommandSource source) -> source.hasPermissionLevel(4) && getGenerator(source) != null)
 			.then(
 				CommandManager
 				.argument("script", new CommandScriptArgument())
-				.executes(context -> {
+				.executes((CommandContext<ServerCommandSource> context) -> {
 					LazyCommandScript script = context.getArgument("script", LazyCommandScript.class);
-					WorldWrapper world = new WorldWrapper(
-						new WorldDelegator(context.getSource().getWorld()),
-						Permuter.from(context.getSource().getWorld().random),
-						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite())
-					);
+					ServerWorld actualWorld = context.getSource().getWorld();
+					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 					Vec3d position = context.getSource().getPosition();
+					WorldWrapper world = new WorldWrapper(
+						new WorldDelegator(actualWorld),
+						Permuter.from(actualWorld.random),
+						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite()),
+						generator.columnEntryRegistry.columnFactory.create(
+							generator.seed,
+							BigGlobeMath.floorI(position.x),
+							BigGlobeMath.floorI(position.z),
+							actualWorld.getBottomY(),
+							actualWorld.getTopY(),
+							false
+						)
+					);
 					WorldColumn column = WorldColumn.forWorld(
-						context.getSource().getWorld(),
+						actualWorld,
 						BigGlobeMath.floorI(position.x),
 						BigGlobeMath.floorI(position.z)
 					);
@@ -53,5 +67,9 @@ public class EvaluateCommand {
 				})
 			)
 		);
+	}
+
+	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(ServerCommandSource source) {
+		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 }

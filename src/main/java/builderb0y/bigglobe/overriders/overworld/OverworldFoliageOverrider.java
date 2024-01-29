@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.overriders.overworld;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface OverworldFoliageOverrider extends OverworldFlatOverrider {
 
@@ -16,15 +14,20 @@ public interface OverworldFoliageOverrider extends OverworldFlatOverrider {
 		.addVariable("foliage", FlatOverrider.createVariableFromField(OverworldColumn.class, "foliage"))
 	);
 
-	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldFoliageOverrider> implements OverworldFoliageOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(OverworldFoliageOverrider.class, usage)
-				.addEnvironment(FOLIAGE_ENVIRONMENT)
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<OverworldFoliageOverrider> getScriptClass() {
+			return OverworldFoliageOverrider.class;
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return super.setupEnvironment(environment).addAll(FOLIAGE_ENVIRONMENT);
 		}
 	}
 }

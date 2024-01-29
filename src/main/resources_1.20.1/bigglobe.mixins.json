@@ -48,6 +48,7 @@
 		"ProtoChunk_ImplementChunkOfColumnsHolder",
 		"RailBlock_RotateProperly",
 		"RegistryLoader_AddBigGlobeEntries",
+		"RegistryOps_HoldColumnEntryRegistry",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
 		"ServerWorld_CustomTimeSpeed",

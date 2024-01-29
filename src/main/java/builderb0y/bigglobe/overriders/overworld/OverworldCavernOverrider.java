@@ -4,16 +4,14 @@ import java.lang.reflect.Method;
 
 import net.minecraft.structure.StructurePiece;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.ReflectionData;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -57,15 +55,20 @@ public interface OverworldCavernOverrider extends OverworldFlatOverrider {
 		return getOverlap(column, piece.getBoundingBox().getMinY(), piece.getBoundingBox().getMaxY(), padding);
 	}
 
-	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldCavernOverrider> implements OverworldCavernOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(OverworldCavernOverrider.class, usage)
-				.addEnvironment(CAVERN_ENVIRONMENT)
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<OverworldCavernOverrider> getScriptClass() {
+			return OverworldCavernOverrider.class;
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return super.setupEnvironment(environment).addAll(CAVERN_ENVIRONMENT);
 		}
 	}
 }

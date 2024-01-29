@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -43,11 +44,11 @@ public class ScriptClassLoader extends ClassLoader {
 
 	public static final AtomicInteger CLASS_UNIQUIFIER = new AtomicInteger();
 
-	public Map<String, ClassCompileContext> loadable;
+	public final Map<String, ClassCompileContext> loadable;
 
 	public ScriptClassLoader() {
 		super(ScriptClassLoader.class.getClassLoader());
-		this.loadable = new HashMap<>(2);
+		this.loadable = new ConcurrentHashMap<>(8);
 	}
 
 	public static @Nullable Path initDumpDirectory(String enabledProperty, String directoryName) {

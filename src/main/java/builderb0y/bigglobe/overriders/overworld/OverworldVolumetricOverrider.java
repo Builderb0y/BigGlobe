@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.overriders.overworld;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -10,9 +10,7 @@ import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -78,16 +76,25 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
-	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<OverworldVolumetricOverrider> implements OverworldVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(OverworldVolumetricOverrider.class, usage)
-				.addEnvironment(EXCLUDE_SURFACE_ENVIRONMENT),
-				OverworldVolumetricOverrider.Context.class
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<? extends VolumetricOverrider.Context> getContextClass() {
+			return OverworldVolumetricOverrider.Context.class;
+		}
+
+		@Override
+		public Class<OverworldVolumetricOverrider> getScriptClass() {
+			return OverworldVolumetricOverrider.class;
+		}
+
+		@Override
+		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
+			return super.setupEnvironment(environment).addAll(EXCLUDE_SURFACE_ENVIRONMENT);
 		}
 
 		@Override

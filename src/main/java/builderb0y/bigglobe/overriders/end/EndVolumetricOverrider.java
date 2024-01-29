@@ -1,14 +1,12 @@
 package builderb0y.bigglobe.overriders.end;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface EndVolumetricOverrider extends VolumetricOverrider {
 
@@ -85,15 +83,20 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
-	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<EndVolumetricOverrider> implements EndVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(EndVolumetricOverrider.class, usage),
-				EndVolumetricOverrider.Context.class
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<EndVolumetricOverrider> getScriptClass() {
+			return EndVolumetricOverrider.class;
+		}
+
+		@Override
+		public Class<? extends VolumetricOverrider.Context> getContextClass() {
+			return EndVolumetricOverrider.Context.class;
 		}
 
 		@Override

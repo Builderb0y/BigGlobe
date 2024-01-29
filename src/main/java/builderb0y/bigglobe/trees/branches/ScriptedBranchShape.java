@@ -2,9 +2,10 @@ package builderb0y.bigglobe.trees.branches;
 
 import java.util.random.RandomGenerator;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -21,13 +22,16 @@ public interface ScriptedBranchShape extends Script {
 
 	public abstract double evaluate(double fraction, WorldColumn column, double y, RandomGenerator random);
 
-	@Wrapper
 	public static class Holder extends ScriptHolder<ScriptedBranchShape> implements ScriptedBranchShape {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(ScriptedBranchShape.class, usage)
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = (
+				new TemplateScriptParser<>(ScriptedBranchShape.class, this.usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(
 					new MutableScriptEnvironment()

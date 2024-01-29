@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.function.Predicate;
+import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
@@ -17,58 +18,74 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
-import builderb0y.bigglobe.mixinInterfaces.ChunkOfColumnsHolder;
-import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder.ColumnLookup;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
-import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.util.BoundInfoHolder;
+import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class WorldWrapper implements ColumnLookup {
+public class WorldWrapper implements ScriptedColumnLookup {
 
-	public static final TypeInfo TYPE = type(WorldWrapper.class);
-	public static final MethodInfo GET_SEED = MethodInfo.getMethod(WorldWrapper.class, "getSeed").pure();
+	public static final Info INFO = new Info();
+	public static class Info extends InfoHolder {
+
+		public FieldInfo random;
+		public MethodInfo getSeed, distantHorizons;
+
+		public InsnTree getSeed(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.getSeed);
+		}
+
+		public InsnTree random(InsnTree loadWorld) {
+			return getField(loadWorld, this.random);
+		}
+
+		public InsnTree distantHorizons(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.distantHorizons);
+		}
+	}
+
+	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
+	public static class BoundInfo extends BoundInfoHolder {
+
+		public InsnTree random, getSeed, distantHorizons;
+
+		public BoundInfo(InsnTree loadWorld) {
+			super(INFO, loadWorld);
+		}
+	}
 
 	public final WorldOrChunk world;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
-	public final Permuter permuter;
-	public @Nullable WorldColumn randomColumn;
-	/**
-	sometimes, a Feature will get placed in a live world,
-	completely outside of worldgen logic.
-	in this case, {@link Tripwire} gets triggered a *lot*,
-	because the chunks are usually not ProtoChunk's,
-	and therefore not ChunkOfColumnsHolder's.
-	we want to avoid log spam in this case,
-	so we only check the chunk if this WorldWrapper
-	is being used for worldgen purposes.
-	*/
-	public final boolean checkForColumns;
-	public final boolean distantHorizons;
+	public final RandomGenerator random;
+	public final ScriptedColumn column;
 
-	public WorldWrapper(WorldOrChunk world, Permuter permuter, Coordination coordination) {
+	public WorldWrapper(WorldOrChunk world, RandomGenerator random, Coordination coordination, ScriptedColumn column) {
 		this.world = world;
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
-		this.permuter = permuter;
-		this.checkForColumns = !world.isLive();
-		this.distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		this.random = random;
+		this.column = column;
+	}
+
+	@Override
+	public ScriptedColumn lookupColumn(int x, int z) {
+		this.column.setPos(x, z);
+		return this.column;
 	}
 
 	public BlockPos.Mutable unboundedPos(int x, int y, int z) {
@@ -87,46 +104,8 @@ public class WorldWrapper implements ColumnLookup {
 		return this.world.getSeed();
 	}
 
-	@Override
-	public WorldColumn lookupColumn(int x, int z) {
-		BlockPos pos = this.unboundedPos(x, this.coordination.immutableArea.getMinY(), z);
-		if (this.checkForColumns) {
-			if (this.coordination.immutableArea.contains(pos)) {
-				Chunk chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.EMPTY, false);
-				if (chunk instanceof ChunkOfColumnsHolder holder) {
-					ChunkOfColumns<? extends WorldColumn> columns = holder.bigglobe_getChunkOfColumns();
-					if (columns != null) {
-						WorldColumn column = columns.lookupColumn(pos.getX(), pos.getZ());
-						if (column != null) {
-							return column;
-						}
-						else if (Tripwire.isEnabled()) {
-							Tripwire.logWithStackTrace("ChunkOfColumnsHolder at " + chunk.getPos() + " has the wrong coordinates? Requested " + pos.getX() + ", " + pos.getZ() + ", range covers from " + columns.getColumn(0).x + ", " + columns.getColumn(0).z + " to " + columns.getColumn(255).x + ", " + columns.getColumn(255).z);
-						}
-					}
-					//distant horizons can sometimes create a new
-					//Chunk object every time one is requested,
-					//and of course that's not gonna have a ChunkOfColumns on it.
-					//best not to log this case since it's a known issue.
-					else if (Tripwire.isEnabled() && !this.distantHorizons) {
-						Tripwire.logWithStackTrace("Chunk at " + chunk.getPos() + " is missing a ChunkOfColumns.");
-					}
-				}
-				else if (Tripwire.isEnabled()) {
-					Tripwire.logWithStackTrace("Chunk at [" + (pos.getX() >> 4) + ", " + (pos.getZ() >> 4) + " is not a ChunkOfColumnsHolder: " + chunk);
-				}
-			}
-			else if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("Requested column " + pos.getX() + ", " + pos.getZ() + " outside bounds " + this.coordination.immutableArea);
-			}
-		}
-		if (this.randomColumn == null) {
-			this.randomColumn = this.world.createColumn(pos.getX(), pos.getZ());
-		}
-		else {
-			this.randomColumn.setPos(pos.getX(), pos.getZ());
-		}
-		return this.randomColumn;
+	public boolean distantHorizons() {
+		return this.column.distantHorizons;
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
@@ -209,7 +188,7 @@ public class WorldWrapper implements ColumnLookup {
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
-		return pos != null && this.world.placeFeature(pos, feature.object(), this.permuter.mojang());
+		return pos != null && this.world.placeFeature(pos, feature.object(), MojangPermuter.from(this.random));
 	}
 
 	public StructurePlacementData newStructurePlacementData() {
@@ -235,11 +214,7 @@ public class WorldWrapper implements ColumnLookup {
 			case ROTATE_180, FLIP_90 -> BlockRotation.CLOCKWISE_180;
 			case ROTATE_270, FLIP_45 -> BlockRotation.COUNTERCLOCKWISE_90;
 		});
-		this.world.placeStructureTemplate(x, y, z, template, data, this.permuter);
-	}
-
-	public BiomeEntry getBiome(int x, int y, int z) {
-		return new BiomeEntry(this.lookupColumn(x, z).getBiome(y));
+		this.world.placeStructureTemplate(x, y, z, template, data, this.random);
 	}
 
 	public boolean isYLevelValid(int y) {

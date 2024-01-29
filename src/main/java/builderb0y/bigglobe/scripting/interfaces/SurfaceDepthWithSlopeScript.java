@@ -2,9 +2,10 @@ package builderb0y.bigglobe.scripting.interfaces;
 
 import java.util.random.RandomGenerator;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
@@ -21,12 +22,15 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 
 	public abstract double evaluate(WorldColumn column, double y, double slope_squared, RandomGenerator random);
 
-	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceDepthWithSlopeScript> implements SurfaceDepthWithSlopeScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.script = (
 				new TemplateScriptParser<>(SurfaceDepthWithSlopeScript.class, usage)
 				.addEnvironment(
 					ColumnScriptEnvironmentBuilder.createFixedXYZ(

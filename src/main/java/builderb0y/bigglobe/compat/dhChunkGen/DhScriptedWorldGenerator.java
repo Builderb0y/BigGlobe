@@ -26,6 +26,7 @@ import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 
@@ -131,7 +132,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	}
 
 	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
-		builder.query[0] = this.chunkGenerator.biomeRegistry.getOrCreateEntry(BiomeKeys.PLAINS);
+		builder.query[0] = this.serverWorld.getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS);
 		builder.biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(builder.query, this.level);
 		for (int index = segments.size(); --index >= 0;) {
 			Segment<BlockState> segment = segments.get(index);

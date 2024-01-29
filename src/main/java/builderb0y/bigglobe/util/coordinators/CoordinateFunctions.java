@@ -133,10 +133,6 @@ public class CoordinateFunctions {
 			return Coordinator::getBlockEntity;
 		}
 
-		public static CoordinatorConsumer<CoordinateConsumer<RegistryEntry<Biome>>> getBiome() {
-			return Coordinator::getBiome;
-		}
-
 		public static CoordinatorConsumer<CoordinateConsumer<Chunk>> getChunk() {
 			return Coordinator::getChunk;
 		}
@@ -217,10 +213,6 @@ public class CoordinateFunctions {
 
 		public static LineConsumer<CoordinateConsumer<BlockEntity>> getBlockEntity() {
 			return (coordinator, x, y, z, index, action) -> coordinator.getBlockEntity(x, y, z, action);
-		}
-
-		public static LineConsumer<CoordinateConsumer<RegistryEntry<Biome>>> getBiome() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getBiome(x, y, z, action);
 		}
 
 		public static LineConsumer<CoordinateConsumer<Chunk>> getChunk() {

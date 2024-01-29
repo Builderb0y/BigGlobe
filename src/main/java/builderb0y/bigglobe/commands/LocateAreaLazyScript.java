@@ -12,9 +12,11 @@ import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.interfaces.ColumnPredicate;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
-import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class LocateAreaLazyScript implements ColumnPredicate {
 
@@ -23,18 +25,17 @@ public class LocateAreaLazyScript implements ColumnPredicate {
 	public @Nullable ColumnPredicate script;
 
 	public LocateAreaLazyScript(String script) throws ScriptParsingException {
-		this.parser = new ScriptParser<>(ColumnPredicate.class, script, null);
-		ColumnScriptEnvironmentBuilder builder = ColumnPredicate.Holder.setupParser(this.parser);
-		Map<String, KeywordHandler> keywords = this.parser.environment.mutable().keywords;
-		keywords.remove("class");
-		keywords.remove("while");
-		keywords.remove("until");
-		keywords.remove("do");
-		keywords.remove("repeat");
-		keywords.remove("for");
-		keywords.remove("block");
-		keywords.remove("break");
-		keywords.remove("continue");
+		ColumnScriptEnvironmentBuilder builder = (
+			ColumnScriptEnvironmentBuilder
+			.createFixedXZVariableY(ColumnValue.REGISTRY, load("column", type(WorldColumn.class)), null)
+			.trackUsedValues()
+			.addXZ("x", "z")
+		);
+		this.parser = (
+			new ScriptParser<>(ColumnPredicate.class, script, null)
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(builder.build())
+		);
 		this.parser.toBytecode();
 		this.usedValues = builder.usedValues;
 	}

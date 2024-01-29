@@ -3,11 +3,14 @@ package builderb0y.bigglobe.util;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
+import org.jetbrains.annotations.UnknownNullability;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
@@ -17,6 +20,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
@@ -58,11 +62,9 @@ public interface WorldOrChunk extends BlockView {
 
 	public abstract void spawnEntity(Function<ServerWorld, Entity> entitySupplier);
 
-	public abstract WorldColumn createColumn(int x, int z);
-
 	public abstract Coordinator coordinator();
 
-	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random);
+	public abstract void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random);
 
 	public static class WorldDelegator implements WorldOrChunk {
 
@@ -165,11 +167,6 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public WorldColumn createColumn(int x, int z) {
-			return WorldColumn.forWorld(this.world, x, z);
-		}
-
-		@Override
 		public Coordinator coordinator() {
 			return Coordinator.forWorld(this.world, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 		}
@@ -178,12 +175,10 @@ public interface WorldOrChunk extends BlockView {
 	public static class ChunkDelegator implements WorldOrChunk {
 
 		public final Chunk chunk;
-		public final ColumnFactory<? extends WorldColumn> columnFactory;
 		public final long seed;
 
-		public ChunkDelegator(Chunk chunk, ColumnFactory<? extends WorldColumn> factory, long seed) {
+		public ChunkDelegator(Chunk chunk, long seed) {
 			this.chunk = chunk;
-			this.columnFactory = factory;
 			this.seed = seed;
 		}
 
@@ -252,6 +247,7 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random) {
+			//todo: add RawFeature interface to whitelist features that can be placed during raw generation.
 			throw new UnsupportedOperationException("Can't place features during raw generation.");
 		}
 
@@ -271,13 +267,8 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public WorldColumn createColumn(int x, int z) {
-			return this.columnFactory.create(x, z);
-		}
-
-		@Override
 		public Coordinator coordinator() {
-			return Coordinator.forChunk(this.chunk, this.columnFactory::create);
+			return Coordinator.forChunk(this.chunk);
 		}
 	}
 }

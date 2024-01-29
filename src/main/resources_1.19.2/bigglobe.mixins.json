@@ -47,6 +47,7 @@
 		"PortalForcer_PlaceInNetherCaverns",
 		"ProtoChunk_ImplementChunkOfColumnsHolder",
 		"RailBlock_RotateProperly",
+		"RegistryOps_HoldColumnEntryRegistry",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
 		"ServerWorld_CustomTimeSpeed",

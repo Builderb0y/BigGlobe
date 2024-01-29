@@ -13,17 +13,24 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.ColumnLookup3DValueInsnTree;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 import static org.objectweb.asm.Opcodes.*;
 
 @UseCoder(name = "REGISTRY", in = ColumnEntry.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
@@ -98,6 +105,42 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		}
 		else {
 			environment.addVariableRenamedInvoke(loadColumn, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
+		}
+	}
+
+	public default void setupExternalEnvironmentWithLookup(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadLookup) {
+		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
+		String exposedName = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
+		if (this.getAccessSchema().is_3d()) {
+			environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_THROW, arguments);
+				return new CastResult(
+					new ColumnLookup3DValueInsnTree(
+						loadLookup,
+						castArguments[0],
+						castArguments[1],
+						castArguments[2],
+						getter
+					),
+					castArguments != arguments
+				);
+			});
+		}
+		else {
+			environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_THROW, arguments);
+				return new CastResult(
+					invokeInstance(
+						invokeInstance(
+							loadLookup,
+							ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
+							castArguments
+						),
+						getter
+					),
+					castArguments != arguments
+				);
+			});
 		}
 	}
 

@@ -3,7 +3,8 @@ package builderb0y.bigglobe.recipes;
 import net.minecraft.item.ItemStack;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.ItemScriptEnvironment;
@@ -54,16 +55,16 @@ public class ScriptedRecipeClasses {
 
 		public abstract boolean matches(CraftingGrid input);
 
-		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-				super(
-					usage,
-					new TemplateScriptParser<>(
-						CraftingMatchesScript.class,
-						usage
-					)
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				this.script = (
+					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
@@ -90,16 +91,16 @@ public class ScriptedRecipeClasses {
 
 		public abstract ItemStack output(CraftingGrid input);
 
-		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-				super(
-					usage,
-					new TemplateScriptParser<>(
-						CraftingOutputScript.class,
-						usage
-					)
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				this.script = (
+					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
@@ -127,16 +128,16 @@ public class ScriptedRecipeClasses {
 
 		public abstract void remainder(CraftingGrid input, CraftingGrid output);
 
-		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-				super(
-					usage,
-					new TemplateScriptParser<>(
-						CraftingRemainderScript.class,
-						usage
-					)
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+				super(usage, betterRegistryLookup);
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				this.script = (
+					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
 					.addEnvironment(NbtScriptEnvironment.INSTANCE)
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)

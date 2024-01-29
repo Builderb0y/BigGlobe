@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.overriders.nether;
 
-import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.NetherColumn;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -9,9 +9,7 @@ import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings.NetherCavernSettings;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface NetherVolumetricOverrider extends VolumetricOverrider {
 
@@ -61,15 +59,20 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
-	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<NetherVolumetricOverrider> implements NetherVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
-			super(
-				usage,
-				new TemplateScriptParser<>(NetherVolumetricOverrider.class, usage),
-				NetherVolumetricOverrider.Context.class
-			);
+		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage, BetterRegistry.Lookup betterRegistryLookup) {
+			super(usage, betterRegistryLookup);
+		}
+
+		@Override
+		public Class<NetherVolumetricOverrider> getScriptClass() {
+			return NetherVolumetricOverrider.class;
+		}
+
+		@Override
+		public Class<? extends VolumetricOverrider.Context> getContextClass() {
+			return NetherVolumetricOverrider.Context.class;
 		}
 
 		@Override
