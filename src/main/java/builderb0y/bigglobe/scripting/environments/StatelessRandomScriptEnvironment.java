@@ -20,24 +20,32 @@ public class StatelessRandomScriptEnvironment {
 			}
 			return RandomScriptEnvironment.createSeed(parser, ObjectArrays.concat(receiver, arguments));
 		}))
-		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveInt)
-		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntBound)
-		.addMethodInvoke("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntOriginBound)
+		.addMethodInvokeStatic("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveInt)
+		.addMethodInvokeStatic("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntBound)
+		.addMethodInvokeStatic("nextInt", RandomScriptEnvironment.PERMUTER_INFO.nextIntOriginBound)
 
-		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveLong)
-		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongBound)
-		.addMethodInvoke("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongOriginBound)
+		.addMethodInvokeStatic("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveLong)
+		.addMethodInvokeStatic("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongBound)
+		.addMethodInvokeStatic("nextLong", RandomScriptEnvironment.PERMUTER_INFO.nextLongOriginBound)
 
-		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveFloat)
-		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatBound)
-		.addMethodInvoke("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatOriginBound)
+		.addMethodInvokeStatic("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveFloat)
+		.addMethodInvokeStatic("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatBound)
+		.addMethodInvokeStatic("nextFloat", RandomScriptEnvironment.PERMUTER_INFO.nextFloatOriginBound)
 
-		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveDouble)
-		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleBound)
-		.addMethodInvoke("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleOriginBound)
+		.addMethodInvokeStatic("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextPositiveDouble)
+		.addMethodInvokeStatic("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleBound)
+		.addMethodInvokeStatic("nextDouble", RandomScriptEnvironment.PERMUTER_INFO.nextDoubleOriginBound)
 
-		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextBoolean)
-		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF)
-		.addMethodInvoke("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD)
+		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextBoolean)
+		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF)
+		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD)
+
+		.addMethodInvokeStatic("roundInt", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyIF)
+		.addMethodInvokeStatic("roundInt", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyID)
+		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLF)
+		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLD)
+
+		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF)
+		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD)
 	);
 }

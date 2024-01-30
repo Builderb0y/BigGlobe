@@ -18,6 +18,7 @@ import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.ReflectionData;
@@ -81,8 +82,7 @@ public interface CommandScript extends Script {
 
 		public CommandScript getScript() {
 			if (this.script == null) try {
-				this.script = this.parser.toScript();
-				this.parser = null; //free for GC.
+				this.script = this.parser.toScript(new ScriptClassLoader());
 			}
 			catch (ScriptParsingException exception) {
 				throw new RuntimeException(exception);

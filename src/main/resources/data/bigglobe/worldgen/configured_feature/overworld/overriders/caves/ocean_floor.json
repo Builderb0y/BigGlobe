@@ -2,7 +2,7 @@
 	"type": "bigglobe:overworld_cave_overrider",
 	"config": {
 		"script": [
-			"double seaLevel = `overworld/sea_level`",
+			"double seaLevel = `bigglobe:overworld/sea_level`",
 			"double beachY = 8.0",
 			"double doubleBeachY = mixLinear(seaLevel, beachY, 2.0L)",
 			"double maxY = `max_y`",

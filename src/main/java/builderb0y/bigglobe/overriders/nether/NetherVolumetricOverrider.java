@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.nether;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.NetherColumn;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -58,6 +59,7 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
+	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<NetherVolumetricOverrider> implements NetherVolumetricOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

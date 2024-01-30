@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline(): return(false))",
-			"double chance = `overworld/normalized_cave_surface_depth`",
+			"double chance = `bigglobe:overworld/normalized_cave_surface_depth`",
 			"random.nextBoolean(chance) && (",
 				"placeBlockState(originX, originY, originZ,",
 					"random.if (0.125:",

@@ -13,7 +13,7 @@ import builderb0y.scripting.parsing.ScriptUsage;
 
 public abstract class ScriptHolder<S extends Script> implements Script, DelayedCompileable {
 
-	public final @UseName("script") @EncodeInline ScriptUsage<GenericScriptTemplateUsage> usage;
+	public final @UseName("script") ScriptUsage<GenericScriptTemplateUsage> usage;
 	public transient S script;
 	public transient long nextWarning = Long.MIN_VALUE;
 

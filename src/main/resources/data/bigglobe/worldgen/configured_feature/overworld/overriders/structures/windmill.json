@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"if (start.structure == Structure('bigglobe:windmill'):",
-				"return(`overworld/surface_foliage`(start.midX, start.midZ) < 0.0L)",
+				"return(`bigglobe:overworld/surface_foliage`(start.midX, start.midZ) < 0.0L)",
 			")",
 			"else (",
 				"return(true)",

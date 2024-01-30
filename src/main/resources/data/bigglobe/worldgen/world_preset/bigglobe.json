@@ -116,6 +116,17 @@
 								}
 							}
 						]
+					},
+					"feature_dispatcher": {
+						"normal": [
+							"for (",
+								"int z in range[minModifiableZ, maxModifiableZ],",
+								"int x in range[minModifiableX, maxModifiableX]",
+							":",
+								"placeFeature(x, ceilInt(`bigglobe:overworld/surface_y`(x, z)), z, 'bigglobe:overworld/surface_small_foliage')",
+							")"
+						],
+						"raw": "noop"
 					}
 				},
 				"old_value": {
@@ -517,6 +528,10 @@
 					},
 					"layer": {
 						"state": "minecraft:air"
+					},
+					"feature_dispatcher": {
+						"normal": "noop",
+						"raw": "noop"
 					}
 				},
 				"old_value": {
@@ -545,6 +560,10 @@
 					},
 					"layer": {
 						"state": "minecraft:air"
+					},
+					"feature_dispatcher": {
+						"normal": "noop",
+						"raw": "noop"
 					}
 				},
 				"old_value": {

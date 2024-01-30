@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -90,18 +91,20 @@ public class RandomScriptEnvironment {
 		@Disambiguate(name = "nextBoundedLong", returnType = long.class, paramTypes = { long.class, long.class, long.class })
 		public MethodInfo nextLongOriginBound;
 
-		public MethodInfo nextUniformFloat, toUniformFloat, nextPositiveFloat, toPositiveFloat;
-		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { float.class, float.class })
+		@Disambiguate(name = "nextPositiveFloat", returnType = float.class, paramTypes = { long.class })
+		public MethodInfo nextUniformFloat;
+		public MethodInfo toUniformFloat, nextPositiveFloat, toPositiveFloat;
+		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { long.class, float.class })
 		public MethodInfo nextFloatBound;
-		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { float.class, float.class, float.class })
+		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { long.class, float.class, float.class })
 		public MethodInfo nextFloatOriginBound;
 
 		@Disambiguate(name = "nextUniformDouble", returnType = double.class, paramTypes = { long.class })
 		public MethodInfo nextUniformDouble;
 		public MethodInfo toUniformDouble, nextPositiveDouble, toPositiveDouble;
-		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { double.class, double.class })
+		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { long.class, double.class })
 		public MethodInfo nextDoubleBound;
-		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { double.class, double.class, double.class })
+		@Disambiguate(name = "nextBoundedDouble", returnType = double.class, paramTypes = { long.class, double.class, double.class })
 		public MethodInfo nextDoubleOriginBound;
 
 		public MethodInfo nextBoolean, toBoolean;
@@ -113,18 +116,135 @@ public class RandomScriptEnvironment {
 		public MethodInfo toChancedBooleanF;
 		@Disambiguate(name = "toChancedBoolean", returnType = boolean.class, paramTypes = { long.class, double.class })
 		public MethodInfo toChancedBooleanD;
+		@Disambiguate(name = "nextChancedBoolean", returnType = boolean.class, paramTypes = { RandomGenerator.class, float.class })
+		public MethodInfo rngNextChancedBooleanF;
+		@Disambiguate(name = "nextChancedBoolean", returnType = boolean.class, paramTypes = { RandomGenerator.class, double.class })
+		public MethodInfo rngNextChancedBooleanD;
 
 		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { long.class, float.class })
 		public MethodInfo roundRandomlyIF;
 		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { long.class, double.class })
 		public MethodInfo roundRandomlyID;
-		@Disambiguate(name = "roundRandomlyL", returnType = int.class, paramTypes = { long.class, float.class })
+		@Disambiguate(name = "roundRandomlyL", returnType = long.class, paramTypes = { long.class, float.class })
 		public MethodInfo roundRandomlyLF;
-		@Disambiguate(name = "roundRandomlyL", returnType = int.class, paramTypes = { long.class, double.class })
+		@Disambiguate(name = "roundRandomlyL", returnType = long.class, paramTypes = { long.class, double.class })
 		public MethodInfo roundRandomlyLD;
+
+		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { RandomGenerator.class, float.class })
+		public MethodInfo rngRoundRandomlyIF;
+		@Disambiguate(name = "roundRandomlyI", returnType = int.class, paramTypes = { RandomGenerator.class, double.class })
+		public MethodInfo rngRoundRandomlyID;
+		@Disambiguate(name = "roundRandomlyL", returnType = long.class, paramTypes = { RandomGenerator.class, float.class })
+		public MethodInfo rngRoundRandomlyLF;
+		@Disambiguate(name = "roundRandomlyL", returnType = long.class, paramTypes = { RandomGenerator.class, double.class })
+		public MethodInfo rngRoundRandomlyLD;
 
 		public PermuterInfo() {
 			super(Permuter.class);
+		}
+
+		public InsnTree newInstance(InsnTree seed) {
+			return InsnTrees.newInstance(this.constructor, seed);
+		}
+
+		public InsnTree permute(InsnTree seed, InsnTree intSalt) {
+			return invokeStatic(this.permuteI, seed, intSalt);
+		}
+
+		public InsnTree nextUniformInt(InsnTree seed) {
+			return invokeStatic(this.nextUniformInt, seed);
+		}
+
+		public InsnTree toUniformInt(InsnTree seed) {
+			return invokeStatic(this.toUniformInt, seed);
+		}
+
+		public InsnTree nextPositiveInt(InsnTree seed) {
+			return invokeStatic(this.nextPositiveInt, seed);
+		}
+
+		public InsnTree toPositiveInt(InsnTree seed) {
+			return invokeStatic(this.toPositiveInt, seed);
+		}
+
+		public InsnTree nextUniformLong(InsnTree seed) {
+			return invokeStatic(this.nextUniformLong, seed);
+		}
+
+		public InsnTree nextPositiveLong(InsnTree seed) {
+			return invokeStatic(this.nextPositiveLong, seed);
+		}
+
+		public InsnTree nextUniformFloat(InsnTree seed) {
+			return invokeStatic(this.nextUniformFloat, seed);
+		}
+
+		public InsnTree toUniformFloat(InsnTree seed) {
+			return invokeStatic(this.toUniformFloat, seed);
+		}
+
+		public InsnTree nextPositiveFloat(InsnTree seed) {
+			return invokeStatic(this.nextPositiveFloat, seed);
+		}
+
+		public InsnTree toPositiveFloat(InsnTree seed) {
+			return invokeStatic(this.toPositiveFloat, seed);
+		}
+
+		public InsnTree nextUniformDouble(InsnTree seed) {
+			return invokeStatic(this.nextUniformDouble, seed);
+		}
+
+		public InsnTree toUniformDouble(InsnTree seed) {
+			return invokeStatic(this.toUniformDouble, seed);
+		}
+
+		public InsnTree nextPositiveDouble(InsnTree seed) {
+			return invokeStatic(this.nextPositiveDouble, seed);
+		}
+
+		public InsnTree toPositiveDouble(InsnTree seed) {
+			return invokeStatic(this.toPositiveDouble, seed);
+		}
+
+		public InsnTree nextBoolean(InsnTree seed) {
+			return invokeStatic(this.nextBoolean, seed);
+		}
+
+		public InsnTree toBoolean(InsnTree seed) {
+			return invokeStatic(this.toBoolean, seed);
+		}
+
+		public InsnTree nextChancedBooleanF(InsnTree seed, InsnTree chance) {
+			return invokeStatic(this.nextChancedBooleanF, seed, chance);
+		}
+
+		public InsnTree nextChancedBooleanD(InsnTree seed, InsnTree chance) {
+			return invokeStatic(this.nextChancedBooleanD, seed, chance);
+		}
+
+		public InsnTree toChancedBooleanF(InsnTree seed, InsnTree chance) {
+			return invokeStatic(this.toChancedBooleanF, seed, chance);
+		}
+
+		public InsnTree toChancedBooleanD(InsnTree seed, InsnTree chance) {
+			return invokeStatic(this.toChancedBooleanD, seed, chance);
+		}
+
+		public InsnTree roundRandomlyIF(InsnTree seed, InsnTree value) {
+			return invokeStatic(this.roundRandomlyIF, seed, value);
+		}
+
+		public InsnTree roundRandomlyID(InsnTree seed, InsnTree value) {
+			return invokeStatic(this.roundRandomlyID, seed, value);
+		}
+
+		public InsnTree roundRandomlyLF(InsnTree seed, InsnTree value) {
+			return invokeStatic(this.roundRandomlyLF, seed, value);
+		}
+
+		public InsnTree roundRandomlyLD(InsnTree seed, InsnTree value) {
+			return invokeStatic(this.roundRandomlyLD, seed, value);
 		}
 	}
 
@@ -154,15 +274,15 @@ public class RandomScriptEnvironment {
 			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
 			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
 			.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.nextChancedBooleanF)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.nextChancedBooleanD)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
 			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
 			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
 			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.roundRandomlyIF)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.roundRandomlyID)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.roundRandomlyLF)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.roundRandomlyLD)
+			.addMethodInvoke("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
+			.addMethodInvoke("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
+			.addMethodInvoke("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
+			.addMethodInvoke("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
 			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
@@ -237,7 +357,7 @@ public class RandomScriptEnvironment {
 			}
 			body = parser.nextScript();
 			conditionInsnTree = invokeStatic(
-				sort == Sort.FLOAT ? PERMUTER_INFO.nextChancedBooleanF : PERMUTER_INFO.nextChancedBooleanD,
+				sort == Sort.FLOAT ? PERMUTER_INFO.rngNextChancedBooleanF : PERMUTER_INFO.rngNextChancedBooleanD,
 				receiver,
 				firstPart
 			);

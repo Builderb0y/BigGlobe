@@ -1,10 +1,13 @@
 package builderb0y.bigglobe.features;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -13,7 +16,6 @@ import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
-import builderb0y.scripting.util.TypeInfos;
 
 public interface FeatureDispatcher extends Script {
 
@@ -28,13 +30,20 @@ public interface FeatureDispatcher extends Script {
 		}
 	}
 
-	public static int minX(WorldWrapper world) { return world.coordination.mutableArea().getMinX(); }
-	public static int minY(WorldWrapper world) { return world.coordination.mutableArea().getMinY(); }
-	public static int minZ(WorldWrapper world) { return world.coordination.mutableArea().getMinZ(); }
-	public static int maxX(WorldWrapper world) { return world.coordination.mutableArea().getMaxX(); }
-	public static int maxY(WorldWrapper world) { return world.coordination.mutableArea().getMaxY(); }
-	public static int maxZ(WorldWrapper world) { return world.coordination.mutableArea().getMaxZ(); }
+	public static int minModifiableX(WorldWrapper world) { return world.coordination.mutableArea().getMinX(); }
+	public static int minModifiableY(WorldWrapper world) { return world.coordination.mutableArea().getMinY(); }
+	public static int minModifiableZ(WorldWrapper world) { return world.coordination.mutableArea().getMinZ(); }
+	public static int maxModifiableX(WorldWrapper world) { return world.coordination.mutableArea().getMaxX(); }
+	public static int maxModifiableY(WorldWrapper world) { return world.coordination.mutableArea().getMaxY(); }
+	public static int maxModifiableZ(WorldWrapper world) { return world.coordination.mutableArea().getMaxZ(); }
+	public static int minAccessibleX(WorldWrapper world) { return world.coordination.immutableArea().getMinX(); }
+	public static int minAccessibleY(WorldWrapper world) { return world.coordination.immutableArea().getMinY(); }
+	public static int minAccessibleZ(WorldWrapper world) { return world.coordination.immutableArea().getMinZ(); }
+	public static int maxAccessibleX(WorldWrapper world) { return world.coordination.immutableArea().getMaxX(); }
+	public static int maxAccessibleY(WorldWrapper world) { return world.coordination.immutableArea().getMaxY(); }
+	public static int maxAccessibleZ(WorldWrapper world) { return world.coordination.immutableArea().getMaxZ(); }
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<FeatureDispatcher> implements FeatureDispatcher {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
@@ -56,16 +65,26 @@ public interface FeatureDispatcher extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					registry.setupExternalEnvironmentWithLookup(
-						environment
-						.addVariableLoad("originX", TypeInfos.INT)
-						.addVariableLoad("originY", TypeInfos.INT)
-						.addVariableLoad("originZ", TypeInfos.INT)
-						.addVariable("distantHorizons", WORLD.distantHorizons),
-						WORLD.loadSelf
-					);
+					for (String name : new String[] {
+						"minModifiableX",
+						"minModifiableY",
+						"minModifiableZ",
+						"maxModifiableX",
+						"maxModifiableY",
+						"maxModifiableZ",
+						"minAccessibleX",
+						"minAccessibleY",
+						"minAccessibleZ",
+						"maxAccessibleX",
+						"maxAccessibleY",
+						"maxAccessibleZ",
+					}) {
+						environment.addVariable(name, Handlers.builder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
+					}
+					environment.addVariable("distantHorizons", WORLD.distantHorizons);
+					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
 				})
-				.parse()
+				.parse(registry.loader)
 			);
 		}
 

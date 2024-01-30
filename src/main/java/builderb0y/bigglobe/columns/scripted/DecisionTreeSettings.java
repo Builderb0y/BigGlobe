@@ -18,6 +18,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -137,11 +138,9 @@ public class DecisionTreeSettings {
 			}
 			return switch (getter.info.returnType.getSort()) {
 				case FLOAT -> FloatCompareConditionTree.lessThan(
-					invokeStatic(
-						MethodInfo.findMethod(Permuter.class, "toPositiveFloat", float.class, long.class),
-						invokeInstance(
+					RandomScriptEnvironment.PERMUTER_INFO.toPositiveFloat(
+						ScriptedColumn.INFO.saltedSeed(
 							context.loadColumn(),
-							MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class),
 							ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
 						)
 					),
@@ -167,11 +166,9 @@ public class DecisionTreeSettings {
 					)
 				);
 				case DOUBLE -> DoubleCompareConditionTree.lessThan(
-					invokeStatic(
-						MethodInfo.findMethod(Permuter.class, "toPositiveDouble", double.class, long.class),
-						invokeInstance(
+					RandomScriptEnvironment.PERMUTER_INFO.toPositiveDouble(
+						ScriptedColumn.INFO.saltedSeed(
 							context.loadColumn(),
-							MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class, long.class),
 							ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
 						)
 					),

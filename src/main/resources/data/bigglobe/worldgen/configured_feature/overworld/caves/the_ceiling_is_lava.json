@@ -14,7 +14,7 @@
 			")",
 
 			"(",
-				"`overworld/cave_surface_depth` > 0.0 &&",
+				"`bigglobe:overworld/cave_surface_depth` > 0.0 &&",
 				"random.nextBoolean(1.0 / 256.0) &&",
 				"flatBasaltAt(originX - 1, originZ) &&",
 				"flatBasaltAt(originX + 1, originZ) &&",

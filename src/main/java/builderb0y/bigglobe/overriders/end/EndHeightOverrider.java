@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.end;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -36,6 +37,7 @@ public interface EndHeightOverrider extends EndFlatOverrider {
 		column.mountainThickness = (maxY - minY) * 0.5D;
 	}
 
+	@Wrapper
 	public static class Holder extends EndFlatOverrider.Holder<EndHeightOverrider> implements EndHeightOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

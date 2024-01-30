@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.overworld;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.OverworldColumn.CaveCell;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -75,6 +76,7 @@ public interface OverworldVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
+	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<OverworldVolumetricOverrider> implements OverworldVolumetricOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

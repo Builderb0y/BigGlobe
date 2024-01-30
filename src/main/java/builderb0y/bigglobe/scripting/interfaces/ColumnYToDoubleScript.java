@@ -2,6 +2,7 @@ package builderb0y.bigglobe.scripting.interfaces;
 
 import java.util.Set;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -19,6 +20,7 @@ public interface ColumnYToDoubleScript extends Script {
 
 	public abstract double evaluate(WorldColumn column, double y);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
 		public transient Set<ColumnValue<?>> usedValues;
@@ -40,14 +42,14 @@ public interface ColumnYToDoubleScript extends Script {
 				.addY("y")
 				.addSeed("worldSeed")
 			);
+			this.usedValues = builder.usedValues;
 			this.script = (
 				new TemplateScriptParser<>(ColumnYToDoubleScript.class, this.usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(builder.build())
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
-			this.usedValues = builder.usedValues;
 		}
 
 		@Override

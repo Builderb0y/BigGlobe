@@ -141,6 +141,7 @@ public class ColumnCompileContext extends DataCompileContext {
 			FieldCompileContext flagsField = this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
 			putField(this.loadSelf(), flagsField.info, ldc(0)).emitBytecode(clear);
 		}
+		clear.node.visitInsn(RETURN);
 		clear.endCode();
 		super.prepareForCompile();
 	}

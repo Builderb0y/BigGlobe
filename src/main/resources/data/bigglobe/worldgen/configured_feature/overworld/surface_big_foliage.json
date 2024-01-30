@@ -11,7 +11,7 @@
 				")",
 
 				"Biome biome = getBiome(originX, originY, originZ)",
-				"double foliage = `overworld/height_adjusted_foliage`",
+				"double foliage = `bigglobe:overworld/height_adjusted_foliage`",
 				"ConfiguredFeature feature1 = null ;trees or coral",
 				"ConfiguredFeature feature2 = null ;bushes",
 				"ConfiguredFeature feature3 = null ;kelp, bamboo, or cactus",

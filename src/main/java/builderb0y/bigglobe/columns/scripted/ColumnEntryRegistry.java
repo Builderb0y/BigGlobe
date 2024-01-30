@@ -11,7 +11,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
@@ -23,12 +22,12 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.mixinInterfaces.ColumnEntryRegistryHolder;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -147,21 +146,103 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	public void setupExternalEnvironment(MutableScriptEnvironment environment, InsnTree loadColumn) {
+	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		for (ColumnEntryMemory memory : this.filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, loadColumn);
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, params);
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
 			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
 		}
 	}
 
-	public void setupExternalEnvironmentWithLookup(MutableScriptEnvironment environment, InsnTree loadLookup) {
-		for (ColumnEntryMemory memory : this.filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironmentWithLookup(memory, this.columnContext, environment, loadLookup);
+	public static class Loading {
+
+		public static Loading LOADING;
+
+		public BetterRegistry.Lookup betterRegistryLookup;
+		public ColumnEntryRegistry columnEntryRegistry;
+		public List<DelayedCompileable> compileables;
+		public boolean loadedDimensions; //workaround for the fact that RegistryLoader.load() gets called twice by SaveLoading.load().
+
+		public Loading(BetterRegistry.Lookup betterRegistryLookup) {
+			this.betterRegistryLookup = betterRegistryLookup;
 		}
-		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
+
+		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
+			if (LOADING != null) {
+				if (LOADING.loadedDimensions) {
+					throw new IllegalStateException("Multiple concurrent attempts to load dynamic registries");
+				}
+				else {
+					LOADING.loadedDimensions = true;
+				}
+			}
+			else {
+				LOADING = new Loading(betterRegistryLookup);
+			}
+		}
+
+		public static Loading get() {
+			if (LOADING != null) return LOADING;
+			else throw new IllegalStateException("Not currently loading");
+		}
+
+		public static void endLoad(boolean successful) {
+			Loading loading = LOADING;
+			if (loading == null) {
+				throw new IllegalStateException("Never started loading");
+			}
+			LOADING = null;
+			if (loading.loadedDimensions) {
+				if (successful) loading.compile();
+			}
+			else {
+				throw new IllegalStateException("Never got to the point of loading dimensions");
+			}
+		}
+
+		public void delay(DelayedCompileable compileable) {
+			if (this.columnEntryRegistry != null) {
+				try {
+					compileable.compile(this.columnEntryRegistry);
+				}
+				catch (ScriptParsingException exception) {
+					throw new RuntimeException(exception);
+				}
+			}
+			else {
+				if (this.compileables == null) {
+					this.compileables = new ArrayList<>(256);
+				}
+				this.compileables.add(compileable);
+			}
+		}
+
+		public ColumnEntryRegistry getRegistry() {
+			this.compile();
+			return this.columnEntryRegistry;
+		}
+
+		public void compile() {
+			if (this.columnEntryRegistry != null) return;
+			try {
+				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup);
+			}
+			catch (ScriptParsingException exception) {
+				throw new RuntimeException(exception);
+			}
+			if (this.compileables != null) {
+				RuntimeException mainException = null;
+				for (DelayedCompileable compileable : this.compileables) try {
+					compileable.compile(this.columnEntryRegistry);
+				}
+				catch (Exception exception) {
+					if (mainException == null) mainException = new RuntimeException("Some registry objects failed to compile, see below:");
+					mainException.addSuppressed(exception);
+				}
+				this.compileables = null;
+				if (mainException != null) throw mainException;
+			}
 		}
 	}
 
@@ -171,20 +252,32 @@ public class ColumnEntryRegistry {
 		/** called when the {@link ColumnEntryRegistry} is constructed. */
 		public abstract void compile(ColumnEntryRegistry registry) throws ScriptParsingException;
 
+		public default boolean requiresColumns() {
+			return true;
+		}
+
 		/**
-		I need to add the ScriptHolder to the ColumnEntryRegistryHolder after
+		I need to add the ScriptHolder to the ColumnEntryRegistry.Loading after
 		it's constructed, including after subclass constructors have run.
 		this is not the intended use for verifiers, but it works.
 		*/
 		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, ScriptHolder<?>> context) throws VerifyException {
 			ScriptHolder<?> holder = context.object;
 			if (holder == null) return;
+			if (holder.script != null) {
+				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(holder.getClass()) + " was decoded more than once!");
+			}
 
-			if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
-				((ColumnEntryRegistryHolder)(registryOps)).bigglobe_delayCompile(holder);
+			if (holder.requiresColumns()) {
+				ColumnEntryRegistry.Loading.get().delay(holder);
 			}
 			else {
-				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(holder.getClass()) + " was decoded using a non-registry ops: " + context.ops);
+				try {
+					holder.compile(null);
+				}
+				catch (ScriptParsingException exception) {
+					throw new RuntimeException(exception);
+				}
 			}
 		}
 	}

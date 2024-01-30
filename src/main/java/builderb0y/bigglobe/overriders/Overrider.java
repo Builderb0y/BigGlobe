@@ -120,7 +120,7 @@ public interface Overrider extends Script {
 			this.script = (
 				new TemplateScriptParser<>(this.getScriptClass(), this.usage)
 				.addEnvironment(this.setupEnvironment(new MutableScriptEnvironment()))
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 

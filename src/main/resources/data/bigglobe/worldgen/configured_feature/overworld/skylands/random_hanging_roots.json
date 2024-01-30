@@ -4,8 +4,8 @@
 		"script": [
 			";make sure this matches in all features associated with a 50/50 chance of trees.",
 			"long perIslandSeed = (worldSeed # 16x4AC7180457808109UL).newSeed(",
-				"int(`overworld/skyland_center_x`),",
-				"int(`overworld/skyland_center_z`)",
+				"int(`bigglobe:overworld/skyland_center_x`),",
+				"int(`bigglobe:overworld/skyland_center_z`)",
 			")",
 			"return(perIslandSeed.nextBoolean() && placeFeature(originX, originY, originZ, 'bigglobe:overworld/skylands/occasional_hanging_roots'))"
 		]

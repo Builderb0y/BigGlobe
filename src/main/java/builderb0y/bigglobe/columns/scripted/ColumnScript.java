@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.objectweb.asm.Type;
 
+import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -65,11 +67,12 @@ public interface ColumnScript extends Script {
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
-				.addVariableRenamedGetField(loadMainColumn, "worldSeed", FieldInfo.getField(ScriptedColumn.class, "seed"))
-				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", MethodInfo.findMethod(ScriptedColumn.class, "columnSeed", long.class))
+				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
+				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
+				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)
 			);
 			if (y != null) environment.addVariableLoad(y);
-			registry.setupExternalEnvironment(environment, loadMainColumn);
+			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn).withY(y != null ? load(y) : null));
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);
@@ -96,6 +99,7 @@ public interface ColumnScript extends Script {
 
 		public abstract int get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToIntScript> implements ColumnToIntScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -124,6 +128,7 @@ public interface ColumnScript extends Script {
 
 		public abstract int get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToIntScript> implements ColumnYToIntScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -152,6 +157,7 @@ public interface ColumnScript extends Script {
 
 		public abstract long get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToLongScript> implements ColumnToLongScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -180,6 +186,7 @@ public interface ColumnScript extends Script {
 
 		public abstract long get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToLongScript> implements ColumnYToLongScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -208,6 +215,7 @@ public interface ColumnScript extends Script {
 
 		public abstract float get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToFloatScript> implements ColumnToFloatScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -236,6 +244,7 @@ public interface ColumnScript extends Script {
 
 		public abstract float get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToFloatScript> implements ColumnYToFloatScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -264,6 +273,7 @@ public interface ColumnScript extends Script {
 
 		public abstract double get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToDoubleScript> implements ColumnToDoubleScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -292,6 +302,7 @@ public interface ColumnScript extends Script {
 
 		public abstract double get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -320,6 +331,7 @@ public interface ColumnScript extends Script {
 
 		public abstract boolean get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToBooleanScript> implements ColumnToBooleanScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -348,6 +360,7 @@ public interface ColumnScript extends Script {
 
 		public abstract boolean get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -376,6 +389,7 @@ public interface ColumnScript extends Script {
 
 		public abstract Object get(ScriptedColumn column);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToObjectScript> implements ColumnToObjectScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -404,6 +418,7 @@ public interface ColumnScript extends Script {
 
 		public abstract Object get(ScriptedColumn column, int y);
 
+		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToObjectScript> implements ColumnYToObjectScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

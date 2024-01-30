@@ -3,9 +3,9 @@
 	"config": {
 		"script": [
 			"if (distantHorizons: return(false))",
-			"int y = random.nextInt(int(min_y), int(`nether/lava_level`))",
-			"double fraction = unmixLinear(min_y, int(`nether/lava_level`), y)",
-			"double chance = (1.0L - fraction) * (1.0L - `nether/biome_edginess_squared`) * 0.25L",
+			"int y = random.nextInt(int(min_y), int(`bigglobe:nether/lava_level`))",
+			"double fraction = unmixLinear(min_y, int(`bigglobe:nether/lava_level`), y)",
+			"double chance = (1.0L - fraction) * (1.0L - `bigglobe:nether/biome_edginess_squared`) * 0.25L",
 			"if (",
 				"random.nextBoolean(chance) &&",
 				"getBlockState(originX, y, originZ) == BlockState('minecraft:netherrack') &&",

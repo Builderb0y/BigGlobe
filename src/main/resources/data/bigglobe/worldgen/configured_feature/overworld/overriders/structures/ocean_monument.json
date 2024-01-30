@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"if (start.structure.type == StructureType('minecraft:ocean_monument'):",
-				"unless (`overworld/hilliness`(start.midX, start.midZ) < 0.375:",
+				"unless (`bigglobe:overworld/hilliness`(start.midX, start.midZ) < 0.375:",
 					"return(false)",
 				")",
 				"int fromY = start.minY",
@@ -14,7 +14,7 @@
 					"int(max_y(start.maxX, start.maxZ))",
 				")",
 				"start.move(toY - fromY)",
-				"if (start.maxY >= `overworld/sea_level`(start.midX, start.midZ):",
+				"if (start.maxY >= `bigglobe:overworld/sea_level`(start.midX, start.midZ):",
 					"return(false)",
 				")",
 			")",

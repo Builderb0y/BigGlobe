@@ -40,16 +40,10 @@ public class EvaluateCommand {
 					Vec3d position = context.getSource().getPosition();
 					WorldWrapper world = new WorldWrapper(
 						new WorldDelegator(actualWorld),
+						generator,
 						Permuter.from(actualWorld.random),
 						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite()),
-						generator.columnEntryRegistry.columnFactory.create(
-							generator.seed,
-							BigGlobeMath.floorI(position.x),
-							BigGlobeMath.floorI(position.z),
-							actualWorld.getBottomY(),
-							actualWorld.getTopY(),
-							false
-						)
+						false
 					);
 					WorldColumn column = WorldColumn.forWorld(
 						actualWorld,

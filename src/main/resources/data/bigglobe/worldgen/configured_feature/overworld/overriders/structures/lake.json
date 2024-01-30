@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"if (start.structure.type == StructureType('bigglobe:lake'):",
-				"return(`overworld/hilliness`(start.midX, start.midZ) < 0.5L)",
+				"return(`bigglobe:overworld/hilliness`(start.midX, start.midZ) < 0.5L)",
 			")",
 			"else (",
 				"return(true)",

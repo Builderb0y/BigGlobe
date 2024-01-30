@@ -13,6 +13,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.scripting.interfaces.ColumnPredicate;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -20,7 +21,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class LocateAreaLazyScript implements ColumnPredicate {
 
-	public @Nullable ScriptParser<ColumnPredicate> parser;
+	public ScriptParser<ColumnPredicate> parser;
 	public Set<ColumnValue<?>> usedValues;
 	public @Nullable ColumnPredicate script;
 
@@ -42,8 +43,7 @@ public class LocateAreaLazyScript implements ColumnPredicate {
 
 	public ColumnPredicate getScript() {
 		if (this.script == null) try {
-			this.script = this.parser.toScript();
-			this.parser = null; //free for GC.
+			this.script = this.parser.toScript(new ScriptClassLoader());
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);

@@ -11,11 +11,9 @@ import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 public class ScriptColumnRestriction implements ColumnRestriction {
 
 	public final ColumnYToDoubleScript.Holder script;
-	public final transient ColumnValue<?>[] columnValues;
 
 	public ScriptColumnRestriction(ColumnYToDoubleScript.Holder script) {
 		this.script = script;
-		this.columnValues = script.usedValues.toArray(ColumnValue.ARRAY_FACTORY);
 	}
 
 	@Override
@@ -32,13 +30,13 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 
 	@Override
 	public void forEachValue(Consumer<? super ColumnValue<?>> action) {
-		for (ColumnValue<?> value : this.columnValues) {
+		for (ColumnValue<?> value : this.script.usedValues) {
 			action.accept(value);
 		}
 	}
 
 	@Override
 	public Stream<ColumnValue<?>> getValues() {
-		return Arrays.stream(this.columnValues);
+		return this.script.usedValues.stream();
 	}
 }

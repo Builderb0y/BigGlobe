@@ -42,9 +42,12 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature.Config;
 import builderb0y.bigglobe.mixins.PlantBlock_CanPlantOnTopAccess;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.util.WorldOrChunk;
+import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
-public class SingleBlockFeature extends Feature<Config> {
+public class SingleBlockFeature extends Feature<Config> implements RawFeature<Config> {
 
 	public static final Predicate<BlockState>
 		IS_REPLACEABLE  = BlockStateVersions::isReplaceable,
@@ -171,6 +174,11 @@ public class SingleBlockFeature extends Feature<Config> {
 			config.getState(context.getRandom()),
 			config
 		);
+	}
+
+	@Override
+	public boolean generate(WorldWrapper world, Config config, BlockPos pos) {
+		return placeEarly(((ChunkDelegator)(world.world)).chunk, pos, config.getState(world.random), config);
 	}
 
 	@UseCoder(name = "new", in = ConfigCoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)

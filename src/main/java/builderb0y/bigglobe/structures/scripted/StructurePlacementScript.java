@@ -3,7 +3,10 @@ package builderb0y.bigglobe.structures.scripted;
 import net.minecraft.nbt.NbtCompound;
 
 import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.*;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -27,7 +30,7 @@ public interface StructurePlacementScript extends Script {
 		NbtCompound data
 	);
 
-	@EncodeInline
+	@Wrapper
 	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
@@ -51,7 +54,7 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					registry.setupExternalEnvironmentWithLookup(
+					registry.setupExternalEnvironment(
 						environment
 						.addVariableLoad("minX", TypeInfos.INT)
 						.addVariableLoad("minY", TypeInfos.INT)
@@ -64,10 +67,11 @@ public interface StructurePlacementScript extends Script {
 						.addVariableLoad("midZ", TypeInfos.INT)
 						.addVariableLoad("data", NbtScriptEnvironment.NBT_COMPOUND_TYPE)
 						.addVariable("distantHorizons", WORLD.distantHorizons),
-						WORLD.loadSelf
+						new ExternalEnvironmentParams()
+						.withLookup(WORLD.loadSelf)
 					);
 				})
-				.parse()
+				.parse(registry.loader)
 			);
 		}
 

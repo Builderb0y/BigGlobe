@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.interfaces;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -30,6 +31,7 @@ public interface HeightAdjustmentScript extends Script {
 		}
 	}
 
+	@Wrapper
 	public static class TemperatureHolder extends Holder {
 
 		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -51,11 +53,12 @@ public interface HeightAdjustmentScript extends Script {
 					.addVariableLoad("bigglobe:overworld/sea_level",   TypeInfos.DOUBLE)
 					.addVariableLoad("y",                              TypeInfos.DOUBLE)
 				)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 	}
 
+	@Wrapper
 	public static class FoliageHolder extends Holder {
 
 		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -77,7 +80,7 @@ public interface HeightAdjustmentScript extends Script {
 					.addVariableLoad("bigglobe:overworld/sea_level", TypeInfos.DOUBLE)
 					.addVariableLoad("y",                            TypeInfos.DOUBLE)
 				)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 	}

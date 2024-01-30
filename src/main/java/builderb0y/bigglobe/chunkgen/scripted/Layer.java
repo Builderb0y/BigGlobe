@@ -123,18 +123,15 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 	}
 
 	public boolean validWhere(ScriptedColumn column) {
-		ColumnToBooleanScript.Holder where = this.valid.where;
-		return where == null || where.get(column);
+		return this.valid == null || this.valid.where == null || this.valid.where.get(column);
 	}
 
 	public int validMinY(ScriptedColumn column) {
-		ColumnToIntScript.Holder minY = this.valid.min_y;
-		return minY == null ? Integer.MIN_VALUE : minY.get(column);
+		return this.valid == null || this.valid.min_y == null ? Integer.MIN_VALUE : this.valid.min_y.get(column);
 	}
 
 	public int validMaxY(ScriptedColumn column) {
-		ColumnToIntScript.Holder maxY = this.valid.max_y;
-		return maxY == null ? Integer.MAX_VALUE : maxY.get(column);
+		return this.valid == null || this.valid.max_y == null ? Integer.MAX_VALUE : this.valid.max_y.get(column);
 	}
 
 	public static record Valid(

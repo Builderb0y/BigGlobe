@@ -11,14 +11,14 @@
 				")",
 
 				";sigmoid curve",
-				"double adjustedFoliage = 0.5 / (exp(-4.0 * `overworld/height_adjusted_foliage`) + 1.0)",
+				"double adjustedFoliage = 0.5 / (exp(-4.0 * `bigglobe:overworld/height_adjusted_foliage`) + 1.0)",
 				"random.unless(adjustedFoliage: return(false))",
 
 				"BlockState existingState = getBlockState(originX, originY, originZ)",
 				"BlockState newState = null",
 				"if (existingState == BlockState('minecraft:air'):",
 					"if (getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:mud'): return(false))",
-					"double fromTemperate = `overworld/height_adjusted_temperature` ^ 2 + `overworld/height_adjusted_foliage` ^ 2",
+					"double fromTemperate = `bigglobe:overworld/height_adjusted_temperature` ^ 2 + `bigglobe:overworld/height_adjusted_foliage` ^ 2",
 					"double deadBushChance = fromTemperate / (fromTemperate * 8.0 + 4.0)",
 					"random.if (deadBushChance:",
 						"newState = 'minecraft:dead_bush'",

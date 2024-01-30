@@ -6,6 +6,7 @@ import builderb0y.scripting.ScriptInterfaces.IntBinaryOperator;
 import builderb0y.scripting.ScriptInterfaces.IntUnaryOperator;
 import builderb0y.scripting.ScriptInterfaces.LongToIntOperator;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -39,7 +40,7 @@ public class CompareInsnTreeTest {
 				.addVariableLoad("x", TypeInfos.INT)
 				.addVariableLoad("y", TypeInfos.INT)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (int left : INTS) {
 			for (int right : INTS) {
@@ -65,7 +66,7 @@ public class CompareInsnTreeTest {
 				new MutableScriptEnvironment()
 				.addVariableLoad("x", TypeInfos.INT)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (int left : INTS) {
 			assertEquals(left > 0 ? 3 : left == 0 ? 2 : 1, operator.applyAsInt(left));
@@ -90,7 +91,7 @@ public class CompareInsnTreeTest {
 				.addVariableLoad("x", TypeInfos.LONG)
 				.addVariableLoad("y", TypeInfos.LONG)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (long left : LONGS) {
 			for (long right : LONGS) {
@@ -122,7 +123,7 @@ public class CompareInsnTreeTest {
 				new MutableScriptEnvironment()
 				.addVariableLoad("x", TypeInfos.LONG)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (long left : LONGS) {
 			assertEquals(left > 0 ? 3 : left == 0 ? 2 : 1, operator.applyAsInt(left));
@@ -148,7 +149,7 @@ public class CompareInsnTreeTest {
 				.addVariableLoad("x", TypeInfos.FLOAT)
 				.addVariableLoad("y", TypeInfos.FLOAT)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (float left : FLOATS) {
 			for (float right : FLOATS) {
@@ -181,7 +182,7 @@ public class CompareInsnTreeTest {
 				new MutableScriptEnvironment()
 				.addVariableLoad("x", TypeInfos.FLOAT)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (float left : FLOATS) {
 			assertEquals(left > 0 ? 3 : left == 0 ? 2 : left < 0 ? 1 : 0, operator.applyAsFloat(left));
@@ -213,7 +214,7 @@ public class CompareInsnTreeTest {
 				.addVariableLoad("x", TypeInfos.DOUBLE)
 				.addVariableLoad("y", TypeInfos.DOUBLE)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (double left : DOUBLES) {
 			for (double right : DOUBLES) {
@@ -246,7 +247,7 @@ public class CompareInsnTreeTest {
 				new MutableScriptEnvironment()
 				.addVariableLoad("x", TypeInfos.DOUBLE)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (double left : DOUBLES) {
 			assertEquals(left > 0 ? 3 : left == 0 ? 2 : left < 0 ? 1 : 0, operator.applyAsDouble(left));
@@ -278,7 +279,7 @@ public class CompareInsnTreeTest {
 				.addVariableLoad("x", type(Numbers.class))
 				.addVariableLoad("y", type(Numbers.class))
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 		);
 		for (Numbers left : NUMBERS) {
 			for (Numbers right : NUMBERS) {

@@ -14,6 +14,7 @@ import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -22,7 +23,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 
-	public @Nullable ScriptParser<ColumnYToDoubleScript> parser;
+	public ScriptParser<ColumnYToDoubleScript> parser;
 	public Set<ColumnValue<?>> usedValues;
 	public @Nullable ColumnYToDoubleScript script;
 
@@ -49,8 +50,7 @@ public class LocateNoiseLazyScript implements ColumnYToDoubleScript {
 
 	public ColumnYToDoubleScript getScript() {
 		if (this.script == null) try {
-			this.script = this.parser.toScript();
-			this.parser = null; //free for GC.
+			this.script = this.parser.toScript(new ScriptClassLoader());
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);

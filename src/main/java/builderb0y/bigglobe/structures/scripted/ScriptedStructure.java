@@ -248,6 +248,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 						context.chunk,
 						context.worldSeed
 					),
+					context.generator,
 					new Permuter(context.pieceSeed),
 					new Coordination(
 						this.transformation,
@@ -261,14 +262,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 						),
 						chunkBox
 					),
-					context.generator.columnEntryRegistry.columnFactory.create(
-						context.generator.seed,
-						0,
-						0,
-						minY,
-						maxY,
-						context.distantHorizons
-					)
+					context.distantHorizons
 				),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
@@ -309,6 +303,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.placement.object().placement.place(
 				new WorldWrapper(
 					new WorldDelegator(world),
+					generator,
 					permuter,
 					new Coordination(
 						this.transformation,
@@ -322,14 +317,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 						),
 						WorldUtil.surroundingChunkBox(chunkPos, world)
 					),
-					generator.columnEntryRegistry.columnFactory.create(
-						generator.seed,
-						0,
-						0,
-						effectiveMinY,
-						effectiveMaxY,
-						DistantHorizonsCompat.isOnDistantHorizonThread()
-					)
+					DistantHorizonsCompat.isOnDistantHorizonThread()
 				),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,

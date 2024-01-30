@@ -12,7 +12,7 @@
 			"minecraft:polished_granite":  "minecraft:lapis_ore",
 			"minecraft:deepslate":         "minecraft:deepslate_lapis_ore"
 		},
-		"chance": "sqrt(unmixLinear(`overworld/sea_level`, min_y, max_y)) - distance_below_max_y / 1024.0L",
+		"chance": "sqrt(unmixLinear(`bigglobe:overworld/sea_level`, min_y, max_y)) - distance_below_max_y / 1024.0L",
 		"radius": {
 			"type": "average",
 			"min": 3.0,

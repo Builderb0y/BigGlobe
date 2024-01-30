@@ -2,8 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"double magicalness = `overworld/magicalness`",
-			"double innerness = `overworld/glacier_crack_threshold` - 1.0L",
+			"double magicalness = `bigglobe:overworld/magicalness`",
+			"double innerness = `bigglobe:overworld/glacier_crack_threshold` - 1.0L",
 			"unless (magicalness < 0.0L && innerness > 0.0L: return(false))",
 			"innerness = 1.0L - 0.25L / (innerness ^ 2 + 0.25L)",
 			"double chance = magicalness ^ 2 * innerness",

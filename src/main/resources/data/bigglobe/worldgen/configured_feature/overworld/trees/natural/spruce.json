@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:spruce",
-		"height": "random.nextDouble(`overworld/foliage`) * 32.0 + 4.0",
+		"height": "random.nextDouble(`bigglobe:overworld/foliage`) * 32.0 + 4.0",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"require_natural_ground": true,

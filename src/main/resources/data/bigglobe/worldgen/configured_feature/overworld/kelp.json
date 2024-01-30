@@ -5,7 +5,7 @@
 			"BlockState topState = 'minecraft:kelp[age=25]'",
 			"BlockState bottomState = 'minecraft:kelp_plant'",
 			"unless (bottomState.canPlaceAt(originX, originY, originZ): return(false))",
-			"int maxHeight = random.roundInt(`overworld/height_adjusted_foliage` ^ 2 * 16.0)",
+			"int maxHeight = random.roundInt(`bigglobe:overworld/height_adjusted_foliage` ^ 2 * 16.0)",
 			"int height = 0",
 			"while (height < maxHeight && getBlockState(originX, originY + height, originZ) == BlockState('minecraft:water[level=0]'):",
 				"++height",

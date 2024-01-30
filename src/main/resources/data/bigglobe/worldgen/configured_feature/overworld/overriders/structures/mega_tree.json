@@ -4,7 +4,7 @@
 		"script": [
 			"if (start.structure.type == StructureType('bigglobe:mega_tree'):",
 				"StructurePiece first = start.pieces.(0)",
-				"return(`overworld/foliage`(first.midX, first.midZ) > 0.0L)",
+				"return(`bigglobe:overworld/foliage`(first.midX, first.midZ) > 0.0L)",
 			")",
 			"else (",
 				"return(true)",

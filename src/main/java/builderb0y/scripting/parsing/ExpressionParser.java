@@ -136,7 +136,7 @@ public class ExpressionParser {
 		}
 	}
 
-	public Class<?> compile() throws Throwable {
+	public Class<?> compile(ScriptClassLoader loader) throws Throwable {
 		if (CLASS_DUMP_DIRECTORY != null) try {
 			String baseName = this.clazz.info.getSimpleName();
 			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-src.txt"), this.input.input, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
@@ -146,7 +146,7 @@ public class ExpressionParser {
 		catch (IOException exception) {
 			ScriptLogger.LOGGER.error("", exception);
 		}
-		return new ScriptClassLoader().defineClass(this.clazz);
+		return loader.defineClass(this.clazz);
 	}
 
 	public StringBuilder fatalError() {

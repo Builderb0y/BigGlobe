@@ -3,6 +3,7 @@ package builderb0y.scripting.bytecode.tree.instructions.update;
 import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.ScriptInterfaces.BooleanSupplier;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -208,6 +209,6 @@ public class VariableUpdateInsnTreeTest {
 	}
 
 	public static void test(String script) throws ScriptParsingException {
-		assertTrue(new ScriptParser<>(BooleanSupplier.class, script).parse().getAsBoolean());
+		assertTrue(new ScriptParser<>(BooleanSupplier.class, script).parse(new ScriptClassLoader()).getAsBoolean());
 	}
 }

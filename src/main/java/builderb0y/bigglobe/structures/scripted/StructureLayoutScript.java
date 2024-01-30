@@ -5,6 +5,7 @@ import java.util.random.RandomGenerator;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePiece;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -19,11 +20,8 @@ import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -39,6 +37,7 @@ public interface StructureLayoutScript extends Script {
 		boolean distantHorizons
 	);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
 
 		public static final InsnTree LOAD_RANDOM = load("random", type(RandomGenerator.class));
@@ -104,7 +103,7 @@ public interface StructureLayoutScript extends Script {
 					)
 					.build()
 				)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 

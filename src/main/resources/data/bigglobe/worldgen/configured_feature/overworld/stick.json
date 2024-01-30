@@ -2,8 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (`overworld/surface_foliage` / 16.0L:",
-				"int seaLevel = int(`overworld/sea_level`)",
+			"random.if (`bigglobe:overworld/surface_foliage` / 16.0L:",
+				"int seaLevel = int(`bigglobe:overworld/sea_level`)",
 				"if (originY >= seaLevel && getBlockState(originX, originY, originZ).isReplaceable():",
 					"block (",
 						"if (originY < seaLevel: return(false))",

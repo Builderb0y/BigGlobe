@@ -2,6 +2,7 @@ package builderb0y.bigglobe.trees.branches;
 
 import java.util.random.RandomGenerator;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -21,6 +22,7 @@ public interface ScriptedBranchShape extends Script {
 
 	public abstract double evaluate(double fraction, WorldColumn column, double y, RandomGenerator random);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<ScriptedBranchShape> implements ScriptedBranchShape {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -51,7 +53,7 @@ public interface ScriptedBranchShape extends Script {
 					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 

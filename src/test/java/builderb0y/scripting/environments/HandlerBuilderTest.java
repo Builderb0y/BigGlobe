@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.ScriptInterfaces.IntSupplier;
 import builderb0y.scripting.TestCommon;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -24,7 +25,7 @@ public class HandlerBuilderTest extends TestCommon {
 					Handlers.inCaller("add1").addRequiredArgument(int.class).buildFunction()
 				)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
@@ -37,7 +38,7 @@ public class HandlerBuilderTest extends TestCommon {
 					Handlers.inCaller("add1").addReceiverArgument(int.class).buildMethod()
 				)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
@@ -52,7 +53,7 @@ public class HandlerBuilderTest extends TestCommon {
 					.buildFunction()
 				)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
@@ -65,7 +66,7 @@ public class HandlerBuilderTest extends TestCommon {
 					Handlers.inCaller("add1").addReceiverArgument(TypeInfos.INT).buildField()
 				)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
@@ -77,7 +78,7 @@ public class HandlerBuilderTest extends TestCommon {
 					Handlers.inCaller("add1").addImplicitArgument(ldc(1)).buildVariable()
 				)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 	}

@@ -266,7 +266,7 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		@SuppressWarnings("unchecked")
 		public G instantiate() throws ScriptParsingException {
 			try {
-				Class<?> clazz = this.compile();
+				Class<?> clazz = this.compile(new ScriptClassLoader());
 				Class<?>[] parameterTypes = new Class<?>[this.gridInputs.size()];
 				Arrays.fill(parameterTypes, this.gridTypeInfo.gridClass);
 				Constructor<?> constructor = clazz.getDeclaredConstructor(parameterTypes);

@@ -13,10 +13,8 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 
 #if MC_VERSION > MC_1_19_2
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistry;
-import builderb0y.bigglobe.mixinInterfaces.ColumnEntryRegistryHolder;
 #endif
 
 public class BetterRegistryLookupCoder extends NamedCoder<BetterRegistry.Lookup> {
@@ -59,11 +57,6 @@ public class BetterRegistryLookupCoder extends NamedCoder<BetterRegistry.Lookup>
 					}
 					return new BetterDynamicRegistry<>(impl, lookup);
 				#endif
-			}
-
-			@Override
-			public ColumnEntryRegistryHolder getColumnEntryRegistryHolder() {
-				return (ColumnEntryRegistryHolder)(registryOps);
 			}
 		};
 	}

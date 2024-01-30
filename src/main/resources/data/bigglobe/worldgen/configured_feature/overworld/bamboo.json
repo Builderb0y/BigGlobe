@@ -6,7 +6,7 @@
 			"source": [
 				"BlockState state = BlockState('minecraft:bamboo', stage: 0, age: int(random.nextBoolean()), leaves: 'none')",
 				"unless (state.canPlaceAt(originX, originY, originZ): return(false))",
-				"int maxHeight = random.roundInt(`overworld/height_adjusted_foliage` * 16.0)",
+				"int maxHeight = random.roundInt(`bigglobe:overworld/height_adjusted_foliage` * 16.0)",
 				"int height = 0",
 				"while (height < maxHeight && getBlockState(originX, originY + height, originZ).isReplaceable():",
 					"++height",

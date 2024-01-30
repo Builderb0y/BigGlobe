@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +30,7 @@ import net.minecraft.structure.StructureSet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
@@ -71,9 +73,15 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.features.FeatureDispatcher;
+import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
-import builderb0y.bigglobe.util.Async;
-import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
+import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -89,10 +97,18 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public final @VerifyNullable String reload_dimension;
 	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
-	public final RootLayer layer;
 	public static record Height(@VerifyDivisibleBy16 int min_y, @VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y, int sea_level) {}
 	public final Height height;
-	public transient long seed;
+	public final RootLayer layer;
+	public final DualFeatureDispatcher feature_dispatcher;
+	/**
+	seed is the first 64 bits of the SHA256 hash of actualWorldSeed.
+	seed is used for {@link ScriptedColumn#seed}, because column
+	entries are synced to the client for grass coloration purposes.
+	it is important that the client not be able to reverse-engineer
+	the actual world seed from the hashed seed sent to it.
+	*/
+	public transient long seed, actualWorldSeed;
 	public DisplayEntry[] debugDisplay = new DisplayEntry[0];
 
 	public BigGlobeScriptedChunkGenerator(
@@ -101,8 +117,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		#endif
 		@VerifyNullable String reload_dimension,
 		BetterRegistry.Lookup betterRegistryLookup,
+		Height height,
 		RootLayer layer,
-		Height height
+		DualFeatureDispatcher feature_dispatcher
 	) {
 		super(
 			#if (MC_VERSION == MC_1_19_2)
@@ -112,9 +129,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			new FixedBiomeSource(betterRegistryLookup.getRegistry(RegistryKeyVersions.biome()).getOrCreateEntry(BiomeKeys.PLAINS))
 		);
 		this.reload_dimension = reload_dimension;
-		this.columnEntryRegistry = betterRegistryLookup.getColumnEntryRegistryHolder().bigglobe_getColumnEntryRegistry();
-		this.layer = layer;
+		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
 		this.height = height;
+		this.layer = layer;
+		this.feature_dispatcher = feature_dispatcher;
 	}
 
 	public BetterRegistry.@Nullable Lookup betterRegistryLookup() {
@@ -180,6 +198,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	}
 
 	public void setSeed(long seed) {
+		this.actualWorldSeed = seed;
 		//make it impossible to reverse-engineer the seed from information sent to the client.
 		this.seed = Hashing.sha256().hashLong(seed).asLong();
 	}
@@ -238,6 +257,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				int startZ = chunk.getPos().getStartZ();
 				int minY = chunk.getBottomY();
 				int maxY = chunk.getTopY();
+				ScriptedColumn[] columns = new ScriptedColumn[256];
 				BlockSegmentList[] lists = new BlockSegmentList[256];
 				try (AsyncRunner async = new AsyncRunner()) {
 					for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
@@ -262,10 +282,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								this.layer.emitSegments(column10, column11, column00, column01, list10);
 								this.layer.emitSegments(column11, column10, column01, column00, list11);
 								int baseIndex = (offsetZ_ << 4) | offsetX_;
-								lists[baseIndex     ] = list00;
-								lists[baseIndex ^  1] = list01;
-								lists[baseIndex ^ 16] = list10;
-								lists[baseIndex ^ 17] = list11;
+								columns[baseIndex     ] = column00;
+								columns[baseIndex ^  1] = column01;
+								columns[baseIndex ^ 16] = column10;
+								columns[baseIndex ^ 17] = column11;
+								lists  [baseIndex     ] = list00;
+								lists  [baseIndex ^  1] = list01;
+								lists  [baseIndex ^ 16] = list10;
+								lists  [baseIndex ^ 17] = list11;
 							});
 						}
 					}
@@ -309,6 +333,22 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						}
 					}
 				}
+				WorldWrapper worldWrapper = new WorldWrapper(
+					new ChunkDelegator(chunk, this.actualWorldSeed),
+					this,
+					new Permuter(0L),
+					new Coordination(
+						SymmetricOffset.IDENTITY,
+						WorldUtil.chunkBox(chunk),
+						WorldUtil.chunkBox(chunk)
+					),
+					distantHorizons
+				);
+				worldWrapper.columns = new Long2ObjectOpenHashMap<>(256);
+				for (ScriptedColumn column : columns) {
+					worldWrapper.columns.put(ColumnPos.pack(column.x, column.z), column);
+				}
+				this.feature_dispatcher.raw.generate(worldWrapper);
 			},
 			executor
 		)
@@ -322,7 +362,19 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
-
+		this.feature_dispatcher.normal.generate(
+			new WorldWrapper(
+				new WorldDelegator(world),
+				this,
+				new Permuter(0L),
+				new Coordination(
+					SymmetricOffset.IDENTITY,
+					WorldUtil.chunkBox(chunk),
+					WorldUtil.surroundingChunkBox(chunk)
+				),
+				DistantHorizonsCompat.isOnDistantHorizonThread()
+			)
+		);
 	}
 
 	@Override

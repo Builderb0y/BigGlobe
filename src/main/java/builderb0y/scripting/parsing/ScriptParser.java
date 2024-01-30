@@ -144,9 +144,9 @@ public class ScriptParser<I> extends ExpressionParser {
 		return implementingMethod;
 	}
 
-	public I parse() throws ScriptParsingException {
+	public I parse(ScriptClassLoader loader) throws ScriptParsingException {
 		this.toBytecode();
-		return this.toScript();
+		return this.toScript(loader);
 	}
 
 	public void toBytecode() throws ScriptParsingException {
@@ -154,11 +154,11 @@ public class ScriptParser<I> extends ExpressionParser {
 		this.method.endCode();
 	}
 
-	public I toScript() throws ScriptParsingException {
+	public I toScript(ScriptClassLoader loader) throws ScriptParsingException {
 		try {
 			return (
 				this
-				.compile()
+				.compile(loader)
 				.asSubclass(this.implementingClass)
 				.getDeclaredConstructor((Class<?>[])(null))
 				.newInstance((Object[])(null))

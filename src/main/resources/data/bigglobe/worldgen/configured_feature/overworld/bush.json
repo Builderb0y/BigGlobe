@@ -27,7 +27,7 @@
 				"double radiusV = random.nextDouble(1.0L, 2.0L)",
 				"double rcpH = 1.0L / radiusH",
 				"double rcpV = 1.0L / radiusV",
-				"double snowChance = `overworld/snow_chance`",
+				"double snowChance = `bigglobe:overworld/snow_chance`",
 				"for (",
 					"int z in range[ceilInt(centerZ - radiusH), floorInt(centerZ + radiusH)],",
 					"int x in range[ceilInt(centerX - radiusH), floorInt(centerX + radiusH)]",

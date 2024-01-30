@@ -559,12 +559,20 @@ public class Permuter implements RandomGenerator {
 		return stafford(seed);
 	}
 
+	public static long toUniformLong(long seed) {
+		return seed;
+	}
+
 	/**
 	returns a pseudorandom long between 0 and {@link Long#MAX_VALUE}
 	(both inclusive) based on the given seed.
 	*/
 	public static long nextPositiveLong(long seed) {
 		return nextUniformLong(seed) & 0x7FFF_FFFF_FFFF_FFFFL;
+	}
+
+	public static long toPositiveLong(long seed) {
+		return seed & 0x7FFF_FFFF_FFFF_FFFFL;
 	}
 
 	/**

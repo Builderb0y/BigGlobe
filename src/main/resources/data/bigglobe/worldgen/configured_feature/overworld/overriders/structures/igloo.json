@@ -7,7 +7,7 @@
 				"int centerX = last.midX",
 				"int centerZ = last.midZ",
 				"int fromY = last.minY",
-				"int toY = int(`overworld/snow_height`(centerX, centerZ) - 0.5L)",
+				"int toY = int(`bigglobe:overworld/snow_height`(centerX, centerZ) - 0.5L)",
 				"start.move(toY - fromY)",
 			")",
 			"return(true)"

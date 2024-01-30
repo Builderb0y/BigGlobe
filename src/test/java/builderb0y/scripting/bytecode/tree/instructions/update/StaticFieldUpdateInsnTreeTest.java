@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.ScriptInterfaces.BooleanSupplier;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -206,7 +207,7 @@ public class StaticFieldUpdateInsnTreeTest {
 				new MutableScriptEnvironment()
 				.addVariableGetStatics(StaticFieldUpdateInsnTreeTest.class, "x", "y", "b")
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.getAsBoolean()
 		);
 	}

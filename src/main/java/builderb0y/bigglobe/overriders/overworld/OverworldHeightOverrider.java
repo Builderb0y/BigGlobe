@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.overworld;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -14,6 +15,7 @@ public interface OverworldHeightOverrider extends OverworldFlatOverrider {
 		.addVariable("snowY",    FlatOverrider.createVariableFromField(OverworldColumn.class, "snowHeight"))
 	);
 
+	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldHeightOverrider> implements OverworldHeightOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

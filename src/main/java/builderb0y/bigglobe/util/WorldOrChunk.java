@@ -3,14 +3,11 @@ package builderb0y.bigglobe.util;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
-import org.jetbrains.annotations.UnknownNullability;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
@@ -19,16 +16,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.bigglobe.columns.AbstractChunkOfColumns.ColumnFactory;
-import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
+import builderb0y.bigglobe.features.RawFeature;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -43,8 +35,6 @@ that's where this interface comes into play: it extracts out the common logic
 between worlds and chunks, and allows {@link WorldWrapper} to operate on both.
 */
 public interface WorldOrChunk extends BlockView {
-
-	public abstract boolean isLive();
 
 	public abstract void setBlockState(BlockPos pos, BlockState state);
 
@@ -72,15 +62,6 @@ public interface WorldOrChunk extends BlockView {
 
 		public WorldDelegator(StructureWorldAccess world) {
 			this.world = world;
-		}
-
-		@Override
-		public boolean isLive() {
-			StructureWorldAccess world = this.world;
-			while (world instanceof BlockQueueStructureWorldAccess queue) {
-				world = queue.world;
-			}
-			return world instanceof World;
 		}
 
 		@Override
@@ -176,15 +157,11 @@ public interface WorldOrChunk extends BlockView {
 
 		public final Chunk chunk;
 		public final long seed;
+		public WorldWrapper worldWrapper;
 
 		public ChunkDelegator(Chunk chunk, long seed) {
 			this.chunk = chunk;
 			this.seed = seed;
-		}
-
-		@Override
-		public boolean isLive() {
-			return this.chunk instanceof WorldChunk;
 		}
 
 		@Override
@@ -246,9 +223,14 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random) {
-			//todo: add RawFeature interface to whitelist features that can be placed during raw generation.
-			throw new UnsupportedOperationException("Can't place features during raw generation.");
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> configuredFeature, Random random) {
+			if (configuredFeature.feature() instanceof RawFeature rawFeature) {
+				return rawFeature.generate(this.worldWrapper, configuredFeature.config(), pos);
+			}
+			else {
+				throw new UnsupportedOperationException("The provided feature cannot generate during raw generation.");
+			}
 		}
 
 		@Override

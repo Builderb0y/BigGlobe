@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -18,8 +19,10 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColumnPos;
 
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
@@ -27,6 +30,7 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk;
+import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -42,8 +46,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public FieldInfo random;
-		public MethodInfo getSeed, distantHorizons;
+		public FieldInfo random, distantHorizons;
+		public MethodInfo getSeed;
 
 		public InsnTree getSeed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.getSeed);
@@ -54,7 +58,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 
 		public InsnTree distantHorizons(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.distantHorizons);
+			return getField(loadWorld, this.distantHorizons);
 		}
 	}
 
@@ -69,23 +73,48 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public final WorldOrChunk world;
+	public final BigGlobeScriptedChunkGenerator chunkGenerator;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final RandomGenerator random;
-	public final ScriptedColumn column;
+	public final ScriptedColumn.Factory columnFactory;
+	public Long2ObjectOpenHashMap<ScriptedColumn> columns;
+	public final boolean distantHorizons;
 
-	public WorldWrapper(WorldOrChunk world, RandomGenerator random, Coordination coordination, ScriptedColumn column) {
+	public WorldWrapper(
+		WorldOrChunk world,
+		BigGlobeScriptedChunkGenerator chunkGenerator,
+		RandomGenerator random,
+		Coordination coordination,
+		boolean distantHorizons
+	) {
 		this.world = world;
+		this.chunkGenerator = chunkGenerator;
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
 		this.random = random;
-		this.column = column;
+		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
+		this.distantHorizons = distantHorizons;
+		if (world instanceof ChunkDelegator delegator) {
+			delegator.worldWrapper = this;
+		}
 	}
 
 	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
-		this.column.setPos(x, z);
-		return this.column;
+		if (this.columns == null) {
+			this.columns = new Long2ObjectOpenHashMap<>(256);
+		}
+		return this.columns.computeIfAbsent(ColumnPos.pack(x, z), (long packedPos) -> {
+			return this.columnFactory.create(
+				this.chunkGenerator.seed,
+				ColumnPos.getX(packedPos),
+				ColumnPos.getZ(packedPos),
+				this.coordination.mutableArea.getMinY(),
+				this.coordination.mutableArea.getMaxY(),
+				this.distantHorizons
+			);
+		});
 	}
 
 	public BlockPos.Mutable unboundedPos(int x, int y, int z) {
@@ -102,10 +131,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public long getSeed() {
 		return this.world.getSeed();
-	}
-
-	public boolean distantHorizons() {
-		return this.column.distantHorizons;
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {

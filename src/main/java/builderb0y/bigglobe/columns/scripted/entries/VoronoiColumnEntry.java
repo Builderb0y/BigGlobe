@@ -226,23 +226,8 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	}
 
 	@Override
-	public void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
-		super.setupExternalEnvironment(memory, context, environment, loadColumn);
-		DataCompileContext selfContext = context.root().getAccessContext(this.getAccessSchema()).context();
-		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
-			MethodInfo method = entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), selfContext);
-			if (entry.getValue().is_3d()) {
-				environment.addMethodInvoke(entry.getKey(), method);
-			}
-			else {
-				environment.addFieldInvoke(entry.getKey(), method);
-			}
-		}
-	}
-
-	@Override
-	public void setupExternalEnvironmentWithLookup(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadLookup) {
-		super.setupExternalEnvironmentWithLookup(memory, context, environment, loadLookup);
+	public void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		super.setupExternalEnvironment(memory, context, environment, params);
 		DataCompileContext selfContext = context.root().getAccessContext(this.getAccessSchema()).context();
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			MethodInfo method = entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), selfContext);

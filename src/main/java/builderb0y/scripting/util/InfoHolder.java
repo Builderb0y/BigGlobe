@@ -26,6 +26,7 @@ public class InfoHolder {
 	public void init(Class<?> targetClass) {
 		this.type = TypeInfo.of(targetClass);
 		ReflectionData reflectionData = ReflectionData.forClass(targetClass);
+		RuntimeException exception = null;
 		for (Field field : ReflectionData.forClass(this.getClass()).getDeclaredFields()) {
 			try {
 				if (field.getType() == FieldInfo.class) {
@@ -47,9 +48,11 @@ public class InfoHolder {
 				}
 			}
 			catch (Throwable throwable) {
-				throw AutoCodecUtil.rethrow(throwable);
+				if (exception == null) exception = new RuntimeException("Failed to initialize " + this.getClass());
+				exception.addSuppressed(throwable);
 			}
 		}
+		if (exception != null) throw exception;
 	}
 
 	@Target(ElementType.FIELD)

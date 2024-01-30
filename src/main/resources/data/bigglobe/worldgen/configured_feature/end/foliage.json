@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"double chance = `end/foliage` * 0.75L",
+			"double chance = `bigglobe:end/foliage` * 0.75L",
 			"random.if (chance:",
 				"random.if (chance:",
 					"random.if (chance:",

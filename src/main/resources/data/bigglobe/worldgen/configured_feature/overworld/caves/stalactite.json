@@ -4,7 +4,7 @@
 		"script": [
 			"unless (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline(): return(false))",
 			"int height = 0",
-			"double chance = `overworld/normalized_cave_surface_depth`",
+			"double chance = `bigglobe:overworld/normalized_cave_surface_depth`",
 			"while (random.nextBoolean(chance) && getBlockState(originX, originY - height, originZ).isReplaceable():",
 				"++height",
 			")",

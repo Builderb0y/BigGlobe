@@ -23,8 +23,10 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -99,49 +101,94 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		context.addAccessor(loadHolder, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
 	}
 
-	public default void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadColumn) {
-		if (this.getAccessSchema().is_3d()) {
-			environment.addFunctionInvoke(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), loadColumn, memory.getTyped(ColumnEntryMemory.GETTER).info);
+	public default void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		String exposedName = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
+		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
+		InsnTree loadColumn;
+		if (params.loadLookup != null) {
+			if (this.getAccessSchema().is_3d()) {
+				environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_THROW, arguments);
+					return new CastResult(
+						new ColumnLookup3DValueInsnTree(
+							params.loadLookup,
+							castArguments[0],
+							castArguments[1],
+							castArguments[2],
+							getter
+						),
+						castArguments != arguments
+					);
+				});
+			}
+			else {
+				environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_THROW, arguments);
+					return new CastResult(
+						invokeInstance(
+							new DirectCastInsnTree(
+								invokeInstance(
+									params.loadLookup,
+									ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
+									castArguments
+								),
+								getter.owner
+							),
+							getter
+						),
+						castArguments != arguments
+					);
+				});
+			}
+			if (params.loadX != null) {
+				loadColumn = new DirectCastInsnTree(
+					invokeInstance(
+						params.loadLookup,
+						ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
+						params.loadX,
+						params.loadZ
+					),
+					getter.owner
+				);
+			}
+			else {
+				loadColumn = null;
+			}
 		}
 		else {
-			environment.addVariableRenamedInvoke(loadColumn, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(), memory.getTyped(ColumnEntryMemory.GETTER).info);
+			loadColumn = params.loadColumn;
+		}
+		if (loadColumn != null) {
+			if (this.getAccessSchema().is_3d()) {
+				environment.addFunctionInvoke(exposedName, loadColumn, getter);
+				InsnTree loadY = params.loadY;
+				if (loadY != null) {
+					environment.addVariable(exposedName, new VariableHandler.Named("Y level: " + loadY, (ExpressionParser parser, String name) -> {
+						return invokeInstance(loadColumn, getter, loadY);
+					}));
+				}
+			}
+			else {
+				environment.addVariableRenamedInvoke(loadColumn, exposedName, getter);
+			}
 		}
 	}
 
-	public default void setupExternalEnvironmentWithLookup(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, InsnTree loadLookup) {
-		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
-		String exposedName = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
-		if (this.getAccessSchema().is_3d()) {
-			environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_THROW, arguments);
-				return new CastResult(
-					new ColumnLookup3DValueInsnTree(
-						loadLookup,
-						castArguments[0],
-						castArguments[1],
-						castArguments[2],
-						getter
-					),
-					castArguments != arguments
-				);
-			});
-		}
-		else {
-			environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_THROW, arguments);
-				return new CastResult(
-					invokeInstance(
-						invokeInstance(
-							loadLookup,
-							ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
-							castArguments
-						),
-						getter
-					),
-					castArguments != arguments
-				);
-			});
-		}
+	public static class ExternalEnvironmentParams {
+
+		/**
+		invariants:
+		must specify loadColumn or loadLookup, but not both.
+		if loadColumn is specified, then loadX and loadZ are ignored.
+		must specify both loadX and loadZ, or neither.
+		*/
+		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ;
+
+		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
+		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
+		public ExternalEnvironmentParams withX     (InsnTree loadX     ) { this.loadX      = loadX     ; return this; }
+		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
+		public ExternalEnvironmentParams withZ     (InsnTree loadZ     ) { this.loadZ      = loadZ     ; return this; }
 	}
 
 	public abstract void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException;

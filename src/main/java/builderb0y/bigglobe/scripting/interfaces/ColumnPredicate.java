@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.interfaces;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -15,6 +16,7 @@ public interface ColumnPredicate extends Script {
 
 	public abstract boolean test(WorldColumn column);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnPredicate> implements ColumnPredicate {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -33,7 +35,7 @@ public interface ColumnPredicate extends Script {
 					.addXZ("x", "z")
 					.build()
 				)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 

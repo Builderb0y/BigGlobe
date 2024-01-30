@@ -10,7 +10,7 @@
 					"int(max_y(start.maxX, start.minZ)),",
 					"int(max_y(start.maxX, start.maxZ))",
 				")",
-				"double caveDepth = `overworld/cave_depth`(start.midX, start.midZ)",
+				"double caveDepth = `bigglobe:overworld/cave_depth`(start.midX, start.midZ)",
 				"int chosenY = minSurface - (",
 					"caveDepth >= 1.0L",
 					"? random.nextInt(int(caveDepth))",

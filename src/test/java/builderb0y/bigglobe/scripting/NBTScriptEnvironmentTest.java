@@ -10,6 +10,7 @@ import net.minecraft.nbt.*;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -147,6 +148,6 @@ public class NBTScriptEnvironmentTest {
 	}
 
 	public static Object evaluate(String script) throws ScriptParsingException {
-		return new ScriptParser<>(ObjectSupplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.INSTANCE).parse().getAsObject();
+		return new ScriptParser<>(ObjectSupplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.INSTANCE).parse(new ScriptClassLoader()).getAsObject();
 	}
 }

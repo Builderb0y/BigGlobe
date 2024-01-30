@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.nextBoolean(0.125 * `overworld/normalized_cave_surface_depth`) &&",
+			"random.nextBoolean(0.125 * `bigglobe:overworld/normalized_cave_surface_depth`) &&",
 			"placeFeature(originX, originY, originZ, 'bigglobe:overworld/caves/big_dripleaf')"
 		]
 	}

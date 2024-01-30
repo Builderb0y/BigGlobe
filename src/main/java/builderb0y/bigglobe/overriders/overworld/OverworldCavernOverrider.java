@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import net.minecraft.structure.StructurePiece;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -54,6 +55,7 @@ public interface OverworldCavernOverrider extends OverworldFlatOverrider {
 		return getOverlap(column, piece.getBoundingBox().getMinY(), piece.getBoundingBox().getMaxY(), padding);
 	}
 
+	@Wrapper
 	public static class Holder extends OverworldFlatOverrider.Holder<OverworldCavernOverrider> implements OverworldCavernOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

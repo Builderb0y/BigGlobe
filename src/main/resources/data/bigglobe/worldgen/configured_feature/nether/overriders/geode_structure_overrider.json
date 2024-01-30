@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"boolean isTerrainAt(int x, int y, int z:",
-				"return(`nether/cavern_noise`(x, y, z) >= 0.0L && `nether/cave_noise`(x, y, z) >= `nether/cave_noise_threshold`(z, y, z))",
+				"return(`bigglobe:nether/cavern_noise`(x, y, z) >= 0.0L && `bigglobe:nether/cave_noise`(x, y, z) >= `bigglobe:nether/cave_noise_threshold`(z, y, z))",
 			")",
 
 			"if (start.structure.type == StructureType('bigglobe:geode'):",

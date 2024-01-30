@@ -9,7 +9,7 @@
 				"return(",
 					"(start.structure == Structure('minecraft:ocean_ruin_cold'))",
 					"==",
-					"random.nextBoolean(`overworld/hilliness`(start.midX, start.midZ))",
+					"random.nextBoolean(`bigglobe:overworld/hilliness`(start.midX, start.midZ))",
 				")",
 			")",
 			"return(true)"

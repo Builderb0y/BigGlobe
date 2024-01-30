@@ -4,7 +4,7 @@
 		"script": [
 			"BlockState state = 'minecraft:cactus[age=0]'",
 			"unless (state.canPlaceAt(originX, originY, originZ): return(false))",
-			"double baseHeight = `overworld/height_adjusted_foliage` * 6.0 + 3.0",
+			"double baseHeight = `bigglobe:overworld/height_adjusted_foliage` * 6.0 + 3.0",
 			"if (baseHeight <= 0.0: return(false))",
 			"baseHeight /= baseHeight + 1.0",
 			"int maxHeight = random.roundInt(baseHeight * 4.0)",

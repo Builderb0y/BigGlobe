@@ -43,7 +43,6 @@ where I left off:
 	make nether ores not require a biome field.
 	need end ores and end rock layers.
 	need to redo scripted noise which uses column values.
-	make VoronoiDateBace$Impl_XXX override toString() to return the name of the VoronoiSettings it came from.
 	on main branch, fix seed.newSeed(int) not using the original seed to compute the new seed.
 
 changelog:

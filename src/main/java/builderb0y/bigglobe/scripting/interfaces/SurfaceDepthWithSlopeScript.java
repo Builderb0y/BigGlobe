@@ -2,6 +2,7 @@ package builderb0y.bigglobe.scripting.interfaces;
 
 import java.util.random.RandomGenerator;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -21,6 +22,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 
 	public abstract double evaluate(WorldColumn column, double y, double slope_squared, RandomGenerator random);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceDepthWithSlopeScript> implements SurfaceDepthWithSlopeScript {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -51,7 +53,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 					new MutableScriptEnvironment()
 					.addVariableLoad("slope_squared", TypeInfos.DOUBLE)
 				)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 

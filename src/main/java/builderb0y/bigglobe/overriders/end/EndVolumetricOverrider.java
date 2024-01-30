@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.overriders.end;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.overriders.ScriptStructures;
@@ -82,6 +83,7 @@ public interface EndVolumetricOverrider extends VolumetricOverrider {
 		}
 	}
 
+	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<EndVolumetricOverrider> implements EndVolumetricOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {

@@ -3,6 +3,7 @@ package builderb0y.bigglobe.recipes;
 import net.minecraft.item.ItemStack;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
@@ -11,11 +12,8 @@ import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -54,6 +52,7 @@ public class ScriptedRecipeClasses {
 
 		public abstract boolean matches(CraftingGrid input);
 
+		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -69,8 +68,13 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
-					.parse()
+					.parse(new ScriptClassLoader())
 				);
+			}
+
+			@Override
+			public boolean requiresColumns() {
+				return false;
 			}
 
 			@Override
@@ -90,6 +94,7 @@ public class ScriptedRecipeClasses {
 
 		public abstract ItemStack output(CraftingGrid input);
 
+		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -105,8 +110,13 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
-					.parse()
+					.parse(new ScriptClassLoader())
 				);
+			}
+
+			@Override
+			public boolean requiresColumns() {
+				return false;
 			}
 
 			@Override
@@ -127,6 +137,7 @@ public class ScriptedRecipeClasses {
 
 		public abstract void remainder(CraftingGrid input, CraftingGrid output);
 
+		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript {
 
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -147,8 +158,13 @@ public class ScriptedRecipeClasses {
 						.addVariableLoad("output", type(CraftingGrid.class))
 						;
 					})
-					.parse()
+					.parse(new ScriptClassLoader())
 				);
+			}
+
+			@Override
+			public boolean requiresColumns() {
+				return false;
 			}
 
 			@Override

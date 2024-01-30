@@ -436,7 +436,7 @@ public class UserDefinitionsTest extends TestCommon {
 				new MutableScriptEnvironment()
 				.addVariableLoad("x", TypeInfos.OBJECT)
 			)
-			.parse()
+			.parse(new ScriptClassLoader())
 			.applyAsObject(expected)
 		);
 		assertEquals(expected, actual);

@@ -2,6 +2,7 @@ package builderb0y.bigglobe.scripting.interfaces;
 
 import java.util.random.RandomGenerator;
 
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -10,11 +11,8 @@ import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -23,6 +21,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 
 	public abstract double evaluate(WorldColumn column, double y, RandomGenerator random);
 
+	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnYRandomToDoubleScript> implements ColumnYRandomToDoubleScript {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
@@ -49,7 +48,7 @@ public interface ColumnYRandomToDoubleScript extends Script {
 					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.parse()
+				.parse(new ScriptClassLoader())
 			);
 		}
 
