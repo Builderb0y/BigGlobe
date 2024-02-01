@@ -1,10 +1,8 @@
 package builderb0y.bigglobe.settings;
 
 import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +17,6 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -163,7 +159,7 @@ public class BiomeLayout {
 				}
 			});
 			this.root = registry.getOrCreateEntry(key(registry, ROOT_IDENTIFIER)).value();
-			if (BigGlobeConfig.INSTANCE.get().printBiomeLayoutTrees) {
+			if (BigGlobeConfig.INSTANCE.get().printDecisionTrees) {
 				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getKey().getValue()).append(" tree, as requested in Big Globe's config file:\n")).toString());
 			}
 		}
