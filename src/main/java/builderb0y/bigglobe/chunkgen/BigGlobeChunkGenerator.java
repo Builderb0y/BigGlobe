@@ -292,7 +292,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				ChunkSection section = chunk.getSection(index);
 				section.lock();
 				try {
-					generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
+					//generator.accept(SectionGenerationContext.forIndex(chunk, section, index, seed, columns));
 				}
 				finally {
 					section.unlock();
@@ -314,7 +314,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 				ChunkSection section = chunk.getSection(index);
 				section.lock();
 				try {
-					SectionGenerationContext context = SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
+					SectionGenerationContext context = null; //SectionGenerationContext.forIndex(chunk, section, index, seed, columns);
 					generator.accept(context);
 					#if MC_VERSION < MC_1_20_0
 						if (context.hasLights()) {
@@ -457,7 +457,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		this.profiler.run("Rock layers", () -> {
 			for (LinkedRockLayerConfig<?> rock : rockLayers) {
 				this.profiler.run(rock.name, () -> {
-					RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
+					//RockLayerReplacer.generateNew(this.seed, chunk, columns, minHeight, maxHeight, rock);
 				});
 			}
 		});
@@ -941,8 +941,9 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 		this.bigglobe_appendText(text, this.column(blockPos.getX(), blockPos.getZ()), blockPos.getY());
 	}
 
-	public final transient SemiThreadLocal<ChunkOfBiomeColumns<? extends WorldColumn>> biomeColumns = SemiThreadLocal.strong(4, () -> new ChunkOfBiomeColumns<>(this::column));
+	//public final transient SemiThreadLocal<ChunkOfBiomeColumns<? extends WorldColumn>> biomeColumns = SemiThreadLocal.strong(4, () -> new ChunkOfBiomeColumns<>(this::column));
 
+	/*
 	@Override
 	public CompletableFuture<Chunk> populateBiomes(
 		#if MC_VERSION == MC_1_19_2
@@ -990,6 +991,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			return chunk;
 		});
 	}
+	*/
 
 	@Override
 	public ColumnValue<?>[] bigglobe_getDisplayedColumnValues() {

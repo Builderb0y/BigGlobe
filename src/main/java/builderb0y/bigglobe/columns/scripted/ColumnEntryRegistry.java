@@ -32,7 +32,6 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -45,6 +44,7 @@ public class ColumnEntryRegistry {
 	public final transient Map<Identifier, ColumnEntryMemory> memories;
 	public final transient List<ColumnEntryMemory> filteredMemories;
 	public final transient Class<? extends ScriptedColumn> columnClass;
+	public final transient MethodHandles.Lookup columnLookup;
 	public final transient ScriptedColumn.Factory columnFactory;
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
@@ -115,14 +115,14 @@ public class ColumnEntryRegistry {
 				ScriptLogger.LOGGER.error("", exception);
 			}
 			this.columnClass = this.loader.defineClass(this.columnContext.mainClass).asSubclass(ScriptedColumn.class);
-			MethodHandles.Lookup lookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
+			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-					lookup,
+						this.columnLookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
 					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class, boolean.class),
-					lookup.findConstructor(
+						this.columnLookup.findConstructor(
 						this.columnClass,
 						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class, boolean.class)
 					),
@@ -193,12 +193,7 @@ public class ColumnEntryRegistry {
 				throw new IllegalStateException("Never started loading");
 			}
 			LOADING = null;
-			if (loading.loadedDimensions) {
-				if (successful) loading.compile();
-			}
-			else {
-				throw new IllegalStateException("Never got to the point of loading dimensions");
-			}
+			if (successful && loading.loadedDimensions) loading.compile();
 		}
 
 		public void delay(DelayedCompileable compileable) {
@@ -261,19 +256,19 @@ public class ColumnEntryRegistry {
 		it's constructed, including after subclass constructors have run.
 		this is not the intended use for verifiers, but it works.
 		*/
-		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, ScriptHolder<?>> context) throws VerifyException {
-			ScriptHolder<?> holder = context.object;
-			if (holder == null) return;
-			if (holder.script != null) {
-				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(holder.getClass()) + " was decoded more than once!");
+		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, DelayedCompileable> context) throws VerifyException {
+			DelayedCompileable compileable = context.object;
+			if (compileable == null) return;
+			if (compileable instanceof ScriptHolder<?> holder && holder.script != null) {
+				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(compileable.getClass()) + " was decoded more than once!");
 			}
 
-			if (holder.requiresColumns()) {
-				ColumnEntryRegistry.Loading.get().delay(holder);
+			if (compileable.requiresColumns()) {
+				ColumnEntryRegistry.Loading.get().delay(compileable);
 			}
 			else {
 				try {
-					holder.compile(null);
+					compileable.compile(null);
 				}
 				catch (ScriptParsingException exception) {
 					throw new RuntimeException(exception);

@@ -183,12 +183,15 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		must specify both loadX and loadZ, or neither.
 		*/
 		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ;
+		public boolean mutable;
 
 		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
 		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
 		public ExternalEnvironmentParams withX     (InsnTree loadX     ) { this.loadX      = loadX     ; return this; }
 		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
 		public ExternalEnvironmentParams withZ     (InsnTree loadZ     ) { this.loadZ      = loadZ     ; return this; }
+		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
+		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
 	}
 
 	public abstract void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException;

@@ -99,7 +99,7 @@ public abstract class AbstractDhWorldGenerator implements IDhApiWorldGenerator {
 				async.submit(() -> {
 					WorldColumn column = columns.getColumn(columnIndex_);
 					DataPointListBuilder builder = (DataPointListBuilder)(results.getDataPoints(column.x & 15, column.z & 15));
-					builder.biome = this.biome(builder.query, column.getSurfaceBiome());
+					//builder.biome = this.biome(builder.query, column.getSurfaceBiome());
 					populator.populateDataPoints(columns, columnIndex_, builder);
 				});
 			}

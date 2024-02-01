@@ -117,11 +117,13 @@ public interface Overrider extends Script {
 
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			/*
 			this.script = (
 				new TemplateScriptParser<>(this.getScriptClass(), this.usage)
-				.addEnvironment(this.setupEnvironment(new MutableScriptEnvironment()))
+				.configureEnvironment(this::setupEnvironment)
 				.parse(new ScriptClassLoader())
 			);
+			*/
 		}
 
 		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {

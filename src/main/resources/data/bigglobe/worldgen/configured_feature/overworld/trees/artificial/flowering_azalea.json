@@ -45,8 +45,7 @@
 						{ "weight": 7.0, "state": "minecraft:azalea_leaves[distance=1,persistent=false,waterlogged=false]" },
 						{ "weight": 1.0, "state": "minecraft:flowering_azalea_leaves[distance=1,persistent=false,waterlogged=false]" }
 					]
-				},
-				{ "type": "bigglobe:snow" }
+				}
 			],
 			"branches": [
 				{
@@ -56,11 +55,7 @@
 						{ "weight": 7.0, "state": "minecraft:azalea_leaves[distance=1,persistent=false,waterlogged=false]" },
 						{ "weight": 1.0, "state": "minecraft:flowering_azalea_leaves[distance=1,persistent=false,waterlogged=false]" }
 					]
-				},
-				{ "type": "bigglobe:snow" }
-			],
-			"leaves": [
-				{ "type": "bigglobe:snow" }
+				}
 			]
 		},
 		"ground_replacements": {

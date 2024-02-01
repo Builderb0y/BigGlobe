@@ -112,12 +112,12 @@ public class DhOverworldWorldGenerator extends AbstractDhWorldGenerator {
 				permuter.setSeed(Permuter.permute(this.serverWorld.getSeed() ^ 0x7EF4E9F5C88A2506L, column.x, column.z));
 				int primaryDepth = BigGlobeMath.floorI(column.settings.surface.primary_surface_depth().evaluate(column, surfaceD, derivativeMagnitudeSquared, permuter));
 				if (primaryDepth > 0) { //ordinary surface.
-					BlockState surfaceState = column.settings.biomes.getPrimarySurface(column, surfaceD, this.serverWorld.getSeed()).top();
-					builder.add(surfaceState, surfaceI - primaryDepth, surfaceI);
-					builder.add(stoneWrapper, column.settings.height.min_y(), surfaceI - primaryDepth);
+					//BlockState surfaceState = column.settings.biomes.getPrimarySurface(column, surfaceD, this.serverWorld.getSeed()).top();
+					//builder.add(surfaceState, surfaceI - primaryDepth, surfaceI);
+					//builder.add(stoneWrapper, column.settings.height.min_y(), surfaceI - primaryDepth);
 				}
 				else { //no surface. just stone.
-					builder.add(stoneWrapper, column.settings.height.min_y(), surfaceI);
+					//builder.add(stoneWrapper, column.settings.height.min_y(), surfaceI);
 				}
 			}
 		};

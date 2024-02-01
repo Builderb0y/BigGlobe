@@ -1,16 +1,12 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.encoders.EncodeContext;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 
 @UseCoder(name = "code", usage = MemberUsage.METHOD_IS_HANDLER)
@@ -27,28 +23,13 @@ public class SkipDistantHorizonsRestriction implements ColumnRestriction {
 	}
 
 	@Override
-	public double getRestriction(WorldColumn column, double y) {
+	public double getRestriction(ScriptedColumn column, int y) {
 		return DistantHorizonsCompat.isOnDistantHorizonThread() ? 0.0D : 1.0D;
 	}
 
-	/*
 	@Override
-	public boolean dependsOnY(WorldColumn column) {
-		return false;
-	}
-	*/
-
-	@Override
-	public void forEachValue(Consumer<? super ColumnValue<?>> action) {}
-
-	@Override
-	public Stream<ColumnValue<?>> getValues() {
-		return Stream.empty();
-	}
-
-	@Override
-	public boolean test(WorldColumn column, double y, long seed) {
-		return !DistantHorizonsCompat.isOnDistantHorizonThread();
+	public boolean test(ScriptedColumn column, int y, long seed) {
+		return !column.distantHorizons;
 	}
 
 	@Override

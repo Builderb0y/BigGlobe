@@ -9,6 +9,7 @@ import net.minecraft.world.chunk.ChunkSection;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.rockLayers.LinkedRockLayerConfig;
 import builderb0y.bigglobe.features.rockLayers.RockLayerEntryFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -20,7 +21,7 @@ import builderb0y.bigglobe.util.Async;
 
 public class RockLayerReplacer {
 
-	public static void generateNew(long worldSeed, Chunk chunk, ChunkOfColumns<? extends WorldColumn> columns, int minY, int maxY, LinkedRockLayerConfig<?> config) {
+	public static void generateNew(long worldSeed, Chunk chunk, ScriptedColumnLookup columns, int minY, int maxY, LinkedRockLayerConfig<?> config) {
 		int minSection = minY >> 4;
 		int maxSection = (maxY + 15) >> 4;
 		int totalSections = maxSection - minSection;
@@ -56,7 +57,7 @@ public class RockLayerReplacer {
 						for (int relativeX = 0; relativeX < 16; relativeX++) {
 							int index = (relativeZ << 4) | relativeX;
 							double center = centerSamples.getD(relativeX) + averageCenter;
-							double thickness = thicknessSamples.getD(relativeX) - (1.0D - entry.restrictions.getRestriction(columns.getColumn(index), center)) * entry.thickness.maxValue();
+							double thickness = thicknessSamples.getD(relativeX) - (1.0D - entry.restrictions.getRestriction(columns.lookupColumn(startX | relativeX, startZ | relativeZ), BigGlobeMath.floorI(center))) * entry.thickness.maxValue();
 							columnMinYs.setI(index, BigGlobeMath.floorI(center - thickness));
 							columnMaxYs.setI(index, BigGlobeMath.floorI(center + thickness));
 							layerMinY = Math.min(layerMinY, columnMinYs.getI(index));

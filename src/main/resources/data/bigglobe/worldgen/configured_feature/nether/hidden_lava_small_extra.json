@@ -5,9 +5,9 @@
 			"debug_name": "ConfiguredFeatureNetherHiddenLavaSmallExtra",
 			"source": [
 				"if (distantHorizons: return(false))",
-				"for (int base in range[int(min_y), int(max_y)) % 64:",
+				"for (int base in range[int(`bigglobe:nether/min_y`), int(`bigglobe:nether/max_y`)) % 64:",
 					"int y = base + random.nextInt(64)",
-					"double fraction = unmixLinear(min_y, max_y, y)",
+					"double fraction = unmixLinear(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`, y)",
 					"double chance = exp2(fraction * -4.0L)",
 					"if (",
 						"random.nextBoolean(chance) &&",

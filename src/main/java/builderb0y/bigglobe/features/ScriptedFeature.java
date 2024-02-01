@@ -177,6 +177,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
+			public ScriptParsingException exception;
+
 			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 				super(usage);
 			}
@@ -213,17 +215,19 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						.parse(registry.loader)
 					);
 				}
-				catch (ScriptParsingException mostlyIgnoredForNow) {
-					if ("ConfiguredFeatureOverworldSurfaceSmallFoliage".equals(this.usage.debug_name)) {
-						throw mostlyIgnoredForNow;
-					}
+				catch (ScriptParsingException exception) {
+					this.exception = exception;
 				}
 			}
 
 			@Override
 			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
+				if (this.exception != null) {
+					this.onError(this.exception);
+					return false;
+				}
 				try {
-					return this.script != null && this.script.generate(world, originX, originY, originZ);
+					return this.script.generate(world, originX, originY, originZ);
 				}
 				catch (EarlyFeatureExitException exit) {
 					return exit.placeBlocks;

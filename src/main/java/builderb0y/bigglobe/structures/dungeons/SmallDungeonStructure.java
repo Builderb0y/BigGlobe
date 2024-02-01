@@ -28,6 +28,7 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
 import builderb0y.bigglobe.randomLists.IRandomList;
@@ -44,7 +45,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 	}
 
 	@Override
-	public DungeonLayout layout(WorldColumn column, int y, RandomGenerator random) {
+	public DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random) {
 		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, this.palettes);
 	}
 
@@ -55,7 +56,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Layout extends DungeonLayout {
 
-		public Layout(WorldColumn column, int y, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
+		public Layout(ScriptedColumn column, int y, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
 			super(column, y, random, random.nextInt(384) + 192, roomDecorators, spawnerEntries, palettes);
 		}
 

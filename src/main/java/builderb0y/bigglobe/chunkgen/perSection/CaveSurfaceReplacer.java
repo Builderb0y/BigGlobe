@@ -23,7 +23,7 @@ public class CaveSurfaceReplacer {
 		int sectionStartY = context.startY();
 		int sectionEndY = sectionStartY + 15;
 		for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
-			OverworldColumn column = (OverworldColumn)(context.columns.getColumn(columnIndex));
+			OverworldColumn column = null; //(OverworldColumn)(context.columns.getColumn(columnIndex));
 			double rawDepth = column.getCaveSurfaceDepth();
 			if (!(rawDepth > 0.0D)) continue;
 			int depth = BigGlobeMath.floorI(Permuter.nextPositiveDouble(Permuter.permute(chunkSeed, columnIndex)) * rawDepth);

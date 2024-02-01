@@ -6,11 +6,36 @@
 			"defaults": {
 				"radius": { "type": "uniform", "min": 24.0, "max": 48.0 },
 				"restrictions": {
-					"type": "and_range",
-					"overworld/height_adjusted_foliage":     { "min": -0.5,             "max": 0.5 },
-					"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
-					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 },
-					"overworld/magicalness":                 { "min": -0.5, "mid": 0.0             }
+					"type": "and",
+					"restrictions": [
+						{
+							"type": "range",
+							"property": "bigglobe:overworld/height_adjusted_foliage",
+							"min": -0.5,
+							"mid":  0.0,
+							"max":  0.5
+						},
+						{
+							"type": "range",
+							"property": "bigglobe:overworld/height_adjusted_temperature",
+							"min": -0.5,
+							"mid":  0.0,
+							"max":  0.5
+						},
+						{
+							"type": "threshold",
+							"property": "bigglobe:overworld/hilliness",
+							"min":  0.5,
+							"max":  0.0,
+							"smooth_max": false
+						},
+						{
+							"type": "threshold",
+							"property": "bigglobe:overworld/magicalness",
+							"min": -0.5,
+							"max":  0.0
+						}
+					]
 				},
 				"under": {
 					"place": "minecraft:farmland",

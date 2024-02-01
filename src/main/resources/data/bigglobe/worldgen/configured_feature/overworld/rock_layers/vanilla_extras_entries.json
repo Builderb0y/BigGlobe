@@ -32,8 +32,8 @@
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
-							{ "type": "range", "property": "overworld/temperature", "max": -0.375, "mid": -0.625 },
-							{ "type": "script", "script": "unmixSmooth(`max_y` - 512, `max_y`, y)" }
+							{ "type": "threshold", "property": "bigglobe:overworld/raw_temperature", "min": -0.375, "max": -0.625 },
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
 						]
 					}
 				},
@@ -45,8 +45,8 @@
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
-							{ "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.0, "mid": 0.5 },
-							{ "type": "script", "script": "unmixSmooth(`max_y` - 512, `max_y`, y)" }
+							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 0.5 },
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
 						]
 					}
 				},
@@ -55,14 +55,23 @@
 						"minecraft:stone": "minecraft:granite",
 						"minecraft:cobblestone": "minecraft:polished_granite"
 					},
-					"restrictions": { "type": "range", "property": "overworld/hilliness", "min": 0.0, "mid": 1.0, "smooth": false }
+					"restrictions": { "type": "threshold", "property": "bigglobe:overworld/hilliness", "min": 0.0, "max": 1.0, "smooth_min": false, "smooth_max": false }
 				},
 				{
 					"blocks": {
 						"minecraft:stone": "minecraft:dripstone_block",
 						"minecraft:cobblestone": "minecraft:dripstone_block"
 					},
-					"restrictions": { "type": "range", "property": "max_y", "max": 32.0, "mid": -32.0 }
+					"restrictions": {
+						"type": "script",
+						"script": [
+							"unmixSmooth(",
+								"`bigglobe:overworld/sea_level` + 32,",
+								"`bigglobe:overworld/sea_level` - 32,",
+								"`bigglobe:overworld/surface_y`",
+							")"
+						]
+					}
 				},
 				{
 					"blocks": {
@@ -72,8 +81,8 @@
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
-							{ "type": "range", "property": "overworld/height_adjusted_foliage", "mid": -0.5, "max": 0.0 },
-							{ "type": "script", "script": "unmixSmooth(`max_y` - 512, `max_y`, y)" }
+							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "max": -0.5, "min": 0.0 },
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
 						]
 					}
 				},
@@ -85,9 +94,9 @@
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
-							{ "type": "range", "property": "overworld/surface_temperature", "min": 0.375, "mid": 0.625 },
-							{ "type": "range", "property": "overworld/foliage", "min": -0.625, "mid": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`max_y` - 512, `max_y`, y)" }
+							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
+							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "min": -0.625, "max": -0.375 },
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
 						]
 					}
 				},
@@ -99,9 +108,9 @@
 					"restrictions": {
 						"type": "and",
 						"restrictions": [
-							{ "type": "range", "property": "overworld/surface_temperature", "min": 0.375, "mid": 0.625 },
-							{ "type": "range", "property": "overworld/foliage", "mid": -0.625, "max": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`max_y` - 512, `max_y`, y)" }
+							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
+							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "max": -0.625, "min": -0.375 },
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
 						]
 					}
 				}

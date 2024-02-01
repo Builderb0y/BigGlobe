@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.mojang.datafixers.util.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public @interface Any {
 
 		@Override
 		public @Nullable <T_Encoded> Object decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-			if (context.isEmpty()) return null;
+			if (context.isEmpty()) return Unit.INSTANCE;
 			return context.ops.convertTo(ObjectOps.INSTANCE, context.input);
 		}
 

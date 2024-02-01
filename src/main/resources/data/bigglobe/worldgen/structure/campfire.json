@@ -14,7 +14,7 @@
 				")",
 			")",
 
-			"int originY = ceilInt(max_y(originX, originZ))",
+			"int originY = ceilInt(`bigglobe:overworld/surface_y`(originX, originZ))",
 			"Biome biome = getBiome(originX, originY, originZ)",
 			"WoodPalette palette = WoodPalette.randomForBiome(biome)",
 			"String paletteID = palette.?id ?: return()",

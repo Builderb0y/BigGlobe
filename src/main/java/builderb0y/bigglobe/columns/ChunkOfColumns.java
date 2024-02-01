@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns;
 
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.Nullable;
 

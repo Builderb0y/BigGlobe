@@ -24,15 +24,10 @@
 			"trunk": [
 				{ "type": "bigglobe:scatter_leaves", "is_trunk": true },
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
-				{ "type": "bigglobe:stubby_branch", "chance": 0.125 },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:stubby_branch", "chance": 0.125 }
 			],
 			"branches": [
-				{ "type": "bigglobe:scatter_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow" }
-			],
-			"leaves": [
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:scatter_leaves", "is_trunk": false }
 			]
 		},
 		"ground_replacements": {

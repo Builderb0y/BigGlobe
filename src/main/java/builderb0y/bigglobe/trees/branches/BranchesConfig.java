@@ -79,8 +79,6 @@ public class BranchesConfig {
 		double length = (
 			this.lengthGetter.evaluate(
 				((double)(index)) / ((double)(this.branchCount)),
-				generator.centerColumn,
-				generator.trunk.currentY,
 				generator.random
 			)
 			* generator.trunk.height

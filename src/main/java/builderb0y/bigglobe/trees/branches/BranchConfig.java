@@ -29,7 +29,7 @@ public class BranchConfig {
 		this.currentFracLength = fracLength;
 		this.permuter.setSeed(this.seed);
 		this.currentX = generator.trunk.currentX + this.nx * length;
-		this.currentY = generator.trunk.currentY + generator.branches.heightGetter.evaluate(fracLength, generator.centerColumn, generator.trunk.currentY, this.permuter) * length;
+		this.currentY = generator.trunk.currentY + generator.branches.heightGetter.evaluate(fracLength, this.permuter) * length;
 		this.currentZ = generator.trunk.currentZ + this.nz * length;
 	}
 

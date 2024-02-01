@@ -4,8 +4,8 @@
 		"script": [
 			"if (distantHorizons: return(false))",
 			"for (int count in range[0, 2):",
-				"int y = random.nextInt(int(min_y), int(`bigglobe:nether/lava_level`))",
-				"double fraction = unmixLinear(min_y, int(`bigglobe:nether/lava_level`), y)",
+				"int y = random.nextInt(int(`bigglobe:nether/min_y`), int(`bigglobe:nether/lava_level`))",
+				"double fraction = unmixLinear(`bigglobe:nether/min_y`, int(`bigglobe:nether/lava_level`), y)",
 				"double chance = (1.0L - fraction) * (1.0L - `bigglobe:nether/biome_edginess_squared`) * 0.25L",
 				"if (",
 					"random.nextBoolean(chance) &&",

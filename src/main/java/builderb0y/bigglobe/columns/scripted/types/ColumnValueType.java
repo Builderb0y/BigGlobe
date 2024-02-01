@@ -60,17 +60,18 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		}
 	};
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("byte"       ),       ByteColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("short"      ),      ShortColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("int"        ),        IntColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long"       ),       LongColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float"      ),      FloatColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double"     ),     DoubleColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"    ),    BooleanColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"    ),    VoronoiColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block"      ),      BlockColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"), BlockStateColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("class"      ),      ClassColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("byte"              ),              ByteColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("short"             ),             ShortColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("int"               ),               IntColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("long"              ),              LongColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("float"             ),             FloatColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("double"            ),            DoubleColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"           ),           BooleanColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"           ),           VoronoiColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block"             ),             BlockColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"       ),        BlockStateColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("configured_feature"), ConfiguredFeatureColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("class"             ),             ClassColumnValueType.class);
 	}};
 
 	public abstract TypeContext createType(ColumnCompileContext context);

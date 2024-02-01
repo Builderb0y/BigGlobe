@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import com.mojang.datafixers.util.Unit;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.Any;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -23,6 +25,6 @@ public record Valid(
 	}
 
 	public ConstantValue getFallback(TypeInfo type) {
-		return ConstantValue.of(this.fallback, type);
+		return ConstantValue.of(this.fallback == Unit.INSTANCE ? null : this.fallback, type);
 	}
 }

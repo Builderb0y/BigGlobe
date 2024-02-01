@@ -1,10 +1,6 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public class ConstantColumnRestriction implements ColumnRestriction {
 
@@ -15,15 +11,7 @@ public class ConstantColumnRestriction implements ColumnRestriction {
 	}
 
 	@Override
-	public double getRestriction(WorldColumn column, double y) {
+	public double getRestriction(ScriptedColumn column, int y) {
 		return this.chance;
-	}
-
-	@Override
-	public void forEachValue(Consumer<? super ColumnValue<?>> action) {}
-
-	@Override
-	public Stream<ColumnValue<?>> getValues() {
-		return Stream.empty();
 	}
 }

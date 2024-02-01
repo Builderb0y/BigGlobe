@@ -397,6 +397,7 @@ public class NetherColumn extends WorldColumn {
 		return this.settings.min_y;
 	}
 
+	/*
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
 		return this.getLocalCell().settings.biome;
@@ -406,6 +407,7 @@ public class NetherColumn extends WorldColumn {
 	public RegistryEntry<Biome> getSurfaceBiome() {
 		return this.getLocalCell().settings.biome;
 	}
+	*/
 
 	@Override
 	public WorldColumn blankCopy() {

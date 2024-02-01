@@ -22,6 +22,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
@@ -98,7 +99,7 @@ public class BiomeLayout {
 		}
 	}
 
-	public <R> R search(WorldColumn column, double y, long seed, Function<BiomeLayout, R> property) {
+	public <R> R search(ScriptedColumn column, int y, long seed, Function<BiomeLayout, R> property) {
 		BiomeLayout layout = this, chosen = this;
 		while (true) {
 			boolean test = layout.restrictions.test(column, y, seed ^ layout.nameHash);
@@ -126,11 +127,9 @@ public class BiomeLayout {
 
 		public final BetterRegistry<T_Layout> registry;
 		public final transient T_Layout root;
-		public final transient Set<ColumnValue<?>> usedValues;
 
 		public Holder(BetterRegistry<T_Layout> registry) {
 			this.registry = registry;
-			this.usedValues = new HashSet<>();
 			registry.streamEntries().sequential().filter(entry -> entry.value().enabled).forEachOrdered(entry -> {
 				RegistryKey<T_Layout> key = UnregisteredObjectException.getKey(entry);
 				T_Layout layout = entry.value();
@@ -142,7 +141,6 @@ public class BiomeLayout {
 					if (layout.primary_surface == null) throw new IllegalStateException(key + " must have a primary surface.");
 				}
 				else {
-					layout.restrictions.forEachValue(this.usedValues::add);
 					String parentName = layout.parent;
 					if (parentName == null) throw new IllegalStateException(key + " must have a parent.");
 					boolean negated = !parentName.isEmpty() && parentName.charAt(0) == '!';
@@ -170,15 +168,15 @@ public class BiomeLayout {
 			}
 		}
 
-		public RegistryEntry<Biome> getBiome(WorldColumn column, double y, long seed) {
+		public RegistryEntry<Biome> getBiome(ScriptedColumn column, int y, long seed) {
 			return this.root.search(column, y, seed, BiomeLayout::biome);
 		}
 
-		public PrimarySurface getPrimarySurface(WorldColumn column, double y, long seed) {
+		public PrimarySurface getPrimarySurface(ScriptedColumn column, int y, long seed) {
 			return this.root.search(column, y, seed, BiomeLayout::primarySurface);
 		}
 
-		public SecondarySurface @Nullable [] getSecondarySurfaces(WorldColumn column, double y, long seed) {
+		public SecondarySurface @Nullable [] getSecondarySurfaces(ScriptedColumn column, int y, long seed) {
 			return this.root.search(column, y, seed, BiomeLayout::secondarySurfaces);
 		}
 	}

@@ -6,6 +6,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -20,7 +21,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ScriptedBranchShape extends Script {
 
-	public abstract double evaluate(double fraction, WorldColumn column, double y, RandomGenerator random);
+	public abstract double evaluate(double fraction, RandomGenerator random);
 
 	@Wrapper
 	public static class Holder extends ScriptHolder<ScriptedBranchShape> implements ScriptedBranchShape {
@@ -34,21 +35,9 @@ public interface ScriptedBranchShape extends Script {
 			this.script = (
 				new TemplateScriptParser<>(ScriptedBranchShape.class, this.usage)
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(
-					new MutableScriptEnvironment()
-					.addVariableLoad("fraction", TypeInfos.DOUBLE)
-				)
-				.addEnvironment(
-					ColumnScriptEnvironmentBuilder.createFixedXYZ(
-						ColumnValue.REGISTRY,
-						load("column", type(WorldColumn.class)),
-						load("y", TypeInfos.DOUBLE)
-					)
-					.addXZ("x", "z")
-					.addY("y")
-					.addSeed("worldSeed")
-					.build()
-				)
+				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					environment.addVariableLoad("fraction", TypeInfos.DOUBLE);
+				})
 				.addEnvironment(RandomScriptEnvironment.create(
 					load("random", type(RandomGenerator.class))
 				))
@@ -58,9 +47,14 @@ public interface ScriptedBranchShape extends Script {
 		}
 
 		@Override
-		public double evaluate(double fraction, WorldColumn column, double y, RandomGenerator random) {
+		public boolean requiresColumns() {
+			return false;
+		}
+
+		@Override
+		public double evaluate(double fraction, RandomGenerator random) {
 			try {
-				return this.script.evaluate(fraction, column, y, random);
+				return this.script.evaluate(fraction, random);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

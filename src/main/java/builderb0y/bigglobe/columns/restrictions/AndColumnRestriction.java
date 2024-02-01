@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public class AndColumnRestriction extends CompoundColumnRestriction {
 
@@ -9,7 +9,7 @@ public class AndColumnRestriction extends CompoundColumnRestriction {
 	}
 
 	@Override
-	public double getRestriction(WorldColumn column, double y) {
+	public double getRestriction(ScriptedColumn column, int y) {
 		ColumnRestriction[] restrictions = this.restrictions;
 		double restriction = restrictions[0].getRestriction(column, y);
 		for (int index = 1, length = restrictions.length; index < length && restriction > 0.0D; index++) {

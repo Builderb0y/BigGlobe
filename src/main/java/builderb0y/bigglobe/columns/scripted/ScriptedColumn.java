@@ -85,6 +85,8 @@ public abstract class ScriptedColumn {
 		return Permuter.permute(this.seed ^ salt, this.x, this.z);
 	}
 
+	public abstract ScriptedColumn blankCopy();
+
 	public abstract void clear();
 
 	public void setPos(int x, int z) {

@@ -80,9 +80,11 @@ public class BigGlobeSpawnLocator {
 	}
 
 	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
+		/*
 		if (!column.settings.biomes.root.search(column, column.getFinalTopHeightD(), column.seed, layout -> ((OverworldBiomeLayout)(layout)).player_spawn_friendly)) {
 			return false;
 		}
+		*/
 		int restoreX = column.x, restoreZ = column.z;
 		try {
 			for (

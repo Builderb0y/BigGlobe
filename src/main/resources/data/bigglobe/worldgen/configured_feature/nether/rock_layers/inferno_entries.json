@@ -20,7 +20,7 @@
 						{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
 					]
 				},
-				"restrictions": {
+				"restrictions (disabled)": {
 					"type": "biome",
 					"bigglobe:inferno": 1.0,
 					"default": 0.0

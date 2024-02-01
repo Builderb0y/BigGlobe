@@ -13,6 +13,7 @@ import net.minecraft.world.chunk.*;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Tripwire;
@@ -23,12 +24,12 @@ public class SectionGenerationContext {
 	public final ChunkSection section;
 	public final int sectionStartY;
 	public final long worldSeed;
-	public final ChunkOfColumns<? extends WorldColumn> columns;
+	public final ScriptedColumnLookup columns;
 	#if MC_VERSION < MC_1_20_0
 	public final @Nullable LightPositionCollector lights;
 	#endif
 
-	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ScriptedColumnLookup columns) {
 		this.chunk         = chunk;
 		this.section       = section;
 		this.sectionStartY = sectionStartY;
@@ -39,11 +40,11 @@ public class SectionGenerationContext {
 		#endif
 	}
 
-	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ScriptedColumnLookup columns) {
 		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4, worldSeed, columns);
 	}
 
-	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed, ChunkOfColumns<? extends WorldColumn> columns) {
+	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed, ScriptedColumnLookup columns) {
 		return new SectionGenerationContext(chunk, section, sectionCoord << 4, worldSeed, columns);
 	}
 

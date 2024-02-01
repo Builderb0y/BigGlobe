@@ -1,42 +1,37 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
+import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.ScriptUsage;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
 
-	public final ColumnYToDoubleScript.Holder script;
+	public final RestrictionScriptHolder script;
 
-	public ScriptColumnRestriction(ColumnYToDoubleScript.Holder script) {
+	public ScriptColumnRestriction(RestrictionScriptHolder script) {
 		this.script = script;
 	}
 
 	@Override
-	public double getRestriction(WorldColumn column, double y) {
-		return this.script.evaluate(column, y);
+	public double getRestriction(ScriptedColumn column, int y) {
+		return this.script.get(column, y);
 	}
 
-	/*
-	@Override
-	public boolean dependsOnY(WorldColumn column) {
-		return this.dependsOnY;
-	}
-	*/
+	@Wrapper
+	public static class RestrictionScriptHolder extends ColumnYToDoubleScript.Holder {
 
-	@Override
-	public void forEachValue(Consumer<? super ColumnValue<?>> action) {
-		for (ColumnValue<?> value : this.script.usedValues) {
-			action.accept(value);
+		public RestrictionScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			super(usage);
 		}
-	}
 
-	@Override
-	public Stream<ColumnValue<?>> getValues() {
-		return this.script.usedValues.stream();
+		@Override
+		public void addExtraFunctionsToEnvironment(MutableScriptEnvironment environment) {
+			super.addExtraFunctionsToEnvironment(environment);
+			environment.addFunctionInvokeStatics(RangeColumnRestriction.class, "bandLinear", "bandSmooth");
+		}
 	}
 }

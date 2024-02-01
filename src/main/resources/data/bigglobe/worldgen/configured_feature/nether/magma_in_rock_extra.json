@@ -3,9 +3,9 @@
 	"config": {
 		"script": [
 			"if (distantHorizons: return(false))",
-			"for (int base in range[int(min_y), int(max_y)) % 8:",
+			"for (int base in range[int(`bigglobe:nether/min_y`), int(`bigglobe:nether/max_y`)) % 8:",
 				"int y = base + random.nextInt(8)",
-				"double fraction = unmixLinear(min_y, max_y, y)",
+				"double fraction = unmixLinear(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`, y)",
 				"double chance = exp2(fraction * -4.0L)",
 				"if (random.nextBoolean(chance) && getBlockState(originX, y, originZ).isIn('bigglobe:hidden_lava_replaceables_basalt'):",
 					"setBlockState(originX, y, originZ, 'minecraft:magma_block')",

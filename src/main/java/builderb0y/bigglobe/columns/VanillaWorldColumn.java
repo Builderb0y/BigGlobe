@@ -132,10 +132,12 @@ public class VanillaWorldColumn extends WorldColumn {
 		return this.getFinalTopHeightI() != Integer.MIN_VALUE;
 	}
 
+	/*
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
 		return this.chunkGenerator.getBiomeSource().getBiome(this.x >> 2, y >> 2, this.z >> 2, this.noise.getMultiNoiseSampler());
 	}
+	*/
 
 	@Override
 	public boolean isTerrainAt(int y, boolean cache) {

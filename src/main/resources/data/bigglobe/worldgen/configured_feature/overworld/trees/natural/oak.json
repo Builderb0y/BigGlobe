@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:oak",
-		"height": "random.nextDouble(`bigglobe:overworld/foliage`) * 32.0 + 4.0",
+		"height": "random.nextDouble(`bigglobe:overworld/surface_foliage`) * 32.0 + 4.0",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"require_natural_ground": true,
@@ -27,14 +27,14 @@
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:stubby_branch", "chance": 0.125 },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/vines_half_chance" },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
 			],
 			"branches": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
 			],
 			"leaves": [
-				{ "type": "bigglobe:snow" },
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/bee_nest" }
 			]
 		},
@@ -44,8 +44,8 @@
 				"restrictions": {
 					"type": "bigglobe:and",
 					"restrictions": [
-						{ "type": "range", "property": "overworld/height_adjusted_temperature", "min": -0.5, "mid": 0.5, "max": 1.0 },
-						{ "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.0, "mid": 1.0 },
+						{ "type": "range", "property": "bigglobe:overworld/height_adjusted_temperature", "min": -0.5, "mid": 0.5, "max": 1.0 },
+						{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 1.0 },
 						{ "type": "constant", "chance": 0.125 }
 					]
 				}
@@ -55,8 +55,8 @@
 				"restrictions": {
 					"type": "bigglobe:and",
 					"restrictions": [
-						{ "type": "range", "property": "overworld/height_adjusted_temperature", "min": -1.0, "mid": -0.5, "max": 0.5 },
-						{ "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.0, "mid": 1.0 },
+						{ "type": "range", "property": "bigglobe:overworld/height_adjusted_temperature", "min": -1.0, "mid": -0.5, "max": 0.5 },
+						{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 1.0 },
 						{ "type": "constant", "chance": 0.125 }
 					]
 				}

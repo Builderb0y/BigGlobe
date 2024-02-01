@@ -64,7 +64,7 @@ public class ColumnCompileContext extends DataCompileContext {
 				maxY = new LazyVarInfo("maxY", TypeInfos.INT),
 				distantHorizons = new LazyVarInfo("distantHorizons", TypeInfos.BOOLEAN)
 			);
-			self = new LazyVarInfo("this", this.constructor.clazz.info);
+			self = new LazyVarInfo("this", this.mainClass.info);
 			invokeInstance(
 				load(self),
 				new MethodInfo(
@@ -92,6 +92,23 @@ public class ColumnCompileContext extends DataCompileContext {
 			MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
 			return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
 			lookup.endCode();
+		}
+		{
+			InsnTree loadSelf = load("this", this.mainClass.info);
+			MethodCompileContext blankCopy = this.mainClass.newMethod(ACC_PUBLIC, "blankCopy", type(ScriptedColumn.class));
+			return_(
+				newInstance(
+					this.constructor.info,
+					ScriptedColumn.INFO.seed(loadSelf),
+					ScriptedColumn.INFO.x(loadSelf),
+					ScriptedColumn.INFO.z(loadSelf),
+					ScriptedColumn.INFO.minY(loadSelf),
+					ScriptedColumn.INFO.maxY(loadSelf),
+					ScriptedColumn.INFO.distantHorizons(loadSelf)
+				)
+			)
+			.emitBytecode(blankCopy);
+			blankCopy.endCode();
 		}
 	}
 

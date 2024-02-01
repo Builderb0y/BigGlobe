@@ -279,10 +279,10 @@ public class RandomScriptEnvironment {
 			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
 			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
 			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
-			.addMethodInvoke("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
-			.addMethodInvoke("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
-			.addMethodInvoke("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
-			.addMethodInvoke("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
 			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);

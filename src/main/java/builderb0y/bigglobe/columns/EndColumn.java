@@ -611,10 +611,12 @@ public class EndColumn extends WorldColumn {
 
 	//////////////////////////////// misc ////////////////////////////////
 
+	/*
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
 		return this.settings.biomes.getBiome(this, y, this.seed);
 	}
+	*/
 
 	@Override
 	public boolean isTerrainAt(int y, boolean cache) {

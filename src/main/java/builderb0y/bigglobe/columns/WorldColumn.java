@@ -104,11 +104,13 @@ public abstract class WorldColumn extends Column {
 		return true;
 	}
 
+	/*
 	public abstract RegistryEntry<Biome> getBiome(int y);
 
 	public RegistryEntry<Biome> getSurfaceBiome() {
 		return this.getBiome(this.getFinalTopHeightI());
 	}
+	*/
 
 	public abstract boolean isTerrainAt(int y, boolean cache);
 

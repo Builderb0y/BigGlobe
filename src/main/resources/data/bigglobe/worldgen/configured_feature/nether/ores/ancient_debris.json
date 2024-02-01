@@ -3,8 +3,8 @@
 	"config": {
 		"script": [
 			"if (distantHorizons: return(false))",
-			"int y = random.nextInt(int(min_y), int(max_y))",
-			"double fraction = unmixLinear(min_y, max_y, y)",
+			"int y = random.nextInt(int(`bigglobe:nether/min_y`), int(`bigglobe:nether/max_y`))",
+			"double fraction = unmixLinear(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`, y)",
 			"double chance = exp2(fraction * -4.0L)",
 			"if (",
 				"random.nextBoolean(chance) &&",

@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:mangrove",
-		"height": "random.nextDouble(`bigglobe:overworld/foliage`) * 32.0 + 4.0",
+		"height": "random.nextDouble(`bigglobe:overworld/surface_foliage`) * 32.0 + 4.0",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"require_natural_ground": true,
@@ -17,15 +17,15 @@
 		"decorations": {
 			"trunk": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
 			],
 			"branches": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
 			],
 			"leaves": [
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_32nd_chance" },
-				{ "type": "bigglobe:snow" }
+				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
 			]
 		},
 		"ground_replacements": {

@@ -119,6 +119,16 @@
 					},
 					"feature_dispatcher": {
 						"normal": [
+							"Random random = new(worldSeed, minModifiableX >> 4, minModifiableZ >> 4)",
+							"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
+								"int x = minModifiableX | random.nextInt(16)",
+								"int z = minModifiableZ | random.nextInt(16)",
+								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
+								"if (`bigglobe:overworld/height_adjusted_foliage`(x, y, z) > 0.0L:",
+									"ConfiguredFeature feature = `bigglobe:overworld/foliage_feature`(x, z)",
+									"if (feature != null: placeFeature(x, y, z, feature))",
+								")",
+							")",
 							"for (",
 								"int z in range[minModifiableZ, maxModifiableZ],",
 								"int x in range[minModifiableX, maxModifiableX]",

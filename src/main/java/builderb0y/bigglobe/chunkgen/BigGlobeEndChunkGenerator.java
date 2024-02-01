@@ -227,7 +227,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				int startY = context.startY();
 				int solidCount = 0;
 				for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-					EndColumn column = (EndColumn)(context.columns.getColumn(horizontalIndex));
+					EndColumn column = null; //(EndColumn)(context.columns.getColumn(horizontalIndex));
 					int endStoneID = context.id(BlockStates.END_STONE);
 					PaletteStorage storage = context.storage();
 					int mountainMinY, mountainMaxY;
@@ -282,8 +282,8 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				columns.getColumn(horizontalIndex ^ 16).getFinalTopHeightD() - currentHeight
 			);
 
-			PrimarySurface primarySurface = this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
-			SecondarySurface[] secondarySurfaces = this.settings.biomes.getSecondarySurfaces(column, currentHeight, this.seed);
+			PrimarySurface primarySurface = null; //this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
+			SecondarySurface[] secondarySurfaces = null; //this.settings.biomes.getSecondarySurfaces(column, currentHeight, this.seed);
 
 			int depth = 0;
 			done: {

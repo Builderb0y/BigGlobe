@@ -1,8 +1,5 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +12,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 
@@ -38,26 +34,18 @@ public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction>
 	};
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),                   ConstantColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"),                 ThresholdColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("range"),                         RangeColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("and"),                             AndColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("and_range"),                  AndRangeColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("or"),                               OrColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("or_range"),                    OrRangeColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("not"),                             NotColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("biome"),                         BiomeColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("skip_distant_horizons"), SkipDistantHorizonsRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"),                       ScriptColumnRestriction.class);
 	}};
 
-	public abstract double getRestriction(WorldColumn column, double y);
+	public abstract double getRestriction(ScriptedColumn column, int y);
 
-	//public abstract boolean dependsOnY(WorldColumn column);
-
-	public abstract void forEachValue(Consumer<? super ColumnValue<?>> action);
-
-	public abstract Stream<ColumnValue<?>> getValues();
-
-	public default boolean test(WorldColumn column, double y, long seed) {
+	public default boolean test(ScriptedColumn column, int y, long seed) {
 		double restriction = this.getRestriction(column, y);
 		if (!(restriction > 0.0D)) return false;
 		if (restriction >= 1.0D) return true;

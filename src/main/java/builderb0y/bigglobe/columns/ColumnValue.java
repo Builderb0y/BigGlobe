@@ -4,12 +4,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Objects;
 
+import com.mojang.serialization.Lifecycle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -34,7 +36,7 @@ public class ColumnValue<T_Column extends WorldColumn> {
 
 	public static final ObjectArrayFactory<ColumnValue<?>> ARRAY_FACTORY = new ObjectArrayFactory<>(ColumnValue.class).generic();
 	public static final RegistryKey<Registry<ColumnValue<?>>> REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.modID("column_value"));
-	public static final Registry<ColumnValue<?>> REGISTRY = BigGlobeMod.newRegistry(REGISTRY_KEY);
+	public static final Registry<ColumnValue<?>> REGISTRY = new SimpleRegistry<>(REGISTRY_KEY, Lifecycle.deprecated(4));
 	public static final AutoCoder<ColumnValue<?>> CODER = new AutoCoder<>() {
 
 		@Override

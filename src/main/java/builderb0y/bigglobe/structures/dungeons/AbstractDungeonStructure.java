@@ -46,9 +46,12 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.*;
@@ -85,20 +88,20 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		this.palettes = palettes;
 	}
 
-	public abstract DungeonLayout layout(WorldColumn column, int y, RandomGenerator random);
+	public abstract DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random);
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		BlockPos startPos = randomBlockInChunk(context, 64, 64);
 		if (startPos == null) return Optional.empty();
 
 		long seed = chunkSeed(context, 0x9DFB0A6E61391175L);
-		WorldColumn column = WorldColumn.forGenerator(
-			context.seed(),
-			context.chunkGenerator(),
-			context.noiseConfig(),
+		ScriptedColumn column = generator.newColumn(
+			context.world(),
 			startPos.getX(),
-			startPos.getZ()
+			startPos.getZ(),
+			DistantHorizonsCompat.isOnDistantHorizonThread()
 		);
 		int y = startPos.getY();
 		return Optional.of(
@@ -121,7 +124,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public IRandomList<EntityType<?>> spawnerEntries;
 
 		public DungeonLayout(
-			WorldColumn column,
+			ScriptedColumn column,
 			int y,
 			RandomGenerator random,
 			int maxRooms,

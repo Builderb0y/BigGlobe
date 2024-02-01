@@ -41,10 +41,12 @@ public class NetherOreFeature extends OreFeature<NetherOreFeature.Config> {
 			this.biomes = biomes;
 		}
 
+		/*
 		@Override
 		public boolean canSpawnAt(WorldColumn column, int y) {
 			return this.biomes == null || column.getBiome(y).isIn(this.biomes);
 		}
+		*/
 
 		//backwards compatibility.
 

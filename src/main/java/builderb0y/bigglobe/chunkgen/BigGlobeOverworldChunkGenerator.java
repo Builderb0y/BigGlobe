@@ -520,9 +520,10 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				columns.getColumn(index ^  1).getFinalTopHeightD() - currentHeight,
 				columns.getColumn(index ^ 16).getFinalTopHeightD() - currentHeight
 			);
-			PrimarySurface primarySurface;
-			SecondarySurface[] secondarySurfaces;
+			PrimarySurface primarySurface = null;
+			SecondarySurface[] secondarySurfaces = null;
 			double lakeChance = column.getInLake();
+			/*
 			if (Permuter.toChancedBoolean(Permuter.permute(this.seed ^ 0x99D9DE3ED6D24D11L, column.x, column.z), lakeChance)) {
 				Data data = structures.lake.data;
 				primarySurface = data.primary_surface();
@@ -533,6 +534,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				primarySurface = this.settings.biomes.getPrimarySurface(column, currentHeight, this.seed);
 				secondarySurfaces = this.settings.biomes.getSecondarySurfaces(column, currentHeight, this.seed);
 			}
+			*/
 
 			int depth = 0;
 			{
@@ -920,7 +922,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		long overlapSeed = Permuter.permute(worldSeed ^ 0x3C8F9545BAE6971FL, column.x, column.z);
 		int overlapChance = 0;
 
-		RestrictedList<FlowerEntryFeature.Entry> validEntries = new RestrictedList<>(null, column, y);
+		RestrictedList<FlowerEntryFeature.Entry> validEntries = null; //new RestrictedList<>(null, column, y);
 		for (LinkedFlowerConfig link : this.flowerGroups) {
 			if (!(skylands ? link.group.spawn_on_skylands : link.group.spawn_on_ground)) continue;
 			validEntries.elements = link.entries;
@@ -1133,7 +1135,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public static boolean wrongBiome(RegistryEntryList<Biome> validBiomes, OverworldColumn column, int x, int z) {
-		return !validBiomes.contains(pos(column, x, z).getSurfaceBiome());
+		return false; //!validBiomes.contains(pos(column, x, z).getSurfaceBiome());
 	}
 
 	public static int y(OverworldColumn column, int x, int z) {
@@ -1152,7 +1154,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		//mostly copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
 		OverworldColumn column = this.column(chunkPos.getOffsetX(8), chunkPos.getOffsetZ(8));
-		RegistryEntry<Biome> registryEntry = column.getSurfaceBiome();
+		RegistryEntry<Biome> registryEntry = null; //column.getSurfaceBiome();
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);

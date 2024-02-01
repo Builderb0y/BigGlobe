@@ -2,6 +2,8 @@ package builderb0y.bigglobe.columns.scripted.types;
 
 import java.util.Set;
 
+import com.mojang.datafixers.util.Unit;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
 
@@ -26,6 +28,7 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
+		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeyVersions.block()), string);
 		Set<Property<?>> missing = blockProperties.missing();

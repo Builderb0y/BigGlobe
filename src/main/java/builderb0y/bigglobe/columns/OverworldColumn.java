@@ -805,6 +805,7 @@ public class OverworldColumn extends WorldColumn {
 		else throw new IllegalStateException("inLake not yet populated!");
 	}
 
+	/*
 	@Override
 	public RegistryEntry<Biome> getBiome(int y) {
 		return this.settings.biomes.getBiome(this, y, this.seed);
@@ -818,6 +819,7 @@ public class OverworldColumn extends WorldColumn {
 			: this.surfaceBiome
 		);
 	}
+	*/
 
 	@Override
 	public boolean isTerrainAt(int y, boolean cache) {

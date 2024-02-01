@@ -3,6 +3,8 @@ package builderb0y.bigglobe.columns.scripted.types;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.mojang.datafixers.util.Unit;
+
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -33,6 +35,8 @@ public class ClassColumnValueType implements ColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
+		CustomClassCompileContext selfContext = (CustomClassCompileContext)(context.getTypeContext(this).context());
+		if (object == Unit.INSTANCE) return ldc(null, selfContext.selfType());
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = (Map<String, Object>)(object);
 		Map<String, InsnTree> constants = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, Object> entry) -> {
@@ -48,7 +52,6 @@ public class ClassColumnValueType implements ColumnValueType {
 			if (constant == null) throw new IllegalArgumentException("Unspecified field: " + name);
 			args[index] = constant;
 		}
-		CustomClassCompileContext selfContext = (CustomClassCompileContext)(context.getTypeContext(this).context());
 		return newInstance(selfContext.constructor.info, args);
 	}
 

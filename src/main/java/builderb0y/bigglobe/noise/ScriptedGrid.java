@@ -19,13 +19,12 @@ import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
-import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
-import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.ArrayBuilder;
@@ -33,7 +32,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class ScriptedGrid<G extends Grid> implements Grid {
+public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Impl implements Grid {
 
 	public static final TypeInfo NUMBER_ARRAY_TYPE = type(NumberArray.class);
 
@@ -50,6 +49,16 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 		this.max = max;
 	}
 
+	@Override
+	public @Nullable String getDebugName() {
+		return this.script.debug_name;
+	}
+
+	@Override
+	public @Nullable String getSource() {
+		return this.script.findSource();
+	}
+
 	public abstract Grid getDelegate();
 
 	@Override
@@ -60,19 +69,6 @@ public abstract class ScriptedGrid<G extends Grid> implements Grid {
 	@Override
 	public double maxValue() {
 		return this.max;
-	}
-
-	public void onError(Throwable throwable) {
-		long time = System.currentTimeMillis();
-		if (time >= this.nextWarning) {
-			this.nextWarning = time + 5000L;
-			StringBuilder mainMessage = new StringBuilder().append("Caught exception from ").append(this.getClass().getName());
-			if (this.script.debug_name != null) mainMessage.append(" (").append(this.script.debug_name).append(')');
-			mainMessage.append(": ").append(throwable).append("; Check your logs for more info.");
-			BuiltinScriptEnvironment.PRINTER.println(mainMessage.toString());
-			ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.script.findSource()));
-			ScriptLogger.LOGGER.error("Exception was: ", throwable);
-		}
 	}
 
 	public static <T_Encoded> void verifyInputName(VerifyContext<T_Encoded, String> context) throws VerifyException {

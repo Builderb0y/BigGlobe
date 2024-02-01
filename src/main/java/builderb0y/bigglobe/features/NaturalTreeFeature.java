@@ -17,9 +17,12 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -47,14 +50,16 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	@Override
 	public boolean generate(FeatureContext<Config> context) {
 		Config config = context.getConfig();
-		if (config.delay_generation && DistantHorizonsCompat.isOnDistantHorizonThread()) return false;
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		if (config.delay_generation && distantHorizons) return false;
+		if (!(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		Permuter permuter = Permuter.from(context.getRandom());
 		BlockPos origin = context.getOrigin();
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		WorldColumn column = WorldColumn.forWorld(context.getWorld(), origin.getX(), origin.getZ());
-		double height = config.height.evaluate(column, origin.getY(), permuter);
+		ScriptedColumn column = generator.columnEntryRegistry.columnFactory.create(generator.seed, origin.getX(), origin.getZ(), context.getWorld().getBottomY(), context.getWorld().getTopY(), distantHorizons);
+		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
 			startX,
@@ -105,7 +110,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@DefaultBoolean(false) boolean delay_generation,
 		RegistryEntry<WoodPalette> palette,
 		Map<BlockState, BlockState> ground_replacements,
-		ColumnYRandomToDoubleScript.Holder height,
+		ColumnRandomYToDoubleScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,
 		Shelf @VerifyNullable [] shelves,

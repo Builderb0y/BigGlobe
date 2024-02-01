@@ -11,7 +11,7 @@
 
 			"int getY(:",
 				"repeat (16:",
-					"int y = int(mixLinear(min_y(originX, originZ), max_y(originX, originZ), random.nextDouble()))",
+					"int y = int(mixLinear(`bigglobe:nether/min_y`(originX, originZ), `bigglobe:nether/max_Y`(originX, originZ), random.nextDouble()))",
 					"unless (isTerrainAt(y):",
 						"do until (isTerrainAt(y):",
 							"--y",

@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public class NotColumnRestriction implements ColumnRestriction {
 
@@ -16,30 +16,13 @@ public class NotColumnRestriction implements ColumnRestriction {
 	}
 
 	@Override
-	public double getRestriction(WorldColumn column, double y) {
+	public double getRestriction(ScriptedColumn column, int y) {
 		return 1.0D - this.restriction.getRestriction(column, y);
-	}
-
-	/*
-	@Override
-	public boolean dependsOnY(WorldColumn column) {
-		return this.restriction.dependsOnY(column);
-	}
-	*/
-
-	@Override
-	public void forEachValue(Consumer<? super ColumnValue<?>> action) {
-		this.restriction.forEachValue(action);
-	}
-
-	@Override
-	public Stream<ColumnValue<?>> getValues() {
-		return this.restriction.getValues();
 	}
 
 	@Override
 	public int hashCode() {
-		return -this.restriction.hashCode();
+		return ~this.restriction.hashCode();
 	}
 
 	@Override

@@ -1,138 +1,87 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.DoubleUnaryOperator;
-import java.util.stream.Stream;
+import net.minecraft.util.Identifier;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.autocodec.util.TypeFormatter;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.Interpolator;
 
-@UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
-public class RangeColumnRestriction implements ColumnRestriction {
+public class RangeColumnRestriction extends PropertyColumnRestriction {
 
-	public final ColumnValue<?> property;
-	public final @VerifyNullable Double min;
-	public final @VerifyNullable @VerifySorted(greaterThan = "min", lessThan = "max") Double mid;
-	public final @VerifyNullable Double max;
+	public final double min;
+	public final @VerifySorted(greaterThan = "min") double mid;
+	public final @VerifySorted(greaterThan = "mid") double max;
 	public final @DefaultBoolean(true) boolean smooth;
-	public final transient DoubleUnaryOperator impl;
 
-	public RangeColumnRestriction(ColumnValue<?> property, Double min, Double mid, Double max, boolean smooth) {
-		this.property = property;
+	public RangeColumnRestriction(Identifier property, double min, double mid, double max, boolean smooth) {
+		super(property);
 		this.min = min;
 		this.mid = mid;
 		this.max = max;
 		this.smooth = smooth;
-		double min_ = min != null ? min.doubleValue() : 0.0D;
-		double mid_ = mid != null ? mid.doubleValue() : 0.0D;
-		double max_ = max != null ? max.doubleValue() : 0.0D;
+	}
 
-		if (min != null) {
-			if (mid != null) {
-				if (max != null) { //min, mid, max
-					this.impl = all3(min_, mid_, max_);
-				}
-				else { //min, mid
-					this.impl = value -> {
-						if (value >= mid_) return 1.0D;
-						if (value <= min_) return 0.0D;
-						return Interpolator.unmixLinear(min_, mid_, value);
-					};
-				}
-			}
-			else {
-				if (max != null) { //min, max
-					double mid2_ = (min_ + max_) * 0.5D;
-					this.impl = all3(min_, mid2_, max_);
-				}
-				else { //min
-					this.impl = value -> {
-						return value > min_ ? 1.0D : 0.0D;
-					};
-				}
-			}
+	@Override
+	public double getRestriction(ScriptedColumn column, int y) {
+		double value;
+		try {
+			value = (double)(this.getter.invokeExact(column, y));
 		}
-		else {
-			if (mid != null) {
-				if (max != null) { //mid, max
-					this.impl = value -> {
-						if (value >= max_) return 0.0D;
-						if (value <= mid_) return 1.0D;
-						return Interpolator.unmixLinear(max_, mid_, value);
-					};
-				}
-				else { //mid
-					this.impl = null;
-				}
-			}
-			else {
-				if (max != null) { //max
-					this.impl = value -> {
-						return value < max_ ? 1.0D : 0.0D;
-					};
-				}
-				else { //none
-					this.impl = null;
-				}
-			}
+		catch (Throwable throwable) {
+			this.onError(throwable);
+			return 0.0D;
 		}
+		return (
+			this.smooth
+			? bandSmooth(this.min, this.mid, this.max, value)
+			: bandLinear(this.min, this.mid, this.max, value)
+		);
 	}
 
-	public static <T_Encoded> void verify(VerifyContext<T_Encoded, RangeColumnRestriction> context) throws VerifyException {
-		if (context.object != null && context.object.impl == null) {
-			throw new VerifyException(() -> context.pathToStringBuilder().append(" must specify min or max (or both), and optionally, mid.").toString());
-		}
+	public static double curve1(double value, double coefficient) {
+		double product = value * coefficient;
+		return (product + value) / (product + 1.0D);
 	}
 
-	public static DoubleUnaryOperator all3(double min, double mid, double max) {
-		return value -> {
-			if (value > mid) {
-				return value >= max ? 0.0D : Interpolator.unmixLinear(max, mid, value);
-			}
-			else {
-				return value <= min ? 0.0D : Interpolator.unmixLinear(min, mid, value);
-			}
-		};
+	public static double inverse(double target) {
+		return (-2.0D * target + 1.0D) / (target - 1.0D);
 	}
 
-	@Override
-	public double getRestriction(WorldColumn column, double y) {
-		double value = this.property.getValue(column, y);
-		if (Double.isNaN(value)) return 0.0D;
-		double restriction = this.impl.applyAsDouble(value);
-		if (this.smooth) restriction = Interpolator.smooth(restriction);
-		return restriction;
+	public static double curve2(double value, double target) {
+		return curve1(value, inverse(target));
 	}
 
-	/*
-	@Override
-	public boolean dependsOnY(WorldColumn column) {
-		return this.property.dependsOnY();
-	}
-	*/
-
-	@Override
-	public void forEachValue(Consumer<? super ColumnValue<?>> action) {
-		action.accept(this.property);
+	public static double bandLinear(double min, double mid, double max, double value) {
+		if (!(value > min && value < max)) return 0.0D;
+		if (!(mid > min && mid < max)) return 0.0D;
+		mid = Interpolator.unmixLinear(min, max, mid);
+		value = Interpolator.unmixLinear(min, max, value);
+		double part = curve2(value, 1.0D - mid);
+		return part * (1.0D - part) * 4.0D;
 	}
 
-	@Override
-	public Stream<ColumnValue<?>> getValues() {
-		return Stream.of(this.property);
+	public static double bandSmooth(double min, double mid, double max, double value) {
+		if (!(value > min && value < max)) return 0.0D;
+		if (!(mid > min && mid < max)) return 0.0D;
+		mid = Interpolator.unmixLinear(min, max, mid);
+		value = Interpolator.unmixLinear(min, max, value);
+		double part1 = curve2(value, 1.0D - mid);
+		double part2 = part1 * (1.0D - part1) * 4.0D;
+		double power = 1.0D / Interpolator.mixLinear(part1, 1.0D - part1, mid) + 1.0D;
+		return Math.pow(part2, power);
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = this.property.hashCode();
-		hash = hash * 31 + Objects.hashCode(this.min);
-		hash = hash * 31 + Objects.hashCode(this.mid);
-		hash = hash * 31 + Objects.hashCode(this.max);
+		hash = hash * 31 + Double.hashCode(this.min);
+		hash = hash * 31 + Double.hashCode(this.mid);
+		hash = hash * 31 + Double.hashCode(this.max);
+		hash = hash * 31 + Boolean.hashCode(this.smooth);
 		return hash;
 	}
 
@@ -140,10 +89,10 @@ public class RangeColumnRestriction implements ColumnRestriction {
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof RangeColumnRestriction that &&
-			this.property == that.property &&
-			Objects.equals(this.min, that.min) &&
-			Objects.equals(this.mid, that.mid) &&
-			Objects.equals(this.max, that.max)
+			this.property.equals(that.property) &&
+			this.min == that.min &&
+			this.mid == that.mid &&
+			this.max == that.max
 		);
 	}
 

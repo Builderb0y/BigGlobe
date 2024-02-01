@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
@@ -153,12 +154,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				String dimension = context.getMember("reload_dimension").tryAsString();
 				if (dimension != null) {
 					JsonElement json = this.getDimension(dimension);
-					T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
-					return context.input(encoded, RootDecodePath.INSTANCE).decodeWith(coder);
+					if (json != null) {
+						T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
+						return context.input(encoded, RootDecodePath.INSTANCE).decodeWith(coder);
+					}
 				}
-				else {
-					return context.decodeWith(coder);
-				}
+				return context.decodeWith(coder);
 			}
 
 			@Override
@@ -167,15 +168,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			}
 			public JsonElement getDimension(String dimension) {
 				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
-				return (
-					this
-					.getJson("/data/bigglobe/worldgen/world_preset/bigglobe.json")
-					.getAsJsonObject()
-					.getAsJsonObject("dimensions")
-					.getAsJsonObject(dimension)
-					.getAsJsonObject("generator")
-					.getAsJsonObject("value")
-				);
+				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/bigglobe.json");
+				for (String key : new String[] { "dimensions", dimension, "generator", "value" }) {
+					if (element instanceof JsonObject object) element = object.get(key);
+					else return null;
+				}
+				return element;
 			}
 
 			public JsonElement getJson(String path) {
@@ -195,6 +193,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				}
 			}
 		};
+	}
+
+	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, boolean distantHorizons) {
+		return this.columnEntryRegistry.columnFactory.create(
+			this.seed,
+			x,
+			z,
+			world.getBottomY(),
+			world.getTopY(),
+			distantHorizons
+		);
 	}
 
 	public void setSeed(long seed) {
@@ -268,10 +277,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								int quadX = startX | offsetX_;
 								int quadZ = startZ | offsetZ_;
 								ScriptedColumn
-									column00 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ,     minY, maxY, distantHorizons),
-									column01 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ,     minY, maxY, distantHorizons),
-									column10 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX,     quadZ | 1, minY, maxY, distantHorizons),
-									column11 = this.columnEntryRegistry.columnFactory.create(this.seed, quadX | 1, quadZ | 1, minY, maxY, distantHorizons);
+									column00 = this.newColumn(chunk, quadX,     quadZ,     distantHorizons),
+									column01 = this.newColumn(chunk, quadX | 1, quadZ,     distantHorizons),
+									column10 = this.newColumn(chunk, quadX,     quadZ | 1, distantHorizons),
+									column11 = this.newColumn(chunk, quadX | 1, quadZ | 1, distantHorizons);
 								BlockSegmentList
 									list00 = new BlockSegmentList(minY, maxY),
 									list01 = new BlockSegmentList(minY, maxY),
@@ -435,14 +444,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 		Pattern pattern = Pattern.compile(regex);
 		List<DisplayEntry> displayEntries = new ArrayList<>();
-		MethodHandles.Lookup lookup;
-		try {
-			lookup = (MethodHandles.Lookup)(this.columnEntryRegistry.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
-		}
-		catch (Exception exception) {
-			BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", exception);
-			return;
-		}
+		MethodHandles.Lookup lookup = this.columnEntryRegistry.columnLookup;
 		for (Map.Entry<Identifier, ColumnEntryMemory> entry : (Iterable<? extends Map.Entry<Identifier, ColumnEntryMemory>>)(this.columnEntryRegistry.filteredMemories.stream().map(memory -> Map.entry(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID), memory)).sorted(Map.Entry.comparingByKey())::iterator)) {
 			if (pattern.matcher(entry.getKey().toString()).find()) {
 				MethodCompileContext getter = entry.getValue().getTyped(ColumnEntryMemory.GETTER);

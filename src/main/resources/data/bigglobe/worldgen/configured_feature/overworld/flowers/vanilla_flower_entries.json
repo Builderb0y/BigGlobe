@@ -6,12 +6,40 @@
 			{
 				"weight": 50.0,
 				"restrictions": {
-					"type": "and_range",
-					"overworld/height_adjusted_foliage":     { "min": -0.5,             "max": 0.5 },
-					"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
-					"overworld/hilliness":                   {              "mid": 0.0, "max": 0.5 },
-					"overworld/magicalness":                 { "min": -0.5, "mid": 0.0             },
-					"max_y":                                 { "min":  0.0                         }
+					"type": "and",
+					"restrictions": [
+						{
+							"type": "range",
+							"property": "bigglobe:overworld/height_adjusted_foliage",
+							"min": -0.5,
+							"mid":  0.0,
+							"max":  0.5
+						},
+						{
+							"type": "range",
+							"property": "bigglobe:overworld/height_adjusted_temperature",
+							"min": -0.5,
+							"mid":  0.0,
+							"max":  0.5
+						},
+						{
+							"type": "threshold",
+							"property": "bigglobe:overworld/hilliness",
+							"min": 0.5,
+							"max": 0.0,
+							"smooth_max": false
+						},
+						{
+							"type": "threshold",
+							"property": "bigglobe:overworld/magicalness",
+							"min": -0.5,
+							"max":  0.0
+						},
+						{
+							"type": "script",
+							"script": "y > `bigglobe:overworld/surface_y` + 16 ? 1.0L : 0.0L"
+						}
+					]
 				},
 				"radius": { "type": "uniform", "min": 32.0, "max": 64.0 },
 				"state": "minecraft:sunflower[half=lower]"
@@ -22,15 +50,32 @@
 						"type": "or",
 						"restrictions": [
 							{
-								"type": "and_range",
-								"overworld/height_adjusted_foliage":     { "min": -0.5, "mid": 0.0             },
-								"overworld/height_adjusted_temperature": { "min": -0.5,             "max": 0.5 },
-								"overworld/magicalness":                 { "min": -0.5, "mid": 0.0             }
+								"type": "and",
+								"restrictions": [
+									{
+										"type": "threshold",
+										"property": "bigglobe:overworld/height_adjusted_foliage",
+										"min": -0.5,
+										"max":  0.0
+									},
+									{
+										"type": "range",
+										"property": "bigglobe:overworld/height_adjusted_temperature",
+										"min": -0.5,
+										"mid":  0.0,
+										"max":  0.5
+									},
+									{
+										"type": "threshold",
+										"property": "bigglobe:overworld/magicalness",
+										"min": -0.5,
+										"max":  0.0
+									}
+								]
 							},
 							{
-								"type": "and_range",
-								"max_y": { "max": 0.0 },
-								"y":     { "min": 0.0 }
+								"type": "script",
+								"script": "y > `bigglobe:overworld/surface_y` + 16 ? 1.0L : 0.0L"
 							}
 						]
 					}

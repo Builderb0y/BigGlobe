@@ -74,8 +74,11 @@ public class ColumnBiomeSource extends BiomeSource {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
+		return null;
+		/*
 		WorldColumn column = this.threadLocalColumn.get();
 		column.setPos(x << 2, z << 2);
 		return column.getBiome(y << 2);
+		*/
 	}
 }

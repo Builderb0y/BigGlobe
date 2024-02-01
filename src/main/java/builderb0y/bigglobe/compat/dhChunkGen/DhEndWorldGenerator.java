@@ -61,6 +61,7 @@ public class DhEndWorldGenerator extends AbstractDhWorldGenerator {
 			this.addVolumetric(builder, endStone, upperRingNoise, upperRingStartY);
 			this.addVolumetric(builder, endStone, upperBridgeNoise, upperBridgeStartY);
 			this.addVolumetric(builder, endStone, nestNoise, nestStartY);
+			/*
 			if (column.hasTerrain()) builder.add(
 				column.settings.biomes.getPrimarySurface(
 					column,
@@ -71,6 +72,7 @@ public class DhEndWorldGenerator extends AbstractDhWorldGenerator {
 				column.getFinalBottomHeightI(),
 				column.getFinalTopHeightI()
 			);
+			*/
 			this.addVolumetric(builder, endStone, lowerRingNoise, lowerRingStartY);
 			this.addVolumetric(builder, endStone, lowerBridgeNoise, lowerBridgeStartY);
 		};

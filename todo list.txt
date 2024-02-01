@@ -44,6 +44,7 @@ where I left off:
 	need end ores and end rock layers.
 	need to redo scripted noise which uses column values.
 	on main branch, fix seed.newSeed(int) not using the original seed to compute the new seed.
+	cave noise should be salted with voronoi seed.
 
 changelog:
 	4.0:

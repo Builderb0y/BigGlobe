@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "range",
+		"min": 0.25,
+		"max": 0.75,
+		"column_value": "bigglobe:overworld/surface_foliage"
+	},
+	"if_true": "bigglobe:overworld/foliage_features/oak_tree",
+	"if_false": "bigglobe:overworld/foliage_features/birch_tree"
+}
