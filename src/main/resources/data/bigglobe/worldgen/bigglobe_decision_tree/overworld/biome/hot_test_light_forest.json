@@ -1,0 +1,11 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.25,
+		"max": 0.75,
+		"smooth_max": false,
+		"column_value": "bigglobe:overworld/surface_foliage"
+	},
+	"if_true": "bigglobe:overworld/biome/hot_test_dense_forest",
+	"if_false": "bigglobe:overworld/biome/hot_test_wasteland"
+}

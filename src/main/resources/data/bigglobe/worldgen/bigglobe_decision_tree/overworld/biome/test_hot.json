@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.25,
+		"max": 0.75,
+		"column_value": "bigglobe:overworld/surface_temperature"
+	},
+	"if_true": "bigglobe:overworld/biome/hot_test_light_forest",
+	"if_false": "bigglobe:overworld/biome/test_cold"
+}

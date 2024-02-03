@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:overworld/surface_y` < `bigglobe:overworld/sea_level`"
+	},
+	"if_true": "bigglobe:overworld/biome/shallow_ocean_test_ocean",
+	"if_false": "bigglobe:overworld/biome/beach_test_overgrown"
+}

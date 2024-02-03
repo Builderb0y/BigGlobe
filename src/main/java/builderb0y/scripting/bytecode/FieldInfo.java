@@ -11,10 +11,10 @@ public class FieldInfo implements Typeable {
 
 	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
-	public int access;
-	public TypeInfo owner;
-	public String name;
-	public TypeInfo type;
+	public final int access;
+	public final TypeInfo owner;
+	public final String name;
+	public final TypeInfo type;
 
 	public FieldInfo(int access, TypeInfo owner, String name, TypeInfo type) {
 		this.access = access;

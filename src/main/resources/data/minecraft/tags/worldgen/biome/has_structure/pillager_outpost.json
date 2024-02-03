@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:temperate_plains",
-		"bigglobe:temperate_forest"
+		"bigglobe:temperate_light_forest",
+		"bigglobe:temperate_dense_forest"
 	]
 }

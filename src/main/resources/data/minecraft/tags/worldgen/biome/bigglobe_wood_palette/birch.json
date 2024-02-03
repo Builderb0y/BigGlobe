@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:temperate_plains",
+		"bigglobe:temperate_light_forest",
 		"minecraft:dark_forest",
 		"minecraft:forest",
 		"minecraft:birch_forest",

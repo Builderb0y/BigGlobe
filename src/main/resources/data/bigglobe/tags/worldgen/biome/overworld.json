@@ -2,7 +2,7 @@
 	"replace": false,
 	"values": [
 		"#bigglobe:land",
-		"bigglobe:beach",
+		"#bigglobe:beach",
 		"#bigglobe:ocean"
 	]
 }

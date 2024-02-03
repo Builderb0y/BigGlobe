@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:decision_tree",
+	"params": {
+		"type": "biome",
+		"is_3d": true
+	},
+	"root": "bigglobe:overworld/biome/test_beach",
+	"cache": false
+}

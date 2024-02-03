@@ -32,6 +32,7 @@ import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
@@ -60,7 +61,7 @@ import builderb0y.autocodec.verifiers.FloatRangeVerifier;
 import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.*;
-import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -209,6 +210,7 @@ public class BigGlobeAutoCodec {
 								coders.addAllTo(this);
 							}
 							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
+							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC, false));
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUEncoder(Structure.Config.CODEC.codec(), false));
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
@@ -246,6 +248,7 @@ public class BigGlobeAutoCodec {
 								coders.addAllTo(this);
 							}
 							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
+							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC, false));
 							this.addRaw(Structure.Config.class, autoCodec.wrapDFUDecoder(Structure.Config.CODEC.codec(), false));
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));

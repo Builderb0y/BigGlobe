@@ -1,13 +1,9 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Lifecycle;
 
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -15,21 +11,13 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.DecisionTreeSettings;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
-import builderb0y.bigglobe.settings.BiomeLayout.EndBiomeLayout;
-import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
-import builderb0y.bigglobe.settings.NetherSettings.LocalNetherSettings;
-import builderb0y.bigglobe.settings.OverworldCaveSettings.LocalOverworldCaveSettings;
-import builderb0y.bigglobe.settings.OverworldCavernSettings.LocalOverworldCavernSettings;
-import builderb0y.bigglobe.settings.OverworldSkylandSettings.LocalSkylandSettings;
-import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;

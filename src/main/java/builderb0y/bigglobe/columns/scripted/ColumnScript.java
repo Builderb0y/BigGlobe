@@ -10,8 +10,12 @@ import org.objectweb.asm.Type;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
+import builderb0y.bigglobe.scripting.wrappers.BiomeTagKey;
+import builderb0y.bigglobe.scripting.wrappers.EntryWrapper;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
@@ -720,6 +724,50 @@ public interface ColumnScript extends Script {
 					this.onError(throwable);
 					return false;
 				}
+			}
+		}
+	}
+
+	public static interface ColumnYToBiomeScript extends ColumnScript {
+
+		public abstract BiomeEntry get(ScriptedColumn column, int y);
+
+		@Wrapper
+		public static class Holder extends BaseHolder<ColumnYToBiomeScript> implements ColumnYToBiomeScript {
+
+			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+				super(usage);
+			}
+
+			@Override
+			public Class<ColumnYToBiomeScript> getScriptClass() {
+				return ColumnYToBiomeScript.class;
+			}
+
+			@Override
+			public BiomeEntry get(ScriptedColumn column, int y) {
+				try {
+					return this.script.get(column, y);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return BiomeEntry.of("minecraft:plains");
+				}
+			}
+
+			@Override
+			public void addExtraFunctionsToEnvironment(MutableScriptEnvironment environment) {
+				super.addExtraFunctionsToEnvironment(environment);
+				environment
+				.addType("Biome", BiomeEntry.TYPE)
+				.addType("BiomeTag", BiomeTagKey.TYPE)
+				.addFieldInvoke(EntryWrapper.class, "id")
+				.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
+				.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
+				.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
+				.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
+				.addCastConstant(BiomeEntry.CONSTANT_FACTORY, true)
+				;
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 {
 	"condition": {
-		"type": "range",
+		"type": "threshold",
 		"min": 0.25,
 		"max": 0.75,
 		"column_value": "bigglobe:overworld/surface_temperature"

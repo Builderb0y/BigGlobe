@@ -1,6 +1,6 @@
 {
 	"condition": {
-		"type": "range",
+		"type": "threshold",
 		"min": -4.0,
 		"max": -8.0,
 		"column_value": "bigglobe:overworld/surface_y"

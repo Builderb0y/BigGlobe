@@ -97,6 +97,15 @@ public abstract class ScriptedColumn {
 		}
 	}
 
+	public void setPosDH(int x, int z, boolean distantHorizons) {
+		if (this.x != x || this.z != z || this.distantHorizons != distantHorizons) {
+			this.x = x;
+			this.z = z;
+			this.distantHorizons = distantHorizons;
+			this.clear();
+		}
+	}
+
 	public void setParams(int x, int z, int minY, int maxY, boolean distantHorizons) {
 		if (this.x != x || this.z != z || this.minY != minY || this.maxY != maxY || this.distantHorizons != distantHorizons) {
 			this.x = x;

@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 8.0,
+		"max": 4.0,
+		"column_value": "bigglobe:overworld/surface_y"
+	},
+	"if_true": "bigglobe:overworld/biome/beach_test_shallow_ocean",
+	"if_false": "bigglobe:overworld/biome/test_hot"
+}

@@ -23,7 +23,6 @@ testing:
 		in other words, see if my mixin is still necessary or not.
 
 where I left off:
-	surface blocks in the nether for hyperspeed generator?
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
 		add exclusion to remove ring and bridge clouds from above the main end island.
 	verify that snow still can't spawn on beaches.
@@ -33,7 +32,6 @@ where I left off:
 		call vanilla method instead.
 	remove ability for scripts to print things on the client in multiplayer.
 	make coral only spawn where temperature is high.
-	I think I still need a clear() method for ScriptedColumn.
 	make user class declaration into another InsnTree?
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
@@ -45,6 +43,18 @@ where I left off:
 	need to redo scripted noise which uses column values.
 	on main branch, fix seed.newSeed(int) not using the original seed to compute the new seed.
 	cave noise should be salted with voronoi seed.
+	missing stuff from 4.0:
+		the rest of the configured features.
+		structures.
+		overriders.
+		cherry and mangrove trees.
+		skylands.
+		foliage colors.
+		nether and end.
+		ores.
+		rock layers.
+		flowers.
+		detect and report cyclic decision trees and cyclic column value dependencies.
 
 changelog:
 	4.0:
@@ -106,67 +116,17 @@ features:
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
 		fully programmable chunk generator:
-			user-defined column values.
-				noise inputs.
-				scripts.
-			user-defined "layers" of blocks to place.
-				2D and 3D layers are valid.
-				can choose if the layer is uniform or voronoi.
-				list of carvers.
-					carvers have the same properties (2D vs. 3D, uniform vs. voronoi)
 			still need to figure out:
 				how to link biome placement to block placement?
-				how to optimize bulk block setting?
-					solved:
-						1: set the section to the block represented by its middle coordinate.
-						2: for each column:
-							for each segment intersecting the section:
-								if the segment's block does NOT match the section's center block:
-									place that segment's blocks.
-						this does not require any special casing in any json files,
-						and it'll likely be faster anywhere I don't currently have bulk setting.
-						currently, this includes the nether, end, and skylands.
-				how to handle oceans?
-					solved:
-						as a layer.
-				how to restrict ranges of 3D values?
 				how to sync certain values to the client?
 					like height_adjusted_temperature/foliage, for biome colors.
 					perhaps all scripts could be synced,
 					and the seed in the generator could be strongly hashed for all values?
-				how to handle surface depth with derivative information available?
-					solved:
-						generate the surface in 2x2 areas at a time.
-						64 generation tasks will be submitted per chunk instead of 256.
-						when one position is valid, but adjacent isn't:
-							use scratch column for accessing *other* adjacent.
-				how to "link" voronoi cells to column values?
-					~~perhaps I could have a "valid" flag for column values,
-					possibly with a restricted Y range.~~
-						unrelated.
-					maybe solved?
-						{
-							"enables": [
-								column values to enable
-							],
-							"exports": {
-								"name": { "type": type }
-							}
-						}
-						where type can be (boolean|int|long|float|double)_(2d|3d)
 				how to do flowers in parallel?
 					probably just make a Feature class for it.
 						config takes Y level script.
-				how to use a different seed for noise in each noise-based column value?
-				how to link constant dynamics to objects which are not available from a static context?
-					mostly accessors.
 				how to handle lava/water in caverns?
 					presumably as a layer, but how to choose a random block per-voronoi cell?
-			things to remember:
-				parameter to use caching.
-					defaults to true.
-					disabled when the value is cheap to compute.
-				eventually need to enforce that entries disabled by vornoi return 0/NaN/fallback.
 		fast DH tree generation
 			skips a lot of the more expensive work for tree generation,
 			and replaces trees with blobs of leaves with a trunk and no branches.
@@ -217,6 +177,7 @@ features:
 			generify WoodPalette into BlockPalette?
 				with "type": "wood" or "type": "generic"?
 		more decorations for surface mineshafts?
+		sea shells on the sea shore?
 	nether:
 	end:
 		end ore feature.

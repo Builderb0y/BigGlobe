@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:cold_plains",
-		"bigglobe:cold_forest"
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_dense_forest"
 	]
 }

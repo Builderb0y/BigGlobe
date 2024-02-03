@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
@@ -37,11 +38,12 @@ import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
-import net.minecraft.world.biome.source.FixedBiomeSource;
+import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
@@ -63,33 +65,38 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.columns.ChunkOfBiomeColumns;
+import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.features.FeatureDispatcher;
 import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
-import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.util.CollectionTransformer;
 
-@AddPseudoField("betterRegistryLookup")
+@AddPseudoField("biome_source")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
@@ -117,17 +124,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			BetterRegistry<StructureSet> structureSetRegistry,
 		#endif
 		@VerifyNullable String reload_dimension,
-		BetterRegistry.Lookup betterRegistryLookup,
 		Height height,
 		RootLayer layer,
-		DualFeatureDispatcher feature_dispatcher
+		DualFeatureDispatcher feature_dispatcher,
+		BiomeSource biome_source
 	) {
 		super(
 			#if (MC_VERSION == MC_1_19_2)
 				((BetterHardCodedRegistry<StructureSet>)(structureSetRegistry)).registry,
 				Optional.empty(),
 			#endif
-			new FixedBiomeSource(betterRegistryLookup.getRegistry(RegistryKeyVersions.biome()).getOrCreateEntry(BiomeKeys.PLAINS))
+			biome_source
 		);
 		this.reload_dimension = reload_dimension;
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
@@ -136,12 +143,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.feature_dispatcher = feature_dispatcher;
 	}
 
-	public BetterRegistry.@Nullable Lookup betterRegistryLookup() {
-		return null;
+	public BiomeSource biome_source() {
+		return this.biomeSource;
 	}
 
 	public static void init() {
 		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("scripted"), CODEC);
+		Registry.register(RegistryVersions.biomeSource(), BigGlobeMod.modID("scripted"), ScriptedColumnBiomeSource.CODEC);
 	}
 
 	public static AutoCoder<BigGlobeScriptedChunkGenerator> createCoder(FactoryContext<BigGlobeScriptedChunkGenerator> context) {
@@ -384,6 +392,57 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		);
+	}
+
+	@Override
+	public CompletableFuture<Chunk> populateBiomes(
+		#if MC_VERSION == MC_1_19_2
+			Registry<Biome> biomeRegistry,
+		#endif
+		Executor executor,
+		NoiseConfig noiseConfig,
+		Blender blender,
+		StructureAccessor structureAccessor,
+		Chunk chunk
+	) {
+		if (!(this.biomeSource instanceof ScriptedColumnBiomeSource source)) {
+			return super.populateBiomes(
+				#if MC_VERSION == MC_1_19_2
+					biomeRegistry,
+				#endif
+				executor,
+				noiseConfig,
+				blender,
+				structureAccessor,
+				chunk
+			);
+		}
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		return CompletableFuture.runAsync(
+			() -> {
+				int bottomY = chunk.getBottomY();
+				int topY = chunk.getTopY();
+				ScriptedColumn column = this.newColumn(chunk, 0, 0, distantHorizons);
+				for (int z = 0; z < 16; z += 4) {
+					for (int x = 0; x < 16; x += 4) {
+						column.setPos(chunk.getPos().getStartX() | x, chunk.getPos().getStartZ() | z);
+						for (int y = bottomY; y < topY; y += 4) {
+							ChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
+							PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
+							int newID = SectionUtil.id(container, source.script.get(column, y).entry());
+							SectionUtil.storage(container).set((((y >>> 2) & 3) << 4) | z | (x >>> 2), newID);
+						}
+					}
+				}
+			},
+			executor
+		)
+		.handle((Void result, Throwable throwable) -> {
+			if (throwable != null) {
+				BigGlobeMod.LOGGER.error("Exception populating chunk biomes", throwable);
+			}
+			return chunk;
+		});
 	}
 
 	@Override

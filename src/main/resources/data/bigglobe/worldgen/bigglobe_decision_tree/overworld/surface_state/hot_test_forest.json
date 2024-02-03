@@ -1,6 +1,6 @@
 {
 	"condition": {
-		"type": "range",
+		"type": "threshold",
 		"min": 0.375,
 		"max": 0.625,
 		"column_value": "bigglobe:overworld/surface_foliage"

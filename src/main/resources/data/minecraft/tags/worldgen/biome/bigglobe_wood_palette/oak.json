@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:temperate_forest",
+		"bigglobe:temperate_dense_forest",
 		"minecraft:bamboo_jungle",
 		"minecraft:dark_forest",
 		"minecraft:forest",

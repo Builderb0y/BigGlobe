@@ -15,6 +15,7 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import net.minecraft.world.gen.feature.Feature;
@@ -31,6 +32,7 @@ public class RegistryVersions {
 		public static DefaultedRegistry<Potion                         > potion                () { return Registry.POTION              ; }
 		public static Registry         <Feature<?>                     > feature               () { return Registry.FEATURE             ; }
 		public static Registry         <Codec<? extends ChunkGenerator>> chunkGenerator        () { return Registry.CHUNK_GENERATOR     ; }
+		public static Registry         <Codec<? extends BiomeSource   >> biomeSource           () { return Registry.BIOME_SOURCE        ; }
 		public static Registry         <LootPoolEntryType              > lootPoolEntryType     () { return Registry.LOOT_POOL_ENTRY_TYPE; }
 		public static Registry         <LootFunctionType               > lootFunctionType      () { return Registry.LOOT_FUNCTION_TYPE  ; }
 		public static Registry         <ParticleType<?>                > particleType          () { return Registry.PARTICLE_TYPE       ; }
@@ -48,6 +50,7 @@ public class RegistryVersions {
 		public static DefaultedRegistry<Potion                         > potion                () { return Registries.POTION              ; }
 		public static Registry         <Feature<?>                     > feature               () { return Registries.FEATURE             ; }
 		public static Registry         <Codec<? extends ChunkGenerator>> chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
+		public static Registry         <Codec<? extends BiomeSource   >> biomeSource           () { return Registries.BIOME_SOURCE        ; }
 		public static Registry         <LootPoolEntryType              > lootPoolEntryType     () { return Registries.LOOT_POOL_ENTRY_TYPE; }
 		public static Registry         <LootFunctionType               > lootFunctionType      () { return Registries.LOOT_FUNCTION_TYPE  ; }
 		public static Registry         <ParticleType<?>                > particleType          () { return Registries.PARTICLE_TYPE       ; }

@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 2.0,
+		"max": 6.0,
+		"column_value": "bigglobe:overworld/surface_y"
+	},
+	"if_true": "bigglobe:overworld/biome/overgrown_beach",
+	"if_false": "bigglobe:overworld/biome/beach"
+}

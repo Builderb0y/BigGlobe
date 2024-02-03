@@ -137,6 +137,13 @@
 							")"
 						],
 						"raw": "noop"
+					},
+					"biome_source": {
+						"type": "bigglobe:scripted",
+						"value": {
+							"script": "`bigglobe:overworld/biome`",
+							"all_possible_biomes": "bigglobe:overworld"
+						}
 					}
 				},
 				"old_value": {
@@ -542,6 +549,13 @@
 					"feature_dispatcher": {
 						"normal": "noop",
 						"raw": "noop"
+					},
+					"biome_source": {
+						"type": "bigglobe:scripted",
+						"value": {
+							"script": "Biome('minecraft:plains')",
+							"all_possible_biomes": "bigglobe:overworld"
+						}
 					}
 				},
 				"old_value": {
@@ -574,6 +588,13 @@
 					"feature_dispatcher": {
 						"normal": "noop",
 						"raw": "noop"
+					},
+					"biome_source": {
+						"type": "bigglobe:scripted",
+						"value": {
+							"script": "Biome('minecraft:plains')",
+							"all_possible_biomes": "bigglobe:overworld"
+						}
 					}
 				},
 				"old_value": {
