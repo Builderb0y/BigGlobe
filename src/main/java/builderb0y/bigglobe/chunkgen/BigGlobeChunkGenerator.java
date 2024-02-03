@@ -283,7 +283,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	public abstract Codec<? extends ChunkGenerator> getCodec();
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
-		long seed = this.seed;
 		Async.loop(
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
 			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1) + 1 /* convert back to exclusive */,
@@ -302,7 +301,6 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 	}
 
 	public void generateSectionsParallel(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
-		long seed = this.seed;
 		#if MC_VERSION < MC_1_20_0
 			ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
 		#endif
@@ -695,7 +693,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 							if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
 								long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
 								if (context == null) {
-									context = new RawGenerationStructurePiece.Context(0L, chunk, null /* this */, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
+									context = new RawGenerationStructurePiece.Context(0L, chunk, null, null /* this, columns */, DistantHorizonsCompat.isOnDistantHorizonThread());
 								}
 								context.pieceSeed = pieceSeed;
 								rawPiece.generateRaw(context);

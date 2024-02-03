@@ -18,6 +18,18 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 @Mixin(SaveLoading.class)
 public class SaveLoading_UnloadColumnEntryRegistry {
 
+	@Inject(method = "load", at = @At("HEAD"))
+	private static void bigglobe_startLoadingColumnEntryRegistry(
+		ServerConfig serverConfig,
+		LoadContextSupplier<?> loadContextSupplier,
+		SaveApplierFactory<?, ?> saveApplierFactory,
+		Executor prepareExecutor,
+		Executor applyExecutor,
+		CallbackInfoReturnable<CompletableFuture<?>> callback
+	) {
+		ColumnEntryRegistry.Loading.reset();
+	}
+
 	@Inject(method = "load", at = @At("RETURN"))
 	private static void bigglobe_finishLoadingColumnEntryRegistry(
 		ServerConfig serverConfig,

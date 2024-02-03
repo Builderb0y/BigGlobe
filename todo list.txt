@@ -45,7 +45,6 @@ where I left off:
 	cave noise should be salted with voronoi seed.
 	missing stuff from 4.0:
 		the rest of the configured features.
-		structures.
 		overriders.
 		cherry and mangrove trees.
 		skylands.

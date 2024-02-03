@@ -199,12 +199,13 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 		@Override
 		public void generateRaw(Context context) {
 			//if (true) return;
+			/*
 			BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 			Data data = this.data;
 			BlockState fluid = data.fluid();
 			int maxY = data.waterSurface();
 			for (int index = 0; index < 256; index++) {
-				WorldColumn column = context.columns.getColumn(index);
+				ScriptedColumn column = context.columns.lookupColumn(context.chunk.getPos().getStartX() | (index & 15), context.chunk.getPos().getStartZ() | (index >>> 4));
 				if (this.isInsideCircle(column.x, column.z)) {
 					mutablePos.setX(column.x).setZ(column.z);
 					int minY = column.getFinalTopHeightI();
@@ -213,6 +214,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 					}
 				}
 			}
+			*/
 		}
 
 		@Override

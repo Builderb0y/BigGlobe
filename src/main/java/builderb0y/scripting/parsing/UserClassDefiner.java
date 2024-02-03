@@ -109,6 +109,7 @@ public class UserClassDefiner {
 				}
 			}
 			return_(noop).emitBytecode(noArgConstructor);
+			noArgConstructor.endCode();
 		}
 
 		if (!fields.isEmpty()) {
@@ -156,6 +157,7 @@ public class UserClassDefiner {
 				.emitBytecode(someArgsConstructor);
 			}
 			return_(noop).emitBytecode(someArgsConstructor);
+			someArgsConstructor.endCode();
 		}
 	}
 

@@ -166,7 +166,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			}
 			builder.append(']');
 		}
-		return state.toString();
+		return builder.toString();
 	}
 
 	public static <T extends Comparable<T>> void appendProperty(StringBuilder builder, BlockState state, Property<T> property) {

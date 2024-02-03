@@ -28,12 +28,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ColumnPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -51,6 +51,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -65,32 +66,31 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator.SortedStructures;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
-import builderb0y.bigglobe.columns.ChunkOfBiomeColumns;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
+import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
+import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
-import builderb0y.bigglobe.util.Async;
-import builderb0y.bigglobe.util.AsyncRunner;
-import builderb0y.bigglobe.util.SymmetricOffset;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
+import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
-import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -109,6 +109,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final Height height;
 	public final RootLayer layer;
 	public final DualFeatureDispatcher feature_dispatcher;
+	public final SortedStructures sortedStructures;
 	/**
 	seed is the first 64 bits of the SHA256 hash of actualWorldSeed.
 	seed is used for {@link ScriptedColumn#seed}, because column
@@ -127,7 +128,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		Height height,
 		RootLayer layer,
 		DualFeatureDispatcher feature_dispatcher,
-		BiomeSource biome_source
+		BiomeSource biome_source,
+		SortedStructures sortedStructures
 	) {
 		super(
 			#if (MC_VERSION == MC_1_19_2)
@@ -136,11 +138,15 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			#endif
 			biome_source
 		);
+		if (biome_source instanceof ScriptedColumnBiomeSource source) {
+			source.generator = this;
+		}
 		this.reload_dimension = reload_dimension;
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
 		this.height = height;
 		this.layer = layer;
 		this.feature_dispatcher = feature_dispatcher;
+		this.sortedStructures = sortedStructures;
 	}
 
 	public BiomeSource biome_source() {
@@ -365,6 +371,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				for (ScriptedColumn column : columns) {
 					worldWrapper.columns.put(ColumnPos.pack(column.x, column.z), column);
 				}
+				this.generateRawStructures(chunk, structureAccessor, worldWrapper);
 				this.feature_dispatcher.raw.generate(worldWrapper);
 			},
 			executor
@@ -379,6 +386,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+		this.generateStructures(world, chunk, structureAccessor);
 		this.feature_dispatcher.normal.generate(
 			new WorldWrapper(
 				new WorldDelegator(world),
@@ -392,6 +400,92 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		);
+	}
+
+	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {
+		RawGenerationStructurePiece.Context context = null;
+		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
+		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
+			if (structureEntry.value() instanceof RawGenerationStructure) {
+				List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
+				for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
+					StructureStart start = starts.get(startIndex);
+					if (start.hasChildren()) {
+						long structureSeed = getStructureSeed(this.seed, structureEntry, start);
+						List<StructurePiece> children = start.getChildren();
+						for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+							StructurePiece piece = children.get(pieceIndex);
+							if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
+								long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+								if (context == null) {
+									context = new RawGenerationStructurePiece.Context(0L, chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
+								}
+								context.pieceSeed = pieceSeed;
+								rawPiece.generateRaw(context);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void generateStructures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
+		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
+			List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
+			for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
+				StructureStart start = starts.get(startIndex);
+				if (start.hasChildren()) {
+					long structureSeed = getStructureSeed(this.seed, structureEntry, start);
+					List<StructurePiece> children = start.getChildren();
+					BlockBox firstPieceBB = children.get(0).getBoundingBox();
+					BlockPos pivot = new BlockPos(
+						(firstPieceBB.getMinX() + firstPieceBB.getMaxX() + 1) >> 1,
+						firstPieceBB.getMinY(),
+						(firstPieceBB.getMinZ() + firstPieceBB.getMaxZ() + 1) >> 1
+					);
+					for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+						StructurePiece piece = children.get(pieceIndex);
+						if (piece.getBoundingBox().intersects(chunkBox)) {
+							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+							try {
+								piece.generate(
+									world,
+									structureAccessor,
+									this,
+									new MojangPermuter(pieceSeed),
+									chunkBox,
+									chunk.getPos(),
+									pivot
+								);
+							}
+							catch (NullPointerException exception) {
+								//I don't know why DH seems to have issues with this when it's a vanilla bug,
+								//but I'm tired of having my console spammed with errors.
+								if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
+									throw exception;
+								}
+								//else silently ignore.
+							}
+						}
+					}
+					start.getStructure().postPlace(
+						world,
+						structureAccessor,
+						this,
+						new MojangPermuter(structureSeed),
+						chunkBox,
+						chunk.getPos(),
+						((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
+					);
+				}
+			}
+		}
+	}
+
+	public static long getStructureSeed(long worldSeed, RegistryEntry<Structure> structureEntry, StructureStart start) {
+		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, UnregisteredObjectException.getID(structureEntry).hashCode(), start.getPos().x, start.getPos().z);
 	}
 
 	@Override
@@ -430,7 +524,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 							ChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
 							PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
 							int newID = SectionUtil.id(container, source.script.get(column, y).entry());
-							SectionUtil.storage(container).set((((y >>> 2) & 3) << 4) | z | (x >>> 2), newID);
+							SectionUtil.storage(container).set(((y & 0b1100) << 2) | z | (x >>> 2), newID);
 						}
 					}
 				}

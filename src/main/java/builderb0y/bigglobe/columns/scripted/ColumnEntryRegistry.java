@@ -11,14 +11,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -162,38 +165,35 @@ public class ColumnEntryRegistry {
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
-		public boolean loadedDimensions; //workaround for the fact that RegistryLoader.load() gets called twice by SaveLoading.load().
 
 		public Loading(BetterRegistry.Lookup betterRegistryLookup) {
 			this.betterRegistryLookup = betterRegistryLookup;
 		}
 
+		static {
+			ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> reset());
+		}
+
+		public static void reset() {
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING);
+			LOADING = null;
+		}
+
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
-			if (LOADING != null) {
-				if (LOADING.loadedDimensions) {
-					throw new IllegalStateException("Multiple concurrent attempts to load dynamic registries");
-				}
-				else {
-					LOADING.loadedDimensions = true;
-				}
-			}
-			else {
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING);
+			if (LOADING == null) {
 				LOADING = new Loading(betterRegistryLookup);
 			}
 		}
 
 		public static Loading get() {
 			if (LOADING != null) return LOADING;
-			else throw new IllegalStateException("Not currently loading");
+			else throw new IllegalStateException("No loading context available.");
 		}
 
 		public static void endLoad(boolean successful) {
-			Loading loading = LOADING;
-			if (loading == null) {
-				throw new IllegalStateException("Never started loading");
-			}
-			LOADING = null;
-			if (successful && loading.loadedDimensions) loading.compile();
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING);
+			if (successful && LOADING != null) LOADING.compile();
 		}
 
 		public void delay(DelayedCompileable compileable) {
@@ -259,9 +259,6 @@ public class ColumnEntryRegistry {
 		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, DelayedCompileable> context) throws VerifyException {
 			DelayedCompileable compileable = context.object;
 			if (compileable == null) return;
-			if (compileable instanceof ScriptHolder<?> holder && holder.script != null) {
-				throw new VerifyException(() -> TypeFormatter.getSimpleClassName(compileable.getClass()) + " was decoded more than once!");
-			}
 
 			if (compileable.requiresColumns()) {
 				ColumnEntryRegistry.Loading.get().delay(compileable);

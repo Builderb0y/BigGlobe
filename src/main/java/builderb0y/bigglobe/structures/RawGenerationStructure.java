@@ -5,8 +5,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 
 /**
 a {@link Structure} which has at least one StructurePiece which
@@ -29,14 +28,14 @@ public interface RawGenerationStructure {
 			public long worldSeed, pieceSeed;
 			public Chunk chunk;
 			public BigGlobeScriptedChunkGenerator generator;
-			public ChunkOfColumns<? extends WorldColumn> columns;
+			public ScriptedColumnLookup columns;
 			public boolean distantHorizons;
 
 			public Context(
 				long pieceSeed,
 				Chunk chunk,
 				BigGlobeScriptedChunkGenerator generator,
-				ChunkOfColumns<? extends WorldColumn> columns,
+				ScriptedColumnLookup columns,
 				boolean distantHorizons
 			) {
 				this.worldSeed       = generator.seed;

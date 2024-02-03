@@ -62,8 +62,8 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
-			column.setPosDH(x, z, DistantHorizonsCompat.isOnDistantHorizonThread());
-			return this.script.get(column, y).entry();
+			column.setPosDH(x << 2, z << 2, DistantHorizonsCompat.isOnDistantHorizonThread());
+			return this.script.get(column, y << 2).entry();
 		}
 		else {
 			return BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS);
