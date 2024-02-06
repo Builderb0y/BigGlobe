@@ -693,7 +693,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 							if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
 								long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
 								if (context == null) {
-									context = new RawGenerationStructurePiece.Context(0L, chunk, null, null /* this, columns */, DistantHorizonsCompat.isOnDistantHorizonThread());
+									context = new RawGenerationStructurePiece.Context(chunk, null, null /* this, columns */, DistantHorizonsCompat.isOnDistantHorizonThread());
 								}
 								context.pieceSeed = pieceSeed;
 								rawPiece.generateRaw(context);

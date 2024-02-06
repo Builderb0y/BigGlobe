@@ -44,11 +44,14 @@ public class ScriptClassLoader extends ClassLoader {
 
 	public static final AtomicInteger CLASS_UNIQUIFIER = new AtomicInteger();
 
-	public final Map<String, ClassCompileContext> loadable;
+	public final Map<String, ClassCompileContext> loadable = new ConcurrentHashMap<>(8);
 
 	public ScriptClassLoader() {
 		super(ScriptClassLoader.class.getClassLoader());
-		this.loadable = new ConcurrentHashMap<>(8);
+	}
+
+	public ScriptClassLoader(ClassLoader parent) {
+		super(parent);
 	}
 
 	public static @Nullable Path initDumpDirectory(String enabledProperty, String directoryName) {

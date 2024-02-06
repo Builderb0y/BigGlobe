@@ -32,14 +32,12 @@ public interface RawGenerationStructure {
 			public boolean distantHorizons;
 
 			public Context(
-				long pieceSeed,
 				Chunk chunk,
 				BigGlobeScriptedChunkGenerator generator,
 				ScriptedColumnLookup columns,
 				boolean distantHorizons
 			) {
-				this.worldSeed       = generator.seed;
-				this.pieceSeed       = pieceSeed;
+				this.worldSeed       = generator.actualWorldSeed;
 				this.chunk           = chunk;
 				this.generator       = generator;
 				this.columns         = columns;

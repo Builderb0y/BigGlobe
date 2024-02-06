@@ -475,7 +475,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 			"""
 			var array = valueField
 			if (y >= array.minCached && y < array.maxCached:
-				array.array.set(y, value)
+				array.array.set(y - array.minCached, value)
 			)
 			""",
 			new MutableScriptEnvironment()

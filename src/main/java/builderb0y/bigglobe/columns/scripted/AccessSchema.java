@@ -3,8 +3,6 @@ package builderb0y.bigglobe.columns.scripted;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;

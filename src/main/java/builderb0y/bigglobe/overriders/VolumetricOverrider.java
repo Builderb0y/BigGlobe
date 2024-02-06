@@ -21,7 +21,7 @@ import builderb0y.scripting.parsing.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface VolumetricOverrider extends Overrider {
+public interface VolumetricOverrider extends LegacyOverrider {
 
 	public static MutableScriptEnvironment structureStartExcludeEnvironment(InsnTree loadContext) {
 		return (
@@ -243,7 +243,7 @@ public interface VolumetricOverrider extends Overrider {
 		}
 	}
 
-	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends Overrider.Holder<T_Overrider> implements VolumetricOverrider {
+	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends LegacyOverrider.Holder<T_Overrider> implements VolumetricOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 			super(usage);
@@ -262,7 +262,7 @@ public interface VolumetricOverrider extends Overrider {
 					)
 				)
 				.addAll(
-					Overrider.createDistanceEnvironment(
+					LegacyOverrider.createDistanceEnvironment(
 						getField(
 							load("context", type(this.getContextClass())),
 							FieldInfo.getField(Context.class, "column")

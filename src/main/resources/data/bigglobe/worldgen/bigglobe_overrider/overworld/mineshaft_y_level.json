@@ -1,0 +1,22 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type == StructureType('minecraft:mineshaft'):",
+			"if (distantHorizons: return(false))",
+			"int minSurface = min(",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.maxZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.maxZ))",
+			")",
+			"double caveDepth = `bigglobe:overworld/cave`(start.midX, start.midZ).depth",
+			"int chosenY = minSurface - (",
+				"caveDepth >= 1.0L",
+				"? random.nextInt(int(caveDepth))",
+				": random.nextInt(512)",
+			")",
+			"start.move(chosenY - start.maxY)",
+		")",
+		"return(true)"
+	]
+}

@@ -15,6 +15,8 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.noise.Grid;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
@@ -35,7 +37,8 @@ public class BigGlobeDynamicRegistries {
 	public static final RegistryKey<Registry<Grid>>                            GRID_TEMPLATE_REGISTRY_KEY                   = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_noise_sources"));
 	public static final RegistryKey<Registry<ColumnEntry>>                     COLUMN_ENTRY_REGISTRY_KEY                    = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_column_value"));
 	public static final RegistryKey<Registry<VoronoiSettings>>                 VORONOI_SETTINGS_REGISTRY_KEY                = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_voronoi_settings"));
-	public static final RegistryKey<Registry<DecisionTreeSettings>>            DECISION_TREE_SETTINGS_REGISTRY_KEY          = RegistryKey.ofRegistry(BigGlobeMod.modID("worldgen/bigglobe_decision_tree"));
+	public static final RegistryKey<Registry<DecisionTreeSettings>>            DECISION_TREE_SETTINGS_REGISTRY_KEY          = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_decision_tree"));
+	public static final RegistryKey<Registry<Overrider>>                       OVERRIDER_REGISTRY_KEY                       = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_overrider"));
 	public static final RegistryKey<Registry<CombinedStructureScripts>>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY      = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
 	public static final RegistryKey<Registry<WoodPalette>>                     WOOD_PALETTE_REGISTRY_KEY                    = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 
@@ -47,14 +50,9 @@ public class BigGlobeDynamicRegistries {
 			INFOS.add(info(COLUMN_ENTRY_REGISTRY_KEY,                    ColumnEntry                 .class, null));
 			INFOS.add(info(VORONOI_SETTINGS_REGISTRY_KEY,                VoronoiSettings             .class, null));
 			INFOS.add(info(DECISION_TREE_SETTINGS_REGISTRY_KEY,          DecisionTreeSettings        .class, null));
+			INFOS.add(info(OVERRIDER_REGISTRY_KEY,                       Overrider                   .class, null));
 			INFOS.add(info(SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,      CombinedStructureScripts    .class, null));
 			INFOS.add(info(WOOD_PALETTE_REGISTRY_KEY,                    WoodPalette                 .class, null));
-			INFOS.add(info(OVERWORLD_BIOME_LAYOUT_REGISTRY_KEY,          OverworldBiomeLayout        .class, null));
-			INFOS.add(info(END_BIOME_LAYOUT_REGISTRY_KEY,                EndBiomeLayout              .class, null));
-			INFOS.add(info(LOCAL_OVERWORLD_CAVE_SETTINGS_REGISTRY_KEY,   LocalOverworldCaveSettings  .class, null));
-			INFOS.add(info(LOCAL_OVERWORLD_CAVERN_SETTINGS_REGISTRY_KEY, LocalOverworldCavernSettings.class, null));
-			INFOS.add(info(LOCAL_SKYLAND_SETTINGS_REGISTRY_KEY,          LocalSkylandSettings        .class, null));
-			INFOS.add(info(LOCAL_NETHER_SETTINGS_REGISTRY_KEY,           LocalNetherSettings         .class, null));
 		}
 
 		public static <E> DynamicRegistryManager.Info<E> info(RegistryKey<Registry<E>> key, Class<E> clazz, Codec<E> networkCodec) {
@@ -85,11 +83,12 @@ public class BigGlobeDynamicRegistries {
 					new RegistryLoader.Entry<>(         GRID_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Grid                .class)),
 					new RegistryLoader.Entry<>(          COLUMN_ENTRY_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ColumnEntry         .class)),
 					new RegistryLoader.Entry<>(      VORONOI_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(VoronoiSettings     .class)),
-					new RegistryLoader.Entry<>(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class))
+					new RegistryLoader.Entry<>(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class)),
+					new RegistryLoader.Entry<>(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class))
 				)
 			);
-			addBefore(RegistryKeyVersions.structure(),                   SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts    .class));
-			addBefore(RegistryKeyVersions.configuredCarver(),                          WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette                 .class));
+			addBefore(RegistryKeyVersions.structure(), SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
+			addBefore(RegistryKeyVersions.configuredCarver(),        WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));
 		}
 
 		public static <T> void addBefore(RegistryKey<? extends Registry<?>> after, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {

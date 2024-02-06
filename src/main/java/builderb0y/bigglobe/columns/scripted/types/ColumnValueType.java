@@ -72,6 +72,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"       ),        BlockStateColumnValueType.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("biome"             ),             BiomeColumnValueType.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("configured_feature"), ConfiguredFeatureColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("wood_palette"      ),       WoodPaletteColumnValueType.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("class"             ),             ClassColumnValueType.class);
 	}};
 

@@ -69,6 +69,8 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.TagOrObject;
@@ -138,6 +140,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<ColumnEntry>                     COLUMN_ENTRY_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 	public static final RegistryCoders<VoronoiSettings>                 VORONOI_SETTINGS_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
 	public static final RegistryCoders<DecisionTreeSettings>            DECISION_TREE_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<Overrider>                       OVERRIDER_REGISTRY_CODERS                     = new RegistryCoders<>(ReifiedType.from(Overrider                             .class), BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY);
 	public static final RegistryCoders<CombinedStructureScripts>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS    = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
 		BLOCK_REGISTRY_CODERS,
@@ -164,6 +167,7 @@ public class BigGlobeAutoCodec {
 		COLUMN_ENTRY_REGISTRY_CODERS,
 		VORONOI_SETTINGS_REGISTRY_CODERS,
 		DECISION_TREE_SETTINGS_REGISTRY_CODERS,
+		OVERRIDER_REGISTRY_CODERS,
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
 	};
 

@@ -1,0 +1,6 @@
+{
+	"type": "structure",
+	"script": [
+		"return(!(distantHorizons && start.structure.type.isIn('bigglobe:underground')))"
+	]
+}

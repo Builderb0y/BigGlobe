@@ -21,7 +21,7 @@ import builderb0y.scripting.parsing.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface FlatOverrider extends Overrider {
+public interface FlatOverrider extends LegacyOverrider {
 
 	public static final MutableScriptEnvironment STRUCTURE_STARTS_ENVIRONMENT = (
 		new MutableScriptEnvironment()
@@ -63,7 +63,7 @@ public interface FlatOverrider extends Overrider {
 		return createColumnFunction(MethodInfo.findMethod(in, name, returnType, paramTypes), columnClass);
 	}
 
-	public static abstract class Holder<T_Overrider extends FlatOverrider> extends Overrider.Holder<T_Overrider> implements FlatOverrider {
+	public static abstract class Holder<T_Overrider extends FlatOverrider> extends LegacyOverrider.Holder<T_Overrider> implements FlatOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 			super(usage);
@@ -78,7 +78,7 @@ public interface FlatOverrider extends Overrider {
 				.setupEnvironment(environment)
 				.addAll(STRUCTURE_STARTS_ENVIRONMENT)
 				.addAll(
-					Overrider.createDistanceEnvironment(
+					LegacyOverrider.createDistanceEnvironment(
 						load("column", type(this.getColumnClass()))
 					)
 				)

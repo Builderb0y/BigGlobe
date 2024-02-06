@@ -13,7 +13,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(IglooGenerator.Piece.class)
 public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends SimpleStructurePiece {
@@ -35,7 +35,7 @@ public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends Simpl
 	*/
 	@Redirect(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/BlockPos;add(III)Lnet/minecraft/util/math/BlockPos;"))
 	private BlockPos bigglobe_dontAdd(BlockPos instance, int dx, int dy, int dz, StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator) {
-		if (chunkGenerator instanceof BigGlobeOverworldChunkGenerator) {
+		if (chunkGenerator instanceof BigGlobeScriptedChunkGenerator) {
 			return instance;
 		}
 		else {

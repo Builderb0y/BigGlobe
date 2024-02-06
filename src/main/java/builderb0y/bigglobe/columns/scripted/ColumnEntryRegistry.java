@@ -22,6 +22,7 @@ import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -150,6 +151,14 @@ public class ColumnEntryRegistry {
 	}
 
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		environment
+		.addFieldInvoke("soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
+		.addFieldInvoke("soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
+		.addFieldInvoke("hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)
+		.addFieldInvoke("hard_distance",              VoronoiDataBase.INFO.get_hard_distance)
+		.addFieldInvoke("euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared)
+		.addFieldInvoke("euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance);
+
 		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, params);
 		}
@@ -224,6 +233,7 @@ public class ColumnEntryRegistry {
 				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup);
 			}
 			catch (ScriptParsingException exception) {
+				LOADING = null;
 				throw new RuntimeException(exception);
 			}
 			if (this.compileables != null) {

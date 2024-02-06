@@ -11,12 +11,9 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.Valid;
-import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.*;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.noise.Permuter;
@@ -27,8 +24,16 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.fields.NullableInstanceGetFieldInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.ArgumentedGetterSetterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -148,6 +153,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.root().getTypeContext(entry.getValue().type()).type(), entry.getValue().getterParameters());
+			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "set_" + entry.getKey(), TypeInfos.VOID, entry.getValue().setterParameters(context));
 		}
 		Map<MemoryMapLookup, ColumnEntryMemory> memoryMap = new HashMap<>();
 		memory.putTyped(MEMORY_MAP, memoryMap);
@@ -177,8 +183,8 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 					);
 				}
 				AccessSchema schema = export.getValue().value().getAccessSchema();
-				MethodCompileContext delegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.root().getTypeContext(schema.type()).type(), schema.getterParameters());
-				LazyVarInfo self = new LazyVarInfo("this", delegator.clazz.info);
+				MethodCompileContext getterDelegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.root().getTypeContext(schema.type()).type(), schema.getterParameters());
+				LazyVarInfo self = new LazyVarInfo("this", getterDelegator.clazz.info);
 				LazyVarInfo loadY = schema.is_3d() ? new LazyVarInfo("y", TypeInfos.INT) : null;
 				return_(
 					invokeInstance(
@@ -187,8 +193,25 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 						loadY != null ? new InsnTree[] { load(loadY) } : InsnTree.ARRAY_FACTORY.empty()
 					)
 				)
-				.emitBytecode(delegator);
-				delegator.endCode();
+				.emitBytecode(getterDelegator);
+				getterDelegator.endCode();
+
+				LazyVarInfo value = new LazyVarInfo("value", implContext.root().getAccessContext(schema).exposedType());
+				MethodCompileContext setterDelegator = implContext.mainClass.newMethod(ACC_PUBLIC, "set_" + export.getKey(), TypeInfos.VOID, schema.setterParameters(implContext));
+				if (exportMemory.containsKey(ColumnEntryMemory.SETTER)) {
+					return_(
+						invokeInstance(
+							load(self),
+							exportMemory.getTyped(ColumnEntryMemory.SETTER).info,
+							loadY != null ? new InsnTree[] { load(loadY), load(value) } : new InsnTree[] { load(value) }
+						)
+					)
+					.emitBytecode(setterDelegator);
+				}
+				else {
+					return_(noop).emitBytecode(setterDelegator);
+				}
+				setterDelegator.endCode();
 			}
 		}
 	}
@@ -208,6 +231,18 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		for (RegistryEntry<VoronoiSettings> voronoiEntry : options) {
 			VoronoiImplCompileContext implContext = Objects.requireNonNull(voronoiContextMap.get(UnregisteredObjectException.getKey(voronoiEntry)));
 			InsnTree loadImplContext = implContext.loadSelf();
+			implContext
+			.environment
+			.addVariableRenamedInvoke(loadImplContext, "soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
+			.addVariableRenamedInvoke(loadImplContext, "soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
+			.addVariableRenamedInvoke(loadImplContext, "hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)
+			.addVariableRenamedInvoke(loadImplContext, "hard_distance",              VoronoiDataBase.INFO.get_hard_distance)
+			.addVariableRenamedInvoke(loadImplContext, "euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared)
+			.addVariableRenamedInvoke(loadImplContext, "euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance);
+			for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
+				implContext.addAccessor(loadImplContext, entry.getKey(), entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), implContext));
+			}
+
 			for (RegistryEntry<ColumnEntry> enable : voronoiEntry.value().enables()) {
 				ColumnEntryMemory enabledMemory = memoryMap.get(new MemoryMapLookup(voronoiEntry, enable));
 				if (enabledMemory == null) {
@@ -230,12 +265,29 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		super.setupExternalEnvironment(memory, context, environment, params);
 		DataCompileContext selfContext = context.root().getAccessContext(this.getAccessSchema()).context();
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
-			MethodInfo method = entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), selfContext);
+			MethodInfo getter = entry.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), selfContext);
+			MethodInfo setter = entry.getValue().setterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "set_" + entry.getKey(), selfContext);
 			if (entry.getValue().is_3d()) {
-				environment.addMethodInvoke(entry.getKey(), method);
+				if (params.mutable) {
+					environment.addMethod(getter.owner, entry.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						return new CastResult(new ArgumentedGetterSetterInsnTree(receiver, getter, setter, castArguments[0]), castArguments != arguments);
+					});
+				}
+				else {
+					environment.addMethodInvoke(entry.getKey(), getter);
+				}
 			}
 			else {
-				environment.addFieldInvoke(entry.getKey(), method);
+				if (params.mutable) {
+					environment.addField(getter.owner, entry.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+						return mode.makeGetterSetter(parser, receiver, getter, setter);
+					});
+				}
+				else {
+					environment.addFieldInvoke(entry.getKey(), getter);
+				}
 			}
 		}
 	}

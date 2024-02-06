@@ -2,7 +2,6 @@ package builderb0y.scripting.bytecode.tree.instructions.update;
 
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.util.TypeInfos;
 
 public abstract class AbstractObjectUpdaterInsnTree extends AbstractUpdaterInsnTree {
 
@@ -16,15 +15,6 @@ public abstract class AbstractObjectUpdaterInsnTree extends AbstractUpdaterInsnT
 	public AbstractObjectUpdaterInsnTree(UpdateOrder order, boolean isAssignment, ObjectUpdaterEmitters emitters) {
 		super(order, isAssignment);
 		this.emitters = emitters;
-	}
-
-	@Override
-	public TypeInfo getTypeInfo() {
-		return switch (this.mode) {
-			case VOID, VOID_ASSIGN -> TypeInfos.VOID;
-			case PRE,   PRE_ASSIGN -> this.getPreType();
-			case POST, POST_ASSIGN -> this.getPostType();
-		};
 	}
 
 	public void emitObject(MethodCompileContext method) {

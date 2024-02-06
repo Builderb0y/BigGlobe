@@ -111,10 +111,8 @@
 				"return()",
 			")",
 
-			"int originY = ceilInt(`bigglobe:overworld/surface_y`(originX, originZ))",
-			"Biome biome = getBiome(originX, originY, originZ)",
-			"WoodPalette palette = WoodPalette.randomForBiome(biome)",
-			"if (palette == null: return())",
+			"int originY = ceilInt(`bigglobe:overworld/surface_y`)",
+			"WoodPalette palette = `bigglobe:overworld/wood_palette` ?: return()",
 
 			"ScriptStructurePiece newPiece(:",
 				"NbtCompound nbt = nbtCompound(palette: palette.id)",

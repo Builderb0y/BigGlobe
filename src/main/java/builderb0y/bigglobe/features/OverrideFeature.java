@@ -6,9 +6,9 @@ import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator.SortedFeatures;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.overriders.Overrider;
+import builderb0y.bigglobe.overriders.LegacyOverrider;
 
-public class OverrideFeature<T_Holder extends Overrider.Holder<?>> extends DummyFeature<OverrideFeature.Config<T_Holder>> {
+public class OverrideFeature<T_Holder extends LegacyOverrider.Holder<?>> extends DummyFeature<OverrideFeature.Config<T_Holder>> {
 
 	public final Class<T_Holder> holderClass;
 
@@ -18,11 +18,11 @@ public class OverrideFeature<T_Holder extends Overrider.Holder<?>> extends Dummy
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T_Holder extends Overrider.Holder<?>> T_Holder[] collect(SortedFeatures features, OverrideFeature<T_Holder> feature) {
+	public static <T_Holder extends LegacyOverrider.Holder<?>> T_Holder[] collect(SortedFeatures features, OverrideFeature<T_Holder> feature) {
 		return features.streamConfigs(feature).sorted().map(Config::script).toArray((int length) -> (T_Holder[])(Array.newInstance(feature.holderClass, length)));
 	}
 
-	public static class Config<T_Holder extends Overrider.Holder<?>> extends DummyConfig implements Comparable<Config<T_Holder>> {
+	public static class Config<T_Holder extends LegacyOverrider.Holder<?>> extends DummyConfig implements Comparable<Config<T_Holder>> {
 
 		public final T_Holder script;
 		public final @DefaultInt(0) int priority;

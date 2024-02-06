@@ -11,11 +11,8 @@ import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 
 public interface FeatureDispatcher extends Script {
 
@@ -84,7 +81,7 @@ public interface FeatureDispatcher extends Script {
 					environment.addVariable("distantHorizons", WORLD.distantHorizons);
 					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
 				})
-				.parse(registry.loader)
+				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}
 

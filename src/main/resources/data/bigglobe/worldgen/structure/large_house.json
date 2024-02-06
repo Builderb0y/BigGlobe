@@ -5,9 +5,8 @@
 		"spawn_overrides": {},
 		"step": "surface_structures",
 		"layout": [
-			"int originY = ceilInt(`bigglobe:overworld/surface_y`(originX, originZ))",
-			"Biome biome = getBiome(originX, originY, originZ)",
-			"WoodPalette woodPalette = WoodPalette.randomForBiome(biome) ?: return()",
+			"int originY = ceilInt(`bigglobe:overworld/surface_y`)",
+			"WoodPalette woodPalette = `bigglobe:overworld/wood_palette` ?: return()",
 
 			"pieces.add(",
 				"ScriptStructurePiece.new(",

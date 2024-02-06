@@ -1,139 +1,81 @@
 package builderb0y.bigglobe.overriders;
 
-import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.ObjectArrays;
+import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.util.math.BlockBox;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 
-import builderb0y.bigglobe.columns.WorldColumn;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.EntryWrapper;
-import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.util.ReflectionData;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.KeyDispatchCoder;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
+@UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureOverrider.Entry {
 
-public interface Overrider extends Script {
-
-	public static MutableScriptEnvironment createDistanceEnvironment(InsnTree loadColumn) {
-		MutableScriptEnvironment environment = new MutableScriptEnvironment();
-		for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
-			for (Method method : ReflectionData.forClass(Overrider.class).getDeclaredMethods(name)) {
-				environment.addFunction(name, createColumnFunction(MethodInfo.forMethod(method), loadColumn));
-			}
-		}
-		return environment;
-	}
-
-	public static FunctionHandler createColumnFunction(MethodInfo method, InsnTree loadColumn) {
-		return new FunctionHandler.Named(method.toString(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-			InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, prefixedArguments);
-			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != prefixedArguments);
-		});
-	}
-
-
-	public static double distanceToSquare(WorldColumn column, double minX, double minZ, double maxX, double maxZ) {
-		double offsetX = Interpolator.clamp(minX, maxX, column.x) - column.x;
-		double offsetZ = Interpolator.clamp(minZ, maxZ, column.z) - column.z;
-		return Math.sqrt(BigGlobeMath.squareD(offsetX, offsetZ));
-	}
-
-	public static double distanceToSquare(WorldColumn column, StructureStartWrapper structure) {
-		return distanceToSquare(column, structure.minX(), structure.minZ(), structure.maxX(), structure.maxZ());
-	}
-
-	public static double distanceToSquare(WorldColumn column, StructurePiece piece) {
-		BlockBox box = piece.getBoundingBox();
-		return distanceToSquare(column, box.getMinX(), box.getMinZ(), box.getMaxX(), box.getMaxZ());
-	}
-
-	public static double distanceToCircle(WorldColumn column, double centerX, double centerZ, double radius) {
-		return Math.max(Math.sqrt(BigGlobeMath.squareD(centerX - column.x, centerZ - column.z)) - radius, 0.0D);
-	}
-
-	public static double _distanceToCircle(WorldColumn column, BlockBox box, double radius) {
-		return distanceToCircle(
-			column,
-			(box.getMinX() + box.getMaxX()) * 0.5D,
-			(box.getMinZ() + box.getMaxZ()) * 0.5D,
-			radius
-		);
-	}
-
-	public static double _distanceToCircle(WorldColumn column, BlockBox box) {
-		return _distanceToCircle(
-			column,
-			box,
-			Math.min(
-				box.getMaxX() - box.getMinX(),
-				box.getMaxZ() - box.getMinZ()
-			)
-			* 0.5D
-		);
-	}
-
-	public static double distanceToCircle(WorldColumn column, StructureStartWrapper structure, double radius) {
-		return _distanceToCircle(column, structure.box(), radius);
-	}
-
-	public static double distanceToCircle(WorldColumn column, StructurePiece piece, double radius) {
-		return _distanceToCircle(column, piece.getBoundingBox(), radius);
-	}
-
-	public static double distanceToCircle(WorldColumn column, StructureStartWrapper structure) {
-		return _distanceToCircle(column, structure.box());
-	}
-
-	public static double distanceToCircle(WorldColumn column, StructurePiece piece) {
-		return _distanceToCircle(column, piece.getBoundingBox());
-	}
-
-	public static abstract class Holder<T_Overrider extends Overrider> extends ScriptHolder<T_Overrider> implements Overrider {
-
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
-			super(usage);
-		}
-
-		public abstract Class<T_Overrider> getScriptClass();
+	public static final AutoCoder<Overrider> CODER = new KeyDispatchCoder<>(ReifiedType.from(Overrider.class), BigGlobeAutoCodec.AUTO_CODEC.createCoder(Type.class)) {
 
 		@Override
-		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-			/*
-			this.script = (
-				new TemplateScriptParser<>(this.getScriptClass(), this.usage)
-				.configureEnvironment(this::setupEnvironment)
-				.parse(new ScriptClassLoader())
-			);
-			*/
+		public @Nullable Type getKey(@NotNull Overrider object) {
+			return object.getOverriderType();
 		}
 
-		public MutableScriptEnvironment setupEnvironment(MutableScriptEnvironment environment) {
-			return (
-				environment
-				.addAll(MathScriptEnvironment.INSTANCE)
-				.addAll(JavaUtilScriptEnvironment.ALL)
-				.addAll(StructureScriptEnvironment.INSTANCE)
-				.addFieldInvoke(EntryWrapper.class, "id")
-			);
+		@Override
+		public @Nullable AutoCoder<? extends Overrider> getCoder(@NotNull Type type) {
+			return type.coder;
+		}
+	};
+	public static Object SETUP = new Object() {{
+		CommonLifecycleEvents.TAGS_LOADED.register((DynamicRegistryManager registries, boolean client) -> {
+			if (!client) {
+				registries
+				.get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
+				.streamEntries()
+				.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
+				.forEach((RegistryEntry<Overrider> entry) -> BigGlobeMod.LOGGER.warn(UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses."));
+			}
+		});
+	}};
+
+	public abstract Type getOverriderType();
+
+	public static enum Type {
+		STRUCTURE(StructureOverrider.Entry.class),
+		COLUMN_VALUE(ColumnValueOverrider.Entry.class);
+
+		public final Class<? extends Overrider> overriderClass;
+		public final AutoCoder<? extends Overrider> coder;
+
+		Type(Class<? extends Overrider> overriderClass) {
+			this.overriderClass = overriderClass;
+			this.coder = BigGlobeAutoCodec.AUTO_CODEC.createCoder(overriderClass);
+		}
+	}
+
+	public static class SortedOverriders {
+
+		public final StructureOverrider.Holder[] structures;
+		public final ColumnValueOverrider.Holder[] columnValues;
+
+		public SortedOverriders(RegistryEntryList<Overrider> tag) {
+			Map<Type, List<Overrider>> map = tag.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID)).map(RegistryEntry::value).collect(Collectors.groupingBy(Overrider::getOverriderType));
+			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(StructureOverrider.Entry.class::cast).map(StructureOverrider.Entry::script).toArray(StructureOverrider.Holder[]::new);
+			this.columnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
 		}
 	}
 }

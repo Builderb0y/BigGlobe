@@ -13,11 +13,8 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 public interface StructurePlacementScript extends Script {
@@ -71,7 +68,7 @@ public interface StructurePlacementScript extends Script {
 						.withLookup(WORLD.loadSelf)
 					);
 				})
-				.parse(registry.loader)
+				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}
 

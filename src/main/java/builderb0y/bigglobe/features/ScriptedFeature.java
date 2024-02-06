@@ -37,11 +37,8 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
-import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -212,7 +209,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 								.withZ(load("originZ", TypeInfos.INT))
 							);
 						})
-						.parse(registry.loader)
+						.parse(new ScriptClassLoader(registry.loader))
 					);
 				}
 				catch (ScriptParsingException exception) {

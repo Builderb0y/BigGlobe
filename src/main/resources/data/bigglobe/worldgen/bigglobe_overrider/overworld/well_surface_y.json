@@ -1,0 +1,15 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure == Structure('bigglobe:well'):",
+				"StructurePiece piece = start.pieces.(0)",
+				"double distance = distanceToCircle(piece, 3.0L)",
+				"double mixLevel = smooth(1.0 - distance * 0.25)",
+				"double minY = piece.maxY - 4.5L",
+				"double oldY = `bigglobe:overworld/surface_y` =: mixLinear(`bigglobe:overworld/surface_y`, minY, mixLevel)",
+				"`bigglobe:overworld/snow_y` += `bigglobe:overworld/surface_y` - oldY",
+			")",
+		")"
+	]
+}

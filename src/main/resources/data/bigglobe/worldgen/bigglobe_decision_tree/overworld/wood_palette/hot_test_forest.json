@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.25,
+		"max": 0.75,
+		"column_value": "bigglobe:overworld/surface_foliage"
+	},
+	"if_true": "bigglobe:overworld/wood_palette/jungle",
+	"if_false": "bigglobe:overworld/wood_palette/acacia"
+}

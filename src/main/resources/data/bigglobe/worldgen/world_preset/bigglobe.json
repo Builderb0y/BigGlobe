@@ -18,7 +18,8 @@
 								"type": "bigglobe:simple_2d",
 								"state": "minecraft:stone",
 								"valid": {
-									"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
+									"max_y": "ceilInt(`bigglobe:overworld/surface_y`)",
+									"min_y": "distantHorizons ? ceilInt(`bigglobe:overworld/surface_y`) - 32 : -2147483648"
 								},
 								"top_surface": [
 									"int surfaceY = ceilInt(`bigglobe:overworld/surface_y`)",
@@ -45,17 +46,15 @@
 											"setBlockState(originY, states.surfaceState)",
 											"setBlockStates(originY - depth, originY, states.subsurfaceState)",
 										")",
-										"if (`bigglobe:overworld/surface_y` > 0.0L:",
+										"if (`bigglobe:overworld/surface_y` > 0.0L && (seed := seed.newSeed()).nextFloat() < `bigglobe:overworld/snow_chance`:",
 											"int snowStart = surfaceY",
 											"int snowEnd = ceilInt(`bigglobe:overworld/snow_y`) - 1",
 											"if (snowEnd >= snowStart:",
 												"setBlockStates(snowStart, snowEnd, 'minecraft:snow[layers=8]')",
-												"int remaining = floorInt((`bigglobe:overworld/snow_y` % 1.0I) * 8.0I)",
-												"if (remaining > 0:",
-													"setBlockState(snowEnd, BlockState('minecraft:snow', layers: remaining))",
-												")",
+												"int remaining = max(floorInt((`bigglobe:overworld/snow_y` % 1.0I) * 8.0I), 1)",
+												"setBlockState(snowEnd, BlockState('minecraft:snow', layers: remaining))",
 											")",
-											"else if ((seed := seed.newSeed()).nextFloat() < `bigglobe:overworld/snow_chance`:",
+											"else (",
 												"setBlockState(snowStart, 'minecraft:snow[layers=1]')",
 											")",
 										")",
@@ -112,6 +111,7 @@
 								"type": "bigglobe:simple_2d",
 								"state": "minecraft:water[level=0]",
 								"valid": {
+									"min_y": "ceilInt(`bigglobe:overworld/surface_y`)",
 									"max_y": "`bigglobe:overworld/sea_level`"
 								}
 							}
@@ -124,7 +124,7 @@
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
 								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
-								"if (`bigglobe:overworld/height_adjusted_foliage`(x, y, z) > 0.0L:",
+								"if (`bigglobe:overworld/surface_foliage`(x, z) > 0.0L:",
 									"ConfiguredFeature feature = `bigglobe:overworld/foliage_feature`(x, z)",
 									"if (feature != null: placeFeature(x, y, z, feature))",
 								")",
@@ -144,7 +144,8 @@
 							"script": "`bigglobe:overworld/biome`",
 							"all_possible_biomes": "bigglobe:overworld"
 						}
-					}
+					},
+					"overriders": "bigglobe:overworld"
 				},
 				"old_value": {
 					"height": {
@@ -556,7 +557,8 @@
 							"script": "Biome('minecraft:plains')",
 							"all_possible_biomes": "bigglobe:overworld"
 						}
-					}
+					},
+					"overriders": "bigglobe:nether"
 				},
 				"old_value": {
 					"min_y": 0,
@@ -595,7 +597,8 @@
 							"script": "Biome('minecraft:plains')",
 							"all_possible_biomes": "bigglobe:overworld"
 						}
-					}
+					},
+					"overriders": "bigglobe:end"
 				},
 				"old_value": {
 					"min_y": -512,

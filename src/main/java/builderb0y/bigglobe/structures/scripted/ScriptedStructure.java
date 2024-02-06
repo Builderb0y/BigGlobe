@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.structures.scripted;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -12,6 +11,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -22,13 +22,13 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
@@ -57,15 +57,15 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		Permuter permuter = Permuter.from(context.random());
 		int x = context.chunkPos().getStartX() | permuter.nextInt(16);
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
-		WorldColumn column = WorldColumn.forGenerator(context.seed(), context.chunkGenerator(), context.noiseConfig(), x, z);
-		int y = column.getFinalTopHeightI();
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator, distantHorizons);
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(x, y, z),
-				collector -> {
+				new BlockPos(x, 0, z),
+				(StructurePiecesCollector collector) -> {
 					CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-					this.layout.layout(x, z, permuter, column, pieces, distantHorizons);
+					this.layout.layout(lookup, x, z, permuter, pieces, distantHorizons);
 					for (StructurePiece piece : pieces) {
 						collector.addPiece(piece);
 					}

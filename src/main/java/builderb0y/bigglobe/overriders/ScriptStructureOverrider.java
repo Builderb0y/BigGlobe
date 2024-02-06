@@ -19,7 +19,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public interface ScriptStructureOverrider extends Overrider {
+public interface ScriptStructureOverrider extends LegacyOverrider {
 
 	public static final MutableScriptEnvironment START_MOVE_DH_ENVIRONMENT = (
 		new MutableScriptEnvironment()
@@ -40,7 +40,7 @@ public interface ScriptStructureOverrider extends Overrider {
 	}
 
 	@Wrapper
-	public static class Holder extends Overrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
+	public static class Holder extends LegacyOverrider.Holder<ScriptStructureOverrider> implements ScriptStructureOverrider {
 
 		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 			super(usage);

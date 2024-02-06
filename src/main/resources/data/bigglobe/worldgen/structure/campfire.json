@@ -14,10 +14,8 @@
 				")",
 			")",
 
-			"int originY = ceilInt(`bigglobe:overworld/surface_y`(originX, originZ))",
-			"Biome biome = getBiome(originX, originY, originZ)",
-			"WoodPalette palette = WoodPalette.randomForBiome(biome)",
-			"String paletteID = palette.?id ?: return()",
+			"int originY = ceilInt(`bigglobe:overworld/surface_y`)",
+			"String paletteID = `bigglobe:overworld/wood_palette`.?id ?: return()",
 
 			";campfire",
 			"pieces.add(ScriptStructurePiece.new(",

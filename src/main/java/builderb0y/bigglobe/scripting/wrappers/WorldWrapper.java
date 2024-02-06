@@ -27,6 +27,8 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
+import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk;
@@ -72,14 +74,17 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
+	public static final ThreadLocal<Long2ObjectOpenHashMap<ScriptedColumn>> ACTIVE_COlUMNS = new ThreadLocal<>();
+
 	public final WorldOrChunk world;
 	public final BigGlobeScriptedChunkGenerator chunkGenerator;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final RandomGenerator random;
 	public final ScriptedColumn.Factory columnFactory;
-	public Long2ObjectOpenHashMap<ScriptedColumn> columns;
+	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
 	public final boolean distantHorizons;
+	public ScriptStructures structures;
 
 	public WorldWrapper(
 		WorldOrChunk world,
@@ -98,15 +103,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
+		Long2ObjectOpenHashMap<ScriptedColumn> columns = ACTIVE_COlUMNS.get();
+		this.columns = columns != null ? columns : new Long2ObjectOpenHashMap<>(64);
 	}
 
 	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
-		if (this.columns == null) {
-			this.columns = new Long2ObjectOpenHashMap<>(256);
-		}
 		return this.columns.computeIfAbsent(ColumnPos.pack(x, z), (long packedPos) -> {
-			return this.columnFactory.create(
+			ScriptedColumn column = this.columnFactory.create(
 				this.chunkGenerator.seed,
 				ColumnPos.getX(packedPos),
 				ColumnPos.getZ(packedPos),
@@ -114,6 +118,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				this.coordination.mutableArea.getMaxY(),
 				this.distantHorizons
 			);
+			if (this.structures != null) {
+				for (ColumnValueOverrider overrider : this.chunkGenerator.getOverriders().columnValues) {
+					overrider.override(column, this.structures);
+				}
+			}
+			return column;
 		});
 	}
 
@@ -213,7 +223,17 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
-		return pos != null && this.world.placeFeature(pos, feature.object(), MojangPermuter.from(this.random));
+		if (pos != null) {
+			boolean clear = ACTIVE_COlUMNS.get() == null;
+			if (clear) ACTIVE_COlUMNS.set(this.columns);
+			try {
+				return this.world.placeFeature(pos, feature.object(), MojangPermuter.from(this.random));
+			}
+			finally {
+				if (clear) ACTIVE_COlUMNS.set(null);
+			}
+		}
+		return false;
 	}
 
 	public StructurePlacementData newStructurePlacementData() {

@@ -127,6 +127,18 @@ public abstract class ScriptedColumn {
 
 		public static final int BUILTIN_FLAG_COUNT = 4;
 
+		public static final Info INFO = new Info();
+		public static class Info extends InfoHolder {
+
+			public MethodInfo
+				get_soft_distance,
+				get_soft_distance_squared,
+				get_hard_distance,
+				get_hard_distance_squared,
+				get_euclidean_distance,
+				get_euclidean_distance_squared;
+		}
+
 		/* public final synthetic ScriptedColumn$Generated_XXX column; */
 		public final VoronoiDiagram2D.Cell cell;
 		public final long seed;

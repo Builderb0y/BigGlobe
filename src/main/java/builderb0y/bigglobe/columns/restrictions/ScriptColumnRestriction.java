@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
@@ -29,8 +29,8 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 		}
 
 		@Override
-		public void addExtraFunctionsToEnvironment(MutableScriptEnvironment environment) {
-			super.addExtraFunctionsToEnvironment(environment);
+		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
+			super.addExtraFunctionsToEnvironment(registry, environment);
 			environment.addFunctionInvokeStatics(RangeColumnRestriction.class, "bandLinear", "bandSmooth");
 		}
 	}

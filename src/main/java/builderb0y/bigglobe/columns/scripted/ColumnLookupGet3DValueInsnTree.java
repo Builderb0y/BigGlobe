@@ -5,19 +5,19 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class ColumnLookup3DValueInsnTree implements InsnTree {
+public class ColumnLookupGet3DValueInsnTree implements InsnTree {
 
 	public static final MethodInfo LOOKUP_COLUMN = MethodInfo.getMethod(ScriptedColumnLookup.class, "lookupColumn");
 
 	public InsnTree lookup, x, y, z;
-	public MethodInfo _3DGetter;
+	public MethodInfo getter;
 
-	public ColumnLookup3DValueInsnTree(InsnTree lookup, InsnTree x, InsnTree y, InsnTree z, MethodInfo _3DGetter) {
+	public ColumnLookupGet3DValueInsnTree(InsnTree lookup, InsnTree x, InsnTree y, InsnTree z, MethodInfo getter) {
 		this.lookup = lookup;
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this._3DGetter = _3DGetter;
+		this.getter = getter;
 	}
 
 	@Override
@@ -29,13 +29,13 @@ public class ColumnLookup3DValueInsnTree implements InsnTree {
 		method.node.visitInsn(POP);
 		this.z.emitBytecode(method);
 		LOOKUP_COLUMN.emitBytecode(method);
-		method.node.visitTypeInsn(CHECKCAST, this._3DGetter.owner.getInternalName());
+		method.node.visitTypeInsn(CHECKCAST, this.getter.owner.getInternalName());
 		method.node.visitInsn(SWAP);
-		this._3DGetter.emitBytecode(method);
+		this.getter.emitBytecode(method);
 	}
 
 	@Override
 	public TypeInfo getTypeInfo() {
-		return this._3DGetter.returnType;
+		return this.getter.returnType;
 	}
 }

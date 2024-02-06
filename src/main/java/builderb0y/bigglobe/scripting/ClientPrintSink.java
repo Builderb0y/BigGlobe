@@ -49,12 +49,14 @@ public class ClientPrintSink implements PrintSink {
 
 	@Override
 	public void println(String value) {
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player != null) {
-			player.sendMessage(Text.literal("[Big Globe/Scripting]: " + value));
-		}
-		else {
-			ScriptLogger.LOGGER.info(value);
+		if (MinecraftClient.getInstance().getServer() != null) {
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			if (player != null) {
+				player.sendMessage(Text.literal("[Big Globe/Scripting]: " + value));
+			}
+			else {
+				ScriptLogger.LOGGER.info(value);
+			}
 		}
 	}
 }

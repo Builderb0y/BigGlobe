@@ -126,7 +126,7 @@ public interface SurfaceScript extends Script {
 			getDebugName.endCode();
 
 			try {
-				return (SurfaceScript)(registry.loader.defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+				return (SurfaceScript)(new ScriptClassLoader(registry.loader).defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
 			catch (Throwable throwable) {
 				throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);
@@ -139,7 +139,7 @@ public interface SurfaceScript extends Script {
 				parser.environment.user().push();
 				ExpressionParser newParser = new AnyNumericTypeExpressionParser(parser);
 				newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
-					throw new ScriptParsingException("For technical reasons, you cannot return from inside a dx block", parser1.input);
+					throw new ScriptParsingException("For technical reasons, you cannot return from inside a " + (z ? "dz" : "dx") + " block", parser1.input);
 				}));
 				VariableCapturer capturer = new VariableCapturer(newParser);
 				capturer.addCapturedParameters();

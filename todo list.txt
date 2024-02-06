@@ -22,7 +22,37 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 
-where I left off:
+4.0 stuff:
+	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
+		add exclusion to remove ring and bridge clouds from above the main end island.
+	option to specify that a grid column entry should use the hashed world seed,
+		not the seed that's been xor'd with the permutation of the entry's ID.
+		or better yet, a "salt" field.
+	cave noise should be salted with voronoi seed.
+	need to redo scripted noise which uses column values.
+	missing stuff:
+		the rest of the configured features.
+		cherry and mangrove trees.
+		skylands.
+		foliage colors.
+		nether and end.
+		ores.
+		rock layers.
+		flowers.
+		locate commands.
+		detect and report cyclic decision trees and cyclic column value dependencies.
+		player spawning.
+	re-evaluate if structure locating logic is necessary in chunk generator or not.
+	snow can spawn floating above cave entrances.
+	find an ocean monument to confirm they spawn correctly.
+	voronoi seed seemingly changes across world reloads or game reloads.
+		possibly related to loading a data pack with errors in it, fixing those errors, then reloading.
+	chest in large dungeon always faces the same direction.
+		possibly other sized dungeons too. didn't check.
+	cave overriders for dungeons?
+	redo layers to have separate before_children and after_children scripts.
+
+3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
 		add exclusion to remove ring and bridge clouds from above the main end island.
 	verify that snow still can't spawn on beaches.
@@ -32,28 +62,11 @@ where I left off:
 		call vanilla method instead.
 	remove ability for scripts to print things on the client in multiplayer.
 	make coral only spawn where temperature is high.
-	make user class declaration into another InsnTree?
-	make user method declaration no longer an InsnTree?
-	make fields on InsnTree's final.
-	option to specify that a grid column entry should use the hashed world seed,
-		not the seed that's been xor'd with the permutation of the entry's ID.
-		or better yet, a "salt" field.
 	make nether ores not require a biome field.
 	need end ores and end rock layers.
-	need to redo scripted noise which uses column values.
-	on main branch, fix seed.newSeed(int) not using the original seed to compute the new seed.
-	cave noise should be salted with voronoi seed.
-	missing stuff from 4.0:
-		the rest of the configured features.
-		overriders.
-		cherry and mangrove trees.
-		skylands.
-		foliage colors.
-		nether and end.
-		ores.
-		rock layers.
-		flowers.
-		detect and report cyclic decision trees and cyclic column value dependencies.
+	fix seed.newSeed(int) not using the original seed to compute the new seed.
+
+where I left off:
 
 changelog:
 	4.0:
@@ -73,6 +86,7 @@ scripting:
 		more sophisticated flow analysis to see what values could be where at any given time?
 			could help with more advanced constant jumps?
 		more sophisticated back-tracking algorithm for pop removal?
+		remove unnecessary parameters for user-defined functions.
 	more invoke syntaxes:
 		non-null invoke?
 			foo.!bar() requires that bar() return a non-null value.
@@ -105,6 +119,9 @@ scripting:
 			int Empty.increment(int value: value + 1)
 			Empty empty = new()
 			value .= empty.increment
+	make user class declaration into another InsnTree?
+	make user method declaration no longer an InsnTree?
+	make fields on InsnTree's final.
 
 features:
 	general:

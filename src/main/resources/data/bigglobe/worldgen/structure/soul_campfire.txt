@@ -11,11 +11,11 @@
 
 			"int getY(:",
 				"repeat (16:",
-					"int y = int(mixLinear(`bigglobe:nether/min_y`(originX, originZ), `bigglobe:nether/max_Y`(originX, originZ), random.nextDouble()))",
+					"int y = int(mixLinear(`bigglobe:nether/min_y`, `bigglobe:nether/max_Y`, random.nextDouble()))",
 					"unless (isTerrainAt(y):",
 						"do until (isTerrainAt(y):",
 							"--y",
-							"if (y < `nether/lava_level`(originX, originZ): return(16x8000_0000U))",
+							"if (y < `nether/lava_level`: return(16x8000_0000U))",
 						")",
 						"return(y + 1)",
 					")",

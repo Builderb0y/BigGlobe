@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.25,
+		"max": 0.75,
+		"column_value": "bigglobe:overworld/surface_temperature"
+	},
+	"if_true": "bigglobe:overworld/wood_palette/hot_test_forest",
+	"if_false": "bigglobe:overworld/wood_palette/test_cold"
+}

@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.lang.reflect.Parameter;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
@@ -10,7 +10,6 @@ import org.objectweb.asm.Type;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
@@ -43,7 +42,11 @@ public interface ColumnScript extends Script {
 
 		public abstract Class<S> getScriptClass();
 
-		public void addExtraFunctionsToEnvironment(MutableScriptEnvironment environment) {}
+		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {}
+
+		public boolean isColumnMutable() {
+			return false;
+		}
 
 		public S createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
 			Class<S> type = this.getScriptClass();
@@ -66,24 +69,33 @@ public interface ColumnScript extends Script {
 				actualColumn = new LazyVarInfo("column", registry.columnContext.columnType()),
 				random       = new LazyVarInfo("random", type(RandomGenerator.class)),
 				y            = new LazyVarInfo("y",      TypeInfos.INT);
-			Class<?>[] paramClasses = implementingMethod.getParameterTypes();
+			Parameter[] parameters = implementingMethod.getParameters();
 			boolean haveRandom = false, haveY = false;
 			for (int index = 0; index < paramCount; index++) {
-				Class<?> paramType = paramClasses[index];
+				Parameter parameter = parameters[index];
+				if (!parameter.isNamePresent()) throw new IllegalStateException(implementingMethod + " lacks parameter names!");
+				Class<?> paramType = parameter.getType();
+				String paramName = parameter.getName();
 				if (paramType == ScriptedColumn.class) {
+					if (!paramName.equals("column")) {
+						throw new IllegalStateException("ScriptedColumn parameter not named column");
+					}
 					bridgeParams[index] = bridgeColumn;
 					actualParams[index] = actualColumn;
 				}
 				else if (paramType == RandomGenerator.class) {
+					if (!paramName.equals("random")) {
+						throw new IllegalStateException("RandomGenerator parameter not named random");
+					}
 					haveRandom = true;
 					bridgeParams[index] = actualParams[index] = random;
 				}
-				else if (paramType == int.class) {
+				else if (paramType == int.class && paramName.equals("y")) {
 					haveY = true;
 					bridgeParams[index] = actualParams[index] = y;
 				}
 				else {
-					throw new RuntimeException("Unrecognized argument type: " + paramType + " on " + type);
+					bridgeParams[index] = actualParams[index] = new LazyVarInfo(paramName, type(paramType));
 				}
 			}
 
@@ -117,15 +129,15 @@ public interface ColumnScript extends Script {
 				new MutableScriptEnvironment()
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
+				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "minY", "maxY", "distantHorizons")
 				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
 				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
 				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)
 			);
 			if (haveY) environment.addVariableLoad(y);
 			if (haveRandom) environment.addAll(RandomScriptEnvironment.create(load(random)));
-			this.addExtraFunctionsToEnvironment(environment);
-			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn).withY(haveY ? load(y) : null));
+			this.addExtraFunctionsToEnvironment(registry, environment);
+			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn).withY(haveY ? load(y) : null).mutable(this.isColumnMutable()));
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);
@@ -140,7 +152,7 @@ public interface ColumnScript extends Script {
 			getDebugName.endCode();
 
 			try {
-				return type.cast(registry.loader.defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+				return type.cast(new ScriptClassLoader(registry.loader).defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
 			catch (Throwable throwable) {
 				throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);
@@ -756,8 +768,8 @@ public interface ColumnScript extends Script {
 			}
 
 			@Override
-			public void addExtraFunctionsToEnvironment(MutableScriptEnvironment environment) {
-				super.addExtraFunctionsToEnvironment(environment);
+			public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
+				super.addExtraFunctionsToEnvironment(registry, environment);
 				environment
 				.addType("Biome", BiomeEntry.TYPE)
 				.addType("BiomeTag", BiomeTagKey.TYPE)

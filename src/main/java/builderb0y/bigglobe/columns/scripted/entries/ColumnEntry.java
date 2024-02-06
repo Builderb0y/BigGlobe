@@ -13,7 +13,8 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
-import builderb0y.bigglobe.columns.scripted.ColumnLookup3DValueInsnTree;
+import builderb0y.bigglobe.columns.scripted.ColumnLookupGet3DValueInsnTree;
+import builderb0y.bigglobe.columns.scripted.ColumnLookupMutableGet3DValueInsnTree;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -24,8 +25,11 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.ArgumentedGetterSetterInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -33,7 +37,6 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
-import static org.objectweb.asm.Opcodes.*;
 
 @UseCoder(name = "REGISTRY", in = ColumnEntry.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
@@ -104,13 +107,24 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 	public default void setupExternalEnvironment(ColumnEntryMemory memory, ColumnCompileContext context, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		String exposedName = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
+		MethodInfo setter = params.mutable && memory.getTyped(ColumnEntryMemory.ENTRY).isSettable() ? memory.getTyped(ColumnEntryMemory.SETTER).info : null;
 		InsnTree loadColumn;
 		if (params.loadLookup != null) {
 			if (this.getAccessSchema().is_3d()) {
-				environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_THROW, arguments);
+				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
 					return new CastResult(
-						new ColumnLookup3DValueInsnTree(
+						setter != null
+						? new ColumnLookupMutableGet3DValueInsnTree(
+							params.loadLookup,
+							castArguments[0],
+							castArguments[1],
+							castArguments[2],
+							getter,
+							setter
+						)
+						: new ColumnLookupGet3DValueInsnTree(
 							params.loadLookup,
 							castArguments[0],
 							castArguments[1],
@@ -119,32 +133,33 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 						),
 						castArguments != arguments
 					);
-				});
+				}));
 			}
 			else {
-				environment.addFunction(exposedName, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_THROW, arguments);
-					return new CastResult(
+				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
+					DirectCastInsnTree castColumn = new DirectCastInsnTree(
 						invokeInstance(
-							new DirectCastInsnTree(
-								invokeInstance(
-									params.loadLookup,
-									ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
-									castArguments
-								),
-								getter.owner
-							),
-							getter
+							params.loadLookup,
+							ColumnLookupGet3DValueInsnTree.LOOKUP_COLUMN,
+							castArguments
 						),
+						getter.owner
+					);
+					return new CastResult(
+						setter != null
+						? new GetterSetterInsnTree(castColumn, getter, setter)
+						: invokeInstance(castColumn, getter),
 						castArguments != arguments
 					);
-				});
+				}));
 			}
 			if (params.loadX != null) {
 				loadColumn = new DirectCastInsnTree(
 					invokeInstance(
 						params.loadLookup,
-						ColumnLookup3DValueInsnTree.LOOKUP_COLUMN,
+						ColumnLookupGet3DValueInsnTree.LOOKUP_COLUMN,
 						params.loadX,
 						params.loadZ
 					),
@@ -160,16 +175,35 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry> {
 		}
 		if (loadColumn != null) {
 			if (this.getAccessSchema().is_3d()) {
-				environment.addFunctionInvoke(exposedName, loadColumn, getter);
+				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
+					return new CastResult(
+						setter != null
+						? new GetterSetterInsnTree(loadColumn, getter, setter)
+						: invokeInstance(loadColumn, getter, castArguments),
+						castArguments != arguments
+					);
+				}));
 				InsnTree loadY = params.loadY;
 				if (loadY != null) {
-					environment.addVariable(exposedName, new VariableHandler.Named("Y level: " + loadY, (ExpressionParser parser, String name) -> {
-						return invokeInstance(loadColumn, getter, loadY);
+					environment.addVariable(exposedName, new VariableHandler.Named(getter.toString(), (ExpressionParser parser, String name) -> {
+						return (
+							setter != null
+							? new ArgumentedGetterSetterInsnTree(loadColumn, getter, setter, loadY)
+							: invokeInstance(loadColumn, getter, loadY)
+						);
 					}));
 				}
 			}
 			else {
-				environment.addVariableRenamedInvoke(loadColumn, exposedName, getter);
+				environment.addVariable(exposedName, new VariableHandler.Named(getter.toString(), (ExpressionParser parser, String name) -> {
+					return (
+						setter != null
+						? new GetterSetterInsnTree(loadColumn, getter, setter)
+						: invokeInstance(loadColumn, getter)
+					);
+				}));
 			}
 		}
 	}
