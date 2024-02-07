@@ -69,7 +69,7 @@ public class ColumnEntryRegistry {
 			entry.getValue().putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
 			entry.getValue().putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
 		}
-		voronois.streamEntries().forEach((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
+		voronois.streamEntries().sorted(Comparator.comparing(UnregisteredObjectException::getID)).forEachOrdered((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
 			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
 			if (columnEntry instanceof VoronoiColumnEntry) {
 				ColumnEntryMemory memory = this.memories.get(UnregisteredObjectException.getID(voronoiEntry.value().owner()));
@@ -85,7 +85,7 @@ public class ColumnEntryRegistry {
 			.streamEntries()
 			.map(RegistryEntry::value)
 			.map(VoronoiSettings::enables)
-			.flatMap(Arrays::stream)
+			.flatMap(Set::stream)
 			.map(UnregisteredObjectException::getID)
 			.collect(Collectors.toSet())
 		);

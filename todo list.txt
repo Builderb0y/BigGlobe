@@ -50,7 +50,6 @@ testing:
 	chest in large dungeon always faces the same direction.
 		possibly other sized dungeons too. didn't check.
 	cave overriders for dungeons?
-	redo layers to have separate before_children and after_children scripts.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

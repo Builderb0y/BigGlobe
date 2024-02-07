@@ -34,5 +34,9 @@
 				]
 			}
 		}
+	},
+	"valid": {
+		"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - depth",
+		"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
 	}
 }

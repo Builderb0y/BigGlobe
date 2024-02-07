@@ -10,9 +10,5 @@
 			}
 		},
 		"is_3d": false
-	},
-	"value": {
-		"bottom": "minecraft:air",
-		"above": "minecraft:air"
 	}
 }

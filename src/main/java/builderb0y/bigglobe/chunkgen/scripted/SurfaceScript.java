@@ -37,7 +37,6 @@ public interface SurfaceScript extends Script {
 		ScriptedColumn adjacentColumnX,
 		ScriptedColumn adjacentColumnZ,
 		ScriptedColumn adjacentColumnXZ,
-		int originY,
 		BlockSegmentList segments
 	);
 
@@ -67,7 +66,6 @@ public interface SurfaceScript extends Script {
 				new LazyVarInfo("adjacentColumnX", type(ScriptedColumn.class)),
 				new LazyVarInfo("adjacentColumnZ", type(ScriptedColumn.class)),
 				new LazyVarInfo("adjacentColumnXZ", type(ScriptedColumn.class)),
-				new LazyVarInfo("originY", TypeInfos.INT),
 				new LazyVarInfo("segments", type(BlockSegmentList.class))
 			};
 			LazyVarInfo[] actualParams = {
@@ -75,7 +73,6 @@ public interface SurfaceScript extends Script {
 				new LazyVarInfo("adjacentColumnX",  registry.columnContext.columnType()),
 				new LazyVarInfo("adjacentColumnZ",  registry.columnContext.columnType()),
 				new LazyVarInfo("adjacentColumnXZ", registry.columnContext.columnType()),
-				new LazyVarInfo("originY",          TypeInfos.INT),
 				new LazyVarInfo("segments",         type(BlockSegmentList.class))
 			};
 			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, "generateSurface", TypeInfos.VOID, actualParams);
@@ -89,7 +86,6 @@ public interface SurfaceScript extends Script {
 					new DirectCastInsnTree(load("adjacentColumnX",  type(ScriptedColumn.class)), registry.columnContext.columnType()),
 					new DirectCastInsnTree(load("adjacentColumnZ",  type(ScriptedColumn.class)), registry.columnContext.columnType()),
 					new DirectCastInsnTree(load("adjacentColumnXZ", type(ScriptedColumn.class)), registry.columnContext.columnType()),
-					load("originY", TypeInfos.INT),
 					load("segments", type(BlockSegmentList.class))
 				)
 			)
@@ -102,16 +98,16 @@ public interface SurfaceScript extends Script {
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addAll(MinecraftScriptEnvironment.create())
-				.addVariableLoad("originY", TypeInfos.INT)
 				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
 				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
 				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
 				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)
 				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates")
+				.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))
 			);
-			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn).withY(load("originY", TypeInfos.INT)));
+			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn));
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);
@@ -154,7 +150,6 @@ public interface SurfaceScript extends Script {
 				LazyVarInfo adjacentColumnX  = new LazyVarInfo("adjacentColumnX",  registry.columnContext.columnType());
 				LazyVarInfo adjacentColumnZ  = new LazyVarInfo("adjacentColumnZ",  registry.columnContext.columnType());
 				LazyVarInfo adjacentColumnXZ = new LazyVarInfo("adjacentColumnXZ", registry.columnContext.columnType());
-				LazyVarInfo originY          = new LazyVarInfo("originY",          TypeInfos.INT);
 				LazyVarInfo segments         = new LazyVarInfo("segments",         type(BlockSegmentList.class));
 
 				MethodDeclarationInsnTree declaration = new MethodDeclarationInsnTree(
@@ -167,7 +162,6 @@ public interface SurfaceScript extends Script {
 							adjacentColumnX,
 							adjacentColumnZ,
 							adjacentColumnXZ,
-							originY,
 							segments
 						),
 						capturer.streamImplicitParameters()
@@ -183,7 +177,6 @@ public interface SurfaceScript extends Script {
 						load(adjacentColumnX),
 						load(adjacentColumnZ),
 						load(adjacentColumnXZ),
-						load(originY),
 						load(segments)
 					},
 					capturer.implicitParameters.toArray(new LoadInsnTree[capturer.implicitParameters.size()]),
@@ -195,7 +188,6 @@ public interface SurfaceScript extends Script {
 						load(z ? adjacentColumnXZ : mainColumn      ),
 						load(z ? mainColumn       : adjacentColumnXZ),
 						load(z ? adjacentColumnX  : adjacentColumnZ ),
-						load(originY),
 						load(segments)
 					},
 					capturer.implicitParameters.toArray(new LoadInsnTree[capturer.implicitParameters.size()]),
@@ -233,11 +225,10 @@ public interface SurfaceScript extends Script {
 			ScriptedColumn adjacentColumnX,
 			ScriptedColumn adjacentColumnZ,
 			ScriptedColumn adjacentColumnXZ,
-			int y,
 			BlockSegmentList segments
 		) {
 			try {
-				this.script.generateSurface(mainColumn, adjacentColumnX, adjacentColumnZ, adjacentColumnXZ, y, segments);
+				this.script.generateSurface(mainColumn, adjacentColumnX, adjacentColumnZ, adjacentColumnXZ, segments);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

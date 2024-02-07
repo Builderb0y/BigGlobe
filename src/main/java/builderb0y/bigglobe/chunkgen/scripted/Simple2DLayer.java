@@ -13,11 +13,11 @@ public class Simple2DLayer extends Layer {
 	public Simple2DLayer(
 		@VerifyNullable Valid valid,
 		Layer @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder top_surface,
-		SurfaceScript.@VerifyNullable Holder bottom_surface,
+		SurfaceScript.@VerifyNullable Holder before_children,
+		SurfaceScript.@VerifyNullable Holder after_children,
 		BlockState state
 	) {
-		super(valid, children, top_surface, bottom_surface);
+		super(valid, children, before_children, after_children);
 		this.state = state;
 	}
 

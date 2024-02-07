@@ -15,12 +15,12 @@ public class Simple3DLayer extends Layer {
 	public Simple3DLayer(
 		@VerifyNullable Valid valid,
 		Layer @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder top_surface,
-		SurfaceScript.@VerifyNullable Holder bottom_surface,
+		SurfaceScript.@VerifyNullable Holder before_children,
+		SurfaceScript.@VerifyNullable Holder after_children,
 		BlockState state,
 		ColumnYToBooleanScript.Holder condition
 	) {
-		super(valid, children, top_surface, bottom_surface);
+		super(valid, children, before_children, after_children);
 		this.state = state;
 		this.condition = condition;
 	}

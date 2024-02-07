@@ -22,18 +22,18 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public final @VerifyNullable Valid valid;
 	public final Layer @DefaultEmpty [] children;
-	public final SurfaceScript.@VerifyNullable Holder top_surface, bottom_surface;
+	public final SurfaceScript.@VerifyNullable Holder before_children, after_children;
 
 	public Layer(
 		@VerifyNullable Valid valid,
 		Layer @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder top_surface,
-		SurfaceScript.@VerifyNullable Holder bottom_surface
+		SurfaceScript.@VerifyNullable Holder before_children,
+		SurfaceScript.@VerifyNullable Holder after_children
 	) {
 		this.valid = valid;
 		this.children = children;
-		this.top_surface = top_surface;
-		this.bottom_surface = bottom_surface;
+		this.before_children = before_children;
+		this.after_children = after_children;
 	}
 
 	public abstract void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks);
@@ -42,53 +42,9 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 		if (this.validWhere(column)) {
 			BlockSegmentList bounded = segments.split(segments.minY(), segments.maxY());
 			this.emitSelfSegments(column, bounded);
-
-			if (this.bottom_surface != null || this.top_surface != null) {
-				int[] bottomSurfaces = null, topSurfaces = null;
-
-				if (this.bottom_surface != null) {
-					int size = bounded.size();
-					bottomSurfaces = new int[size];
-					for (int index = 0; index < size; index++) {
-						bottomSurfaces[index] = bounded.get(index).minY;
-					}
-				}
-
-				if (this.top_surface != null) {
-					int size = bounded.size();
-					topSurfaces = new int[size];
-					for (int index = 0; index < size; index++) {
-						topSurfaces[index] = bounded.get(index).maxY;
-					}
-				}
-
-				if (this.bottom_surface != null) {
-					for (int segmentIndex = 0, segmentCount = bottomSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
-						this.bottom_surface.generateSurface(
-							column,
-							altX,
-							altZ,
-							altXZ,
-							bottomSurfaces[segmentIndex],
-							bounded
-						);
-					}
-				}
-
-				if (this.top_surface != null) {
-					for (int segmentIndex = 0, segmentCount = topSurfaces.length; segmentIndex < segmentCount; segmentIndex++) {
-						this.top_surface.generateSurface(
-							column,
-							altX,
-							altZ,
-							altXZ,
-							topSurfaces[segmentIndex],
-							bounded
-						);
-					}
-				}
+			if (this.before_children != null) {
+				this.before_children.generateSurface(column, altX, altZ, altXZ, bounded);
 			}
-
 			if (this.children.length != 0) {
 				BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
 				BlockSegmentList split2 = split.split(split.minY(), split.maxY());
@@ -98,6 +54,9 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 					split2.reset();
 				}
 				bounded.mergeAndKeepWhereThereAreBlocks(split);
+			}
+			if (this.after_children != null) {
+				this.after_children.generateSurface(column, altX, altZ, altXZ, bounded);
 			}
 			segments.mergeAndKeepEverywhere(bounded);
 		}

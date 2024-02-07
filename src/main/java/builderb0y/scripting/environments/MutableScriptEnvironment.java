@@ -300,6 +300,17 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addVariable(method.name, invokeInstance(receiver, method));
 	}
 
+	public MutableScriptEnvironment addVariableInvoke(InsnTree receiver, Class<?> in, String name) {
+		return this.addVariable(name, invokeInstance(receiver, MethodInfo.getMethod(in, name)));
+	}
+
+	public MutableScriptEnvironment addVariableInvokes(InsnTree receiver, Class<?> in, String... names) {
+		for (String name : names) {
+			this.addVariableInvoke(receiver, in, name);
+		}
+		return this;
+	}
+
 	//////////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addVariableInvokeStatic(String name, MethodInfo method) {

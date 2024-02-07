@@ -10,13 +10,14 @@
 		"bigglobe:overworld/caves/biased_secondary_noise",
 		"bigglobe:overworld/caves/ledge_noise",
 		"bigglobe:overworld/caves/mushroom_floor",
-		"bigglobe:overworld/caves/no_ceiling"
+		"bigglobe:overworld/caves/no_ceiling",
+		"bigglobe:overworld/caves/no_surface_depth"
 	],
 	"exports": {
 		"noise":          "bigglobe:overworld/caves/easy_noise",
 		"depth":          "bigglobe:overworld/caves/easy_depth",
 		"floor_depth":    "bigglobe:overworld/caves/surface_depth_noise",
-		"ceiling_depth":  "bigglobe:overworld/caves/surface_depth_noise",
+		"ceiling_depth":  "bigglobe:overworld/caves/no_surface_depth",
 		"floor_states":   "bigglobe:overworld/caves/mushroom_floor",
 		"ceiling_states": "bigglobe:overworld/caves/no_ceiling"
 	}
