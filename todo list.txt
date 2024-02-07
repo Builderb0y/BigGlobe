@@ -47,8 +47,6 @@ testing:
 	find an ocean monument to confirm they spawn correctly.
 	voronoi seed seemingly changes across world reloads or game reloads.
 		possibly related to loading a data pack with errors in it, fixing those errors, then reloading.
-	chest in large dungeon always faces the same direction.
-		possibly other sized dungeons too. didn't check.
 	cave overriders for dungeons?
 
 3.x stuff:
@@ -57,6 +55,7 @@ testing:
 	verify that snow still can't spawn on beaches.
 		I may have the order of operations wrong in OverworldColumn.computeSnowHeight().
 		it may need to compute snowChance *after* accounting for sea level, not before.
+	fix snow stripes, now that I know how to do that.
 	do not calculate counts manually in SectionGenerationContext, as this will conflict with lithium.
 		call vanilla method instead.
 	remove ability for scripts to print things on the client in multiplayer.
@@ -64,12 +63,15 @@ testing:
 	make nether ores not require a biome field.
 	need end ores and end rock layers.
 	fix seed.newSeed(int) not using the original seed to compute the new seed.
+	fix dungeon chests always facing the same direction.
+		missing override for SymmetricCoordinator.setBlockStateAndBlockEntity()
 
 where I left off:
 
 changelog:
 	4.0:
-		Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
+		* Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
+		* Some underground structures are now less secret.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

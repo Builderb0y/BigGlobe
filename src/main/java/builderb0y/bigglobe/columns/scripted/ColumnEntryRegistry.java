@@ -122,7 +122,7 @@ public class ColumnEntryRegistry {
 			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-						this.columnLookup,
+					this.columnLookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
 					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class, boolean.class),

@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.util.coordinators;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 
 import builderb0y.bigglobe.util.Symmetry;
@@ -104,6 +106,30 @@ public class SymmetricCoordinator extends ScratchPosCoordinator {
 				Symmetry symmetry = Symmetry.VALUES[index];
 				symmetricSupplier.currentSymmetry = symmetry;
 				this.delegate.setBlockState(symmetry.getX(x, z), y, symmetry.getZ(x, z), symmetricSupplier);
+			}
+		}
+	}
+
+	@Override
+	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		int symmetries = this.symmetries;
+		for (int index = 0; index < 8; index++) {
+			if ((symmetries & (1 << index)) != 0) {
+				Symmetry symmetry = Symmetry.VALUES[index];
+				this.delegate.setBlockStateAndBlockEntity(symmetry.getX(x, z), y, symmetry.getZ(x, z), symmetry.apply(state), blockEntityClass, action);
+			}
+		}
+	}
+
+	@Override
+	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
+		if (state == null) return;
+		int symmetries = this.symmetries;
+		for (int index = 0; index < 8; index++) {
+			if ((symmetries & (1 << index)) != 0) {
+				Symmetry symmetry = Symmetry.VALUES[index];
+				this.delegate.setBlockStateAndBlockEntity(symmetry.getX(x, z), y, symmetry.getZ(x, z), symmetry.apply(state), blockEntityType, action);
 			}
 		}
 	}
