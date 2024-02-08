@@ -36,6 +36,8 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseXorInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -55,9 +57,10 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
 		Grid2D grid2D,
-		Grid3D grid3D
+		Grid3D grid3D,
+		DecodeContext<?> decodeContext
 	) {
-		super(params, valid, cache);
+		super(params, valid, cache, decodeContext);
 		this.grid2D = grid2D;
 		this.grid3D = grid3D;
 		if (!(params.type() instanceof FloatColumnValueType || params.type() instanceof DoubleColumnValueType)) {
@@ -77,7 +80,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		computeAllMethod.setCode(
 			"""
 			grid.getBulkY(
-				column.seed # salt,
+				seed(salt),
 				column.x,
 				valueField.minCached,
 				column.z,
@@ -88,7 +91,9 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			.addVariableConstant("grid", constantGrid)
 			.addMethodInvoke(Grid3D.class, "getBulkY")
 			.addVariable("column", context.loadColumn())
-			.addFieldGet(ScriptedColumn.class, "seed")
+			.addFunction("seed", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				return new CastResult(context.loadSeed(arguments[0]), false);
+			})
 			.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
 			.addFieldGet(ScriptedColumn.class, "x")
 			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
@@ -157,11 +162,11 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			boolean cache = context.getMember("cache").decodeWith(this.cache);
 			if (params.is_3d()) {
 				Grid3D grid = context.getMember("grid").decodeWith(this.grid3D);
-				return new NoiseColumnEntry(params, valid, cache, null, grid);
+				return new NoiseColumnEntry(params, valid, cache, null, grid, context);
 			}
 			else {
 				Grid2D grid = context.getMember("grid").decodeWith(this.grid2D);
-				return new NoiseColumnEntry(params, valid, cache, grid, null);
+				return new NoiseColumnEntry(params, valid, cache, grid, null, context);
 			}
 		}
 

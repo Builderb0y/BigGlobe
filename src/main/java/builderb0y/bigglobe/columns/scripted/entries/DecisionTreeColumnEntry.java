@@ -6,6 +6,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valid;
@@ -27,9 +28,10 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
-		RegistryEntry<DecisionTreeSettings> root
+		RegistryEntry<DecisionTreeSettings> root,
+		DecodeContext<?> decodeContext
 	) {
-		super(params, valid, cache);
+		super(params, valid, cache, decodeContext);
 		this.root = root;
 	}
 

@@ -142,6 +142,11 @@ public class ColumnCompileContext extends DataCompileContext {
 	}
 
 	@Override
+	public InsnTree loadSeed(InsnTree salt) {
+		return ScriptedColumn.INFO.seed(this.loadColumn());
+	}
+
+	@Override
 	public FieldInfo flagsField(int index) {
 		return new FieldInfo(
 			ACC_PUBLIC,

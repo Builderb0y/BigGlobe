@@ -15,7 +15,6 @@ import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType.ClassColu
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -96,6 +95,11 @@ public class CustomClassCompileContext extends DataCompileContext {
 
 	@Override
 	public InsnTree loadColumn() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public InsnTree loadSeed(InsnTree salt) {
 		throw new UnsupportedOperationException();
 	}
 

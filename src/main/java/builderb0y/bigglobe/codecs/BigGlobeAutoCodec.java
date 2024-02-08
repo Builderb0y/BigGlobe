@@ -209,6 +209,7 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
+							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
@@ -248,6 +249,7 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
+							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {

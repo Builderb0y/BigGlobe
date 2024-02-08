@@ -82,6 +82,11 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	}
 
 	@Override
+	public InsnTree loadSeed(InsnTree salt) {
+		return VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt);
+	}
+
+	@Override
 	public FieldInfo flagsField(int index) {
 		throw new UnsupportedOperationException();
 	}

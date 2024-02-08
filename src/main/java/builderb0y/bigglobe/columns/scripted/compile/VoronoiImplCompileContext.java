@@ -75,6 +75,11 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 	}
 
 	@Override
+	public InsnTree loadSeed(InsnTree salt) {
+		return VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt);
+	}
+
+	@Override
 	public FieldInfo flagsField(int index) {
 		return new FieldInfo(
 			ACC_PUBLIC,

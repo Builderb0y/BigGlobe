@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
@@ -18,9 +19,10 @@ public class ScriptColumnEntry extends AbstractColumnEntry {
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
-		ScriptUsage<GenericScriptTemplateUsage> script
+		ScriptUsage<GenericScriptTemplateUsage> script,
+		DecodeContext<?> decodeContext
 	) {
-		super(params, valid, cache);
+		super(params, valid, cache, decodeContext);
 		this.script = script;
 	}
 

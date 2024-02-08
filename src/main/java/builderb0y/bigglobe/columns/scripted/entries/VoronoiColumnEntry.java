@@ -8,6 +8,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
@@ -64,9 +65,10 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	public VoronoiColumnEntry(
 		VoronoiDiagram2D diagram,
 		AccessSchema params,
-		@VerifyNullable Valid valid
+		@VerifyNullable Valid valid,
+		DecodeContext<?> decodeContext
 	) {
-		super(params, valid, true);
+		super(params, valid, true, decodeContext);
 		this.diagram = diagram;
 		if (!(params.type() instanceof VoronoiColumnValueType)) {
 			throw new IllegalArgumentException("params.type must be 'bigglobe:voronoi' when column value type is 'bigglobe:voronoi'");

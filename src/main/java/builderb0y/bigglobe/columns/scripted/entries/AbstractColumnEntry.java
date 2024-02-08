@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import org.jetbrains.annotations.Nullable;
+
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
@@ -9,6 +13,7 @@ import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -28,6 +33,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+@AddPseudoField("decodeContext")
 public abstract class AbstractColumnEntry implements ColumnEntry {
 
 	public static final ColumnEntryMemory.Key<MethodCompileContext>
@@ -41,10 +47,17 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
 
-	public AbstractColumnEntry(AccessSchema params, @VerifyNullable Valid valid, @DefaultBoolean(true) boolean cache) {
+	public AbstractColumnEntry(AccessSchema params, @VerifyNullable Valid valid, @DefaultBoolean(true) boolean cache, DecodeContext<?> decodeContext) {
 		this.params = params;
 		this.valid = valid;
 		this.cache = cache;
+		if (params.is_3d() && cache && (valid == null || valid.min_y() == null || valid.max_y() == null)) {
+			decodeContext.logger().logError("Upper or lower bound not specified, and caching is enabled. This may result in poor worldgen performance, as it may compute more Y levels than intended.");
+		}
+	}
+
+	public @Nullable DecodeContext<?> decodeContext() {
+		return null;
 	}
 
 	@Override

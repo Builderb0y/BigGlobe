@@ -55,6 +55,8 @@ public abstract class DataCompileContext {
 
 	public abstract InsnTree loadColumn();
 
+	public abstract InsnTree loadSeed(InsnTree salt);
+
 	public abstract FieldInfo flagsField(int index);
 
 	public void addAccessor(InsnTree loadHolder, String name, MethodInfo getter) {

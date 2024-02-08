@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns.scripted;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
+import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -131,12 +132,51 @@ public abstract class ScriptedColumn {
 		public static class Info extends InfoHolder {
 
 			public MethodInfo
+				column,
 				get_soft_distance,
 				get_soft_distance_squared,
 				get_hard_distance,
 				get_hard_distance_squared,
 				get_euclidean_distance,
-				get_euclidean_distance_squared;
+				get_euclidean_distance_squared,
+				unsalted_seed,
+				salted_seed;
+
+			public InsnTree column(InsnTree receiver) {
+				return invokeInstance(receiver, this.column);
+			}
+
+			public InsnTree get_soft_distance(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_soft_distance);
+			}
+
+			public InsnTree get_soft_distance_squared(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_soft_distance_squared);
+			}
+
+			public InsnTree get_hard_distance(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_hard_distance);
+			}
+
+			public InsnTree get_hard_distance_squared(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_hard_distance_squared);
+			}
+
+			public InsnTree get_euclidean_distance(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_euclidean_distance);
+			}
+
+			public InsnTree get_euclidean_distance_squared(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_euclidean_distance_squared);
+			}
+
+			public InsnTree unsalted_seed(InsnTree receiver) {
+				return invokeInstance(receiver, this.unsalted_seed);
+			}
+
+			public InsnTree salted_seed(InsnTree receiver, InsnTree salt) {
+				return invokeInstance(receiver, this.salted_seed, salt);
+			}
 		}
 
 		/* public final synthetic ScriptedColumn$Generated_XXX column; */
@@ -151,6 +191,16 @@ public abstract class ScriptedColumn {
 		}
 
 		public abstract ScriptedColumn column();
+
+		public long unsalted_seed() {
+			SeedPoint seedPoint = this.cell.center;
+			return Permuter.permute(this.column().seed, seedPoint.cellX, seedPoint.cellZ);
+		}
+
+		public long salted_seed(long salt) {
+			SeedPoint seedPoint = this.cell.center;
+			return Permuter.permute(this.column().seed ^ salt, seedPoint.cellX, seedPoint.cellZ);
+		}
 
 		public int get_cell_x() {
 			return this.cell.center.cellX;
