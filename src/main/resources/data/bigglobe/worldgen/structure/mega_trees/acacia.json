@@ -10,6 +10,9 @@
 		"palette": "minecraft:acacia",
 		"size":            { "min": 96.0, "max": 192.0 },
 		"trunk_radius":    { "min":  4.0, "max":   8.0 },
-		"branch_sparsity": { "min":  2.0, "max":   4.0 }
+		"branch_sparsity": { "min":  2.0, "max":   4.0 },
+		"surface_y": "`bigglobe:overworld/surface_y`",
+		"foliage": "`bigglobe:overworld/surface_foliage`",
+		"snow_chance": "`bigglobe:overworld/snow_chance`"
 	}
 }

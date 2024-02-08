@@ -22,6 +22,8 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 
+where I left off:
+
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
 		add exclusion to remove ring and bridge clouds from above the main end island.
@@ -32,8 +34,8 @@ testing:
 	need to redo scripted noise which uses column values.
 	missing stuff:
 		the rest of the configured features.
-		cherry and mangrove trees.
 		skylands.
+		cave decorations.
 		foliage colors.
 		nether and end.
 		ores.
@@ -43,11 +45,13 @@ testing:
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
 	re-evaluate if structure locating logic is necessary in chunk generator or not.
-	snow can spawn floating above cave entrances.
 	find an ocean monument to confirm they spawn correctly.
 	voronoi seed seemingly changes across world reloads or game reloads.
 		possibly related to loading a data pack with errors in it, fixing those errors, then reloading.
 	cave overriders for dungeons?
+	add boolean ScriptedColumn.heightmapOnly.
+		currently, village houses can spawn over a cave, and it will stay in the cave.
+		additionally, height overriders mean that the terrain gets weird in that area.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -65,8 +69,7 @@ testing:
 	fix seed.newSeed(int) not using the original seed to compute the new seed.
 	fix dungeon chests always facing the same direction.
 		missing override for SymmetricCoordinator.setBlockStateAndBlockEntity()
-
-where I left off:
+	fix surface mineshafts spawning in biomes in the "well" tag.
 
 changelog:
 	4.0:

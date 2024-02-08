@@ -19,6 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -109,8 +110,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public Room(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Room(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -167,8 +168,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, 0, new BlockBox(x - 2, y, z - 2, x + 2, y + 1, z + 2), palette, facing, seed);
 		}
 
-		public ChestPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public ChestPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -201,8 +202,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setBars(random.nextBoolean());
 		}
 
-		public SpawnerPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		public boolean hasBars() {
@@ -273,8 +274,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setOrientation(orientation);
 		}
 
-		public TrapPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public TrapPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -329,8 +330,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setRight(position + width - 1);
 		}
 
-		public Hall(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		public static Hall create(Room from, Room to, Direction direction, RandomGenerator random) {
@@ -376,8 +377,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall0(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -397,8 +398,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall1(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -421,8 +422,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall2(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall2(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -446,8 +447,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall3(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall3(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

@@ -355,7 +355,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			if (variantCount > 0) this.variant = (byte)(random.nextInt(variantCount));
 		}
 
-		public Piece(StructurePieceType type, NbtCompound nbt) {
+		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 			this.variant = nbt.getByte("var");
 		}
@@ -556,8 +556,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			});
 		}
 
-		public MainBuildingPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public MainBuildingPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.centerPos = new BlockPos(
 				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
 				this.boundingBox.getMinY(),
@@ -745,8 +745,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, new BlockBox(x - 4, y, z - 4, x + 4, y + 17, z + 4), random, 16);
 		}
 
-		public PortalPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public PortalPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.centerPos = new BlockPos(
 				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
 				this.boundingBox.getMinY(),
@@ -835,8 +835,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			this.initBoundingBox(x, y, z, random);
 		}
 
-		public DecorationPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public DecorationPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.centerPos = new BlockPos(
 				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
 				this.isCeiling() ? this.boundingBox.getMaxY() : this.boundingBox.getMinY(),
@@ -898,8 +898,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 2);
 		}
 
-		public WellPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public WellPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -936,8 +936,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 2);
 		}
 
-		public FarmPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public FarmPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -1078,8 +1078,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			});
 		}
 
-		public TablePiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public TablePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.decorationBlocks = readListFromNBTCompound(nbt, "decorations", PositionState::new);
 		}
 
@@ -1133,8 +1133,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 4);
 		}
 
-		public FurnacePiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public FurnacePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -1204,8 +1204,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 1);
 		}
 
-		public SpawnerPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

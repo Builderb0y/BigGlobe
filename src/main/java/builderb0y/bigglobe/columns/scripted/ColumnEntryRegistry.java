@@ -76,7 +76,7 @@ public class ColumnEntryRegistry {
 				memory.addOrGet(VoronoiColumnEntry.OPTIONS, () -> new ArrayList<>(8)).add(voronoiEntry);
 			}
 			else {
-				throw new IllegalArgumentException("voronoi_settings " + UnregisteredObjectException.getID(voronoiEntry) + " is owned by column_value " + UnregisteredObjectException.getID(voronoiEntry.value().owner()) + " but this column value is not of type voronoi_2d.");
+				throw new IllegalArgumentException("voronoi_settings " + UnregisteredObjectException.getID(voronoiEntry) + " is owned by column_value " + UnregisteredObjectException.getID(voronoiEntry.value().owner()) + " but this column value is not of type voronoi.");
 			}
 		});
 

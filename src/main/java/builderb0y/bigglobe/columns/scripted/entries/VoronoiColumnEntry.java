@@ -41,7 +41,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiColumnEntry extends AbstractColumnEntry {
 
-	public static final ColumnEntryMemory.Key<Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext>>
+	public static final ColumnEntryMemory.Key<LinkedHashMap<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext>>
 		VORONOI_CONTEXT_MAP = new ColumnEntryMemory.Key<>("voronoiContextMap");
 	public static final ColumnEntryMemory.Key<Map<MemoryMapLookup, ColumnEntryMemory>>
 		MEMORY_MAP = new ColumnEntryMemory.Key<>("memoryMap");
@@ -149,7 +149,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		VoronoiBaseCompileContext voronoiBaseContext = (VoronoiBaseCompileContext)(Objects.requireNonNull(baseType.context()));
 		voronoiBaseContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "SEED", TypeInfos.LONG).node.value = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 
-		Map<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new HashMap<>();
+		LinkedHashMap<RegistryKey<VoronoiSettings>, VoronoiImplCompileContext> voronoiContextMap = new LinkedHashMap<>();
 		memory.putTyped(VORONOI_CONTEXT_MAP, voronoiContextMap);
 		for (Map.Entry<String, AccessSchema> entry : this.exports().entrySet()) {
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.root().getTypeContext(entry.getValue().type()).type(), entry.getValue().getterParameters());

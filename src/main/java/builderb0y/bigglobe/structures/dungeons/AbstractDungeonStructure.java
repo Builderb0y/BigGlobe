@@ -19,6 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -173,12 +174,19 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.palette = palette;
 		}
 
-		public DungeonPiece(StructurePieceType type, NbtCompound nbt) {
+		public DungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 			this.variant = nbt.getByte("var");
 			NbtElement paletteNBT = nbt.get("palette");
 			if (paletteNBT != null) try {
-				this.palette = BigGlobeAutoCodec.AUTO_CODEC.decode(Palette.CODER, paletteNBT, NbtOps.INSTANCE);
+				this.palette = BigGlobeAutoCodec.AUTO_CODEC.decode(
+					Palette.CODER,
+					paletteNBT,
+					RegistryOps.of(
+						NbtOps.INSTANCE,
+						context.registryManager()
+					)
+				);
 			}
 			catch (DecodeException exception) {
 				throw new RuntimeException(exception);
@@ -225,8 +233,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.decorators = decorators;
 		}
 
-		public RoomDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public RoomDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			String id = nbt.getString("decorators");
 			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id));
 		}
@@ -351,8 +359,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.setInnerRadius(innerRadius);
 		}
 
-		public PitDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public PitDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		public void setToRandomType(RandomGenerator random) {
@@ -412,8 +420,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.seed = seed;
 		}
 
-		public ChestDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public ChestDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.seed = nbt.getLong("seed");
 		}
 
@@ -448,8 +456,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.spawnerType = spawnerType;
 		}
 
-		public SpawnerDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public SpawnerDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			String id = nbt.getString("entityType");
 			if (id.isEmpty()) id = "minecraft:zombie";
 			this.spawnerType = RegistryVersions.entityType().get(new Identifier(id));
@@ -481,8 +489,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, chainLength, boundingBox, palette);
 		}
 
-		public HallDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public HallDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 			this.sidewaysness = nbt.getByte("side");
 		}
 
@@ -545,8 +553,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, length, boundingBox, palette);
 		}
 
-		public DecorationDungeonPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public DecorationDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 	}
 

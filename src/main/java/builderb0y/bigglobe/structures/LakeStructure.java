@@ -9,6 +9,7 @@ import org.joml.Vector3d;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.BlockBox;
@@ -179,8 +180,8 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 			);
 		}
 
-		public Piece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

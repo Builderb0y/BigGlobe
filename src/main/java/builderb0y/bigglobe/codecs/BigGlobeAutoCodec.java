@@ -196,6 +196,7 @@ public class BigGlobeAutoCodec {
 				@Override
 				public void setup() {
 					super.setup();
+					this.addFactoryToStart(UseSuperClass.EncoderFactory.INSTANCE);
 					this.addFactoryBefore(LookupEncoderFactory.class, GridRegistryEntryCoder.ENCODER_FACTORY);
 					this.getFactory(EnumEncoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
@@ -234,6 +235,7 @@ public class BigGlobeAutoCodec {
 				@Override
 				public void setup() {
 					super.setup();
+					this.addFactoryToStart(UseSuperClass.DecoderFactory.INSTANCE);
 					this.addFactoryBefore(LookupDecoderFactory.class, GridRegistryEntryCoder.DECODER_FACTORY);
 					this.getFactory(EnumDecoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}

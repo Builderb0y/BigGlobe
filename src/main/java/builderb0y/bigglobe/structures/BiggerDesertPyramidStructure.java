@@ -90,7 +90,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(rotation);
 		}
 
-		public MainPiece(StructurePieceType type, NbtCompound nbt) {
+		public MainPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
 		}
@@ -495,7 +495,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public UndergroundRoomPiece(StructurePieceType type, NbtCompound nbt) {
+		public UndergroundRoomPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 			this.chestSeed = nbt.getLong("chestSeed");
 		}
@@ -581,7 +581,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			super(type, length, boundingBox);
 		}
 
-		public UndergroundHallPiece(StructurePieceType type, NbtCompound nbt) {
+		public UndergroundHallPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 		}
 
@@ -602,8 +602,8 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			this.setOrientation(direction);
 		}
 
-		public UndergroundHall0Piece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public UndergroundHall0Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -627,8 +627,8 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			this.setOrientation(direction);
 		}
 
-		public UndergroundHall1Piece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public UndergroundHall1Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -654,8 +654,8 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			this.setOrientation(direction);
 		}
 
-		public UndergroundHall2Piece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public UndergroundHall2Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

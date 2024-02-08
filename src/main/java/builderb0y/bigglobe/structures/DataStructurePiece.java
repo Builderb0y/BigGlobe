@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockBox;
 
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 /**
@@ -34,7 +33,7 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 		this.data = data;
 	}
 
-	public DataStructurePiece(StructurePieceType type, NbtCompound nbt) {
+	public DataStructurePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 		super(type, nbt);
 		try {
 			this.data = BigGlobeAutoCodec.AUTO_CODEC.decode(
@@ -42,7 +41,7 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 				nbt.getCompound("data"),
 				RegistryOps.of(
 					NbtOps.INSTANCE,
-					BigGlobeMod.getCurrentServer().getRegistryManager()
+					context.registryManager()
 				)
 			);
 		}

@@ -7,6 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -16,13 +17,21 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.structure.Structure;
 
+import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.columns.OverworldColumn;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
@@ -30,14 +39,33 @@ import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
-	public static record Data(double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
+	public static record Data(
+		RegistryEntry<Structure> structure,
+		@Hidden MegaTreeStructure actualStructure,
+		double x,
+		double y,
+		double z,
+		double radius,
+		int step,
+		int totalSteps,
+		RegistryEntry<WoodPalette> wood
+	) {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+
+		public Data(RegistryEntry<Structure> structure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
+			this(structure, (MegaTreeStructure)(structure.value()), x, y, z, radius, step, totalSteps, wood);
+		}
+
+		public Data(MegaTreeStructure actualStructure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
+			this(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure()).getEntry(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
+		}
 
 		public Vector3d position() {
 			return new Vector3d(this.x, this.y, this.z);
@@ -50,19 +78,19 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public MegaTreeBall(
 		StructurePieceType type,
+		MegaTreeStructure structure,
 		double x,
 		double y,
 		double z,
 		double radius,
 		int currentStep,
-		int totalSteps,
-		RegistryEntry<WoodPalette> woodPalette
+		int totalSteps
 	) {
 		super(
 			type,
 			0,
 			null,
-			new Data(x, y, z, radius, currentStep, totalSteps, woodPalette)
+			new Data(structure, x, y, z, radius, currentStep, totalSteps, structure.data.palette())
 		);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		double totalRadius = radius + extraLeafRadius;
@@ -78,24 +106,25 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public MegaTreeBall(
 		StructurePieceType type,
+		MegaTreeStructure structure,
 		MegaTreeBranch branch,
 		Vector3d position,
 		double radius
 	) {
 		this(
 			type,
+			structure,
 			position.x,
 			position.y,
 			position.z,
 			radius,
 			branch.currentStep,
-			branch.totalSteps,
-			branch.context.data.palette()
+			branch.totalSteps
 		);
 	}
 
-	public MegaTreeBall(StructurePieceType type, NbtCompound nbt) {
-		super(type, nbt);
+	public MegaTreeBall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		super(type, context, nbt);
 	}
 
 	@Override
@@ -114,8 +143,8 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		BlockPos pivot
 	) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
-		WorldColumn column = WorldColumn.forWorld(world, 0, 0);
-		OverworldColumn overworldColumn = column instanceof OverworldColumn ? ((OverworldColumn)(column)) : null;
+		ColumnToDoubleScript.Holder snowChance = this.data.actualStructure.data.snow_chance();
+		ScriptedColumn column = snowChance != null && chunkGenerator instanceof BigGlobeScriptedChunkGenerator scriptedGenerator ? scriptedGenerator.newColumn(world, 0, 0, DistantHorizonsCompat.isOnDistantHorizonThread()) : null;
 
 		double
 			centerX = this.data.x,
@@ -163,7 +192,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 							break;
 						}
 					}
-					this.placeSnow(world, pos.setY(maxY + 1), overworldColumn, permuter);
+					this.placeSnow(world, pos.setY(maxY + 1), column, snowChance, permuter);
 				}
 			}
 		}
@@ -196,7 +225,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					) {
 						world.setBlockState(pos, palette.leavesState(permuter, 7, true, false), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 					}
-					this.placeSnow(world, pos.setY(topY + 1), overworldColumn, permuter);
+					this.placeSnow(world, pos.setY(topY + 1), column, snowChance, permuter);
 				}
 			}
 		}
@@ -211,10 +240,10 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		return state.isAir() || state.getBlock() instanceof SnowBlock;
 	}
 
-	public void placeSnow(StructureWorldAccess world, BlockPos.Mutable pos, OverworldColumn overworldColumn, Permuter permuter) {
-		if (overworldColumn != null) {
-			overworldColumn.setPosUnchecked(pos.getX(), pos.getZ());
-			if (world.isAir(pos) && Permuter.nextChancedBoolean(permuter, overworldColumn.getSnowChance())) {
+	public void placeSnow(StructureWorldAccess world, BlockPos.Mutable pos, ScriptedColumn column, ColumnToDoubleScript.Holder snowChance, Permuter permuter) {
+		if (column != null) {
+			column.setPos(pos.getX(), pos.getZ());
+			if (world.isAir(pos) && Permuter.nextChancedBoolean(permuter, snowChance.get(column))) {
 				world.setBlockState(pos, BlockStates.SNOW, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 			}
 		}

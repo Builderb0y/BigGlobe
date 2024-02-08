@@ -13,6 +13,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -100,8 +101,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public Room(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Room(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -138,8 +139,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			this.setOrientation(direction);
 		}
 
-		public ChestPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public ChestPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -163,8 +164,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super(type, 0, new BlockBox(x, y, z, x, y, z), palette, spawnerType);
 		}
 
-		public SpawnerPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -208,8 +209,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			this.setRight(position + width - 1);
 		}
 
-		public Hall(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		public static Hall create(Room from, Room to, Direction direction, RandomGenerator random) {
@@ -241,8 +242,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall0(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -259,8 +260,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, palette, direction, random);
 		}
 
-		public Hall1(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

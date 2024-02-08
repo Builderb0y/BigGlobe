@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:overworld/surface_foliage` > 0.0I"
+	},
+	"if_true": "bigglobe:overworld/biome/cherry_forest",
+	"if_false": "bigglobe:overworld/biome/cherry_plains"
+}

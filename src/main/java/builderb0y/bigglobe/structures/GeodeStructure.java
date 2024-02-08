@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.property.Properties;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.*;
@@ -258,8 +259,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			);
 		}
 
-		public MainPiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public MainPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override
@@ -453,8 +454,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			);
 		}
 
-		public SpikePiece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public SpikePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

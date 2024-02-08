@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import org.joml.Vector3d;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -206,8 +207,8 @@ public class NetherPillarStructure extends BigGlobeStructure {
 			super(type, 0, boundingBox, data);
 		}
 
-		public Piece(StructurePieceType type, NbtCompound nbt) {
-			super(type, nbt);
+		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+			super(type, context, nbt);
 		}
 
 		@Override

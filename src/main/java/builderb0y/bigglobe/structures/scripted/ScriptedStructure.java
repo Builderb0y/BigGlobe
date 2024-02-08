@@ -104,7 +104,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this(BigGlobeStructures.SCRIPTED_PIECE, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ), placement, data);
 		}
 
-		public Piece(StructurePieceType type, NbtCompound nbt) {
+		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
 			this.originalBoundingBox = BlockBox.CODEC.parse(NbtOps.INSTANCE, nbt.get("OBB")).getOrThrow(true, BigGlobeMod.LOGGER::error);
 			NbtElement transform = nbt.get("transform");

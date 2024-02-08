@@ -4,7 +4,6 @@
 	"effects": {
 		"fog_color": 12638463,
 		"foliage_color": 11983713,
-		"grass_color": 11983713,
 		"mood_sound": {
 			"block_search_extent": 8,
 			"offset": 2.0,
@@ -50,5 +49,5 @@
 		"water_ambient": [],
 		"water_creature": []
 	},
-	"temperature": 1.0
+	"temperature": 0.5
 }

@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.5,
+		"max": 1.0,
+		"column_value": "bigglobe:overworld/magicalness"
+	},
+	"if_true": "bigglobe:overworld/biome/cherry_test_forest",
+	"if_false": "bigglobe:overworld/biome/temperate_test_ominous"
+}

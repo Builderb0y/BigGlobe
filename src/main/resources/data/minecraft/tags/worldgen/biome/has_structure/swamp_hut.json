@@ -3,7 +3,6 @@
 	"values": [
 		"#bigglobe:beach",
 		"bigglobe:shallow_ocean",
-		"bigglobe:swamp",
-		"bigglobe:swamp_forest"
+		"#bigglobe:swamps"
 	]
 }

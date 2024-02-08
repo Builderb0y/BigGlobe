@@ -7,6 +7,6 @@
 		"smooth_max": false,
 		"column_value": "bigglobe:overworld/snow_chance"
 	},
-	"if_true": "bigglobe:overworld/wood_palette/cold_test_forest",
-	"if_false": "bigglobe:overworld/wood_palette/temperate_test_forest"
+	"if_true": "bigglobe:overworld/foliage_features/cold_test_forest",
+	"if_false": "bigglobe:overworld/foliage_features/temperate_test_magical"
 }

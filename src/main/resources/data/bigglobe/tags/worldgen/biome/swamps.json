@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:swamp",
+		"bigglobe:swamp_plains",
 		"bigglobe:swamp_forest"
 	]
 }
