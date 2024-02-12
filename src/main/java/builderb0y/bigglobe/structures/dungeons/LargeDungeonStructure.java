@@ -6,6 +6,7 @@ import java.util.random.RandomGenerator;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -35,7 +36,6 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
@@ -44,7 +44,10 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class LargeDungeonStructure extends AbstractDungeonStructure {
 
@@ -120,7 +123,58 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
+		public void generate(
+			StructureWorldAccess world,
+			StructureAccessor structureAccessor,
+			ChunkGenerator chunkGenerator,
+			Random random,
+			BlockBox chunkBox,
+			ChunkPos chunkPos,
+			BlockPos pivot
+		) {
+			super.generate(
+				world,
+				structureAccessor,
+				chunkGenerator,
+				random,
+				chunkBox,
+				chunkPos,
+				pivot
+			);
+			if (!this.hasPit() && this.support) {
+				BlockBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
+				if (intersection == null) return;
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				CoordinateSupplier<BlockState> mainBlock = this.palette().mainSupplier();
+				int centerX = this.x();
+				int centerZ = this.z();
+				for (pos.setZ(intersection.getMinZ()); pos.getZ() <= intersection.getMaxZ(); pos.setZ(pos.getZ() + 1)) {
+					for (pos.setX(intersection.getMinX()); pos.getX() <= intersection.getMaxX(); pos.setX(pos.getX() + 1)) {
+						int gap = Math.min(Math.abs(pos.getX() - centerX), Math.abs(pos.getZ() - centerZ));
+						if (gap > 1) {
+							pos.setY(this.y() - 1);
+							if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
+								world.setBlockState(pos, mainBlock.get(pos), Block.NOTIFY_ALL);
+								if (gap > 2) {
+									while (!world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) {
+										if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
+											world.setBlockState(pos, mainBlock.get(pos), Block.NOTIFY_ALL);
+										}
+										else {
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		@Override
 		public void addDecorations(LabyrinthLayout layout) {
+			super.addDecorations(layout);
 			Direction orientation;
 			if (this.hasPit()) {
 				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(4), layout.random));

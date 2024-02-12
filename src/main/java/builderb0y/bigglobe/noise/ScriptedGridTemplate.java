@@ -46,7 +46,7 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 
 		public final RegistryEntry<ScriptTemplate> template;
 		public final transient ScriptedGridTemplate actualTemplate;
-		public final @DefaultEmpty Map<@IdentifierName String, String> inputs;
+		public final @DefaultEmpty Map<@IdentifierName String, @MultiLine String> inputs;
 
 		public ScriptedGridTemplateUsage(
 			RegistryEntry<ScriptTemplate> template,
@@ -73,7 +73,7 @@ public class ScriptedGridTemplate implements ScriptTemplate {
 		}
 
 		@Override
-		public Map<String, String> getProvidedInputs() {
+		public Map<String, @MultiLine String> getProvidedInputs() {
 			return this.inputs;
 		}
 

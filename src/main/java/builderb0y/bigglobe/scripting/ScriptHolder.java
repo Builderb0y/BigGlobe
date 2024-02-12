@@ -20,11 +20,11 @@ public abstract class ScriptHolder<S extends Script> extends ScriptErrorCatcher.
 
 	@Override
 	public @MultiLine String getSource() {
-		return this.script.getSource();
+		return this.script != null ? this.script.getSource() : null;
 	}
 
 	@Override
 	public @Nullable String getDebugName() {
-		return this.script.getDebugName();
+		return this.script != null ? this.script.getDebugName() : null;
 	}
 }

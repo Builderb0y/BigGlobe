@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"getBlockState(originX, originY - 1, originZ).hasFullCubeOutline()",
+			"&& placeBlockState(originX, originY, originZ,",
+				"random.if (0.0625:",
+					"random.nextBoolean(0.25)",
+					"? 'minecraft:flowering_azalea'",
+					": 'minecraft:azalea'",
+				")",
+				"else (",
+					"switch (floorInt(double r = random.nextDouble() r * (2.0L - r) * `bigglobe:overworld/cave`.surface_depth):",
+						"case (0: 'bigglobe:short_grass')",
+						"case (1: random.nextBoolean(0.25) ? 'minecraft:fern' : 'minecraft:grass')",
+						"case (2: random.nextBoolean(0.25) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]')",
+						"case (3: BlockState('minecraft:small_dripleaf', facing: random.switch('north', 'east', 'south', 'west'), half: 'lower', waterlogged: false))",
+						"default (return(placeFeature(originX, originY, originZ, 'bigglobe:overworld/caves/big_dripleaf')))",
+					")",
+				")",
+			")"
+		]
+	}
+}

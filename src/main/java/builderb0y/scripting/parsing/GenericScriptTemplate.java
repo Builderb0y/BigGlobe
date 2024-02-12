@@ -7,6 +7,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MultiLine;
+import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 public class GenericScriptTemplate implements ScriptTemplate {
 
@@ -32,7 +33,7 @@ public class GenericScriptTemplate implements ScriptTemplate {
 
 		public final RegistryEntry<ScriptTemplate> template;
 		public final transient GenericScriptTemplate actualTemplate;
-		public final Map<String, String> inputs;
+		public final @DefaultEmpty Map<@IdentifierName String, @MultiLine String> inputs;
 
 		public GenericScriptTemplateUsage(RegistryEntry<ScriptTemplate> template, Map<String, String> inputs) {
 			if (template.value() instanceof GenericScriptTemplate actualTemplate) {
@@ -56,7 +57,7 @@ public class GenericScriptTemplate implements ScriptTemplate {
 		}
 
 		@Override
-		public Map<String, String> getProvidedInputs() {
+		public Map<String, @MultiLine String> getProvidedInputs() {
 			return this.inputs;
 		}
 	}

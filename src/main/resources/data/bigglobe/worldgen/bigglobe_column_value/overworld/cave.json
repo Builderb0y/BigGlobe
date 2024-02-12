@@ -7,8 +7,7 @@
 			"exports": {
 				"noise": { "type": "float", "is_3d": true },
 				"depth": { "type": "int", "is_3d": false },
-				"floor_depth": { "type": "float", "is_3d": false },
-				"ceiling_depth": { "type": "float", "is_3d": false },
+				"surface_depth": { "type": "float", "is_3d": false },
 				"floor_states": {
 					"type": {
 						"type": "bigglobe:class",
@@ -29,6 +28,10 @@
 							"above": "block_state"
 						}
 					},
+					"is_3d": false
+				},
+				"decorator": {
+					"type": "bigglobe:configured_feature",
 					"is_3d": false
 				}
 			}

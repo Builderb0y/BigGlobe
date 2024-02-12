@@ -1,0 +1,34 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.isIn('bigglobe:dungeons'):",
+			"OverworldCaveCell cell = `bigglobe:overworld/cave`(start.minX, start.minZ)",
+			"if (cell != `bigglobe:overworld/cave`(start.minX, start.maxZ): return(false))",
+			"if (cell != `bigglobe:overworld/cave`(start.maxX, start.minZ): return(false))",
+			"if (cell != `bigglobe:overworld/cave`(start.maxX, start.maxZ): return(false))",
+
+			"int maxSpawnY = min(",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.maxZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.maxZ))",
+			")",
+			"- 16",
+			"- start.sizeY",
+
+			"int minSpawnY = max(",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.minX, start.maxZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.minZ)),",
+				"int(`bigglobe:overworld/surface_y`(start.maxX, start.maxZ))",
+			")",
+			"- cell.depth",
+			"+ 16",
+
+			"if (minSpawnY >= maxSpawnY: return(false))",
+
+			"start.move(random.nextInt(minSpawnY, maxSpawnY) - start.minY)",
+		")",
+		"return(true)"
+	]
+}

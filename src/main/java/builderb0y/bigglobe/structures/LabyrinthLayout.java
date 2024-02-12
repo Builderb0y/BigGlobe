@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -187,6 +188,39 @@ public abstract class LabyrinthLayout {
 			ObjectArrays.swap(horizontals, random.nextInt(index), --index);
 		}
 		return horizontals;
+	}
+
+	public boolean isSharingFloor(RoomPiece piece) {
+		class Checker implements RoomPiece {
+
+			public final BlockBox box;
+
+			public Checker(RoomPiece from) {
+				this.box = from.boundingBox();
+			}
+
+			@Override
+			public BlockBox boundingBox() {
+				return this.box;
+			}
+
+			@Override
+			public boolean intersectsY(LabyrinthPiece that) {
+				return that.boundingBox().getMaxY() == this.boundingBox().getMinY();
+			}
+
+			@Override
+			public void setPos(int x, int y, int z) {}
+
+			@Override
+			public @Nullable RoomPiece getConnectedRoom(Direction direction) {
+				return null;
+			}
+
+			@Override
+			public void setConnectedRoom(Direction direction, RoomPiece piece) {}
+		}
+		return this.rooms.contains(new Checker(piece));
 	}
 
 	public static interface LabyrinthPiece {

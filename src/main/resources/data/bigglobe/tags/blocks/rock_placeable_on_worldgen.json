@@ -1,0 +1,13 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:base_stone_overworld",
+		"minecraft:cobblestone",
+		"minecraft:polished_granite",
+		"minecraft:polished_diorite",
+		"minecraft:polished_andesite",
+		"minecraft:dripstone_block",
+		"minecraft:calcite",
+		"minecraft:tuff"
+	]
+}

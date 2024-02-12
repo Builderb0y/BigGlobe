@@ -1,0 +1,19 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:cave_decorator",
+			"inputs": {
+				"STEP": [
+					"double surfaceDepth = `bigglobe:overworld/cave`.surface_depth",
+					"surfaceDepth > 0.0L ? 2.0L / surfaceDepth + 2.0L : 16.0L"
+				],
+				"FEATURE": [
+					"`bigglobe:overworld/cave`.surface_depth > 0.0L",
+					"? 'bigglobe:overworld/caves/lush_floor_ceiling'",
+					": 'bigglobe:overworld/caves/rock'"
+				]
+			}
+		}
+	}
+}

@@ -98,7 +98,7 @@ public interface SurfaceScript extends Script {
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addAll(MinecraftScriptEnvironment.create())
-				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons")
+				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons", "heightmapOnly")
 				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
 				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
 				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)

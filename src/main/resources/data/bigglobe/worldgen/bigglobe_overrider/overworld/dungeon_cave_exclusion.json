@@ -1,0 +1,32 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure.isIn('bigglobe:dungeons'):",
+				"int structureMinY = start.minY",
+				"int structureMaxY = start.maxY",
+				"int bufferMinY = structureMinY - 16",
+				"int bufferMaxY = structureMaxY + 16",
+				"float horizontalFactor = clamp(0.0, 1.0, 1.0 - distanceToCircle(start).as(float) * 0.0625) ^ 2",
+				"OverworldCaveCell cell = `bigglobe:overworld/cave`",
+				"for (",
+					"int y in range(",
+						"max(bufferMinY, ceilInt(`bigglobe:overworld/surface_y`) - cell.depth),",
+						"min(bufferMaxY, ceilInt(`bigglobe:overworld/surface_y`))",
+					")",
+				":",
+					"float verticalFactor = if (y < structureMinY:",
+						"unmixLinear(double(bufferMinY), double(structureMinY), double(y)).as(float) ^ 2",
+					")",
+					"else if (y > structureMaxY:",
+						"unmixLinear(double(bufferMaxY), double(structureMaxY), double(y)).as(float) ^ 2",
+					")",
+					"else (",
+						"1.0",
+					")",
+					"cell.noise(y) *= 1.0 - horizontalFactor * verticalFactor",
+				")",
+			")",
+		")"
+	]
+}

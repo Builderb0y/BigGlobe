@@ -27,10 +27,12 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -49,10 +51,18 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static class Info extends InfoHolder {
 
 		public FieldInfo random, distantHorizons;
-		public MethodInfo getSeed;
+		public MethodInfo getSeed, minValidYLevel, maxValidYLevel;
 
 		public InsnTree getSeed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.getSeed);
+		}
+
+		public InsnTree minValidYLevel(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.minValidYLevel);
+		}
+
+		public InsnTree maxValidYLevel(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.maxValidYLevel);
 		}
 
 		public InsnTree random(InsnTree loadWorld) {
@@ -227,7 +237,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			boolean clear = ACTIVE_COlUMNS.get() == null;
 			if (clear) ACTIVE_COlUMNS.set(this.columns);
 			try {
-				return this.world.placeFeature(pos, feature.object(), MojangPermuter.from(this.random));
+				Permuter permuter = new Permuter(Permuter.permute(this.getSeed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
+				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 			}
 			finally {
 				if (clear) ACTIVE_COlUMNS.set(null);
@@ -259,7 +270,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			case ROTATE_180, FLIP_90 -> BlockRotation.CLOCKWISE_180;
 			case ROTATE_270, FLIP_45 -> BlockRotation.COUNTERCLOCKWISE_90;
 		});
-		this.world.placeStructureTemplate(x, y, z, template, data, this.random);
+		Permuter permuter = new Permuter(Permuter.permute(this.getSeed() ^ 0xD6ABF6E7480FDDE0L, x, y, z));
+		this.world.placeStructureTemplate(x, y, z, template, data, permuter);
 	}
 
 	public boolean isYLevelValid(int y) {
@@ -268,6 +280,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public boolean isPositionValid(int x, int y, int z) {
 		return this.isYLevelValid(y) && this.mutablePos(x, y, z) != null;
+	}
+
+	public int minValidYLevel() {
+		return this.world.getBottomY();
+	}
+
+	public int maxValidYLevel() {
+		return this.world.getTopY();
 	}
 
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {

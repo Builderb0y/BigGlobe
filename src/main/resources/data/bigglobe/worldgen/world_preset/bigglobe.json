@@ -74,12 +74,11 @@
 										"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
 										"after_children": [
 											"OverworldCaveCell cave = `bigglobe:overworld/cave`",
-											"float rawFloorDepth = cave.floor_depth",
-											"float rawCeilingDepth = cave.ceiling_depth",
+											"float rawDepth = cave.surface_depth",
 											"CaveFloorStates floorStates = cave.floor_states",
 											"CaveCeilingStates ceilingStates = cave.ceiling_states",
-											"boolean canGenerateFloor = rawFloorDepth > 0.0L && floorStates != null",
-											"boolean canGenerateCeiling = rawCeilingDepth > 0.0L && ceilingStates != null",
+											"boolean canGenerateFloor = rawDepth > 0.0L && floorStates != null",
+											"boolean canGenerateCeiling = rawDepth > 0.0L && ceilingStates != null",
 											"if (canGenerateFloor || canGenerateCeiling:",
 												"int surfaceY = ceilInt(`bigglobe:overworld/surface_y`)",
 												"int maxCaveDepth = `bigglobe:overworld/cave`.depth",
@@ -87,10 +86,10 @@
 												"for (int y in range[max(surfaceY - maxCaveDepth, minY), min(surfaceY, maxY)):",
 													"boolean haveCave = getBlockState(y) != null",
 													"if (haveCave && !hadCave && canGenerateFloor:",
-														"int floorDepth = floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawFloorDepth)) + 1",
+														"int floorDepth = floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) + 1",
 														"for (int offset in range(0, floorDepth]:",
 															"if (getBlockState(y - offset) != null:",
-																"floorDepth = offset",
+																"floorDepth = offset - 1",
 																"break()",
 															")",
 														")",
@@ -98,10 +97,10 @@
 														"setBlockState(y - 1, floorStates.top)",
 													")",
 													"else if (!haveCave && hadCave && canGenerateCeiling:",
-														"int ceilingDepth = floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawCeilingDepth)) + 1",
+														"int ceilingDepth = floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)) + 1",
 														"for (int offset in range[0, ceilingDepth):",
 															"if (getBlockState(y + offset) != null:",
-																"ceilingDepth = offset + 1",
+																"ceilingDepth = offset",
 																"break()",
 															")",
 														")",
@@ -113,7 +112,7 @@
 											")"
 										],
 										"valid": {
-											"where": "!distantHorizons",
+											"where": "!distantHorizons && !heightmapOnly",
 											"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/cave`.depth",
 											"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
 										}
@@ -133,6 +132,12 @@
 					"feature_dispatcher": {
 						"normal": [
 							"Random random = new(worldSeed, minModifiableX >> 4, minModifiableZ >> 4)",
+							"for (",
+								"int z in range[minModifiableZ, maxModifiableZ],",
+								"int x in range[minModifiableX, maxModifiableX]",
+							":",
+								"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
+							")",
 							"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",

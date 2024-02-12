@@ -6,6 +6,8 @@ import java.util.random.RandomGenerator;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
@@ -38,6 +40,7 @@ import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class MediumDungeonStructure extends AbstractDungeonStructure {
@@ -114,7 +117,56 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
+		public void generate(
+			StructureWorldAccess world,
+			StructureAccessor structureAccessor,
+			ChunkGenerator chunkGenerator,
+			Random random,
+			BlockBox chunkBox,
+			ChunkPos chunkPos,
+			BlockPos pivot
+		) {
+			super.generate(
+				world,
+				structureAccessor,
+				chunkGenerator,
+				random,
+				chunkBox,
+				chunkPos,
+				pivot
+			);
+			if (!this.hasPit() && this.support) {
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				int x = this.x(), y = this.y() - 1, z = this.z();
+				Coordinator rotator = this.coordinator(world, chunkBox).rotate4x90();
+				rotator.setBlockStateLine(-1, -1, -3, 0, 0, 3, 3, this.palette().stairsSupplier(BlockHalf.TOP, Direction.EAST, StairShape.STRAIGHT));
+				rotator.setBlockState(-2, -1, 0, this.palette().stairsSupplier(BlockHalf.TOP, Direction.WEST, StairShape.STRAIGHT));
+				this.generateDown(world, pos.set(x,     y, z    ), chunkBox);
+				this.generateDown(world, pos.set(x - 3, y, z    ), chunkBox);
+				this.generateDown(world, pos.set(x + 3, y, z    ), chunkBox);
+				this.generateDown(world, pos.set(x,     y, z - 3), chunkBox);
+				this.generateDown(world, pos.set(x,     y, z + 3), chunkBox);
+			}
+		}
+
+		public void generateDown(StructureWorldAccess world, BlockPos.Mutable pos, BlockBox chunkBox) {
+			if (chunkBox.contains(pos)) {
+				CoordinateSupplier<BlockState> mainSupplier = this.palette().mainSupplier();
+				while (true) {
+					if (world.getBlockState(pos).isReplaceable()) {
+						world.setBlockState(pos, mainSupplier.get(pos), Block.NOTIFY_ALL);
+						if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
+		@Override
 		public void addDecorations(LabyrinthLayout layout) {
+			super.addDecorations(layout);
 			Direction deadEndDirection;
 			if (this.hasPit()) {
 				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(3), layout.random));

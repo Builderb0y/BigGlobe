@@ -18,31 +18,35 @@ public abstract class ScriptedColumn {
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public FieldInfo seed, x, z, minY, maxY, distantHorizons;
+		public FieldInfo seed, x, z, minY, maxY, distantHorizons, heightmapOnly;
 		public MethodInfo unsaltedSeed, saltedSeed;
 
 		public InsnTree seed(InsnTree loadColumn) {
-			return getField(loadColumn, this.seed);
+			return getField(loadColumn, this.seed.makeFinal());
 		}
 
 		public InsnTree x(InsnTree loadColumn) {
-			return getField(loadColumn, this.x);
+			return getField(loadColumn, this.x.makeFinal());
 		}
 
 		public InsnTree z(InsnTree loadColumn) {
-			return getField(loadColumn, this.z);
+			return getField(loadColumn, this.z.makeFinal());
 		}
 
 		public InsnTree minY(InsnTree loadColumn) {
-			return getField(loadColumn, this.minY);
+			return getField(loadColumn, this.minY.makeFinal());
 		}
 
 		public InsnTree maxY(InsnTree loadColumn) {
-			return getField(loadColumn, this.maxY);
+			return getField(loadColumn, this.maxY.makeFinal());
 		}
 
 		public InsnTree distantHorizons(InsnTree loadColumn) {
-			return getField(loadColumn, this.distantHorizons);
+			return getField(loadColumn, this.distantHorizons.makeFinal());
+		}
+
+		public InsnTree heightmapOnly(InsnTree loadColumn) {
+			return getField(loadColumn, this.heightmapOnly.makeFinal());
 		}
 
 		public InsnTree unsaltedSeed(InsnTree loadColumn) {
@@ -56,10 +60,10 @@ public abstract class ScriptedColumn {
 
 	public static class BoundInfo extends BoundInfoHolder {
 
-		public InsnTree seed, x, z, minY, maxY;
+		public InsnTree seed, x, z, minY, maxY, distantHorizons, heightmapOnly;
 
-		public BoundInfo(InfoHolder holder, InsnTree loadSelf) {
-			super(holder, loadSelf);
+		public BoundInfo(InsnTree loadSelf) {
+			super(INFO, loadSelf);
 		}
 	}
 
@@ -68,6 +72,7 @@ public abstract class ScriptedColumn {
 	/** the upper and lower bounds of the area that can be cached. */
 	public int minY, maxY;
 	public boolean distantHorizons;
+	public boolean heightmapOnly;
 
 	public ScriptedColumn(long seed, int x, int z, int minY, int maxY, boolean distantHorizons) {
 		this.seed = seed;
@@ -274,6 +279,21 @@ public abstract class ScriptedColumn {
 			}
 		}
 
+		@Override
+		public int hashCode() {
+			return (this.cell.center.cellX * 31 + this.cell.center.cellZ) ^ this.getClass().hashCode();
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			return this == object || (
+				this.getClass() == object.getClass() &&
+				this.cell.center.cellX == ((VoronoiDataBase)(object)).cell.center.cellX &&
+				this.cell.center.cellZ == ((VoronoiDataBase)(object)).cell.center.cellZ
+			);
+		}
+
+		@FunctionalInterface
 		public static interface Factory {
 
 			public abstract VoronoiDataBase create(ScriptedColumn column, VoronoiDiagram2D.Cell cell);

@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:floor_ceiling_feature",
+			"inputs": {
+				"FLOOR_FEATURE":   "'bigglobe:overworld/caves/stalagmite'",
+				"CEILING_FEATURE": "'bigglobe:overworld/caves/stalactite'"
+			}
+		}
+	}
+}

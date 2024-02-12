@@ -35,7 +35,6 @@ where I left off:
 	missing stuff:
 		the rest of the configured features.
 		skylands.
-		cave decorations.
 		foliage colors.
 		nether and end.
 		ores.
@@ -44,14 +43,17 @@ where I left off:
 		locate commands.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
+	swamp surface decoration (water, mud).
 	re-evaluate if structure locating logic is necessary in chunk generator or not.
 	find an ocean monument to confirm they spawn correctly.
 	voronoi seed seemingly changes across world reloads or game reloads.
 		possibly related to loading a data pack with errors in it, fixing those errors, then reloading.
 	cave overriders for dungeons?
-	add boolean ScriptedColumn.heightmapOnly.
-		currently, village houses can spawn over a cave, and it will stay in the cave.
-		additionally, height overriders mean that the terrain gets weird in that area.
+	cave overriders for underground pockets.
+	exposed dungeons and spider pits in caves.
+	better error messages for referencing a column value which is enabled by a different voronoi settings,
+		or any voronoi settings in a root column context.
+	boulder block.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -80,6 +82,7 @@ AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
 	investigate imprinters.
 		SerializableScriptInputs failed to have a coder created for the imprinter path.
+	allow RecordDecoder to provide DecodeContext to constructors which need it.
 
 scripting:
 	use script debug name in print().

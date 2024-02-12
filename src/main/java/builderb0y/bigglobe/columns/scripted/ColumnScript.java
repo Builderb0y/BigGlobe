@@ -129,7 +129,7 @@ public interface ColumnScript extends Script {
 				new MutableScriptEnvironment()
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "minY", "maxY", "distantHorizons")
+				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "minY", "maxY", "distantHorizons", "heightmapOnly")
 				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
 				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
 				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)

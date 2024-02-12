@@ -1,0 +1,20 @@
+{
+	"type": "bigglobe:generic",
+	"script": [
+		"if (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline():",
+			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
+				"return(placeFeature(originX, originY, originZ, CEILING_FEATURE))",
+			")",
+		")",
+		"else (",
+			"if (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
+				"return(placeFeature(originX, originY, originZ, FLOOR_FEATURE))",
+			")",
+		")",
+		"return(false)"
+	],
+	"inputs": [
+		{ "name": "FLOOR_FEATURE",   "type": "ConfiguredFeature" },
+		{ "name": "CEILING_FEATURE", "type": "ConfiguredFeature" }
+	]
+}

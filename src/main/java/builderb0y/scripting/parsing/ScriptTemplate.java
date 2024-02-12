@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
@@ -38,7 +39,7 @@ public interface ScriptTemplate extends CoderRegistryTyped<ScriptTemplate> {
 
 		public abstract ScriptTemplate getActualTemplate();
 
-		public abstract Map<String, String> getProvidedInputs();
+		public abstract Map<String, @MultiLine String> getProvidedInputs();
 
 		public default <X extends Throwable> void validateInputs(Function<Supplier<String>, X> exceptionFactory) throws X {
 			List<RequiredInput> requiredInputs = this.getEntry().value().getRequiredInputs();

@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:floor_ceiling_feature",
+			"inputs": {
+				"FLOOR_FEATURE":   "'bigglobe:overworld/caves/the_floor_is_lava'",
+				"CEILING_FEATURE": "'bigglobe:overworld/caves/the_ceiling_is_lava'"
+			}
+		}
+	}
+}

@@ -66,6 +66,10 @@ public class FieldInfo implements Typeable {
 		return (this.access & ACC_FINAL) != 0;
 	}
 
+	public FieldInfo makeFinal() {
+		return this.isFinal() ? this : new FieldInfo(this.access | ACC_FINAL, this.owner, this.name, this.type);
+	}
+
 	public void emitGet(MethodCompileContext method) {
 		method.node.visitFieldInsn(this.isStatic() ? GETSTATIC : GETFIELD, this.owner.getInternalName(), this.name, this.type.getDescriptor());
 	}

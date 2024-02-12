@@ -6,10 +6,13 @@ import java.util.random.RandomGenerator;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.block.enums.WallShape;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.TagKey;
@@ -28,13 +31,13 @@ import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class SmallDungeonStructure extends AbstractDungeonStructure {
@@ -106,7 +109,60 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 		}
 
 		@Override
+		public void generate(
+			StructureWorldAccess world,
+			StructureAccessor structureAccessor,
+			ChunkGenerator chunkGenerator,
+			Random random,
+			BlockBox chunkBox,
+			ChunkPos chunkPos,
+			BlockPos pivot
+		) {
+			super.generate(
+				world,
+				structureAccessor,
+				chunkGenerator,
+				random,
+				chunkBox,
+				chunkPos,
+				pivot
+			);
+			if (!this.hasPit() && this.support) {
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				int x = this.x(), y = this.y() - 1, z = this.z();
+				this.generateDown(world, chunkBox, pos.set(x,     y, z    ), this.palette().mainSupplier());
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z    ), this.palette().mainSupplier());
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z    ), this.palette().mainSupplier());
+				this.generateDown(world, chunkBox, pos.set(x,     y, z - 1), this.palette().mainSupplier());
+				this.generateDown(world, chunkBox, pos.set(x,     y, z + 1), this.palette().mainSupplier());
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.TALL, WallShape.TALL, WallShape.NONE, true));
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.TALL, WallShape.NONE, WallShape.NONE, true));
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.NONE, WallShape.TALL, WallShape.TALL, true));
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.NONE, WallShape.NONE, WallShape.TALL, true));
+			}
+		}
+
+		public void generateDown(
+			StructureWorldAccess world,
+			BlockBox chunkBox,
+			BlockPos.Mutable pos,
+			CoordinateSupplier<BlockState> stateSupplier
+		) {
+			if (chunkBox.contains(pos) && world.getBlockState(pos).isReplaceable()) {
+				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
+				while (true) {
+					if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
+					if (!world.getBlockState(pos).isReplaceable()) break;
+					world.setBlockState(pos, stateSupplier.get(pos), Block.NOTIFY_ALL);
+				}
+				pos.setY(pos.getY() + 1);
+				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
+			}
+		}
+
+		@Override
 		public void addDecorations(LabyrinthLayout layout) {
+			super.addDecorations(layout);
 			Direction deadEndDirection;
 			if (this.hasPit()) {
 				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(2), layout.random));

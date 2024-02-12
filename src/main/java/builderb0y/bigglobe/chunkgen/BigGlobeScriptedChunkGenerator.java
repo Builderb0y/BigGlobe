@@ -705,6 +705,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptedColumn column = this.newColumn(world, x, z, distantHorizons);
+		column.heightmapOnly = true;
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);
@@ -724,6 +725,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(this.seed, x, z, world.getBottomY(), world.getTopY(), distantHorizons);
+		column.heightmapOnly = true;
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);

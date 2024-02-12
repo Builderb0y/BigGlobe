@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline(): return(false))",
+			"unless (BlockState('minecraft:big_dripleaf[facing=north,waterlogged=false]').canPlaceAt(originX, originY, originZ): return(false))",
 			"int height = 0",
 			"while (height < 8 && getBlockState(originX, originY + height, originZ).isReplaceable():",
 				"++height",

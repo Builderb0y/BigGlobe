@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:cave_decorator",
+			"inputs": {
+				"STEP": "64.0L",
+				"FEATURE": [
+					"`bigglobe:overworld/cave`.surface_depth > 0.0L",
+					"? 'bigglobe:overworld/caves/molten_floor_ceiling'",
+					": 'bigglobe:overworld/caves/rock'"
+				]
+			}
+		}
+	}
+}

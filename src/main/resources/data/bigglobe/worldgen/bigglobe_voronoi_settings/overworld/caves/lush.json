@@ -10,14 +10,15 @@
 		"bigglobe:overworld/caves/biased_secondary_noise",
 		"bigglobe:overworld/caves/ledge_noise",
 		"bigglobe:overworld/caves/lush_floor",
-		"bigglobe:overworld/caves/lush_ceiling"
+		"bigglobe:overworld/caves/lush_ceiling",
+		"bigglobe:overworld/caves/lush_decorator"
 	],
 	"exports": {
 		"noise":          "bigglobe:overworld/caves/easy_noise",
 		"depth":          "bigglobe:overworld/caves/easy_depth",
-		"floor_depth":    "bigglobe:overworld/caves/surface_depth_noise",
-		"ceiling_depth":  "bigglobe:overworld/caves/surface_depth_noise",
+		"surface_depth":  "bigglobe:overworld/caves/surface_depth_noise",
 		"floor_states":   "bigglobe:overworld/caves/lush_floor",
-		"ceiling_states": "bigglobe:overworld/caves/lush_ceiling"
+		"ceiling_states": "bigglobe:overworld/caves/lush_ceiling",
+		"decorator":      "bigglobe:overworld/caves/lush_decorator"
 	}
 }

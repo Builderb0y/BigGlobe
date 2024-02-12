@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:cave_decorator",
+			"inputs": {
+				"STEP": "16.0L",
+				"FEATURE": "'bigglobe:overworld/caves/rock'"
+			}
+		}
+	}
+}

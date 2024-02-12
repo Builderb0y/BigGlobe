@@ -49,7 +49,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -227,6 +226,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
 		public @Nullable TagKey<ConfiguredFeature<?, ?>> decorators;
+		public boolean support;
 
 		public RoomDungeonPiece(StructurePieceType type, int chainLength, BlockBox boundingBox, Palette palette, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
 			super(type, chainLength, boundingBox, palette);
@@ -237,6 +237,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, context, nbt);
 			String id = nbt.getString("decorators");
 			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id));
+			this.support = nbt.getBoolean("support");
 		}
 
 		@Override
@@ -244,6 +245,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
 			if (this.decorators != null) nbt.putString("decorators", this.decorators.id().toString());
+			nbt.putBoolean("support", this.support);
 		}
 
 		public boolean hasPit() {
@@ -325,7 +327,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		@Override
-		public abstract void addDecorations(LabyrinthLayout layout);
+		@MustBeInvokedByOverriders
+		public void addDecorations(LabyrinthLayout layout) {
+			this.support = layout.random.nextBoolean() && !layout.isSharingFloor(this);
+		}
 
 		public @Nullable Direction getDeadEndDirection() {
 			Direction result = null;
