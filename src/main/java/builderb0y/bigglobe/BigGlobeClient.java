@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.compat.voxy.VoxyCompat;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
@@ -30,6 +31,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeParticles.initClient();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		DistantHorizonsCompat.init();
+		VoxyCompat.init();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}
 }

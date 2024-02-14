@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.util;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
 an AsyncRunner runs tasks asynchronously and concurrently,
@@ -27,8 +28,14 @@ see also: {@link AsyncConsumer}.
 */
 public class AsyncRunner extends Async<Void> {
 
+	public AsyncRunner() {}
+
+	public AsyncRunner(Executor executor) {
+		super(executor);
+	}
+
 	public void submit(Runnable runnable) {
-		this.begin(CompletableFuture.runAsync(runnable));
+		this.begin(CompletableFuture.runAsync(runnable, this.executor));
 	}
 
 	@Override

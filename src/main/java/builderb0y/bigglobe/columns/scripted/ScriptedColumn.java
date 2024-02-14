@@ -95,6 +95,12 @@ public abstract class ScriptedColumn {
 
 	public abstract void clear();
 
+	public void setPosUnchecked(int x, int z) {
+		this.x = x;
+		this.z = z;
+		this.clear();
+	}
+
 	public void setPos(int x, int z) {
 		if (this.x != x || this.z != z) {
 			this.x = x;
@@ -138,6 +144,7 @@ public abstract class ScriptedColumn {
 
 			public MethodInfo
 				column,
+				id,
 				get_soft_distance,
 				get_soft_distance_squared,
 				get_hard_distance,
@@ -149,6 +156,10 @@ public abstract class ScriptedColumn {
 
 			public InsnTree column(InsnTree receiver) {
 				return invokeInstance(receiver, this.column);
+			}
+
+			public InsnTree id(InsnTree receiver) {
+				return invokeInstance(receiver, this.id);
 			}
 
 			public InsnTree get_soft_distance(InsnTree receiver) {
@@ -196,6 +207,8 @@ public abstract class ScriptedColumn {
 		}
 
 		public abstract ScriptedColumn column();
+
+		public abstract String id();
 
 		public long unsalted_seed() {
 			SeedPoint seedPoint = this.cell.center;

@@ -152,6 +152,7 @@ public class ColumnEntryRegistry {
 
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		environment
+		.addFieldInvoke("id",                         VoronoiDataBase.INFO.id)
 		.addFieldInvoke("soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
 		.addFieldInvoke("soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
 		.addFieldInvoke("hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)

@@ -6,6 +6,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public abstract class AsyncCommand implements Runnable, Thread.UncaughtExceptionHandler {
 
@@ -13,6 +15,17 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 
 	public AsyncCommand(ServerCommandSource source) {
 		this.source = source;
+	}
+
+	public ScriptedColumn newScriptedColumn() {
+		return (
+			(
+				(BigGlobeScriptedChunkGenerator)(
+					this.source.getWorld().getChunkManager().getChunkGenerator()
+				)
+			)
+			.newColumn(this.source.getWorld(), 0, 0, false)
+		);
 	}
 
 	public void start(String input) {

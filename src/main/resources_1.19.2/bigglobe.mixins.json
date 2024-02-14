@@ -74,7 +74,7 @@
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"DebugHud_MakeSearchable",
 		"InGameHud_DebugHudGetter",
-		"MinecraftClient_ResetOverworldSettingsHook"
+		"MinecraftClient_SetWorldEvent"
 	],
 	"injectors": {
 		"defaultRequire": 1

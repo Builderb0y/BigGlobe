@@ -14,6 +14,7 @@ import net.minecraft.util.Formatting;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.commands.AsyncLocateCommand.Result;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncCommand implements Comparator<T_Result> {
@@ -53,7 +54,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 
 	public static abstract class Result {
 
-		public int x, y, z;
+		public int x, z;
 
 		public abstract String valueToString();
 
@@ -70,7 +71,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 				.withClickEvent(
 					new ClickEvent(
 						ClickEvent.Action.SUGGEST_COMMAND,
-						"/tp @s " + this.x + ' ' + this.y + ' ' + this.z
+						"/tp @s " + this.x + " ~ " + this.z
 					)
 				)
 			);
@@ -78,7 +79,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 
 		public Text toText(ServerCommandSource source) {
 			return (
-				Text.literal("(" + this.x + ", " + this.y + ", " + this.z + ')')
+				Text.literal("(" + this.x + ", " + this.z + ')')
 				.setStyle(this.toStyle())
 				.formatted(Formatting.GREEN)
 				.append(Text.literal(" -> ").formatted(Formatting.WHITE))
@@ -88,8 +89,10 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 					Text.literal(
 						CustomDisplayContext.format(
 							Math.sqrt(
-								source.getPosition()
-								.squaredDistanceTo(this.x + 0.5D, this.y, this.z + 0.5D)
+								BigGlobeMath.squareD(
+									source.getPosition().x - (this.x + 0.5D),
+									source.getPosition().z - (this.z + 0.5D)
+								)
 							)
 						)
 						+ " block(s) away"
@@ -102,7 +105,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 
 		@Override
 		public String toString() {
-			return "(" + this.x + ", " + this.y + ", " + this.z + ") -> " + this.valueToString();
+			return "(" + this.x + ", " + this.z + ") -> " + this.valueToString();
 		}
 	}
 }

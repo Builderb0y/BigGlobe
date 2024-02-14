@@ -27,8 +27,7 @@ public class BigGlobeCommands {
 		RegistrationEnvironment environment
 	) {
 		BigGlobeMod.LOGGER.debug("Registering commands to dispatcher...");
-		LocateNoiseCommand    .register(dispatcher);
-		LocateAreaCommand     .register(dispatcher);
+		LocateCommand         .register(dispatcher);
 		RespawnCommand        .register(dispatcher);
 		EvaluateCommand       .register(dispatcher);
 		WorldgenTimingsCommand.register(dispatcher);

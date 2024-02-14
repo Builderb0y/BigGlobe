@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
@@ -14,7 +16,16 @@ also has a few utility methods for doing common tasks.
 */
 public abstract class Async<T_Result> implements AutoCloseable {
 
+	public final Executor executor;
 	public final LinkedList<CompletableFuture<T_Result>> waitingOn = new LinkedList<>();
+
+	public Async() {
+		this.executor = ForkJoinPool.commonPool();
+	}
+
+	public Async(Executor executor) {
+		this.executor = executor != null ? executor : ForkJoinPool.commonPool();
+	}
 
 	//////////////////////////////// utility methods ////////////////////////////////
 

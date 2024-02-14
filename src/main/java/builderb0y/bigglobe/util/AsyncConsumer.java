@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.util;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -34,8 +35,13 @@ public class AsyncConsumer<T> extends Async<T> {
 		this.terminator = terminator;
 	}
 
+	public AsyncConsumer(Executor executor, Consumer<T> terminator) {
+		super(executor);
+		this.terminator = terminator;
+	}
+
 	public void submit(Supplier<T> supplier) {
-		this.begin(CompletableFuture.supplyAsync(supplier));
+		this.begin(CompletableFuture.supplyAsync(supplier, this.executor));
 	}
 
 	@Override

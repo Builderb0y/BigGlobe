@@ -56,6 +56,10 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 		)
 		.emitBytecode(this.constructor);
 
+		MethodCompileContext id = this.mainClass.newMethod(ACC_PUBLIC, "id", TypeInfos.STRING);
+		return_(ldc(UnregisteredObjectException.getID(entry).toString())).emitBytecode(id);
+		id.endCode();
+
 		MethodCompileContext toString = this.mainClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
 		return_(ldc("voronoi_settings: " + UnregisteredObjectException.getID(entry))).emitBytecode(toString);
 		toString.endCode();

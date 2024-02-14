@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"random.nextBoolean(1.0L / 64.0L).if (",
+				"setBlockState(originX, originY, originZ, 'minecraft:spore_blossom')",
+			")"
+		]
+	}
+}

@@ -28,16 +28,6 @@ public class BigGlobeArgumentTypes {
 			CommandScriptArgument.class,
 			ConstantArgumentSerializer.of(CommandScriptArgument::new)
 		);
-		ArgumentTypeRegistry.registerArgumentType(
-			BigGlobeMod.modID("locate_noise_script"),
-			LocateNoiseLazyScript.Argument.class,
-			ConstantArgumentSerializer.of(LocateNoiseLazyScript.Argument::new)
-		);
-		ArgumentTypeRegistry.registerArgumentType(
-			BigGlobeMod.modID("locate_area_script"),
-			LocateAreaLazyScript.Argument.class,
-			ConstantArgumentSerializer.of(LocateAreaLazyScript.Argument::new)
-		);
 		BigGlobeMod.LOGGER.debug("Done registering command argument types.");
 	}
 }

@@ -159,7 +159,7 @@ public class BigGlobeMod implements ModInitializer {
 				))
 			#endif
 			.flatMap((Path dimensionFolder) ->
-				Stream.of("region", "data", "poi", "entities", "playerdata", "stats", "advancements")
+				Stream.of("advancements", "data", "entities", "playerdata", "poi", "region", "stats", "voxy")
 				.map(dimensionFolder::resolve)
 			)
 			.forEach((Path toDelete) -> {
