@@ -23,11 +23,16 @@ testing:
 		in other words, see if my mixin is still necessary or not.
 
 where I left off:
-	fix tags for structure spawning.
-		currently, a lot of structures rely on #bigglobe:has_trees, which does not include plains biomes.
-	sometimes, a small house farm can spawn without the small house.
-		investigate why.
-		test case at -2200, 270.
+	performance issue:
+		generation of configured features constructs a new WorldWrapper.
+		the WorldWrapper initially has no columns, but does have structures.
+		the feature dispatcher queries columns at every position in the chunk.
+		overriders get run before the column is returned.
+		cave overriders get cave noise, which is expensive.
+		solutions:
+			1: expand heightmapOnly to "purpose".
+			2: pre-compute columns for chunk in parallel.
+			3: store overriders on column (somehow?) and only run overriders for values that get queried.
 
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -58,6 +63,8 @@ where I left off:
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	boulder block.
+	exposed trail ruins at -1324.62 105.88 1666.20
+		decide if I want to keep these, or make a cave exclusion rule for them.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -76,6 +83,9 @@ where I left off:
 	fix dungeon chests always facing the same direction.
 		missing override for SymmetricCoordinator.setBlockStateAndBlockEntity()
 	fix surface mineshafts spawning in biomes in the "well" tag.
+	check if inverse() is necessary in SymmetricOffset.rotate().
+		it isn't in 4.0, and in fact breaks things there.
+	check if dead bushes spawn on beaches in non-temperate plains areas, and prevent them from doing so.
 
 changelog:
 	4.0:

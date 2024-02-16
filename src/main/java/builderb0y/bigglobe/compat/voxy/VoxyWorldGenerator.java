@@ -40,7 +40,7 @@ public class VoxyWorldGenerator {
 	public VoxyWorldGenerator(BigGlobeScriptedChunkGenerator generator) {
 		this.distanceGraph = new DistanceGraph(-WORLD_SIZE_IN_CHUNKS, -WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS);
 		this.generator = generator;
-		this.thread = new Thread(this::runLoop, "Big Globe Voxy dispatch thread");
+		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
 	}
 
 	public static void init() {
@@ -108,12 +108,12 @@ public class VoxyWorldGenerator {
 		int startZ = chunkZ << 4;
 		BlockSegmentList[] lists = new BlockSegmentList[256];
 		ScriptedColumn.Factory factory = this.generator.columnEntryRegistry.columnFactory;
+		long seed = this.generator.seed;
+		int minY = this.generator.height.min_y();
+		int maxY = this.generator.height.max_y();
+		RootLayer layer = this.generator.layer;
 		for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 			for (int offsetX = 0; offsetX < 16; offsetX += 2) {
-				long seed = this.generator.seed;
-				int minY = this.generator.height.min_y();
-				int maxY = this.generator.height.max_y();
-				RootLayer layer = this.generator.layer;
 				int quadX = startX | offsetX;
 				int quadZ = startZ | offsetZ;
 				ScriptedColumn
@@ -137,7 +137,7 @@ public class VoxyWorldGenerator {
 				lists[baseIndex ^ 17] = list11;
 			}
 		}
-		for (int y = this.generator.height.min_y(), maxY = this.generator.height.max_y(); y < maxY; y += 16) {
+		for (int y = minY; y < maxY; y += 16) {
 			VoxelizedSection section = this.convertSection(chunkX, y >> 4, chunkZ, lists, biome, engine);
 			if (section != null) engine.insertUpdate(section);
 		}
@@ -147,7 +147,7 @@ public class VoxyWorldGenerator {
 		long[] section = null;
 		for (int relativeZ = 0; relativeZ < 16; relativeZ++) {
 			for (int relativeX = 0; relativeX < 16; relativeX++) {
-				int packedXZMipped = (relativeZ << 4) | relativeX;
+				int packedXZ = (relativeZ << 4) | relativeX;
 				BlockSegmentList list = lists[(relativeZ << 4) | relativeX];
 				int segmentIndex = list.getSegmentIndex(chunkY << 4, false);
 				while (segmentIndex < list.size()) {
@@ -159,7 +159,7 @@ public class VoxyWorldGenerator {
 						int maxY = Math.min(segment.maxY - (chunkY << 4), 15);
 						long id = engine.getMapper().getBaseId((byte)(0x0F), segment.value, biome);
 						for (int relativeY = minY; relativeY <= maxY; relativeY++) {
-							section[packedXZMipped | (relativeY << 8)] = id;
+							section[packedXZ | (relativeY << 8)] = id;
 						}
 					}
 				}

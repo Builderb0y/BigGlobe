@@ -21,10 +21,8 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
-import builderb0y.bigglobe.features.ScriptedFeature.ScriptedFeatureImplementation;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -37,8 +35,8 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -131,7 +129,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					}
 				);
 			};
-			WorldWrapper wrapper = new WorldWrapper(new WorldDelegator(world), generator, permuter, coordination, DistantHorizonsCompat.isOnDistantHorizonThread());
+			WorldWrapper wrapper = new WorldWrapper(
+				new WorldDelegator(world),
+				generator,
+				permuter,
+				coordination,
+				DistantHorizonsCompat.isOnDistantHorizonThread()
+			);
 			if (
 				context.getConfig().script.generate(
 					wrapper,

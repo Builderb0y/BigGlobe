@@ -17,9 +17,9 @@ public interface ScriptedColumnLookup {
 		public final boolean distantHorizons;
 		public Long2ObjectOpenHashMap<ScriptedColumn> columns;
 
-		public Impl(BigGlobeScriptedChunkGenerator generator, boolean horizons) {
+		public Impl(BigGlobeScriptedChunkGenerator generator, boolean distantHorizons) {
 			this.generator = generator;
-			this.distantHorizons = horizons;
+			this.distantHorizons = distantHorizons;
 		}
 
 		@Override
@@ -38,7 +38,7 @@ public interface ScriptedColumnLookup {
 				ColumnPos.getZ(packedPos),
 				this.generator.height.min_y(),
 				this.generator.height.max_y(),
-				distantHorizons
+				this.distantHorizons
 			);
 		}
 	}

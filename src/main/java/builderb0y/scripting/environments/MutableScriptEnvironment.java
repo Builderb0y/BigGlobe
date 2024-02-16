@@ -936,6 +936,22 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	//////////////////////////////// enums ////////////////////////////////
+
+	public <E extends Enum<E>> MutableScriptEnvironment addEnum(Class<E> enumClass) {
+		return this.addEnum(enumClass.getSimpleName(), enumClass, E::name);
+	}
+
+	public <E extends Enum<E>> MutableScriptEnvironment addEnum(String name, Class<E> enumClass) {
+		return this.addEnum(name, enumClass, E::name);
+	}
+
+	public <E extends Enum<E>> MutableScriptEnvironment addEnum(String name, Class<E> enumClass, Function<E, String> nameGetter) {
+		this.addType(name, enumClass);
+		this.addCastConstant(FieldConstantFactory.forEnum(enumClass, nameGetter), true);
+		return this;
+	}
+
 	//////////////////////////////// keywords ////////////////////////////////
 
 	public MutableScriptEnvironment addKeyword(String name, KeywordHandler keywordHandler) {

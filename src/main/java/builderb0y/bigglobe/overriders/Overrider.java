@@ -47,7 +47,9 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 				.get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
 				.streamEntries()
 				.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
-				.forEach((RegistryEntry<Overrider> entry) -> BigGlobeMod.LOGGER.warn(UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses."));
+				.forEach((RegistryEntry<Overrider> entry) -> {
+					BigGlobeMod.LOGGER.warn(UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses.");
+				});
 			}
 		});
 	}};

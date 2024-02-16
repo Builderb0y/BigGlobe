@@ -1,12 +1,15 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
-import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.util.BoundInfoHolder;
 import builderb0y.scripting.util.InfoHolder;
 
@@ -67,6 +70,12 @@ public abstract class ScriptedColumn {
 		}
 	}
 
+	public static final Parameter[] CONSTRUCTOR_PARAMETERS = ScriptedColumn.class.getDeclaredConstructors()[0].getParameters();
+	public static final Class<?>[] PARAMETER_CLASSES = Arrays.stream(CONSTRUCTOR_PARAMETERS).map(Parameter::getType).toArray(Class<?>[]::new);
+	public static final TypeInfo[] PARAMETER_TYPE_INFOS = Arrays.stream(PARAMETER_CLASSES).map(InsnTrees::type).toArray(TypeInfo[]::new);
+	public static final LazyVarInfo[] PARAMETER_VAR_INFOS = Arrays.stream(CONSTRUCTOR_PARAMETERS).map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType()))).toArray(LazyVarInfo[]::new);
+	public static final LoadInsnTree[] LOADERS = Arrays.stream(PARAMETER_VAR_INFOS).map(InsnTrees::load).toArray(LoadInsnTree[]::new);
+
 	public final long seed;
 	public int x, z;
 	/** the upper and lower bounds of the area that can be cached. */
@@ -113,17 +122,6 @@ public abstract class ScriptedColumn {
 		if (this.x != x || this.z != z || this.distantHorizons != distantHorizons) {
 			this.x = x;
 			this.z = z;
-			this.distantHorizons = distantHorizons;
-			this.clear();
-		}
-	}
-
-	public void setParams(int x, int z, int minY, int maxY, boolean distantHorizons) {
-		if (this.x != x || this.z != z || this.minY != minY || this.maxY != maxY || this.distantHorizons != distantHorizons) {
-			this.x = x;
-			this.z = z;
-			this.minY = minY;
-			this.maxY = maxY;
 			this.distantHorizons = distantHorizons;
 			this.clear();
 		}

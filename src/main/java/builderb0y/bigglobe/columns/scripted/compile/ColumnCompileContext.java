@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,17 +54,12 @@ public class ColumnCompileContext extends DataCompileContext {
 			new TypeInfo[0]
 		);
 		{
-			LazyVarInfo self, seed, x, z, minY, maxY, distantHorizons;
+			LazyVarInfo self;
 			this.constructor = this.mainClass.newMethod(
 				ACC_PUBLIC,
 				"<init>",
 				TypeInfos.VOID,
-				seed = new LazyVarInfo("seed", TypeInfos.LONG),
-				x = new LazyVarInfo("x", TypeInfos.INT),
-				z = new LazyVarInfo("z", TypeInfos.INT),
-				minY = new LazyVarInfo("minY", TypeInfos.INT),
-				maxY = new LazyVarInfo("maxY", TypeInfos.INT),
-				distantHorizons = new LazyVarInfo("distantHorizons", TypeInfos.BOOLEAN)
+				ScriptedColumn.PARAMETER_VAR_INFOS
 			);
 			self = new LazyVarInfo("this", this.mainClass.info);
 			invokeInstance(
@@ -72,19 +69,9 @@ public class ColumnCompileContext extends DataCompileContext {
 					type(ScriptedColumn.class),
 					"<init>",
 					TypeInfos.VOID,
-					TypeInfos.LONG,
-					TypeInfos.INT,
-					TypeInfos.INT,
-					TypeInfos.INT,
-					TypeInfos.INT,
-					TypeInfos.BOOLEAN
+					ScriptedColumn.PARAMETER_TYPE_INFOS
 				),
-				load(seed),
-				load(x),
-				load(z),
-				load(minY),
-				load(maxY),
-				load(distantHorizons)
+				ScriptedColumn.LOADERS
 			)
 			.emitBytecode(this.constructor);
 		}
@@ -99,12 +86,12 @@ public class ColumnCompileContext extends DataCompileContext {
 			return_(
 				newInstance(
 					this.constructor.info,
-					ScriptedColumn.INFO.seed(loadSelf),
-					ScriptedColumn.INFO.x(loadSelf),
-					ScriptedColumn.INFO.z(loadSelf),
-					ScriptedColumn.INFO.minY(loadSelf),
-					ScriptedColumn.INFO.maxY(loadSelf),
-					ScriptedColumn.INFO.distantHorizons(loadSelf)
+					Arrays
+					.stream(ScriptedColumn.CONSTRUCTOR_PARAMETERS)
+					.map(Parameter::getName)
+					.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
+					.map((FieldInfo field) -> getField(loadSelf, field))
+					.toArray(InsnTree[]::new)
 				)
 			)
 			.emitBytecode(blankCopy);

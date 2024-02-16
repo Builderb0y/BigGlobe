@@ -2,17 +2,10 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (`bigglobe:overworld/surface_foliage` / 16.0L:",
-				"int seaLevel = int(`bigglobe:overworld/sea_level`)",
-				"if (originY >= seaLevel && getBlockState(originX, originY, originZ).isReplaceable():",
-					"block (",
-						"if (originY < seaLevel: return(false))",
-						"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
-					")",
-					"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
-						"return(placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]'))",
-					")",
-				")",
+			"random.unless (unmixSmooth(2.0L, 6.0L, `bigglobe:overworld/surface_y`): return(false))",
+			"while (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY)",
+			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
+				"return(placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]'))",
 			")",
 			"return(false)"
 		]

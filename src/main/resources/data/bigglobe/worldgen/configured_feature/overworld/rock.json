@@ -2,14 +2,12 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (random.nextBoolean(`bigglobe:overworld/hilliness` / 64.0L) && getBlockState(originX, originY, originZ).isReplaceable():",
-				"block (",
-					"unless (isYLevelValid(originY): return(false))",
-					"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
-				")",
-				"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
-					"return(placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]'))",
-				")",
+			"block (",
+				"unless (isYLevelValid(originY): return(false))",
+				"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
+			")",
+			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
+				"return(placeBlockState(originX, originY, originZ, 'bigglobe:rock[waterlogged=false]'))",
 			")",
 			"return(false)"
 		]

@@ -38,7 +38,7 @@ public record SymmetricOffset(
 		.createCoder(byte.class)
 		.mapCoder(
 			ReifiedType.from(Symmetry.class),
-			HandlerMapper.nullSafe(rotation -> (byte)(rotation.ordinal())),
+			HandlerMapper.nullSafe((Symmetry symmetry) -> (byte)(symmetry.ordinal())),
 			HandlerMapper.nullSafe((Byte ordinal) -> Symmetry.VALUES[ordinal])
 		)
 	);
@@ -54,9 +54,9 @@ public record SymmetricOffset(
 
 	public SymmetricOffset rotate(Symmetry symmetry) {
 		return new SymmetricOffset(
-			symmetry.inverse().getX(this.offsetX, this.offsetZ),
+			symmetry.getX(this.offsetX, this.offsetZ),
 			this.offsetY,
-			symmetry.inverse().getZ(this.offsetX, this.offsetZ),
+			symmetry.getZ(this.offsetX, this.offsetZ),
 			symmetry.compose(this.symmetry)
 		);
 	}

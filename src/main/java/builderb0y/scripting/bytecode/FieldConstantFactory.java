@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -24,10 +25,14 @@ public class FieldConstantFactory extends AbstractConstantFactory {
 	}
 
 	public static <E extends Enum<E>> FieldConstantFactory forEnum(Class<E> enumClass) {
+		return forEnum(enumClass, Enum::name);
+	}
+
+	public static <E extends Enum<E>> FieldConstantFactory forEnum(Class<E> enumClass, Function<E, String> nameGetter) {
 		E[] enums = enumClass.getEnumConstants();
 		Map<String, InsnTree> lookup = new HashMap<>(enums.length);
 		for (E enum_ : enums) {
-			lookup.put(enum_.name(), getStatic(FieldInfo.getField(enumClass, enum_.name())));
+			lookup.put(nameGetter.apply(enum_), getStatic(FieldInfo.getField(enumClass, enum_.name())));
 		}
 		return new FieldConstantFactory(type(enumClass), lookup, (InsnTree tree) -> {
 			return invokeStatic(ENUM_VALUE_OF, ldc(type(enumClass)), tree);

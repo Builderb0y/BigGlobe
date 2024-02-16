@@ -125,12 +125,12 @@ public class ColumnEntryRegistry {
 					this.columnLookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, long.class, int.class, int.class, int.class, int.class, boolean.class),
+					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.PARAMETER_CLASSES),
 						this.columnLookup.findConstructor(
 						this.columnClass,
-						MethodType.methodType(void.class, long.class, int.class, int.class, int.class, int.class, boolean.class)
+						MethodType.methodType(void.class, ScriptedColumn.PARAMETER_CLASSES)
 					),
-					MethodType.methodType(this.columnClass, long.class, int.class, int.class, int.class, int.class, boolean.class)
+					MethodType.methodType(this.columnClass, ScriptedColumn.PARAMETER_CLASSES)
 				)
 				.getTarget()
 				.invokeExact()
