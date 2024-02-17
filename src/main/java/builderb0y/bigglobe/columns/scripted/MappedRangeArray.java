@@ -28,33 +28,33 @@ public abstract class MappedRangeArray {
 
 	public void reallocateNone(ScriptedColumn column) {
 		this.reallocate(
-			(this.maxCached = column.maxY)
+			(this.maxCached = column.maxY())
 			-
-			(this.minCached = column.minY)
+			(this.minCached = column.minY())
 		);
 	}
 
 	public void reallocateMin(ScriptedColumn column, int minAccessible) {
 		this.reallocate(
-			(this.maxCached = column.maxY)
+			(this.maxCached = column.maxY())
 			-
-			(this.minCached = Math.max(column.minY, this.minAccessible = minAccessible))
+			(this.minCached = Math.max(column.minY(), this.minAccessible = minAccessible))
 		);
 	}
 
 	public void reallocateMax(ScriptedColumn column, int maxAccessible) {
 		this.reallocate(
-			(this.maxCached = Math.min(column.maxY, this.maxAccessible = maxAccessible))
+			(this.maxCached = Math.min(column.maxY(), this.maxAccessible = maxAccessible))
 			-
-			(this.minCached = column.minY)
+			(this.minCached = column.minY())
 		);
 	}
 
 	public void reallocateBoth(ScriptedColumn column, int minAccessible, int maxAccessible) {
 		this.reallocate(
-			(this.maxCached = Math.min(column.maxY, this.maxAccessible = maxAccessible))
+			(this.maxCached = Math.min(column.maxY(), this.maxAccessible = maxAccessible))
 			-
-			(this.minCached = Math.max(column.minY, this.minAccessible = minAccessible))
+			(this.minCached = Math.max(column.minY(), this.minAccessible = minAccessible))
 		);
 	}
 

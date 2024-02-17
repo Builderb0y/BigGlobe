@@ -108,19 +108,23 @@ public class VoxyWorldGenerator {
 		int startZ = chunkZ << 4;
 		BlockSegmentList[] lists = new BlockSegmentList[256];
 		ScriptedColumn.Factory factory = this.generator.columnEntryRegistry.columnFactory;
-		long seed = this.generator.seed;
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, true);
 		RootLayer layer = this.generator.layer;
+		ScriptedColumn
+			column00 = factory.create(params),
+			column01 = factory.create(params),
+			column10 = factory.create(params),
+			column11 = factory.create(params);
 		for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 			for (int offsetX = 0; offsetX < 16; offsetX += 2) {
 				int quadX = startX | offsetX;
 				int quadZ = startZ | offsetZ;
-				ScriptedColumn
-					column00 = factory.create(seed, quadX,     quadZ,     minY, maxY, true),
-					column01 = factory.create(seed, quadX | 1, quadZ,     minY, maxY, true),
-					column10 = factory.create(seed, quadX,     quadZ | 1, minY, maxY, true),
-					column11 = factory.create(seed, quadX | 1, quadZ | 1, minY, maxY, true);
+				column00.setParamsUnchecked(column00.params.at(quadX,     quadZ    ));
+				column01.setParamsUnchecked(column01.params.at(quadX | 1, quadZ    ));
+				column10.setParamsUnchecked(column10.params.at(quadX,     quadZ | 1));
+				column11.setParamsUnchecked(column11.params.at(quadX | 1, quadZ | 1));
 				BlockSegmentList
 					list00 = new BlockSegmentList(minY, maxY),
 					list01 = new BlockSegmentList(minY, maxY),

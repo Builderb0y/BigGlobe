@@ -242,7 +242,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public void placeSnow(StructureWorldAccess world, BlockPos.Mutable pos, ScriptedColumn column, ColumnToDoubleScript.Holder snowChance, Permuter permuter) {
 		if (column != null) {
-			column.setPos(pos.getX(), pos.getZ());
+			column.setParamsUnchecked(column.params.at(pos.getX(), pos.getZ()));
 			if (world.isAir(pos) && Permuter.nextChancedBoolean(permuter, snowChance.get(column))) {
 				world.setBlockState(pos, BlockStates.SNOW, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 			}

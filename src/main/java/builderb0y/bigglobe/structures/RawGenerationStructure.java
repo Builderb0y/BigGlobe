@@ -37,7 +37,7 @@ public interface RawGenerationStructure {
 				ScriptedColumnLookup columns,
 				boolean distantHorizons
 			) {
-				this.worldSeed       = generator.actualWorldSeed;
+				this.worldSeed       = generator.worldSeed;
 				this.chunk           = chunk;
 				this.generator       = generator;
 				this.columns         = columns;

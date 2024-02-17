@@ -98,9 +98,11 @@ public interface SurfaceScript extends Script {
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addAll(MinecraftScriptEnvironment.create())
-				.addVariableGetFields(loadMainColumn, ScriptedColumn.class, "x", "z", "distantHorizons", "heightmapOnly")
-				.addVariableRenamedGetField(loadMainColumn, "worldSeed", ScriptedColumn.INFO.seed)
-				.addVariableRenamedInvoke(loadMainColumn, "columnSeed", ScriptedColumn.INFO.unsaltedSeed)
+				.addVariable("x", ScriptedColumn.INFO.x(loadMainColumn))
+				.addVariable("z", ScriptedColumn.INFO.z(loadMainColumn))
+				.addVariable("distantHorizons", ScriptedColumn.INFO.distantHorizons(loadMainColumn))
+				.addVariable("worldSeed", ScriptedColumn.INFO.seed(loadMainColumn))
+				.addVariable("columnSeed", ScriptedColumn.INFO.unsaltedSeed(loadMainColumn))
 				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)
 				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates")
 				.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
@@ -211,8 +213,8 @@ public interface SurfaceScript extends Script {
 						sub(newParser, adjacentInvoker, normalInvoker),
 						lt(
 							parser,
-							getField(load(z ? adjacentColumnZ : adjacentColumnX), FieldInfo.getField(ScriptedColumn.class, z ? "z" : "x")),
-							getField(load(mainColumn), FieldInfo.getField(ScriptedColumn.class, z ? "z" : "x"))
+							z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
+							z ? ScriptedColumn.INFO.z(load(mainColumn)) : ScriptedColumn.INFO.x(load(mainColumn))
 						)
 					)
 				);

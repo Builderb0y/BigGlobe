@@ -16,7 +16,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
@@ -34,12 +34,14 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 		this.columnThreadLocal = ThreadLocal.withInitial(() -> {
 			if (this.generator != null) {
 				return this.generator.columnEntryRegistry.columnFactory.create(
-					this.generator.seed,
-					0,
-					0,
-					this.generator.height.min_y(),
-					this.generator.height.max_y(),
-					false
+					new Params(
+						this.generator.columnSeed,
+						0,
+						0,
+						this.generator.height.min_y(),
+						this.generator.height.max_y(),
+						false
+					)
 				);
 			}
 			else {
@@ -62,7 +64,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
-			column.setPosDH(x << 2, z << 2, DistantHorizonsCompat.isOnDistantHorizonThread());
+			column.setParams(column.params.at(x << 2, z << 2).autoDH());
 			return this.script.get(column, y << 2).entry();
 		}
 		else {

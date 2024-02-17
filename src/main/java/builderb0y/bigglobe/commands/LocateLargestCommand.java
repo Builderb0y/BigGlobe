@@ -63,30 +63,30 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 
 	public @Nullable Result nextResult() {
 		ScriptedColumn column = this.newScriptedColumn();
-		column.setPosUnchecked(this.iterator.floorX(), this.iterator.floorY());
+		column.setParamsUnchecked(column.params.at(this.iterator.floorX(), this.iterator.floorY()));
 		ColumnToBooleanScript.Holder predicate = this.predicate;
 		if (!predicate.get(column)) return null;
 		GoldenSpiralIterator spiral = new GoldenSpiralIterator(this.iterator.x(), this.iterator.y(), 4.0D, 0.0D);
 		while (true) {
 			spiral.next();
-			column.setPosUnchecked(spiral.floorX(), spiral.floorY());
-			if (this.iterator.contains(column.x, column.z) && predicate.get(column)) {
+			column.setParamsUnchecked(column.params.at(spiral.floorX(), spiral.floorY()));
+			if (this.iterator.contains(column.x(), column.z()) && predicate.get(column)) {
 				continue;
 			}
 			int reverseX = BigGlobeMath.floorI(spiral.originX - spiral.normX * spiral.radius);
 			int reverseZ = BigGlobeMath.floorI(spiral.originY - spiral.normY * spiral.radius);
-			column.setPosUnchecked(reverseX, reverseZ);
-			if (this.iterator.contains(column.x, column.z) && predicate.get(column)) {
+			column.setParamsUnchecked(column.params.at(reverseX, reverseZ));
+			if (this.iterator.contains(column.x(), column.z()) && predicate.get(column)) {
 				spiral.originX -= spiral.normX * spiral.radiusStepSize;
 				spiral.originY -= spiral.normY * spiral.radiusStepSize;
 				continue;
 			}
 			break;
 		}
-		column.setPosUnchecked(BigGlobeMath.floorI(spiral.originX), BigGlobeMath.floorI(spiral.originY));
+		column.setParamsUnchecked(column.params.at(BigGlobeMath.floorI(spiral.originX), BigGlobeMath.floorI(spiral.originY)));
 		Result result = new Result();
-		result.x = column.x;
-		result.z = column.z;
+		result.x = column.x();
+		result.z = column.z();
 		result.diameter = ((int)(spiral.radius)) << 1;
 		return result;
 	}

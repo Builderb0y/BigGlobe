@@ -317,8 +317,8 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 					invokeInstance(
 						ldc(diagram),
 						MethodInfo.findMethod(VoronoiDiagram2D.class, "getNearestCell", VoronoiDiagram2D.Cell.class, int.class, int.class, VoronoiDiagram2D.Cell.class),
-						getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "x")),
-						getField(context.loadColumn(), FieldInfo.getField(ScriptedColumn.class, "z")),
+						ScriptedColumn.INFO.x(context.loadColumn()),
+						ScriptedColumn.INFO.z(context.loadColumn()),
 						new NullableInstanceGetFieldInsnTree(
 							getField(
 								self,

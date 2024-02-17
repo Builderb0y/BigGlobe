@@ -5,21 +5,19 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.util.math.ColumnPos;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-
 public interface ScriptedColumnLookup {
 
 	public abstract ScriptedColumn lookupColumn(int x, int z);
 
 	public static class Impl implements ScriptedColumnLookup, Long2ObjectFunction<ScriptedColumn> {
 
-		public final BigGlobeScriptedChunkGenerator generator;
-		public final boolean distantHorizons;
+		public final ScriptedColumn.Factory columnFactory;
+		public final ScriptedColumn.Params params;
 		public Long2ObjectOpenHashMap<ScriptedColumn> columns;
 
-		public Impl(BigGlobeScriptedChunkGenerator generator, boolean distantHorizons) {
-			this.generator = generator;
-			this.distantHorizons = distantHorizons;
+		public Impl(ScriptedColumn.Factory factory, ScriptedColumn.Params params) {
+			this.columnFactory = factory;
+			this.params = params;
 		}
 
 		@Override
@@ -32,13 +30,11 @@ public interface ScriptedColumnLookup {
 
 		@Override
 		public ScriptedColumn get(long packedPos) {
-			return this.generator.columnEntryRegistry.columnFactory.create(
-				this.generator.seed,
-				ColumnPos.getX(packedPos),
-				ColumnPos.getZ(packedPos),
-				this.generator.height.min_y(),
-				this.generator.height.max_y(),
-				this.distantHorizons
+			return this.columnFactory.create(
+				this.params.at(
+					ColumnPos.getX(packedPos),
+					ColumnPos.getZ(packedPos)
+				)
 			);
 		}
 	}

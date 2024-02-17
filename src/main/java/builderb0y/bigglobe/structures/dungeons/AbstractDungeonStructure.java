@@ -134,12 +134,12 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		) {
 			super(random, maxRooms);
 			this.palette = new RestrictedList<>(palettes, column, y).getRandomElement(random);
-			this.centerX = column.x;
-			this.centerZ = column.z;
+			this.centerX = column.x();
+			this.centerZ = column.z();
 			this.roomDecorators = roomDecorators;
 			this.spawnerEntries = spawnerEntries;
 			RoomDungeonPiece room = this.newRoom();
-			room.setPos(column.x, y, column.z);
+			room.setPos(column.x(), y, column.z());
 			this.rooms.add(room);
 			this.activeRooms.add(room);
 		}

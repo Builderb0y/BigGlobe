@@ -49,6 +49,6 @@ public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction>
 		double restriction = this.getRestriction(column, y);
 		if (!(restriction > 0.0D)) return false;
 		if (restriction >= 1.0D) return true;
-		return Permuter.toPositiveDouble(Permuter.permute(seed, column.x, BigGlobeMath.floorI(y), column.z)) < restriction;
+		return Permuter.toPositiveDouble(Permuter.permute(seed, column.x(), BigGlobeMath.floorI(y), column.z())) < restriction;
 	}
 }

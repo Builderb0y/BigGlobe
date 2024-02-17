@@ -36,8 +36,8 @@ public interface ColumnValueOverrider extends ColumnScript {
 	public abstract void override(ScriptedColumn column, ScriptStructures structures);
 
 	public static double distanceToSquare(ScriptedColumn column, double minX, double minZ, double maxX, double maxZ) {
-		double offsetX = Interpolator.clamp(minX, maxX, column.x) - column.x;
-		double offsetZ = Interpolator.clamp(minZ, maxZ, column.z) - column.z;
+		double offsetX = Interpolator.clamp(minX, maxX, column.x()) - column.x();
+		double offsetZ = Interpolator.clamp(minZ, maxZ, column.z()) - column.z();
 		return Math.sqrt(BigGlobeMath.squareD(offsetX, offsetZ));
 	}
 
@@ -51,7 +51,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 	}
 
 	public static double distanceToCircle(ScriptedColumn column, double centerX, double centerZ, double radius) {
-		return Math.max(Math.sqrt(BigGlobeMath.squareD(centerX - column.x, centerZ - column.z)) - radius, 0.0D);
+		return Math.max(Math.sqrt(BigGlobeMath.squareD(centerX - column.x(), centerZ - column.z())) - radius, 0.0D);
 	}
 
 	public static double _distanceToCircle(ScriptedColumn column, BlockBox box, double radius) {

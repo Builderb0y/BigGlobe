@@ -110,12 +110,11 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 				break;
 			}
 		}
-		column.setPos(bestResult.x, bestResult.z);
 		return bestResult;
 	}
 
 	public @Nullable Result getResultAt(ScriptedColumn column, int x, int z) {
-		column.setPos(x, z);
+		column.setParamsUnchecked(column.params.at(x, z));
 		double value = this.script.get(column);
 		if (Double.isNaN(value)) return null;
 		Result result = new Result();

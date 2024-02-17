@@ -29,7 +29,7 @@ public class SkipDistantHorizonsRestriction implements ColumnRestriction {
 
 	@Override
 	public boolean test(ScriptedColumn column, int y, long seed) {
-		return !column.distantHorizons;
+		return !column.distantHorizons();
 	}
 
 	@Override

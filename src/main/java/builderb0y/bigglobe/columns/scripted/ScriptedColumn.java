@@ -3,6 +3,10 @@ package builderb0y.bigglobe.columns.scripted;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
+import net.minecraft.world.HeightLimitView;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -10,7 +14,6 @@ import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.util.BoundInfoHolder;
 import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -21,35 +24,30 @@ public abstract class ScriptedColumn {
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public FieldInfo seed, x, z, minY, maxY, distantHorizons, heightmapOnly;
-		public MethodInfo unsaltedSeed, saltedSeed;
+		public MethodInfo unsaltedSeed, saltedSeed, seed, x, z, minY, maxY, distantHorizons;
 
 		public InsnTree seed(InsnTree loadColumn) {
-			return getField(loadColumn, this.seed.makeFinal());
+			return invokeInstance(loadColumn, this.seed);
 		}
 
 		public InsnTree x(InsnTree loadColumn) {
-			return getField(loadColumn, this.x.makeFinal());
+			return invokeInstance(loadColumn, this.x);
 		}
 
 		public InsnTree z(InsnTree loadColumn) {
-			return getField(loadColumn, this.z.makeFinal());
+			return invokeInstance(loadColumn, this.z);
 		}
 
 		public InsnTree minY(InsnTree loadColumn) {
-			return getField(loadColumn, this.minY.makeFinal());
+			return invokeInstance(loadColumn, this.minY);
 		}
 
 		public InsnTree maxY(InsnTree loadColumn) {
-			return getField(loadColumn, this.maxY.makeFinal());
+			return invokeInstance(loadColumn, this.maxY);
 		}
 
 		public InsnTree distantHorizons(InsnTree loadColumn) {
-			return getField(loadColumn, this.distantHorizons.makeFinal());
-		}
-
-		public InsnTree heightmapOnly(InsnTree loadColumn) {
-			return getField(loadColumn, this.heightmapOnly.makeFinal());
+			return invokeInstance(loadColumn, this.distantHorizons);
 		}
 
 		public InsnTree unsaltedSeed(InsnTree loadColumn) {
@@ -61,75 +59,102 @@ public abstract class ScriptedColumn {
 		}
 	}
 
-	public static class BoundInfo extends BoundInfoHolder {
-
-		public InsnTree seed, x, z, minY, maxY, distantHorizons, heightmapOnly;
-
-		public BoundInfo(InsnTree loadSelf) {
-			super(INFO, loadSelf);
-		}
-	}
-
+	//I keep changing the parameters for the constructor,
+	//which then means changing the generated subclasses,
+	//and having this info be fetched with reflection
+	//means I don't have to hard-code all that logic
+	//in the ColumnCompileContext code.
+	//though now that I've switched to a Params object,
+	//I probably don't need this anymore.
+	//oh well, it can't hurt if I ever change it back.
 	public static final Parameter[] CONSTRUCTOR_PARAMETERS = ScriptedColumn.class.getDeclaredConstructors()[0].getParameters();
 	public static final Class<?>[] PARAMETER_CLASSES = Arrays.stream(CONSTRUCTOR_PARAMETERS).map(Parameter::getType).toArray(Class<?>[]::new);
 	public static final TypeInfo[] PARAMETER_TYPE_INFOS = Arrays.stream(PARAMETER_CLASSES).map(InsnTrees::type).toArray(TypeInfo[]::new);
 	public static final LazyVarInfo[] PARAMETER_VAR_INFOS = Arrays.stream(CONSTRUCTOR_PARAMETERS).map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType()))).toArray(LazyVarInfo[]::new);
 	public static final LoadInsnTree[] LOADERS = Arrays.stream(PARAMETER_VAR_INFOS).map(InsnTrees::load).toArray(LoadInsnTree[]::new);
 
-	public final long seed;
-	public int x, z;
-	/** the upper and lower bounds of the area that can be cached. */
-	public int minY, maxY;
-	public boolean distantHorizons;
-	public boolean heightmapOnly;
+	public static record Params(
+		long seed,
+		int x,
+		int z,
+		int minY,
+		int maxY,
+		boolean distantHorizons
+	) {
 
-	public ScriptedColumn(long seed, int x, int z, int minY, int maxY, boolean distantHorizons) {
-		this.seed = seed;
-		this.x = x;
-		this.z = z;
-		this.minY = minY;
-		this.maxY = maxY;
-		this.distantHorizons = distantHorizons;
+		public Params(long seed, int x, int z, HeightLimitView world, boolean distantHorizons) {
+			this(seed, x, z, world.getBottomY(), world.getTopY(), distantHorizons);
+		}
+
+		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, boolean distantHorizons) {
+			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), distantHorizons);
+		}
+
+		public Params withSeed(long seed) {
+			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.distantHorizons);
+		}
+
+		public Params at(int x, int z) {
+			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.distantHorizons);
+		}
+
+		public Params heightRange(int minY, int maxY) {
+			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.distantHorizons);
+		}
+
+		public Params heightRange(HeightLimitView world) {
+			return this.heightRange(world.getBottomY(), world.getTopY());
+		}
+
+		public Params dh(boolean distantHorizons) {
+			return this.distantHorizons == distantHorizons ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, distantHorizons);
+		}
+
+		public Params autoDH() {
+			return this.dh(DistantHorizonsCompat.isOnDistantHorizonThread());
+		}
 	}
 
+	public Params params;
+
+	public ScriptedColumn(Params params) {
+		this.params = params;
+	}
+
+	public static interface Factory {
+
+		public abstract ScriptedColumn create(Params params);
+	}
+
+	public long    seed           () { return this.params.seed           ; }
+	public int     x              () { return this.params.x              ; }
+	public int     z              () { return this.params.z              ; }
+	public int     minY           () { return this.params.minY           ; }
+	public int     maxY           () { return this.params.maxY           ; }
+	public boolean distantHorizons() { return this.params.distantHorizons; }
+
 	public long unsaltedSeed() {
-		return Permuter.permute(this.seed, this.x, this.z);
+		return Permuter.permute(this.seed(), this.x(), this.z());
 	}
 
 	public long saltedSeed(long salt) {
-		return Permuter.permute(this.seed ^ salt, this.x, this.z);
+		return Permuter.permute(this.seed() ^ salt, this.x(), this.z());
 	}
 
 	public abstract ScriptedColumn blankCopy();
 
 	public abstract void clear();
 
-	public void setPosUnchecked(int x, int z) {
-		this.x = x;
-		this.z = z;
+	public void setParams(Params params) {
+		if (!this.params.equals(params)) {
+			this.params = params;
+			this.clear();
+		}
+	}
+
+	public void setParamsUnchecked(Params params) {
+		this.params = params;
 		this.clear();
-	}
-
-	public void setPos(int x, int z) {
-		if (this.x != x || this.z != z) {
-			this.x = x;
-			this.z = z;
-			this.clear();
-		}
-	}
-
-	public void setPosDH(int x, int z, boolean distantHorizons) {
-		if (this.x != x || this.z != z || this.distantHorizons != distantHorizons) {
-			this.x = x;
-			this.z = z;
-			this.distantHorizons = distantHorizons;
-			this.clear();
-		}
-	}
-
-	public static interface Factory {
-
-		public abstract ScriptedColumn create(long seed, int x, int z, int minY, int maxY, boolean distantHorizons);
 	}
 
 	/** also subclassed at runtime. */
@@ -210,12 +235,12 @@ public abstract class ScriptedColumn {
 
 		public long unsalted_seed() {
 			SeedPoint seedPoint = this.cell.center;
-			return Permuter.permute(this.column().seed, seedPoint.cellX, seedPoint.cellZ);
+			return Permuter.permute(this.column().seed(), seedPoint.cellX, seedPoint.cellZ);
 		}
 
 		public long salted_seed(long salt) {
 			SeedPoint seedPoint = this.cell.center;
-			return Permuter.permute(this.column().seed ^ salt, seedPoint.cellX, seedPoint.cellZ);
+			return Permuter.permute(this.column().seed() ^ salt, seedPoint.cellX, seedPoint.cellZ);
 		}
 
 		public int get_cell_x() {
@@ -239,7 +264,7 @@ public abstract class ScriptedColumn {
 			int newFlags = oldFlags | 1;
 			if (oldFlags != newFlags) {
 				this.flags_0 = newFlags;
-				return this.softDistanceSquared = this.cell.progressToEdgeSquaredD(this.column().x, this.column().z);
+				return this.softDistanceSquared = this.cell.progressToEdgeSquaredD(this.column().x(), this.column().z());
 			}
 			else {
 				return this.softDistanceSquared;
@@ -263,7 +288,7 @@ public abstract class ScriptedColumn {
 			int newFlags = oldFlags | 4;
 			if (oldFlags != newFlags) {
 				this.flags_0 = newFlags;
-				return this.hardDistance = this.cell.hardProgressToEdgeD(this.column().x, this.column().z);
+				return this.hardDistance = this.cell.hardProgressToEdgeD(this.column().x(), this.column().z());
 			}
 			else {
 				return this.hardDistance;
@@ -275,7 +300,7 @@ public abstract class ScriptedColumn {
 		}
 
 		public double get_euclidean_distance_squared() {
-			return BigGlobeMath.squareD(this.column().x - this.get_center_x(), this.column().z - this.get_center_z());
+			return BigGlobeMath.squareD(this.column().x() - this.get_center_x(), this.column().z() - this.get_center_z());
 		}
 
 		public double get_euclidean_distance() {

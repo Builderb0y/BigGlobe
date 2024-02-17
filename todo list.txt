@@ -32,7 +32,8 @@ where I left off:
 		solutions:
 			1: expand heightmapOnly to "purpose".
 			2: pre-compute columns for chunk in parallel.
-			3: store overriders on column (somehow?) and only run overriders for values that get queried.
+			3: re-use columns more, possibly storing them on chunks like 3.x did.
+			4: store overriders on column (somehow?) and only run overriders for values that get queried.
 
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -65,6 +66,12 @@ where I left off:
 	boulder block.
 	exposed trail ruins at -1324.62 105.88 1666.20
 		decide if I want to keep these, or make a cave exclusion rule for them.
+	use DistanceGraph for structure locating logic.
+	need config option for voxy integration.
+	regression: need to fix heightmapOnly being removed.
+	add ParamLookup and PositionLookup to ScriptedColumn.
+		remove ScriptedColumnLookup.
+	remove BoundInfo.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -86,6 +93,8 @@ where I left off:
 	check if inverse() is necessary in SymmetricOffset.rotate().
 		it isn't in 4.0, and in fact breaks things there.
 	check if dead bushes spawn on beaches in non-temperate plains areas, and prevent them from doing so.
+	BigGlobeChunkGenerator$StructureFinder incorrectly specifies Y = 0 for returned BlockPos.
+		this is fine for the /locate command, but breaks eyes of ender.
 
 changelog:
 	4.0:

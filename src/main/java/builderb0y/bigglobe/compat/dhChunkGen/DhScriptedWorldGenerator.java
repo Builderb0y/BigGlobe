@@ -91,26 +91,26 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			//we will mutate this array later.
 			results.setDataPoints(index & 15, index >>> 4, new DataPointListBuilder(this.level, (byte)(0)));
 		}
-		ScriptedColumn.Factory factory = this.chunkGenerator.columnEntryRegistry.columnFactory;
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, true);
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				final int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {
 					final int offsetX_ = offsetX;
 					async.submit(() -> {
-						long seed = this.chunkGenerator.seed;
+						ScriptedColumn.Factory factory = this.chunkGenerator.columnEntryRegistry.columnFactory;
 						int minY = this.chunkGenerator.height.min_y();
 						int maxY = this.chunkGenerator.height.max_y();
 						RootLayer layer = this.chunkGenerator.layer;
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;
 						ScriptedColumn
-							column00 = factory.create(seed, quadX,     quadZ,     minY, maxY, true),
-							column01 = factory.create(seed, quadX | 1, quadZ,     minY, maxY, true),
-							column10 = factory.create(seed, quadX,     quadZ | 1, minY, maxY, true),
-							column11 = factory.create(seed, quadX | 1, quadZ | 1, minY, maxY, true);
+							column00 = factory.create(params.at(quadX,     quadZ    )),
+							column01 = factory.create(params.at(quadX | 1, quadZ    )),
+							column10 = factory.create(params.at(quadX,     quadZ | 1)),
+							column11 = factory.create(params.at(quadX | 1, quadZ | 1));
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),

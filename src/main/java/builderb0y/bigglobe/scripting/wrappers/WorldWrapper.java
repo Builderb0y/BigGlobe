@@ -26,7 +26,6 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
-import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
@@ -50,11 +49,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public FieldInfo random, distantHorizons;
-		public MethodInfo getSeed, minValidYLevel, maxValidYLevel;
+		public FieldInfo random;
+		public MethodInfo seed, minValidYLevel, maxValidYLevel, distantHorizons;
 
-		public InsnTree getSeed(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.getSeed);
+		public InsnTree seed(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.seed);
 		}
 
 		public InsnTree minValidYLevel(InsnTree loadWorld) {
@@ -70,14 +69,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 
 		public InsnTree distantHorizons(InsnTree loadWorld) {
-			return getField(loadWorld, this.distantHorizons);
+			return invokeInstance(loadWorld, this.distantHorizons);
 		}
 	}
 
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
 	public static class BoundInfo extends BoundInfoHolder {
 
-		public InsnTree random, getSeed, distantHorizons;
+		public InsnTree random, seed, distantHorizons;
 
 		public BoundInfo(InsnTree loadWorld) {
 			super(INFO, loadWorld);
@@ -93,7 +92,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public final RandomGenerator random;
 	public final ScriptedColumn.Factory columnFactory;
 	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
-	public final boolean distantHorizons;
+	public final ScriptedColumn.Params params;
 	public ScriptStructures structures;
 
 	public WorldWrapper(
@@ -109,7 +108,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.pos = new BlockPos.Mutable();
 		this.random = random;
 		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
-		this.distantHorizons = distantHorizons;
+		this.params = new ScriptedColumn.Params(
+			chunkGenerator.columnSeed,
+			0,
+			0,
+			coordination.mutableArea.getMinY(),
+			coordination.mutableArea.getMaxY(),
+			distantHorizons
+		);
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
@@ -121,12 +127,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public ScriptedColumn lookupColumn(int x, int z) {
 		return this.columns.computeIfAbsent(ColumnPos.pack(x, z), (long packedPos) -> {
 			ScriptedColumn column = this.columnFactory.create(
-				this.chunkGenerator.seed,
-				ColumnPos.getX(packedPos),
-				ColumnPos.getZ(packedPos),
-				this.coordination.mutableArea.getMinY(),
-				this.coordination.mutableArea.getMaxY(),
-				this.distantHorizons
+				this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
 			);
 			if (this.structures != null) {
 				for (ColumnValueOverrider overrider : this.chunkGenerator.getOverriders().columnValues) {
@@ -149,8 +150,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return this.coordination.filterPosImmutable(this.unboundedPos(x, y, z));
 	}
 
-	public long getSeed() {
+	public long seed() {
 		return this.world.getSeed();
+	}
+
+	public boolean distantHorizons() {
+		return this.params.distantHorizons();
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
@@ -237,7 +242,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			boolean clear = ACTIVE_COlUMNS.get() == null;
 			if (clear) ACTIVE_COlUMNS.set(this.columns);
 			try {
-				Permuter permuter = new Permuter(Permuter.permute(this.getSeed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
+				Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
 				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 			}
 			finally {
@@ -270,7 +275,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			case ROTATE_180, FLIP_90 -> BlockRotation.CLOCKWISE_180;
 			case ROTATE_270, FLIP_45 -> BlockRotation.COUNTERCLOCKWISE_90;
 		});
-		Permuter permuter = new Permuter(Permuter.permute(this.getSeed() ^ 0xD6ABF6E7480FDDE0L, x, y, z));
+		Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xD6ABF6E7480FDDE0L, x, y, z));
 		this.world.placeStructureTemplate(x, y, z, template, data, permuter);
 	}
 

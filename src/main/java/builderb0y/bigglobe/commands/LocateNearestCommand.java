@@ -35,7 +35,7 @@ public class LocateNearestCommand extends AsyncCommand {
 			iterator.next()
 		) {
 			if (!this.isValid()) return;
-			column.setPos(iterator.floorX(), iterator.floorY());
+			column.setParamsUnchecked(column.params.at(iterator.floorX(), iterator.floorY()));
 			if (this.script.get(column)) {
 				ServerCommandSourceVersions.sendFeedback(
 					this.source,

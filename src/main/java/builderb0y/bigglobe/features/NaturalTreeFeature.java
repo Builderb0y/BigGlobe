@@ -58,7 +58,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		ScriptedColumn column = generator.columnEntryRegistry.columnFactory.create(generator.seed, origin.getX(), origin.getZ(), context.getWorld().getBottomY(), context.getWorld().getTopY(), distantHorizons);
+		ScriptedColumn column = generator.newColumn(context.getWorld(), origin.getX(), origin.getZ(), distantHorizons);
 		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(

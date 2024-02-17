@@ -27,6 +27,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
@@ -58,7 +59,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator, distantHorizons);
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), distantHorizons));
 		return Optional.of(
 			new StructurePosition(
 				new BlockPos(x, 0, z),

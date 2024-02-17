@@ -35,7 +35,7 @@ public class SnowDecorator implements BlockDecorator {
 		ScriptedColumn column = generator.column;
 		ColumnToFloatScript.Holder chance = this.chance;
 		return this.cache.computeIfAbsent(ColumnPos.pack(x, z), (long key) -> {
-			column.setPos((int)(key), (int)(key >>> 32));
+			column.setParamsUnchecked(column.params.at(ColumnPos.getX(key), ColumnPos.getZ(key)));
 			return chance.get(column);
 		});
 	}
