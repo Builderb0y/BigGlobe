@@ -129,14 +129,7 @@ public interface ColumnScript extends Script {
 				new MutableScriptEnvironment()
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.addVariable("x", ScriptedColumn.INFO.x(loadMainColumn))
-				.addVariable("z", ScriptedColumn.INFO.z(loadMainColumn))
-				.addVariable("minY", ScriptedColumn.INFO.minY(loadMainColumn))
-				.addVariable("maxY", ScriptedColumn.INFO.maxY(loadMainColumn))
-				.addVariable("distantHorizons", ScriptedColumn.INFO.distantHorizons(loadMainColumn))
-				.addVariable("worldSeed", ScriptedColumn.INFO.seed(loadMainColumn))
-				.addVariable("columnSeed", ScriptedColumn.INFO.unsaltedSeed(loadMainColumn))
-				.addFunctionInvoke("columnSeed", loadMainColumn, ScriptedColumn.INFO.saltedSeed)
+				.addAll(ScriptedColumn.baseEnvironment(loadMainColumn))
 			);
 			if (haveY) environment.addVariableLoad(y);
 			if (haveRandom) environment.addAll(RandomScriptEnvironment.create(load(random)));

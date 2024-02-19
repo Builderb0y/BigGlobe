@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 
 public abstract class AsyncCommand implements Runnable, Thread.UncaughtExceptionHandler {
 
@@ -24,7 +25,7 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 					this.source.getWorld().getChunkManager().getChunkGenerator()
 				)
 			)
-			.newColumn(this.source.getWorld(), 0, 0, false)
+			.newColumn(this.source.getWorld(), 0, 0, Purpose.GENERIC)
 		);
 	}
 

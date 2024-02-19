@@ -7,6 +7,7 @@ import com.google.common.collect.ObjectArrays;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockBox;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
@@ -91,7 +92,12 @@ public interface ColumnValueOverrider extends ColumnScript {
 		return _distanceToCircle(column, piece.getBoundingBox());
 	}
 
-	public static record Entry(Holder script) implements Overrider {
+	public static record Entry(
+		Holder script,
+		@DefaultBoolean(true) boolean raw_generation,
+		@DefaultBoolean(true) boolean feature_generation
+	)
+	implements Overrider {
 
 		@Override
 		public Type getOverriderType() {

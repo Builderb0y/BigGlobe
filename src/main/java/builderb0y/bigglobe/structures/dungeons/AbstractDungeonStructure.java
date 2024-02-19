@@ -51,7 +51,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.*;
@@ -101,7 +101,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			context.world(),
 			startPos.getX(),
 			startPos.getZ(),
-			DistantHorizonsCompat.isOnDistantHorizonThread()
+			Purpose.generic()
 		);
 		int y = startPos.getY();
 		return Optional.of(

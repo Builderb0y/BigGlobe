@@ -80,6 +80,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -97,6 +98,7 @@ import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
@@ -219,14 +221,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		};
 	}
 
-	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, boolean distantHorizons) {
+	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, Purpose purpose) {
 		return this.columnEntryRegistry.columnFactory.create(
 			new ScriptedColumn.Params(
 				this.columnSeed,
 				x,
 				z,
 				world,
-				distantHorizons
+				purpose
 			)
 		);
 	}
@@ -293,7 +295,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), distantHorizons);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons));
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
@@ -316,7 +318,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 									column01 = columnFactory.create(params.at(quadX | 1, quadZ    )),
 									column10 = columnFactory.create(params.at(quadX,     quadZ | 1)),
 									column11 = columnFactory.create(params.at(quadX | 1, quadZ | 1));
-								for (ColumnValueOverrider overrider : this.getOverriders().columnValues) {
+								for (ColumnValueOverrider.Holder overrider : this.getOverriders().rawColumnValues) {
 									overrider.override(column00, structures);
 									overrider.override(column01, structures);
 									overrider.override(column10, structures);
@@ -392,9 +394,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						WorldUtil.chunkBox(chunk),
 						WorldUtil.chunkBox(chunk)
 					),
-					distantHorizons
+					Purpose.rawGeneration(distantHorizons)
 				);
-				worldWrapper.structures = structures;
+				worldWrapper.overriders = new AutoOverride(structures, this.actualOverriders.rawColumnValues);
 				for (ScriptedColumn column : columns) {
 					worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
 				}
@@ -423,9 +425,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				WorldUtil.chunkBox(chunk),
 				WorldUtil.surroundingChunkBox(chunk)
 			),
-			DistantHorizonsCompat.isOnDistantHorizonThread()
+			Purpose.features()
 		);
-		worldWrapper.structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons());
+		worldWrapper.overriders = new AutoOverride(
+			ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons()),
+			this.actualOverriders.featureColumnValues
+		);
 		this.feature_dispatcher.normal.generate(worldWrapper);
 	}
 
@@ -626,7 +631,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	}
 
 	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(this.columnEntryRegistry.columnFactory, new ScriptedColumn.Params(this, 0, 0, distantHorizons));
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(this.columnEntryRegistry.columnFactory, new ScriptedColumn.Params(this, 0, 0, Purpose.generic(distantHorizons)));
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (StructureOverrider overrider : this.getOverriders().structures) {
 			if (!overrider.override(lookup, wrapper, permuter, distantHorizons)) {
@@ -664,7 +669,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			() -> {
 				int bottomY = chunk.getBottomY();
 				int topY = chunk.getTopY();
-				ScriptedColumn column = this.newColumn(chunk, 0, 0, distantHorizons);
+				ScriptedColumn column = this.newColumn(chunk, 0, 0, Purpose.generic(distantHorizons));
 				for (int z = 0; z < 16; z += 4) {
 					for (int x = 0; x < 16; x += 4) {
 						column.setParamsUnchecked(column.params.at(chunk.getPos().getStartX() | x, chunk.getPos().getStartZ() | z));
@@ -699,8 +704,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptedColumn column = this.newColumn(world, x, z, distantHorizons);
+		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);
@@ -718,8 +722,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptedColumn column = this.newColumn(world, x, z, distantHorizons);
+		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
@@ -731,7 +734,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), false));
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), Purpose.GENERIC));
 		for (DisplayEntry entry : this.debugDisplay) {
 			try {
 				text.add(entry.id + ": " + entry.handle.invokeExact(column, pos.getY()));

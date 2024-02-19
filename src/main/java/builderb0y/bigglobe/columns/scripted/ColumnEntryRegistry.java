@@ -32,7 +32,6 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;

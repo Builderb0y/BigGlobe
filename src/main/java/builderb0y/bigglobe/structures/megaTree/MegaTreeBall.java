@@ -26,12 +26,9 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.UseSuperClass;
-import builderb0y.bigglobe.columns.OverworldColumn;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
@@ -144,7 +141,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		ColumnToDoubleScript.Holder snowChance = this.data.actualStructure.data.snow_chance();
-		ScriptedColumn column = snowChance != null && chunkGenerator instanceof BigGlobeScriptedChunkGenerator scriptedGenerator ? scriptedGenerator.newColumn(world, 0, 0, DistantHorizonsCompat.isOnDistantHorizonThread()) : null;
+		ScriptedColumn column = snowChance != null && chunkGenerator instanceof BigGlobeScriptedChunkGenerator scriptedGenerator ? scriptedGenerator.newColumn(world, 0, 0, Purpose.generic()) : null;
 
 		double
 			centerX = this.data.x,

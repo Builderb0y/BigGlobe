@@ -10,7 +10,6 @@ import org.joml.Vector3d;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureType;
 
@@ -20,7 +19,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -62,7 +61,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		long seed = chunkSeed(context, 0x462E8B50AE715A33L);
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
-		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), DistantHorizonsCompat.isOnDistantHorizonThread()) : null;
+		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), Purpose.generic()) : null;
 		double y = column != null && this.data.surface_y != null ? this.data.surface_y.get(column) : context.chunkGenerator().getHeightOnGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
 		double foliage = column != null && this.data.foliage != null ? this.data.foliage.get(column) : 0.0D;
 		return Optional.of(

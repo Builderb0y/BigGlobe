@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -106,6 +107,7 @@ public abstract class DataCompileContext {
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.addEnvironment(MinecraftScriptEnvironment.create())
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+		.addEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) environment.addVariableLoad("y", TypeInfos.INT);
 			this.copyEnvironment(environment);

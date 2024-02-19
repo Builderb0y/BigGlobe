@@ -1,6 +1,8 @@
 {
 	"type": "column_value",
+	"feature_generation": false,
 	"script": [
+		"if (surfaceOnly: return())",
 		"void excludeSurface(double amount:",
 			"if (amount > 0.0L:",
 				"double surfaceY = `bigglobe:overworld/surface_y`",

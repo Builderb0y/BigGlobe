@@ -7,6 +7,7 @@ import net.minecraft.world.HeightLimitView;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -14,6 +15,7 @@ import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,11 +26,17 @@ public abstract class ScriptedColumn {
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public MethodInfo unsaltedSeed, saltedSeed, seed, x, z, minY, maxY, distantHorizons;
-
-		public InsnTree seed(InsnTree loadColumn) {
-			return invokeInstance(loadColumn, this.seed);
-		}
+		public MethodInfo
+			x,
+			z,
+			minY,
+			maxY,
+			purpose,
+			distantHorizons,
+			surfaceOnly,
+			seed,
+			unsaltedSeed,
+			saltedSeed;
 
 		public InsnTree x(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.x);
@@ -46,8 +54,20 @@ public abstract class ScriptedColumn {
 			return invokeInstance(loadColumn, this.maxY);
 		}
 
+		public InsnTree purpose(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.purpose);
+		}
+
 		public InsnTree distantHorizons(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.distantHorizons);
+		}
+
+		public InsnTree surfaceOnly(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.surfaceOnly);
+		}
+
+		public InsnTree seed(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.seed);
 		}
 
 		public InsnTree unsaltedSeed(InsnTree loadColumn) {
@@ -57,6 +77,22 @@ public abstract class ScriptedColumn {
 		public InsnTree saltedSeed(InsnTree loadColumn, InsnTree salt) {
 			return invokeInstance(loadColumn, this.saltedSeed, salt);
 		}
+	}
+
+	public static MutableScriptEnvironment baseEnvironment(InsnTree loadColumn) {
+		return (
+			new MutableScriptEnvironment()
+			.addVariable("x", INFO.x(loadColumn))
+			.addVariable("z", INFO.z(loadColumn))
+			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
+			.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
+			.addVariable("purpose", INFO.purpose(loadColumn))
+			.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
+			.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
+			.addVariable("worldSeed", INFO.seed(loadColumn))
+			.addVariable("columnSeed", INFO.unsaltedSeed(loadColumn))
+			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedSeed)
+		);
 	}
 
 	//I keep changing the parameters for the constructor,
@@ -79,39 +115,117 @@ public abstract class ScriptedColumn {
 		int z,
 		int minY,
 		int maxY,
-		boolean distantHorizons
+		Purpose purpose
 	) {
 
-		public Params(long seed, int x, int z, HeightLimitView world, boolean distantHorizons) {
-			this(seed, x, z, world.getBottomY(), world.getTopY(), distantHorizons);
+		public Params(long seed, int x, int z, HeightLimitView world, Purpose purpose) {
+			this(seed, x, z, world.getBottomY(), world.getTopY(), purpose);
 		}
 
-		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, boolean distantHorizons) {
-			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), distantHorizons);
+		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Purpose purpose) {
+			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), purpose);
 		}
 
 		public Params withSeed(long seed) {
-			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.distantHorizons);
+			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.purpose);
 		}
 
 		public Params at(int x, int z) {
-			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.distantHorizons);
+			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.purpose);
 		}
 
 		public Params heightRange(int minY, int maxY) {
-			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.distantHorizons);
+			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.purpose);
 		}
 
 		public Params heightRange(HeightLimitView world) {
 			return this.heightRange(world.getBottomY(), world.getTopY());
 		}
 
-		public Params dh(boolean distantHorizons) {
-			return this.distantHorizons == distantHorizons ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, distantHorizons);
+		public Params purpose(Purpose purpose) {
+			return this.purpose == purpose ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, purpose);
+		}
+	}
+
+	public static interface Purpose {
+
+		public static final Purpose
+			GENERIC        = new Impl("generic", false, false),
+			GENERIC_LOD    = new Lod ("generic"),
+			HEIGHTMAP      = new Impl("heightmap", false, true),
+			HEIGHTMAP_LOD  = new Impl("heightmap", true, true),
+			RAW_GENERATION = new Impl("raw_generation", false, false),
+			RAW_LOD        = new Lod ("raw_generation"),
+			FEATURES       = new Impl("features", false, false),
+			FEATURE_LOD    = new Lod ("features");
+
+		public static Purpose generic() {
+			return generic(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public Params autoDH() {
-			return this.dh(DistantHorizonsCompat.isOnDistantHorizonThread());
+		public static Purpose generic(boolean lod) {
+			return lod ? GENERIC_LOD : GENERIC;
+		}
+
+		public static Purpose rawGeneration() {
+			return rawGeneration(DistantHorizonsCompat.isOnDistantHorizonThread());
+		}
+
+		public static Purpose rawGeneration(boolean lod) {
+			return lod ? RAW_LOD : RAW_GENERATION;
+		}
+
+		public static Purpose features() {
+			return features(DistantHorizonsCompat.isOnDistantHorizonThread());
+		}
+
+		public static Purpose features(boolean lod) {
+			return lod ? FEATURE_LOD : FEATURES;
+		}
+
+		public static Purpose heightmap() {
+			return heightmap(DistantHorizonsCompat.isOnDistantHorizonThread());
+		}
+
+		public static Purpose heightmap(boolean lod) {
+			return lod ? HEIGHTMAP_LOD : HEIGHTMAP;
+		}
+
+		public abstract String name();
+
+		public abstract boolean isForLODs();
+
+		public abstract boolean surfaceOnly();
+
+		public static record Impl(String name, boolean isForLODs, boolean surfaceOnly) implements Purpose {
+
+			public Impl {
+				name = name.intern();
+			}
+		}
+
+		public static class Lod implements Purpose {
+
+			public final String name;
+
+			public Lod(String name) {
+				this.name = name.intern();
+			}
+
+			@Override
+			public String name() {
+				return this.name;
+			}
+
+			@Override
+			public boolean isForLODs() {
+				return true;
+			}
+
+			@Override
+			public boolean surfaceOnly() {
+				return BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
+			}
 		}
 	}
 
@@ -121,17 +235,20 @@ public abstract class ScriptedColumn {
 		this.params = params;
 	}
 
+	@FunctionalInterface
 	public static interface Factory {
 
 		public abstract ScriptedColumn create(Params params);
 	}
 
-	public long    seed           () { return this.params.seed           ; }
-	public int     x              () { return this.params.x              ; }
-	public int     z              () { return this.params.z              ; }
-	public int     minY           () { return this.params.minY           ; }
-	public int     maxY           () { return this.params.maxY           ; }
-	public boolean distantHorizons() { return this.params.distantHorizons; }
+	public long    seed           () { return this.params.seed                 ; }
+	public int     x              () { return this.params.x                    ; }
+	public int     z              () { return this.params.z                    ; }
+	public int     minY           () { return this.params.minY                 ; }
+	public int     maxY           () { return this.params.maxY                 ; }
+	public String  purpose        () { return this.params.purpose.name       (); }
+	public boolean distantHorizons() { return this.params.purpose.isForLODs  (); }
+	public boolean surfaceOnly    () { return this.params.purpose.surfaceOnly(); }
 
 	public long unsaltedSeed() {
 		return Permuter.permute(this.seed(), this.x(), this.z());

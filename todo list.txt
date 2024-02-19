@@ -23,17 +23,7 @@ testing:
 		in other words, see if my mixin is still necessary or not.
 
 where I left off:
-	performance issue:
-		generation of configured features constructs a new WorldWrapper.
-		the WorldWrapper initially has no columns, but does have structures.
-		the feature dispatcher queries columns at every position in the chunk.
-		overriders get run before the column is returned.
-		cave overriders get cave noise, which is expensive.
-		solutions:
-			1: expand heightmapOnly to "purpose".
-			2: pre-compute columns for chunk in parallel.
-			3: re-use columns more, possibly storing them on chunks like 3.x did.
-			4: store overriders on column (somehow?) and only run overriders for values that get queried.
+	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -68,10 +58,8 @@ where I left off:
 		decide if I want to keep these, or make a cave exclusion rule for them.
 	use DistanceGraph for structure locating logic.
 	need config option for voxy integration.
-	regression: need to fix heightmapOnly being removed.
-	add ParamLookup and PositionLookup to ScriptedColumn.
-		remove ScriptedColumnLookup.
 	remove BoundInfo.
+	client horizon height needs to use synced chunk generator sea level.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

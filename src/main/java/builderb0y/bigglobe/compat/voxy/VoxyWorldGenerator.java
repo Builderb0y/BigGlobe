@@ -24,6 +24,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -110,7 +111,7 @@ public class VoxyWorldGenerator {
 		ScriptedColumn.Factory factory = this.generator.columnEntryRegistry.columnFactory;
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, true);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.GENERIC_LOD);
 		RootLayer layer = this.generator.layer;
 		ScriptedColumn
 			column00 = factory.create(params),

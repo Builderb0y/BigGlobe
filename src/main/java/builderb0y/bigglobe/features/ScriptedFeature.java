@@ -21,6 +21,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
@@ -134,7 +135,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				generator,
 				permuter,
 				coordination,
-				DistantHorizonsCompat.isOnDistantHorizonThread()
+				Purpose.features()
 			);
 			if (
 				context.getConfig().script.generate(

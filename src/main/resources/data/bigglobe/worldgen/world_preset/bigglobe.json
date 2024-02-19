@@ -112,7 +112,7 @@
 											")"
 										],
 										"valid": {
-											"where": "!distantHorizons ;&& !heightmapOnly",
+											"where": "!surfaceOnly",
 											"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/cave`.depth",
 											"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
 										}

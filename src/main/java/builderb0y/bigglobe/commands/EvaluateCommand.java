@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -43,7 +44,7 @@ public class EvaluateCommand {
 						generator,
 						Permuter.from(actualWorld.random),
 						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite()),
-						false
+						Purpose.GENERIC
 					);
 					WorldColumn column = WorldColumn.forWorld(
 						actualWorld,

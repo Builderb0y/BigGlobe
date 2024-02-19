@@ -17,6 +17,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
@@ -40,7 +41,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 						0,
 						this.generator.height.min_y(),
 						this.generator.height.max_y(),
-						false
+						Purpose.generic()
 					)
 				);
 			}
@@ -64,7 +65,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
-			column.setParams(column.params.at(x << 2, z << 2).autoDH());
+			column.setParams(column.params.at(x << 2, z << 2));
 			return this.script.get(column, y << 2).entry();
 		}
 		else {

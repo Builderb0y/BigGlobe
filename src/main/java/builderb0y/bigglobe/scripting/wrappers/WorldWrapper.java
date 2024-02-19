@@ -24,6 +24,7 @@ import net.minecraft.util.math.ColumnPos;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
@@ -50,7 +51,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static class Info extends InfoHolder {
 
 		public FieldInfo random;
-		public MethodInfo seed, minValidYLevel, maxValidYLevel, distantHorizons;
+		public MethodInfo seed, minValidYLevel, maxValidYLevel, distantHorizons, surfaceOnly;
 
 		public InsnTree seed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.seed);
@@ -71,6 +72,10 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		public InsnTree distantHorizons(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.distantHorizons);
 		}
+
+		public InsnTree surfaceOnly(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.surfaceOnly);
+		}
 	}
 
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
@@ -83,27 +88,25 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static final ThreadLocal<Long2ObjectOpenHashMap<ScriptedColumn>> ACTIVE_COlUMNS = new ThreadLocal<>();
+	public static final ThreadLocal<WorldWrapper> PARENT = new ThreadLocal<>();
 
 	public final WorldOrChunk world;
-	public final BigGlobeScriptedChunkGenerator chunkGenerator;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
 	public final RandomGenerator random;
 	public final ScriptedColumn.Factory columnFactory;
 	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
 	public final ScriptedColumn.Params params;
-	public ScriptStructures structures;
+	public AutoOverride overriders;
 
 	public WorldWrapper(
 		WorldOrChunk world,
 		BigGlobeScriptedChunkGenerator chunkGenerator,
 		RandomGenerator random,
 		Coordination coordination,
-		boolean distantHorizons
+		Purpose purpose
 	) {
 		this.world = world;
-		this.chunkGenerator = chunkGenerator;
 		this.coordination = coordination;
 		this.pos = new BlockPos.Mutable();
 		this.random = random;
@@ -114,13 +117,28 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			0,
 			coordination.mutableArea.getMinY(),
 			coordination.mutableArea.getMaxY(),
-			distantHorizons
+			purpose
 		);
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
-		Long2ObjectOpenHashMap<ScriptedColumn> columns = ACTIVE_COlUMNS.get();
-		this.columns = columns != null ? columns : new Long2ObjectOpenHashMap<>(64);
+		WorldWrapper parent = PARENT.get();
+		if (parent != null) {
+			this.columns = parent.columns;
+			this.overriders = parent.overriders;
+		}
+		else {
+			this.columns = new Long2ObjectOpenHashMap<>(64);
+		}
+	}
+
+	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders) {
+
+		public void override(ScriptedColumn column) {
+			for (ColumnValueOverrider.Holder overrider : this.overriders) {
+				overrider.override(column, this.structures);
+			}
+		}
 	}
 
 	@Override
@@ -129,10 +147,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			ScriptedColumn column = this.columnFactory.create(
 				this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
 			);
-			if (this.structures != null) {
-				for (ColumnValueOverrider overrider : this.chunkGenerator.getOverriders().columnValues) {
-					overrider.override(column, this.structures);
-				}
+			if (this.overriders != null) {
+				this.overriders.override(column);
 			}
 			return column;
 		});
@@ -155,7 +171,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public boolean distantHorizons() {
-		return this.params.distantHorizons();
+		return this.params.purpose().isForLODs();
+	}
+
+	public boolean surfaceOnly() {
+		return this.params.purpose().surfaceOnly();
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
@@ -239,14 +259,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			boolean clear = ACTIVE_COlUMNS.get() == null;
-			if (clear) ACTIVE_COlUMNS.set(this.columns);
+			boolean clear = PARENT.get() == null;
+			if (clear) PARENT.set(this);
 			try {
 				Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
 				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 			}
 			finally {
-				if (clear) ACTIVE_COlUMNS.set(null);
+				if (clear) PARENT.set(null);
 			}
 		}
 		return false;
