@@ -88,7 +88,7 @@ public class BuiltinScriptEnvironment {
 		.addType("Object",     TypeInfos.OBJECT)
 		.addType("Comparable", TypeInfos.COMPARABLE)
 		.addType("String",     TypeInfos.STRING)
-		.addType("Throwable",  TypeInfos.THROWABLE)
+		//.addType("Throwable",  TypeInfos.THROWABLE)
 		.addType("Class",      TypeInfos.CLASS)
 
 		//////////////// functions ////////////////

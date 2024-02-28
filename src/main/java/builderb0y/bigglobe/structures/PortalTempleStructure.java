@@ -452,11 +452,9 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		};
 
 		public static final RandomList<String> CHEST_LOOT_TABLES = (
-			new RandomList<String>(4)
+			new RandomList<String>(2)
 			.addSelf(LootTables.NETHER_BRIDGE_CHEST.toString().intern(), 100.0F)
 			.addSelf(LootTables.RUINED_PORTAL_CHEST.toString().intern(), 50.0F)
-			.addSelf(LootTables.BASTION_OTHER_CHEST.toString().intern(), 25.0F)
-			.addSelf(LootTables.BASTION_BRIDGE_CHEST.toString().intern(), 10.0F)
 		);
 
 		public final double crackedChance;

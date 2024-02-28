@@ -41,7 +41,6 @@ where I left off:
 		ores.
 		rock layers.
 		flowers.
-		locate commands.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
 	swamp surface decoration (water, mud).
@@ -83,6 +82,9 @@ where I left off:
 	check if dead bushes spawn on beaches in non-temperate plains areas, and prevent them from doing so.
 	BigGlobeChunkGenerator$StructureFinder incorrectly specifies Y = 0 for returned BlockPos.
 		this is fine for the /locate command, but breaks eyes of ender.
+	make rocks break ice in addition to glass.
+	fix semicolons counting as an operator character for scripts.
+	remove bastion remnant loot tables from portal temple.
 
 changelog:
 	4.0:
@@ -212,6 +214,16 @@ features:
 				with "type": "wood" or "type": "generic"?
 		more decorations for surface mineshafts?
 		sea shells on the sea shore?
+		clams?
+			pearls?
+				potion ingredient?
+				armor trim?
+		wet sand?
+			does not have gravity.
+			on random tick, if not adjacent to water, turn into regular sand.
+				don't cause block updates in the process, and also don't fall due to gravity.
+			obtainable? TBD.
+			craftable with sand and water buckets? TBD.
 	nether:
 	end:
 		end ore feature.
@@ -219,6 +231,10 @@ features:
 			void ingots?
 				void tools?
 				void armor?
+					no damage from ender pearls.
+					maybe just no fall damage in general?
+					chorus fruit has bigger range while wearing void armor.
+					teleport randomly upon taking damage when health is below a certain threshold?
 		asteroids in the void biome.
 		ender clam?
 			source of ender pearls.

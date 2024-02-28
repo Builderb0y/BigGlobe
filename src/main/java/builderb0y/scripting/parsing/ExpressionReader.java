@@ -342,11 +342,11 @@ public class ExpressionReader {
 	/**
 	returns true if the provided character counts as an operator character.
 	operator characters include the following:
-		!#%&*+,-./:;<=>?@\^|~
+		!#%&*+,-./:<=>?@\^|~
 	*/
 	public static boolean isOperatorSymbol(char c) {
 		return switch (c) {
-			case '!', '#', '$', '%', '&', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
+			case '!', '#', '$', '%', '&', '*', '+', ',', '-', '.', '/', ':', '<', '=', '>', '?', '@', '\\', '^', '|', '~' -> true;
 			default -> false;
 		};
 	}
@@ -400,7 +400,7 @@ public class ExpressionReader {
 			CursorPos start = this.getCursor();
 			while (true) {
 				c = this.peek();
-				if (c == 0) {
+				if (c == 0 || c == '\n') {
 					this.setCursor(start);
 					throw new ScriptParsingException("Un-terminated escaped identifier", this);
 				}

@@ -88,7 +88,9 @@ public class UserClassDefiner {
 				setter.endCode();
 			}
 
-			this.parser.input.hasOperatorAfterWhitespace(",,");
+			if (!this.parser.input.hasOperatorAfterWhitespace(",")) {
+				this.parser.input.hasOperatorAfterWhitespace(",,");
+			}
 		}
 		return fields;
 	}

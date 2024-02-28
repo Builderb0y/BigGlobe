@@ -84,6 +84,34 @@ public class UserDefinitionsTest extends TestCommon {
 		);
 		assertFail(unknown("x"),
 			"""
+			boolean b = true
+			if ( b : int x = 2 )
+			else ( print(x) )
+			"""
+		);
+		assertFail(unknown("x"),
+			"""
+			boolean b = true
+			unless ( b : int x = 2 )
+			else ( print(x) )
+			"""
+		);
+		assertFail(unknown("x"),
+			"""
+			boolean b = false
+			if ( b : int x = 2 )
+			else ( print(x) )
+			"""
+		);
+		assertFail(unknown("x"),
+			"""
+			boolean b = false
+			unless ( b : int x = 2 )
+			else ( print(x) )
+			"""
+		);
+		assertFail(unknown("x"),
+			"""
 			void consume( int x : noop )
 			consume ( int y = 3 ,, y )
 			x

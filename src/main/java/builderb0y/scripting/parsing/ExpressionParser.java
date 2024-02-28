@@ -235,7 +235,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "++:", ":++", "--", "--:", ":--", "!" -> {} //indicates that there's another statement to read.
+					case "", "++", "++:", ":++", "--", "--:", ":--", "!", "~" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -1023,7 +1023,7 @@ public class ExpressionParser {
 							return new UserExtensionMethodDefiner(this, varName, type, typeBeingExtended).parse();
 						}
 						else {
-							throw new ScriptParsingException("Expected '=' or '('", this.input);
+							throw new ScriptParsingException("Expected '=', '(', or '.'", this.input);
 						}
 					}
 					else { //ldc class.
