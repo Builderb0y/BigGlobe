@@ -217,3 +217,54 @@ Putting 2 dollar signs in a row will result in one dollar sign being included in
 ```
 print("The price is $$5") ;prints "the price is $5" (without quotes)
 ```
+
+# Embedding into JSON
+
+Most script instances are represented by either a string, or an array of strings. when using an array, the elements are concatenated, with a newline character separating them. As such, there's 3 different coding styles you can go with:
+
+If you like tabs for indentation, then pretty much your only option is to indent the strings themselves, since strings can't contain tab characters.
+```json
+{
+	"script": [
+		"int getY(:",
+			"int x = 1",
+			"for (int z in range[0, 10]:",
+				"x += z",
+			")",
+			"x",
+		")",
+		"print(getY())"
+	]
+}
+```
+If you like spaces, another option opens up:
+```json
+{
+	"script": [
+		"int getY(:",
+		"    int x = 1",
+		"    for (int z in range[0, 10]:",
+		"        x += z",
+		"    )",
+		"    x",
+		")",
+		"print(getY())"
+	]
+}
+```
+And if you want to go full chaotic evil, GSON, the library Minecraft uses to parse json files, has a bug in it: it doesn't actually care what characters you put in json strings, even if they violate the json specs. This includes tabs, and even newlines. So *technically* you could do this:
+```json
+{
+	"script": "
+		int getY(:
+			int x = 1
+			for (int z in range[0, 10]:
+				x += z
+			)
+			x
+		)
+		print(getY())
+	"
+}
+```
+I would not count on this continuing to work forever though. It is entirely possible that GSON might fix this bug some day, and it will be outside the scope of things I can un-fix. If you do this, you accept the risk that your code might break some day and you will need to re-format it.
