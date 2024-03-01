@@ -85,6 +85,7 @@ where I left off:
 	make rocks break ice in addition to glass.
 	fix semicolons counting as an operator character for scripts.
 	remove bastion remnant loot tables from portal temple.
+	fix sign() not working with longs due to copy-paste error in MathScriptEnvironment.
 
 changelog:
 	4.0:

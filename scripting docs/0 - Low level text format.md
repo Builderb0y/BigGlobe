@@ -220,20 +220,22 @@ print("The price is $$5") ;prints "the price is $5" (without quotes)
 
 # Embedding into JSON
 
-Most script instances are represented by either a string, or an array of strings. when using an array, the elements are concatenated, with a newline character separating them. As such, there's 3 different coding styles you can go with:
+Most script instances are represented by either a string, or an array of strings. when using an array, the elements are concatenated, with a newline character separating them. As such, if you want to specify a String literal in a JSON script, it is recommended to use single quote marks, as double quote marks will need to be escaped with backslashes to be JSON-compliant.
 
-If you like tabs for indentation, then pretty much your only option is to indent the strings themselves, since strings can't contain tab characters.
+## Formatting and indentation
+
+If you like tabs for indentation, then pretty much your only option is to indent the JSON strings themselves, since JSON strings can't contain tab characters.
 ```json
 {
 	"script": [
-		"int getY(:",
-			"int x = 1",
-			"for (int z in range[0, 10]:",
-				"x += z",
+		"int getSum(:",
+			"int sum = 1",
+			"for (int number in range[0, 10]:",
+				"sum += number",
 			")",
-			"x",
+			"sum",
 		")",
-		"print(getY())"
+		"print(getSum())"
 	]
 }
 ```
@@ -241,29 +243,29 @@ If you like spaces, another option opens up:
 ```json
 {
 	"script": [
-		"int getY(:",
-		"    int x = 1",
-		"    for (int z in range[0, 10]:",
-		"        x += z",
+		"int getSum(:",
+		"    int sum = 1",
+		"    for (int number in range[0, 10]:",
+		"        sum += number",
 		"    )",
-		"    x",
+		"    sum",
 		")",
-		"print(getY())"
+		"print(getSum())"
 	]
 }
 ```
-And if you want to go full chaotic evil, GSON, the library Minecraft uses to parse json files, has a bug in it: it doesn't actually care what characters you put in json strings, even if they violate the json specs. This includes tabs, and even newlines. So *technically* you could do this:
+And if you want to go full chaotic evil, GSON, the library Minecraft uses to parse JSON files, has a bug in it: it doesn't actually care what characters you put in JSON strings, even if they violate the JSON specs. This includes tabs, and even newlines. So *technically* you could do this:
 ```json
 {
 	"script": "
-		int getY(:
-			int x = 1
-			for (int z in range[0, 10]:
-				x += z
+		int getSum(:
+			int sum = 1
+			for (int number in range[0, 10]:
+				sum += number
 			)
-			x
+			sum
 		)
-		print(getY())
+		print(getSum())
 	"
 }
 ```

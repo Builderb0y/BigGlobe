@@ -102,11 +102,11 @@ public class Interpolator {
 	}
 
 	public static float clamp(float low, float high, float value) {
-		return MathScriptEnvironment.max(MathScriptEnvironment.min(value, high), low);
+		return MathScriptEnvironment.min(MathScriptEnvironment.max(value, low), high);
 	}
 
 	public static double clamp(double low, double high, double value) {
-		return MathScriptEnvironment.max(MathScriptEnvironment.min(value, high), low);
+		return MathScriptEnvironment.min(MathScriptEnvironment.max(value, low), high);
 	}
 
 	/**

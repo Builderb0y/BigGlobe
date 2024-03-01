@@ -30,10 +30,11 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addVariableConstant("nan", Float.NaN)
 		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
 		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow", "atan2")
+		.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
 		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh")
 		.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
-		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
+		.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
 		.addFunction("mod", (parser, name, arguments) -> {
 			if (arguments.length != 2) return null;
@@ -114,6 +115,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
 	}
 
+	/**
+	differs from {@link Math#max(float, float)} in that this
+	method prefers to return a non-NaN result when possible.
+	*/
 	public static float max(float a, float b) {
 		if (a > b) return a;
 		if (b > a) return b;
@@ -122,6 +127,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return Float.floatToRawIntBits(a) > Float.floatToRawIntBits(b) ? a : b;
 	}
 
+	/**
+	differs from {@link Math#max(double, double)} in that this
+	method prefers to return a non-NaN result when possible.
+	*/
 	public static double max(double a, double b) {
 		if (a > b) return a;
 		if (b > a) return b;
@@ -130,6 +139,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return Double.doubleToRawLongBits(a) > Double.doubleToRawLongBits(b) ? a : b;
 	}
 
+	/**
+	differs from {@link Math#min(float, float)} in that this
+	method prefers to return a non-NaN result when possible.
+	*/
 	public static float min(float a, float b) {
 		if (a < b) return a;
 		if (b < a) return b;
@@ -138,6 +151,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return Float.floatToRawIntBits(a) < Float.floatToRawIntBits(b) ? a : b;
 	}
 
+	/**
+	differs from {@link Math#min(double, double)} in that this
+	method prefers to return a non-NaN result when possible.
+	*/
 	public static double min(double a, double b) {
 		if (a < b) return a;
 		if (b < a) return b;

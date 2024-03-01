@@ -22,18 +22,18 @@ import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageCoder;
 @UseCoder(name = "new", in = ScriptUsageCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
 public class ScriptUsage<T extends ScriptTemplateUsage> {
 
-	public final @VerifyNullable @MultiLine String script;
+	public final @VerifyNullable @MultiLine String source;
 	public final @VerifyNullable T template;
 	public final @VerifyNullable String debug_name;
 
-	public ScriptUsage(@NotNull String script, @VerifyNullable String debug_name) {
-		this.script = script;
+	public ScriptUsage(@NotNull String source, @VerifyNullable String debug_name) {
+		this.source = source;
 		this.template = null;
 		this.debug_name = debug_name;
 	}
 
 	public ScriptUsage(@NotNull T template, @VerifyNullable String debug_name) {
-		this.script = null;
+		this.source = null;
 		this.template = template;
 		this.debug_name = debug_name;
 	}
@@ -54,7 +54,7 @@ public class ScriptUsage<T extends ScriptTemplateUsage> {
 	}
 
 	public boolean isScript() {
-		return this.script != null;
+		return this.source != null;
 	}
 
 	public boolean isTemplate() {
@@ -62,7 +62,7 @@ public class ScriptUsage<T extends ScriptTemplateUsage> {
 	}
 
 	public String getScript() {
-		if (this.script != null) return this.script;
+		if (this.source != null) return this.source;
 		else throw new IllegalStateException("Not a script");
 	}
 
@@ -129,13 +129,13 @@ public class ScriptUsage<T extends ScriptTemplateUsage> {
 				if (object.debug_name != null) {
 					return context.createStringMap(
 						Map.of(
-							"source", context.input(object.script).encodeWith(this.sourceCoder),
+							"source", context.input(object.source).encodeWith(this.sourceCoder),
 							"debug_name", context.input(object.debug_name).encodeWith(this.debugNameCoder)
 						)
 					);
 				}
 				else {
-					return context.input(object.script).encodeWith(this.scriptCoder);
+					return context.input(object.source).encodeWith(this.scriptCoder);
 				}
 			}
 		}

@@ -1,3 +1,22 @@
+Script environments provide things for scripts to make use of. These things include:
+* Variables - referenced by an identifier. Example: `foo`
+* Fields - referenced by member expressions. Example: `foo.bar`
+* Functions - referenced by an identifier, followed by an opening parentheses, followed by a comma-separated list of scripts for arguments, followed by a closing parentheses. Example: `foo(x, y, z)`
+* Methods - referenced by a member expression followed by the same parentheses and arguments as functions. Example: `foo.bar(x, y, z)`
+* Keywords - referenced by an identifier and usually followed by some other text. What text is matched depends on the keyword in question. Example: `if (condition: body)`
+* Member keywords - referenced by a member expression where the member is the name of a keyword, also followed by more text. Example: `condition.if (body)`
+* Types - a category for all other variables. For example, true and false have a type of boolean, and "hello world!" has a type of String. Every time you declare a variable, it starts with the type of that variable. For example, `String text = "hello world!"`.
+* Casters - handles conversion between two different types. For example, a caster for int -> long will be able to specify how to convert an int to a long. This allows you to do things like
+	```
+	int x = 2
+	long y = x ;implicit conversion
+	long z = long(x) ;explicit conversion, not that it makes any difference in this case.
+	```
+
+What follows below is the "builtin" script environment. This environment is always present on every script, though in rare cases some functionality may be limited or removed. I will try to ensure that such cases are also documented.
+
+Information about other environments can be found in the "environments" directory. Information about which environments are present on each script can be found in the "present" directory.
+
 # Variables
 
 * true
@@ -136,10 +155,13 @@ void notYetImplemented(int value:
 		* You can set the step size by modulus'ing the range: `for (int value in range[0, 10] % 2: print(value))` this will print the *even* numbers between 0 and 10.
 		* All of this is hard-coded syntax btw. range isn't a keyword or a function on its own, there is no Range class which contains the min/max/step/ascending vs. descending state, and there are no operator overloads at play here.
 		* If the min, max, or step is not a compile-time constant, it will only ever be evaluated once.
-	* Multi-loops (at the time of writing this, these are not in a released version of Big Globe yet, but they will be in the next version): `for (Type1 element1 in list1, Type2 element2 in list2: body)` this is almost syntactically equivalent to declaring an outer loop over list1 containing an inner loop over list2, with one exception: breaking the loop breaks the *outer* loop, where as continuing the loop continues the *inner* loop.
+	* Multi-loops (at the time of writing this, these are not in a released version of Big Globe yet, but they will be in 4.0): `for (Type1 element1 in list1, Type2 element2 in list2: body)` this is almost syntactically equivalent to declaring an outer loop over list1 containing an inner loop over list2, with one exception: breaking the loop breaks the *outer* loop, where as continuing the loop continues the *inner* loop.
 		* Multi-loops can be combined to create as many nested loops as you want.
 		* Multi-loops can use Iterable's, Map's, and ranges interchangeably, and even different iteration methods for different levels of the loop.
-		* Multi-loops only work with enhanced for loop syntax, not traditional for loop syntax.
+		* Multi-loops do not work with traditional for loop syntax.
+	* Multi-variable range loops (also not until 4.0): `for (int x, int y, int z in range[-1, 1]: body)`
+		* Like multi-loops, this works like declaring an outer loop for x, a middle loop for y, and an inner loop for z.
+		* Also like multi-loops, continuing will continue the inner loop, and breaking will break the outer loop.
 * `block (body)` can be thought of as a manual loop. If the body continues, then execution jumps back to the start of the block. And if the body breaks, then execution jumps to the end of the block. If the body does neither and reaches the end of the block, then the block is implicitly broken. You do not need to explicitly break at the end of each block.
 * `break()` exits the inner-most loop that is currently executing, skipping any code that may be between the current execution point and the end of the loop. Example usage:
 	```
