@@ -10,10 +10,17 @@ import net.minecraft.registry.tag.TagKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.scripting.bytecode.TypeInfo;
 
 public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 
+	public static final TypeInfo TYPE = TypeInfo.of(TagWrapper.class);
+
 	public abstract TagKey<T_Raw> key();
+
+	public default String id() {
+		return this.key().id().toString();
+	}
 
 	public abstract T_Entry wrap(RegistryEntry<T_Raw> entry);
 

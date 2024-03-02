@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockMirror;
@@ -364,7 +365,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newZ = newPos.z;
 		Identifier identifier = new Identifier(entityType);
 		if (RegistryVersions.entityType().containsId(identifier)) {
-			this.world.spawnEntity(serverWorld -> {
+			this.world.spawnEntity((ServerWorld serverWorld) -> {
 				Entity entity = RegistryVersions.entityType().get(identifier).create(serverWorld);
 				if (entity != null) {
 					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
@@ -392,8 +393,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newZ = newPos.z;
 		NbtCompound copy = nbt.copy();
 		copy.putString("id", entityType);
-		this.world.spawnEntity(serverWorld -> {
-			return EntityType.loadEntityWithPassengers(copy, serverWorld, entity -> {
+		this.world.spawnEntity((ServerWorld serverWorld) -> {
+			return EntityType.loadEntityWithPassengers(copy, serverWorld, (Entity entity) -> {
 				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 				return entity;
 			});

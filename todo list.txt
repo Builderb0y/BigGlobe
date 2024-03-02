@@ -59,6 +59,8 @@ where I left off:
 	need config option for voxy integration.
 	remove BoundInfo.
 	client horizon height needs to use synced chunk generator sea level.
+	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
+	allow scripts to declare variables with generic types?
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -86,6 +88,10 @@ where I left off:
 	fix semicolons counting as an operator character for scripts.
 	remove bastion remnant loot tables from portal temple.
 	fix sign() not working with longs due to copy-paste error in MathScriptEnvironment.
+	add Block.id to MinecraftScriptEnvironment.
+	add Tag class to MinecraftScriptEnvironment.
+	add Tag.id to MinecraftScriptEnvironment.
+	fix duplicate Block.getRandomState() function in MinecraftScriptEnvironment.
 
 changelog:
 	4.0:

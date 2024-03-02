@@ -68,3 +68,14 @@ print("$.box.value, $value") ;prints "3, 2" because box was mutated, but value w
 # Postfix operators
 
 There are none. So `x++` will not work anywhere. You must use `++x` instead.
+
+# Generics
+
+I'll be honest, I kind of forgot generics existed when I was planning my type system. As such, you can declare variables of type `List`, but not `List<String>`. However, generics still play a role in scripts: any expression with a generic type will have its implicit casts turned into explicit casts. For example:
+```
+ArrayList list = new().$add(2)
+int two = list.(0) ;valid, because list.(index) has a generic return type.
+
+Object object = list.(0)
+int two = object ;not valid. you need to do int(object) or object.as(int) instead.
+```

@@ -26,6 +26,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -44,13 +45,16 @@ public class MinecraftScriptEnvironment {
 			.addType("BiomeTag",             BiomeTagKey            .TYPE)
 			.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
 			.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
+			.addType("Tag", TagWrapper.TYPE)
+			.addFieldInvokeStatic(BlockWrapper.class, "id")
+			.addFieldInvoke(TagWrapper.class, "id")
 			.addFieldInvoke(EntryWrapper.class, "id")
 			.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
-			.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "getRandomState", "isIn", "getRandomState")
+			.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "getRandomState", "isIn")
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
 			.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
-			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (parser, receiver, name, mode) -> {
+			.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 				return mode.makeInvoker(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
 			}))
 			.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
