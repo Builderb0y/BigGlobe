@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "SkylandBounds",
+			"fields": {
+				"min_y": "double",
+				"max_y": "double",
+				"surface_depth": "int"
+			}
+		},
+		"is_3d": false
+	},
+	"script": [
+		"double center = `bigglobe:overworld/skylands/average_center_y` + `bigglobe:overworld/skylands/plains_center`",
+		"double thickness = `bigglobe:overworld/skylands/swiss_cheese_plains_thickness`",
+		"double bias = `bigglobe:overworld/skylands/exclusion` + soft_distance_squared",
+		"SkylandBounds.new(min_y: center + thickness + bias * 44.0L, max_y: center, surface_depth: `bigglobe:overworld/skylands/plains_surface_depth`)"
+	]
+}

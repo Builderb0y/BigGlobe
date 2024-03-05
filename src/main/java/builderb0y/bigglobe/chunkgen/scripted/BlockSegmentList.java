@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EmptyBlockView;
 
 public class BlockSegmentList extends SegmentList<BlockState> {
 
@@ -48,5 +50,32 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 
 	public void reset() {
 		this.clear();
+	}
+
+	@Override
+	public Segment<BlockState> newSegment(int minY, int maxY, BlockState value) {
+		return new LitSegment(minY, maxY, value);
+	}
+
+	public LitSegment getLit(int index) {
+		return (LitSegment)(this.get(index));
+	}
+
+	public void computeLightLevels() {
+		byte lightLevel = 15;
+		for (int index = this.size(); --index >= 0;) {
+			LitSegment segment = this.getLit(index);
+			segment.lightLevel = lightLevel;
+			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY - segment.minY + 1), 0));
+		}
+	}
+
+	public static class LitSegment extends Segment<BlockState> {
+
+		public byte lightLevel = -1;
+
+		public LitSegment(int minY, int maxY, BlockState value) {
+			super(minY, maxY, value);
+		}
 	}
 }

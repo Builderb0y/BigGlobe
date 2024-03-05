@@ -285,6 +285,10 @@ public abstract class ScriptedColumn {
 			public MethodInfo
 				column,
 				id,
+				get_cell_x,
+				get_cell_z,
+				get_center_x,
+				get_center_z,
 				get_soft_distance,
 				get_soft_distance_squared,
 				get_hard_distance,
@@ -300,6 +304,22 @@ public abstract class ScriptedColumn {
 
 			public InsnTree id(InsnTree receiver) {
 				return invokeInstance(receiver, this.id);
+			}
+
+			public InsnTree get_cell_x(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_cell_x);
+			}
+
+			public InsnTree get_cell_z(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_cell_z);
+			}
+
+			public InsnTree get_center_x(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_center_x);
+			}
+
+			public InsnTree get_center_z(InsnTree receiver) {
+				return invokeInstance(receiver, this.get_center_z);
 			}
 
 			public InsnTree get_soft_distance(InsnTree receiver) {

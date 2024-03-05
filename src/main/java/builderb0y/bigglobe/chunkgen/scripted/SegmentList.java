@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -37,7 +36,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 
 	public void fillEmptySpace(T object) {
 		if (this.isEmpty()) {
-			this.add(new Segment<>(this.minY, this.maxY, object));
+			this.add(this.newSegment(this.minY, this.maxY, object));
 		}
 		else {
 			int size = this.size();
@@ -46,7 +45,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 			int readIndex = 0, writeIndex = 0;
 			Segment<T> segment = segment(oldArray, 0);
 			if (segment.minY > this.minY) {
-				newArray[writeIndex++] = new Segment<>(this.minY, segment.minY - 1, object);
+				newArray[writeIndex++] = this.newSegment(this.minY, segment.minY - 1, object);
 			}
 			while (true) {
 				Segment<T> lowSegment = segment(oldArray, readIndex++);
@@ -54,12 +53,12 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 				if (readIndex < size) {
 					Segment<T> highSegment = segment(oldArray, readIndex);
 					if (highSegment.minY != lowSegment.maxY + 1) {
-						newArray[writeIndex++] = new Segment<>(lowSegment.maxY + 1, highSegment.minY - 1, object);
+						newArray[writeIndex++] = this.newSegment(lowSegment.maxY + 1, highSegment.minY - 1, object);
 					}
 				}
 				else {
 					if (this.maxY != lowSegment.maxY + 1) {
-						newArray[writeIndex++] = new Segment<>(lowSegment.maxY + 1, this.maxY, object);
+						newArray[writeIndex++] = this.newSegment(lowSegment.maxY + 1, this.maxY, object);
 					}
 					break;
 				}
@@ -117,7 +116,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 				int minY = Math.max(segment.minY, this.minY);
 				int maxY = Math.min(segment.maxY, this.maxY);
 				if (maxY >= minY) {
-					this.add(new Segment<>(segment.minY, segment.maxY, segment.value));
+					this.add(this.newSegment(segment.minY, segment.maxY, segment.value));
 				}
 			}
 		}
@@ -143,14 +142,14 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 		maxY = Math.min(maxY, this.maxY);
 		if (maxY >= minY) {
 			if (this.isEmpty()) {
-				this.add(new Segment<>(minY, maxY, object));
+				this.add(this.newSegment(minY, maxY, object));
 			}
 			else {
 				Segment<T> highest = this.get(this.size() - 1);
 				Segment<T> lowest  = this.get(0);
 				if (minY > highest.maxY) {
 					//new segment is above all other segments.
-					this.add(new Segment<>(minY, maxY, object));
+					this.add(this.newSegment(minY, maxY, object));
 					this.mergeAt(this.size() - 1);
 				}
 				else if (minY > lowest.minY) {
@@ -163,7 +162,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 							index++;
 						}
 						if (index < this.size()) this.size(index);
-						this.add(new Segment<>(minY, maxY, object));
+						this.add(this.newSegment(minY, maxY, object));
 						this.mergeAt(this.size() - 1);
 					}
 					else {
@@ -173,7 +172,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 						if (maxIndex < minIndex) {
 							assert maxIndex == minIndex - 1;
 							//new segment is between 2 other segments.
-							this.add(minIndex, new Segment<>(minY, maxY, object));
+							this.add(minIndex, this.newSegment(minY, maxY, object));
 							this.mergeAt(minIndex);
 						}
 						else if (maxIndex == minIndex) {
@@ -191,7 +190,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 								else {
 									//new segment covers the bottom of an existing segment.
 									segment.minY = maxY + 1;
-									this.add(minIndex, new Segment<>(minY, maxY, object));
+									this.add(minIndex, this.newSegment(minY, maxY, object));
 									this.mergeAt(minIndex);
 								}
 							}
@@ -199,7 +198,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 								if (maxY >= segment.maxY) {
 									//new segment covers the top of an existing segment.
 									segment.maxY = minY - 1;
-									this.add(minIndex + 1, new Segment<>(minY, maxY, object));
+									this.add(minIndex + 1, this.newSegment(minY, maxY, object));
 									this.mergeAt(minIndex + 1);
 								}
 								else {
@@ -207,8 +206,8 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 									int oldMaxY = segment.maxY;
 									segment.maxY = minY - 1;
 									this.addAll(minIndex + 1, List.of(
-										new Segment<>(minY, maxY, object),
-										new Segment<>(maxY + 1, oldMaxY, segment.value)
+										this.newSegment(minY, maxY, object),
+										this.newSegment(maxY + 1, oldMaxY, segment.value)
 									));
 									this.mergeAt(minIndex + 1);
 								}
@@ -229,7 +228,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 								maxIndex--;
 							}
 							if (maxIndex >= minIndex) this.removeElements(minIndex, maxIndex + 1 /* convert to exclusive */);
-							this.add(minIndex, new Segment<>(minY, maxY, object));
+							this.add(minIndex, this.newSegment(minY, maxY, object));
 							this.mergeAt(minIndex);
 						}
 					}
@@ -238,7 +237,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 					if (maxY >= highest.maxY) {
 						//segment contains all other segments.
 						this.clear();
-						this.add(new Segment<>(minY, maxY, object));
+						this.add(this.newSegment(minY, maxY, object));
 					}
 					else if (maxY >= lowest.minY) {
 						//segment contains lowest.minY only.
@@ -249,12 +248,12 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 							index--;
 						}
 						if (index >= 0) this.removeElements(0, index + 1);
-						this.add(0, new Segment<>(minY, maxY, object));
+						this.add(0, this.newSegment(minY, maxY, object));
 						this.mergeAt(0);
 					}
 					else {
 						//segment is below all other segments.
-						this.add(0, new Segment<>(minY, maxY, object));
+						this.add(0, this.newSegment(minY, maxY, object));
 						this.mergeAt(0);
 					}
 				}
@@ -319,7 +318,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 									//new segment is completely inside existing segment.
 									int oldMaxY = segment.maxY;
 									segment.maxY = minY - 1;
-									this.add(minIndex + 1, new Segment<>(maxY + 1, oldMaxY, segment.value));
+									this.add(minIndex + 1, this.newSegment(maxY + 1, oldMaxY, segment.value));
 								}
 							}
 						}
@@ -442,6 +441,10 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 	public @Nullable T getOverlappingObject(int y) {
 		Segment<T> segment = this.getOverlappingSegment(y);
 		return segment != null ? segment.value : null;
+	}
+
+	public Segment<T> newSegment(int minY, int maxY, T value) {
+		return new Segment<>(minY, maxY, value);
 	}
 
 	public static class Segment<T> {

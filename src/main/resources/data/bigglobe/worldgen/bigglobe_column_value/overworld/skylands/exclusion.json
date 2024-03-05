@@ -1,0 +1,18 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"max(",
+			"unmixLinear(",
+				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 256.0L,",
+				"`bigglobe:overworld/sea_level`,",
+				"`bigglobe:overworld/surface_y`",
+			"),",
+			"0.0",
+		") ^ 2",
+		"+ max(`bigglobe:overworld/raw_temperature` * -4.0, 0.0) ^ 2"
+	]
+}

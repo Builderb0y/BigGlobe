@@ -126,6 +126,27 @@
 									"min_y": "ceilInt(`bigglobe:overworld/surface_y`)",
 									"max_y": "`bigglobe:overworld/sea_level`"
 								}
+							},
+							{
+								"type": "bigglobe:simple_2d",
+								"state": "bigglobe:floatstone",
+								"after_children": [
+									"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
+									"int maxY = floorInt(bounds.max_y) + 1",
+									"int minY = max(floorInt(bounds.min_y), maxY - bounds.surface_depth)",
+									"if (maxY > minY:",
+										"setBlockStates(minY, maxY, 'minecraft:dirt')",
+										"setBlockState(maxY - 1, 'minecraft:grass_block[snowy=false]')",
+									")"
+								],
+								"valid": {
+									"where": [
+										"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
+										"bounds != null && bounds.max_y > bounds.min_y"
+									],
+									"min_y": "floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
+									"max_y": "floorInt(`bigglobe:overworld/skyland`.bounds.max_y) + 1"
+								}
 							}
 						]
 					},

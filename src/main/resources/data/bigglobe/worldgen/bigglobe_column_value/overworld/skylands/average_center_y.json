@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "(worldSeed # 16x0D1C25EA8615E1DDUL).newSeed(cell_x, cell_z).nextDouble(256.0L, 768.0L)"
+}

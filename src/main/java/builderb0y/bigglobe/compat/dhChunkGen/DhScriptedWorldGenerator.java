@@ -12,18 +12,15 @@ import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiW
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.biome.BiomeKeys;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
-import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.util.AsyncRunner;
@@ -135,11 +132,12 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
 		builder.query[0] = this.serverWorld.getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS);
 		builder.biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(builder.query, this.level);
+		segments.computeLightLevels();
 		for (int index = segments.size(); --index >= 0;) {
-			Segment<BlockState> segment = segments.get(index);
+			LitSegment segment = segments.getLit(index);
 			if (segment.value.isAir()) continue;
+			builder.lightLevel = segment.lightLevel;
 			builder.add(segment.value, segment.minY, segment.maxY + 1);
-			builder.lightLevel = Math.max(builder.lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY - segment.minY + 1), 0);
 		}
 	}
 

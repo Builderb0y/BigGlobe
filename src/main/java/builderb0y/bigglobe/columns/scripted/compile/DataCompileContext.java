@@ -7,6 +7,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -33,7 +34,19 @@ public abstract class DataCompileContext {
 		this.parent = parent;
 		this.children = new ArrayList<>(8);
 		if (parent != null) parent.children.add(this);
-		this.environment = new MutableScriptEnvironment();
+		this.environment = (
+			new MutableScriptEnvironment()
+			.addFieldInvoke("cell_x",                     VoronoiDataBase.INFO.get_cell_x)
+			.addFieldInvoke("cell_z",                     VoronoiDataBase.INFO.get_cell_z)
+			.addFieldInvoke("center_x",                   VoronoiDataBase.INFO.get_center_x)
+			.addFieldInvoke("center_z",                   VoronoiDataBase.INFO.get_center_z)
+			.addFieldInvoke("soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
+			.addFieldInvoke("soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
+			.addFieldInvoke("hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)
+			.addFieldInvoke("hard_distance",              VoronoiDataBase.INFO.get_hard_distance)
+			.addFieldInvoke("euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared)
+			.addFieldInvoke("euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance)
+		);
 	}
 
 	public TypeInfo selfType() {

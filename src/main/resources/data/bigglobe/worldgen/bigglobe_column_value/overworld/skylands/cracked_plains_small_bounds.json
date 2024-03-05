@@ -1,0 +1,26 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "SkylandBounds",
+			"fields": {
+				"min_y": "double",
+				"max_y": "double",
+				"surface_depth": "int"
+			}
+		},
+		"is_3d": false
+	},
+	"script": [
+		"double center = `bigglobe:overworld/skylands/average_center_y` + `bigglobe:overworld/skylands/plains_center`",
+		"double thickness = `bigglobe:overworld/skylands/cracked_plains_small_thickness`",
+		";make half of the terrain reversed in Y level from the other half, for variety.",
+		"if (thickness < 0.0:",
+			"center = `bigglobe:overworld/skylands/average_center_y` * 2.0L - center",
+		")",
+		"double dip = abs(thickness)",
+		"double bias = `bigglobe:overworld/skylands/exclusion` + soft_distance_squared",
+		"SkylandBounds.new(min_y: center + (bias * 1.5L - dip) * 32.0L, max_y: center, surface_depth: `bigglobe:overworld/skylands/plains_surface_depth`)"
+	]
+}

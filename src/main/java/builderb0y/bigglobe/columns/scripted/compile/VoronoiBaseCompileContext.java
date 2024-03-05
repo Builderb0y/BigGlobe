@@ -69,6 +69,17 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	}
 
 	@Override
+	public void addAccessor(InsnTree loadHolder, String name, MethodInfo getter) {
+		super.addAccessor(loadHolder, name, getter);
+		if (getter.paramTypes.length > 0) {
+			this.environment.addMethodInvoke(name, getter);
+		}
+		else {
+			this.environment.addFieldInvoke(name, getter);
+		}
+	}
+
+	@Override
 	public InsnTree loadColumn() {
 		return getField(
 			this.loadSelf(),

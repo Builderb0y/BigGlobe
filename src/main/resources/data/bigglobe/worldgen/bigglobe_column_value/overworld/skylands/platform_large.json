@@ -1,0 +1,14 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "LargeSkylandPlatformCell"
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 64,
+		"variation": 48
+	}
+}

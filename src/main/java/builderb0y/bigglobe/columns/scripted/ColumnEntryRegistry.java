@@ -30,6 +30,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -44,6 +45,7 @@ public class ColumnEntryRegistry {
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
 
 	public final BetterRegistry.Lookup registries;
+	public final transient Map<RegistryEntry<ColumnEntry>, List<RegistryEntry<VoronoiSettings>>> voronoiOwners;
 	public final transient Map<Identifier, ColumnEntryMemory> memories;
 	public final transient List<ColumnEntryMemory> filteredMemories;
 	public final transient Class<? extends ScriptedColumn> columnClass;
@@ -56,28 +58,36 @@ public class ColumnEntryRegistry {
 		this.registries = registries;
 		BetterRegistry<ColumnEntry> entries = registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 		BetterRegistry<VoronoiSettings> voronois = registries.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
-		this.memories = entries.streamEntries().collect(
-			Collectors.toMap(
-				UnregisteredObjectException::getID,
-				ColumnEntryMemory::new
-			)
-		);
-		this.columnContext = new ColumnCompileContext(this);
-		for (Map.Entry<Identifier, ColumnEntryMemory> entry : this.memories.entrySet()) {
-			AccessSchema accessSchema = entry.getValue().getTyped(ColumnEntryMemory.ENTRY).getAccessSchema();
-			entry.getValue().putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
-			entry.getValue().putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
-		}
-		voronois.streamEntries().sorted(Comparator.comparing(UnregisteredObjectException::getID)).forEachOrdered((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
+
+		this.voronoiOwners = voronois.streamEntries().collect(Collectors.groupingBy((RegistryEntry<VoronoiSettings> voronoiEntry) -> {
 			ColumnEntry columnEntry = voronoiEntry.value().owner().value();
 			if (columnEntry instanceof VoronoiColumnEntry) {
-				ColumnEntryMemory memory = this.memories.get(UnregisteredObjectException.getID(voronoiEntry.value().owner()));
-				memory.addOrGet(VoronoiColumnEntry.OPTIONS, () -> new ArrayList<>(8)).add(voronoiEntry);
+				return voronoiEntry.value().owner();
 			}
 			else {
 				throw new IllegalArgumentException("voronoi_settings " + UnregisteredObjectException.getID(voronoiEntry) + " is owned by column_value " + UnregisteredObjectException.getID(voronoiEntry.value().owner()) + " but this column value is not of type voronoi.");
 			}
+		}));
+
+		Map<String, Identifier> voronoiCellNames = new HashMap<>(8);
+		entries.streamEntries().forEach((RegistryEntry<ColumnEntry> entry) -> {
+			if (entry.value() instanceof VoronoiColumnEntry voronoi) {
+				String name = ((VoronoiColumnValueType)(voronoi.params.type())).name;
+				Identifier id = UnregisteredObjectException.getID(entry);
+				Identifier old = voronoiCellNames.putIfAbsent(name, id);
+				if (old != null) {
+					throw new IllegalStateException("Voronoi-typed column values " + id + " and " + old + " share the same cell name '" + name + "' (they shouldn't).");
+				}
+			}
 		});
+
+		this.columnContext = new ColumnCompileContext(this);
+		this.memories = entries.streamEntries().collect(
+			Collectors.toMap(
+				UnregisteredObjectException::getID,
+				this::createColumnEntryMemory
+			)
+		);
 
 		Set<Identifier> voronoiDisabled = (
 			voronois
@@ -138,6 +148,15 @@ public class ColumnEntryRegistry {
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
+	}
+
+	public ColumnEntryMemory createColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
+		ColumnEntryMemory memory = new ColumnEntryMemory(entry);
+		AccessSchema accessSchema = entry.value().getAccessSchema();
+		memory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
+		memory.putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
+		memory.putTyped(VoronoiColumnEntry.OPTIONS, this.voronoiOwners.get(entry));
+		return memory;
 	}
 
 	public static void recursiveDumpClasses(ClassCompileContext context) throws IOException {

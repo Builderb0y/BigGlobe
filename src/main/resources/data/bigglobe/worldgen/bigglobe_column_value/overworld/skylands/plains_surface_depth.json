@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": "columnSeed(16x468EACE9861874B6UL).nextInt(2, 7)",
+	"cache": false
+}

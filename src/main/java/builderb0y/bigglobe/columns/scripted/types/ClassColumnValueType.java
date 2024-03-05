@@ -1,16 +1,29 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.mojang.datafixers.util.Unit;
+import org.objectweb.asm.tree.ParameterNode;
 
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -57,17 +70,49 @@ public class ClassColumnValueType implements ColumnValueType {
 
 	@Override
 	public void setupExternalEnvironment(TypeContext typeContext, ColumnCompileContext context, MutableScriptEnvironment environment) {
-		environment.addType(this.name, typeContext.type());
+		TypeInfo type = typeContext.type();
+		environment.addType(this.name, type);
 		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {
 			environment.addFieldGet(
 				new FieldInfo(
 					ACC_PUBLIC,
-					typeContext.type(),
+					type,
 					entry.getKey(),
 					context.getTypeContext(entry.getValue()).type()
 				)
 			);
 		}
+		MethodInfo constructor = new MethodInfo(
+			ACC_PUBLIC,
+			type,
+			"<init>",
+			TypeInfos.VOID,
+			Arrays
+			.stream(this.fieldsInOrder)
+			.map(ClassColumnValueField::type)
+			.map(context::getTypeContext)
+			.map(TypeContext::type)
+			.toArray(TypeInfo.ARRAY_FACTORY)
+		);
+		environment.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("Constructor for " + this.name, (ExpressionParser parser, InsnTree receiver, String theStringNew, MemberKeywordMode mode) -> {
+			if (!receiver.getConstantValue().isConstant() || !receiver.getConstantValue().asJavaObject().equals(type)) return null;
+			NamedValues namedValues = NamedValues.parse(parser, null, (ExpressionParser theSameParser, String name) -> {
+				if (!this.fields.containsKey(name)) {
+					throw new ScriptParsingException("Unknown field: " + name + "; valid fields are: " + this.fields, theSameParser.input);
+				}
+			});
+			Map<String, InsnTree> lookup = Arrays.stream(namedValues.values()).collect(Collectors.toMap(NamedValue::name, NamedValue::value));
+			InsnTree[] args = new InsnTree[constructor.paramTypes.length];
+			ClassColumnValueField[] parameters = this.fieldsInOrder;
+			for (int index = 0, size = parameters.length; index < size; index++) {
+				String name = parameters[index].name();
+				InsnTree tree = lookup.get(name);
+				if (tree == null) throw new ScriptParsingException("Must specify " + name, parser.input);
+				args[index] = tree.cast(parser, constructor.paramTypes[index], CastMode.IMPLICIT_THROW);
+			}
+			//todo: create synthetic permute method to preserve left-to-right evaluation order.
+			return newInstance(constructor, args);
+		}));
 	}
 
 	@Override

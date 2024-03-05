@@ -24,6 +24,14 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	add structure overrider for underground structures to force them to spawn underground.
+		currently they include skylands in the max y calculation.
+		I want to avoid this.
+	add structure overrider for all structures that are intended to spawn on the ocean floor.
+		they also use skylands in their max y calculation.
+	finish the rest of the skylands.
+		add surfaces.
+		add decorators.
 
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -61,6 +69,7 @@ where I left off:
 	client horizon height needs to use synced chunk generator sea level.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 	allow scripts to declare variables with generic types?
+	overgrown beaches need to not be overgrown when the biome being transitioned to is wasteland or desert, but not hot forest.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -232,6 +241,9 @@ features:
 			obtainable? TBD.
 			craftable with sand and water buckets? TBD.
 	nether:
+		use portal temple-like exclusion rule for bastion remnants.
+			cause they don't place blocks downwards until a surface is found,
+			and the current exclusion rule can sometimes place the surface below the actual structure, causing it to float in mid-air.
 	end:
 		end ore feature.
 		block of void?

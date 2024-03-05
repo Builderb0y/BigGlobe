@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
+import com.mojang.datafixers.types.templates.Named.NamedType;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.*;
@@ -39,7 +40,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public Map<NamedType,           List<  MethodHandler>> methods        = new HashMap<>(16);
 	public Map<String,                          TypeInfo > types          = new HashMap<>( 8);
 	public Map<String,                    KeywordHandler > keywords       = new HashMap<>( 8);
-	public Map<NamedType,           MemberKeywordHandler > memberKeywords = new HashMap<>( 8);
+	public Map<NamedType,      List<MemberKeywordHandler>> memberKeywords = new HashMap<>( 8);
 	//         from          to
 	public Map<TypeInfo, Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
 
@@ -87,8 +88,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				return prefix("Keyword", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
 
-			this.memberKeywords.entrySet().stream().map((Map.Entry<NamedType, MemberKeywordHandler> entry) -> {
-				return prefix("Member keyword", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+			this.memberKeywords.entrySet().stream().flatMap((Map.Entry<NamedType, List<MemberKeywordHandler>> entry) -> {
+				return entry.getValue().stream().map((MemberKeywordHandler handler) -> {
+					return prefix("Member keyword", entry.getKey().name, entry.getKey().toString(), handler);
+				});
 			})
 		)
 		.flatMap(Function.identity());
@@ -162,10 +165,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
 		if (!that.memberKeywords.isEmpty()) {
-			for (Map.Entry<NamedType, MemberKeywordHandler> entry : that.memberKeywords.entrySet()) {
-				if (this.memberKeywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
-					throw new IllegalArgumentException("Member keyword '" + entry.getKey() + "' is already defined in this scope");
-				}
+			for (Map.Entry<NamedType, List<MemberKeywordHandler>> entry : that.memberKeywords.entrySet()) {
+				List<MemberKeywordHandler> handlers = this.memberKeywords.get(entry.getKey());
+				if (handlers != null) handlers.addAll(entry.getValue());
+				else this.memberKeywords.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 			}
 		}
 		return this;
@@ -962,9 +965,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler memberKeywordHandler) {
-		if (this.memberKeywords.putIfAbsent(new NamedType(type, name), memberKeywordHandler) != null) {
-			throw new IllegalArgumentException("Member keyword " + type + '.' + name + " is already defined in this scope");
-		}
+		this.memberKeywords.computeIfAbsent(new NamedType(type, name), (NamedType namedType) -> new ArrayList<>(1)).add(memberKeywordHandler);
 		return this;
 	}
 
@@ -1142,12 +1143,22 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
-			MemberKeywordHandler handler = this.memberKeywords.get(query);
-			if (handler != null) return handler.create(parser, receiver, name, mode);
+			List<MemberKeywordHandler> handlers = this.memberKeywords.get(query);
+			if (handlers != null) {
+				for (MemberKeywordHandler handler : handlers) {
+					InsnTree result = handler.create(parser, receiver, name, mode);
+					if (result != null) return result;
+				}
+			}
 		}
 		query.owner = null;
-		MemberKeywordHandler handler = this.memberKeywords.get(query);
-		if (handler != null) return handler.create(parser, receiver, name, mode);
+		List<MemberKeywordHandler> handlers = this.memberKeywords.get(query);
+		if (handlers != null) {
+			for (MemberKeywordHandler handler : handlers) {
+				InsnTree result = handler.create(parser, receiver, name, mode);
+				if (result != null) return result;
+			}
+		}
 		return null;
 	}
 

@@ -1,0 +1,14 @@
+{
+	"weight": 0.5,
+	"owner": "bigglobe:overworld/skyland",
+	"enables": [
+		"bigglobe:overworld/skylands/plains_center",
+		"bigglobe:overworld/skylands/plains_surface_depth",
+		"bigglobe:overworld/skylands/exclusion",
+		"bigglobe:overworld/skylands/platform_small",
+		"bigglobe:overworld/skylands/platform_small_bounds"
+	],
+	"exports": {
+		"bounds": "bigglobe:overworld/skylands/platform_small_bounds"
+	}
+}

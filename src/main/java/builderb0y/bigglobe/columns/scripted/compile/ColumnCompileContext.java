@@ -32,20 +32,6 @@ public class ColumnCompileContext extends DataCompileContext {
 		super(null);
 		this.registry = registry;
 
-		this
-		.environment
-		.addFieldInvoke("cellX", MethodInfo.getMethod(VoronoiDataBase.class, "get_cell_x"))
-		.addFieldInvoke("cellZ", MethodInfo.getMethod(VoronoiDataBase.class, "get_cell_z"))
-		.addFieldInvoke("centerX", MethodInfo.getMethod(VoronoiDataBase.class, "get_center_x"))
-		.addFieldInvoke("centerZ", MethodInfo.getMethod(VoronoiDataBase.class, "get_center_z"))
-		.addFieldInvoke("softDistanceSquared", MethodInfo.getMethod(VoronoiDataBase.class, "get_soft_distance_squared"))
-		.addFieldInvoke("softDistance", MethodInfo.getMethod(VoronoiDataBase.class, "get_soft_distance"))
-		.addFieldInvoke("hardDistance", MethodInfo.getMethod(VoronoiDataBase.class, "get_hard_distance"))
-		.addFieldInvoke("hardDistanceSquared", MethodInfo.getMethod(VoronoiDataBase.class, "get_hard_distance_squared"))
-		.addFieldInvoke("euclideanDistanceSquared", MethodInfo.getMethod(VoronoiDataBase.class, "get_euclidean_distance_squared"))
-		.addFieldInvoke("euclideanDistance", MethodInfo.getMethod(VoronoiDataBase.class, "get_euclidean_distance"))
-		;
-
 		this.mainClass = new ClassCompileContext(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 			ClassType.CLASS,

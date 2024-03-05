@@ -18,6 +18,7 @@ Configured features are found in `/data/(modid)/worldgen/configured_feature` whe
 * RandomScriptEnvironment (with random)
 * StatelessRandomScriptEnvironment
 * StructureTemplateScriptEnvironment (with world)
+* ColumnEntryRegistry
 
 ## Additional variables
 
