@@ -17,6 +17,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -71,6 +72,7 @@ public class RandomScriptEnvironment {
 	}
 
 	public static final PermuterInfo PERMUTER_INFO = new PermuterInfo();
+	@SuppressWarnings("unused")
 	public static class PermuterInfo extends InfoHolder {
 
 		@Disambiguate(name = "new", returnType = void.class, paramTypes = { long.class })
@@ -256,7 +258,7 @@ public class RandomScriptEnvironment {
 			new MutableScriptEnvironment()
 			.addType("Random", RandomGenerator.class)
 			.addVariable("random", loader)
-			.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (parser, name, arguments) -> {
+			.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 				if (arguments.length == 0) return null;
 				CastResult seed = createSeed(parser, arguments);
 				return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
@@ -283,7 +285,7 @@ public class RandomScriptEnvironment {
 			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
 			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
 			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
-			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (parser, receiver, name, mode, arguments) -> {
+			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 				if (arguments.length < 2) {
 					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
 				}
@@ -322,10 +324,10 @@ public class RandomScriptEnvironment {
 					false
 				);
 			}))
-			.addMemberKeyword(type(RandomGenerator.class), "if", (parser, receiver, name, mode) -> {
+			.addMemberKeyword(type(RandomGenerator.class), "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 				return wrapRandomIf(parser, receiver, false, mode);
 			})
-			.addMemberKeyword(type(RandomGenerator.class), "unless", (parser, receiver, name, mode) -> {
+			.addMemberKeyword(type(RandomGenerator.class), "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 				return wrapRandomIf(parser, receiver, true, mode);
 			})
 		);
@@ -343,14 +345,14 @@ public class RandomScriptEnvironment {
 	}
 
 	public static InsnTree wrapRandomIf(ExpressionParser parser, InsnTree receiver, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {
-		return mode.apply(receiver, actualReceiver -> randomIf(parser, actualReceiver, negate));
+		return mode.apply(receiver, (InsnTree actualReceiver) -> randomIf(parser, actualReceiver, negate));
 	}
 
 	public static InsnTree randomIf(ExpressionParser parser, InsnTree receiver, boolean negate) throws ScriptParsingException {
 		parser.beginCodeBlock();
 		InsnTree conditionInsnTree, body;
 		InsnTree firstPart = parser.nextScript();
-		if (parser.input.hasOperatorAfterWhitespace(":")) { //random.if(a: b)
+		if (parser.input.hasOperatorAfterWhitespace(":")) { //random.if (a: b)
 			Sort sort = firstPart.getTypeInfo().getSort();
 			if (sort != Sort.FLOAT && sort != Sort.DOUBLE) {
 				throw new ScriptParsingException("random." + (negate ? "unless" : "if") + "() chance should be float or double, but was " + firstPart.getTypeInfo(), parser.input);
@@ -362,7 +364,7 @@ public class RandomScriptEnvironment {
 				firstPart
 			);
 		}
-		else { //random.if(a)
+		else { //random.if (a)
 			conditionInsnTree = invokeInstance(receiver, RNG_INFO.nextBoolean);
 			body = firstPart;
 		}

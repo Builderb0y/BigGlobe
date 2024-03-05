@@ -6,9 +6,11 @@
 		"bigglobe:overworld/skylands/plains_surface_depth",
 		"bigglobe:overworld/skylands/exclusion",
 		"bigglobe:overworld/skylands/platform_large",
-		"bigglobe:overworld/skylands/platform_large_bounds"
+		"bigglobe:overworld/skylands/platform_large_bounds",
+		"bigglobe:overworld/skylands/platform_large_random_tree"
 	],
 	"exports": {
-		"bounds": "bigglobe:overworld/skylands/platform_large_bounds"
+		"bounds": "bigglobe:overworld/skylands/platform_large_bounds",
+		"tree_feature": "bigglobe:overworld/skylands/platform_large_random_tree"
 	}
 }

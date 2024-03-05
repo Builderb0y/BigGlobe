@@ -29,9 +29,6 @@ where I left off:
 		I want to avoid this.
 	add structure overrider for all structures that are intended to spawn on the ocean floor.
 		they also use skylands in their max y calculation.
-	finish the rest of the skylands.
-		add surfaces.
-		add decorators.
 
 4.0 stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -70,6 +67,8 @@ where I left off:
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 	allow scripts to declare variables with generic types?
 	overgrown beaches need to not be overgrown when the biome being transitioned to is wasteland or desert, but not hot forest.
+	use tags for feature dispatcher instead of hard-coding what spawns where.
+	do I have bedrock yet? if not, I need that at the bottom of the world.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

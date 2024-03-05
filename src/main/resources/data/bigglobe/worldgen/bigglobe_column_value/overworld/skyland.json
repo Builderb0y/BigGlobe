@@ -16,6 +16,10 @@
 						}
 					},
 					"is_3d": false
+				},
+				"tree_feature": {
+					"type": "configured_feature",
+					"is_3d": false
 				}
 			}
 		},

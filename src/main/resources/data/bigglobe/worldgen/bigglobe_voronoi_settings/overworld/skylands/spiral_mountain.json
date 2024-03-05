@@ -6,9 +6,11 @@
 		"bigglobe:overworld/skylands/spiral_mountain_bounds",
 		"bigglobe:overworld/skylands/spiral_mountain_center",
 		"bigglobe:overworld/skylands/plains_surface_depth",
-		"bigglobe:overworld/skylands/exclusion"
+		"bigglobe:overworld/skylands/exclusion",
+		"bigglobe:overworld/skylands/uniform_random_tree"
 	],
 	"exports": {
-		"bounds": "bigglobe:overworld/skylands/spiral_mountain_bounds"
+		"bounds": "bigglobe:overworld/skylands/spiral_mountain_bounds",
+		"tree_feature": "bigglobe:overworld/skylands/uniform_random_tree"
 	}
 }

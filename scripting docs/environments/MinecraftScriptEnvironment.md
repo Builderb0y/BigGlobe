@@ -32,7 +32,8 @@ When a world is present, the following functions can be called:
 * `setBlockState(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position.
 * `setBlockStateReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is replaceable.
 * `setBlockStateNonReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is NOT replaceable.
-* `placeBlockState(int x, int y, int z, BlockState state)` - similar to `setBlockState(x, y, z, state)`, with 2 differences:
+* `placeBlockState(int x, int y, int z, BlockState state)` - similar to `setBlockState(x, y, z, state)`, with 3 differences:
+	* `state.canPlaceAt(x, y, z)` is called for you automatically, and the block will not be set if it isn't able to be placed at the provided position.
 	* If the block is meant to be 2 blocks tall (doors, sunflowers, etc...), then both halves are placed. With setBlockState(), you only get one half (unless you call the function twice).
 	* For waterloggable states, the state's waterlogged status will be updated to match whether or not there's already water at the given position before being placed.
 	
