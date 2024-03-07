@@ -7,9 +7,11 @@ import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.PalettedContainer;
 
+import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Async;
 
@@ -51,8 +53,8 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 
 	public static class Config extends DummyConfig {
 
-		public final BlockState from, to;
-		public final int count;
+		public final @VerifyNormal BlockState from, to;
+		public final @VerifyIntRange(min = 0, max = 4096) int count;
 
 		public Config(BlockState from, BlockState to, int count) {
 			this.from = from;

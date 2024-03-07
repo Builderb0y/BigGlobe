@@ -170,6 +170,7 @@
 					},
 					"feature_dispatcher": {
 						"rock_replacers": [
+							"bigglobe:overworld/bedrock",
 							"bigglobe:overworld/cobblestone_sprinkle"
 						],
 						"raw": "noop",

@@ -389,8 +389,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						}
 					}
 				}
-				for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.flattenedRockReplacers) {
-					replacer.replaceRocks(this, chunk);
+				if (!distantHorizons) {
+					for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.flattenedRockReplacers) {
+						replacer.replaceRocks(this, chunk);
+					}
 				}
 				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
 					chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();

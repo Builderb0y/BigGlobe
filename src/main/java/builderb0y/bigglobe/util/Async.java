@@ -30,6 +30,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	//////////////////////////////// utility methods ////////////////////////////////
 
 	public static <T> void forEach(T[] array, Consumer<T> action) {
+		if (array.length == 0) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (T element : array) {
 				async.submit(() -> action.accept(element));
@@ -38,6 +39,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	}
 
 	public static <T> void forEach(List<T> list, Consumer<T> action) {
+		if (list.isEmpty()) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (T element : list) {
 				async.submit(() -> action.accept(element));
@@ -50,6 +52,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	}
 
 	public static void loop(int startInclusive, int endExclusive, int step, IntConsumer action) {
+		if (startInclusive >= endExclusive) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (int number = startInclusive; number < endExclusive; number += step) {
 				int number_ = number;
@@ -59,6 +62,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	}
 
 	public static void repeat(int times, Runnable action) {
+		if (times <= 0) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (int time = 0; time < times; time++) {
 				async.submit(action);
@@ -67,6 +71,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	}
 
 	public static <T> void setEach(T[] array, IntFunction<T> supplier) {
+		if (array.length == 0) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (int index = 0, length = array.length; index < length; index++) {
 				int index_ = index;
@@ -76,6 +81,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	}
 
 	public static <T> void setEach(List<T> list, IntFunction<T> supplier) {
+		if (list.isEmpty()) return;
 		try (AsyncRunner async = new AsyncRunner()) {
 			for (int index = 0, size = list.size(); index < size; index++) {
 				int index_ = index;
