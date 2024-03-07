@@ -86,6 +86,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
+import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
@@ -120,7 +121,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public final @VerifyNullable String reload_dimension;
 	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
-	public static record Height(@VerifyDivisibleBy16 int min_y, @VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y, int sea_level) {}
+	public static record Height(
+		@VerifyDivisibleBy16 int min_y,
+		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
+		int sea_level
+	) {}
 	public final Height height;
 	public final RootLayer layer;
 	public final DualFeatureDispatcher feature_dispatcher;
@@ -370,7 +375,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 							yIndex++;
 						}
 					}
-					context.recalculateCounts();
 				});
 				for (Heightmap.Type type : chunk.getStatus().getHeightmapTypes()) {
 					Heightmap heightmap = chunk.getHeightmap(type);
@@ -385,6 +389,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						}
 					}
 				}
+				for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.flattenedRockReplacers) {
+					replacer.replaceRocks(this, chunk);
+				}
+				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+					chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
+				});
 				WorldWrapper worldWrapper = new WorldWrapper(
 					new ChunkDelegator(chunk, this.worldSeed),
 					this,

@@ -45,6 +45,7 @@ where I left off:
 		nether and end.
 		ores.
 		rock layers.
+		bedrock.
 		flowers.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
@@ -68,7 +69,6 @@ where I left off:
 	allow scripts to declare variables with generic types?
 	overgrown beaches need to not be overgrown when the biome being transitioned to is wasteland or desert, but not hot forest.
 	use tags for feature dispatcher instead of hard-coding what spawns where.
-	do I have bedrock yet? if not, I need that at the bottom of the world.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -100,6 +100,8 @@ where I left off:
 	add Tag class to MinecraftScriptEnvironment.
 	add Tag.id to MinecraftScriptEnvironment.
 	fix duplicate Block.getRandomState() function in MinecraftScriptEnvironment.
+	biomes need en_us.json lang entries apparently.
+		format is biome.bigglobe.(name).
 
 changelog:
 	4.0:

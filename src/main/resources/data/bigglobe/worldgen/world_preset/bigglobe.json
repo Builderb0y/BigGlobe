@@ -169,6 +169,10 @@
 						]
 					},
 					"feature_dispatcher": {
+						"rock_replacers": [
+							"bigglobe:overworld/cobblestone_sprinkle"
+						],
+						"raw": "noop",
 						"normal": [
 							"Random random = new(worldSeed, minModifiableX >> 4, minModifiableZ >> 4)",
 							"for (",
@@ -223,8 +227,7 @@
 									"placeFeature(x, floorInt(bounds.max_y) + 1, z, 'bigglobe:overworld/skylands/small_foliage')",
 								")",
 							")"
-						],
-						"raw": "noop"
+						]
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
@@ -636,8 +639,9 @@
 						"state": "minecraft:air"
 					},
 					"feature_dispatcher": {
-						"normal": "noop",
-						"raw": "noop"
+						"rock_replacers": [],
+						"raw": "noop",
+						"normal": "noop"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
@@ -676,8 +680,9 @@
 						"state": "minecraft:air"
 					},
 					"feature_dispatcher": {
-						"normal": "noop",
-						"raw": "noop"
+						"rock_replacers": [],
+						"raw": "noop",
+						"normal": "noop"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",

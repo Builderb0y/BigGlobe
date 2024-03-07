@@ -1,12 +1,21 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -19,11 +28,41 @@ public interface FeatureDispatcher extends Script {
 	public abstract void generate(WorldWrapper world);
 
 	public static class DualFeatureDispatcher {
+
+		public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
+		public final transient ConfiguredRockReplacerFeature<?>[] flattenedRockReplacers;
 		public final Holder raw, normal;
 
-		public DualFeatureDispatcher(Holder raw, Holder normal) {
+		public DualFeatureDispatcher(
+			TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers,
+			Holder raw,
+			Holder normal
+		) {
+			this.rock_replacers = rock_replacers;
 			this.raw = raw;
 			this.normal = normal;
+			this.flattenedRockReplacers = (
+				Arrays
+				.stream(rock_replacers)
+				.flatMap((TagOrObject<ConfiguredFeature<?, ?>> tagOrObject) -> {
+					return tagOrObject.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID));
+				})
+				.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
+					//entry.value().feature().is(RockReplacerFeature).unless(
+					//	log warning
+					//)
+					if (entry.value().feature() instanceof RockReplacerFeature<?>) {
+						return true;
+					}
+					else {
+						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
+						return false;
+					}
+				})
+				.map(RegistryEntry::value)
+				.map(ConfiguredRockReplacerFeature::new)
+				.toArray(ConfiguredRockReplacerFeature[]::new)
+			);
 		}
 	}
 

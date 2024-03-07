@@ -39,6 +39,7 @@ public class BigGlobeFeatures {
 	public static final FlowerEntryFeature                                      FLOWER_ENTRY                       = register("overworld_flower_entry",             new              FlowerEntryFeature());
 	public static final NetherFlowerFeature                                     NETHER_FLOWER                      = register("nether_flower",                      new             NetherFlowerFeature());
 
+	public static final ChunkSprinkleFeature                                    CHUNK_SPRINKLE                     = register("chunk_sprinkle",                     new            ChunkSprinkleFeature());
 	public static final RockLayerGroupFeature                                   OVERWORLD_ROCK_LAYER_GROUP         = register("overworld_rock_layer_group",         new           RockLayerGroupFeature());
 	public static final OverworldRockLayerEntryFeature                          OVERWORLD_ROCK_LAYER_ENTRY         = register("overworld_rock_layer_entry",         new  OverworldRockLayerEntryFeature());
 	public static final RockLayerGroupFeature                                   NETHER_ROCK_LAYER_GROUP            = register("nether_rock_layer_group",            new           RockLayerGroupFeature());

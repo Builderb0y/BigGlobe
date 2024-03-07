@@ -18,13 +18,13 @@ public class LinkedRockLayerConfig<T_Entry extends RockLayerEntryFeature.Entry> 
 
 	public static final LinkedRockLayerConfigFactory<OverworldRockLayerEntryFeature.Entry>
 		OVERWORLD_FACTORY = new LinkedRockLayerConfigFactory<>(
-		new ObjectArrayFactory<>(LinkedRockLayerConfig.class).generic(),
+			new ObjectArrayFactory<>(LinkedRockLayerConfig.class).generic(),
 			BigGlobeFeatures.OVERWORLD_ROCK_LAYER_GROUP,
 			BigGlobeFeatures.OVERWORLD_ROCK_LAYER_ENTRY
 		);
 	public static final LinkedRockLayerConfigFactory<NetherRockLayerEntryFeature.Entry>
 		NETHER_FACTORY = new LinkedRockLayerConfigFactory<>(
-		new ObjectArrayFactory<>(LinkedRockLayerConfig.class).generic(),
+			new ObjectArrayFactory<>(LinkedRockLayerConfig.class).generic(),
 			BigGlobeFeatures.NETHER_ROCK_LAYER_GROUP,
 			BigGlobeFeatures.NETHER_ROCK_LAYER_ENTRY
 		);
