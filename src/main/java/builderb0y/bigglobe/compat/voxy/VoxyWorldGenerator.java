@@ -1,5 +1,11 @@
 package builderb0y.bigglobe.compat.voxy;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 import me.cortex.voxy.client.core.IGetVoxelCore;
@@ -23,6 +29,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.level.storage.LevelStorage.Session;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -32,6 +39,7 @@ import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -40,14 +48,16 @@ public class VoxyWorldGenerator {
 	public static VoxyWorldGenerator INSTANCE;
 	public static final int WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
 
-	public final DistanceGraph distanceGraph;
+	public final ServerWorld world;
 	public final BigGlobeScriptedChunkGenerator generator;
+	public final DistanceGraph distanceGraph;
 	public final Thread thread;
 	public final long[] sectionInstance;
 	public volatile boolean running;
 
-	public VoxyWorldGenerator(BigGlobeScriptedChunkGenerator generator) {
-		this.distanceGraph = new DistanceGraph(-WORLD_SIZE_IN_CHUNKS, -WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS);
+	public VoxyWorldGenerator(ServerWorld world, BigGlobeScriptedChunkGenerator generator, DistanceGraph graph) {
+		this.world = world;
+		this.distanceGraph = graph;
 		this.generator = generator;
 		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
 		this.sectionInstance = new long[16 * 16 * 16 + 8 * 8 * 8 + 4 * 4 * 4 + 2 * 2 * 2 + 1];
@@ -60,7 +70,45 @@ public class VoxyWorldGenerator {
 				if (server != null) {
 					ServerWorld serverWorld = server.getWorld(world.getRegistryKey());
 					if (serverWorld != null && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-						(INSTANCE = new VoxyWorldGenerator(generator)).start();
+						Session session = ((MinecraftServer_SessionAccess)(serverWorld.getServer())).bigglobe_getSession();
+						Path dimensionFolder = session.getWorldDirectory(serverWorld.getRegistryKey());
+						Path distanceGraphFile = dimensionFolder.resolve("voxy").resolve("bigglobe_progress.dat");
+						DistanceGraph graph;
+						if (Files.exists(distanceGraphFile)) {
+							try (
+								BitInputStream bits = new BitInputStream(
+									new DataInputStream(
+										Files.newInputStream(distanceGraphFile)
+									)
+								)
+							) {
+								graph = DistanceGraphIO.read(
+									-WORLD_SIZE_IN_CHUNKS,
+									-WORLD_SIZE_IN_CHUNKS,
+									+WORLD_SIZE_IN_CHUNKS,
+									+WORLD_SIZE_IN_CHUNKS,
+									bits
+								);
+							}
+							catch (IOException exception) {
+								BigGlobeMod.LOGGER.error("Exception loading voxy progress file. Restarting progress.");
+								graph = new DistanceGraph(
+									-WORLD_SIZE_IN_CHUNKS,
+									-WORLD_SIZE_IN_CHUNKS,
+									+WORLD_SIZE_IN_CHUNKS,
+									+WORLD_SIZE_IN_CHUNKS
+								);
+							}
+						}
+						else {
+							graph = new DistanceGraph(
+								-WORLD_SIZE_IN_CHUNKS,
+								-WORLD_SIZE_IN_CHUNKS,
+								+WORLD_SIZE_IN_CHUNKS,
+								+WORLD_SIZE_IN_CHUNKS
+							);
+						}
+						(INSTANCE = new VoxyWorldGenerator(serverWorld, generator, graph)).start();
 					}
 				}
 			}
@@ -68,8 +116,31 @@ public class VoxyWorldGenerator {
 		ClientWorldEvents.UNLOAD.register(() -> {
 			if (INSTANCE != null) {
 				INSTANCE.stop();
+				Session session = ((MinecraftServer_SessionAccess)(INSTANCE.world.getServer())).bigglobe_getSession();
+				Path dimensionFolder = session.getWorldDirectory(INSTANCE.world.getRegistryKey());
+				Path voxyFolder = dimensionFolder.resolve("voxy");
+				Path distanceGraphFile = voxyFolder.resolve("bigglobe_progress.dat");
+				Path writeFile = voxyFolder.resolve("bigglobe_progress.tmp");
+				try (
+					BitOutputStream bits = new BitOutputStream(
+						new DataOutputStream(
+							Files.newOutputStream(
+								writeFile,
+								StandardOpenOption.CREATE,
+								StandardOpenOption.TRUNCATE_EXISTING
+							)
+						)
+					)
+				) {
+					DistanceGraphIO.write(INSTANCE.distanceGraph, bits);
+					Files.deleteIfExists(distanceGraphFile);
+					Files.move(writeFile, distanceGraphFile);
+				}
+				catch (IOException exception) {
+					BigGlobeMod.LOGGER.error("Exception saving voxy progress: ", exception);
+				}
+				INSTANCE = null;
 			}
-			INSTANCE = null;
 		});
 	}
 

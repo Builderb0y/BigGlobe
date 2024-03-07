@@ -10,6 +10,11 @@ public class DistanceGraph {
 		this.query = new Query();
 	}
 
+	public DistanceGraph(Node root) {
+		this.root = root;
+		this.query = new Query();
+	}
+
 	public Query query(int x, int z) {
 		if (this.root.isFull()) return null;
 		this.query.init(x, z);
@@ -36,7 +41,7 @@ public class DistanceGraph {
 		}
 	}
 
-	public static abstract class Node {
+	public static abstract sealed class Node {
 
 		public final int minX, midX, maxX;
 		public final int minZ, midZ, maxZ;
@@ -78,7 +83,7 @@ public class DistanceGraph {
 		public abstract void getClosestEmpty(Query query);
 	}
 
-	public static class LeafNode extends Node {
+	public static non-sealed class LeafNode extends Node {
 
 		public boolean full;
 
@@ -120,7 +125,7 @@ public class DistanceGraph {
 		}
 	}
 
-	public static class PartialNode extends Node {
+	public static non-sealed class PartialNode extends Node {
 
 		public Node node00, node01, node10, node11;
 
@@ -138,6 +143,10 @@ public class DistanceGraph {
 			this.node01 = new LeafNode(this.minX, this.midX, this.midZ, this.maxZ);
 			this.node10 = new LeafNode(this.midX, this.maxX, this.minZ, this.midZ);
 			this.node11 = new LeafNode(this.midX, this.maxX, this.midZ, this.maxZ);
+		}
+
+		public PartialNode(int minX, int maxX, int minZ, int maxZ, Void ignored) {
+			super(minX, maxX, minZ, maxZ);
 		}
 
 		@Override
