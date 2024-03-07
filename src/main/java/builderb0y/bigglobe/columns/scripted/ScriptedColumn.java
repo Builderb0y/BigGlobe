@@ -151,44 +151,48 @@ public abstract class ScriptedColumn {
 
 		public static final Purpose
 			GENERIC        = new Impl("generic", false, false),
-			GENERIC_LOD    = new Lod ("generic"),
+			GENERIC_DH     = new DHLod("generic"),
+			GENERIC_VOXY   = new VoxyLod("generic"),
 			HEIGHTMAP      = new Impl("heightmap", false, true),
-			HEIGHTMAP_LOD  = new Impl("heightmap", true, true),
+			HEIGHTMAP_DH   = new Impl("heightmap", true, true),
+			HEIGHTMAP_VOXY = new Impl("heightmap", true, true),
 			RAW_GENERATION = new Impl("raw_generation", false, false),
-			RAW_LOD        = new Lod ("raw_generation"),
+			RAW_DH         = new DHLod("raw_generation"),
+			RAW_VOXY       = new VoxyLod("raw_generation"),
 			FEATURES       = new Impl("features", false, false),
-			FEATURE_LOD    = new Lod ("features");
+			FEATURES_DH    = new DHLod("features"),
+			FEATURES_VOXY  = new VoxyLod("features");
 
 		public static Purpose generic() {
 			return generic(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public static Purpose generic(boolean lod) {
-			return lod ? GENERIC_LOD : GENERIC;
+		public static Purpose generic(boolean distantHorizons) {
+			return distantHorizons ? GENERIC_DH : GENERIC;
 		}
 
 		public static Purpose rawGeneration() {
 			return rawGeneration(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public static Purpose rawGeneration(boolean lod) {
-			return lod ? RAW_LOD : RAW_GENERATION;
+		public static Purpose rawGeneration(boolean distantHorizons) {
+			return distantHorizons ? RAW_DH : RAW_GENERATION;
 		}
 
 		public static Purpose features() {
 			return features(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public static Purpose features(boolean lod) {
-			return lod ? FEATURE_LOD : FEATURES;
+		public static Purpose features(boolean distantHorizons) {
+			return distantHorizons ? FEATURES_DH : FEATURES;
 		}
 
 		public static Purpose heightmap() {
 			return heightmap(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public static Purpose heightmap(boolean lod) {
-			return lod ? HEIGHTMAP_LOD : HEIGHTMAP;
+		public static Purpose heightmap(boolean distantHorizons) {
+			return distantHorizons ? HEIGHTMAP_DH : HEIGHTMAP;
 		}
 
 		public abstract String name();
@@ -204,7 +208,7 @@ public abstract class ScriptedColumn {
 			}
 		}
 
-		public static class Lod implements Purpose {
+		public static abstract class Lod implements Purpose {
 
 			public final String name;
 
@@ -221,10 +225,29 @@ public abstract class ScriptedColumn {
 			public boolean isForLODs() {
 				return true;
 			}
+		}
+
+		public static class DHLod extends Lod {
+
+			public DHLod(String name) {
+				super(name);
+			}
 
 			@Override
 			public boolean surfaceOnly() {
-				return BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
+				return BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground;
+			}
+		}
+
+		public static class VoxyLod extends Lod {
+
+			public VoxyLod(String name) {
+				super(name);
+			}
+
+			@Override
+			public boolean surfaceOnly() {
+				return BigGlobeConfig.INSTANCE.get().voxyIntegration.skipUnderground;
 			}
 		}
 	}

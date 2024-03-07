@@ -187,7 +187,7 @@
 	"text.autoconfig.bigglobe.option.printDecisionTrees.@Tooltip[2]": "This can be helpful for data pack makers, since the tree's structure can be a bit non-trivial at times.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Distant Horizons Integration",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating distant chunks.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating chunks for Distant Horizons.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Distant Horizons is not installed.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration": "Hyperspeed Generation",
@@ -205,10 +205,19 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground.@Tooltip[1]": "If false, Big Globe will generate all terrain down to bedrock in distant chunks.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground.@Tooltip[2]": "Enabling this option can result in a massive speed boost when generating distant terrain.",
 
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipCaves": "Skip Caves",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipCaves.@Tooltip[0]": "If true, Big Globe will not generate caves or caverns in distant chunks.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipCaves.@Tooltip[1]": "If false, Big Globe will generate caves and caverns in distant chunks.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipCaves.@Tooltip[2]": "This config option has no effect when \"Skip Underground\" is set to true. In this case, caves and caverns are always skipped.",
+	"text.autoconfig.bigglobe.option.voxyIntegration": "Voxy Integration",
+	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Configures special actions to take or skip when generating chunks for Voxy.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Voxy is not installed.",
+
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread": "USe Worldgen Thread",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[0]": "If true, Big Globe will generate terrain for Voxy constantly in a background thread.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "If false, Voxy will only process chunks you've visited.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Note that terrain generated this way may be a simplified representation of actual terrain, and finer details may be filled in only when you get closer to it.",
+
+	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground": "Skip Underground",
+	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[0]": "If true, Big Globe will not generate any terrain below the surface in voxy chunks.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[1]": "If false, Big Globe will generate all terrain down to bedrock in voxy chunks.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[2]": "Enabling this option can result in a massive speed boost when generating voxy terrain.",
 
 	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",

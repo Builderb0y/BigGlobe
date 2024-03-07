@@ -31,6 +31,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -54,11 +55,13 @@ public class VoxyWorldGenerator {
 
 	public static void init() {
 		ClientWorldEvents.LOAD.register((ClientWorld world) -> {
-			IntegratedServer server = MinecraftClient.getInstance().getServer();
-			if (server != null) {
-				ServerWorld serverWorld = server.getWorld(world.getRegistryKey());
-				if (serverWorld != null && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-					(INSTANCE = new VoxyWorldGenerator(generator)).start();
+			if (BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread) {
+				IntegratedServer server = MinecraftClient.getInstance().getServer();
+				if (server != null) {
+					ServerWorld serverWorld = server.getWorld(world.getRegistryKey());
+					if (serverWorld != null && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+						(INSTANCE = new VoxyWorldGenerator(generator)).start();
+					}
 				}
 			}
 		});
@@ -136,7 +139,7 @@ public class VoxyWorldGenerator {
 		ScriptedColumn.Factory factory = this.generator.columnEntryRegistry.columnFactory;
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.GENERIC_LOD);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.RAW_VOXY);
 		RootLayer layer = this.generator.layer;
 		ScriptedColumn
 			column00 = factory.create(params),

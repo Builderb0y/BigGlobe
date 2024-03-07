@@ -212,7 +212,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				column.getGlacierCrackThreshold();
 				this.runGlacierOverriders(column, structures);
 
-				if (!columns.isForBiomes() && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
+				if (!columns.isForBiomes() && !(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground)) {
 					column.getCaveCell();
 					column.getCaveNoise();
 					column.getCaveSurfaceDepth();
@@ -291,7 +291,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 				}
 
 				OverworldUndergroundSettings undergroundSettings = this.settings.underground;
-				boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
+				boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground;
 				int endY = startY | 15;
 				if (initialState != BlockStates.STONE && startY <= maxSurface_) {
 					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
@@ -419,7 +419,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	}
 
 	public void updatePostRawGenerationHeightmaps(Chunk chunk, ChunkOfColumns<OverworldColumn> columns, boolean distantHorizons) {
-		boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
+		boolean skipCaves = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground;
 		this.setHeightmaps(chunk, (int index, boolean includeWater) -> {
 			OverworldColumn column = columns.getColumn(index);
 			int height = column.getFinalTopHeightI();
@@ -631,7 +631,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		int startX = chunk.getPos().getStartX();
 		int startZ = chunk.getPos().getStartZ();
 		BlockPos.Mutable pos = new BlockPos.Mutable();
-		boolean skipCaveFilling = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped();
+		boolean skipCaveFilling = distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground;
 		for (int index = 0; index < 256; index++) {
 			OverworldColumn column = columns.getColumn(index);
 			int x = startX | (index &  15);
@@ -837,7 +837,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 					permuter.setSeed(Permuter.permute(this.seed ^ 0xF9C81CB5E3A312C9L, column.x, column.z));
 
 					this.runDecorators(world, pos, mojang, this.bedrockDecorators, column.getFinalBottomHeightI() - 1);
-					if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.areCavesSkipped())) {
+					if (!(distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground)) {
 						CavernCell cavernCell = column.getCavernCell();
 						if (cavernCell != null) {
 							double center = column.getCavernCenter();

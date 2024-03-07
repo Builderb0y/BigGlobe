@@ -28,6 +28,7 @@ public class BigGlobeConfig {
 
 	public void validatePostLoad() {
 		this.distantHorizonsIntegration.validatePostLoad();
+		this.voxyIntegration.validatePostLoad();
 		this.playerSpawning.validatePostLoad();
 	}
 
@@ -62,10 +63,11 @@ public class BigGlobeConfig {
 	@CollapsibleObject(startExpanded = true)
 	@DefaultIgnore
 	public final DistantHorizonsIntegration distantHorizonsIntegration = new DistantHorizonsIntegration();
+
 	public static class DistantHorizonsIntegration {
 
 		@Tooltip(count = 3)
-		@UseName("Hyperspeed generation")
+		@UseName("Hyperspeed Generation")
 		@DefaultIgnore
 		public boolean hyperspeedGeneration = false;
 
@@ -79,14 +81,26 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean skipUnderground = true;
 
-		@Tooltip(count = 3)
-		@UseName("Skip Caves")
-		@DefaultIgnore
-		public boolean skipCaves = true;
+		public void validatePostLoad() {}
+	}
 
-		public boolean areCavesSkipped() {
-			return this.skipUnderground || this.skipCaves;
-		}
+	@Tooltip(count = 2)
+	@UseName("Voxy Integration")
+	@CollapsibleObject(startExpanded = true)
+	@DefaultIgnore
+	public final VoxyIntegration voxyIntegration = new VoxyIntegration();
+
+	public static class VoxyIntegration {
+
+		@Tooltip(count = 3)
+		@UseName("Use Worldgen Thread")
+		@DefaultIgnore
+		public boolean useWorldgenThread = true;
+
+		@Tooltip(count = 3)
+		@UseName("Skip Underground")
+		@DefaultIgnore
+		public boolean skipUnderground = true;
 
 		public void validatePostLoad() {}
 	}
