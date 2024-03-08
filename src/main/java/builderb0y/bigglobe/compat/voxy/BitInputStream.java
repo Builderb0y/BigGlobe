@@ -6,16 +6,16 @@ import java.io.IOException;
 
 public class BitInputStream implements Closeable {
 
-	public final DataInputStream stream;
+	public final DataInputStream source;
 	public byte currentByte, currentBit;
 
-	public BitInputStream(DataInputStream stream) {
-		this.stream = stream;
+	public BitInputStream(DataInputStream source) {
+		this.source = source;
 	}
 
 	public boolean readBit() throws IOException {
 		if (this.currentBit == 0) {
-			this.currentByte = this.stream.readByte();
+			this.currentByte = this.source.readByte();
 			this.currentBit = 1;
 		}
 		boolean result = (this.currentByte & this.currentBit) != 0;
@@ -25,6 +25,6 @@ public class BitInputStream implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		this.stream.close();
+		this.source.close();
 	}
 }
