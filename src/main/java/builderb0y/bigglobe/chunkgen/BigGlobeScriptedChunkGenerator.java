@@ -305,8 +305,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			() -> {
 				int startX = chunk.getPos().getStartX();
 				int startZ = chunk.getPos().getStartZ();
-				int minY = chunk.getBottomY();
-				int maxY = chunk.getTopY();
+				int chunkMinY = chunk.getBottomY();
+				int chunkMaxY = chunk.getTopY();
 				ScriptedColumn[] columns = new ScriptedColumn[256];
 				BlockSegmentList[] lists = new BlockSegmentList[256];
 				try (AsyncRunner async = new AsyncRunner()) {
@@ -330,10 +330,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 									overrider.override(column11, structures);
 								}
 								BlockSegmentList
-									list00 = new BlockSegmentList(minY, maxY),
-									list01 = new BlockSegmentList(minY, maxY),
-									list10 = new BlockSegmentList(minY, maxY),
-									list11 = new BlockSegmentList(minY, maxY);
+									list00 = new BlockSegmentList(chunkMinY, chunkMaxY),
+									list01 = new BlockSegmentList(chunkMinY, chunkMaxY),
+									list10 = new BlockSegmentList(chunkMinY, chunkMaxY),
+									list11 = new BlockSegmentList(chunkMinY, chunkMaxY);
 								this.layer.emitSegments(column00, column01, column10, column11, list00);
 								this.layer.emitSegments(column01, column00, column11, column10, list01);
 								this.layer.emitSegments(column10, column11, column00, column01, list10);
@@ -351,7 +351,28 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						}
 					}
 				}
-				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+				int minFilledSectionY = Integer.MAX_VALUE;
+				int maxFilledSectionY = Integer.MIN_VALUE;
+				for (BlockSegmentList list : lists) {
+					int size = list.size();
+					for (int index = 0; index < size; index++) {
+						Segment<BlockState> segment = list.get(index);
+						if (!segment.value.isAir()) {
+							minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
+							break;
+						}
+					}
+					for (int index = size; --index >= 0;) {
+						Segment<BlockState> segment = list.get(index);
+						if (!segment.value.isAir()) {
+							maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
+							break;
+						}
+					}
+				}
+				minFilledSectionY >>= 4;
+				maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
+				Async.loop(minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;
 					SectionGenerationContext context = new SectionGenerationContext(chunk, section, baseY, this.columnSeed, null);
@@ -389,14 +410,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						}
 					}
 				}
-				if (!distantHorizons) {
-					for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.flattenedRockReplacers) {
-						replacer.replaceRocks(this, chunk);
-					}
-				}
-				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
-					chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
-				});
 				WorldWrapper worldWrapper = new WorldWrapper(
 					new ChunkDelegator(chunk, this.worldSeed),
 					this,
@@ -412,6 +425,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				for (ScriptedColumn column : columns) {
 					worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
 				}
+				if (!distantHorizons) {
+					for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
+						replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY, maxFilledSectionY);
+					}
+				}
+				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+					chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
+				});
 				this.generateRawStructures(chunk, structureAccessor, worldWrapper);
 				this.feature_dispatcher.raw.generate(worldWrapper);
 			},

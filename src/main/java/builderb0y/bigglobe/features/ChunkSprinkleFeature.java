@@ -12,6 +12,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Async;
 
@@ -26,7 +27,14 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 	}
 
 	@Override
-	public void replaceRocks(BigGlobeScriptedChunkGenerator generator, Chunk chunk, Config config) {
+	public void replaceRocks(
+		BigGlobeScriptedChunkGenerator generator,
+		ScriptedColumnLookup columns,
+		Chunk chunk,
+		int minSection,
+		int maxSection,
+		Config config
+	) {
 		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
 		Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
 			PalettedContainer<BlockState> container = chunk.getSection(chunk.sectionCoordToIndex(yCoord)).getBlockStateContainer();

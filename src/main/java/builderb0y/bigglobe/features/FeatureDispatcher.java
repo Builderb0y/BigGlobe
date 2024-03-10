@@ -3,6 +3,9 @@ package builderb0y.bigglobe.features;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
@@ -30,7 +33,7 @@ public interface FeatureDispatcher extends Script {
 	public static class DualFeatureDispatcher {
 
 		public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
-		public final transient ConfiguredRockReplacerFeature<?>[] flattenedRockReplacers;
+		public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
 		public final Holder raw, normal;
 
 		public DualFeatureDispatcher(
@@ -41,28 +44,34 @@ public interface FeatureDispatcher extends Script {
 			this.rock_replacers = rock_replacers;
 			this.raw = raw;
 			this.normal = normal;
-			this.flattenedRockReplacers = (
-				Arrays
-				.stream(rock_replacers)
-				.flatMap((TagOrObject<ConfiguredFeature<?, ?>> tagOrObject) -> {
-					return tagOrObject.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID));
-				})
-				.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
-					//entry.value().feature().is(RockReplacerFeature).unless(
-					//	log warning
-					//)
-					if (entry.value().feature() instanceof RockReplacerFeature<?>) {
-						return true;
-					}
-					else {
-						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
-						return false;
-					}
-				})
-				.map(RegistryEntry::value)
-				.map(ConfiguredRockReplacerFeature::new)
-				.toArray(ConfiguredRockReplacerFeature[]::new)
-			);
+		}
+
+		public ConfiguredRockReplacerFeature<?> @NotNull [] getFlattenedRockReplacers() {
+			if (this.flattenedRockReplacers == null) {
+				this.flattenedRockReplacers = (
+					Arrays
+					.stream(rock_replacers)
+					.flatMap((TagOrObject<ConfiguredFeature<?, ?>> tagOrObject) -> {
+						return tagOrObject.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID));
+					})
+					.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
+						//entry.value().feature().is(RockReplacerFeature).unless(
+						//	log warning
+						//)
+						if (entry.value().feature() instanceof RockReplacerFeature<?>) {
+							return true;
+						}
+						else {
+							BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
+							return false;
+						}
+					})
+					.map(RegistryEntry::value)
+					.map(ConfiguredRockReplacerFeature::new)
+					.toArray(ConfiguredRockReplacerFeature[]::new)
+				);
+			}
+			return this.flattenedRockReplacers;
 		}
 	}
 

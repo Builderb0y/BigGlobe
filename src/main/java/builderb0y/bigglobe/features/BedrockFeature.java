@@ -11,6 +11,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -27,7 +28,14 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 	}
 
 	@Override
-	public void replaceRocks(BigGlobeScriptedChunkGenerator generator, Chunk chunk, Config config) {
+	public void replaceRocks(
+		BigGlobeScriptedChunkGenerator generator,
+		ScriptedColumnLookup columns,
+		Chunk chunk,
+		int minSection,
+		int maxSection,
+		Config config
+	) {
 		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x6AF67A31DF787629L, chunk.getPos().x, chunk.getPos().z);
 		//the Y level at empty_y has a 0% chance of bedrock, so we can skip it.
 		int adjustedEmptyY = config.empty_y + Integer.signum(config.full_y - config.empty_y);

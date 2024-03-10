@@ -1,9 +1,14 @@
 {
-	"type": "bigglobe:overworld_rock_layer_entry",
+	"type": "bigglobe:rock_layer",
 	"config": {
-		"group": "bigglobe:overworld/rock_layers/vanilla_deepslate",
+		"seed": "deepslate",
+		"repeat": 16.0,
 		"entries": {
 			"weight": 1.0,
+			"restrictions": {
+				"type": "script",
+				"script": "unmixSmooth(`bigglobe:overworld/surface_y` - 256, `bigglobe:overworld/surface_y` - 512, y)"
+			},
 			"blocks": {
 				"minecraft:stone": "minecraft:deepslate[axis=y]",
 				"minecraft:cobblestone": "minecraft:cobbled_deepslate"
@@ -24,10 +29,6 @@
 					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
 					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
 				]
-			},
-			"restrictions": {
-				"type": "script",
-				"script": "unmixSmooth(`bigglobe:overworld/surface_y` - 256, `bigglobe:overworld/surface_y` - 512, y)"
 			}
 		}
 	}

@@ -1,7 +1,8 @@
 {
-	"type": "bigglobe:overworld_rock_layer_entry",
+	"type": "bigglobe:rock_layer",
 	"config": {
-		"group": "bigglobe:overworld/rock_layers/vanilla_extras",
+		"seed": "extras",
+		"repeat": 8.0,
 		"entries": {
 			"defaults": {
 				"weight": 1.0,
@@ -66,9 +67,9 @@
 						"type": "script",
 						"script": [
 							"unmixSmooth(",
-								"`bigglobe:overworld/sea_level` + 32,",
-								"`bigglobe:overworld/sea_level` - 32,",
-								"`bigglobe:overworld/surface_y`",
+							"`bigglobe:overworld/sea_level` + 32,",
+							"`bigglobe:overworld/sea_level` - 32,",
+							"`bigglobe:overworld/surface_y`",
 							")"
 						]
 					}

@@ -1,7 +1,8 @@
 {
-	"type": "bigglobe:overworld_rock_layer_entry",
+	"type": "bigglobe:rock_layer",
 	"config": {
-		"group": "bigglobe:overworld/rock_layers/vanilla_rocks",
+		"seed": "rocks",
+		"repeat": 8.0,
 		"entries": {
 			"defaults": {
 				"weight": 1.0,
