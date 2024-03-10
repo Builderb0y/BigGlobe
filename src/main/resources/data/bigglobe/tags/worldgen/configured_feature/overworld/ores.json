@@ -1,0 +1,15 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/ores/copper",
+		"bigglobe:overworld/ores/iron",
+		"bigglobe:overworld/ores/gold",
+
+		"bigglobe:overworld/ores/coal",
+		"bigglobe:overworld/ores/lapis",
+		"bigglobe:overworld/ores/redstone",
+
+		"bigglobe:overworld/ores/diamond",
+		"bigglobe:overworld/ores/emerald"
+	]
+}

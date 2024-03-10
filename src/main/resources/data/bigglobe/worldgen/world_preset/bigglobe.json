@@ -172,7 +172,8 @@
 						"rock_replacers": [
 							"bigglobe:overworld/bedrock",
 							"bigglobe:overworld/cobblestone_sprinkle",
-							"#bigglobe:overworld/rock_layers"
+							"#bigglobe:overworld/rock_layers",
+							"#bigglobe:overworld/ores"
 						],
 						"raw": "noop",
 						"normal": [

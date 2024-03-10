@@ -41,7 +41,12 @@ public class AsyncConsumer<T> extends Async<T> {
 	}
 
 	public void submit(Supplier<T> supplier) {
-		this.begin(CompletableFuture.supplyAsync(supplier, this.executor));
+		if (DEBUG_SYNC) {
+			this.begin(CompletableFuture.completedFuture(supplier.get()));
+		}
+		else {
+			this.begin(CompletableFuture.supplyAsync(supplier, this.executor));
+		}
 	}
 
 	@Override

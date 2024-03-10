@@ -1,6 +1,7 @@
 {
-	"type": "bigglobe:overworld_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "lapis",
 		"blocks": {
 			"minecraft:stone":             "minecraft:lapis_ore",
 			"minecraft:cobblestone":       "minecraft:lapis_ore",
@@ -12,7 +13,7 @@
 			"minecraft:polished_granite":  "minecraft:lapis_ore",
 			"minecraft:deepslate":         "minecraft:deepslate_lapis_ore"
 		},
-		"chance": "sqrt(unmixLinear(`bigglobe:overworld/sea_level`, min_y, max_y)) - distance_below_max_y / 1024.0L",
+		"chance": "sqrt(unmixLinear(`bigglobe:overworld/sea_level`, `bigglobe:overworld/bedrock_y`, `bigglobe:overworld/surface_y`)) - `bigglobe:overworld/distance_below_surface` / 1024.0L",
 		"radius": {
 			"type": "average",
 			"min": 3.0,

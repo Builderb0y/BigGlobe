@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.util.Async;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +20,7 @@ public class ReleaseChecks {
 		}
 		catch (NoSuchFieldException expected) {}
 		assertFalse(BigGlobeChunkGenerator.WORLD_SLICES);
+		assertFalse(Async.DEBUG_SYNC);
 		assertFalse(SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE);
 	}
 }

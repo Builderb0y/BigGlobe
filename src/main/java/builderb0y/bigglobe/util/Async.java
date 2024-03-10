@@ -16,6 +16,12 @@ also has a few utility methods for doing common tasks.
 */
 public abstract class Async<T_Result> implements AutoCloseable {
 
+	/**
+	set to true when using a debugger to make Async... sync.
+	in other words, it will execute submitted tasks immediately, on the thread which submitted them.
+	*/
+	public static final boolean DEBUG_SYNC = false;
+
 	public final Executor executor;
 	public final LinkedList<CompletableFuture<T_Result>> waitingOn = new LinkedList<>();
 

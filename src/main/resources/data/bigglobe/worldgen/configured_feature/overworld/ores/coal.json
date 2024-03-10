@@ -1,6 +1,7 @@
 {
-	"type": "bigglobe:overworld_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "coal",
 		"blocks": {
 			"minecraft:stone":             "minecraft:coal_ore",
 			"minecraft:cobblestone":       "minecraft:coal_ore",

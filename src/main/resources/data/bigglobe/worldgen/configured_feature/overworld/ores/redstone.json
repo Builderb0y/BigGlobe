@@ -1,6 +1,7 @@
 {
-	"type": "bigglobe:overworld_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "redstone",
 		"blocks": {
 			"minecraft:stone":             "minecraft:redstone_ore[lit=false]",
 			"minecraft:cobblestone":       "minecraft:redstone_ore[lit=false]",
@@ -13,9 +14,9 @@
 			"minecraft:deepslate":         "minecraft:deepslate_redstone_ore[lit=false]"
 		},
 		"chance": [
-			"double line = unmixLinear(128.0L, 384.0L, distance_below_max_y)",
+			"double line = unmixLinear(128.0L, 384.0L, `bigglobe:overworld/distance_below_surface`)",
 			"double curve = (1.0L - exp(-line)) * 0.5L",
-			"return(curve * min(`bigglobe:overworld/temperature`, 0.0L) ^ 2)"
+			"return(curve * min(`bigglobe:overworld/surface_temperature`, 0.0L) ^ 2)"
 		],
 		"radius": {
 			"type": "average",

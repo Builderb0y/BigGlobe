@@ -42,8 +42,6 @@ where I left off:
 		the rest of the configured features.
 		foliage colors.
 		nether and end.
-		ores.
-		rock layers.
 		flowers.
 		lakes.
 		detect and report cyclic decision trees and cyclic column value dependencies.

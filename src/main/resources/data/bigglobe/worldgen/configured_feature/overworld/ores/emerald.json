@@ -1,6 +1,7 @@
 {
-	"type": "bigglobe:overworld_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "emerald",
 		"blocks": {
 			"minecraft:stone":             "minecraft:emerald_ore",
 			"minecraft:cobblestone":       "minecraft:emerald_ore",
@@ -12,7 +13,7 @@
 			"minecraft:polished_granite":  "minecraft:emerald_ore",
 			"minecraft:deepslate":         "minecraft:deepslate_emerald_ore"
 		},
-		"chance": "exp(distance_below_max_y / -192.0L) * `bigglobe:overworld/hilliness`",
+		"chance": "exp(`bigglobe:overworld/distance_below_surface` / -192.0L) * `bigglobe:overworld/hilliness`",
 		"radius": {
 			"type": "average",
 			"min": 1.5,

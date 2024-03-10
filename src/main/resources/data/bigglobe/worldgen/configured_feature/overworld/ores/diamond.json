@@ -1,6 +1,7 @@
 {
-	"type": "bigglobe:overworld_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "diamond",
 		"blocks": {
 			"minecraft:stone":             "minecraft:diamond_ore",
 			"minecraft:cobblestone":       "minecraft:diamond_ore",
@@ -13,7 +14,7 @@
 			"minecraft:deepslate":         "minecraft:deepslate_diamond_ore"
 		},
 		"chance": [
-			"double line = unmixLinear(256.0L, 512.0L, distance_below_max_y)",
+			"double line = unmixLinear(256.0L, 512.0L, `bigglobe:overworld/distance_below_surface`)",
 			"double curve = 1.0L - exp(-line)",
 			"return(curve * 0.25L)"
 		],

@@ -35,7 +35,13 @@ public class AsyncRunner extends Async<Void> {
 	}
 
 	public void submit(Runnable runnable) {
-		this.begin(CompletableFuture.runAsync(runnable, this.executor));
+		if (DEBUG_SYNC) {
+			runnable.run();
+			this.begin(CompletableFuture.completedFuture(null));
+		}
+		else {
+			this.begin(CompletableFuture.runAsync(runnable, this.executor));
+		}
 	}
 
 	@Override

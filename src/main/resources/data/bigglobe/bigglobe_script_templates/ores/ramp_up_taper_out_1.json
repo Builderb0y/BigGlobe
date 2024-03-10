@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:generic",
 	"script": [
-		"double depth = distance_below_max_y / delay",
+		"double depth = `bigglobe:overworld/distance_below_surface` / delay",
 		"double scale = (2.0L * peak) / (2.0L * peak - limit)",
 		"double rampUp = 1.0L - exp2(-depth)",
 		"double taperOut = mixLinear(limit / peak, 2.0L, exp2(scale * (1.0L - depth)))",

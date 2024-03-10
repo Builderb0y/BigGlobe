@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": true
+	},
+	"script": "`bigglobe:overworld/surface_y` - y",
+	"cache": false
+}

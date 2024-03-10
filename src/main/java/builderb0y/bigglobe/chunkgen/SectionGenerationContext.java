@@ -5,14 +5,11 @@ import java.util.Arrays;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.*;
 
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Permuter;
@@ -30,6 +27,9 @@ public class SectionGenerationContext {
 	#endif
 
 	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ScriptedColumnLookup columns) {
+		if ((sectionStartY & 15) != 0) {
+			throw new IllegalArgumentException("sectionStartY should be divisible by 16");
+		}
 		this.chunk         = chunk;
 		this.section       = section;
 		this.sectionStartY = sectionStartY;
