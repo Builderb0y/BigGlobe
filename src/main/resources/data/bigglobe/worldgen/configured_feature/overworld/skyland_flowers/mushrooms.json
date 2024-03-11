@@ -1,7 +1,8 @@
 {
-	"type": "bigglobe:overworld_flower_group",
+	"type": "bigglobe:flower",
 	"config": {
-		"scale": 32,
+		"seed": "mushrooms",
+		"distance": 32,
 		"variation": 32,
 		"spawn_chance": 0.5,
 		"randomize_chance": 0.25,
@@ -17,6 +18,20 @@
 					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.25 }
 				]
 			}
+		},
+		"entries": {
+			"defaults": {
+				"weight": 100.0,
+				"restrictions": {
+					"type": "script",
+					"script": "`bigglobe:overworld/skyland`.tree_feature != null ? 1.0L : 0.0L"
+				},
+				"radius": { "type": "uniform", "min": 16.0, "max": 32.0 }
+			},
+			"variations": [
+				{ "state": "minecraft:red_mushroom" },
+				{ "state": "minecraft:brown_mushroom" }
+			]
 		}
 	}
 }

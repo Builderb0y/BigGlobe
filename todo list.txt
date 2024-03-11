@@ -42,8 +42,9 @@ where I left off:
 		the rest of the configured features.
 		foliage colors.
 		nether and end.
-		flowers.
+		caverns (?).
 		lakes.
+		glaciers.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
 	swamp surface decoration (water, mud).

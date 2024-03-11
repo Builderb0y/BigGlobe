@@ -1,0 +1,46 @@
+{
+	"type": "bigglobe:flower",
+	"config": {
+		"seed": "bushes",
+		"distance": 64,
+		"variation": 64,
+		"spawn_chance": 0.125,
+		"randomize_chance": 0.125,
+		"randomize_radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
+		"noise": {
+			"type": "abs",
+			"grid": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.25 }
+				]
+			}
+		},
+		"entries": {
+			"radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
+			"restrictions": {
+				"type": "and",
+				"restrictions": [
+					{
+						"type": "threshold",
+						"property": "bigglobe:overworld/height_adjusted_foliage",
+						"min": 0.0,
+						"max": 0.5
+					},
+					{
+						"type": "range",
+						"property": "bigglobe:overworld/height_adjusted_temperature",
+						"min": -0.5,
+						"mid":  0.0,
+						"max":  0.5
+					}
+				]
+			},
+			"weight": 10.0,
+			"state": "minecraft:sweet_berry_bush"
+		}
+	}
+}

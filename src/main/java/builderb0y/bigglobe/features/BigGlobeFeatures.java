@@ -35,6 +35,8 @@ public class BigGlobeFeatures {
 	public static final NetherOreFeature                                        NETHER_ORE                         = register("nether_ore",                         new                NetherOreFeature());
 	public static final GenericOreFeature                                       GENERIC_ORE                        = register("generic_ore",                        new               GenericOreFeature());
 
+	public static final FlowerFeature                                           FLOWER                             = register("flower",                             new                   FlowerFeature());
+	public static final FlowerControllerFeature                                 FLOWER_CONTROlLER                  = register("flower_controller",                  new         FlowerControllerFeature());
 	public static final FlowerGroupFeature                                      FLOWER_GROUP                       = register("overworld_flower_group",             new              FlowerGroupFeature());
 	public static final FlowerEntryFeature                                      FLOWER_ENTRY                       = register("overworld_flower_entry",             new              FlowerEntryFeature());
 	public static final NetherFlowerFeature                                     NETHER_FLOWER                      = register("nether_flower",                      new             NetherFlowerFeature());

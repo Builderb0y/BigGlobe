@@ -202,6 +202,8 @@
 									"if (feature != null: placeFeature(x, floorInt(bounds.max_y) + 1, z, feature))",
 								")",
 							")",
+							"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/surface_flowers')",
+							"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/skyland_flowers')",
 							"repeat (random.roundInt(`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",

@@ -425,16 +425,20 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				for (ScriptedColumn column : columns) {
 					worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
 				}
-				if (!distantHorizons) {
-					for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
-						replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY, maxFilledSectionY);
+				int minFilledSectionY_ = minFilledSectionY;
+				int maxFilledSectionY_ = maxFilledSectionY;
+				ScriptedColumnLookup.GLOBAL.run(worldWrapper, () -> {
+					if (!distantHorizons) {
+						for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
+							replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
+						}
 					}
-				}
-				Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
-					chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
+					Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
+					});
+					this.generateRawStructures(chunk, structureAccessor, worldWrapper);
+					this.feature_dispatcher.raw.generate(worldWrapper);
 				});
-				this.generateRawStructures(chunk, structureAccessor, worldWrapper);
-				this.feature_dispatcher.raw.generate(worldWrapper);
 			},
 			executor
 		)
@@ -464,7 +468,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons()),
 			this.actualOverriders.featureColumnValues
 		);
-		this.feature_dispatcher.normal.generate(worldWrapper);
+		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher.normal::generate);
 	}
 
 	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {

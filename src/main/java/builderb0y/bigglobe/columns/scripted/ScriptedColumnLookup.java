@@ -5,7 +5,11 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.util.math.ColumnPos;
 
+import builderb0y.bigglobe.util.ScopeLocal;
+
 public interface ScriptedColumnLookup {
+
+	public static final ScopeLocal<ScriptedColumnLookup> GLOBAL = new ScopeLocal<>();
 
 	public abstract ScriptedColumn lookupColumn(int x, int z);
 

@@ -89,8 +89,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static final ThreadLocal<WorldWrapper> PARENT = new ThreadLocal<>();
-
 	public final WorldOrChunk world;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
@@ -123,8 +121,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
-		WorldWrapper parent = PARENT.get();
-		if (parent != null) {
+		if (ScriptedColumnLookup.GLOBAL.getCurrent() instanceof WorldWrapper parent) {
 			this.columns = parent.columns;
 			this.overriders = parent.overriders;
 		}
@@ -260,15 +257,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			boolean clear = PARENT.get() == null;
-			if (clear) PARENT.set(this);
-			try {
-				Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
-				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
-			}
-			finally {
-				if (clear) PARENT.set(null);
-			}
+			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
+			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 		}
 		return false;
 	}

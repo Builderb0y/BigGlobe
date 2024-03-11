@@ -1,0 +1,50 @@
+{
+	"type": "bigglobe:flower",
+	"config": {
+		"seed": "flowers",
+		"distance": 64,
+		"variation": 64,
+		"spawn_chance": 1.0,
+		"randomize_chance": 0.125,
+		"randomize_radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
+		"noise": {
+			"type": "abs",
+			"grid": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.25 }
+				]
+			}
+		},
+		"entries": [
+			{
+				"weight": 50.0,
+				"restrictions": {
+					"type": "script",
+					"script": "`bigglobe:overworld/skyland`.tree_feature == null ? 1.0L : 0.0L"
+				},
+				"radius": { "type": "uniform", "min": 32.0, "max": 64.0 },
+				"state": "minecraft:sunflower[half=lower]"
+			},
+			{ "weight": 50.0, "radius": { "type": "uniform", "min": 32.0, "max": 64.0 }, "state": "minecraft:dandelion"             },
+			{ "weight": 20.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:azure_bluet"           },
+			{ "weight": 20.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:oxeye_daisy"           },
+			{ "weight": 20.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:lily_of_the_valley"    },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:poppy"                 },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:red_tulip"             },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:orange_tulip"          },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:white_tulip"           },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:pink_tulip"            },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 16.0, "max": 32.0 }, "state": "minecraft:lilac[half=lower]"     },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 16.0, "max": 32.0 }, "state": "minecraft:peony[half=lower]"     },
+			{ "weight": 10.0, "radius": { "type": "uniform", "min": 16.0, "max": 32.0 }, "state": "minecraft:rose_bush[half=lower]" },
+			{ "weight":  5.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:blue_orchid"           },
+			{ "weight":  5.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:cornflower"            },
+			{ "weight":  5.0, "radius": { "type": "uniform", "min": 24.0, "max": 48.0 }, "state": "minecraft:allium"                },
+			{ "weight":  1.0, "radius": { "type": "uniform", "min": 16.0, "max": 32.0 }, "state": "bigglobe:rose"                   }
+		]
+	}
+}

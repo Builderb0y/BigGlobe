@@ -1,7 +1,24 @@
 {
-	"type": "bigglobe:overworld_flower_entry",
+	"type": "bigglobe:flower",
 	"config": {
-		"group": "bigglobe:overworld/flowers/vanilla_gourds",
+		"seed": "gourds",
+		"distance": 32,
+		"variation": 32,
+		"spawn_chance": 0.25,
+		"randomize_chance": 0.25,
+		"randomize_radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
+		"noise": {
+			"type": "abs",
+			"grid": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.125 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.125 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.125 },
+					{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.125 }
+				]
+			}
+		},
 		"entries": {
 			"defaults": {
 				"weight": 100.0,
