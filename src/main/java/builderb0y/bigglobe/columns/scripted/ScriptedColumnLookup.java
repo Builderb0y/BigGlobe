@@ -35,7 +35,7 @@ public interface ScriptedColumnLookup {
 		@Override
 		public ScriptedColumn lookupColumn(int x, int z) {
 			if (this.columns == null) {
-				this.columns = new Long2ObjectOpenHashMap<>(16);
+				this.columns = new Long2ObjectOpenHashMap<>(64);
 			}
 			return this.columns.computeIfAbsent(ColumnPos.pack(x, z), this);
 		}

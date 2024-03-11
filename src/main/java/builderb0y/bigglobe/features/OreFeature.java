@@ -89,6 +89,8 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 					startXAbsolute,
 					startYAbsolute,
 					startZAbsolute,
+					offsetX,
+					offsetZ,
 					ore,
 					replacer,
 					seedXZ
@@ -103,15 +105,17 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		int startXAbsolute,
 		int startYAbsolute,
 		int startZAbsolute,
+		int offsetX,
+		int offsetZ,
 		Config ore,
 		PaletteIdReplacer replacer,
 		long oreSeedXZ
 	) {
 		for (int offsetY = -16; offsetY <= 16; offsetY += 16) {
 			long  seedXYZ = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
-			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D;
+			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D + offsetX;
 			double centerYRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x7EDC505CF32DE484L) * 16.0D + offsetY;
-			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D;
+			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D + offsetZ;
 			ScriptedColumn column = columns.lookupColumn(
 				startXAbsolute + BigGlobeMath.floorI(centerXRelative),
 				startZAbsolute + BigGlobeMath.floorI(centerZRelative)

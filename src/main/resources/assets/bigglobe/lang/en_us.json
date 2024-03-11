@@ -138,7 +138,7 @@
 	"commands.bigglobe.locate.max.fail": "Could not find any %s values within %d blocks of you.",
 
 	"commands.bigglobe.respawn.new.no_good_location": "Could not find a good spawn location in this world.",
-	"commands.bigglobe.respawn.new.not_overworld": "/bigglobe:respawn new can only be used in Big Globe overworld dimensions.",
+	"commands.bigglobe.respawn.new.not_supported_dimension": "/bigglobe:respawn new can only be used in Big Globe dimensions which support it. The dimension you are currently in does not support it.",
 	"commands.bigglobe.respawn.command.spawn_not_set_by_command": "Your spawn point was not set by a command.",
 	"commands.bigglobe.respawn.bed.spawn_not_set_by_bed": "Your spawn point was not set by a bed or respawn anchor.",
 	"commands.bigglobe.respawn.bed.destroyed": "Your bed or respawn anchor was destroyed or obstructed.",

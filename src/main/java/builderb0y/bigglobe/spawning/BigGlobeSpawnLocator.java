@@ -5,18 +5,19 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.Heightmap;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
-import builderb0y.bigglobe.columns.OverworldColumn;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.settings.BiomeLayout.OverworldBiomeLayout;
 import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
@@ -24,8 +25,8 @@ public class BigGlobeSpawnLocator {
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator) {
-			SpawnPoint spawnPoint = findSpawn(overworldChunkGenerator.column(0, 0), world.getSeed());
+		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			SpawnPoint spawnPoint = findSpawn(world, generator, world.getSeed());
 			if (spawnPoint != null) {
 				world.setSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw);
 				return true;
@@ -38,10 +39,11 @@ public class BigGlobeSpawnLocator {
 	public static void initPlayerSpawn(ServerPlayerEntity player) {
 		if (
 			BigGlobeConfig.INSTANCE.get().playerSpawning.perPlayerSpawnPoints &&
-			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator
+			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
 		) {
 			SpawnPoint spawnPoint = findSpawn(
-				overworldChunkGenerator.column(0, 0),
+				EntityVersions.getServerWorld(player),
+				generator,
 				Permuter.permute(
 					EntityVersions.getServerWorld(player).getSeed() ^ 0x4BB5FF80362770B0L,
 					player.getGameProfile().getId()
@@ -54,7 +56,13 @@ public class BigGlobeSpawnLocator {
 		}
 	}
 
-	public static @Nullable SpawnPoint findSpawn(OverworldColumn column, long seed) {
+	public static @Nullable SpawnPoint findSpawn(
+		HeightLimitView world,
+		BigGlobeScriptedChunkGenerator generator,
+		long seed
+	) {
+		if (generator.spawn_point == null) return null;
+		ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
 		double radius = BigGlobeConfig.INSTANCE.get().playerSpawning.maxSpawnRadius;
 		HaltonIterator2D halton = new HaltonIterator2D(
 			-radius,
@@ -65,12 +73,25 @@ public class BigGlobeSpawnLocator {
 		);
 		double startAngle = Permuter.nextPositiveDouble(seed ^ 0x55E7F77A3DF91E6AL) * BigGlobeMath.TAU;
 		long startTime = System.currentTimeMillis();
+		Permuter permuter = new Permuter(0L);
 		for (int attempt = 0; attempt < 1024; attempt++) {
-			column.setPos(halton.floorX(), halton.floorY());
-			if (isGoodSpawnPoint(column, startAngle)) {
+			permuter.setSeed(Permuter.permute(seed ^ 0x5E7658F173C1CF0AL, attempt));
+			column.setParamsUnchecked(column.params.at(halton.floorX(), halton.floorY()));
+			if (generator.spawn_point.get(column, permuter)) {
 				long endTime = System.currentTimeMillis();
 				BigGlobeMod.LOGGER.debug("Found good spawn point after " + attempt + " attempts and " + (endTime - startTime) + " ms.");
-				return new SpawnPoint(column, halton.x, column.getFinalTopHeightI(), halton.y, (float)(startAngle));
+				return new SpawnPoint(
+					halton.x,
+					generator.getHeightOnGround(
+						halton.floorX(),
+						halton.floorY(),
+						Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+						world,
+						null
+					),
+					halton.y,
+					(float)(startAngle)
+				);
 			}
 			halton.next();
 		}
@@ -79,39 +100,12 @@ public class BigGlobeSpawnLocator {
 		return null;
 	}
 
-	public static boolean isGoodSpawnPoint(OverworldColumn column, double startAngle) {
-		/*
-		if (!column.settings.biomes.root.search(column, column.getFinalTopHeightD(), column.seed, layout -> ((OverworldBiomeLayout)(layout)).player_spawn_friendly)) {
-			return false;
-		}
-		*/
-		int restoreX = column.x, restoreZ = column.z;
-		try {
-			for (
-				GoldenSpiralIterator spiral = new GoldenSpiralIterator(column.x, column.z, 4.0D, startAngle);
-				spiral.radius <= 64.0D;
-				spiral.next()
-			) {
-				column.setPos(spiral.floorX(), spiral.floorY());
-				if (column.getSurfaceFoliage() > 0.0D) {
-					return true;
-				}
-			}
-			return false;
-		}
-		finally {
-			column.setPos(restoreX, restoreZ);
-		}
-	}
-
 	public static class SpawnPoint {
 
-		public final OverworldColumn column;
 		public final double x, y, z;
 		public final float yaw;
 
-		public SpawnPoint(OverworldColumn column, double x, double y, double z, float yaw) {
-			this.column = column;
+		public SpawnPoint(double x, double y, double z, float yaw) {
 			this.x = x;
 			this.y = y;
 			this.z = z;

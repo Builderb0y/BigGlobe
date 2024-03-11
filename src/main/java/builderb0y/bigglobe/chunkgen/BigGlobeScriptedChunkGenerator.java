@@ -79,6 +79,7 @@ import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -130,6 +131,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final RootLayer layer;
 	public final DualFeatureDispatcher feature_dispatcher;
 	public final RegistryEntryList<Overrider> overriders;
+	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
 	public transient long columnSeed, worldSeed;
@@ -145,6 +147,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		DualFeatureDispatcher feature_dispatcher,
 		BiomeSource biome_source,
 		RegistryEntryList<Overrider> overriders,
+		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
 		SortedStructures sortedStructures
 	) {
 		super(
@@ -157,12 +160,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
-		this.overriders = overriders;
-		this.reload_dimension = reload_dimension;
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
 		this.height = height;
 		this.layer = layer;
 		this.feature_dispatcher = feature_dispatcher;
+		this.overriders = overriders;
+		this.spawn_point = spawn_point;
+		this.reload_dimension = reload_dimension;
 		this.sortedStructures = sortedStructures;
 	}
 

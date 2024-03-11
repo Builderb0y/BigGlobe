@@ -45,7 +45,6 @@ where I left off:
 		caverns (?).
 		lakes.
 		detect and report cyclic decision trees and cyclic column value dependencies.
-		player spawning.
 	swamp surface decoration (water, mud).
 	re-evaluate if structure locating logic is necessary in chunk generator or not.
 	find an ocean monument to confirm they spawn correctly.

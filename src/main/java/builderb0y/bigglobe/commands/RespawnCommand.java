@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -225,8 +225,8 @@ public class RespawnCommand {
 		}
 
 		public static @Nullable Text tryRespawnNew(ServerPlayerEntity player) {
-			if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeOverworldChunkGenerator overworldChunkGenerator) {
-				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(overworldChunkGenerator.column(0, 0), EntityVersions.getServerWorld(player).random.nextLong());
+			if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(EntityVersions.getServerWorld(player), generator, EntityVersions.getServerWorld(player).random.nextLong());
 				if (spawnPoint != null) {
 					player.teleport(EntityVersions.getServerWorld(player), spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.yaw, 0.0F);
 					return null;
@@ -236,7 +236,7 @@ public class RespawnCommand {
 				}
 			}
 			else {
-				return Text.translatable(PREFIX + "new.not_overworld");
+				return Text.translatable(PREFIX + "new.not_supported_dimension");
 			}
 		}
 	}
