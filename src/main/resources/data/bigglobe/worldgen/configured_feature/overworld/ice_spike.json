@@ -7,7 +7,6 @@
 			"unless (magicalness < 0.0L && innerness > 0.0L: return(false))",
 			"innerness = 1.0L - 0.25L / (innerness ^ 2 + 0.25L)",
 			"double chance = magicalness ^ 2 * innerness",
-			"random.unless (chance / 256.0L: return(false))",
 
 			"BlockState state = random.if ('minecraft:ice') else ('minecraft:packed_ice')",
 			"double size = random.nextDouble(chance)",

@@ -1,0 +1,30 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"int minY = floorInt(`bigglobe:overworld/glacier_min_y`)",
+			"int maxY = floorInt(`bigglobe:overworld/glacier_max_y`)",
+			"int terrainStart = ceilInt(`bigglobe:overworld/surface_y`)",
+			"for (int index in range[0, maxY - minY):",
+				"if (minY + index >= terrainStart:",
+					"setBlockState(originX, minY + index, originZ,",
+						"switch (index:",
+							"case (0: 'minecraft:ice')",
+							"case (1: random.if ('minecraft:blue_ice') else ('minecraft:ice'))",
+							"case (2: 'minecraft:blue_ice')",
+							"case (3: random.if ('minecraft:packed_ice') else ('minecraft:blue_ice'))",
+							"case (4: 'minecraft:packed_ice')",
+							"case (5: random.if ('minecraft:snow_block') else ('minecraft:packed_ice'))",
+							"default ('minecraft:snow_block') ;using snow_block instead of snow[layers=8] because snow can't be placed on packed ice.",
+						")",
+					")",
+				")",
+			")",
+			"int layers = truncInt(`bigglobe:overworld/glacier_max_y` % 1.0L * 8.0L)",
+			"if (layers != 0:",
+				"setBlockState(originX, maxY, originZ, BlockState('minecraft:snow', layers: layers))",
+			")",
+			"true"
+		]
+	}
+}

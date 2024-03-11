@@ -25,10 +25,10 @@ testing:
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	add structure overrider for underground structures to force them to spawn underground.
-		currently they include skylands in the max y calculation.
+		currently they include skylands and glaciers in the max y calculation.
 		I want to avoid this.
 	add structure overrider for all structures that are intended to spawn on the ocean floor.
-		they also use skylands in their max y calculation.
+		they also use skylands and glaciers in their max y calculation.
 
 4.0 stuff:
 	ender dragon flies around ring/bridge clouds when they're directly above the main end island.
@@ -44,7 +44,6 @@ where I left off:
 		nether and end.
 		caverns (?).
 		lakes.
-		glaciers.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 		player spawning.
 	swamp surface decoration (water, mud).
