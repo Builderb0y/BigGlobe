@@ -9,7 +9,8 @@
 					"height": {
 						"min_y": -1024,
 						"max_y":  1024,
-						"sea_level": 0
+						"sea_level": 0,
+						"main_surface": "ceilInt(`bigglobe:overworld/surface_y`)"
 					},
 					"layer": {
 						"state": "minecraft:air",

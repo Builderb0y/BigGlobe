@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.chunkgen.perSection;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Palette;
@@ -13,27 +16,42 @@ public interface PaletteIdReplacer {
 	public abstract int getReplacement(int id);
 
 	public static PaletteIdReplacer of(SectionGenerationContext context, BlockState2ObjectMap<BlockState> replacements) {
-		outer:
-		while (true) {
-			Palette<BlockState> palette = context.palette();
-			PaletteStorage storage = context.storage();
-			int size = palette.getSize();
-			short[] lookup = new short[size];
-			for (int id = 0; id < size; id++) {
-				BlockState from = palette.get(id);
-				BlockState to = replacements.runtimeStates.get(from);
-				lookup[id] = BigGlobeMath.toShortExact(to != null ? palette.index(to) : id);
-				//note: it is important to check for a resize after every iteration
-				//in this specific method, because of our use of a loop.
-				//a resize could change the palette size, which would change our loop bound.
-				//we don't want to call palette.get(id) with an invalid id,
-				//because that would throw an exception.
-				if (storage != (storage = context.storage())) { //resize occurred. start over.
-					continue outer;
+		return switch (replacements.runtimeStates.size()) {
+			case 0 -> (int id) -> id;
+			case 1 -> {
+				Map.Entry<BlockState, BlockState> entry = replacements.runtimeStates.entrySet().iterator().next();
+				yield new OneBlockReplacer(context, entry.getKey(), entry.getValue());
+			}
+			case 2 -> {
+				Iterator<Map.Entry<BlockState, BlockState>> iterator = replacements.runtimeStates.entrySet().iterator();
+				Map.Entry<BlockState, BlockState> entry1 = iterator.next();
+				Map.Entry<BlockState, BlockState> entry2 = iterator.next();
+				yield new TwoBlockReplacer(context, entry1.getKey(), entry1.getValue(), entry2.getKey(), entry2.getValue());
+			}
+			default -> {
+				outer:
+				while (true) {
+					Palette<BlockState> palette = context.palette();
+					PaletteStorage storage = context.storage();
+					int size = palette.getSize();
+					short[] lookup = new short[size];
+					for (int id = 0; id < size; id++) {
+						BlockState from = palette.get(id);
+						BlockState to = replacements.runtimeStates.get(from);
+						lookup[id] = BigGlobeMath.toShortExact(to != null ? palette.index(to) : id);
+						//note: it is important to check for a resize after every iteration
+						//in this specific method, because of our use of a loop.
+						//a resize could change the palette size, which would change our loop bound.
+						//we don't want to call palette.get(id) with an invalid id,
+						//because that would throw an exception.
+						if (storage != (storage = context.storage())) { //resize occurred. start over.
+							continue outer;
+						}
+					}
+					yield new ManyBlockReplacer(lookup);
 				}
 			}
-			return new ManyBlockReplacer(lookup);
-		}
+		};
 	}
 
 	public static class OneBlockReplacer implements PaletteIdReplacer {

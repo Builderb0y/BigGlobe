@@ -14,11 +14,11 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.SeedModes;
 import builderb0y.bigglobe.util.Async;
@@ -37,20 +37,20 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 	@Override
 	public void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
-		ScriptedColumnLookup columns,
+		WorldWrapper worldWrapper,
 		Chunk chunk,
 		int minSection,
 		int maxSection,
 		Config config
 	) {
 		Async.loop(minSection, maxSection, 1, (int sectionCoord) -> {
-			SectionGenerationContext context = new SectionGenerationContext(
+			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
 				chunk,
 				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),
-				sectionCoord << 4,
-				generator.worldSeed,
-				columns
+				sectionCoord,
+				generator.worldSeed
 			);
+			ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
 			generateAllIntersecting(
 				context.storage(),
 				/**
@@ -58,7 +58,8 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 				which is not thread-safe. I expect many threads to be
 				querying columns at the same time, so I need to lock it.
 				*/
-				ScriptedColumnLookup.synchronize(columns),
+				worldWrapper,
+				offsetColumn,
 				context.startX(),
 				context.startY(),
 				context.startZ(),
@@ -71,7 +72,8 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 
 	public static void generateAllIntersecting(
 		PaletteStorage storage,
-		ScriptedColumnLookup columns,
+		WorldWrapper columns,
+		ScriptedColumn offsetColumn,
 		int startXAbsolute,
 		int startYAbsolute,
 		int startZAbsolute,
@@ -83,25 +85,72 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 			long seedX = Permuter.permute(oreSeed, startXAbsolute + offsetX);
 			for (int offsetZ = -16; offsetZ <= 16; offsetZ += 16) {
 				long seedXZ = Permuter.permute(seedX, startZAbsolute + offsetZ);
-				generateChunk(
-					storage,
-					columns,
-					startXAbsolute,
-					startYAbsolute,
-					startZAbsolute,
-					offsetX,
-					offsetZ,
-					ore,
-					replacer,
-					seedXZ
-				);
+				if (offsetX == 0 && offsetZ == 0) {
+					generateCenterChunk(
+						storage,
+						columns,
+						startXAbsolute,
+						startYAbsolute,
+						startZAbsolute,
+						ore,
+						replacer,
+						seedXZ
+					);
+				}
+				else {
+					generateOffsetChunk(
+						storage,
+						offsetColumn,
+						startXAbsolute,
+						startYAbsolute,
+						startZAbsolute,
+						offsetX,
+						offsetZ,
+						ore,
+						replacer,
+						seedXZ
+					);
+				}
 			}
 		}
 	}
 
-	public static void generateChunk(
+	public static void generateCenterChunk(
 		PaletteStorage storage,
-		ScriptedColumnLookup columns,
+		WorldWrapper columns,
+		int startXAbsolute,
+		int startYAbsolute,
+		int startZAbsolute,
+		Config ore,
+		PaletteIdReplacer replacer,
+		long oreSeedXZ
+	) {
+		for (int offsetY = -16; offsetY <= 16; offsetY += 16) {
+			long  seedXYZ = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
+			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D;
+			double centerYRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x7EDC505CF32DE484L) * 16.0D + offsetY;
+			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D;
+			ScriptedColumn column = columns.lookupColumn(
+				startXAbsolute + BigGlobeMath.floorI(centerXRelative),
+				startZAbsolute + BigGlobeMath.floorI(centerZRelative)
+			);
+			generate(
+				storage,
+				centerXRelative,
+				centerYRelative,
+				centerZRelative,
+				startYAbsolute,
+				ore,
+				replacer,
+				seedXYZ,
+				column
+			);
+		}
+	}
+
+	public static void generateOffsetChunk(
+		PaletteStorage storage,
+		ScriptedColumn column,
 		int startXAbsolute,
 		int startYAbsolute,
 		int startZAbsolute,
@@ -116,10 +165,10 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D + offsetX;
 			double centerYRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x7EDC505CF32DE484L) * 16.0D + offsetY;
 			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D + offsetZ;
-			ScriptedColumn column = columns.lookupColumn(
+			column.setParams(column.params.at(
 				startXAbsolute + BigGlobeMath.floorI(centerXRelative),
 				startZAbsolute + BigGlobeMath.floorI(centerZRelative)
-			);
+			));
 			generate(
 				storage,
 				centerXRelative,
@@ -195,7 +244,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
 		public final ColumnYToDoubleScript.Holder chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius;
-		public final @VerifyNullable BlockState2ObjectMap<@VerifyNormal BlockState> blocks;
+		public final BlockState2ObjectMap<@VerifyNormal BlockState> blocks;
 
 		public Config(
 			Seed seed,

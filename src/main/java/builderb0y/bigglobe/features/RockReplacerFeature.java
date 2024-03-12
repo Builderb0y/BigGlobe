@@ -5,13 +5,13 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 
 public interface RockReplacerFeature<T_Config extends FeatureConfig> {
 
 	public abstract void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
-		ScriptedColumnLookup columns,
+		WorldWrapper worldWrapper,
 		Chunk chunk,
 		int minSection,
 		int maxSection,
@@ -30,14 +30,14 @@ public interface RockReplacerFeature<T_Config extends FeatureConfig> {
 
 		public void replaceRocks(
 			BigGlobeScriptedChunkGenerator generator,
-			ScriptedColumnLookup columns,
+			WorldWrapper worldWrapper,
 			Chunk chunk,
 			int minSection,
 			int maxSection
 		) {
 			this.feature.replaceRocks(
 				generator,
-				columns,
+				worldWrapper,
 				chunk,
 				minSection,
 				maxSection,

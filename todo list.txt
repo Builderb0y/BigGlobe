@@ -24,11 +24,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	add structure overrider for underground structures to force them to spawn underground.
-		currently they include skylands and glaciers in the max y calculation.
-		I want to avoid this.
-	add structure overrider for all structures that are intended to spawn on the ocean floor.
-		they also use skylands and glaciers in their max y calculation.
 
 4.0 stuff:
 	ender dragon flies around ring/bridge clouds when they're directly above the main end island.
@@ -97,6 +92,7 @@ where I left off:
 	fix duplicate Block.getRandomState() function in MinecraftScriptEnvironment.
 	biomes need en_us.json lang entries apparently.
 		format is biome.bigglobe.(name).
+	add mixins for ServerWorld.getSeaLevel() to delegate to chunk generator in big globe worlds.
 
 changelog:
 	4.0:

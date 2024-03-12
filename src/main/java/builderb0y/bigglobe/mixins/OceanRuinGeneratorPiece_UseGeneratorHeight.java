@@ -13,7 +13,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(OceanRuinGenerator.Piece.class)
 public abstract class OceanRuinGeneratorPiece_UseGeneratorHeight extends SimpleStructurePiece {
@@ -33,7 +33,7 @@ public abstract class OceanRuinGeneratorPiece_UseGeneratorHeight extends SimpleS
 	/** prevents ocean ruins from spawning on top of skylands. */
 	@Redirect(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/StructureWorldAccess;getTopY(Lnet/minecraft/world/Heightmap$Type;II)I"))
 	private int bigglobe_useGeneratorHeight(StructureWorldAccess receiver, Heightmap.Type type, int x, int z, StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator) {
-		if (generator instanceof BigGlobeOverworldChunkGenerator) {
+		if (generator instanceof BigGlobeScriptedChunkGenerator) {
 			return generator.getHeight(x, z, type, world, ((ServerChunkManager)(world.getChunkManager())).getNoiseConfig());
 		}
 		return receiver.getTopY(type, x, z);

@@ -11,10 +11,10 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Async;
 
 public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implements RockReplacerFeature<BedrockFeature.Config> {
@@ -30,7 +30,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 	@Override
 	public void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
-		ScriptedColumnLookup columns,
+		WorldWrapper worldWrapper,
 		Chunk chunk,
 		int minSection,
 		int maxSection,

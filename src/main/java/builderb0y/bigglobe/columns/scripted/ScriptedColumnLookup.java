@@ -13,14 +13,6 @@ public interface ScriptedColumnLookup {
 
 	public abstract ScriptedColumn lookupColumn(int x, int z);
 
-	public static ScriptedColumnLookup synchronize(ScriptedColumnLookup lookup) {
-		return (int x, int z) -> {
-			synchronized (lookup) {
-				return lookup.lookupColumn(x, z);
-			}
-		};
-	}
-
 	public static class Impl implements ScriptedColumnLookup, Long2ObjectFunction<ScriptedColumn> {
 
 		public final ScriptedColumn.Factory columnFactory;

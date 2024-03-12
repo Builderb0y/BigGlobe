@@ -80,6 +80,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -125,7 +126,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
-		int sea_level
+		int sea_level,
+		ColumnToIntScript.@VerifyNullable Holder main_surface
 	) {}
 	public final Height height;
 	public final RootLayer layer;
@@ -201,6 +203,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BigGlobeScriptedChunkGenerator> context) throws EncodeException {
 				return context.encodeWith(coder);
 			}
+
 			public JsonElement getDimension(String dimension) {
 				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
 				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/bigglobe.json");
@@ -379,7 +382,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				Async.loop(minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;
-					SectionGenerationContext context = new SectionGenerationContext(chunk, section, baseY, this.columnSeed, null);
+					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY, this.columnSeed);
 					BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
 					if (centerState != null) context.setAllStates(centerState);
 					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
@@ -746,9 +749,19 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
-		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
-		this.layer.emitSegments(column, list);
-		return getHeight(list, heightmap);
+		if (this.height.main_surface != null) {
+			if (heightmap.getBlockPredicate().test(BlockStates.WATER)) {
+				return Math.max(this.height.main_surface.get(column), this.height.sea_level);
+			}
+			else {
+				return this.height.main_surface.get(column);
+			}
+		}
+		else {
+			BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
+			this.layer.emitSegments(column, list);
+			return getHeight(list, heightmap);
+		}
 	}
 
 	public static int getHeight(BlockSegmentList list, Heightmap.Type type) {

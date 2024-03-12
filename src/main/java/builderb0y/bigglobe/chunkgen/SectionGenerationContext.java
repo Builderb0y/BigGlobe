@@ -10,7 +10,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.*;
 
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Tripwire;
@@ -21,12 +20,11 @@ public class SectionGenerationContext {
 	public final ChunkSection section;
 	public final int sectionStartY;
 	public final long worldSeed;
-	public final ScriptedColumnLookup columns;
 	#if MC_VERSION < MC_1_20_0
 	public final @Nullable LightPositionCollector lights;
 	#endif
 
-	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed, ScriptedColumnLookup columns) {
+	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed) {
 		if ((sectionStartY & 15) != 0) {
 			throw new IllegalArgumentException("sectionStartY should be divisible by 16");
 		}
@@ -34,18 +32,21 @@ public class SectionGenerationContext {
 		this.section       = section;
 		this.sectionStartY = sectionStartY;
 		this.worldSeed     = worldSeed;
-		this.columns       = columns;
 		#if MC_VERSION < MC_1_20_0
 			this.lights = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
 		#endif
 	}
 
-	public static SectionGenerationContext forIndex(Chunk chunk, ChunkSection section, int index, long worldSeed, ScriptedColumnLookup columns) {
-		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4, worldSeed, columns);
+	public static SectionGenerationContext forSectionIndex(Chunk chunk, ChunkSection section, int index, long worldSeed) {
+		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4, worldSeed);
 	}
 
-	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed, ScriptedColumnLookup columns) {
-		return new SectionGenerationContext(chunk, section, sectionCoord << 4, worldSeed, columns);
+	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed) {
+		return new SectionGenerationContext(chunk, section, sectionCoord << 4, worldSeed);
+	}
+
+	public static SectionGenerationContext forBlockCoord(Chunk chunk, ChunkSection section, int blockCoord, long worldSeed) {
+		return new SectionGenerationContext(chunk, section, blockCoord, worldSeed);
 	}
 
 	public void addLight(int index) {

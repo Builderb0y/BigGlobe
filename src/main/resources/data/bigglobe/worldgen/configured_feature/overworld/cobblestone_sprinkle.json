@@ -1,8 +1,9 @@
 {
 	"type": "bigglobe:chunk_sprinkle",
 	"config": {
-		"from": "minecraft:stone",
-		"to": "minecraft:cobblestone",
+		"blocks": {
+			"minecraft:stone": "minecraft:cobblestone"
+		},
 		"count": 512
 	}
 }

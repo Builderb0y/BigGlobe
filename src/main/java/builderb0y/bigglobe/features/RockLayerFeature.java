@@ -17,7 +17,6 @@ import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -26,6 +25,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList.RandomAccessDelegatingContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.SeedModes;
 import builderb0y.bigglobe.settings.VariationsList;
@@ -47,7 +47,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 	}
 
 	@Override
-	public void replaceRocks(BigGlobeScriptedChunkGenerator generator, ScriptedColumnLookup columns, Chunk chunk, int minSection, int maxSection, Config config) {
+	public void replaceRocks(BigGlobeScriptedChunkGenerator generator, WorldWrapper worldWrapper, Chunk chunk, int minSection, int maxSection, Config config) {
 		int totalSections = maxSection - minSection;
 		int threads = Math.min(Runtime.getRuntime().availableProcessors(), totalSections);
 		//floorDivide(a + b - 1, b) == ceilDivide(a, b)
@@ -81,7 +81,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 						for (int relativeX = 0; relativeX < 16; relativeX++) {
 							int index = (relativeZ << 4) | relativeX;
 							double center = centerSamples.getD(relativeX) + averageCenter;
-							double thickness = thicknessSamples.getD(relativeX) - (1.0D - entry.restrictions().getRestriction(columns.lookupColumn(startX | relativeX, startZ | relativeZ), BigGlobeMath.floorI(center))) * entry.thickness().maxValue();
+							double thickness = thicknessSamples.getD(relativeX) - (1.0D - entry.restrictions().getRestriction(worldWrapper.lookupColumn(startX | relativeX, startZ | relativeZ), BigGlobeMath.floorI(center))) * entry.thickness().maxValue();
 							columnMinYs.setI(index, BigGlobeMath.floorI(center - thickness));
 							columnMaxYs.setI(index, BigGlobeMath.floorI(center + thickness));
 							layerMinY = Math.min(layerMinY, columnMinYs.getI(index));
@@ -95,7 +95,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 						for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
 							ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(layerSectionY));
 							if (isEmpty(section)) continue;
-							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY, generator.worldSeed, columns);
+							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY, generator.worldSeed);
 							PaletteIdReplacer replacer = entry.getReplacer(context);
 							PaletteStorage storage = context.storage();
 							int sectionMinY = context.startY();
@@ -141,7 +141,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 		double weight,
 		Grid2D center,
 		Grid2D thickness,
-		@VerifyNullable BlockState2ObjectMap<@VerifyNormal BlockState> blocks,
+		BlockState2ObjectMap<@VerifyNormal BlockState> blocks,
 		ColumnRestriction restrictions
 	)
 	implements IWeightedListElement {
