@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:decision_tree",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "EndSurface",
+			"fields": {
+				"surface_state": "block_state",
+				"subsurface_state": "block_state",
+				"surface_depth": "int",
+				"biome": "biome"
+			}
+		},
+		"is_3d": false
+	},
+	"root": "bigglobe:end/surface/test_terrain"
+}

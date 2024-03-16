@@ -20,6 +20,7 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage.Session;
 
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.dimensionTypes.BigGlobeDimensionTypeKeys;
 
 #if MC_VERSION < MC_1_20_0
@@ -63,7 +64,7 @@ public abstract class ServerWorld_SpawnEnderDragonInBigGlobeWorlds extends World
 		#endif
 		CallbackInfo callback
 	) {
-		if (this.getRegistryKey() == World.END && this.getDimensionEntry().matchesKey(BigGlobeDimensionTypeKeys.END)) {
+		if (this.enderDragonFight == null && dimensionOptions.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			this.enderDragonFight = new EnderDragonFight((ServerWorld)(Object)(this), server.getSaveProperties().getGeneratorOptions().getSeed(), server.getSaveProperties().getDragonFight());
 		}
 	}

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import net.minecraft.entity.boss.dragon.EnderDragonFight;
 import net.minecraft.server.world.ServerWorld;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(EnderDragonFight.class)
 public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
@@ -18,8 +18,8 @@ public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
 	@ModifyConstant(method = "generateNewEndGateway", constant = @Constant(doubleValue = 96.0D))
 	private double bigglobe_overrideRadius(double oldValue) {
-		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-			return generator.settings.nest.gateway_radius();
+		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			return generator.end_overrides.inner_gateways().radius();
 		}
 		else {
 			return oldValue;
@@ -28,8 +28,8 @@ public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
 	@ModifyConstant(method = "generateNewEndGateway", constant = @Constant(intValue = 75))
 	private int bigglobe_overrideHeight(int oldValue) {
-		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-			return generator.settings.nest.gateway_height();
+		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			return generator.end_overrides.inner_gateways().height();
 		}
 		else {
 			return oldValue;

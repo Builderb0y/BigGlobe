@@ -80,6 +80,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
@@ -126,7 +127,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
-		int sea_level,
+		@VerifyNullable Integer sea_level,
 		ColumnToIntScript.@VerifyNullable Holder main_surface
 	) {}
 	public final Height height;
@@ -134,6 +135,31 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final DualFeatureDispatcher feature_dispatcher;
 	public final RegistryEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
+	public static record EndOverrides(
+		Spawning spawning,
+		InnerGateways inner_gateways,
+		OuterGateways outer_gateways
+	) {
+
+		public static record Spawning(
+			int @VerifySizeRange(min = 3, max = 3) [] location,
+			boolean obsidian_platform
+		) {}
+
+		public static record InnerGateways(
+			double radius,
+			int height
+		) {}
+
+		public static record OuterGateways(
+			double min_radius,
+			double max_radius,
+			double step,
+			ColumnToBooleanScript.Holder condition
+		) {}
+	}
+	public final @VerifyNullable EndOverrides end_overrides;
+
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
 	public transient long columnSeed, worldSeed;
@@ -150,6 +176,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		BiomeSource biome_source,
 		RegistryEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
+		@VerifyNullable EndOverrides end_overrides,
 		SortedStructures sortedStructures
 	) {
 		super(
@@ -163,12 +190,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			source.generator = this;
 		}
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
+		this.reload_dimension = reload_dimension;
 		this.height = height;
 		this.layer = layer;
 		this.feature_dispatcher = feature_dispatcher;
 		this.overriders = overriders;
 		this.spawn_point = spawn_point;
-		this.reload_dimension = reload_dimension;
+		this.end_overrides = end_overrides;
 		this.sortedStructures = sortedStructures;
 	}
 
@@ -738,7 +766,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getSeaLevel() {
-		return this.height.sea_level;
+		Integer seaLevel = this.height.sea_level;
+		return seaLevel != null ? seaLevel.intValue() : this.height.min_y;
 	}
 
 	@Override
@@ -750,8 +779,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
 		if (this.height.main_surface != null) {
-			if (heightmap.getBlockPredicate().test(BlockStates.WATER)) {
-				return Math.max(this.height.main_surface.get(column), this.height.sea_level);
+			Integer seaLevel = this.height.sea_level;
+			if (seaLevel != null && heightmap.getBlockPredicate().test(BlockStates.WATER)) {
+				return Math.max(this.height.main_surface.get(column), seaLevel);
 			}
 			else {
 				return this.height.main_surface.get(column);

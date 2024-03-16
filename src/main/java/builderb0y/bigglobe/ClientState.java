@@ -1,5 +1,10 @@
 package builderb0y.bigglobe;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
@@ -16,7 +21,9 @@ public class ClientState {
 	public static double timeSpeed = 1.0D;
 
 	static {
-		ClientWorldEvents.UNLOAD.register(ClientState::reset);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			initClient();
+		}
 	}
 
 	/** called by the server to sync overworld settings to the client. */
@@ -26,9 +33,12 @@ public class ClientState {
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 	}
 
-	public static void reset() {
-		BigGlobeMod.LOGGER.info("Resetting ClientState on disconnect.");
-		settings = null;
-		timeSpeed = 1.0D;
+	@Environment(EnvType.CLIENT)
+	public static void initClient() {
+		ClientWorldEvents.UNLOAD.register((ClientWorld world) -> {
+			BigGlobeMod.LOGGER.info("Resetting ClientState on disconnect.");
+			settings = null;
+			timeSpeed = 1.0D;
+		});
 	}
 }

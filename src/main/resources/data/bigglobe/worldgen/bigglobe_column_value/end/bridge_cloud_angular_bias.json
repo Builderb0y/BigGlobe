@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"double angle = `bigglobe:end/warp_angle` * 32.0L",
+		"angle += (worldSeed # 16x39BF90041EA9E0D0UL).nextDouble(tau)",
+		"return(float(sin(angle) * 0.5L - 0.5L))"
+	]
+}

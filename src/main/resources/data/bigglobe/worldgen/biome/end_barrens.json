@@ -9,17 +9,6 @@
 			"sound": "minecraft:ambient.cave",
 			"tick_delay": 6000
 		},
-		"particle": {
-			"options": {
-				"type": "bigglobe:spore",
-				"value": {
-					"red": 222,
-					"green": 225,
-					"blue": 167
-				}
-			},
-			"probability": 0.003
-		},
 		"sky_color": 0,
 		"water_color": 4159204,
 		"water_fog_color": 329011

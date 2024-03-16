@@ -36,15 +36,12 @@ where I left off:
 	missing stuff:
 		the rest of the configured features.
 		foliage colors.
-		nether and end.
+		nether.
 		caverns (?).
 		lakes.
 		detect and report cyclic decision trees and cyclic column value dependencies.
 	swamp surface decoration (water, mud).
-	re-evaluate if structure locating logic is necessary in chunk generator or not.
 	find an ocean monument to confirm they spawn correctly.
-	voronoi seed seemingly changes across world reloads or game reloads.
-		possibly related to loading a data pack with errors in it, fixing those errors, then reloading.
 	cave overriders for underground pockets.
 	exposed dungeons and spider pits in caves.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
@@ -93,6 +90,7 @@ where I left off:
 	biomes need en_us.json lang entries apparently.
 		format is biome.bigglobe.(name).
 	add mixins for ServerWorld.getSeaLevel() to delegate to chunk generator in big globe worlds.
+	ensure that cave floor features can't replace snow.
 
 changelog:
 	4.0:

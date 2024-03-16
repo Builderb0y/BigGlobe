@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "`bigglobe:end/raw_warp_z` * `bigglobe:end/warp_bias`",
+	"cache": false
+}

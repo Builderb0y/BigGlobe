@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": "`bigglobe:end/raw_foliage` - `bigglobe:end/raw_mountain_thickness`.as(float) - `bigglobe:end/spiral`.as(float)"
+}

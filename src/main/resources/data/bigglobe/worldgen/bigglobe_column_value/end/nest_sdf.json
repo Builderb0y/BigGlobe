@@ -1,0 +1,47 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "script",
+		"min": -9999.0,
+		"max": 1.875,
+		"script": [
+			"double relativeX = x / 128.0L",
+			"double relativeY = (y - 103.5) / 64.0L",
+			"double relativeZ = z / 128.0L",
+			"double width = cosAngle * unmixSmooth(-0.75, -0.5, relativeY)",
+			"double centerRadius = relativeX ^ 2 + relativeY ^ 2 + relativeZ ^ 2",
+			"double edgeRadius = (1.0L - centerRadius) ^ 2",
+			"double result = edgeRadius * 16.0L + relativeY + width / sqrt(2.0L)",
+			"double roughness = noise * (relativeY * -0.5L + 0.5L)",
+			"return(roughness - result)"
+		],
+		"inputs": {
+			"cosAngle": {
+				"type": "project_xz",
+				"2D_grid": {
+					"type": "script",
+					"min": -1.0,
+					"max":  1.0,
+					"script": "cos(atan2(x, y) * 10.0L)"
+				}
+			},
+			"noise": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.5 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.125 }
+				]
+			}
+		}
+	},
+	"valid": {
+		"where": "`bigglobe:end/distance_to_origin` < 148.0L",
+		"min_y": "28",
+		"max_y": "152"
+	}
+}

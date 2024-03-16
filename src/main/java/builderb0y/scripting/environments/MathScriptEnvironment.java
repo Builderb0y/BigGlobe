@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -29,9 +30,9 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addVariableConstant("e", Math.E)
 		.addVariableConstant("nan", Float.NaN)
 		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
-		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow", "atan2")
+		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow")
 		.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
-		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh")
+		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh", "atan2")
 		.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
@@ -113,6 +114,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 	public static double atanh(double x) {
 		//alternate form: log(2 / (1 - x) - 1) * 0.5
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
+	}
+
+	public static double atan2(double x, double y) {
+		return Math.atan2(y, x);
 	}
 
 	/**

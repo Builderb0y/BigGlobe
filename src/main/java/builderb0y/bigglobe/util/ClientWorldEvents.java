@@ -5,20 +5,31 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldEvents {
 
+	/**
+	fired when a world is loaded on the client.
+	this event is fired as late as possible,
+	after {@link MinecraftClient#world} is updated.
+	*/
 	public static final Event<Load> LOAD = EventFactory.createArrayBacked(Load.class, (Load[] events) -> (ClientWorld world) -> {
 		for (Load event : events) {
 			event.load(world);
 		}
 	});
 
-	public static final Event<Unload> UNLOAD = EventFactory.createArrayBacked(Unload.class, (Unload[] events) -> () -> {
+	/**
+	fired when a world is unloaded on the client.
+	this event is fired as early as possible,
+	before {@link MinecraftClient#world} is updated.
+	*/
+	public static final Event<Unload> UNLOAD = EventFactory.createArrayBacked(Unload.class, (Unload[] events) -> (ClientWorld world) -> {
 		for (Unload event : events) {
-			event.unload();
+			event.unload(world);
 		}
 	});
 
@@ -31,6 +42,6 @@ public class ClientWorldEvents {
 	@Environment(EnvType.CLIENT)
 	public static interface Unload {
 
-		public abstract void unload();
+		public abstract void unload(ClientWorld world);
 	}
 }

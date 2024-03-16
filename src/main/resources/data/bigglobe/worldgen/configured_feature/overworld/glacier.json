@@ -24,7 +24,7 @@
 			"if (layers != 0:",
 				"setBlockState(originX, maxY, originZ, BlockState('minecraft:snow', layers: layers))",
 			")",
-			"true"
+			"return(true)"
 		]
 	}
 }

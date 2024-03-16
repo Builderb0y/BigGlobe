@@ -1,0 +1,11 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surface_state": "bigglobe:overgrown_end_stone",
+			"subsurface_state": "minecraft:end_stone",
+			"surface_depth": 1,
+			"biome": "bigglobe:overgrown_end"
+		}
+	}
+}

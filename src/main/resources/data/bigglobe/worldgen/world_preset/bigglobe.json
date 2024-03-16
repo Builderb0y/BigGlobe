@@ -195,7 +195,7 @@
 								"int z in range[minModifiableZ, maxModifiableZ],",
 								"int x in range[minModifiableX, maxModifiableX]",
 							":",
-								"if (`bigglobe:overworld/glacier_cell`(x, z).?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
+								"if (ceilInt(`bigglobe:overworld/surface_y`(x, z)) < `bigglobe:overworld/sea_level`(x, z) && `bigglobe:overworld/glacier_cell`(x, z).?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
 									"placeFeature(x, 0, z, 'bigglobe:overworld/glacier')",
 								")",
 							")"
@@ -739,24 +739,154 @@
 					"height": {
 						"min_y": -512,
 						"max_y": 512,
-						"sea_level": 0
+						"main_surface": [
+							"if (`bigglobe:end/distance_to_origin` < 148.0L:",
+								"for (int y in -range[28, 152]:",
+									"if (`bigglobe:end/nest_sdf`(y) > 0.0L:",
+										"return(y + 1)",
+									")",
+								")",
+							")",
+							"if (`bigglobe:end/has_mountain`:",
+								"return(floorInt(`bigglobe:end/mountain_max_y`) + 1)",
+							")",
+							"else (",
+								"return(16x8000_000U)",
+							")"
+						]
 					},
 					"layer": {
-						"state": "minecraft:air"
+						"state": "minecraft:air",
+						"children": [
+							{
+								"type": "simple_3d",
+								"state": "minecraft:end_stone",
+								"condition": "`bigglobe:end/lower_ring_cloud_sdf` > 0.0I",
+								"valid": {
+									"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
+									"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
+									"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
+								}
+							},
+							{
+								"type": "simple_3d",
+								"state": "minecraft:end_stone",
+								"condition": "`bigglobe:end/lower_bridge_cloud_sdf` > 0.0I",
+								"valid": {
+									"where": "`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`",
+									"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
+									"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
+								}
+							},
+							{
+								"type": "simple_2d",
+								"state": "minecraft:end_stone",
+								"after_children": [
+									"EndSurface surface = `bigglobe:end/surface`",
+									"if (surface.surface_depth > 0:",
+										"if (surface.surface_depth > 1:",
+											"setBlockStates(",
+												"max(",
+													"floorInt(`bigglobe:end/mountain_max_y`) + 1 - surface.surface_depth,",
+													"floorInt(`bigglobe:end/mountain_min_y`)",
+												"),",
+												"floorInt(`bigglobe:end/mountain_max_y`),",
+												"surface.subsurface_state",
+											")",
+										")",
+										"setBlockState(floorInt(`bigglobe:end/mountain_max_y`), surface.surface_state)",
+									")"
+								],
+								"valid": {
+									"where": "`bigglobe:end/has_mountain`",
+									"min_y": "floorInt(`bigglobe:end/mountain_min_y`)",
+									"max_y": "floorInt(`bigglobe:end/mountain_max_y`) + 1"
+								}
+							},
+							{
+								"type": "simple_3d",
+								"state": "minecraft:end_stone",
+								"condition": "`bigglobe:end/nest_sdf` > 0.0I",
+								"valid": {
+									"where": "`bigglobe:end/distance_to_origin` < 148.0L",
+									"min_y": "28",
+									"max_y": "152"
+								}
+							},
+							{
+								"type": "simple_3d",
+								"state": "minecraft:end_stone",
+								"condition": "`bigglobe:end/upper_ring_cloud_sdf` > 0.0I",
+								"valid": {
+									"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
+									"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
+									"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
+								}
+							},
+							{
+								"type": "simple_3d",
+								"state": "minecraft:end_stone",
+								"condition": "`bigglobe:end/upper_bridge_cloud_sdf` > 0.0I",
+								"valid": {
+									"where": "`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`",
+									"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
+									"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
+								}
+							}
+						]
 					},
 					"feature_dispatcher": {
 						"rock_replacers": [],
 						"raw": "noop",
-						"normal": "noop"
+						"normal": [
+							"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:end/nest_spike_worldgen')",
+
+							"Random random = new(worldSeed, minModifiableX >> 4, minModifiableZ >> 4)",
+
+							";outer island spikes.",
+							"random.if (1.0 / 256.0:",
+								"int x = minModifiableX | random.nextInt(16)",
+								"int z = minModifiableZ | random.nextInt(16)",
+								"if (`bigglobe:end/has_mountain`(x, z):",
+									"placeFeature(x, floorInt(`bigglobe:end/mountain_max_y`(x, z)) + 1, z, 'bigglobe:end/obsidian_spire')",
+								")",
+							")",
+
+							";outer island foliage.",
+							"for (",
+								"int z in range[minModifiableZ, maxModifiableZ],",
+								"int x in range[minModifiableX, maxModifiableX]",
+							":",
+								"if (`bigglobe:end/has_mountain`(x, z):",
+									"placeFeature(x, floorInt(`bigglobe:end/mountain_max_y`(x, z)) + 1, z, 'bigglobe:end/foliage')",
+								")",
+							")"
+						]
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
 						"value": {
-							"script": "Biome('minecraft:plains')",
-							"all_possible_biomes": "bigglobe:overworld"
+							"script": "`bigglobe:end/surface`.biome",
+							"all_possible_biomes": "bigglobe:end"
 						}
 					},
-					"overriders": "bigglobe:end"
+					"overriders": "bigglobe:end",
+					"end_overrides": {
+						"spawning": {
+							"location": [ 96, 67, 0 ],
+							"obsidian_platform": false
+						},
+						"inner_gateways": {
+							"radius": 84.0,
+							"height": 80
+						},
+						"outer_gateways": {
+							"min_radius": 512,
+							"max_radius": 4096,
+							"step": 32,
+							"condition": "`bigglobe:end/has_mountain`"
+						}
+					}
 				},
 				"old_value": {
 					"min_y": -512,

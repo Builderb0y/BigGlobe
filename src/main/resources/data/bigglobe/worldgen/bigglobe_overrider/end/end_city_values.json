@@ -1,0 +1,15 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure == Structure('minecraft:end_city'):",
+				"StructurePiece first = start.pieces.(0)",
+				"`bigglobe:end/mountain_max_y` = mixSmooth(",
+					"`bigglobe:end/mountain_max_y`,",
+					"first.minY - 0.5L,",
+					"1.0L - distanceToSquare(first) * 0.0625L",
+				")",
+			")",
+		")"
+	]
+}

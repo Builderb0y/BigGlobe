@@ -113,6 +113,6 @@ public class BaseInvokeInsnTree implements InsnTree {
 
 	@Override
 	public boolean canBeStatement() {
-		return true;
+		return !this.method.isPure();
 	}
 }

@@ -1,0 +1,12 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.25,
+		"max": 0.5,
+		"smooth_min": false,
+		"smooth_max": true,
+		"column_value": "bigglobe:end/foliage"
+	},
+	"if_true": "bigglobe:end/surface/chorus",
+	"if_false": "bigglobe:end/surface/overgrown"
+}

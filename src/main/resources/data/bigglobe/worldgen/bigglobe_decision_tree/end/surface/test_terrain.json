@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:end/has_mountain`"
+	},
+	"if_true": "bigglobe:end/surface/test_mountain",
+	"if_false": "bigglobe:end/surface/the_void"
+}

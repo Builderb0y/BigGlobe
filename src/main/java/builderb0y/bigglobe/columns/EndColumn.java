@@ -9,15 +9,11 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
-
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.noise.ScriptedGrid;
 import builderb0y.bigglobe.settings.EndSettings;
 import builderb0y.bigglobe.settings.EndSettings.BridgeCloudSettings;
 import builderb0y.bigglobe.settings.EndSettings.RingCloudSettings;

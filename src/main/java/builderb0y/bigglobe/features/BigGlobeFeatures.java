@@ -29,7 +29,8 @@ public class BigGlobeFeatures {
 	public static final SingleBlockFeature                                      SINGLE_BLOCK                       = register("single_block",                       new              SingleBlockFeature());
 	public static final NaturalTreeFeature                                      NATURAL_TREE                       = register("natural_tree",                       new              NaturalTreeFeature());
 	public static final ArtificialTreeFeature                                   ARTIFICIAL_TREE                    = register("artificial_tree",                    new           ArtificialTreeFeature());
-	public static final EndSpikeReplacementFeature                              END_SPIKE                          = register("end_spike",                          new      EndSpikeReplacementFeature());
+	public static final EndSpikeRespawnFeature                                  END_SPIKE_RESPAWN                  = register("end_spike_respawn",                  new          EndSpikeRespawnFeature());
+	public static final EndSpikeWorldgenFeature                                 END_SPIKE_WORLDGEN                 = register("end_spike_worldgen",                 new         EndSpikeWorldgenFeature());
 
 	public static final OverworldOreFeature                                     OVERWORLD_ORE                      = register("overworld_ore",                      new             OverworldOreFeature());
 	public static final NetherOreFeature                                        NETHER_ORE                         = register("nether_ore",                         new                NetherOreFeature());

@@ -11,7 +11,7 @@
 				"class Height (int y)",
 				"int findGround(int x, int z:",
 					"int y = originY",
-					"until (`bigglobe:end/nest_noise`(x, y, z) > 0.0L:",
+					"until (`bigglobe:end/nest_sdf`(x, y, z) > 0.0L:",
 						"unless (isYLevelValid(:--y): return(16x8000_0000U))",
 					")",
 					"return(y + 1)",

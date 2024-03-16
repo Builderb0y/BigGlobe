@@ -1,0 +1,11 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surface_state": "minecraft:end_stone",
+			"subsurface_state": "minecraft:end_stone",
+			"surface_depth": 0,
+			"biome": "bigglobe:end_mountain"
+		}
+	}
+}

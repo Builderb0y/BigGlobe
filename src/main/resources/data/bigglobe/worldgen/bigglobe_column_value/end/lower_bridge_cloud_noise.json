@@ -1,0 +1,26 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "constant", "value": 0.5 },
+			{ "type": "smooth", "scaleX": 64, "scaleY": 64, "scaleZ": 64, "amplitude": 0.25 },
+			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.1 },
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.04 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.016 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.0064 },
+			{ "type": "worley", "scale":  64, "amplitude": -1.0  },
+			{ "type": "worley", "scale":  32, "amplitude": -0.5  },
+			{ "type": "worley", "scale":  16, "amplitude": -0.25 }
+		]
+	},
+	"valid": {
+		"where": "`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`",
+		"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
+		"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
+	}
+}

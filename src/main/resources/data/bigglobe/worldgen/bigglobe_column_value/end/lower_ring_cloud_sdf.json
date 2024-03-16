@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "`bigglobe:end/lower_ring_cloud_noise`(y) + `bigglobe:end/ring_cloud_horizontal_bias` + `bigglobe:end/ring_cloud_vertical_bias`(y)",
+	"valid": {
+		"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
+		"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
+		"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
+	}
+}

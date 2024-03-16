@@ -7,12 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.concurrent.ForkJoinPool;
 
 import me.cortex.voxy.client.core.IGetVoxelCore;
 import me.cortex.voxy.common.voxelization.VoxelizedSection;
 import me.cortex.voxy.common.voxelization.WorldConversionFactory;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.other.Mapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.*;
 
@@ -24,6 +27,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntry.Reference;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
@@ -40,6 +44,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
+import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -113,7 +118,7 @@ public class VoxyWorldGenerator {
 				}
 			}
 		});
-		ClientWorldEvents.UNLOAD.register(() -> {
+		ClientWorldEvents.UNLOAD.register((ClientWorld world) -> {
 			if (INSTANCE != null) {
 				INSTANCE.stop();
 				Session session = ((MinecraftServer_SessionAccess)(INSTANCE.world.getServer())).bigglobe_getSession();
@@ -121,20 +126,23 @@ public class VoxyWorldGenerator {
 				Path voxyFolder = dimensionFolder.resolve("voxy");
 				Path distanceGraphFile = voxyFolder.resolve("bigglobe_progress.dat");
 				Path writeFile = voxyFolder.resolve("bigglobe_progress.tmp");
-				try (
-					BitOutputStream bits = new BitOutputStream(
-						new DataOutputStream(
-							Files.newOutputStream(
-								writeFile,
-								StandardOpenOption.CREATE,
-								StandardOpenOption.TRUNCATE_EXISTING
+				try {
+					Files.createDirectories(voxyFolder);
+					try (
+						BitOutputStream bits = new BitOutputStream(
+							new DataOutputStream(
+								Files.newOutputStream(
+									writeFile,
+									StandardOpenOption.CREATE,
+									StandardOpenOption.TRUNCATE_EXISTING
+								)
 							)
 						)
-					)
-				) {
-					DistanceGraphIO.write(INSTANCE.distanceGraph, bits);
-					Files.deleteIfExists(distanceGraphFile);
-					Files.move(writeFile, distanceGraphFile);
+					) {
+						DistanceGraphIO.write(INSTANCE.distanceGraph, bits);
+						Files.deleteIfExists(distanceGraphFile);
+						Files.move(writeFile, distanceGraphFile);
+					}
 				}
 				catch (IOException exception) {
 					BigGlobeMod.LOGGER.error("Exception saving voxy progress: ", exception);
@@ -188,6 +196,11 @@ public class VoxyWorldGenerator {
 
 	public boolean generateNextChunk() {
 		if (GLFW.glfwGetKey(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_F3) == GLFW.GLFW_PRESS) {
+			Thread.onSpinWait();
+			return true;
+		}
+		if (Util.getMainWorkerExecutor() instanceof ForkJoinPool pool && !pool.isQuiescent()) {
+			Thread.onSpinWait();
 			return true;
 		}
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -212,37 +225,39 @@ public class VoxyWorldGenerator {
 		int maxY = this.generator.height.max_y();
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.RAW_VOXY);
 		RootLayer layer = this.generator.layer;
-		ScriptedColumn
-			column00 = factory.create(params),
-			column01 = factory.create(params),
-			column10 = factory.create(params),
-			column11 = factory.create(params);
-		for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
-			for (int offsetX = 0; offsetX < 16; offsetX += 2) {
-				int quadX = startX | offsetX;
-				int quadZ = startZ | offsetZ;
-				column00.setParamsUnchecked(column00.params.at(quadX,     quadZ    ));
-				column01.setParamsUnchecked(column01.params.at(quadX | 1, quadZ    ));
-				column10.setParamsUnchecked(column10.params.at(quadX,     quadZ | 1));
-				column11.setParamsUnchecked(column11.params.at(quadX | 1, quadZ | 1));
-				BlockSegmentList
-					list00 = new BlockSegmentList(minY, maxY),
-					list01 = new BlockSegmentList(minY, maxY),
-					list10 = new BlockSegmentList(minY, maxY),
-					list11 = new BlockSegmentList(minY, maxY);
-				layer.emitSegments(column00, column01, column10, column11, list00);
-				layer.emitSegments(column01, column00, column11, column10, list01);
-				layer.emitSegments(column10, column11, column00, column01, list10);
-				layer.emitSegments(column11, column10, column01, column00, list11);
-				list00.computeLightLevels();
-				list01.computeLightLevels();
-				list10.computeLightLevels();
-				list11.computeLightLevels();
-				int baseIndex = (offsetZ << 4) | offsetX;
-				lists[baseIndex     ] = list00;
-				lists[baseIndex ^  1] = list01;
-				lists[baseIndex ^ 16] = list10;
-				lists[baseIndex ^ 17] = list11;
+		try (AsyncRunner async = new AsyncRunner()) {
+			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
+				int offsetZ_ = offsetZ;
+				for (int offsetX = 0; offsetX < 16; offsetX += 2) {
+					int offsetX_ = offsetX;
+					async.submit(() -> {
+						int quadX = startX | offsetX_;
+						int quadZ = startZ | offsetZ_;
+						ScriptedColumn
+							column00 = factory.create(params.at(quadX,     quadZ    )),
+							column01 = factory.create(params.at(quadX | 1, quadZ    )),
+							column10 = factory.create(params.at(quadX,     quadZ | 1)),
+							column11 = factory.create(params.at(quadX | 1, quadZ | 1));
+						BlockSegmentList
+							list00 = new BlockSegmentList(minY, maxY),
+							list01 = new BlockSegmentList(minY, maxY),
+							list10 = new BlockSegmentList(minY, maxY),
+							list11 = new BlockSegmentList(minY, maxY);
+						layer.emitSegments(column00, column01, column10, column11, list00);
+						layer.emitSegments(column01, column00, column11, column10, list01);
+						layer.emitSegments(column10, column11, column00, column01, list10);
+						layer.emitSegments(column11, column10, column01, column00, list11);
+						list00.computeLightLevels();
+						list01.computeLightLevels();
+						list10.computeLightLevels();
+						list11.computeLightLevels();
+						int baseIndex = (offsetZ_ << 4) | offsetX_;
+						lists[baseIndex     ] = list00;
+						lists[baseIndex ^  1] = list01;
+						lists[baseIndex ^ 16] = list10;
+						lists[baseIndex ^ 17] = list11;
+					});
+				}
 			}
 		}
 		for (int y = minY; y < maxY; y += 16) {
@@ -299,9 +314,6 @@ public class VoxyWorldGenerator {
 		if (section == null) return null;
 		VoxelizedSection result = new VoxelizedSection(section, chunkX, chunkY, chunkZ);
 		WorldConversionFactory.mipSection(result, engine.getMapper());
-		if (Mapper.isAir(section[section.length - 1])) {
-			System.out.println("Non-null section that's just air? @" + chunkX + ", " + chunkY + ", " + chunkZ);
-		}
 		return result;
 	}
 }

@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
 @Mixin(Entity.class)
@@ -17,13 +18,13 @@ public class Entity_SpawnAtPreferredLocationInTheEnd {
 
 	@Redirect(method = "getTeleportTarget", at = @At(value = "FIELD", target = "Lnet/minecraft/server/world/ServerWorld;END_SPAWN_POS:Lnet/minecraft/util/math/BlockPos;"))
 	private BlockPos bigglobe_spawnAtPreferredLocationInTheEnd(ServerWorld destination) {
-		if (destination.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-			int[] position = generator.settings.nest.spawn_location();
+		if (destination.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			int[] position = generator.end_overrides.spawning().location();
 			BlockPos.Mutable pos = new BlockPos.Mutable(position[0], position[1], position[2]);
 			Chunk chunk = destination.getChunk(pos);
 			while (BlockStateVersions.isReplaceable(chunk.getBlockState(pos))) {
 				pos.setY(pos.getY() - 1);
-				if (pos.getY() < generator.settings.nest.min_y()) {
+				if (pos.getY() < destination.getBottomY()) {
 					return new BlockPos(position[0], position[1], position[2]);
 				}
 			}

@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"float unmixed = unmixLinear(`bigglobe:end/bridge_cloud_max_radius`, `bigglobe:end/bridge_cloud_min_radius`, `bigglobe:end/warp_radius`.as(float))",
+		"return(-(max(unmixed, 0.0I) ^ 2))"
+	]
+}

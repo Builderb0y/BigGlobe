@@ -10,6 +10,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred {
@@ -18,8 +19,9 @@ public abstract class ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred {
 	private void bigglobe_dontSpawnEndPlatformUnlessDesired(ServerWorld world, BlockPos centerPos, CallbackInfo callback) {
 		BlockPos downPos;
 		if (
-			world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator &&
-			!generator.settings.nest.spawn_obsidian_platform() &&
+			world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
+			generator.end_overrides != null &&
+			!generator.end_overrides.spawning().obsidian_platform() &&
 			world.getBlockState(downPos = centerPos.down()).isOpaqueFullCube(world, downPos)
 		) {
 			callback.cancel();

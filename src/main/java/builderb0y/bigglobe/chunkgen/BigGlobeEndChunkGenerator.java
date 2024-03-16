@@ -394,7 +394,7 @@ public class BigGlobeEndChunkGenerator extends BigGlobeChunkGenerator {
 				if (columns.getColumn(8, 8).getDistanceToOrigin() < 64.0D) {
 					List<Spike> spikes = EndSpikeFeature.getSpikes(world).stream().filter(spike -> spike.getCenterX() >> 4 == chunk.getPos().x && spike.getCenterZ() >> 4 == chunk.getPos().z).collect(Collectors.toList());
 					if (!spikes.isEmpty()) {
-						BigGlobeFeatures.END_SPIKE.generate(new FeatureContext<>(Optional.empty(), world, this, new MojangPermuter(0L) /* ignored */, BlockPos.ORIGIN /* also ignored */, new EndSpikeFeatureConfig(false, spikes, null)));
+						BigGlobeFeatures.END_SPIKE_RESPAWN.generate(new FeatureContext<>(Optional.empty(), world, this, new MojangPermuter(0L) /* ignored */, BlockPos.ORIGIN /* also ignored */, new EndSpikeFeatureConfig(false, spikes, null)));
 					}
 				}
 			});

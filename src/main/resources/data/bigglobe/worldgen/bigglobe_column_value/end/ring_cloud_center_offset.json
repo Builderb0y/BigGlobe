@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:constant",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"value": 160.0
+}

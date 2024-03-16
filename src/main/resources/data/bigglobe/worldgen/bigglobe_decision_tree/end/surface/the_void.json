@@ -1,0 +1,11 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surface_state": "minecraft:air",
+			"subsurface_state": "minecraft:air",
+			"surface_depth": 0,
+			"biome": "bigglobe:the_void"
+		}
+	}
+}

@@ -15,12 +15,17 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.EndColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 
@@ -41,19 +46,34 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	@Inject(method = "findTeleportLocation", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerWorld world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3d> callback) {
 		bigglobe_exitPosition = null;
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-			EndColumn column = generator.column(0, 0);
-			Vector2d position = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize(16.0D);
-			Vector2d step = new Vector2d(position);
-			position.mul(world.random.nextDouble());
-			for (int attempt = 1; attempt <= 2048 / 16; attempt++) {
-				column.setPosUnchecked(BigGlobeMath.floorI(position.x), BigGlobeMath.floorI(position.y));
-				if (column.hasTerrain()) {
+		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
+			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
+			Vector2d position = new Vector2d();
+			double minRadius = generator.end_overrides.outer_gateways().min_radius();
+			double maxRadius = generator.end_overrides.outer_gateways().max_radius();
+			double step = generator.end_overrides.outer_gateways().step();
+			ColumnToBooleanScript condition = generator.end_overrides.outer_gateways().condition();
+			for (double radius = minRadius; radius <= maxRadius; radius += step) {
+				position.set(direction).mul(radius);
+				column.setParamsUnchecked(column.params.at(BigGlobeMath.floorI(position.x), BigGlobeMath.floorI(position.y)));
+				if (condition.get(column)) {
 					bigglobe_exitPosition = position;
-					callback.setReturnValue(new Vec3d(position.x, column.getFinalTopHeightD(), position.y));
+					callback.setReturnValue(
+						new Vec3d(
+							position.x,
+							generator.getHeightOnGround(
+								BigGlobeMath.floorI(position.x),
+								BigGlobeMath.floorI(position.y),
+								Heightmap.Type.WORLD_SURFACE_WG,
+								world,
+								world.getChunkManager().getNoiseConfig()
+							),
+							position.y
+						)
+					);
 					return;
 				}
-				position.add(step);
 			}
 		}
 	}
@@ -78,17 +98,15 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 		Vector2d basePosition = bigglobe_exitPosition;
 		if (basePosition != null) {
 			bigglobe_exitPosition = null;
-			if (world.getChunkManager() instanceof ServerChunkManager manager && manager.getChunkGenerator() instanceof BigGlobeEndChunkGenerator generator) {
-				EndColumn column = generator.column(0, 0);
+			if (world.getChunkManager() instanceof ServerChunkManager manager && manager.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 				for (
 					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.random.nextLong());
 					iterator.radius <= 64.0D;
 					iterator.next()
 				) {
-					column.setPosUnchecked(iterator.floorX(), iterator.floorY());
-					if (column.hasTerrain()) {
-						int topY = column.getFinalTopHeightI();
+					int topY = generator.getHeight(iterator.floorX(), iterator.floorY(), Heightmap.Type.WORLD_SURFACE_WG, world, manager.getNoiseConfig());
+					if (topY > world.getBottomY()) {
 						mutablePos.set(iterator.floorX(), topY, iterator.floorY());
 						Chunk newChunk = world.getChunk(mutablePos);
 						if (
@@ -120,7 +138,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	*/
 	@Inject(method = "findExitPortalPos", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockView world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
-		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeEndChunkGenerator) {
+		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			BlockPos.Mutable
 				search = new BlockPos.Mutable(),
 				found  = pos.mutableCopy().setY(world.getBottomY());

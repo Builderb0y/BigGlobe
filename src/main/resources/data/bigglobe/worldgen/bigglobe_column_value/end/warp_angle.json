@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "atan2(`bigglobe:end/warp_x`, `bigglobe:end/warp_z`)"
+}

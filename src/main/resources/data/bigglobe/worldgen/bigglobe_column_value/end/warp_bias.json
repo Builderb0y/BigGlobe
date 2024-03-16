@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		";create a dent in the warp centered at the origin,",
+		";so that the nest is surrounded by a ring cloud.",
+		";this also prevents clouds from spawning directly above or below the nest,",
+		";which is important because the dragon *apparently* likes to hang out around such clouds.",
+
+		"max(1.0L - exp(`bigglobe:end/distance_to_origin` / -512.0L + 0.25L), 0.0L)"
+	]
+}

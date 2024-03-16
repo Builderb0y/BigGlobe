@@ -20,15 +20,15 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class EndSpikeReplacementFeature extends Feature<EndSpikeFeatureConfig> {
+public class EndSpikeRespawnFeature extends Feature<EndSpikeFeatureConfig> {
 
 	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("end/nest_spike"));
 
-	public EndSpikeReplacementFeature(Codec<EndSpikeFeatureConfig> configCodec) {
+	public EndSpikeRespawnFeature(Codec<EndSpikeFeatureConfig> configCodec) {
 		super(configCodec);
 	}
 
-	public EndSpikeReplacementFeature() {
+	public EndSpikeRespawnFeature() {
 		this(EndSpikeFeatureConfig.CODEC);
 	}
 
