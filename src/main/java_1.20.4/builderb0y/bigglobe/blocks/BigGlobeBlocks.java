@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
+import java.util.EnumMap;
 import java.util.Optional;
 
 import net.fabricmc.api.EnvType;
@@ -11,7 +12,6 @@ import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
 import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
@@ -39,6 +39,7 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
 import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
+import builderb0y.bigglobe.texturegen.CloudColor;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -202,27 +203,28 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings.copy(SLATED_PRISMARINE)
 		)
 	);
-	public static final Block FLOATSTONE = register(
-		"floatstone",
-		new Block(
-			AbstractBlock.Settings
-			.create()
-			.mapColor(MapColor.OAK_TAN)
-			.requiresTool()
-			.strength(1.0F, 5.0F)
-		)
-	);
-	public static final SlabBlock FLOATSTONE_SLAB = register(
-		"floatstone_slab",
-		new SlabBlock(AbstractBlock.Settings.copy(FLOATSTONE))
-	);
-	public static final StairsBlock FLOATSTONE_STAIRS = register(
-		"floatstone_stairs",
-		new StairsBlock(
-			FLOATSTONE.getDefaultState(),
-			AbstractBlock.Settings.copy(FLOATSTONE)
-		)
-	);
+	public static final EnumMap<CloudColor, CloudBlock> CLOUDS = new EnumMap<>(CloudColor.class);
+	static {
+		for (CloudColor color : CloudColor.VALUES) {
+			CLOUDS.put(color, register(
+				color.normalName,
+				new CloudBlock(
+					AbstractBlock
+					.Settings
+					.create()
+					.mapColor(MapColor.WHITE)
+					.strength(0.2F)
+					.sounds(BlockSoundGroup.WOOL)
+					.luminance(
+						color == CloudColor.BLANK
+						? (BlockState state) -> 0
+						: (BlockState state) -> 5
+					)
+					.allowsSpawning(Blocks::never)
+				)
+			));
+		}
+	}
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(
@@ -746,10 +748,32 @@ public class BigGlobeBlocks {
 			VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D)
 		)
 	);
-
-	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
+	public static final EnumMap<CloudColor, CloudBlock> VOID_CLOUDS = new EnumMap<>(CloudColor.class);
+	static {
+		for (CloudColor color : CloudColor.VALUES) {
+			VOID_CLOUDS.put(color, register(
+				color.voidName,
+				new CloudBlock(
+					AbstractBlock
+					.Settings
+					.create()
+					.mapColor(MapColor.BLACK)
+					.strength(0.2F)
+					.sounds(BlockSoundGroup.WOOL)
+					.luminance(
+						color == CloudColor.BLANK
+						? (BlockState state) -> 0
+						: (BlockState state) -> 5
+					)
+					.allowsSpawning(Blocks::never)
+				)
+			));
+		}
+	}
 
 	//////////////////////////////// end of blocks ////////////////////////////////
+
+	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
 	public static FlowerPotBlock newPottedPlant(Block plant) {
 		int lightLevel = plant.getDefaultState().getLuminance();
@@ -760,7 +784,7 @@ public class BigGlobeBlocks {
 			.mapColor(plant.getDefaultMapColor())
 			.breakInstantly()
 			.nonOpaque()
-			.luminance(state -> lightLevel)
+			.luminance((BlockState state) -> lightLevel)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		);
 	}

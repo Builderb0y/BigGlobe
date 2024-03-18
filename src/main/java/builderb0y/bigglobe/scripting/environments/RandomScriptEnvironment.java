@@ -310,7 +310,7 @@ public class RandomScriptEnvironment {
 							case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
 						}
 					)
-					.apply(loader, (InsnTree actualReceiver) -> {
+					.apply(receiver, (InsnTree actualReceiver) -> {
 						return switch_(
 							parser,
 							invokeInstance(

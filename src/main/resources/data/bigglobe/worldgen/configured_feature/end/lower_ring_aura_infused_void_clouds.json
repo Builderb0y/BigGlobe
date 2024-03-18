@@ -1,0 +1,21 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:aura_infused_void_clouds",
+			"inputs": {
+				"MIN_Y": [
+					"+ `bigglobe:end/mountain_center`",
+					"- `bigglobe:end/ring_cloud_center_offset`",
+					"- `bigglobe:end/ring_cloud_thickness`"
+				],
+				"MAX_Y": [
+					"+ `bigglobe:end/mountain_center`",
+					"- `bigglobe:end/ring_cloud_center_offset`",
+					"+ `bigglobe:end/ring_cloud_thickness`"
+				],
+				"HUE": "`bigglobe:end/warp_angle` * (8.0L * 12.0L / tau)"
+			}
+		}
+	}
+}

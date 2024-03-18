@@ -20,7 +20,6 @@ public class BlockStates {
 		BEDROCK                = Blocks.BEDROCK.getDefaultState(),
 		STONE                  = Blocks.STONE.getDefaultState(),
 		COBBLESTONE            = Blocks.COBBLESTONE.getDefaultState(),
-		FLOATSTONE             = BigGlobeBlocks.FLOATSTONE.getDefaultState(),
 		DEEPSLATE              = Blocks.DEEPSLATE.getDefaultState(),
 		COBBLED_DEEPSLATE      = Blocks.COBBLED_DEEPSLATE.getDefaultState(),
 		DIRT                   = Blocks.DIRT.getDefaultState(),

@@ -91,6 +91,7 @@ where I left off:
 		format is biome.bigglobe.(name).
 	add mixins for ServerWorld.getSeaLevel() to delegate to chunk generator in big globe worlds.
 	ensure that cave floor features can't replace snow.
+	fix random.switch() using implicit random instead of explicit random in RandomScriptEnvironment.
 
 changelog:
 	4.0:

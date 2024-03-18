@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.scripting.environments;
 
 import com.google.common.collect.ObjectArrays;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
@@ -10,6 +12,7 @@ import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -61,6 +64,45 @@ public class StatelessRandomScriptEnvironment {
 		})
 		.addMemberKeyword(TypeInfos.LONG, "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapSeedIf(parser, receiver, true, mode);
+		})
+		.addMethod(TypeInfos.LONG, "switch", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+			if (arguments.length < 2) {
+				throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
+			}
+			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
+			for (int index = 0, length = arguments.length; index < length; index++) {
+				cases.put(index, arguments[index]);
+			}
+			cases.defaultReturnValue(
+				throw_(
+					newInstance(
+						RandomScriptEnvironment.ASSERT_FAIL,
+						ldc("Random returned value out of range")
+					)
+				)
+			);
+			return new CastResult(
+				(
+					switch (mode) {
+						case NORMAL -> MemberKeywordMode.NORMAL;
+						case NULLABLE -> MemberKeywordMode.NULLABLE;
+						case RECEIVER -> MemberKeywordMode.RECEIVER;
+						case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+					}
+				)
+				.apply(receiver, (InsnTree actualReceiver) -> {
+					return switch_(
+						parser,
+						invokeStatic(
+							RandomScriptEnvironment.PERMUTER_INFO.nextIntBound,
+							actualReceiver,
+							ldc(arguments.length)
+						),
+						cases
+					);
+				}),
+				false
+			);
 		})
 	);
 

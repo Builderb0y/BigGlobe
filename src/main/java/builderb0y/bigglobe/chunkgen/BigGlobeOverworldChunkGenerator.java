@@ -47,6 +47,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.CaveSurfaceReplacer;
 import builderb0y.bigglobe.chunkgen.perSection.CobblestoneReplacer;
@@ -87,6 +88,7 @@ import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSetti
 import builderb0y.bigglobe.structures.LakeStructure;
 import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
+import builderb0y.bigglobe.texturegen.CloudColor;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -374,7 +376,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 		});
 		if (maxSkyland >= minSkyland) {
 			this.generateSectionsParallelSimple(chunk, minSkyland, maxSkyland + 1, columns, (SectionGenerationContext context) -> {
-				int floatstoneID = context.id(BlockStates.FLOATSTONE);
+				int floatstoneID = context.id(BigGlobeBlocks.CLOUDS.get(CloudColor.BLANK).getDefaultState());
 				PaletteStorage storage = context.storage();
 				int startY = context.startY();
 				int endY = startY | 15;

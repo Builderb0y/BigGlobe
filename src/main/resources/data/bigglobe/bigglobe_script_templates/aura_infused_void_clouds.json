@@ -1,0 +1,38 @@
+{
+	"type": "bigglobe:generic",
+	"script": [
+		"long columnSeed = (worldSeed # 16x05985ACD460C357DUL).newSeed(originX, originZ)",
+		"for (int baseY in range[ceilInt(MIN_Y) & ~31, floorInt(MAX_Y)] % 32:",
+			"long positionSeed = columnSeed.newSeed(baseY)",
+			"int y = baseY | (positionSeed.nextInt() & 31)",
+			"if (getBlockState(originX, y, originZ) == BlockState('bigglobe:void_cloud'):",
+				"setBlockState(originX, y, originZ,",
+					"if ((positionSeed := positionSeed.newSeed()).nextInt() & 7 == 0:",
+						"'bigglobe:omni_aura_infused_void_cloud'",
+					")",
+					"else switch (floorInt(HUE + positionSeed.newSeed().nextDouble()) % 12:",
+						"case ( 0: 'bigglobe:red_aura_infused_void_cloud')",
+						"case ( 1: 'bigglobe:orange_aura_infused_void_cloud')",
+						"case ( 2: 'bigglobe:yellow_aura_infused_void_cloud')",
+						"case ( 3: 'bigglobe:yellow_green_aura_infused_void_cloud')",
+						"case ( 4: 'bigglobe:green_aura_infused_void_cloud')",
+						"case ( 5: 'bigglobe:cyan_green_aura_infused_void_cloud')",
+						"case ( 6: 'bigglobe:cyan_aura_infused_void_cloud')",
+						"case ( 7: 'bigglobe:cyan_blue_aura_infused_void_cloud')",
+						"case ( 8: 'bigglobe:blue_aura_infused_void_cloud')",
+						"case ( 9: 'bigglobe:purple_aura_infused_void_cloud')",
+						"case (10: 'bigglobe:magenta_aura_infused_void_cloud')",
+						"case (11: 'bigglobe:magenta_red_aura_infused_void_cloud')",
+						"default ('bigglobe:omni_aura_infused_void_cloud')",
+					")",
+				")",
+			")",
+		")",
+		"return(true)"
+	],
+	"inputs": [
+		{ "name": "MIN_Y", "type": "double" },
+		{ "name": "MAX_Y", "type": "double" },
+		{ "name": "HUE",   "type": "double" }
+	]
+}

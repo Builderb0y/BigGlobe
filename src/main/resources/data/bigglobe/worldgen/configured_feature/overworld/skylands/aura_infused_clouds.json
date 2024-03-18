@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:aura_infused_clouds",
+			"inputs": {
+				"MIN_Y": "`bigglobe:overworld/skyland`.bounds.min_y",
+				"MAX_Y": "`bigglobe:overworld/skyland`.bounds.max_y",
+				"HUE": "`bigglobe:overworld/skyland`.soft_distance * (4.0L * 12.0L)"
+			}
+		}
+	}
+}

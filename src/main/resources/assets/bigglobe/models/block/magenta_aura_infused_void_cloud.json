@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"all": "bigglobe:block/magenta_aura_infused_void_cloud"
+	}
+}

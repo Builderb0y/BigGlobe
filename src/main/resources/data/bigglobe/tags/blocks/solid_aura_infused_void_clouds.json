@@ -1,0 +1,17 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:red_aura_infused_void_cloud",
+		"bigglobe:orange_aura_infused_void_cloud",
+		"bigglobe:yellow_aura_infused_void_cloud",
+		"bigglobe:yellow_green_aura_infused_void_cloud",
+		"bigglobe:green_aura_infused_void_cloud",
+		"bigglobe:cyan_green_aura_infused_void_cloud",
+		"bigglobe:cyan_aura_infused_void_cloud",
+		"bigglobe:cyan_blue_aura_infused_void_cloud",
+		"bigglobe:blue_aura_infused_void_cloud",
+		"bigglobe:purple_aura_infused_void_cloud",
+		"bigglobe:magenta_aura_infused_void_cloud",
+		"bigglobe:magenta_red_aura_infused_void_cloud"
+	]
+}

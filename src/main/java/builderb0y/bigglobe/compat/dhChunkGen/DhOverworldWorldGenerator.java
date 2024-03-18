@@ -6,6 +6,7 @@ import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 
+import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
@@ -15,6 +16,7 @@ import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
+import builderb0y.bigglobe.texturegen.CloudColor;
 
 public class DhOverworldWorldGenerator extends AbstractDhWorldGenerator {
 
@@ -50,7 +52,7 @@ public class DhOverworldWorldGenerator extends AbstractDhWorldGenerator {
 		Object[] globalQuery = new Object[1];
 		IDhApiBlockStateWrapper      stoneWrapper = this.blockState(globalQuery, BlockStates.STONE);
 		IDhApiBlockStateWrapper      waterWrapper = this.blockState(globalQuery, BlockStates.WATER);
-		IDhApiBlockStateWrapper floatstoneWrapper = this.blockState(globalQuery, BlockStates.FLOATSTONE);
+		IDhApiBlockStateWrapper floatstoneWrapper = this.blockState(globalQuery, BigGlobeBlocks.CLOUDS.get(CloudColor.BLANK).getDefaultState());
 		IDhApiBlockStateWrapper       snowWrapper = this.blockState(globalQuery, BlockStates.SNOW);
 		int seaLevel = this.generator.settings.height.sea_level();
 
