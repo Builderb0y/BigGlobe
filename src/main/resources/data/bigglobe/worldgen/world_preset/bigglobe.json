@@ -22,7 +22,7 @@
 									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`:",
 										"setBlockStates(",
 											"max(",
-												"ceilInt(`bigglobe:overworld/surface_y`),",
+												"ceilInt(`bigglobe:overworld/cracked_surface_y`),",
 												"floorInt(`bigglobe:overworld/glacier_min_y`)",
 											"),",
 											"floorInt(`bigglobe:overworld/glacier_max_y`),",
@@ -33,7 +33,7 @@
 									")"
 								],
 								"after_children": [
-									"int surfaceY = ceilInt(`bigglobe:overworld/surface_y`)",
+									"int surfaceY = ceilInt(`bigglobe:overworld/cracked_surface_y`)",
 									";skip the bulk of the work if the surface is outside the world height,",
 									";which could happen with cubic chunks.",
 									"if (surfaceY.isBetween[minY, maxY]:",
@@ -79,7 +79,7 @@
 									")"
 								],
 								"valid": {
-									"max_y": "ceilInt(`bigglobe:overworld/surface_y`)",
+									"max_y": "ceilInt(`bigglobe:overworld/cracked_surface_y`)",
 									"min_y": "distantHorizons ? ceilInt(`bigglobe:overworld/surface_y`) - 32 : -2147483648"
 								},
 								"children": [

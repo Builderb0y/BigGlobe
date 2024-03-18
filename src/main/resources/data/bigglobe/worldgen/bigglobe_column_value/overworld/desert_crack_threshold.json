@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double threshold = max(`bigglobe:overworld/surface_temperature` - 0.75L, 0.0L)",
+		"threshold *= max(-`bigglobe:overworld/surface_foliage`, 0.0L) ^ 2",
+		"threshold *= unmixSmooth(8.0L, 16.0L, `bigglobe:overworld/surface_y`)",
+		"return(threshold / (threshold + 1.0L))"
+	]
+}

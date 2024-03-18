@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double height = `bigglobe:overworld/surface_y`",
+		"double threshold = `bigglobe:overworld/desert_crack_threshold`",
+		"if (threshold > 0.0L && `bigglobe:overworld/desert_cracks`.soft_distance > 1.0 - threshold:",
+			"height -= 1.0L",
+		")",
+		"return(height)"
+	]
+}

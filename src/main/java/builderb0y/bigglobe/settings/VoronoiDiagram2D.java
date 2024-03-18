@@ -72,7 +72,7 @@ public class VoronoiDiagram2D {
 	};
 
 	public final Seed seed;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifyDivisibleBy16 int distance;
+	public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
 	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifySorted(lessThanOrEqual = "distance") int variation;
 
 	public final transient Cell[] cellCache = new Cell[CACHE_SIZE];

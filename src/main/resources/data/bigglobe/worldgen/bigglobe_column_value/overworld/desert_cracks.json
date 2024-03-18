@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:voronoi",
+	"params": {
+		"type": {
+			"type": "bigglobe:voronoi",
+			"name": "DesertCrackCell"
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 6,
+		"variation": 6
+	}
+}
