@@ -2,9 +2,9 @@
 	"type": "bigglobe:generic",
 	"script": [
 		"double step = STEP * 2.0L",
-		"double y = max(minValidYLevel, ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/cave`.depth)",
+		"double y = max(minValidYLevel, ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth)",
 		"y += random.nextDouble(step -: 1.0L)",
-		"double maxY = min(maxValidYLevel, `bigglobe:overworld/surface_y`)",
+		"double maxY = min(maxValidYLevel, `bigglobe:overworld/processed_surface_y`)",
 		"while ((y :+ random.nextDouble(1.0L, step)) < maxY:",
 			"int floorY = floorInt(y)",
 			"if (getBlockState(originX, floorY, originZ).isAir():",

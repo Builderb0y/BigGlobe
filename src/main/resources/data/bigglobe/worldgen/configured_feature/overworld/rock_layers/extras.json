@@ -34,7 +34,7 @@
 						"type": "and",
 						"restrictions": [
 							{ "type": "threshold", "property": "bigglobe:overworld/raw_temperature", "min": -0.375, "max": -0.625 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
 						]
 					}
 				},
@@ -47,7 +47,7 @@
 						"type": "and",
 						"restrictions": [
 							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 0.5 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
 						]
 					}
 				},
@@ -69,7 +69,7 @@
 							"unmixSmooth(",
 							"`bigglobe:overworld/sea_level` + 32,",
 							"`bigglobe:overworld/sea_level` - 32,",
-							"`bigglobe:overworld/surface_y`",
+							"`bigglobe:overworld/basic_surface_y`",
 							")"
 						]
 					}
@@ -83,7 +83,7 @@
 						"type": "and",
 						"restrictions": [
 							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "max": -0.5, "min": 0.0 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
 						]
 					}
 				},
@@ -97,7 +97,7 @@
 						"restrictions": [
 							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
 							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "min": -0.625, "max": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
 						]
 					}
 				},
@@ -111,7 +111,7 @@
 						"restrictions": [
 							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
 							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "max": -0.625, "min": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/surface_y` - 512, `bigglobe:overworld/surface_y`, y)" }
+							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
 						]
 					}
 				}

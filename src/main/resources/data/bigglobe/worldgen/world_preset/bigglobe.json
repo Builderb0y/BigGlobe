@@ -10,7 +10,7 @@
 						"min_y": -1024,
 						"max_y":  1024,
 						"sea_level": 0,
-						"main_surface": "ceilInt(`bigglobe:overworld/surface_y`)"
+						"main_surface": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
 					},
 					"layer": {
 						"state": "minecraft:air",
@@ -22,7 +22,7 @@
 									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`:",
 										"setBlockStates(",
 											"max(",
-												"ceilInt(`bigglobe:overworld/cracked_surface_y`),",
+												"ceilInt(`bigglobe:overworld/processed_surface_y`),",
 												"floorInt(`bigglobe:overworld/glacier_min_y`)",
 											"),",
 											"floorInt(`bigglobe:overworld/glacier_max_y`),",
@@ -33,16 +33,16 @@
 									")"
 								],
 								"after_children": [
-									"int surfaceY = ceilInt(`bigglobe:overworld/cracked_surface_y`)",
+									"int surfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
 									";skip the bulk of the work if the surface is outside the world height,",
 									";which could happen with cubic chunks.",
 									"if (surfaceY.isBetween[minY, maxY]:",
 										"long seed = columnSeed(16x89EA3521C6A72ABCUL)",
 										"double slopeSquared = (",
-											"+ dx(`bigglobe:overworld/surface_y`) ^ 2",
-											"+ dz(`bigglobe:overworld/surface_y`) ^ 2",
+											"+ dx(`bigglobe:overworld/basic_surface_y`) ^ 2",
+											"+ dz(`bigglobe:overworld/basic_surface_y`) ^ 2",
 										")",
-										"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:overworld/surface_y`):",
+										"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:overworld/processed_surface_y`):",
 											"int depth = (seed := seed.newSeed()).nextInt(3, 7)",
 											"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')",
 										")",
@@ -60,7 +60,7 @@
 												")",
 											")",
 										")",
-										"if (`bigglobe:overworld/surface_y` > 0.0L && (seed := seed.newSeed()).nextFloat() < `bigglobe:overworld/snow_chance`:",
+										"if (`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextFloat() < `bigglobe:overworld/snow_chance`:",
 											"int snowStart = surfaceY",
 											"while (snowStart > minY && getBlockState(snowStart - 1).isAir(): --snowStart)",
 											"int snowEnd = ceilInt(`bigglobe:overworld/snow_y`) - 1",
@@ -79,8 +79,8 @@
 									")"
 								],
 								"valid": {
-									"max_y": "ceilInt(`bigglobe:overworld/cracked_surface_y`)",
-									"min_y": "distantHorizons ? ceilInt(`bigglobe:overworld/surface_y`) - 32 : -2147483648"
+									"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
+									"min_y": "distantHorizons ? ceilInt(`bigglobe:overworld/basic_surface_y`) - 32 : 16x80000000U"
 								},
 								"children": [
 									{
@@ -95,10 +95,11 @@
 											"boolean canGenerateFloor = rawDepth > 0.0L && floorStates != null",
 											"boolean canGenerateCeiling = rawDepth > 0.0L && ceilingStates != null",
 											"if (canGenerateFloor || canGenerateCeiling:",
-												"int surfaceY = ceilInt(`bigglobe:overworld/surface_y`)",
+												"int basicSurfaceY = ceilInt(`bigglobe:overworld/basic_surface_y`)",
+												"int processedSurfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
 												"int maxCaveDepth = `bigglobe:overworld/cave`.depth",
 												"boolean hadCave = false",
-												"for (int y in range[max(surfaceY - maxCaveDepth, minY), min(surfaceY, maxY)):",
+												"for (int y in range[max(basicSurfaceY - maxCaveDepth, minY), min(processedSurfaceY, maxY)):",
 													"boolean haveCave = getBlockState(y) != null",
 													"if (haveCave && !hadCave && canGenerateFloor:",
 														"int floorDepth = floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) + 1",
@@ -128,8 +129,8 @@
 										],
 										"valid": {
 											"where": "!surfaceOnly",
-											"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/cave`.depth",
-											"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
+											"min_y": "ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth",
+											"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
 										}
 									}
 								]
@@ -138,7 +139,7 @@
 								"type": "bigglobe:simple_2d",
 								"state": "minecraft:water[level=0]",
 								"valid": {
-									"min_y": "ceilInt(`bigglobe:overworld/surface_y`)",
+									"min_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
 									"max_y": "`bigglobe:overworld/sea_level`"
 								}
 							},
@@ -205,7 +206,7 @@
 								"int z in range[minModifiableZ, maxModifiableZ],",
 								"int x in range[minModifiableX, maxModifiableX]",
 							":",
-								"if (ceilInt(`bigglobe:overworld/surface_y`(x, z)) < `bigglobe:overworld/sea_level`(x, z) && `bigglobe:overworld/glacier_cell`(x, z).?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
+								"if (ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)) < `bigglobe:overworld/sea_level`(x, z) && `bigglobe:overworld/glacier_cell`(x, z).?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
 									"placeFeature(x, 0, z, 'bigglobe:overworld/glacier')",
 								")",
 							")"
@@ -225,7 +226,7 @@
 							"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
-								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
+								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
 								"if (`bigglobe:overworld/surface_foliage`(x, z) > 0.0L:",
 									"ConfiguredFeature feature = `bigglobe:overworld/foliage_feature`(x, z)",
 									"if (feature != null: placeFeature(x, y, z, feature))",
@@ -266,7 +267,7 @@
 							"repeat (random.roundInt(`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
-								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
+								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
 								"placeFeature(x, y, z, 'bigglobe:overworld/rock')",
 							")",
 
@@ -274,7 +275,7 @@
 							"random.if (1.0 / 4.0:",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
-								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
+								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
 								"placeFeature(x, y, z, 'bigglobe:overworld/flint')",
 							")",
 
@@ -282,7 +283,7 @@
 							"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
-								"int y = ceilInt(`bigglobe:overworld/surface_y`(x, z))",
+								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
 								"placeFeature(x, y, z, 'bigglobe:overworld/stick')",
 							")",
 
@@ -291,7 +292,7 @@
 								"int z in range[minModifiableZ, maxModifiableZ],",
 								"int x in range[minModifiableX, maxModifiableX]",
 							":",
-								"placeFeature(x, ceilInt(`bigglobe:overworld/surface_y`(x, z)), z, 'bigglobe:overworld/surface_small_foliage')",
+								"placeFeature(x, ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), z, 'bigglobe:overworld/surface_small_foliage')",
 								"SkylandBounds bounds = `bigglobe:overworld/skyland`(x, z).bounds",
 								"if (bounds != null && bounds.max_y > bounds.min_y:",
 									"placeFeature(x, floorInt(bounds.max_y) + 1, z, 'bigglobe:overworld/skylands/small_foliage')",
@@ -308,7 +309,7 @@
 					},
 					"overriders": "bigglobe:overworld",
 					"spawn_point": [
-						"`bigglobe:overworld/surface_y` > 0.0L &&",
+						"`bigglobe:overworld/processed_surface_y` > 0.0L &&",
 						"`bigglobe:overworld/surface_temperature`.isBetween[-0.25I, +0.25I] &&",
 						"`bigglobe:overworld/surface_foliage` > 0.0L"
 					]

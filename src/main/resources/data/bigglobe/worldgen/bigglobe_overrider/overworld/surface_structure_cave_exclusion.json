@@ -5,7 +5,7 @@
 		"if (surfaceOnly: return())",
 		"void excludeSurface(double amount:",
 			"if (amount > 0.0L:",
-				"double surfaceY = `bigglobe:overworld/surface_y`",
+				"double surfaceY = `bigglobe:overworld/processed_surface_y`",
 				"for (int y in range(floorInt(surfaceY - 16.0L), ceilInt(surfaceY)):",
 					"double amountForY = unmixLinear(surfaceY - 16.0L, surfaceY, y)",
 					"`bigglobe:overworld/cave`.noise(y) += float(amountForY ^ 2 * amount)",

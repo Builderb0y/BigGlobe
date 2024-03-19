@@ -14,12 +14,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiBaseCompileContext extends DataCompileContext {
 
-	public VoronoiBaseCompileContext(ColumnCompileContext parent, String name) {
+	public VoronoiBaseCompileContext(ColumnCompileContext parent, String name, boolean exportsAnything) {
 		super(parent);
 		this.flagsIndex = 3;
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
-			ACC_PUBLIC | ACC_ABSTRACT | ACC_SYNTHETIC,
+			exportsAnything
+			? ACC_PUBLIC | ACC_ABSTRACT | ACC_SYNTHETIC
+			: ACC_PUBLIC | ACC_SYNTHETIC,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(VoronoiDataBase.class),
 			new TypeInfo[0]
@@ -27,14 +29,13 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 		FieldCompileContext columnField = this.mainClass.newField(ACC_PUBLIC | ACC_FINAL, "column", parent.columnType());
 
 		{
-			LazyVarInfo column, cell, baseSeed;
+			LazyVarInfo column, cell;
 			this.constructor = this.mainClass.newMethod(
 				ACC_PUBLIC,
 				"<init>",
 				TypeInfos.VOID,
 				column = new LazyVarInfo("column", parent.columnType()),
-				cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class)),
-				baseSeed = new LazyVarInfo("baseSeed", TypeInfos.LONG)
+				cell = new LazyVarInfo("cell", type(VoronoiDiagram2D.Cell.class))
 			);
 			LazyVarInfo self = new LazyVarInfo("this", this.constructor.clazz.info);
 			invokeInstance(
@@ -44,11 +45,9 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 					type(VoronoiDataBase.class),
 					"<init>",
 					TypeInfos.VOID,
-					type(VoronoiDiagram2D.Cell.class),
-					TypeInfos.LONG
+					type(VoronoiDiagram2D.Cell.class)
 				),
-				load(cell),
-				load(baseSeed)
+				load(cell)
 			)
 			.emitBytecode(this.constructor);
 			putField(load(self), columnField.info, load(column)).emitBytecode(this.constructor);

@@ -155,7 +155,7 @@ public class ColumnEntryRegistry {
 		AccessSchema accessSchema = entry.value().getAccessSchema();
 		memory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
 		memory.putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
-		memory.putTyped(VoronoiColumnEntry.OPTIONS, this.voronoiOwners.get(entry));
+		memory.putTyped(VoronoiColumnEntry.OPTIONS, this.voronoiOwners.getOrDefault(entry, Collections.emptyList()));
 		return memory;
 	}
 

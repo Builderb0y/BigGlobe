@@ -58,7 +58,7 @@
 				"weight": 2.0,
 				"restrictions": {
 					"type": "script",
-					"script": "unmixSmooth(`bigglobe:overworld/surface_y` - 256, `bigglobe:overworld/surface_y` - 512, y)"
+					"script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 256, `bigglobe:overworld/basic_surface_y` - 512, y)"
 				},
 				"main": [
 					{ "weight": 1.0, "block": "minecraft:deepslate" },

@@ -5,7 +5,11 @@
 		"is_3d": false
 	},
 	"script": [
-		"double height = `bigglobe:overworld/surface_y`",
+		"double height = `bigglobe:overworld/basic_surface_y`",
+		"double scalar = `bigglobe:overworld/dune_scalar`",
+		"if (scalar > 0.0L:",
+			"height += `bigglobe:overworld/dune` * scalar",
+		")",
 		"double threshold = `bigglobe:overworld/desert_crack_threshold`",
 		"if (threshold > 0.0L && `bigglobe:overworld/desert_cracks`.soft_distance > 1.0 - threshold:",
 			"height -= 1.0L",

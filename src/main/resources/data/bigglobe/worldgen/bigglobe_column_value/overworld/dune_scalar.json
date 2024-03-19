@@ -6,9 +6,8 @@
 	},
 	"script": [
 		"double threshold = max(`bigglobe:overworld/surface_temperature` - 0.75L, 0.0L)",
-		"threshold *= max(-`bigglobe:overworld/surface_foliage`, 0.0L)",
-		"threshold *= max(-`bigglobe:overworld/magicalness`, 0.0L)",
-		"threshold *= unmixSmooth(8.0L, 16.0L, `bigglobe:overworld/basic_surface_y`)",
+		"threshold *= max(`bigglobe:overworld/magicalness`, 0.0L)",
+		"threshold *= unmixSmooth(0.0L, 8.0L, `bigglobe:overworld/basic_surface_y`)",
 		"return(threshold / (threshold + 1.0L))"
 	]
 }

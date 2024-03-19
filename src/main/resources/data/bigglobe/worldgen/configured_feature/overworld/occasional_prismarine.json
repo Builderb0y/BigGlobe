@@ -2,8 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (sqrt(`bigglobe:overworld/sea_level` - `bigglobe:overworld/surface_y`) / 2048.0:",
-				"int y = int(floor(`bigglobe:overworld/surface_y` - min(random.nextDouble(64.0), random.nextDouble(64.0))))",
+			"random.if (sqrt(`bigglobe:overworld/sea_level` - `bigglobe:overworld/processed_surface_y`) / 2048.0:",
+				"int y = floorInt(`bigglobe:overworld/processed_surface_y` - min(random.nextDouble(64.0), random.nextDouble(64.0)))",
 				"return(placeFeature(originX, y, originZ, 'bigglobe:overworld/prismarine'))",
 			")",
 			"return(false)"

@@ -380,13 +380,11 @@ public abstract class ScriptedColumn {
 
 		/* public final synthetic ScriptedColumn$Generated_XXX column; */
 		public final VoronoiDiagram2D.Cell cell;
-		public final long seed;
 		public int flags_0;
 		public double softDistanceSquared, softDistance, hardDistance, euclideanDistance;
 
-		public VoronoiDataBase(VoronoiDiagram2D.Cell cell, long baseSeed) {
+		public VoronoiDataBase(VoronoiDiagram2D.Cell cell) {
 			this.cell = cell;
-			this.seed = cell.center.getSeed(baseSeed);
 		}
 
 		public abstract ScriptedColumn column();

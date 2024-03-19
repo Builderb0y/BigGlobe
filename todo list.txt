@@ -97,7 +97,7 @@ changelog:
 	4.0:
 		* Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
 		* Some underground structures are now less secret.
-		* Deserts now have a cracked surface.
+		* Deserts are now slightly more interesting.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

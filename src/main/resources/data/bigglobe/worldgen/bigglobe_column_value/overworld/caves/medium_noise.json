@@ -14,15 +14,15 @@
 			")",
 			"if (edgeExclusion > 0.0I: curve += edgeExclusion ^ 2)",
 			"float bottomExclusion = float(unmixLinear(",
-				"`bigglobe:overworld/surface_y` - depth + width,",
-				"`bigglobe:overworld/surface_y` - depth,",
+				"`bigglobe:overworld/basic_surface_y` - depth + width,",
+				"`bigglobe:overworld/basic_surface_y` - depth,",
 				"y",
 			"))",
 			"if (bottomExclusion > 0.0I: curve += bottomExclusion ^ 2)",
 			"if (`bigglobe:overworld/beach_cave_exclusion` > 0.0I:",
 				"float topExclusion = float(unmixLinear(",
-					"`bigglobe:overworld/surface_y` - width * 2.0L,",
-					"`bigglobe:overworld/surface_y`,",
+					"`bigglobe:overworld/processed_surface_y` - width * 2.0L,",
+					"`bigglobe:overworld/processed_surface_y`,",
 					"y",
 				"))",
 				"if (topExclusion > 0.0I: curve += topExclusion ^ 2)",
@@ -41,7 +41,7 @@
 		")"
 	],
 	"valid": {
-		"min_y": "ceilInt(`bigglobe:overworld/surface_y`) - `bigglobe:overworld/caves/medium_depth`",
-		"max_y": "ceilInt(`bigglobe:overworld/surface_y`)"
+		"min_y": "ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/caves/medium_depth`",
+		"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
 	}
 }

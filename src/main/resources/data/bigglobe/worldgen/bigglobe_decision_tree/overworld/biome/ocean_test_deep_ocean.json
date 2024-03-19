@@ -3,7 +3,7 @@
 		"type": "threshold",
 		"min": -32.0,
 		"max": -64.0,
-		"column_value": "bigglobe:overworld/surface_y"
+		"column_value": "bigglobe:overworld/basic_surface_y"
 	},
 	"if_true": "bigglobe:overworld/biome/deep_ocean",
 	"if_false": "bigglobe:overworld/biome/ocean"

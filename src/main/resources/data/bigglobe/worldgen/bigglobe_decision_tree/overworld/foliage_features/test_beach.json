@@ -3,7 +3,7 @@
 		"type": "threshold",
 		"min": 8.0,
 		"max": 4.0,
-		"column_value": "bigglobe:overworld/surface_y"
+		"column_value": "bigglobe:overworld/processed_surface_y"
 	},
 	"if_true": "bigglobe:overworld/foliage_features/test_ocean",
 	"if_false": "bigglobe:overworld/foliage_features/test_hot"

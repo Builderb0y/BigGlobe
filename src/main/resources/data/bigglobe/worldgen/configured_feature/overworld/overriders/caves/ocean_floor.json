@@ -5,7 +5,7 @@
 			"double seaLevel = `bigglobe:overworld/sea_level`",
 			"double beachY = 8.0",
 			"double doubleBeachY = mixLinear(seaLevel, beachY, 2.0L)",
-			"double maxY = `bigglobe:overworld/surface_y`",
+			"double maxY = `bigglobe:overworld/processed_surface_y`",
 			"if (maxY < doubleBeachY:",
 				"excludeSurface(unmixSmooth(doubleBeachY, beachY, maxY))",
 			")"

@@ -25,7 +25,7 @@ public class VoronoiColumnValueType implements ColumnValueType {
 
 	@Override
 	public TypeContext createType(ColumnCompileContext context) {
-		VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context, this.name);
+		VoronoiBaseCompileContext voronoiContext = new VoronoiBaseCompileContext(context, this.name, !this.exports.isEmpty());
 		return new TypeContext(voronoiContext.mainClass.info, voronoiContext);
 	}
 

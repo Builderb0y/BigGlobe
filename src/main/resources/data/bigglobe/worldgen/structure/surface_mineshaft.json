@@ -56,10 +56,10 @@
 			"void addPiece(StructurePiece from, StructurePiece toAdd:",
 				"if (",
 					"from != null && (",
-						"toAdd.maxY >= `bigglobe:overworld/surface_y`(toAdd.minX, toAdd.minZ) ||",
-						"toAdd.maxY >= `bigglobe:overworld/surface_y`(toAdd.minX, toAdd.maxZ) ||",
-						"toAdd.maxY >= `bigglobe:overworld/surface_y`(toAdd.maxX, toAdd.minZ) ||",
-						"toAdd.maxY >= `bigglobe:overworld/surface_y`(toAdd.maxX, toAdd.maxZ)",
+						"toAdd.maxY >= `bigglobe:overworld/processed_surface_y`(toAdd.minX, toAdd.minZ) ||",
+						"toAdd.maxY >= `bigglobe:overworld/processed_surface_y`(toAdd.minX, toAdd.maxZ) ||",
+						"toAdd.maxY >= `bigglobe:overworld/processed_surface_y`(toAdd.maxX, toAdd.minZ) ||",
+						"toAdd.maxY >= `bigglobe:overworld/processed_surface_y`(toAdd.maxX, toAdd.maxZ)",
 					")",
 				":",
 					"return()",
@@ -111,7 +111,7 @@
 				"return()",
 			")",
 
-			"int originY = ceilInt(`bigglobe:overworld/surface_y`)",
+			"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
 			"WoodPalette palette = `bigglobe:overworld/wood_palette` ?: return()",
 
 			"ScriptStructurePiece newPiece(:",

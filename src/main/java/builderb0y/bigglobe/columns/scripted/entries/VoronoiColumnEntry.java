@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.Cell;
@@ -52,7 +54,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	public static final MethodHandle RANDOMIZE;
 	static {
 		try {
-			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, RandomList.class, long.class, ScriptedColumn.class, Cell.class));
+			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, IRandomList.class, long.class, ScriptedColumn.class, Cell.class));
 		}
 		catch (Exception exception) {
 			throw AutoCodecUtil.rethrow(exception);
@@ -84,7 +86,12 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 			throw new IllegalArgumentException("Invalid super class: " + methodType.returnType().getSuperclass());
 		}
 		if (options.length == 0) {
-			throw new IllegalArgumentException("No options");
+			if (Modifier.isAbstract(methodType.returnType().getModifiers())) {
+				throw new IllegalArgumentException("No options");
+			}
+			else {
+				return new ConstantCallSite(lookup.findConstructor(methodType.returnType(), methodType.changeReturnType(void.class)));
+			}
 		}
 		long seed = methodType.returnType().getDeclaredField("SEED").getLong(null);
 		MethodType constructorType = methodType.changeReturnType(void.class);
@@ -112,12 +119,12 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		}
 		return new ConstantCallSite(
 			MethodHandles
-			.insertArguments(RANDOMIZE, 0, list, seed)
+			.insertArguments(RANDOMIZE, 0, list.optimize(), seed)
 			.asType(methodType)
 		);
 	}
 
-	public static VoronoiDataBase randomize(RandomList<VoronoiDataBase.Factory> factories, long baseSeed, ScriptedColumn column, VoronoiDiagram2D.Cell cell) {
+	public static VoronoiDataBase randomize(IRandomList<VoronoiDataBase.Factory> factories, long baseSeed, ScriptedColumn column, VoronoiDiagram2D.Cell cell) {
 		return factories.getRandomElement(cell.center.getSeed(baseSeed)).create(column, cell);
 	}
 
@@ -145,9 +152,6 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 		super.emitFieldGetterAndSetter(memory, context);
 
 		List<RegistryEntry<VoronoiSettings>> options = memory.getTyped(OPTIONS);
-		if (options.isEmpty()) {
-			throw new IllegalStateException("Column value " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + " owns no voronoi_settings");
-		}
 		//sanity check that all implementations of this class export the same values we do.
 		for (RegistryEntry<VoronoiSettings> preset : options) {
 			Map<String, AccessSchema> expected = preset.value().exports().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, RegistryEntry<ColumnEntry>> entry) -> entry.getValue().value().getAccessSchema()));

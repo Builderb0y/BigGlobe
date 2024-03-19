@@ -11,6 +11,6 @@
 		}
 	},
 	"valid": {
-		"where": "`bigglobe:overworld/surface_y` > 0.0L"
+		"where": "`bigglobe:overworld/processed_surface_y` > 0.0L"
 	}
 }

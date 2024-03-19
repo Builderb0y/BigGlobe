@@ -1,0 +1,54 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{
+				"type": "sum",
+				"layers": [
+					{
+						"type": "sine_sum",
+						"scale": 16.0,
+						"amplitude": 8.0,
+						"iterations": 8
+					},
+					{
+						"type": "sine_sum",
+						"scale": 8.0,
+						"amplitude": 4.0,
+						"iterations": 8
+					}
+				]
+			},
+			{
+				"type": "script",
+				"min": 0.0,
+				"max": 16.0,
+				"script": "exp(-abs(in)) * 24.0L",
+				"inputs": {
+					"in": {
+						"type": "sum",
+						"layers": [
+							{
+								"type": "sine_sum",
+								"scale": 16.0,
+								"amplitude": 1.0,
+								"iterations": 8
+							},
+							{
+								"type": "sine_sum",
+								"scale": 8.0,
+								"amplitude": 1.0,
+								"iterations": 8
+							}
+						]
+					}
+				}
+			}
+		]
+	}
+}

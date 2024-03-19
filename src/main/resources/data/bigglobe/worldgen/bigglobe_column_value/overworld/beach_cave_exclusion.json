@@ -4,5 +4,5 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "float(unmixSmooth(16.0L, 8.0L, `bigglobe:overworld/surface_y`))"
+	"script": "float(unmixSmooth(16.0L, 8.0L, `bigglobe:overworld/processed_surface_y`))"
 }

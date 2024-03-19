@@ -22,7 +22,6 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 		super(parent);
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
 		String name = internalName(UnregisteredObjectException.getID(entry), ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement());
-		long seed = Permuter.permute(0L, UnregisteredObjectException.getID(entry));
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Impl_" + name,
@@ -47,12 +46,10 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 				"<init>",
 				TypeInfos.VOID,
 				parent.root().columnType(),
-				type(VoronoiDiagram2D.Cell.class),
-				TypeInfos.LONG
+				type(VoronoiDiagram2D.Cell.class)
 			),
 			load(column),
-			load(cell),
-			ldc(seed)
+			load(cell)
 		)
 		.emitBytecode(this.constructor);
 

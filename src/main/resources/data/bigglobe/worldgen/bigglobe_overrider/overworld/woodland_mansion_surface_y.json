@@ -5,8 +5,8 @@
 			"if (start.structure.type == StructureType('minecraft:woodland_mansion'):",
 				"double distance = distanceToSquare(start)",
 				"double mixLevel = smooth(1.0 - distance * 0.0625)",
-				"double oldY = `bigglobe:overworld/surface_y` =: mixLinear(`bigglobe:overworld/surface_y`, start.minY - 0.5L, mixLevel)",
-				"`bigglobe:overworld/snow_y` += `bigglobe:overworld/surface_y` - oldY",
+				"double oldY = `bigglobe:overworld/processed_surface_y` =: mixLinear(`bigglobe:overworld/processed_surface_y`, start.minY - 0.5L, mixLevel)",
+				"`bigglobe:overworld/snow_y` += `bigglobe:overworld/processed_surface_y` - oldY",
 			")",
 		")"
 	]

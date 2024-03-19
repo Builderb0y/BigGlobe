@@ -5,7 +5,7 @@
 			"double lengthSquared = layer1 ^ 2 + layer2 ^ 2",
 			"return(lengthSquared / (lengthSquared + width ^ 2))",
 		")",
-		"double primaryWidth = mixLinear(lower_primary_width, upper_primary_width, unmixLinear(`bigglobe:overworld/surface_y` - depth, `bigglobe:overworld/surface_y`, y))",
+		"double primaryWidth = mixLinear(lower_primary_width, upper_primary_width, unmixLinear(`bigglobe:overworld/basic_surface_y` - depth, `bigglobe:overworld/basic_surface_y`, y))",
 		"return(curve(primary1, primary2, primaryWidth) * curve(secondary1, secondary2, secondary_width) + ledge)"
 	],
 	"script_inputs": [
