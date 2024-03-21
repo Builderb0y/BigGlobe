@@ -8,10 +8,10 @@
 		"double snowHeight = `bigglobe:overworld/height_adjusted_snow_y`",
 		"double terrainHeight = `bigglobe:overworld/processed_surface_y`",
 		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",
-			"snowHeight = mixLinear(",
+			"snowHeight = mixSmooth(",
 				"terrainHeight,",
 				"snowHeight,",
-				"smooth((terrainHeight - `bigglobe:overworld/sea_level`) / 32.0L)",
+				"(terrainHeight - `bigglobe:overworld/sea_level`) / 32.0L",
 			")",
 		")",
 		"snowHeight"

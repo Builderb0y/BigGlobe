@@ -5,6 +5,6 @@
 		"max": 4.0,
 		"column_value": "bigglobe:overworld/processed_surface_y"
 	},
-	"if_true": "bigglobe:overworld/biome/beach_test_shallow_ocean",
+	"if_true": "bigglobe:overworld/biome/beach_test_river",
 	"if_false": "bigglobe:overworld/biome/test_hot"
 }

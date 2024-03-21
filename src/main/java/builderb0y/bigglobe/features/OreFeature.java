@@ -22,6 +22,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.SeedModes;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class OreFeature extends DummyFeature<OreFeature.Config> implements RockReplacerFeature<OreFeature.Config> {
@@ -43,7 +44,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		int maxSection,
 		Config config
 	) {
-		Async.loop(minSection, maxSection, 1, (int sectionCoord) -> {
+		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
 			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
 				chunk,
 				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),

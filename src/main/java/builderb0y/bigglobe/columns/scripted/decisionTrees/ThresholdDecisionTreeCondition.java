@@ -45,7 +45,7 @@ public class ThresholdDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		ColumnEntryMemory memory = context.root().registry.memories.get(this.column_value);
 		if (memory == null) {
 			throw new DecisionTreeException("Unknown column value: " + this.column_value);
@@ -60,7 +60,7 @@ public class ThresholdDecisionTreeCondition implements DecisionTreeCondition {
 				RandomScriptEnvironment.PERMUTER_INFO.toPositiveFloat(
 					ScriptedColumn.INFO.saltedSeed(
 						context.loadColumn(),
-						ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
+						ldc(selfSeed)
 					)
 				),
 				invokeStatic(
@@ -88,7 +88,7 @@ public class ThresholdDecisionTreeCondition implements DecisionTreeCondition {
 				RandomScriptEnvironment.PERMUTER_INFO.toPositiveDouble(
 					ScriptedColumn.INFO.saltedSeed(
 						context.loadColumn(),
-						ldc(Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)))
+						ldc(selfSeed)
 					)
 				),
 				invokeStatic(

@@ -31,10 +31,6 @@ public class AsyncConsumer<T> extends Async<T> {
 
 	public final Consumer<T> terminator;
 
-	public AsyncConsumer(Consumer<T> terminator) {
-		this.terminator = terminator;
-	}
-
 	public AsyncConsumer(Executor executor, Consumer<T> terminator) {
 		super(executor);
 		this.terminator = terminator;

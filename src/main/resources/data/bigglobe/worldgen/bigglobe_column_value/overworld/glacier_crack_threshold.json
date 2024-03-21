@@ -10,11 +10,11 @@
 			"float(unmixLinear(",
 				"`bigglobe:overworld/sea_level`,",
 				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 128.0L,",
-				"`bigglobe:overworld/processed_surface_y`",
+				"`bigglobe:overworld/raw_erosion`",
 			"))",
 		")"
 	],
 	"valid": {
-		"where": "`bigglobe:overworld/processed_surface_y` < `bigglobe:overworld/sea_level`"
+		"where": "`bigglobe:overworld/raw_erosion` < `bigglobe:overworld/sea_level`"
 	}
 }

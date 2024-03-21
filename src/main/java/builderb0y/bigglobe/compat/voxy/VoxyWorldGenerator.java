@@ -45,6 +45,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -196,10 +197,13 @@ public class VoxyWorldGenerator {
 
 	public boolean generateNextChunk() {
 		if (GLFW.glfwGetKey(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_F3) == GLFW.GLFW_PRESS) {
-			Thread.onSpinWait();
+			try {
+				Thread.sleep(1000L);
+			}
+			catch (InterruptedException ignored) {}
 			return true;
 		}
-		if (Util.getMainWorkerExecutor() instanceof ForkJoinPool pool && !pool.isQuiescent()) {
+		if (!BigGlobeThreadPool.INSTANCE.queue.isEmpty()) {
 			Thread.onSpinWait();
 			return true;
 		}
@@ -225,7 +229,7 @@ public class VoxyWorldGenerator {
 		int maxY = this.generator.height.max_y();
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.RAW_VOXY);
 		RootLayer layer = this.generator.layer;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {

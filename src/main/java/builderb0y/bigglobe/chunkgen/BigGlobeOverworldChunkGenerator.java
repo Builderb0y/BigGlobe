@@ -90,6 +90,7 @@ import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.texturegen.CloudColor;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
@@ -879,7 +880,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFlowers(StructureWorldAccess world, ChunkOfColumns<OverworldColumn> columns, BlockPos.Mutable pos, Permuter permuter) {
 		if (this.flowerGroups.length == 0) return;
 		FlowerEntry[] entries = new FlowerEntry[256];
-		Async.setEach(entries, (int index) -> {
+		Async.setEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), entries, (int index) -> {
 			OverworldColumn column = columns.getColumn(index);
 			FlowerEntryFeature.Entry ground = this.getFlowerEntry(column, false);
 			FlowerEntryFeature.Entry sky = this.getFlowerEntry(column, true);

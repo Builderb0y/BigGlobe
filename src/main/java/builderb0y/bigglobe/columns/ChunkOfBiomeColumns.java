@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
 public class ChunkOfBiomeColumns<T_Column extends WorldColumn> extends AbstractChunkOfColumns<T_Column> {
 
@@ -41,7 +42,7 @@ public class ChunkOfBiomeColumns<T_Column extends WorldColumn> extends AbstractC
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.autoRunner()) {
 			for (int index = 0; index < 16; index++) {
 				T_Column column = columns[index];
 				column.setPosUnchecked(startX | ((index & 3) << 2), startZ | (index & 0b1100));

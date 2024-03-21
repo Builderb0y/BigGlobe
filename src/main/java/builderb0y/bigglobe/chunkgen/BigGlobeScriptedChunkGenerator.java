@@ -344,7 +344,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				int chunkMaxY = chunk.getTopY();
 				ScriptedColumn[] columns = new ScriptedColumn[256];
 				BlockSegmentList[] lists = new BlockSegmentList[256];
-				try (AsyncRunner async = new AsyncRunner()) {
+				try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.runner(distantHorizons)) {
 					for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 						final int offsetZ_ = offsetZ;
 						for (int offsetX = 0; offsetX < 16; offsetX += 2) {
@@ -407,7 +407,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				}
 				minFilledSectionY >>= 4;
 				maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
-				Async.loop(minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
+				Async.loop(BigGlobeThreadPool.INSTANCE.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;
 					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY, this.columnSeed);
@@ -468,7 +468,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 							replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
 						}
 					}
-					Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+					Async.loop(BigGlobeThreadPool.INSTANCE.executor(distantHorizons), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
 						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
 					});
 					this.generateRawStructures(chunk, structureAccessor, worldWrapper);

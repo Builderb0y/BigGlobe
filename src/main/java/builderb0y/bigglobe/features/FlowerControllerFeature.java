@@ -30,6 +30,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 
@@ -66,7 +67,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		//figure out what to place.
 		record EntryY(FlowerFeature.Entry entry, int y) {}
 		EntryY[] toPlace = new EntryY[256];
-		Async.setEach(toPlace, (int index) -> {
+		Async.setEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), toPlace, (int index) -> {
 			ScriptedColumn column = columns_.lookupColumn(
 				startX | (index & 15),
 				startZ | (index >>> 4)

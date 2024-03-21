@@ -7,7 +7,7 @@
 	"script": {
 		"template": "bigglobe:apply_cliffs",
 		"inputs": {
-			"HEIGHT": "`bigglobe:overworld/raw_erosion`"
+			"HEIGHT": "`bigglobe:overworld/rivered_erosion`"
 		}
 	}
 }

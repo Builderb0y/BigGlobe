@@ -18,6 +18,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList.RandomAccessDelegatingContainedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
 public class RockLayerReplacer {
 
@@ -29,7 +30,7 @@ public class RockLayerReplacer {
 		//floorDivide(a + b - 1, b) == ceilDivide(a, b)
 		int sectionsPerThread = (totalSections + threads - 1) / threads;
 		IRandomList<? extends RockLayerEntryFeature.Entry> entries = new RandomAccessDelegatingContainedRandomList<>(config.entries);
-		Async.loop(threads, (int thread) -> {
+		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), threads, (int thread) -> {
 			try (
 				NumberArray centerSamples    = NumberArray.allocateDoublesDirect(16);
 				NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16);

@@ -18,6 +18,7 @@ import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Config> implements RockReplacerFeature<ChunkSprinkleFeature.Config> {
@@ -40,7 +41,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 		Config config
 	) {
 		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
-		Async.loop(chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
+		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
 			ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(yCoord));
 			PalettedContainer<BlockState> container = section.getBlockStateContainer();
 			if (container.hasAny(config.blocks.runtimeStates::containsKey)) {

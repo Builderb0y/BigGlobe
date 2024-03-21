@@ -27,7 +27,7 @@ public class ScriptDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		MethodCompileContext decisionTreeMethod = context.mainClass.newMethod(
 			ACC_PUBLIC,
 			"decision_tree_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),

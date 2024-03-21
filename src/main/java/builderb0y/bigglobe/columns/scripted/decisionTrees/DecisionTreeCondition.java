@@ -21,7 +21,15 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"), ThresholdDecisionTreeCondition.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"   ),    ScriptDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("and"      ),       AndDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("or"       ),        OrDecisionTreeCondition.class);
 	}};
 
-	public abstract ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException;
+	public abstract ConditionTree createCondition(
+		RegistryEntry<DecisionTreeSettings> selfEntry,
+		long selfSeed,
+		DataCompileContext context,
+		@Nullable InsnTree loadY
+	)
+	throws ScriptParsingException;
 }

@@ -24,6 +24,7 @@ import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
@@ -92,7 +93,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				final int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {

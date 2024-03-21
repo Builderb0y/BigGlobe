@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "mixLinear(`bigglobe:overworld/river_depth`, `bigglobe:overworld/raw_snow`, `bigglobe:overworld/river_dip`)"
+}

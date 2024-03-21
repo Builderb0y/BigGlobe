@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.function.Consumer;
 
 import builderb0y.bigglobe.util.Async;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
 public abstract class AbstractChunkOfColumns<T_Column extends Column> {
 
@@ -63,6 +64,6 @@ public abstract class AbstractChunkOfColumns<T_Column extends Column> {
 	}
 
 	public void populate(Consumer<? super T_Column> populator) {
-		Async.forEach(this.columns, populator);
+		Async.forEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), this.columns, populator);
 	}
 }

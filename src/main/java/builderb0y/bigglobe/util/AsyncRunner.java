@@ -28,8 +28,6 @@ see also: {@link AsyncConsumer}.
 */
 public class AsyncRunner extends Async<Void> {
 
-	public AsyncRunner() {}
-
 	public AsyncRunner(Executor executor) {
 		super(executor);
 	}

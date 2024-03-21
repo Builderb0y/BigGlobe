@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:gravel",
+			"subsurfaceState": "minecraft:gravel"
+		}
+	}
+}

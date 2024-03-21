@@ -19,7 +19,7 @@
 								"type": "bigglobe:simple_2d",
 								"state": "minecraft:stone",
 								"before_children": [
-									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance <= `bigglobe:overworld/glacier_crack_threshold`:",
+									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:",
 										"setBlockStates(",
 											"max(",
 												"ceilInt(`bigglobe:overworld/processed_surface_y`),",
@@ -264,7 +264,12 @@
 							"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/skyland_flowers')",
 
 							";rocks",
-							"repeat (random.roundInt(`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L):",
+							"repeat (",
+								"random.roundInt(",
+									"`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L +",
+									"(1.0L - `bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8)) * 12.0L",
+								")",
+							":",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
 								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
@@ -272,7 +277,7 @@
 							")",
 
 							";flint",
-							"random.if (1.0 / 4.0:",
+							"random.if (1.0L - `bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8):",
 								"int x = minModifiableX | random.nextInt(16)",
 								"int z = minModifiableZ | random.nextInt(16)",
 								"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",

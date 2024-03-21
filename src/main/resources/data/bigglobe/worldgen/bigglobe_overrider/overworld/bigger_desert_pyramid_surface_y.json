@@ -6,6 +6,7 @@
 				"double distance = distanceToSquare(start)",
 				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
 				"double oldY = `bigglobe:overworld/processed_surface_y` =: mixLinear(`bigglobe:overworld/processed_surface_y`, start.minY + 16.5L, mixLevel)",
+				"`bigglobe:overworld/basic_surface_y` = mixLinear(`bigglobe:overworld/basic_surface_y`, start.minY + 16.5L, mixLevel)",
 				"`bigglobe:overworld/snow_y` += `bigglobe:overworld/processed_surface_y` - oldY",
 			")",
 		")"

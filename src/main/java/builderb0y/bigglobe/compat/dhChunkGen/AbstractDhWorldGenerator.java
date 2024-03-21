@@ -25,6 +25,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.columns.ChunkOfColumns;
 import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
 public abstract class AbstractDhWorldGenerator implements IDhApiWorldGenerator {
 
@@ -93,7 +94,7 @@ public abstract class AbstractDhWorldGenerator implements IDhApiWorldGenerator {
 		ChunkOfColumns<? extends WorldColumn> columns = this.getGenerator().chunkOfColumnsRecycler.get();
 		columns.setPosUncheckedAndPopulate(chunkX << 4, chunkZ << 4, this::prepareColumn);
 		DataPointListPopulator populator = this.getDataPointPopulator(chunkX, chunkZ);
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
 			for (int columnIndex = 0; columnIndex < 256; columnIndex++) {
 				final int columnIndex_ = columnIndex;
 				async.submit(() -> {

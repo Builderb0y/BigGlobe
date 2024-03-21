@@ -26,8 +26,6 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 
 4.0 stuff:
-	ender dragon flies around ring/bridge clouds when they're directly above the main end island.
-		add exclusion to remove ring and bridge clouds from above the main end island.
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -39,7 +37,9 @@ where I left off:
 		nether.
 		caverns (?).
 		lakes.
-		detect and report cyclic decision trees and cyclic column value dependencies.
+		dependency tree for column value scripts.
+			detect and report cyclic decision trees and cyclic column value dependencies.
+			auto-populate values used by overriders before the overrider is invoked.
 	swamp surface decoration (water, mud).
 	find an ocean monument to confirm they spawn correctly.
 	cave overriders for underground pockets.
@@ -47,8 +47,11 @@ where I left off:
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	boulder block.
-	exposed trail ruins at -1324.62 105.88 1666.20
+	cave-exposed trail ruins at -1324.62 105.88 1666.20
 		decide if I want to keep these, or make a cave exclusion rule for them.
+		surface-exposed one at 14450.76 31.12 -24226.58
+			decide if I want a surface_y overrider for them,
+			or a structure overrider which prevents them from spawning in hilly or river-y areas.
 	use DistanceGraph for structure locating logic.
 	remove BoundInfo.
 	client horizon height needs to use synced chunk generator sea level.
@@ -98,6 +101,7 @@ changelog:
 		* Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
 		* Some underground structures are now less secret.
 		* Deserts are now slightly more interesting.
+		* Added rivers.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

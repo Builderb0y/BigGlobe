@@ -25,41 +25,37 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	public final Executor executor;
 	public final LinkedList<CompletableFuture<T_Result>> waitingOn = new LinkedList<>();
 
-	public Async() {
-		this.executor = ForkJoinPool.commonPool();
-	}
-
 	public Async(Executor executor) {
 		this.executor = executor != null ? executor : ForkJoinPool.commonPool();
 	}
 
 	//////////////////////////////// utility methods ////////////////////////////////
 
-	public static <T> void forEach(T[] array, Consumer<T> action) {
+	public static <T> void forEach(Executor executor, T[] array, Consumer<T> action) {
 		if (array.length == 0) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (T element : array) {
 				async.submit(() -> action.accept(element));
 			}
 		}
 	}
 
-	public static <T> void forEach(List<T> list, Consumer<T> action) {
+	public static <T> void forEach(Executor executor, List<T> list, Consumer<T> action) {
 		if (list.isEmpty()) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (T element : list) {
 				async.submit(() -> action.accept(element));
 			}
 		}
 	}
 
-	public static void loop(int times, IntConsumer action) {
-		loop(0, times, 1, action);
+	public static void loop(Executor executor, int times, IntConsumer action) {
+		loop(executor, 0, times, 1, action);
 	}
 
-	public static void loop(int startInclusive, int endExclusive, int step, IntConsumer action) {
+	public static void loop(Executor executor, int startInclusive, int endExclusive, int step, IntConsumer action) {
 		if (startInclusive >= endExclusive) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (int number = startInclusive; number < endExclusive; number += step) {
 				int number_ = number;
 				async.submit(() -> action.accept(number_));
@@ -67,18 +63,18 @@ public abstract class Async<T_Result> implements AutoCloseable {
 		}
 	}
 
-	public static void repeat(int times, Runnable action) {
+	public static void repeat(Executor executor, int times, Runnable action) {
 		if (times <= 0) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (int time = 0; time < times; time++) {
 				async.submit(action);
 			}
 		}
 	}
 
-	public static <T> void setEach(T[] array, IntFunction<T> supplier) {
+	public static <T> void setEach(Executor executor, T[] array, IntFunction<T> supplier) {
 		if (array.length == 0) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (int index = 0, length = array.length; index < length; index++) {
 				int index_ = index;
 				async.submit(() -> array[index_] = supplier.apply(index_));
@@ -86,9 +82,9 @@ public abstract class Async<T_Result> implements AutoCloseable {
 		}
 	}
 
-	public static <T> void setEach(List<T> list, IntFunction<T> supplier) {
+	public static <T> void setEach(Executor executor, List<T> list, IntFunction<T> supplier) {
 		if (list.isEmpty()) return;
-		try (AsyncRunner async = new AsyncRunner()) {
+		try (AsyncRunner async = new AsyncRunner(executor)) {
 			for (int index = 0, size = list.size(); index < size; index++) {
 				int index_ = index;
 				async.submit(() -> list.set(index_, supplier.apply(index_)));
