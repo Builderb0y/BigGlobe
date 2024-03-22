@@ -9,6 +9,7 @@
 		"double curve(double value, double amplitude:",
 			"value = abs(value)",
 			"value *= mixLinear(value, 2.0L - value, sharpness)",
+			"value = 1.0L - (1.0L - value) ^ 2",
 			"double offset = sharpness * 2.0L / abs(amplitude)",
 			"value = sqrt(value ^ 2 + offset ^ 2)",
 			"value = value * -2.0L + 1.0L",

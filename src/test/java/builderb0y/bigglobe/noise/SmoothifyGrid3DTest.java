@@ -14,7 +14,7 @@ public class SmoothifyGrid3DTest {
 	@Test
 	public void testAll() {
 		Grid.TESTING.setTrue();
-		ValueGrid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
+		Grid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
 		NumberArray values = NumberArray.allocateDoublesHeap(sampleCount);
 		for (int x = -32; x < 32; x++) {
 			for (int z = -32; z < 32; z++) {
@@ -25,7 +25,7 @@ public class SmoothifyGrid3DTest {
 		}
 	}
 
-	public void testPosition(ValueGrid3D grid, NumberArray values, int x, int y, int z) {
+	public void testPosition(Grid3D grid, NumberArray values, int x, int y, int z) {
 		grid.getBulkX(worldSeed, x, y, z, values);
 		for (int index = 0; index < sampleCount; index++) {
 			assertEquals(grid.getValue(worldSeed, x + index, y, z), values.getD(index), 0.000001D);

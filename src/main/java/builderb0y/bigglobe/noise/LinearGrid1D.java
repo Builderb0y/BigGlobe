@@ -1,15 +1,21 @@
 package builderb0y.bigglobe.noise;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.settings.Seed;
 
-public class LinearGrid1D extends ValueGrid1D {
+@AddPseudoField("salt")
+@AddPseudoField("amplitude")
+public class LinearGrid1D extends LinearResampleGrid1D {
 
 	public LinearGrid1D(Seed salt, double amplitude, int scaleX) {
-		super(salt, amplitude, scaleX);
+		super(new WhiteNoiseGrid1D(salt, amplitude), scaleX);
 	}
 
-	@Override
-	public double fracX(int fracX) {
-		return fracX * this.rcpX;
+	public Seed salt() {
+		return ((WhiteNoiseGrid1D)(this.source)).salt;
+	}
+
+	public double amplitude() {
+		return ((WhiteNoiseGrid1D)(this.source)).amplitude;
 	}
 }

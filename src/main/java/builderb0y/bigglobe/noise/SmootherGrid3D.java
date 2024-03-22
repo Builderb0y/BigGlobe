@@ -5,9 +5,9 @@ import builderb0y.bigglobe.settings.Seed;
 
 @AddPseudoField("salt")
 @AddPseudoField("amplitude")
-public class LinearGrid3D extends LinearResampleGrid3D {
+public class SmootherGrid3D extends SmootherResampleGrid3D {
 
-	public LinearGrid3D(Seed salt, double amplitude, int scaleX, int scaleY, int scaleZ) {
+	public SmootherGrid3D(Seed salt, double amplitude, int scaleX, int scaleY, int scaleZ) {
 		super(new WhiteNoiseGrid3D(salt, amplitude), scaleX, scaleY, scaleZ);
 	}
 

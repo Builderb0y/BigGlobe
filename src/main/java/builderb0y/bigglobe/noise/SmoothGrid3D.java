@@ -1,12 +1,22 @@
 package builderb0y.bigglobe.noise;
 
-import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.settings.Seed;
 
-public class SmoothGrid3D extends ValueGrid3D {
+@AddPseudoField("salt")
+@AddPseudoField("amplitude")
+public class SmoothGrid3D extends SmoothResampleGrid3D {
 
 	public SmoothGrid3D(Seed salt, double amplitude, int scaleX, int scaleY, int scaleZ) {
-		super(salt, amplitude, scaleX, scaleY, scaleZ);
+		super(new WhiteNoiseGrid3D(salt, amplitude), scaleX, scaleY, scaleZ);
+	}
+
+	public Seed salt() {
+		return ((WhiteNoiseGrid3D)(this.source)).salt;
+	}
+
+	public double amplitude() {
+		return ((WhiteNoiseGrid3D)(this.source)).amplitude;
 	}
 
 	/*
@@ -83,19 +93,4 @@ public class SmoothGrid3D extends ValueGrid3D {
 		}
 	}
 	*/
-
-	@Override
-	public double fracX(int fracX) {
-		return Interpolator.smooth(fracX * this.rcpX);
-	}
-
-	@Override
-	public double fracY(int fracY) {
-		return Interpolator.smooth(fracY * this.rcpY);
-	}
-
-	@Override
-	public double fracZ(int fracZ) {
-		return Interpolator.smooth(fracZ * this.rcpZ);
-	}
 }

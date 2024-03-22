@@ -7,11 +7,11 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth", "scaleX": 64, "scaleY": 64, "amplitude": 4.0 },
-			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 1.6 },
-			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.64 },
-			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.256 },
-			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.1024 }
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 4.0    }, "scaleX": 64, "scaleY": 64 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.6    }, "scaleX": 32, "scaleY": 32 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.64   }, "scaleX": 16, "scaleY": 16 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.256  }, "scaleX":  8, "scaleY":  8 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.1024 }, "scaleX":  4, "scaleY":  4 }
 		]
 	},
 	"valid": {
