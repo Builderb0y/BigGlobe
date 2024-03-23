@@ -41,6 +41,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
@@ -58,6 +59,7 @@ public class VoxyWorldGenerator {
 	public final BigGlobeScriptedChunkGenerator generator;
 	public final DistanceGraph distanceGraph;
 	public final Thread thread;
+	public final ScriptedColumn[] columns;
 	public final long[] sectionInstance;
 	public volatile boolean running;
 
@@ -66,6 +68,13 @@ public class VoxyWorldGenerator {
 		this.distanceGraph = graph;
 		this.generator = generator;
 		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
+
+		this.columns = new ScriptedColumn[256];
+		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
+		Params params = new Params(generator, 0, 0, Purpose.RAW_VOXY);
+		for (int index = 0; index < 256; index++) {
+			this.columns[index] = factory.create(params);
+		}
 		this.sectionInstance = new long[16 * 16 * 16 + 8 * 8 * 8 + 4 * 4 * 4 + 2 * 2 * 2 + 1];
 	}
 
@@ -223,11 +232,10 @@ public class VoxyWorldGenerator {
 	public void createChunk(int chunkX, int chunkZ, RegistryEntry<Biome> biome, WorldEngine engine) {
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
+		ScriptedColumn[] columns = this.columns;
 		BlockSegmentList[] lists = new BlockSegmentList[256];
-		ScriptedColumn.Factory factory = this.generator.columnEntryRegistry.columnFactory;
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, Purpose.RAW_VOXY);
 		RootLayer layer = this.generator.layer;
 		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
@@ -237,11 +245,16 @@ public class VoxyWorldGenerator {
 					async.submit(() -> {
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;
+						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						ScriptedColumn
-							column00 = factory.create(params.at(quadX,     quadZ    )),
-							column01 = factory.create(params.at(quadX | 1, quadZ    )),
-							column10 = factory.create(params.at(quadX,     quadZ | 1)),
-							column11 = factory.create(params.at(quadX | 1, quadZ | 1));
+							column00 = columns[baseIndex     ],
+							column01 = columns[baseIndex ^  1],
+							column10 = columns[baseIndex ^ 16],
+							column11 = columns[baseIndex ^ 17];
+						column00.setParamsUnchecked(column00.params.at(quadX,     quadZ    ));
+						column01.setParamsUnchecked(column01.params.at(quadX | 1, quadZ    ));
+						column10.setParamsUnchecked(column10.params.at(quadX,     quadZ | 1));
+						column11.setParamsUnchecked(column11.params.at(quadX | 1, quadZ | 1));
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),
@@ -255,7 +268,6 @@ public class VoxyWorldGenerator {
 						list01.computeLightLevels();
 						list10.computeLightLevels();
 						list11.computeLightLevels();
-						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						lists[baseIndex     ] = list00;
 						lists[baseIndex ^  1] = list01;
 						lists[baseIndex ^ 16] = list10;

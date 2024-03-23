@@ -27,7 +27,8 @@ public class BigGlobeThreadPool {
 	}
 
 	public BigGlobeThreadPool() {
-		this(Runtime.getRuntime().availableProcessors());
+		//save some processing power for the client and server threads.
+		this(Math.max(Runtime.getRuntime().availableProcessors() - 2, 1));
 	}
 
 	public AsyncRunner mainRunner() {

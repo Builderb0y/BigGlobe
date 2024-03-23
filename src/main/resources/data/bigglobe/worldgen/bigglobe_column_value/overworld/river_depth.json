@@ -1,13 +1,8 @@
 {
-	"type": "script",
+	"type": "constant",
 	"params": {
 		"type": "double",
 		"is_3d": false
 	},
-	"script": [
-		"double smoothMin(double a, double b:",
-			"return(0.5L * (a + b - sqrt((b - a) ^ 2 + 256.0L)))",
-		")",
-		"return(smoothMin(`bigglobe:overworld/raw_erosion`, `bigglobe:overworld/sea_level` - 16.0L))"
-	]
+	"value": -32.0
 }

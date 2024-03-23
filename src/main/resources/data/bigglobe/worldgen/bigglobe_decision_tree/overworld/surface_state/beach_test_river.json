@@ -4,8 +4,8 @@
 		"conditions": [
 			{
 				"type": "threshold",
-				"min": 0.625,
-				"max": 0.5,
+				"min": -24.0,
+				"max": -32.0,
 				"column_value": "bigglobe:overworld/river_dip"
 			},
 			{

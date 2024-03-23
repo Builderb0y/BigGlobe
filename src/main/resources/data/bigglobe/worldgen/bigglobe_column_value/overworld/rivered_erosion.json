@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "mixLinear(`bigglobe:overworld/river_depth`, `bigglobe:overworld/raw_erosion`, `bigglobe:overworld/river_dip`)"
+	"script": "`bigglobe:overworld/raw_erosion` + `bigglobe:overworld/river_dip`"
 }

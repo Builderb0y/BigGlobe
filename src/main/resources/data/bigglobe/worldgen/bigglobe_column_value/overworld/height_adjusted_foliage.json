@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": true
 	},
-	"script": "`bigglobe:overworld/raw_foliage` - float(abs(y - `bigglobe:overworld/sea_level`)) / 512.0I",
+	"script": "`bigglobe:overworld/raw_foliage` - float(abs(y - `bigglobe:overworld/sea_level`)) / 1024.0I",
 	"cache": false
 }

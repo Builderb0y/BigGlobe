@@ -4,5 +4,13 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "mixLinear(`bigglobe:overworld/river_depth`, `bigglobe:overworld/raw_snow`, `bigglobe:overworld/river_dip`)"
+	"script": [
+		"double smoothMax(double a, double b, double smoothness:",
+			"return((sqrt((b - a) ^ 2 + smoothness ^ 2) + b + a) * 0.5L)",
+		")",
+		"double extra = 1.0L / (exp(-4.0L * `bigglobe:overworld/surface_temperature`) + 1.0L)",
+		"double base = `bigglobe:overworld/raw_snow` + `bigglobe:overworld/river_dip`",
+		"double filled = `bigglobe:overworld/raw_snow` + `bigglobe:overworld/river_depth` * extra * 2.0L",
+		"return(smoothMax(base, filled, (1.0L - extra) * 4.0L))"
+	]
 }
