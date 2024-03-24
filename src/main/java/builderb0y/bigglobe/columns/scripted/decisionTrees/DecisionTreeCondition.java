@@ -23,6 +23,7 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"   ),    ScriptDecisionTreeCondition.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("and"      ),       AndDecisionTreeCondition.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("or"       ),        OrDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("not"      ),       NotDecisionTreeCondition.class);
 	}};
 
 	public abstract ConditionTree createCondition(

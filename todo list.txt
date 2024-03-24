@@ -49,7 +49,7 @@ where I left off:
 	boulder block.
 	cave-exposed trail ruins at -1324.62 105.88 1666.20
 		decide if I want to keep these, or make a cave exclusion rule for them.
-		surface-exposed one at 14450.76 31.12 -24226.58
+		surface-exposed one at 1255.57 212.21 -1583.85
 			decide if I want a surface_y overrider for them,
 			or a structure overrider which prevents them from spawning in hilly or river-y areas.
 	use DistanceGraph for structure locating logic.

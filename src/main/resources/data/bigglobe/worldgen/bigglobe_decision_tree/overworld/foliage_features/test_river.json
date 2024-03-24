@@ -5,6 +5,6 @@
 		"max": -24.0,
 		"column_value": "bigglobe:overworld/river_dip"
 	},
-	"if_true": "bigglobe:overworld/biome/river",
-	"if_false": "bigglobe:overworld/biome/test_beach"
+	"if_true": "bigglobe:overworld/foliage_features/no_feature",
+	"if_false": "bigglobe:overworld/foliage_features/test_beach"
 }

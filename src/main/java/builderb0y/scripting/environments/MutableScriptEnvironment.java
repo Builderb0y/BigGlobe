@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
-import com.mojang.datafixers.types.templates.Named.NamedType;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.*;

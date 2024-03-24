@@ -48,7 +48,7 @@ public interface NumberArray extends AutoCloseable {
 		EMPTY_INT     = allocateIntsHeap(0),
 		EMPTY_LONG    = allocateLongsHeap(0),
 		EMPTY_FLOAT   = allocateFloatsHeap(0),
-		EMPTY_DOUbLE  = allocateDoublesHeap(0),
+		EMPTY_DOUBLE  = allocateDoublesHeap(0),
 		EMPTY_BOOLEAN = allocateBooleansHeap(0);
 
 	public static NumberArray allocateBytesHeap(int bytes) { return new Heap.OfByte(new byte[bytes]); }
