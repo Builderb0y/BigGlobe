@@ -25,6 +25,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -32,6 +33,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -225,6 +227,13 @@ public class BigGlobeBlocks {
 			));
 		}
 	}
+	public static final RiverWaterBlock RIVER_WATER = register(
+		"river_water",
+		new RiverWaterBlock(
+			Fluids.WATER,
+			AbstractBlock.Settings.copy(Blocks.WATER)
+		)
+	);
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(
@@ -838,13 +847,19 @@ public class BigGlobeBlocks {
 		);
 
 		ColorProviderRegistry.BLOCK.register(
-			(state, world, pos, tintIndex) -> (
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> (
 				world != null && pos != null
 				? BiomeColors.getGrassColor(world, pos)
 				: GrassColors.getColor(0.5D, 1.0D)
 			),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
+		);
+		ColorProviderRegistry.BLOCK.register(
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+			},
+			RIVER_WATER
 		);
 	}
 }

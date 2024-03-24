@@ -7,6 +7,7 @@
 	"mixins": [
 		"AzaleaBlock_GrowIntoBigGlobeTree",
 		"BigGlobeConfig_ImplementConfigData",
+		"Biome_DontFreezeRiverWater",
 		"Biome_DownfallAccessor",
 		"BlockEntityType_AddBlockHook",
 		"BoneMealItem_SpreadChorusNylium",
@@ -23,6 +24,7 @@
 		"EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",
 		"Entity_SpawnAtPreferredLocationInTheEnd",
 		"FallingBlockEntity_DestroyOnLandingAccess",
+		"FlowableFluid_DontFlowInRivers",
 		"Heightmap_StorageAccess",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
 		"ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds",

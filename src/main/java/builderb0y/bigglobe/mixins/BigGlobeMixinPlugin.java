@@ -38,6 +38,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		Map<String, Boolean> defaults = new HashMap<>(64);
 		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                                    Boolean.TRUE);
+		defaults.put(mixinPackage + ".Biome_DontFreezeRiverWater",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                                    Boolean.TRUE);

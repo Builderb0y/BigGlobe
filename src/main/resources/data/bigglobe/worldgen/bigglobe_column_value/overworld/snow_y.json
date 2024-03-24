@@ -7,11 +7,11 @@
 	"script": [
 		"double snowHeight = `bigglobe:overworld/height_adjusted_snow_y`",
 		"double terrainHeight = `bigglobe:overworld/processed_surface_y`",
-		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",
+		"if (terrainHeight - `bigglobe:overworld/river_water_y` < 32.0L:",
 			"snowHeight = mixSmooth(",
 				"terrainHeight,",
 				"snowHeight,",
-				"(terrainHeight - `bigglobe:overworld/sea_level`) / 32.0L",
+				"(terrainHeight - `bigglobe:overworld/river_water_y`) / 32.0L",
 			")",
 		")",
 		"snowHeight"

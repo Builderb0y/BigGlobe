@@ -9,8 +9,7 @@
 					"height": {
 						"min_y": -1024,
 						"max_y":  1024,
-						"sea_level": 0,
-						"main_surface": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
+						"sea_level": 0
 					},
 					"layer": {
 						"state": "minecraft:air",
@@ -145,6 +144,23 @@
 							},
 							{
 								"type": "bigglobe:simple_2d",
+								"state": "bigglobe:river_water[level=0]",
+								"before_children": [
+									"int y = ceilInt(`bigglobe:overworld/river_water_y`) - 1",
+									"if (y > `bigglobe:overworld/processed_surface_y`:",
+										"int levels = floorInt(`bigglobe:overworld/river_water_y` % 1.0L * 8.0L)",
+										"if (levels > 0:",
+											"setBlockState(y, BlockState('bigglobe:river_water', level: 7 - levels))",
+										")",
+									")"
+								],
+								"valid": {
+									"min_y": "max(ceilInt(`bigglobe:overworld/processed_surface_y`), `bigglobe:overworld/sea_level`)",
+									"max_y": "ceilInt(`bigglobe:overworld/river_water_y`) - 1"
+								}
+							},
+							{
+								"type": "bigglobe:simple_2d",
 								"state": "bigglobe:cloud",
 								"after_children": [
 									"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
@@ -175,6 +191,7 @@
 								],
 								"valid": {
 									"where": [
+										"if (purpose == 'heightmap': return(false))",
 										"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
 										"bounds != null && bounds.max_y > bounds.min_y"
 									],
@@ -743,8 +760,7 @@
 					"reload_dimension": "minecraft:the_nether",
 					"height": {
 						"min_y": 0,
-						"max_y": 1024,
-						"sea_level": 0
+						"max_y": 1024
 					},
 					"layer": {
 						"state": "minecraft:air"
@@ -784,22 +800,7 @@
 					"reload_dimension": "minecraft:the_end",
 					"height": {
 						"min_y": -512,
-						"max_y": 512,
-						"main_surface": [
-							"if (`bigglobe:end/distance_to_origin` < 148.0L:",
-								"for (int y in -range[28, 152]:",
-									"if (`bigglobe:end/nest_sdf`(y) > 0.0L:",
-										"return(y + 1)",
-									")",
-								")",
-							")",
-							"if (`bigglobe:end/has_mountain`:",
-								"return(floorInt(`bigglobe:end/mountain_max_y`) + 1)",
-							")",
-							"else (",
-								"return(16x8000_000U)",
-							")"
-						]
+						"max_y":  512
 					},
 					"layer": {
 						"state": "minecraft:air",
@@ -809,7 +810,10 @@
 								"state": "bigglobe:void_cloud",
 								"condition": "`bigglobe:end/lower_ring_cloud_sdf` > 0.0I",
 								"valid": {
-									"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
+									"where": [
+										"if (purpose == 'heightmap': return(false))",
+										"`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)"
+									],
 									"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
 									"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
 								}
@@ -819,7 +823,10 @@
 								"state": "bigglobe:void_cloud",
 								"condition": "`bigglobe:end/lower_bridge_cloud_sdf` > 0.0I",
 								"valid": {
-									"where": "`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`",
+									"where": [
+										"if (purpose == 'heightmap': return(false))",
+										"`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`"
+									],
 									"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
 									"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
 								}
@@ -864,7 +871,10 @@
 								"state": "bigglobe:void_cloud",
 								"condition": "`bigglobe:end/upper_ring_cloud_sdf` > 0.0I",
 								"valid": {
-									"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
+									"where": [
+										"if (purpose == 'heightmap': return(false))",
+										"`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)"
+									],
 									"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
 									"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
 								}
@@ -874,7 +884,10 @@
 								"state": "bigglobe:void_cloud",
 								"condition": "`bigglobe:end/upper_bridge_cloud_sdf` > 0.0I",
 								"valid": {
-									"where": "`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`",
+									"where": [
+										"if (purpose == 'heightmap': return(false))",
+										"`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`"
+									],
 									"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
 									"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
 								}

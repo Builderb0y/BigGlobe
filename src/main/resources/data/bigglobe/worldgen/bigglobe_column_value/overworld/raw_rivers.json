@@ -7,13 +7,13 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 4.0      }, "scaleX": 512, "scaleY": 512 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.6      }, "scaleX": 256, "scaleY": 256 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.64     }, "scaleX": 128, "scaleY": 128 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.256    }, "scaleX":  64, "scaleY":  64 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.1024   }, "scaleX":  32, "scaleY":  32 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.04096  }, "scaleX":  16, "scaleY":  16 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.016384 }, "scaleX":   8, "scaleY":   8 }
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 8.0      }, "scaleX": 512, "scaleY": 512 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 3.2      }, "scaleX": 256, "scaleY": 256 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.28     }, "scaleX": 128, "scaleY": 128 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.512    }, "scaleX":  64, "scaleY":  64 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.2048   }, "scaleX":  32, "scaleY":  32 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.08192  }, "scaleX":  16, "scaleY":  16 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.032768 }, "scaleX":   8, "scaleY":   8 }
 		]
 	}
 }

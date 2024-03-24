@@ -127,8 +127,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
-		@VerifyNullable Integer sea_level,
-		ColumnToIntScript.@VerifyNullable Holder main_surface
+		@VerifyNullable Integer sea_level
 	) {}
 	public final Height height;
 	public final RootLayer layer;
@@ -778,20 +777,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
-		if (this.height.main_surface != null) {
-			Integer seaLevel = this.height.sea_level;
-			if (seaLevel != null && heightmap.getBlockPredicate().test(BlockStates.WATER)) {
-				return Math.max(this.height.main_surface.get(column), seaLevel);
-			}
-			else {
-				return this.height.main_surface.get(column);
-			}
-		}
-		else {
-			BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
-			this.layer.emitSegments(column, list);
-			return getHeight(list, heightmap);
-		}
+		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
+		this.layer.emitSegments(column, list);
+		return getHeight(list, heightmap);
 	}
 
 	public static int getHeight(BlockSegmentList list, Heightmap.Type type) {
