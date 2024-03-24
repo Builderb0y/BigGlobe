@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 0.625,
+		"max": 0.5,
+		"column_value": "bigglobe:overworld/river_dip"
+	},
+	"if_true": "bigglobe:overworld/biome/river",
+	"if_false": "bigglobe:overworld/biome/test_beach"
+}

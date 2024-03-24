@@ -7,10 +7,7 @@
 	"script": {
 		"template": "bigglobe:apply_cliffs",
 		"inputs": {
-			"HEIGHT": "`bigglobe:overworld/raw_snow`"
+			"HEIGHT": "`bigglobe:overworld/raw_erosion`"
 		}
-	},
-	"valid": {
-		"where": "`bigglobe:overworld/processed_surface_y` > 0.0L"
 	}
 }

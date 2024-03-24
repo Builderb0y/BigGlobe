@@ -1,9 +1,27 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 2.0,
-		"max": 6.0,
-		"column_value": "bigglobe:overworld/processed_surface_y"
+		"type": "and",
+		"conditions": [
+			{
+				"type": "threshold",
+				"min": 2.0,
+				"max": 6.0,
+				"column_value": "bigglobe:overworld/processed_surface_y"
+			},
+			{
+				"type": "threshold",
+				"min": -0.625,
+				"max": -0.375,
+				"smooth_min": false,
+				"column_value": "bigglobe:overworld/surface_foliage"
+			},
+			{
+				"type": "threshold",
+				"min": 0.75,
+				"max": 0.25,
+				"column_value": "bigglobe:overworld/surface_temperature"
+			}
+		]
 	},
 	"if_true": "bigglobe:overworld/surface_state/overgrown_beach",
 	"if_false": "bigglobe:overworld/surface_state/beach"

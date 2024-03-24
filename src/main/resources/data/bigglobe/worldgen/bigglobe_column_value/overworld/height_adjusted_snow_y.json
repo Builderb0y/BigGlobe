@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double snowHeight = `bigglobe:overworld/cliffy_snow`",
+		"double snowHeight = `bigglobe:overworld/rivered_snow`",
 		"snowHeight + (-2.0L + `bigglobe:overworld/surface_temperature` * -4.0L)"
 	],
 	"valid": {

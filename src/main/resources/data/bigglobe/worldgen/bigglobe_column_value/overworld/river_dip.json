@@ -6,7 +6,7 @@
 	},
 	"script": [
 		"double dip = `bigglobe:overworld/river_depth` / (`bigglobe:overworld/raw_rivers` ^ 4 + 1.0L)",
-		"dip *= smooth((`bigglobe:overworld/river_depth` - `bigglobe:overworld/raw_erosion`) / `bigglobe:overworld/river_depth`)",
+		"dip *= smooth((`bigglobe:overworld/sea_level` - 24.0L - `bigglobe:overworld/raw_erosion`) / `bigglobe:overworld/river_depth`)",
 		"return(dip)"
 	]
 }

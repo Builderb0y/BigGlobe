@@ -15,7 +15,7 @@
 * `double asin(double value)`, `double acos(double value)`, and `double atan(double value)` - [inverse sine, cosine, and tangent](https://en.wikipedia.org/wiki/Trigonometric_functions).
 * `double sinh(double value)`, `double cosh(double value)`, and `double tanh(double value)` - [hyperbolic sine, cosine, and tangent](https://en.wikipedia.org/wiki/Hyperbolic_functions).
 * `double asinh(double value)`, `double acosh(double value)`, and `double atanh(double value)` - [inverse hyperbolic sine, cosine, and tangent](https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions).
-* `double atan2(double y, double x)` - the [arc tangent function of 2 arguments](https://en.wikipedia.org/wiki/Atan2). Note that the argument order is (y, x), not (x, y).
+* `double atan2(double x, double y)` - the [arc tangent function of 2 arguments](https://en.wikipedia.org/wiki/Atan2).
 
 ## Exponentials
 

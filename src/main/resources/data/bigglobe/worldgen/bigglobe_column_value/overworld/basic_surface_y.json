@@ -4,10 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": {
-		"template": "bigglobe:apply_cliffs",
-		"inputs": {
-			"HEIGHT": "`bigglobe:overworld/rivered_erosion`"
-		}
-	}
+	"script": "`bigglobe:overworld/cliffy_surface_y` + `bigglobe:overworld/river_dip`"
 }

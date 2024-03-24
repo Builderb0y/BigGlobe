@@ -57,7 +57,6 @@ where I left off:
 	client horizon height needs to use synced chunk generator sea level.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 	allow scripts to declare variables with generic types?
-	overgrown beaches need to not be overgrown when the biome being transitioned to is wasteland or desert, but not hot forest.
 	use tags for feature dispatcher instead of hard-coding what spawns where.
 
 3.x stuff:
