@@ -22,8 +22,10 @@ import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -113,9 +115,6 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitFieldGetterAndSetter(memory, this.columnContext);
 		}
 		for (ColumnEntryMemory memory : this.filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupEnvironment(memory, this.columnContext, this.columnContext.loadSelf());
-		}
-		for (ColumnEntryMemory memory : this.filteredMemories) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).emitComputer(memory, this.columnContext);
 		}
 		this.columnContext.prepareForCompile();
@@ -156,6 +155,23 @@ public class ColumnEntryRegistry {
 		memory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
 		memory.putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
 		memory.putTyped(VoronoiColumnEntry.OPTIONS, this.voronoiOwners.getOrDefault(entry, Collections.emptyList()));
+		HashSet<DataCompileContext> validOn = new HashSet<>(2);
+		memory.putTyped(ColumnEntryMemory.VALID_ON, validOn);
+
+		List<RegistryEntry<VoronoiSettings>> owners = this.voronoiOwners.get(entry);
+		if (owners != null && !owners.isEmpty()) {
+			owners
+			.stream() //voronoi registry entries which own entry.
+			.map(RegistryEntry::value) //voronoi settings which own entry.
+			.map(VoronoiSettings::owner) //voronoi column entry registry entries which own entry.
+			.map(RegistryEntry::value) //voronoi column entries which own entry.
+			.map(ColumnEntry::getAccessSchema) //access schema associated with the owners of entry.
+			.map(this.columnContext::getAccessContext) //access contexts associated with the owners of entry.
+			.map(AccessContext::context) //compile contexts associated with the owners of entry.
+			.filter(Objects::nonNull)
+			.forEach(validOn::add);
+		}
+		if (validOn.isEmpty()) validOn.add(this.columnContext);
 		return memory;
 	}
 
@@ -168,22 +184,41 @@ public class ColumnEntryRegistry {
 		}
 	}
 
+	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, ColumnValueDependencyHolder dependencies) {
+		this.setupCommonEnvironment(environment);
+		for (ColumnEntryMemory memory : this.memories.values()) {
+			if (memory.getTyped(ColumnEntryMemory.VALID_ON).contains(context)) {
+				memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, dependencies);
+			}
+		}
+		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
+			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
+		}
+	}
+
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		this.setupCommonEnvironment(environment);
+		for (ColumnEntryMemory memory : this.filteredMemories) {
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(environment, memory, this.columnContext, params);
+		}
+		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
+			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
+		}
+	}
+
+	public void setupCommonEnvironment(MutableScriptEnvironment environment) {
 		environment
 		.addFieldInvoke("id",                         VoronoiDataBase.INFO.id)
+		.addFieldInvoke("cell_x",                     VoronoiDataBase.INFO.get_cell_x)
+		.addFieldInvoke("cell_z",                     VoronoiDataBase.INFO.get_cell_z)
+		.addFieldInvoke("center_x",                   VoronoiDataBase.INFO.get_center_x)
+		.addFieldInvoke("center_z",                   VoronoiDataBase.INFO.get_center_z)
 		.addFieldInvoke("soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
 		.addFieldInvoke("soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
 		.addFieldInvoke("hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)
 		.addFieldInvoke("hard_distance",              VoronoiDataBase.INFO.get_hard_distance)
 		.addFieldInvoke("euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared)
 		.addFieldInvoke("euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance);
-
-		for (ColumnEntryMemory memory : this.filteredMemories) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(memory, this.columnContext, environment, params);
-		}
-		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupExternalEnvironment(entry.getValue(), this.columnContext, environment);
-		}
 	}
 
 	public static class Loading {

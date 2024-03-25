@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -28,25 +28,11 @@ public abstract class DataCompileContext {
 	public ClassCompileContext mainClass;
 	public MethodCompileContext constructor;
 	public int flagsIndex;
-	public MutableScriptEnvironment environment;
 
 	public DataCompileContext(DataCompileContext parent) {
 		this.parent = parent;
 		this.children = new ArrayList<>(8);
 		if (parent != null) parent.children.add(this);
-		this.environment = (
-			new MutableScriptEnvironment()
-			.addFieldInvoke("cell_x",                     VoronoiDataBase.INFO.get_cell_x)
-			.addFieldInvoke("cell_z",                     VoronoiDataBase.INFO.get_cell_z)
-			.addFieldInvoke("center_x",                   VoronoiDataBase.INFO.get_center_x)
-			.addFieldInvoke("center_z",                   VoronoiDataBase.INFO.get_center_z)
-			.addFieldInvoke("soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared)
-			.addFieldInvoke("soft_distance",              VoronoiDataBase.INFO.get_soft_distance)
-			.addFieldInvoke("hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared)
-			.addFieldInvoke("hard_distance",              VoronoiDataBase.INFO.get_hard_distance)
-			.addFieldInvoke("euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared)
-			.addFieldInvoke("euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance)
-		);
 	}
 
 	public TypeInfo selfType() {
@@ -59,10 +45,6 @@ public abstract class DataCompileContext {
 		return (ColumnCompileContext)(context);
 	}
 
-	public void copyEnvironment(MutableScriptEnvironment environment) {
-		environment.addAll(this.environment);
-	}
-
 	public InsnTree loadSelf() {
 		return load("this", this.mainClass.info);
 	}
@@ -72,15 +54,6 @@ public abstract class DataCompileContext {
 	public abstract InsnTree loadSeed(InsnTree salt);
 
 	public abstract FieldInfo flagsField(int index);
-
-	public void addAccessor(InsnTree loadHolder, String name, MethodInfo getter) {
-		if (getter.paramTypes.length > 0) {
-			this.environment.addFunctionInvoke(name, loadHolder, getter);
-		}
-		else {
-			this.environment.addVariableRenamedInvoke(loadHolder, name, getter);
-		}
-	}
 
 	public void prepareForCompile() {
 		this.constructor.node.visitInsn(RETURN);
@@ -113,7 +86,8 @@ public abstract class DataCompileContext {
 	public void setMethodCode(
 		MethodCompileContext method,
 		ScriptUsage<GenericScriptTemplateUsage> script,
-		boolean includeY
+		boolean includeY,
+		ColumnValueDependencyHolder dependencies
 	)
 	throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method)
@@ -123,7 +97,7 @@ public abstract class DataCompileContext {
 		.addEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) environment.addVariableLoad("y", TypeInfos.INT);
-			this.copyEnvironment(environment);
+			this.root().registry.setupInternalEnvironment(environment, this, dependencies);
 		})
 		.parseEntireInput()
 		.emitBytecode(method);

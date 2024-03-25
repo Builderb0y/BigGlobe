@@ -28,11 +28,11 @@ public class ScriptColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public void populateCompute2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		context.setMethodCode(computeMethod, this.script, false);
+		context.setMethodCode(computeMethod, this.script, false, this);
 	}
 
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		context.setMethodCode(computeMethod, this.script, true);
+		context.setMethodCode(computeMethod, this.script, true, this);
 	}
 }

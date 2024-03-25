@@ -120,7 +120,7 @@ public interface LegacyOverrider extends Script {
 			/*
 			this.script = (
 				new TemplateScriptParser<>(this.getScriptClass(), this.usage)
-				.configureEnvironment(this::setupEnvironment)
+				.configureEnvironment(this::setupInternalEnvironment)
 				.parse(new ScriptClassLoader())
 			);
 			*/

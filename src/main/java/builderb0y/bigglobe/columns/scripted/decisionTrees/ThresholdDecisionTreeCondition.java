@@ -24,7 +24,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ThresholdDecisionTreeCondition implements DecisionTreeCondition {
+public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 
 	public final Identifier column_value;
 	public final double min, max;
@@ -50,6 +50,7 @@ public class ThresholdDecisionTreeCondition implements DecisionTreeCondition {
 		if (memory == null) {
 			throw new DecisionTreeException("Unknown column value: " + this.column_value);
 		}
+		this.addDependency(memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY));
 		MethodCompileContext getter = memory.getTyped(ColumnEntryMemory.GETTER);
 		boolean requiresY = getter.info.paramTypes.length != 0;
 		if (requiresY && loadY == null) {

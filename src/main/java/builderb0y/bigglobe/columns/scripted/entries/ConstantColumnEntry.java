@@ -1,6 +1,12 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import java.util.Collections;
+import java.util.Set;
+
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.bigglobe.codecs.Any;
+import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -16,6 +22,16 @@ public class ConstantColumnEntry implements ColumnEntry {
 	public ConstantColumnEntry(AccessSchema params, Object value) {
 		this.params = params;
 		this.value = value;
+	}
+
+	@Override
+	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+		return Collections.emptySet();
 	}
 
 	@Override

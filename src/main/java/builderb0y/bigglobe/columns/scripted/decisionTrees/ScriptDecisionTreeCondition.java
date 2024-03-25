@@ -18,7 +18,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptDecisionTreeCondition implements DecisionTreeCondition {
+public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
 
 	public final ScriptUsage<GenericScriptTemplateUsage> script;
 
@@ -34,7 +34,7 @@ public class ScriptDecisionTreeCondition implements DecisionTreeCondition {
 			TypeInfos.BOOLEAN,
 			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
 		);
-		context.setMethodCode(decisionTreeMethod, this.script, loadY != null);
+		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this);
 		return new BooleanToConditionTree(invokeInstance(context.loadSelf(), decisionTreeMethod.info, loadY != null ? new InsnTree[] { loadY } : InsnTree.ARRAY_FACTORY.empty()));
 	}
 }

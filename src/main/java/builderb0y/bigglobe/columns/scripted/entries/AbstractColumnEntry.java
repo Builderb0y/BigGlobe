@@ -1,17 +1,18 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeContext;
-import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
-import builderb0y.bigglobe.columns.scripted.Valid;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -47,13 +48,21 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
 
+	public final transient Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies;
+
 	public AbstractColumnEntry(AccessSchema params, @VerifyNullable Valid valid, @DefaultBoolean(true) boolean cache, DecodeContext<?> decodeContext) {
 		this.params = params;
 		this.valid = valid;
 		this.cache = cache;
+		this.dependencies = new HashSet<>();
 		if (params.is_3d() && cache && (valid == null || valid.min_y() == null || valid.max_y() == null)) {
 			decodeContext.logger().logError("Upper or lower bound not specified, and caching is enabled. This may result in poor worldgen performance, as it may compute more Y levels than intended.");
 		}
+	}
+
+	@Override
+	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+		return this.dependencies;
 	}
 
 	public @Nullable DecodeContext<?> decodeContext() {
@@ -523,7 +532,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 
 	public void emitCompute2D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.valid != null && this.valid.where() != null) {
-			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false);
+			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this);
 		}
 		this.populateCompute2D(memory, context, memory.getTyped(ColumnEntryMemory.COMPUTER));
 	}
@@ -533,13 +542,13 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	public void emitCompute3D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.hasValid()) {
 			if (this.valid.where() != null) {
-				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false);
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this);
 			}
 			if (this.valid.min_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MIN_Y), this.valid.min_y(), false);
+				context.setMethodCode(memory.getTyped(VALID_MIN_Y), this.valid.min_y(), false, this);
 			}
 			if (this.valid.max_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MAX_Y), this.valid.max_y(), false);
+				context.setMethodCode(memory.getTyped(VALID_MAX_Y), this.valid.max_y(), false, this);
 			}
 		}
 		this.populateCompute3D(memory, context, memory.getTyped(COMPUTE_ONE));

@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
+import java.util.Set;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -17,6 +20,11 @@ public class NotDecisionTreeCondition implements DecisionTreeCondition {
 
 	public NotDecisionTreeCondition(DecisionTreeCondition condition) {
 		this.condition = condition;
+	}
+
+	@Override
+	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+		return this.condition.getDependencies();
 	}
 
 	@Override

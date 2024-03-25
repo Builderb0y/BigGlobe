@@ -18,8 +18,11 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiImplCompileContext extends DataCompileContext {
 
+	public final RegistryEntry<VoronoiSettings> voronoiSettings;
+
 	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, RegistryEntry<VoronoiSettings> entry) {
 		super(parent);
+		this.voronoiSettings = entry;
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
 		String name = internalName(UnregisteredObjectException.getID(entry), ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement());
 		this.mainClass = parent.mainClass.newInnerClass(
@@ -60,17 +63,6 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 		MethodCompileContext toString = this.mainClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
 		return_(ldc("voronoi_settings: " + UnregisteredObjectException.getID(entry))).emitBytecode(toString);
 		toString.endCode();
-	}
-
-	@Override
-	public void addAccessor(InsnTree loadHolder, String name, MethodInfo getter) {
-		super.addAccessor(loadHolder, name, getter);
-		if (getter.paramTypes.length > 0) {
-			this.environment.addMethodInvoke(name, getter);
-		}
-		else {
-			this.environment.addFieldInvoke(name, getter);
-		}
 	}
 
 	@Override
