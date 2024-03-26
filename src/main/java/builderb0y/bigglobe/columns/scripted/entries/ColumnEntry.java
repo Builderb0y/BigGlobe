@@ -15,7 +15,7 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.ColumnLookupGet3DValueInsnTree;
 import builderb0y.bigglobe.columns.scripted.ColumnLookupMutableGet3DValueInsnTree;
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;

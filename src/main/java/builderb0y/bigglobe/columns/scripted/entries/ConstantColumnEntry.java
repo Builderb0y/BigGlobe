@@ -6,7 +6,7 @@ import java.util.Set;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.MethodCompileContext;

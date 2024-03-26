@@ -12,7 +12,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;

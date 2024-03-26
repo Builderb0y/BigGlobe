@@ -27,6 +27,8 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -93,6 +95,9 @@ public class ColumnEntryRegistry {
 			});
 		});
 		this.columnContext.prepareForCompile();
+		DependencyDepthSorter sorter = new DependencyDepthSorter();
+		entries.streamEntries().forEach(sorter::recursiveComputeDepth);
+		sorter.printResults();
 		try {
 			this.loader = new ScriptClassLoader();
 			if (CLASS_DUMP_DIRECTORY != null) try {

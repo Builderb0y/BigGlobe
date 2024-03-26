@@ -4,7 +4,7 @@ import java.util.*;
 
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;

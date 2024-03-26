@@ -19,6 +19,7 @@ import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;

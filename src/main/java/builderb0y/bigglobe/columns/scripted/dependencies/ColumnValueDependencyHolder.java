@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted;
+package builderb0y.bigglobe.columns.scripted.dependencies;
 
 import java.util.Set;
 

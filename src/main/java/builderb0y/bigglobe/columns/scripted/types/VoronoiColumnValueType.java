@@ -8,7 +8,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;

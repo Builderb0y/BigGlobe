@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.mojang.datafixers.util.Unit;
 
-import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;

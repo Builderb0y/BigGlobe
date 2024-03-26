@@ -14,7 +14,7 @@ import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
