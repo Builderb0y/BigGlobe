@@ -3,6 +3,8 @@ package builderb0y.bigglobe.columns.scripted;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.world.HeightLimitView;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -375,6 +377,37 @@ public abstract class ScriptedColumn {
 
 			public InsnTree salted_seed(InsnTree receiver, InsnTree salt) {
 				return invokeInstance(receiver, this.salted_seed, salt);
+			}
+
+			public void addAll(MutableScriptEnvironment environment, @Nullable InsnTree loadVoronoiCell) {
+				if (loadVoronoiCell != null) {
+					environment
+					.addVariable("id",                         this.id                            (loadVoronoiCell))
+					.addVariable("cell_x",                     this.get_cell_x                    (loadVoronoiCell))
+					.addVariable("cell_z",                     this.get_cell_z                    (loadVoronoiCell))
+					.addVariable("center_x",                   this.get_center_x                  (loadVoronoiCell))
+					.addVariable("center_z",                   this.get_center_z                  (loadVoronoiCell))
+					.addVariable("soft_distance_squared",      this.get_soft_distance_squared     (loadVoronoiCell))
+					.addVariable("soft_distance",              this.get_soft_distance             (loadVoronoiCell))
+					.addVariable("hard_distance_squared",      this.get_hard_distance_squared     (loadVoronoiCell))
+					.addVariable("hard_distance",              this.get_hard_distance             (loadVoronoiCell))
+					.addVariable("euclidean_distance_squared", this.get_euclidean_distance_squared(loadVoronoiCell))
+					.addVariable("euclidean_distance",         this.get_euclidean_distance        (loadVoronoiCell));
+				}
+				else {
+					environment
+					.addFieldInvoke("id",                         this.id)
+					.addFieldInvoke("cell_x",                     this.get_cell_x)
+					.addFieldInvoke("cell_z",                     this.get_cell_z)
+					.addFieldInvoke("center_x",                   this.get_center_x)
+					.addFieldInvoke("center_z",                   this.get_center_z)
+					.addFieldInvoke("soft_distance_squared",      this.get_soft_distance_squared)
+					.addFieldInvoke("soft_distance",              this.get_soft_distance)
+					.addFieldInvoke("hard_distance_squared",      this.get_hard_distance_squared)
+					.addFieldInvoke("hard_distance",              this.get_hard_distance)
+					.addFieldInvoke("euclidean_distance_squared", this.get_euclidean_distance_squared)
+					.addFieldInvoke("euclidean_distance",         this.get_euclidean_distance);
+				}
 			}
 		}
 

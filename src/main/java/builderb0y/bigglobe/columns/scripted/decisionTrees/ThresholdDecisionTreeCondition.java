@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -7,7 +10,9 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
@@ -26,12 +31,12 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 
-	public final Identifier column_value;
+	public final RegistryEntry<ColumnEntry> column_value;
 	public final double min, max;
 	public final @DefaultBoolean(true) boolean smooth_min, smooth_max;
 
 	public ThresholdDecisionTreeCondition(
-		Identifier column_value,
+		RegistryEntry<ColumnEntry> column_value,
 		double min,
 		double max,
 		@DefaultBoolean(true) boolean smooth_min,
@@ -46,15 +51,19 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 
 	@Override
 	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
-		ColumnEntryMemory memory = context.root().registry.memories.get(this.column_value);
+		List<RegistryEntry<VoronoiSettings>> enablers = context.root().registry.voronoiManager.getEnablingSettings(this.column_value.value());
+		if (!enablers.isEmpty()) {
+			throw new DecisionTreeException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is enabled by " + enablers.stream().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[ ", " ]")) + ", and therefore cannot be used as a decision tree threshold.");
+		}
+		ColumnEntryMemory memory = context.root().registry.columnContext.memories.get(this.column_value.value());
 		if (memory == null) {
-			throw new DecisionTreeException("Unknown column value: " + this.column_value);
+			throw new DecisionTreeException("Column value " + UnregisteredObjectException.getID(this.column_value) + " has no memory???");
 		}
 		this.addDependency(memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY));
 		MethodCompileContext getter = memory.getTyped(ColumnEntryMemory.GETTER);
 		boolean requiresY = getter.info.paramTypes.length != 0;
 		if (requiresY && loadY == null) {
-			throw new DecisionTreeException(this.column_value + " is 3D, but a Y level is not provided.");
+			throw new DecisionTreeException(UnregisteredObjectException.getID(this.column_value) + " is 3D, but a Y level is not provided.");
 		}
 		return switch (getter.info.returnType.getSort()) {
 			case FLOAT -> FloatCompareConditionTree.lessThan(
@@ -67,8 +76,8 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 				invokeStatic(
 					MethodInfo.inCaller(
 						this.smooth_min
-							? (this.smooth_max ? "smoothBothF" : "smoothMinF")
-							: (this.smooth_max ? "smoothMaxF" : "smoothNoneF")
+						? (this.smooth_max ? "smoothBothF" : "smoothMinF")
+						: (this.smooth_max ? "smoothMaxF" : "smoothNoneF")
 					),
 					new MultiplyInsnTree(
 						new SubtractInsnTree(
@@ -95,8 +104,8 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 				invokeStatic(
 					MethodInfo.inCaller(
 						this.smooth_min
-							? (this.smooth_max ? "smoothBothD" : "smoothMinD")
-							: (this.smooth_max ? "smoothMaxD" : "smoothNoneD")
+						? (this.smooth_max ? "smoothBothD" : "smoothMinD")
+						: (this.smooth_max ? "smoothMaxD" : "smoothNoneD")
 					),
 					new MultiplyInsnTree(
 						new SubtractInsnTree(
@@ -113,7 +122,7 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 					)
 				)
 			);
-			default -> throw new DecisionTreeException("range decision tree only works with float and double typed column values, but " + this.column_value + " is a " + getter.info.returnType);
+			default -> throw new DecisionTreeException("range decision tree only works with float and double typed column values, but " + UnregisteredObjectException.getID(this.column_value) + " is a " + getter.info.returnType);
 		};
 	}
 

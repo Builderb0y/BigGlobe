@@ -1,9 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
+import java.util.Map;
+
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -65,6 +69,11 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 			.emitBytecode(column);
 			column.endCode();
 		}
+	}
+
+	@Override
+	public Map<ColumnEntry, ColumnEntryMemory> getMemories() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"level=0":  { "model": "bigglobe:block/river_water" },
+		"level=1":  { "model": "bigglobe:block/river_water" },
+		"level=2":  { "model": "bigglobe:block/river_water" },
+		"level=3":  { "model": "bigglobe:block/river_water" },
+		"level=4":  { "model": "bigglobe:block/river_water" },
+		"level=5":  { "model": "bigglobe:block/river_water" },
+		"level=6":  { "model": "bigglobe:block/river_water" },
+		"level=7":  { "model": "bigglobe:block/river_water" },
+		"level=8":  { "model": "bigglobe:block/river_water" },
+		"level=9":  { "model": "bigglobe:block/river_water" },
+		"level=10": { "model": "bigglobe:block/river_water" },
+		"level=11": { "model": "bigglobe:block/river_water" },
+		"level=12": { "model": "bigglobe:block/river_water" },
+		"level=13": { "model": "bigglobe:block/river_water" },
+		"level=14": { "model": "bigglobe:block/river_water" },
+		"level=15": { "model": "bigglobe:block/river_water" }
+	}
+}

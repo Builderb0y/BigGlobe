@@ -1,12 +1,18 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.objectweb.asm.Type;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
-import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
@@ -19,11 +25,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class VoronoiImplCompileContext extends DataCompileContext {
 
 	public final RegistryEntry<VoronoiSettings> voronoiSettings;
+	public final Map<ColumnEntry, ColumnEntryMemory> memories;
 
 	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, RegistryEntry<VoronoiSettings> entry) {
 		super(parent);
 		this.voronoiSettings = entry;
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
+		this.memories = new IdentityHashMap<>(16);
+
 		String name = internalName(UnregisteredObjectException.getID(entry), ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement());
 		this.mainClass = parent.mainClass.newInnerClass(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -63,6 +72,11 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 		MethodCompileContext toString = this.mainClass.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
 		return_(ldc("voronoi_settings: " + UnregisteredObjectException.getID(entry))).emitBytecode(toString);
 		toString.endCode();
+	}
+
+	@Override
+	public Map<ColumnEntry, ColumnEntryMemory> getMemories() {
+		return this.memories;
 	}
 
 	@Override

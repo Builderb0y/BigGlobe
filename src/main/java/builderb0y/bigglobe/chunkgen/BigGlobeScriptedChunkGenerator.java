@@ -8,7 +8,6 @@ import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -81,13 +80,14 @@ import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -825,10 +825,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		Pattern pattern = Pattern.compile(regex);
 		List<DisplayEntry> displayEntries = new ArrayList<>();
 		MethodHandles.Lookup lookup = this.columnEntryRegistry.columnLookup;
-		for (Map.Entry<Identifier, ColumnEntryMemory> entry : (Iterable<? extends Map.Entry<Identifier, ColumnEntryMemory>>)(this.columnEntryRegistry.filteredMemories.stream().map(memory -> Map.entry(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID), memory)).sorted(Map.Entry.comparingByKey())::iterator)) {
-			if (pattern.matcher(entry.getKey().toString()).find()) {
-				MethodCompileContext getter = entry.getValue().getTyped(ColumnEntryMemory.GETTER);
-				if (getter.clazz == this.columnEntryRegistry.columnContext.mainClass) try {
+		this.debugDisplay = (
+			this
+			.columnEntryRegistry
+			.registries
+			.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
+			.streamEntries()
+			.filter((RegistryEntry<ColumnEntry> entry) -> this.columnEntryRegistry.voronoiManager.getEnablingSettings(entry.value()).isEmpty())
+			.filter((RegistryEntry<ColumnEntry> entry) -> pattern.matcher(UnregisteredObjectException.getID(entry).toString()).find())
+			.map((RegistryEntry<ColumnEntry> entry) -> {
+				MethodCompileContext getter = this.columnEntryRegistry.columnContext.memories.get(entry.value()).getTyped(ColumnEntryMemory.GETTER);
+				try {
 					MethodHandle handle = lookup.findVirtual(
 						this.columnEntryRegistry.columnClass,
 						getter.info.name,
@@ -847,14 +854,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					//primitive -> Object, because doing primitive -> String would
 					//require special-casing every primitive type, and I am lazy.
 					handle = handle.asType(MethodType.methodType(Object.class, ScriptedColumn.class, int.class));
-					displayEntries.add(new DisplayEntry(entry.getKey(), handle));
+					return new DisplayEntry(UnregisteredObjectException.getID(entry), handle);
 				}
 				catch (Throwable throwable) {
 					BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", throwable);
+					return null;
 				}
-			}
-		}
-		this.debugDisplay = displayEntries.toArray(new DisplayEntry[displayEntries.size()]);
+			})
+			.filter(Objects::nonNull)
+			.toArray(DisplayEntry[]::new)
+		);
 	}
 
 	public static record DisplayEntry(Identifier id, MethodHandle handle) {}

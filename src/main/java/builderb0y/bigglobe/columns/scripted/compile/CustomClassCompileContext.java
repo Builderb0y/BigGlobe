@@ -3,10 +3,13 @@ package builderb0y.bigglobe.columns.scripted.compile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType.ClassColumnValueField;
 import builderb0y.scripting.bytecode.*;
@@ -58,6 +61,11 @@ public class CustomClassCompileContext extends DataCompileContext {
 			.emitBytecode(this.constructor);
 		}
 		UserClassDefiner.addToString(this.mainClass, spec.name, fieldCompileContexts);
+	}
+
+	@Override
+	public Map<ColumnEntry, ColumnEntryMemory> getMemories() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

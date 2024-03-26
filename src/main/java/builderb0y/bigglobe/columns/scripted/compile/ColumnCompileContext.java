@@ -4,15 +4,20 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps.UnmodifiableMap;
 import org.objectweb.asm.Type;
+
+import net.minecraft.registry.RegistryKey;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.scripting.bytecode.*;
@@ -27,10 +32,13 @@ public class ColumnCompileContext extends DataCompileContext {
 	public final ColumnEntryRegistry registry;
 	public final Map<ColumnValueType, TypeContext> columnValueTypeInfos = new HashMap<>(16);
 	public final Map<AccessSchema, AccessContext> accessSchemaTypeInfos = new HashMap<>(16);
+	public final Map<ColumnEntry, ColumnEntryMemory> memories;
+
 
 	public ColumnCompileContext(ColumnEntryRegistry registry) {
 		super(null);
 		this.registry = registry;
+		this.memories = new IdentityHashMap<>(256);
 
 		this.mainClass = new ClassCompileContext(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -83,6 +91,11 @@ public class ColumnCompileContext extends DataCompileContext {
 			.emitBytecode(blankCopy);
 			blankCopy.endCode();
 		}
+	}
+
+	@Override
+	public Map<ColumnEntry, ColumnEntryMemory> getMemories() {
+		return this.memories;
 	}
 
 	public TypeContext getTypeContext(ColumnValueType type) {

@@ -1,15 +1,15 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.mojang.datafixers.util.Unit;
-import org.objectweb.asm.tree.ParameterNode;
 
+import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -69,7 +69,7 @@ public class ClassColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public void setupExternalEnvironment(TypeContext typeContext, ColumnCompileContext context, MutableScriptEnvironment environment) {
+	public void setupEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, ColumnValueDependencyHolder dependencies) {
 		TypeInfo type = typeContext.type();
 		environment.addType(this.name, type);
 		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {
@@ -78,7 +78,7 @@ public class ClassColumnValueType implements ColumnValueType {
 					ACC_PUBLIC,
 					type,
 					entry.getKey(),
-					context.getTypeContext(entry.getValue()).type()
+					context.root().getTypeContext(entry.getValue()).type()
 				)
 			);
 		}
@@ -90,7 +90,7 @@ public class ClassColumnValueType implements ColumnValueType {
 			Arrays
 			.stream(this.fieldsInOrder)
 			.map(ClassColumnValueField::type)
-			.map(context::getTypeContext)
+			.map(context.root()::getTypeContext)
 			.map(TypeContext::type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);

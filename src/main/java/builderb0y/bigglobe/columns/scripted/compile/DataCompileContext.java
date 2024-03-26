@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -34,6 +35,8 @@ public abstract class DataCompileContext {
 		this.children = new ArrayList<>(8);
 		if (parent != null) parent.children.add(this);
 	}
+
+	public abstract Map<ColumnEntry, ColumnEntryMemory> getMemories();
 
 	public TypeInfo selfType() {
 		return this.mainClass.info;

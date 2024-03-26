@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -102,11 +101,17 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 		}
 	}
 
-	public default void setupInternalEnvironment(MutableScriptEnvironment environment, ColumnEntryMemory memory, DataCompileContext context, ColumnValueDependencyHolder dependencies) {
+	public default void setupInternalEnvironment(
+		MutableScriptEnvironment environment,
+		ColumnEntryMemory memory,
+		DataCompileContext context,
+		boolean useColumn,
+		ColumnValueDependencyHolder dependencies
+	) {
 		String name = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
 		RegistryEntry<ColumnEntry> self = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
-		InsnTree loadHolder = context.loadSelf();
+		InsnTree loadHolder = useColumn ? context.loadColumn() : context.loadSelf();
 		if (getter.paramTypes.length > 0) {
 			environment.addFunction(name, new FunctionHandler.Named("functionInvoke: " + getter + " for receiver " + loadHolder.describe(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
@@ -146,7 +151,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("III"), CastMode.IMPLICIT_NULL, arguments);
 					if (castArguments == null) return null;
-					caller.addDependency(entry);
+					if (caller != null) caller.addDependency(entry);
 					return new CastResult(
 						setter != null
 						? new ColumnLookupMutableGet3DValueInsnTree(
@@ -172,7 +177,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, types("II"), CastMode.IMPLICIT_NULL, arguments);
 					if (castArguments == null) return null;
-					caller.addDependency(entry);
+					if (caller != null) caller.addDependency(entry);
 					DirectCastInsnTree castColumn = new DirectCastInsnTree(
 						invokeInstance(
 							params.loadLookup,
@@ -212,7 +217,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 				environment.addFunction(exposedName, new FunctionHandler.Named(getter.toString(), (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
 					if (castArguments == null) return null;
-					caller.addDependency(entry);
+					if (caller != null) caller.addDependency(entry);
 					return new CastResult(
 						setter != null
 						? new GetterSetterInsnTree(loadColumn, getter, setter)
@@ -223,7 +228,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 				InsnTree loadY = params.loadY;
 				if (loadY != null) {
 					environment.addVariable(exposedName, new VariableHandler.Named(getter.toString(), (ExpressionParser parser, String name) -> {
-						caller.addDependency(entry);
+						if (caller != null) caller.addDependency(entry);
 						return (
 							setter != null
 							? new ArgumentedGetterSetterInsnTree(loadColumn, getter, setter, loadY)
@@ -234,7 +239,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 			}
 			else {
 				environment.addVariable(exposedName, new VariableHandler.Named(getter.toString(), (ExpressionParser parser, String name) -> {
-					caller.addDependency(entry);
+					if (caller != null) caller.addDependency(entry);
 					return (
 						setter != null
 						? new GetterSetterInsnTree(loadColumn, getter, setter)
@@ -272,7 +277,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, ColumnValueDependencyHolder)},
+	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, ColumnValueDependencyHolder)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {
@@ -283,8 +288,6 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 			ENTRY = new Key<>("entry");
 		public static final Key<Identifier>
 			ACCESSOR_ID = new Key<>("accessorID");
-		public static final Key<Set<DataCompileContext>>
-			VALID_ON = new Key<>("validOn");
 		public static final Key<Integer>
 			FLAGS_INDEX = new Key<>("flagsIndex");
 		public static final Key<String>

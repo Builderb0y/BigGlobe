@@ -2,11 +2,13 @@ package builderb0y.bigglobe.columns.restrictions;
 
 import java.lang.invoke.MethodHandle;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.math.Interpolator;
 
 public class ThresholdColumnRestriction extends PropertyColumnRestriction {
@@ -15,7 +17,7 @@ public class ThresholdColumnRestriction extends PropertyColumnRestriction {
 	public final @DefaultBoolean(true) boolean smooth_min, smooth_max;
 
 	public ThresholdColumnRestriction(
-		Identifier property,
+		RegistryEntry<ColumnEntry> property,
 		double min,
 		double max,
 		@DefaultBoolean(true) boolean smooth_min,
