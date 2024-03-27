@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -9,6 +12,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -16,7 +20,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 
 @UseVerifier(name = "verify", in = DecisionTreeSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
-public class DecisionTreeSettings {
+public class DecisionTreeSettings implements ColumnValueDependencyHolder {
 
 	public final @VerifyNullable DecisionTreeResult result;
 	public final @VerifyNullable DecisionTreeCondition condition;
@@ -74,6 +78,29 @@ public class DecisionTreeSettings {
 			DecisionTreeException detailedException = exception instanceof DecisionTreeException e ? e : new DecisionTreeException(exception);
 			detailedException.details.add("Used by " + UnregisteredObjectException.getKey(selfEntry));
 			throw detailedException;
+		}
+	}
+
+	@Override
+	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+		Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies = new HashSet<>(64);
+		this.addDependencies(dependencies);
+		return dependencies;
+	}
+
+	public void addDependencies(Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies) {
+		if (this.result != null) {
+			dependencies.addAll(this.result.getDependencies());
+		}
+		else {
+			dependencies.addAll(this.condition.getDependencies());
+			this.if_true.value().addDependencies(dependencies);
+			this.if_false.value().addDependencies(dependencies);
 		}
 	}
 }

@@ -35,6 +35,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -97,7 +98,9 @@ public class ColumnEntryRegistry {
 		this.columnContext.prepareForCompile();
 		DependencyDepthSorter sorter = new DependencyDepthSorter();
 		entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-		sorter.printResults();
+		if (BigGlobeConfig.INSTANCE.get().printDecisionTrees) {
+			sorter.outputResults();
+		}
 		try {
 			this.loader = new ScriptClassLoader();
 			if (CLASS_DUMP_DIRECTORY != null) try {
