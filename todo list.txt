@@ -57,9 +57,6 @@ where I left off:
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 	allow scripts to declare variables with generic types?
 	use tags for feature dispatcher instead of hard-coding what spawns where.
-	make number of rocks in a block a state property instead of a position-based random model.
-		update loot table accordingly.
-	rename "print decision trees" config option to be more inclusive of column value dependencies.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

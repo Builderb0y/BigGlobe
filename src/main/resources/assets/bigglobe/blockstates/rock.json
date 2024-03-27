@@ -1,29 +1,39 @@
 {
 	"variants": {
-		"": [
+		"rocks=1": [
 			{ "model": "bigglobe:block/rock1", "y":   0 },
-			{ "model": "bigglobe:block/rock2", "y":   0 },
-			{ "model": "bigglobe:block/rock3", "y":   0 },
-			{ "model": "bigglobe:block/rock4", "y":   0 },
-			{ "model": "bigglobe:block/rock5", "y":   0 },
-			{ "model": "bigglobe:block/rock6", "y":   0 },
 			{ "model": "bigglobe:block/rock1", "y":  90 },
-			{ "model": "bigglobe:block/rock2", "y":  90 },
-			{ "model": "bigglobe:block/rock3", "y":  90 },
-			{ "model": "bigglobe:block/rock4", "y":  90 },
-			{ "model": "bigglobe:block/rock5", "y":  90 },
-			{ "model": "bigglobe:block/rock6", "y":  90 },
 			{ "model": "bigglobe:block/rock1", "y": 180 },
+			{ "model": "bigglobe:block/rock1", "y": 270 }
+		],
+		"rocks=2": [
+			{ "model": "bigglobe:block/rock2", "y":   0 },
+			{ "model": "bigglobe:block/rock2", "y":  90 },
 			{ "model": "bigglobe:block/rock2", "y": 180 },
+			{ "model": "bigglobe:block/rock2", "y": 270 }
+		],
+		"rocks=3": [
+			{ "model": "bigglobe:block/rock3", "y":   0 },
+			{ "model": "bigglobe:block/rock3", "y":  90 },
 			{ "model": "bigglobe:block/rock3", "y": 180 },
+			{ "model": "bigglobe:block/rock3", "y": 270 }
+		],
+		"rocks=4": [
+			{ "model": "bigglobe:block/rock4", "y":   0 },
+			{ "model": "bigglobe:block/rock4", "y":  90 },
 			{ "model": "bigglobe:block/rock4", "y": 180 },
+			{ "model": "bigglobe:block/rock4", "y": 270 }
+		],
+		"rocks=5": [
+			{ "model": "bigglobe:block/rock5", "y":   0 },
+			{ "model": "bigglobe:block/rock5", "y":  90 },
 			{ "model": "bigglobe:block/rock5", "y": 180 },
+			{ "model": "bigglobe:block/rock5", "y": 270 }
+		],
+		"rocks=6": [
+			{ "model": "bigglobe:block/rock6", "y":   0 },
+			{ "model": "bigglobe:block/rock6", "y":  90 },
 			{ "model": "bigglobe:block/rock6", "y": 180 },
-			{ "model": "bigglobe:block/rock1", "y": 270 },
-			{ "model": "bigglobe:block/rock2", "y": 270 },
-			{ "model": "bigglobe:block/rock3", "y": 270 },
-			{ "model": "bigglobe:block/rock4", "y": 270 },
-			{ "model": "bigglobe:block/rock5", "y": 270 },
 			{ "model": "bigglobe:block/rock6", "y": 270 }
 		]
 	}

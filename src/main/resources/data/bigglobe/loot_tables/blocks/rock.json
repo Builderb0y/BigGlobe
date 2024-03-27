@@ -4,7 +4,65 @@
 		"rolls": 1,
 		"entries": [{
 			"type": "minecraft:item",
-			"name": "bigglobe:rock"
+			"name": "bigglobe:rock",
+			"functions": [
+				{
+					"function": "minecraft:set_count",
+					"count": 1,
+					"conditions": [{
+						"condition": "minecraft:block_state_property",
+						"block": "bigglobe:rock",
+						"properties": { "rocks": "1" }
+					}]
+				},
+				{
+					"function": "minecraft:set_count",
+					"count": 2,
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "bigglobe:rock",
+							"properties": { "rocks": "2" }
+						}
+					]
+				},
+				{
+					"function": "minecraft:set_count",
+					"count": 3,
+					"conditions": [{
+						"condition": "minecraft:block_state_property",
+						"block": "bigglobe:rock",
+						"properties": { "rocks": "3" }
+					}]
+				},
+				{
+					"function": "minecraft:set_count",
+					"count": 4,
+					"conditions": [{
+						"condition": "minecraft:block_state_property",
+						"block": "bigglobe:rock",
+						"properties": { "rocks": "4" }
+					}]
+				},
+				{
+					"function": "minecraft:set_count",
+					"count": 5,
+					"conditions": [{
+						"condition": "minecraft:block_state_property",
+						"block": "bigglobe:rock",
+						"properties": { "rocks": "5" }
+					}]
+				},
+				{
+					"function": "minecraft:set_count",
+					"count": 6,
+					"conditions": [{
+						"condition": "minecraft:block_state_property",
+						"block": "bigglobe:rock",
+						"properties": { "rocks": "6" }
+					}]
+				}
+			]
 		}],
 		"conditions": [{
 			"condition": "minecraft:survives_explosion"

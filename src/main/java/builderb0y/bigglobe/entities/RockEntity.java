@@ -30,6 +30,7 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blocks.RockBlock;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -142,7 +143,14 @@ public class RockEntity extends ThrownItemEntity {
 
 	public void placeRock(BlockHitResult blockHitResult) {
 		BlockPos placePos = blockHitResult.getBlockPos().up();
-		SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, BigGlobeBlocks.ROCK.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
+		BlockState existingState = this.getWorld().getBlockState(placePos);
+		int rocks;
+		if (existingState.isOf(BigGlobeBlocks.ROCK) && (rocks = existingState.get(RockBlock.ROCKS)) < 6) {
+			this.getWorld().setBlockState(placePos, existingState.with(RockBlock.ROCKS, rocks + 1));
+		}
+		else {
+			SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, BigGlobeBlocks.ROCK.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
+		}
 		BlockSoundGroup group = BlockSoundGroup.STONE;
 		EntityVersions.getWorld(this).playSound(null, placePos, group.getBreakSound(), SoundCategory.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.8F);
 		this.discard();

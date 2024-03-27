@@ -145,9 +145,9 @@ public class BigGlobeBlocks {
 				VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D)
 			);
 	}
-	public static final SurfaceMaterialDecorationBlock ROCK = register(
+	public static final RockBlock ROCK = register(
 		"rock",
-		new SurfaceMaterialDecorationBlock(
+		new RockBlock(
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.IRON_GRAY)

@@ -143,9 +143,9 @@ public class BigGlobeBlocks {
 				VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D)
 			);
 	}
-	public static final SurfaceMaterialDecorationBlock ROCK = register(
+	public static final RockBlock ROCK = register(
 		"rock",
-		new SurfaceMaterialDecorationBlock(
+		new RockBlock(
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.IRON_GRAY)
@@ -203,25 +203,33 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings.copy(SLATED_PRISMARINE)
 		)
 	);
-	public static final Block FLOATSTONE = register(
-		"floatstone",
-		new Block(
-			AbstractBlock.Settings
-			.create()
-			.mapColor(MapColor.OAK_TAN)
-			.requiresTool()
-			.strength(1.0F, 5.0F)
-		)
-	);
-	public static final SlabBlock FLOATSTONE_SLAB = register(
-		"floatstone_slab",
-		new SlabBlock(AbstractBlock.Settings.copy(FLOATSTONE))
-	);
-	public static final StairsBlock FLOATSTONE_STAIRS = register(
-		"floatstone_stairs",
-		new StairsBlock(
-			FLOATSTONE.getDefaultState(),
-			AbstractBlock.Settings.copy(FLOATSTONE)
+	public static final EnumMap<CloudColor, CloudBlock> CLOUDS = new EnumMap<>(CloudColor.class);
+	static {
+		for (CloudColor color : CloudColor.VALUES) {
+			CLOUDS.put(color, register(
+				color.normalName,
+				new CloudBlock(
+					AbstractBlock
+					.Settings
+					.create()
+					.mapColor(MapColor.WHITE)
+					.strength(0.2F)
+					.sounds(BlockSoundGroup.WOOL)
+					.luminance(
+						color == CloudColor.BLANK
+						? (BlockState state) -> 0
+						: (BlockState state) -> 5
+					)
+					.allowsSpawning(Blocks::never)
+				)
+			));
+		}
+	}
+	public static final RiverWaterBlock RIVER_WATER = register(
+		"river_water",
+		new RiverWaterBlock(
+			Fluids.WATER,
+			AbstractBlock.Settings.copy(Blocks.WATER)
 		)
 	);
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
@@ -757,6 +765,28 @@ public class BigGlobeBlocks {
 			VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D)
 		)
 	);
+	public static final EnumMap<CloudColor, CloudBlock> VOID_CLOUDS = new EnumMap<>(CloudColor.class);
+	static {
+		for (CloudColor color : CloudColor.VALUES) {
+			VOID_CLOUDS.put(color, register(
+				color.voidName,
+				new CloudBlock(
+					AbstractBlock
+					.Settings
+					.create()
+					.mapColor(MapColor.BLACK)
+					.strength(0.2F)
+					.sounds(BlockSoundGroup.WOOL)
+					.luminance(
+						color == CloudColor.BLANK
+						? (BlockState state) -> 0
+						: (BlockState state) -> 5
+					)
+					.allowsSpawning(Blocks::never)
+				)
+			));
+		}
+	}
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
