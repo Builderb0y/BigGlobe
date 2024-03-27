@@ -40,7 +40,7 @@ print(multiply(2))
 ```
 will compile into
 ```java
-int two(int x, int y) {
+int multiply(int x, int y) {
 	return x * y;
 }
 
