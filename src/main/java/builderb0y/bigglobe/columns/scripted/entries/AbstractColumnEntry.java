@@ -48,7 +48,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
 
-	public final transient Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies;
+	public final transient Set<RegistryEntry<ColumnEntry>> dependencies;
 
 	public AbstractColumnEntry(AccessSchema params, @VerifyNullable Valid valid, @DefaultBoolean(true) boolean cache, DecodeContext<?> decodeContext) {
 		this.params = params;
@@ -61,7 +61,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return this.dependencies;
 	}
 

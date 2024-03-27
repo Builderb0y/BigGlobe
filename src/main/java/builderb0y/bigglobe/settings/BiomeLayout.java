@@ -159,7 +159,7 @@ public class BiomeLayout {
 				}
 			});
 			this.root = registry.getOrCreateEntry(key(registry, ROOT_IDENTIFIER)).value();
-			if (BigGlobeConfig.INSTANCE.get().printDecisionTrees) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 				BigGlobeMod.LOGGER.info(Printer.parse(registry).print(new StringBuilder(128).append(registry.getKey().getValue()).append(" tree, as requested in Big Globe's config file:\n")).toString());
 			}
 		}

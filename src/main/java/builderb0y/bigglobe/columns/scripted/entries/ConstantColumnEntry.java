@@ -25,12 +25,12 @@ public class ConstantColumnEntry implements ColumnEntry {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+	public void addDependency(RegistryEntry<ColumnEntry> entry) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return Collections.emptySet();
 	}
 

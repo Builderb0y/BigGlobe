@@ -9,8 +9,8 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
 public class ConstantDecisionTreeResult implements DecisionTreeResult {
@@ -22,12 +22,12 @@ public class ConstantDecisionTreeResult implements DecisionTreeResult {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+	public void addDependency(RegistryEntry<ColumnEntry> entry) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return Collections.emptySet();
 	}
 

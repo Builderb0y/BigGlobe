@@ -13,6 +13,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -82,18 +83,18 @@ public class DecisionTreeSettings implements ColumnValueDependencyHolder {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+	public void addDependency(RegistryEntry<ColumnEntry> entry) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
-		Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies = new HashSet<>(64);
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
+		Set<RegistryEntry<ColumnEntry>> dependencies = new HashSet<>(64);
 		this.addDependencies(dependencies);
 		return dependencies;
 	}
 
-	public void addDependencies(Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies) {
+	public void addDependencies(Set<RegistryEntry<ColumnEntry>> dependencies) {
 		if (this.result != null) {
 			dependencies.addAll(this.result.getDependencies());
 		}

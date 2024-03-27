@@ -208,10 +208,10 @@
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[1]": "If false, saplings will grow into normal (vanilla) trees in non-Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[2]": "This config option has no effect on trees that spawn during worldgen.",
 
-	"text.autoconfig.bigglobe.option.printDecisionTrees": "Print decision trees",
-	"text.autoconfig.bigglobe.option.printDecisionTrees.@Tooltip[0]": "If true, the decision trees will be printed to the console and log files whenever they're loaded.",
-	"text.autoconfig.bigglobe.option.printDecisionTrees.@Tooltip[1]": "If false, the decision trees will not be printed.",
-	"text.autoconfig.bigglobe.option.printDecisionTrees.@Tooltip[2]": "This can be helpful for data pack makers, since the tree's structure can be a bit non-trivial at times.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging": "Output Data Pack Debugging Information",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[0]": "If true, the decision trees will be printed to the console and log files, and the column value dependency web will be output to a file in your .minecraft directory, whenever they're loaded.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[1]": "If false, no debugging information will be output anywhere.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[2]": "This can be helpful for data pack makers, since the decision tree's and the column value dependency web's structure can be a bit non-trivial at times.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Distant Horizons Integration",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating chunks for Distant Horizons.",

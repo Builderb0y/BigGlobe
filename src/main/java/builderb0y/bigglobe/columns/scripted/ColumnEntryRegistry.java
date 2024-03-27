@@ -98,7 +98,7 @@ public class ColumnEntryRegistry {
 		this.columnContext.prepareForCompile();
 		DependencyDepthSorter sorter = new DependencyDepthSorter();
 		entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-		if (BigGlobeConfig.INSTANCE.get().printDecisionTrees) {
+		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			sorter.outputResults();
 		}
 		try {

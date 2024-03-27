@@ -14,6 +14,7 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -40,10 +41,10 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 
 	public static abstract class Impl implements DecisionTreeCondition {
 
-		public final Set<RegistryEntry<? extends ColumnValueDependencyHolder>> dependencies = new HashSet<>();
+		public final Set<RegistryEntry<ColumnEntry>> dependencies = new HashSet<>();
 
 		@Override
-		public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+		public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 			return this.dependencies;
 		}
 	}

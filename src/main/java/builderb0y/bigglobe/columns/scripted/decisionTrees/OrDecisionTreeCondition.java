@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.VerifySizeRange;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -27,12 +27,12 @@ public class OrDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<? extends ColumnValueDependencyHolder> entry) {
+	public void addDependency(RegistryEntry<ColumnEntry> entry) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return Arrays.stream(this.conditions).map(DecisionTreeCondition::getDependencies).flatMap(Set::stream).collect(Collectors.toSet());
 	}
 

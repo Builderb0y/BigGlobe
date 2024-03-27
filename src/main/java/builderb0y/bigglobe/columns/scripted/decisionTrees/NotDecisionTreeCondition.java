@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -23,7 +23,7 @@ public class NotDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return this.condition.getDependencies();
 	}
 

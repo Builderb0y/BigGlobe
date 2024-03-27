@@ -13,7 +13,6 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -38,7 +37,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends ColumnValueDependencyHolder>> getDependencies() {
+	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
 		return this.root.value().getDependencies();
 	}
 
@@ -57,7 +56,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	}
 
 	public void printIfEnabled(ColumnEntryMemory memory) {
-		if (BigGlobeConfig.INSTANCE.get().printDecisionTrees) {
+		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			BigGlobeMod.LOGGER.info(
 				Printer.parse(this.root).print(
 					new StringBuilder(128)
