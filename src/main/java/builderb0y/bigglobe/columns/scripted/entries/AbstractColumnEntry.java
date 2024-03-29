@@ -14,7 +14,8 @@ import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -35,7 +36,7 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 @AddPseudoField("decodeContext")
-public abstract class AbstractColumnEntry implements ColumnEntry {
+public abstract class AbstractColumnEntry implements ColumnEntry, MutableDependencyView {
 
 	public static final ColumnEntryMemory.Key<MethodCompileContext>
 		COMPUTE_ONE = new ColumnEntryMemory.Key<>("computeOne"),
@@ -48,7 +49,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
 
-	public final transient Set<RegistryEntry<ColumnEntry>> dependencies;
+	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies;
 
 	public AbstractColumnEntry(AccessSchema params, @VerifyNullable Valid valid, @DefaultBoolean(true) boolean cache, DecodeContext<?> decodeContext) {
 		this.params = params;
@@ -61,7 +62,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry {
 	}
 
 	@Override
-	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
+	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 

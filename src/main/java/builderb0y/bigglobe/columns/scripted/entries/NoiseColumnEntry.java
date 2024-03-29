@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
@@ -174,18 +175,17 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NoiseColumnEntry> context) throws EncodeException {
 			NoiseColumnEntry entry = context.input;
 			if (entry == null) return context.empty();
-			else return context.createStringMap(
-				Map.of(
-					"params", context.input(entry.params).encodeWith(this.params),
-					"valid", context.input(entry.valid).encodeWith(this.valid),
-					"cache", context.input(entry.cache).encodeWith(this.cache),
-					"grid", (
-						entry.params.is_3d()
-						? context.input(entry.grid3D).encodeWith(this.grid3D)
-						: context.input(entry.grid2D).encodeWith(this.grid2D)
-					)
-				)
+			Map<String, T_Encoded> map = new HashMap<>(8);
+			map.put("params", context.input(entry.params).encodeWith(this.params));
+			if (entry.valid != null) map.put("valid", context.input(entry.valid).encodeWith(this.valid));
+			if (!entry.cache) map.put("cache", context.createBoolean(false));
+			map.put(
+				"grid",
+				entry.params.is_3d()
+				? context.input(entry.grid3D).encodeWith(this.grid3D)
+				: context.input(entry.grid2D).encodeWith(this.grid2D)
 			);
+			return context.createStringMap(map);
 		}
 	}
 }

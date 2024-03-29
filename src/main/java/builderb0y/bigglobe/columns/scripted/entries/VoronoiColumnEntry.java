@@ -19,7 +19,7 @@ import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.types.VoronoiColumnValueType;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
@@ -200,7 +200,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	@Override
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ColumnEntryMemory memory, ColumnCompileContext context, ExternalEnvironmentParams params) {
 		super.setupExternalEnvironment(environment, memory, context, params);
-		ColumnValueDependencyHolder dependencies = params.caller;
+		MutableDependencyView dependencies = params.dependencies;
 		List<RegistryEntry<VoronoiSettings>> options = context.registry.voronoiManager.getOptionsFor(this);
 		DataCompileContext selfContext = context.root().getAccessContext(this.getAccessSchema()).context();
 		for (Map.Entry<String, AccessSchema> export : this.exports().entrySet()) {

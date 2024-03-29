@@ -20,8 +20,8 @@ import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.*;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -34,71 +34,66 @@ public class DependencyDepthSorter {
 
 	public static final Hash.Strategy<RegistryEntry<?>> REGISTRY_ENTRY_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), UnregisteredObjectException::getKey);
 
-	public final List<List<RegistryEntry<ColumnEntry>>> results = new ArrayList<>(16);
-	public final Object2IntOpenCustomHashMap<RegistryEntry<ColumnEntry>> cache = new Object2IntOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
+	public final List<List<RegistryEntry<? extends DependencyView>>> results = new ArrayList<>(16);
+	public final Object2IntOpenCustomHashMap<RegistryEntry<? extends DependencyView>> cache = new Object2IntOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
 	{ this.cache.defaultReturnValue(-1); }
-	public final ObjectLinkedOpenCustomHashSet<RegistryEntry<ColumnEntry>> cyclicDetector = new ObjectLinkedOpenCustomHashSet<>(16, REGISTRY_ENTRY_STRATEGY);
 
-	public int recursiveComputeDepth(RegistryEntry<ColumnEntry> entry) {
-		if (!this.cyclicDetector.add(entry)) {
-			throw new CyclicColumnValueDependencyException(
-				Stream.concat(
-					this
-					.cyclicDetector
-					.stream()
-					.dropWhile((RegistryEntry<ColumnEntry> compare) -> compare != entry),
-					Stream.of(entry)
-				)
-				.map(UnregisteredObjectException::getID)
-				.map(Identifier::toString)
-				.collect(Collectors.joining(" -> "))
+	public int recursiveComputeDepth(RegistryEntry<? extends DependencyView> entry) {
+		int depth = this.cache.getInt(entry);
+		if (depth < 0) {
+			OptionalInt optional = (
+				skipNonColumnEntries(entry.value().streamDirectDependencies())
+				.mapToInt(this::recursiveComputeDepth)
+				.max()
 			);
-		}
-		try {
-			int depth = this.cache.getInt(entry);
-			if (depth < 0) {
-				depth = 0;
-				Set<RegistryEntry<ColumnEntry>> dependencies = entry.value().getDependencies();
-				if (!dependencies.isEmpty()) {
-					for (RegistryEntry<ColumnEntry> dependency : dependencies) {
-						depth = Math.max(depth, this.recursiveComputeDepth(dependency));
-					}
-					depth++;
-				}
-				this.cache.put(entry, depth);
-				while (this.results.size() <= depth) {
-					this.results.add(new ArrayList<>(16));
-				}
-				this.results.get(depth).add(entry);
+			depth = optional.isPresent() ? optional.getAsInt() + 1 : 0;
+			this.cache.put(entry, depth);
+			while (this.results.size() <= depth) {
+				this.results.add(new ArrayList<>(16));
 			}
-			return depth;
+			this.results.get(depth).add(entry);
 		}
-		finally {
-			this.cyclicDetector.remove(entry);
-		}
+		return depth;
 	}
 
-	public void outputResults() {
+	public static Stream<? extends RegistryEntry<? extends DependencyView>> skipNonColumnEntries(Stream<? extends RegistryEntry<? extends DependencyView>> stream) {
+		return stream.flatMap(
+			(RegistryEntry<? extends DependencyView> element) -> (
+				element.value() instanceof ColumnEntry
+				? Stream.of(element)
+				: skipNonColumnEntries(element.value().streamDirectDependencies())
+			)
+		);
+	}
+
+	public void outputResults(String suffix) {
 		//graphviz.
-		try (PrintStream out = new PrintStream("bigglobe_column_values.gv.txt", StandardCharsets.UTF_8)) {
+		try (PrintStream out = new PrintStream("bigglobe_column_values_" + suffix + ".gv.txt", StandardCharsets.UTF_8)) {
 			out.println("digraph bigglobe_column_values {");
 			out.println("\trankdir=\"RL\"");
 			SubGraph root = new SubGraph();
-			Map<RegistryEntry<ColumnEntry>, SubGraph> lookup = new Object2ObjectOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
-			for (RegistryEntry<ColumnEntry> entry : this.cache.keySet()) {
-				Identifier identifier = UnregisteredObjectException.getID(entry);
-				SubGraph graph = root.computeIfAbsent(identifier.getNamespace(), $ -> new SubGraph());
-				String[] split = identifier.getPath().split("/");
+			Map<RegistryEntry<? extends DependencyView>, SubGraph> lookup = new Object2ObjectOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
+			for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
+				String identifier = keyToString(UnregisteredObjectException.getKey(entry));
+				SubGraph graph = root;
+				String[] split = identifier.split("[/:]");
 				for (String part : split) {
 					graph = graph.computeIfAbsent(part, $ -> new SubGraph());
 				}
-				graph.fullName = identifier.toString();
+				graph.fullName = identifier;
 				lookup.put(entry, graph);
 			}
 			root.printAll(out, null, 0);
-			for (RegistryEntry<ColumnEntry> entry : this.cache.keySet()) {
-				if (!entry.value().getDependencies().isEmpty()) {
-					out.println("\t\"" + UnregisteredObjectException.getID(entry) + "\" -> { " + entry.value().getDependencies().stream().map(UnregisteredObjectException::getID).map((Identifier id) -> "\"" + id + '"').collect(Collectors.joining(" ")) + " }");
+			for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
+				String dependencyString = (
+					skipNonColumnEntries(entry.value().streamDirectDependencies())
+					.map(UnregisteredObjectException::getKey)
+					.map(DependencyDepthSorter::keyToString)
+					.map((String id) -> '"' + id + '"')
+					.collect(Collectors.joining(" "))
+				);
+				if (!dependencyString.isEmpty()) {
+					out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
 				}
 			}
 			out.println('}');
@@ -108,8 +103,12 @@ public class DependencyDepthSorter {
 		}
 		//my own graph generator.
 		try (Graph graph = new Graph(this)) {
-			graph.doAllTheThings();
+			graph.doAllTheThings(suffix);
 		}
+	}
+
+	public static String keyToString(RegistryKey<?> key) {
+		return key.getRegistry() + ":" + key.getValue();
 	}
 
 	public static class SubGraph extends HashMap<String, SubGraph> {
@@ -145,7 +144,7 @@ public class DependencyDepthSorter {
 			VERTICAL_SPACING = 32,
 			RECTANGLE_CURVE = 16;
 
-		public Map<RegistryEntry<ColumnEntry>, Cell> cellLookup;
+		public Map<RegistryEntry<? extends DependencyView>, Cell> cellLookup;
 		public List<Column> columns;
 		public Font font;
 		public FontRenderContext fontRenderContext;
@@ -165,7 +164,7 @@ public class DependencyDepthSorter {
 				Column column = new Column(this, columnIndex, columnPosition);
 				this.columns.add(column);
 				int columnWidth = 0;
-				for (RegistryEntry<ColumnEntry> entry : sorter.results.get(columnIndex)) {
+				for (RegistryEntry<? extends DependencyView> entry : sorter.results.get(columnIndex)) {
 					Cell cell = new Cell(column, UnregisteredObjectException.getID(entry).toString(), columnIndex);
 					this.cellLookup.put(entry, cell);
 					this.addCell(cell);
@@ -177,7 +176,7 @@ public class DependencyDepthSorter {
 			}
 		}
 
-		public void doAllTheThings() {
+		public void doAllTheThings(String suffix) {
 			BigGlobeMod.LOGGER.debug("Linking dependency graph.");
 			this.link();
 			BigGlobeMod.LOGGER.debug("Filing cells in dependency graph.");
@@ -187,17 +186,17 @@ public class DependencyDepthSorter {
 			BigGlobeMod.LOGGER.debug("Creating image for dependency graph.");
 			this.createImage();
 			BigGlobeMod.LOGGER.debug("Saving image for dependency graph.");
-			this.saveImage();
+			this.saveImage(suffix);
 			BigGlobeMod.LOGGER.debug("Done.");
 		}
 
 		public void link() {
-			for (Map.Entry<RegistryEntry<ColumnEntry>, Cell> dependant : this.cellLookup.entrySet()) {
-				for (RegistryEntry<ColumnEntry> dependency : dependant.getKey().value().getDependencies()) {
+			for (Map.Entry<RegistryEntry<? extends DependencyView>, Cell> dependant : this.cellLookup.entrySet()) {
+				skipNonColumnEntries(dependant.getKey().value().streamDirectDependencies()).forEach((RegistryEntry<? extends DependencyView> dependency) -> {
 					Cell left = this.cellLookup.get(dependency);
 					dependant.getValue().leftCells.add(left);
 					left.rightCells.add(dependant.getValue());
-				}
+				});
 			}
 		}
 
@@ -309,9 +308,9 @@ public class DependencyDepthSorter {
 			}
 		}
 
-		public void saveImage() {
+		public void saveImage(String suffix) {
 			try {
-				ImageIO.write(this.image, "png", new File("bigglobe_column_values.png"));
+				ImageIO.write(this.image, "png", new File("bigglobe_column_values_" + suffix + ".png"));
 			}
 			catch (IOException exception) {
 				BigGlobeMod.LOGGER.warn("Exception saving column value dependency chart image: ", exception);

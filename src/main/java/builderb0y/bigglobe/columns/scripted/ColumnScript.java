@@ -2,12 +2,19 @@ package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
 import org.objectweb.asm.Type;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
@@ -29,10 +36,17 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ColumnScript extends Script {
 
-	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> {
+	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements MutableDependencyView {
+
+		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>(64);
 
 		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
 			super(usage);
+		}
+
+		@Override
+		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+			return this.dependencies;
 		}
 
 		@Override
@@ -134,7 +148,14 @@ public interface ColumnScript extends Script {
 			if (haveY) environment.addVariableLoad(y);
 			if (haveRandom) environment.addAll(RandomScriptEnvironment.create(load(random)));
 			this.addExtraFunctionsToEnvironment(registry, environment);
-			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn).withY(haveY ? load(y) : null).mutable(this.isColumnMutable()));
+			registry.setupExternalEnvironment(
+				environment,
+				new ExternalEnvironmentParams()
+				.withColumn(loadMainColumn)
+				.withY(haveY ? load(y) : null)
+				.mutable(this.isColumnMutable())
+				.trackDependencies(this)
+			);
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
 			parser.parseEntireInput().emitBytecode(actualMethod);

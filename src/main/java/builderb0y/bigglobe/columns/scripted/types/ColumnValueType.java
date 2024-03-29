@@ -17,7 +17,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -85,7 +85,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		MutableScriptEnvironment environment,
 		TypeContext typeContext,
 		DataCompileContext context,
-		ColumnValueDependencyHolder dependencies
+		MutableDependencyView dependencies
 	) {}
 
 	@Override

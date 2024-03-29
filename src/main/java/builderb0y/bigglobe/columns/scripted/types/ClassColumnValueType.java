@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.mojang.datafixers.util.Unit;
 
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -69,7 +69,7 @@ public class ClassColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, ColumnValueDependencyHolder dependencies) {
+	public void setupEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, MutableDependencyView dependencies) {
 		TypeInfo type = typeContext.type();
 		environment.addType(this.name, type);
 		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {

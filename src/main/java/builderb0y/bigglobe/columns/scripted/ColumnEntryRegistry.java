@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 
+import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -27,7 +28,8 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -58,6 +60,11 @@ public class ColumnEntryRegistry {
 	public final transient ScriptClassLoader loader;
 
 	public ColumnEntryRegistry(BetterRegistry.Lookup registries) throws ScriptParsingException {
+		this(registries, "server");
+	}
+
+	@Hidden
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries, String suffix) throws ScriptParsingException {
 		this.registries = registries;
 		this.columnContext = new ColumnCompileContext(this);
 		this.voronoiManager = new VoronoiManager(this);
@@ -96,10 +103,11 @@ public class ColumnEntryRegistry {
 			});
 		});
 		this.columnContext.prepareForCompile();
-		DependencyDepthSorter sorter = new DependencyDepthSorter();
-		entries.streamEntries().forEach(sorter::recursiveComputeDepth);
+		entries.streamEntries().forEach(new CyclicDependencyAnalyzer());
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
-			sorter.outputResults();
+			DependencyDepthSorter sorter = new DependencyDepthSorter();
+			entries.streamEntries().forEach(sorter::recursiveComputeDepth);
+			sorter.outputResults(suffix);
 		}
 		try {
 			this.loader = new ScriptClassLoader();
@@ -149,7 +157,7 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, ColumnValueDependencyHolder dependencies) {
+	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, MutableDependencyView dependencies) {
 		VoronoiDataBase.INFO.addAll(environment, null);
 		for (ColumnEntryMemory memory : context.getMemories().values()) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, false, dependencies);
@@ -170,7 +178,7 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(environment, memory, this.columnContext, params);
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupEnvironment(environment, entry.getValue(), this.columnContext, params.caller);
+			entry.getKey().setupEnvironment(environment, entry.getValue(), this.columnContext, params.dependencies);
 		}
 	}
 

@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.VerifySizeRange;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -27,13 +26,8 @@ public class AndDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<ColumnEntry> entry) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
-		return Arrays.stream(this.conditions).map(DecisionTreeCondition::getDependencies).flatMap(Set::stream).collect(Collectors.toSet());
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		return Arrays.stream(this.conditions).flatMap(DecisionTreeCondition::streamDirectDependencies);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.math.BigInteger;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
@@ -13,6 +13,7 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -37,8 +38,8 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	}
 
 	@Override
-	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
-		return this.root.value().getDependencies();
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.concat(super.streamDirectDependencies(), Stream.of(this.root));
 	}
 
 	@Override

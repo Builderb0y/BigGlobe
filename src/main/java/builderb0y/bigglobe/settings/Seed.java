@@ -140,7 +140,7 @@ public abstract class Seed {
 
 		@Override
 		public <T_Encoded> T_Encoded doEncode(EncodeContext<T_Encoded, Seed> context) {
-			return context.empty();
+			return context.createLong(this.value);
 		}
 	}
 

@@ -2,13 +2,14 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -25,13 +26,8 @@ public class ConstantColumnEntry implements ColumnEntry {
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<ColumnEntry> entry) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
-		return Collections.emptySet();
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.empty();
 	}
 
 	@Override

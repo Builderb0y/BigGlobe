@@ -69,6 +69,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator.SortedStructures;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
@@ -134,6 +135,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final DualFeatureDispatcher feature_dispatcher;
 	public final RegistryEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
+	public static record ColorOverrides(
+		ColorScript.@VerifyNullable Holder grass,
+		ColorScript.@VerifyNullable Holder foliage,
+		ColorScript.@VerifyNullable Holder water
+	) {}
+	public final @VerifyNullable ColorOverrides colors;
 	public static record EndOverrides(
 		Spawning spawning,
 		InnerGateways inner_gateways,
@@ -175,6 +182,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		BiomeSource biome_source,
 		RegistryEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
+		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable EndOverrides end_overrides,
 		SortedStructures sortedStructures
 	) {
@@ -195,6 +203,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.feature_dispatcher = feature_dispatcher;
 		this.overriders = overriders;
 		this.spawn_point = spawn_point;
+		this.colors = colors;
 		this.end_overrides = end_overrides;
 		this.sortedStructures = sortedStructures;
 	}

@@ -1,19 +1,24 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -21,7 +26,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 
 @UseVerifier(name = "verify", in = DecisionTreeSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
-public class DecisionTreeSettings implements ColumnValueDependencyHolder {
+public class DecisionTreeSettings implements DependencyView {
 
 	public final @VerifyNullable DecisionTreeResult result;
 	public final @VerifyNullable DecisionTreeCondition condition;
@@ -61,14 +66,47 @@ public class DecisionTreeSettings implements ColumnValueDependencyHolder {
 		DataCompileContext context,
 		@Nullable InsnTree loadY
 	) {
+		return this.createInsnTree(selfEntry, accessSchema, context, loadY, new ReferenceLinkedOpenHashSet<>(16));
+	}
+
+	/**
+	under normal circumstances, I would use CyclicDependencyAnalyzer
+	after all the decision trees had been converted to bytecode.
+	this would have the advantage that all dependencies
+	everywhere are checked at the same time.
+	but due to the recursive nature of decision trees,
+	a StackOverflowError is thrown before any bytecode gets emitted.
+	so, I need a secondary dependency analysis specifically for decision trees.
+	*/
+	public InsnTree createInsnTree(
+		RegistryEntry<DecisionTreeSettings> selfEntry,
+		AccessSchema accessSchema,
+		DataCompileContext context,
+		@Nullable InsnTree loadY,
+		Set<RegistryEntry<DecisionTreeSettings>> stack
+	) {
+		if (!stack.add(selfEntry)) {
+			throw new CyclicDependencyException(
+				Stream
+				.concat(
+					stack
+					.stream()
+					.dropWhile((RegistryEntry<? extends DependencyView> compare) -> compare != selfEntry),
+					Stream.of(selfEntry)
+				)
+				.map(UnregisteredObjectException::getID)
+				.map(Identifier::toString)
+				.collect(Collectors.joining(" -> "))
+			);
+		}
 		try {
 			if (this.result != null) {
 				return this.result.createResult(context, accessSchema, loadY);
 			}
 			else {
 				ConditionTree condition = this.condition.createCondition(selfEntry, Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)), context, loadY);
-				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, accessSchema, context, loadY);
-				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, accessSchema, context, loadY);
+				InsnTree ifTrue = this.if_true.value().createInsnTree(this.if_true, accessSchema, context, loadY, stack);
+				InsnTree ifFalse = this.if_false.value().createInsnTree(this.if_false, accessSchema, context, loadY, stack);
 				if (!ifTrue.getTypeInfo().equals(ifFalse.getTypeInfo())) {
 					throw new DecisionTreeException(UnregisteredObjectException.getKey(this.if_true) + " and " + UnregisteredObjectException.getKey(this.if_false) + " do not have the same return type.");
 				}
@@ -80,28 +118,18 @@ public class DecisionTreeSettings implements ColumnValueDependencyHolder {
 			detailedException.details.add("Used by " + UnregisteredObjectException.getKey(selfEntry));
 			throw detailedException;
 		}
+		finally {
+			stack.remove(selfEntry);
+		}
 	}
 
 	@Override
-	public void addDependency(RegistryEntry<ColumnEntry> entry) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<RegistryEntry<ColumnEntry>> getDependencies() {
-		Set<RegistryEntry<ColumnEntry>> dependencies = new HashSet<>(64);
-		this.addDependencies(dependencies);
-		return dependencies;
-	}
-
-	public void addDependencies(Set<RegistryEntry<ColumnEntry>> dependencies) {
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
 		if (this.result != null) {
-			dependencies.addAll(this.result.getDependencies());
+			return this.result.streamDirectDependencies();
 		}
 		else {
-			dependencies.addAll(this.condition.getDependencies());
-			this.if_true.value().addDependencies(dependencies);
-			this.if_false.value().addDependencies(dependencies);
+			return Stream.of(this.if_true, this.if_false);
 		}
 	}
 }

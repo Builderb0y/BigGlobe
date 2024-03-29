@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.color.world.BiomeColors;
 
-import builderb0y.bigglobe.settings.OverworldClientSettings;
+import builderb0y.bigglobe.ClientState;
 
 /**
 I change the way vanilla color providers work, see {@link BiomeColors_UseNoiseInBigGlobeWorlds}.
@@ -21,7 +21,7 @@ public class Sodium_WorldSlice_UseNoiseInBigGlobeWorlds {
 
 	@Inject(method = "getColor(Lme/jellysquid/mods/sodium/client/world/biome/BiomeColorSource;III)I", at = @At("HEAD"), cancellable = true, remap = false)
 	private void bigglobe_useNoiseInBigGlobeWorlds(BiomeColorSource source, int x, int y, int z, CallbackInfoReturnable<Integer> callback) {
-		OverworldClientSettings.overrideColor(
+		ClientState.overrideColor(
 			x, y, z,
 			switch (source) {
 				case GRASS   -> BiomeColors.  GRASS_COLOR;

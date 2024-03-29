@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.ColorResolver;
 
-import builderb0y.bigglobe.settings.OverworldClientSettings;
+import builderb0y.bigglobe.ClientState;
 
 @Mixin(BiomeColors.class)
 @Environment(EnvType.CLIENT)
@@ -20,6 +20,6 @@ public class BiomeColors_UseNoiseInBigGlobeWorlds {
 
 	@Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_overrideColor(BlockRenderView world, BlockPos pos, ColorResolver resolver, CallbackInfoReturnable<Integer> callback) {
-		OverworldClientSettings.overrideColor(pos.getX(), pos.getY(), pos.getZ(), resolver, callback);
+		ClientState.overrideColor(pos.getX(), pos.getY(), pos.getZ(), resolver, callback);
 	}
 }

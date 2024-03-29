@@ -24,6 +24,9 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	skip generation of column value dependency graph png if .gv.txt matches what we expect.
+	redo script templates to not have a separate type for grids.
+	allow color scripts to use templates.
 
 4.0 stuff:
 	option to specify that a grid column entry should use the hashed world seed,
@@ -49,6 +52,8 @@ where I left off:
 	cave-exposed trail ruins at -1324.62 105.88 1666.20
 		decide if I want to keep these, or make a cave exclusion rule for them.
 		surface-exposed one at 1255.57 212.21 -1583.85
+			another one at 2514.28 474.17 48.03
+			third one at 1665.50 449.97 17.77
 			decide if I want a surface_y overrider for them,
 			or a structure overrider which prevents them from spawning in hilly or river-y areas.
 	use DistanceGraph for structure locating logic.
@@ -100,6 +105,7 @@ changelog:
 		* Some underground structures are now less secret.
 		* Deserts are now slightly more interesting.
 		* Added rivers.
+		* You can now place 1-6 rocks per block, instead of the number of rocks per block just being random.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.

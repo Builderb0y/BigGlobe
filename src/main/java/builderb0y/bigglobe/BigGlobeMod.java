@@ -99,8 +99,8 @@ public class BigGlobeMod implements ModInitializer {
 
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
-		ServerLifecycleEvents.SERVER_STOPPED .register(server -> currentServer = null  );
+		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> currentServer = server);
+		ServerLifecycleEvents.SERVER_STOPPED .register((MinecraftServer server) -> currentServer = null  );
 		if (REGEN_WORLDS) {
 			LOGGER.error("################################################################");
 			LOGGER.error("Warning! -D" + MODID + ".regenWorlds is set to true in your java arguments!");

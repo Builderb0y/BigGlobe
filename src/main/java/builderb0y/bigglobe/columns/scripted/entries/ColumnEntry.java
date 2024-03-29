@@ -15,7 +15,8 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.ColumnLookupGet3DValueInsnTree;
 import builderb0y.bigglobe.columns.scripted.ColumnLookupMutableGet3DValueInsnTree;
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -40,7 +41,7 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 @UseCoder(name = "REGISTRY", in = ColumnEntry.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValueDependencyHolder {
+public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, DependencyView {
 
 	public static final CoderRegistry<ColumnEntry> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_value"));
 	public static final Object INITIALIZER = new Object() {{
@@ -106,7 +107,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 		ColumnEntryMemory memory,
 		DataCompileContext context,
 		boolean useColumn,
-		ColumnValueDependencyHolder dependencies
+		MutableDependencyView dependencies
 	) {
 		String name = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
@@ -144,7 +145,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
 		MethodInfo setter = params.mutable && memory.getTyped(ColumnEntryMemory.ENTRY).isSettable() ? memory.getTyped(ColumnEntryMemory.SETTER).info : null;
 		RegistryEntry<ColumnEntry> entry = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
-		ColumnValueDependencyHolder caller = params.caller;
+		MutableDependencyView caller = params.dependencies;
 		InsnTree loadColumn;
 		if (params.loadLookup != null) {
 			if (this.getAccessSchema().is_3d()) {
@@ -260,16 +261,16 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 		*/
 		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ;
 		public boolean mutable;
-		public ColumnValueDependencyHolder caller;
+		public MutableDependencyView dependencies;
 
-		public ExternalEnvironmentParams withColumn(InsnTree    loadColumn) { this.loadColumn = loadColumn; return this; }
-		public ExternalEnvironmentParams withLookup(InsnTree    loadLookup) { this.loadLookup = loadLookup; return this; }
-		public ExternalEnvironmentParams withX     (InsnTree    loadX     ) { this.loadX      = loadX     ; return this; }
-		public ExternalEnvironmentParams withY     (InsnTree    loadY     ) { this.loadY      = loadY     ; return this; }
-		public ExternalEnvironmentParams withZ     (InsnTree    loadZ     ) { this.loadZ      = loadZ     ; return this; }
-		public ExternalEnvironmentParams mutable   (boolean     mutable   ) { this.mutable    = mutable   ; return this; }
-		public ExternalEnvironmentParams mutable   (                      ) { this.mutable    = true      ; return this; }
-		public ExternalEnvironmentParams withCaller(ColumnEntry caller    ) { this.caller     = caller    ; return this; }
+		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
+		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
+		public ExternalEnvironmentParams withX     (InsnTree loadX     ) { this.loadX      = loadX     ; return this; }
+		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
+		public ExternalEnvironmentParams withZ     (InsnTree loadZ     ) { this.loadZ      = loadZ     ; return this; }
+		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
+		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
+		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) { this.dependencies = dependencies; return this; }
 	}
 
 	public abstract void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException;
@@ -277,7 +278,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, ColumnValu
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, ColumnValueDependencyHolder)},
+	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, MutableDependencyView)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {

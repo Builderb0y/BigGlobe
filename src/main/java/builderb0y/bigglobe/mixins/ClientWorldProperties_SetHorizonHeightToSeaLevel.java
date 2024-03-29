@@ -11,7 +11,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.HeightLimitView;
 
 import builderb0y.bigglobe.ClientState;
-import builderb0y.bigglobe.settings.OverworldClientSettings;
+import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientWorld.Properties.class)
@@ -19,9 +19,9 @@ public class ClientWorldProperties_SetHorizonHeightToSeaLevel {
 
 	@Inject(method = "getSkyDarknessHeight", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_modifySkyDarknessHeight(HeightLimitView world, CallbackInfoReturnable<Double> callback) {
-		OverworldClientSettings settings = ClientState.settings;
-		if (settings != null) {
-			callback.setReturnValue((double)(settings.sea_level()));
+		ClientGeneratorParams params = ClientState.generatorParams;
+		if (params != null && params.seaLevel != null) {
+			callback.setReturnValue(params.seaLevel.doubleValue());
 		}
 	}
 }

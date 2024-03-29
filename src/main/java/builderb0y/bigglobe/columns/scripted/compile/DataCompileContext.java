@@ -4,7 +4,7 @@ import java.util.*;
 
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.dependencies.ColumnValueDependencyHolder;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
@@ -90,7 +90,7 @@ public abstract class DataCompileContext {
 		MethodCompileContext method,
 		ScriptUsage<GenericScriptTemplateUsage> script,
 		boolean includeY,
-		ColumnValueDependencyHolder dependencies
+		MutableDependencyView dependencies
 	)
 	throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method)
