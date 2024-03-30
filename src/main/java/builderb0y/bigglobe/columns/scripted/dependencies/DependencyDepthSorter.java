@@ -5,10 +5,10 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.*;
+import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -67,44 +68,74 @@ public class DependencyDepthSorter {
 	}
 
 	public void outputResults(String suffix) {
-		//graphviz.
-		try (PrintStream out = new PrintStream("bigglobe_column_values_" + suffix + ".gv.txt", StandardCharsets.UTF_8)) {
-			out.println("digraph bigglobe_column_values {");
-			out.println("\trankdir=\"RL\"");
-			SubGraph root = new SubGraph();
-			Map<RegistryEntry<? extends DependencyView>, SubGraph> lookup = new Object2ObjectOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
-			for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
-				String identifier = keyToString(UnregisteredObjectException.getKey(entry));
-				SubGraph graph = root;
-				String[] split = identifier.split("[/:]");
-				for (String part : split) {
-					graph = graph.computeIfAbsent(part, $ -> new SubGraph());
-				}
-				graph.fullName = identifier;
-				lookup.put(entry, graph);
+		BigGlobeMod.LOGGER.info("Generating column value dependency tree debug files, as requested in your config file...");
+		if (this.outputGraphViz(suffix) || Files.notExists(FabricLoader.getInstance().getGameDir().resolve("bigglobe_column_values_" + suffix + ".png"))) {
+			try (Graph graph = new Graph(this)) {
+				graph.doAllTheThings(suffix);
 			}
-			root.printAll(out, null, 0);
-			for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
-				String dependencyString = (
-					skipNonColumnEntries(entry.value().streamDirectDependencies())
-					.map(UnregisteredObjectException::getKey)
-					.map(DependencyDepthSorter::keyToString)
-					.map((String id) -> '"' + id + '"')
-					.collect(Collectors.joining(" "))
-				);
-				if (!dependencyString.isEmpty()) {
-					out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
-				}
+		}
+		else {
+			BigGlobeMod.LOGGER.info(".minecraft/bigglobe_column_values_" + suffix + ".gv.txt already exists and contents are up-to-date. Skipping image generation.");
+		}
+	}
+
+	/** returns true if the file contents changed. */
+	public boolean outputGraphViz(String suffix) {
+		try {
+			Path path = FabricLoader.getInstance().getGameDir().resolve("bigglobe_column_values_" + suffix + ".gv.txt");
+			String text = this.getGraphVizText();
+			if (Files.exists(path) && Files.readString(path).equals(text)) {
+				return false;
 			}
-			out.println('}');
+			else {
+				Files.writeString(path, text, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+				return true;
+			}
 		}
 		catch (IOException exception) {
 			BigGlobeMod.LOGGER.warn("Exception generating graphviz file: ", exception);
+			return false;
 		}
-		//my own graph generator.
-		try (Graph graph = new Graph(this)) {
-			graph.doAllTheThings(suffix);
+	}
+
+	public String getGraphVizText() {
+		StringWriter writer = new StringWriter(65536);
+		PrintWriter out = new PrintWriter(writer);
+		out.println("digraph bigglobe_column_values {");
+		out.println("\trankdir=\"RL\"");
+		SubGraph root = new SubGraph();
+		Map<RegistryEntry<? extends DependencyView>, SubGraph> lookup = new Object2ObjectOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
+		for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
+			String identifier = keyToString(UnregisteredObjectException.getKey(entry));
+			SubGraph graph = root;
+			String[] split = identifier.split("[/:]");
+			for (String part : split) {
+				graph = graph.computeIfAbsent(part, $ -> new SubGraph());
+			}
+			graph.fullName = identifier;
+			lookup.put(entry, graph);
 		}
+		root.printAll(out, null, 0);
+		this
+		.cache
+		.keySet()
+		.stream()
+		.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+		.forEachOrdered((RegistryEntry<? extends DependencyView> entry) -> {
+			String dependencyString = (
+				skipNonColumnEntries(entry.value().streamDirectDependencies())
+				.map(UnregisteredObjectException::getKey)
+				.sorted(Comparator.comparing(RegistryKey::getValue))
+				.map(DependencyDepthSorter::keyToString)
+				.map((String id) -> '"' + id + '"')
+				.collect(Collectors.joining(" "))
+			);
+			if (!dependencyString.isEmpty()) {
+				out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
+			}
+		});
+		out.println('}');
+		return writer.toString();
 	}
 
 	public static String keyToString(RegistryKey<?> key) {
@@ -115,7 +146,7 @@ public class DependencyDepthSorter {
 
 		public String fullName;
 
-		public void printAll(PrintStream stream, String name, int depth) {
+		public void printAll(PrintWriter stream, String name, int depth) {
 			String indentation = "\t".repeat(depth);
 			if (this.isEmpty()) {
 				stream.println(indentation + '"' + this.fullName + "\" [ label = \"" + name + "\" ]");
@@ -126,9 +157,13 @@ public class DependencyDepthSorter {
 					stream.println(indentation + "\tcluster = true");
 					stream.println(indentation + "\tlabel = \"" + name + '"');
 				}
-				for (Entry<String, SubGraph> entry : this.entrySet()) {
+				this
+				.entrySet()
+				.stream()
+				.sorted(Map.Entry.comparingByKey())
+				.forEachOrdered((Map.Entry<String, SubGraph> entry) ->{
 					entry.getValue().printAll(stream, entry.getKey(), depth + 1);
-				}
+				});
 				if (name != null) stream.println(indentation + '}');
 			}
 		}
@@ -310,7 +345,7 @@ public class DependencyDepthSorter {
 
 		public void saveImage(String suffix) {
 			try {
-				ImageIO.write(this.image, "png", new File("bigglobe_column_values_" + suffix + ".png"));
+				ImageIO.write(this.image, "png", FabricLoader.getInstance().getGameDir().resolve("bigglobe_column_values_" + suffix + ".png").toFile());
 			}
 			catch (IOException exception) {
 				BigGlobeMod.LOGGER.warn("Exception saving column value dependency chart image: ", exception);

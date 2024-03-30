@@ -24,7 +24,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	skip generation of column value dependency graph png if .gv.txt matches what we expect.
 	redo script templates to not have a separate type for grids.
 	allow color scripts to use templates.
 
