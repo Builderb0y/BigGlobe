@@ -25,7 +25,6 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.ReflectionData;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -109,7 +108,7 @@ public interface LegacyOverrider extends Script {
 
 	public static abstract class Holder<T_Overrider extends LegacyOverrider> extends ScriptHolder<T_Overrider> implements LegacyOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

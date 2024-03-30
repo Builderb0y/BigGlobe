@@ -25,7 +25,6 @@ import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -43,7 +42,7 @@ public interface SurfaceScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceScript> implements SurfaceScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) throws ScriptParsingException {
+		public Holder(ScriptUsage usage) throws ScriptParsingException {
 			super(usage);
 		}
 
@@ -52,7 +51,7 @@ public interface SurfaceScript extends Script {
 			this.script = createScript(this.usage, registry);
 		}
 
-		public static SurfaceScript createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
+		public static SurfaceScript createScript(ScriptUsage usage, ColumnEntryRegistry registry) throws ScriptParsingException {
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,

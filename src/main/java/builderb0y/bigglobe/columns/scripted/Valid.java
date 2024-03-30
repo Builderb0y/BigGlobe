@@ -6,13 +6,12 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.Any;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public record Valid(
-	@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> where,
-	@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> min_y,
-	@VerifyNullable ScriptUsage<GenericScriptTemplateUsage> max_y,
+	@VerifyNullable ScriptUsage where,
+	@VerifyNullable ScriptUsage min_y,
+	@VerifyNullable ScriptUsage max_y,
 	@VerifyNullable @Any Object fallback
 ) {
 

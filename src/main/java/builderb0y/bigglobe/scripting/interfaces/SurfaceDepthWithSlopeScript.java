@@ -13,7 +13,6 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -25,7 +24,7 @@ public interface SurfaceDepthWithSlopeScript extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<SurfaceDepthWithSlopeScript> implements SurfaceDepthWithSlopeScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

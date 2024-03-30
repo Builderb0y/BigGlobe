@@ -15,7 +15,6 @@ import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
@@ -88,7 +87,7 @@ public abstract class DataCompileContext {
 
 	public void setMethodCode(
 		MethodCompileContext method,
-		ScriptUsage<GenericScriptTemplateUsage> script,
+		ScriptUsage script,
 		boolean includeY,
 		MutableDependencyView dependencies
 	)

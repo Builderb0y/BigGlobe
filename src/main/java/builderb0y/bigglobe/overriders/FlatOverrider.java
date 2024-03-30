@@ -16,7 +16,6 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandle
 import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -65,7 +64,7 @@ public interface FlatOverrider extends LegacyOverrider {
 
 	public static abstract class Holder<T_Overrider extends FlatOverrider> extends LegacyOverrider.Holder<T_Overrider> implements FlatOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

@@ -26,7 +26,6 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.ReflectionData;
 
@@ -108,7 +107,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 	@Wrapper
 	public static class Holder extends ColumnScript.BaseHolder<ColumnValueOverrider> implements ColumnValueOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

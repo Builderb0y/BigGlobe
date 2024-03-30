@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": "mixLinear(limit, peak, exp2(-`bigglobe:overworld/distance_below_surface` / delay))",
 	"inputs": [
 		{ "name": "delay", "type": "double" },

@@ -69,7 +69,6 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
-import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
@@ -77,7 +76,7 @@ import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.scripting.parsing.ScriptTemplate;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 
 public class BigGlobeAutoCodec {
 

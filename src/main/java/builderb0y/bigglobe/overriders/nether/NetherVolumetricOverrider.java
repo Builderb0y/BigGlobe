@@ -8,7 +8,6 @@ import builderb0y.bigglobe.overriders.ScriptStructures;
 import builderb0y.bigglobe.overriders.VolumetricOverrider;
 import builderb0y.bigglobe.scripting.interfaces.ColumnYToDoubleScript;
 import builderb0y.bigglobe.settings.NetherSettings.NetherCavernSettings;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public interface NetherVolumetricOverrider extends VolumetricOverrider {
@@ -62,7 +61,7 @@ public interface NetherVolumetricOverrider extends VolumetricOverrider {
 	@Wrapper
 	public static class Holder extends VolumetricOverrider.Holder<NetherVolumetricOverrider> implements NetherVolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

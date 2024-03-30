@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"double halfCliffCurve(double height, double coefficient:",
 			"double product = coefficient * height,,",

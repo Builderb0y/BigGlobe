@@ -366,69 +366,37 @@
 						"`bigglobe:overworld/surface_foliage` > 0.0L"
 					],
 					"colors": {
-						"grass": [
-							"int color = getDefaultGrassColor(",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
-							")",
-							"float red   = color.redI",
-							"float green = color.greenI",
-							"float blue  = color.blueI",
-							"float magicalness = `bigglobe:overworld/magicalness`",
-							"float adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
-							"if (magicalness > 0.0I:",
-								"red   = mixLinear(red,   255.0I, adjustedMagicalness * 0.5I)",
-								"green = mixLinear(green, 255.0I, adjustedMagicalness       )",
-								"blue  = mixLinear(blue,  255.0I, adjustedMagicalness * 1.5I)",
-							")",
-							"else (",
-								"red   *= 1.0I - adjustedMagicalness * 0.5I",
-								"green *= 1.0I - adjustedMagicalness",
-								"blue  *= 1.0I - adjustedMagicalness * 1.5I",
-							")",
-							"return(packI(roundInt(red), roundInt(green), roundInt(blue)))"
-						],
-						"foliage": [
-							"int color = getDefaultFoliageColor(",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
-							")",
-							"float red   = color.redI",
-							"float green = color.greenI",
-							"float blue  = color.blueI",
-							"float magicalness = `bigglobe:overworld/magicalness`",
-							"float adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
-							"if (magicalness > 0.0I:",
-								"red   = mixLinear(red,   255.0I, adjustedMagicalness * 0.5I)",
-								"green = mixLinear(green, 255.0I, adjustedMagicalness       )",
-								"blue  = mixLinear(blue,  255.0I, adjustedMagicalness * 1.5I)",
-							")",
-							"else (",
-								"red   *= 1.0I - adjustedMagicalness * 0.5I",
-								"green *= 1.0I - adjustedMagicalness",
-								"blue  *= 1.0I - adjustedMagicalness * 1.5I",
-							")",
-							"return(packI(roundInt(red), roundInt(green), roundInt(blue)))"
-						],
-						"water": [
-							"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
-							"float red   = 63.0I",
-							"float green = roundInt(temperature * 128.0L + 64.0L)",
-							"float blue  = 255.0I",
-							"float magicalness = `bigglobe:overworld/magicalness`",
-							"float adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
-							"if (magicalness > 0.0I:",
-								"red   = mixLinear(red,   255.0I, adjustedMagicalness * 0.5I)",
-								"green = mixLinear(green, 255.0I, adjustedMagicalness       )",
-								"blue  = mixLinear(blue,  255.0I, adjustedMagicalness * 1.5I)",
-							")",
-							"else (",
-								"red   *= 1.0I - adjustedMagicalness * 0.5I",
-								"green *= 1.0I - adjustedMagicalness",
-								"blue  *= 1.0I - adjustedMagicalness * 1.5I",
-							")",
-							"return(packI(roundInt(red), roundInt(green), roundInt(blue)))"
-						]
+						"grass": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultGrassColor(",
+										"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+										"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"foliage": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultFoliageColor(",
+										"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+										"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"water": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
+									"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+								]
+							}
+						}
 					}
 				},
 				"old_value": {

@@ -24,10 +24,18 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	redo script templates to not have a separate type for grids.
-	allow color scripts to use templates.
 
 4.0 stuff:
+	things to eventually remove:
+		legacy chunk generators.
+		legacy overriders.
+		legacy script interfaces.
+		legacy settings (the "settings" package, which contains data for legacy chunk generators).
+		"dimensionTypes" package.
+		legacy ore, flower, and rock layer features.
+		legacy per-section stuff.
+		legacy columns.
+		"test" package (move to scripted dimension)
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.

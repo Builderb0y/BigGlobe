@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"long columnSeed = (worldSeed # 16x05985ACD460C357DUL).newSeed(originX, originZ)",
 		"for (int baseY in range[ceilInt(MIN_Y) & ~31, floorInt(MAX_Y)] % 32:",

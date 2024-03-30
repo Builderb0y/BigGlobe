@@ -6,7 +6,6 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 public interface HeightAdjustmentScript extends Script {
@@ -15,7 +14,7 @@ public interface HeightAdjustmentScript extends Script {
 
 	public static abstract class Holder extends ScriptHolder<HeightAdjustmentScript> implements HeightAdjustmentScript {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 
@@ -34,7 +33,7 @@ public interface HeightAdjustmentScript extends Script {
 	@Wrapper
 	public static class TemperatureHolder extends Holder {
 
-		public TemperatureHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public TemperatureHolder(ScriptUsage usage) {
 			super(usage);
 		}
 
@@ -61,7 +60,7 @@ public interface HeightAdjustmentScript extends Script {
 	@Wrapper
 	public static class FoliageHolder extends Holder {
 
-		public FoliageHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public FoliageHolder(ScriptUsage usage) {
 			super(usage);
 		}
 

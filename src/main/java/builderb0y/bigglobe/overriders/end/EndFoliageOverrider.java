@@ -4,7 +4,6 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.EndColumn;
 import builderb0y.bigglobe.overriders.FlatOverrider;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public interface EndFoliageOverrider extends EndFlatOverrider {
@@ -12,7 +11,7 @@ public interface EndFoliageOverrider extends EndFlatOverrider {
 	@Wrapper
 	public static class Holder extends EndFlatOverrider.Holder<EndFoliageOverrider> implements EndFoliageOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

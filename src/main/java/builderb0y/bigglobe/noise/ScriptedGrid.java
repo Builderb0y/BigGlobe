@@ -2,8 +2,6 @@ package builderb0y.bigglobe.noise;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -11,14 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
 
-import builderb0y.autocodec.annotations.DefaultEmpty;
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -26,8 +20,10 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.util.ArrayBuilder;
+import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -36,13 +32,12 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 
 	public static final TypeInfo NUMBER_ARRAY_TYPE = type(NumberArray.class);
 
-	public final ScriptUsage<ScriptedGridTemplateUsage<G>> script;
+	public final @MultiLine String script;
 	public final @DefaultEmpty Map<@UseVerifier(name = "verifyInputName", in = ScriptedGrid.class, usage = MemberUsage.METHOD_IS_HANDLER) String, G> inputs;
 	public final double min;
 	public final @VerifySorted(greaterThanOrEqual = "min") double max;
-	public transient long nextWarning = Long.MIN_VALUE;
 
-	public ScriptedGrid(ScriptUsage<ScriptedGridTemplateUsage<G>> script, Map<String, G> inputs, double min, double max) {
+	public ScriptedGrid(@MultiLine String script, Map<String, G> inputs, double min, double max) {
 		this.script = script;
 		this.inputs = inputs;
 		this.min = min;
@@ -51,12 +46,12 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 
 	@Override
 	public @Nullable String getDebugName() {
-		return this.script.debug_name;
+		return null;
 	}
 
 	@Override
 	public @Nullable String getSource() {
-		return this.script.findSource();
+		return this.script;
 	}
 
 	public abstract Grid getDelegate();
@@ -168,18 +163,17 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			ALLOCATED = MethodInfo.getMethod(NumberArray.class, "allocateDoublesDirect"),
 			LENGTH = MethodInfo.getMethod(NumberArray.class, "length");
 
-		public ScriptUsage<ScriptedGridTemplateUsage<G>> usage;
 		public LinkedHashMap<String, Input> gridInputs;
 		public GridTypeInfo gridTypeInfo;
 
 		public Parser(
-			ScriptUsage<ScriptedGridTemplateUsage<G>> usage,
+			@MultiLine String script,
 			LinkedHashMap<String, Input> gridInputs,
 			GridTypeInfo gridTypeInfo,
 			ClassCompileContext clazz
 		) {
 			super(
-				usage.findSource(),
+				script,
 				clazz,
 				clazz.newMethod(
 					ACC_PUBLIC | ACC_STATIC,
@@ -188,9 +182,12 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 					params(gridTypeInfo, gridInputs)
 				)
 			);
-			this.usage = usage;
 			this.gridInputs = gridInputs;
 			this.gridTypeInfo = gridTypeInfo;
+			for (Input input : this.gridInputs.values()) {
+				this.environment.mutable().addVariableConstant(input.name + "Min", input.grid.minValue());
+				this.environment.mutable().addVariableConstant(input.name + "Max", input.grid.maxValue());
+			}
 		}
 
 		public static LazyVarInfo[] params(GridTypeInfo gridTypeInfo, LinkedHashMap<String, Input> gridInputs) {
@@ -204,15 +201,15 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			return list.toArray(new LazyVarInfo[list.size()]);
 		}
 
-		public Parser(ScriptUsage<ScriptedGridTemplateUsage<G>> usage, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo) {
+		public Parser(@MultiLine String script, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo) {
 			this(
-				usage,
+				script,
 				gridInputs,
 				gridTypeInfo,
 				new ClassCompileContext(
 					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 					ClassType.CLASS,
-					Type.getInternalName(gridTypeInfo.parserClass) + '$' + (usage.debug_name != null ? usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+					Type.getInternalName(gridTypeInfo.parserClass) + '$' + "Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
 					new TypeInfo[] { TypeInfo.of(gridTypeInfo.gridClass), TypeInfo.of(Script.class) }
 				)
@@ -359,42 +356,6 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 		public void addEvaluate() throws ScriptParsingException {
 			this.parseEntireInput().emitBytecode(this.method);
 			this.method.endCode();
-		}
-
-		@Override
-		public InsnTree parseEntireInput() throws ScriptParsingException {
-			for (Input input : this.gridInputs.values()) {
-				this.environment.mutable().addVariableConstant(input.name + "Min", input.grid.minValue());
-				this.environment.mutable().addVariableConstant(input.name + "Max", input.grid.maxValue());
-			}
-			if (this.usage.isTemplate()) {
-				ScriptedGridTemplateUsage<G> gridUsage = this.usage.getTemplate();
-				gridUsage.validateInputs(
-					this
-					.gridInputs
-					.entrySet()
-					.stream()
-					.map(
-						(Map.Entry<String, Input> entry) -> Map.entry(
-							entry.getKey(),
-							entry.getValue().<G>grid()
-						)
-					)
-					.collect(
-						Collectors.toMap(
-							Map.Entry::getKey,
-							Map.Entry::getValue
-						)
-					),
-					(Supplier<String> message) -> new ScriptParsingException(message.get(), null)
-				);
-				ArrayBuilder<InsnTree> initializers = TemplateScriptParser.parseInitializers(this, gridUsage);
-				initializers.add(super.parseEntireInput());
-				return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
-			}
-			else {
-				return super.parseEntireInput();
-			}
 		}
 
 		public void addSource() {

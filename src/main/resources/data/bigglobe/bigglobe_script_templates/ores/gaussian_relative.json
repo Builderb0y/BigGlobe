@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"double offset = (`bigglobe:overworld/distance_below_surface` - depth) / deviation",
 		"mixLinear(limit, peak, exp2(-(offset ^ 2)))"

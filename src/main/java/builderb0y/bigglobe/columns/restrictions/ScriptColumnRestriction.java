@@ -5,7 +5,6 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
@@ -24,7 +23,7 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 	@Wrapper
 	public static class RestrictionScriptHolder extends ColumnYToDoubleScript.Holder {
 
-		public RestrictionScriptHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public RestrictionScriptHolder(ScriptUsage usage) {
 			super(usage);
 		}
 

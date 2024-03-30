@@ -6,9 +6,9 @@
 	},
 	"grid": {
 		"type": "script",
-		"script": {
-			"template": "bigglobe:grids/sigmoid"
-		},
+		"script": [
+			"1.0L / (exp(-4.0L * base) + 1.0L)"
+		],
 		"min": 0.0,
 		"max": 1.0,
 		"inputs": {

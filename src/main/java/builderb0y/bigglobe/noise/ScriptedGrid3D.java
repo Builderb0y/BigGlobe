@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import builderb0y.bigglobe.noise.ScriptedGridTemplate.ScriptedGridTemplateUsage;
+import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -13,7 +13,6 @@ import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +23,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 	public final transient Grid3D delegate;
 
-	public ScriptedGrid3D(ScriptUsage<ScriptedGridTemplateUsage<Grid3D>> script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
+	public ScriptedGrid3D(@MultiLine String script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
 		super(script, inputs, min, max);
 		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_3D_TYPE_INFO);
 		Parser parser = new Parser(script, processedInputs);
@@ -105,8 +104,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 			GET_BULK_Z = MethodInfo.getMethod(Grid3D.class, "getBulkZ"),
 			GET_BULK[] = { GET_BULK_X, GET_BULK_Y, GET_BULK_Z };
 
-		public Parser(ScriptUsage<ScriptedGridTemplateUsage<Grid3D>> usage, LinkedHashMap<String, Input> inputs) {
-			super(usage, inputs, GRID_3D_TYPE_INFO);
+		public Parser(@MultiLine String script, LinkedHashMap<String, Input> inputs) {
+			super(script, inputs, GRID_3D_TYPE_INFO);
 		}
 
 		@Override

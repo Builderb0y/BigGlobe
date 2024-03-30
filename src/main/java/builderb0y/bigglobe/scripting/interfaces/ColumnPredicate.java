@@ -8,7 +8,6 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.ColumnScriptEnvironmentBuilder;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -19,7 +18,7 @@ public interface ColumnPredicate extends Script {
 	@Wrapper
 	public static class Holder extends ScriptHolder<ColumnPredicate> implements ColumnPredicate {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 

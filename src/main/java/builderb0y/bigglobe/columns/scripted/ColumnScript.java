@@ -28,7 +28,6 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -40,8 +39,9 @@ public interface ColumnScript extends Script {
 
 		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>(64);
 
-		public BaseHolder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public BaseHolder(ScriptUsage usage) {
 			super(usage);
+			if (usage.isTemplate()) this.dependencies.add(usage.getTemplate());
 		}
 
 		@Override
@@ -62,7 +62,7 @@ public interface ColumnScript extends Script {
 			return false;
 		}
 
-		public S createScript(ScriptUsage<GenericScriptTemplateUsage> usage, ColumnEntryRegistry registry) throws ScriptParsingException {
+		public S createScript(ScriptUsage usage, ColumnEntryRegistry registry) throws ScriptParsingException {
 			Class<S> type = this.getScriptClass();
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
@@ -185,7 +185,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToIntScript> implements ColumnToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -214,7 +214,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToIntScript> implements ColumnYToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -243,7 +243,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToLongScript> implements ColumnToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -272,7 +272,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToLongScript> implements ColumnYToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -301,7 +301,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToFloatScript> implements ColumnToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -330,7 +330,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToFloatScript> implements ColumnYToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -359,7 +359,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToDoubleScript> implements ColumnToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -388,7 +388,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -417,7 +417,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnToBooleanScript> implements ColumnToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -446,7 +446,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -475,7 +475,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomToIntScript> implements ColumnRandomToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -504,7 +504,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomYToIntScript> implements ColumnRandomYToIntScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -533,7 +533,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomToLongScript> implements ColumnRandomToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -562,7 +562,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomYToLongScript> implements ColumnRandomYToLongScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -591,7 +591,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomToFloatScript> implements ColumnRandomToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -620,7 +620,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomYToFloatScript> implements ColumnRandomYToFloatScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -649,7 +649,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomToDoubleScript> implements ColumnRandomToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -678,7 +678,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomYToDoubleScript> implements ColumnRandomYToDoubleScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -707,7 +707,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomToBooleanScript> implements ColumnRandomToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -736,7 +736,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnRandomYToBooleanScript> implements ColumnRandomYToBooleanScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -765,7 +765,7 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToBiomeScript> implements ColumnYToBiomeScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 

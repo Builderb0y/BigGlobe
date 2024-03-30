@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"random.unless(CHANCE: return(false))",
 

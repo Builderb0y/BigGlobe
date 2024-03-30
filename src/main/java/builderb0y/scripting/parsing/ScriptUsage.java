@@ -1,56 +1,94 @@
 package builderb0y.scripting.parsing;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.autocodec.annotations.*;
-import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.decoders.AutoDecoder;
+import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.decoders.RecordDecoder;
+import builderb0y.autocodec.encoders.AutoEncoder;
+import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.scripting.parsing.ScriptTemplate.ScriptTemplateUsage;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageCoder;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageDecoder;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageEncoder;
 
-@UseCoder(name = "new", in = ScriptUsageCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
-public class ScriptUsage<T extends ScriptTemplateUsage> {
+@UseEncoder(name = "new", in = ScriptUsageEncoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
+@UseDecoder(name = "new", in = ScriptUsageDecoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
+@UseVerifier(name = "verify", in = ScriptUsage.class, usage = MemberUsage.METHOD_IS_HANDLER)
+public class ScriptUsage {
 
 	public final @VerifyNullable @MultiLine String source;
-	public final @VerifyNullable T template;
-	public final @VerifyNullable String debug_name;
+	public final @VerifyNullable RegistryEntry<ScriptTemplate> template;
+	public final @VerifyNullable Map<@IdentifierName String, @MultiLine String> inputs;
+	public final @VerifyNullable @IdentifierName String debug_name;
 
-	public ScriptUsage(@NotNull String source, @VerifyNullable String debug_name) {
-		this.source = source;
-		this.template = null;
+	@Hidden
+	public ScriptUsage(@NotNull @MultiLine String source) {
+		this.source     = source;
+		this.template   = null;
+		this.inputs     = null;
+		this.debug_name = null;
+	}
+
+	public ScriptUsage(
+		@VerifyNullable String source,
+		@VerifyNullable RegistryEntry<ScriptTemplate> template,
+		@VerifyNullable Map<@IdentifierName String, @MultiLine String> inputs,
+		@VerifyNullable String debug_name
+	) {
+		this.source     = source;
+		this.template   = template;
+		this.inputs     = inputs;
 		this.debug_name = debug_name;
 	}
 
-	public ScriptUsage(@NotNull T template, @VerifyNullable String debug_name) {
-		this.source = null;
-		this.template = template;
-		this.debug_name = debug_name;
-	}
-
-	public static <T_Encoded> void verifyDebugName(VerifyContext<T_Encoded, String> context) throws VerifyException {
-		String name = context.object;
-		if (name != null) {
-			for (int index = 0, length = name.length(); index < length; index++) {
-				char c = name.charAt(index);
-				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')) continue;
-				else throw new VerifyException(() -> "Illegal character in debug name: " + c);
+	public static <T_Encoded> void verify(VerifyContext<T_Encoded, ScriptUsage> context) throws VerifyException {
+		ScriptUsage usage = context.object;
+		if (usage == null) return;
+		if (usage.source != null) {
+			if (usage.template != null || usage.inputs != null) {
+				throw new VerifyException(() -> "Must specify EITHER source OR template and inputs, but not both.");
+			}
+		}
+		else {
+			if (usage.template == null || usage.inputs == null) {
+				throw new VerifyException(() -> "Must specify EITHER source OR template and inputs, but not both.");
+			}
+			List<RequiredInput> requiredInputs = usage.template.value().inputs();
+			Set<String> expected = new HashSet<>(requiredInputs.size());
+			for (RequiredInput requiredInput : requiredInputs) {
+				if (!expected.add(requiredInput.name())) {
+					throw new VerifyException(() -> "Duplicate input: " + requiredInput.name());
+				}
+			}
+			Set<String> actual = usage.inputs.keySet();
+			if (!expected.equals(actual)) {
+				throw new VerifyException(() -> "Input mismatch: Expected " + expected + ", got " + actual);
 			}
 		}
 	}
 
 	public String findSource() {
-		return this.isScript() ? this.getScript() : this.getTemplate().getEntry().value().getSource();
+		return this.isScript() ? this.getScript() : this.getTemplate().value().source();
 	}
 
 	public boolean isScript() {
@@ -66,77 +104,87 @@ public class ScriptUsage<T extends ScriptTemplateUsage> {
 		else throw new IllegalStateException("Not a script");
 	}
 
-	public T getTemplate() {
+	public RegistryEntry<ScriptTemplate> getTemplate() {
 		if (this.template != null) return this.template;
 		else throw new IllegalStateException("Not a template");
 	}
 
-	public static class ScriptUsageCoder<T extends ScriptTemplateUsage> extends NamedCoder<ScriptUsage<T>> {
+	public Map<String, String> getInputs() {
+		if (this.inputs != null) return this.inputs;
+		else throw new IllegalStateException("Not a template");
+	}
 
-		public final AutoCoder<@MultiLine String> scriptCoder;
-		public final AutoCoder<@MultiLine @VerifyNullable String> sourceCoder;
-		public final AutoCoder<String> debugNameCoder;
-		public final AutoCoder<T> templateCoder;
+	@UseVerifier(name = "verify", in = ScriptTemplate.class, usage = MemberUsage.METHOD_IS_HANDLER)
+	public static record ScriptTemplate(@MultiLine @UseName("script") String source, List<RequiredInput> inputs) implements DependencyView {
 
-		public ScriptUsageCoder(FactoryContext<ScriptUsage<T>> context) {
-			super(context.type);
-			this.scriptCoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateCoder();
-			this.sourceCoder = context.type(new ReifiedType<@MultiLine @VerifyNullable String>() {}).forceCreateCoder();
-			this.templateCoder = context.type(context.type.getParameters()[0].<T>uncheckedCast()).forceCreateCoder();
-			this.debugNameCoder = context.type(new ReifiedType<@VerifyNullable @UseVerifier(name = "verifyDebugName", in = ScriptUsage.class, usage = MemberUsage.METHOD_IS_HANDLER) String>() {}).forceCreateCoder();
+		public record RequiredInput(@IdentifierName String name, String type) {}
+
+		public static <T_Encoded> void verify(VerifyContext<T_Encoded, ScriptTemplate> context) throws VerifyException {
+			ScriptTemplate template = context.object;
+			if (template == null) return;
+			Set<String> seen = new HashSet<>(template.inputs.size() << 1);
+			for (RequiredInput input : template.inputs) {
+				if (!seen.add(input.name)) {
+					throw new VerifyException(() -> "Duplicate input name: " + input.name);
+				}
+			}
 		}
 
 		@Override
-		public <T_Encoded> @Nullable ScriptUsage<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+		public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+			return Stream.empty();
+		}
+	}
+
+	public static class ScriptUsageDecoder extends NamedDecoder<ScriptUsage> {
+
+		public final AutoDecoder<@MultiLine String> stringArrayDecoder;
+		public final AutoDecoder<ScriptUsage> objectDecoder;
+
+		public ScriptUsageDecoder(FactoryContext<ScriptUsage> context) {
+			super(context.type);
+			this.stringArrayDecoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateDecoder();
+			this.objectDecoder = context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE);
+		}
+
+		@Override
+		public <T_Encoded> @Nullable ScriptUsage decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) {
 				return null;
 			}
 			else if (context.isString() || context.isList()) {
-				return new ScriptUsage<>(context.decodeWith(this.scriptCoder), null);
+				return new ScriptUsage(context.decodeWith(this.stringArrayDecoder));
 			}
 			else if (context.isMap()) {
-				String debugName = context.getMember("debug_name").decodeWith(this.debugNameCoder);
-				String source = context.getMember("source").decodeWith(this.sourceCoder);
-				if (source != null) {
-					return new ScriptUsage<>(source, debugName);
-				}
-				else {
-					return new ScriptUsage<>(context.decodeWith(this.templateCoder), debugName);
-				}
+				return context.decodeWith(this.objectDecoder);
 			}
 			else {
 				throw context.notA("string, list, or map");
 			}
 		}
+	}
+
+	public static class ScriptUsageEncoder extends NamedEncoder<ScriptUsage> {
+
+		public final AutoEncoder<@MultiLine String> stringArrayEncoder;
+		public final AutoEncoder<ScriptUsage> objectEncoder;
+
+		@SuppressWarnings("unchecked")
+		public ScriptUsageEncoder(@NotNull FactoryContext<ScriptUsage> context) {
+			super(context.type);
+			this.stringArrayEncoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateEncoder();
+			this.objectEncoder = (AutoEncoder<ScriptUsage>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
+		}
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ScriptUsage<T>> context) throws EncodeException {
-			ScriptUsage<T> object = context.input;
-			if (object == null) return context.empty();
-			if (object.isTemplate()) {
-				if (object.debug_name != null) {
-					return context.addToStringMap(
-						context.input(object.template).encodeWith(this.templateCoder),
-						"debug_name",
-						context.input(object.debug_name).encodeWith(this.debugNameCoder)
-					);
-				}
-				else {
-					return context.input(object.template).encodeWith(this.templateCoder);
-				}
+		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ScriptUsage> context) throws EncodeException {
+			ScriptUsage usage = context.input;
+			if (usage == null) return context.empty();
+			if (usage.source != null && usage.debug_name == null) {
+				return context.input(usage.source).encodeWith(this.stringArrayEncoder);
 			}
 			else {
-				if (object.debug_name != null) {
-					return context.createStringMap(
-						Map.of(
-							"source", context.input(object.source).encodeWith(this.sourceCoder),
-							"debug_name", context.input(object.debug_name).encodeWith(this.debugNameCoder)
-						)
-					);
-				}
-				else {
-					return context.input(object.source).encodeWith(this.scriptCoder);
-				}
+				return context.encodeWith(this.objectEncoder);
 			}
 		}
 	}

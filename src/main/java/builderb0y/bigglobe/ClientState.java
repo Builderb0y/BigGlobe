@@ -2,7 +2,9 @@ package builderb0y.bigglobe;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,6 +17,9 @@ import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryOps.RegistryInfo;
+import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -51,9 +56,9 @@ import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 import builderb0y.scripting.util.InfoHolder;
 
 public class ClientState {
@@ -105,13 +110,48 @@ public class ClientState {
 		}
 	}
 
-	public static final class ClientGeneratorParams {
+	public static <T> SimpleRegistry<T> convertToSimpleRegistry(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
+		SimpleRegistry<T> registry = new SimpleRegistry<>(key, Lifecycle.experimental());
+		for (Map.Entry<Identifier, T> entry : map.entrySet()) {
+			Registry.register(registry, entry.getKey(), entry.getValue());
+		}
+		return registry;
+	}
+
+	public static <T> BetterRegistry<T> convertToBetterRegistry(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
+		return new BetterHardCodedRegistry<>(convertToSimpleRegistry(key, map));
+	}
+
+	public static class TemplateRegistry extends HashMap<Identifier, ScriptTemplate> {
+
+		public static final AutoCoder<TemplateRegistry> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(TemplateRegistry.class);
+
+		public <T> RegistryOps<T> createOps(DynamicOps<T> delegate) {
+			SimpleRegistry<ScriptTemplate> registry = convertToSimpleRegistry(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, this);
+			return RegistryOps.of(delegate, new RegistryInfoGetter() {
+
+				@Override
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				public <T> Optional<RegistryInfo<T>> getRegistryInfo(RegistryKey<? extends Registry<? extends T>> key) {
+					return (
+						((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))
+						? (Optional)(Optional.of(new RegistryInfo<>(registry.getEntryOwner(), registry.createMutableEntryLookup(), registry.getLifecycle())))
+						: Optional.empty()
+					);
+				}
+			});
+		}
+	}
+
+	public static class ClientGeneratorParams {
 
 		public static final AutoCoder<ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {});
 
+		public final TemplateRegistry templates;
 		public final Map<Identifier, ColumnEntry> columnEntries;
 		public final Map<Identifier, VoronoiSettings> voronoiSettings;
 		public final Map<Identifier, DecisionTreeSettings> decisionTrees;
+
 		public final int minY, maxY;
 		public final @VerifyNullable Integer seaLevel;
 		public final long columnSeed;
@@ -122,6 +162,7 @@ public class ClientState {
 		public final transient ThreadLocal<ScriptedColumn> columns;
 
 		public ClientGeneratorParams(
+			TemplateRegistry templates,
 			Map<Identifier, ColumnEntry> columnEntries,
 			Map<Identifier, VoronoiSettings> voronoiSettings,
 			Map<Identifier, DecisionTreeSettings> decisionTrees,
@@ -133,6 +174,7 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor
 		) {
+			this.templates = templates;
 			this.columnEntries = columnEntries;
 			this.voronoiSettings = voronoiSettings;
 			this.decisionTrees = decisionTrees;
@@ -148,9 +190,10 @@ public class ClientState {
 
 		@Hidden //we want AutoCodec to target the other constructor.
 		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator) {
-			this.columnEntries = new HashMap<>(16);
+			this.templates       = new TemplateRegistry();
+			this.columnEntries   = new HashMap<>(16);
 			this.voronoiSettings = new HashMap<>(16);
-			this.decisionTrees = new HashMap<>(16);
+			this.decisionTrees   = new HashMap<>(32);
 			this.minY = generator.height.min_y();
 			this.maxY = generator.height.max_y();
 			this.seaLevel = generator.height.sea_level();
@@ -174,6 +217,9 @@ public class ClientState {
 				else if (entry.value() instanceof DecisionTreeSettings decision) {
 					this.decisionTrees.put(UnregisteredObjectException.getID(entry), decision);
 				}
+				else if (entry.value() instanceof ScriptTemplate template) {
+					this.templates.put(UnregisteredObjectException.getID(entry), template);
+				}
 				else {
 					throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
 				}
@@ -182,10 +228,18 @@ public class ClientState {
 
 		public void compile() throws ScriptParsingException {
 			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
-			BetterRegistry<DecisionTreeSettings> decisionTrees = this.convert(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, this.decisionTrees);
-			BetterRegistry<VoronoiSettings> voronoiSettings = this.convert(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, this.voronoiSettings);
-			BetterRegistry<ColumnEntry> columnEntries = this.convert(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, this.columnEntries);
-			BetterRegistry.Lookup lookup = new BetterRegistry.Lookup() {
+			this.columnEntryRegistry = new ColumnEntryRegistry(this.createLookup(), "client");
+			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
+			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
+			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
+		}
+
+		public BetterRegistry.Lookup createLookup() {
+			BetterRegistry<DecisionTreeSettings> decisionTrees = convertToBetterRegistry(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, this.decisionTrees);
+			BetterRegistry<VoronoiSettings> voronoiSettings = convertToBetterRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, this.voronoiSettings);
+			BetterRegistry<ColumnEntry> columnEntries = convertToBetterRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, this.columnEntries);
+			BetterRegistry<ScriptTemplate> templates = convertToBetterRegistry(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, this.templates);
+			return new BetterRegistry.Lookup() {
 
 				@Override
 				@SuppressWarnings("unchecked")
@@ -199,23 +253,14 @@ public class ClientState {
 					else if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY))) {
 						return (BetterRegistry<T>)(decisionTrees);
 					}
+					else if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))) {
+						return (BetterRegistry<T>)(templates);
+					}
 					else {
 						throw new IllegalArgumentException("Something has a dependency on a registry that isn't synced.");
 					}
 				}
 			};
-			this.columnEntryRegistry = new ColumnEntryRegistry(lookup, "client");
-			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
-			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
-			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
-		}
-
-		public <T> BetterRegistry<T> convert(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
-			SimpleRegistry<T> registry = new SimpleRegistry<>(key, Lifecycle.experimental());
-			for (Map.Entry<Identifier, T> entry : map.entrySet()) {
-				Registry.register(registry, entry.getKey(), entry.getValue());
-			}
-			return new BetterHardCodedRegistry<>(registry);
 		}
 
 		public ScriptedColumn createColumn() {
@@ -335,7 +380,7 @@ public class ClientState {
 		@Wrapper
 		public static class Holder extends ColumnScript.BaseHolder<ColorScript> implements ColorScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 

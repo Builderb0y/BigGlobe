@@ -15,7 +15,6 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.noise.Grid;
-import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
@@ -23,7 +22,7 @@ import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
-import builderb0y.scripting.parsing.ScriptTemplate;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 
 #if MC_VERSION <= MC_1_19_2
 	import net.minecraft.registry.DynamicRegistryManager.Info;

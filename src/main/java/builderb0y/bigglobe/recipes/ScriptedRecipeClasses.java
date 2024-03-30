@@ -13,7 +13,6 @@ import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -55,7 +54,7 @@ public class ScriptedRecipeClasses {
 		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -97,7 +96,7 @@ public class ScriptedRecipeClasses {
 		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -140,7 +139,7 @@ public class ScriptedRecipeClasses {
 		@Wrapper
 		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript {
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 

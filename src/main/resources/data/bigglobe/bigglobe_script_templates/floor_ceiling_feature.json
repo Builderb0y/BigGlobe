@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"if (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline():",
 			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",

@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"unless (getBlockState(originX, originY, originZ).isReplaceable(): return(false))",
 		"unless (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline(): return(false))",

@@ -35,7 +35,7 @@ public class LocateCommand {
 					.argument("script", StringArgumentType.greedyString())
 					.executes((CommandContext<ServerCommandSource> context) -> {
 						ColumnToBooleanScript.Holder script = new ColumnToBooleanScript.Holder(
-							new ScriptUsage<>(context.getArgument("script", String.class), null)
+							new ScriptUsage(context.getArgument("script", String.class))
 						);
 						if (!compile(script, context.getSource())) return 0;
 						LocateNearestCommand command = new LocateNearestCommand(context.getSource(), script);
@@ -53,7 +53,7 @@ public class LocateCommand {
 						.executes((CommandContext<ServerCommandSource> context) -> {
 							ServerCommandSource source = context.getSource();
 							ColumnToBooleanScript.Holder script = new ColumnToBooleanScript.Holder(
-								new ScriptUsage<>(context.getArgument("script", String.class), null)
+								new ScriptUsage(context.getArgument("script", String.class))
 							);
 							if (!compile(script, source)) return 0;
 							LocateLargestCommand command = new LocateLargestCommand(
@@ -77,7 +77,7 @@ public class LocateCommand {
 						.executes((CommandContext<ServerCommandSource> context) -> {
 							ServerCommandSource source = context.getSource();
 							ColumnToDoubleScript.Holder script = new ColumnToDoubleScript.Holder(
-								new ScriptUsage<>(context.getArgument("script", String.class), null)
+								new ScriptUsage(context.getArgument("script", String.class))
 							);
 							if (!compile(script, source)) return 0;
 							LocateMinMaxCommand command = new LocateMinMaxCommand(
@@ -102,7 +102,7 @@ public class LocateCommand {
 						.executes((CommandContext<ServerCommandSource> context) -> {
 							ServerCommandSource source = context.getSource();
 							ColumnToDoubleScript.Holder script = new ColumnToDoubleScript.Holder(
-								new ScriptUsage<>(context.getArgument("script", String.class), null)
+								new ScriptUsage(context.getArgument("script", String.class))
 							);
 							if (!compile(script, source)) return 0;
 							LocateMinMaxCommand command = new LocateMinMaxCommand(

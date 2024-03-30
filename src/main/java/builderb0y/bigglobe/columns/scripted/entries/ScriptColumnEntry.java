@@ -7,19 +7,18 @@ import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public class ScriptColumnEntry extends AbstractColumnEntry {
 
-	public final ScriptUsage<GenericScriptTemplateUsage> script;
+	public final ScriptUsage script;
 
 	public ScriptColumnEntry(
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
-		ScriptUsage<GenericScriptTemplateUsage> script,
+		ScriptUsage script,
 		DecodeContext<?> decodeContext
 	) {
 		super(params, valid, cache, decodeContext);

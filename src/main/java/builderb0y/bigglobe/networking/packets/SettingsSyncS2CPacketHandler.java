@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.networking.packets;
 
+import java.util.Objects;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -7,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
@@ -15,6 +18,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.ClientState.TemplateRegistry;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
@@ -31,19 +35,28 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 	@Environment(EnvType.CLIENT)
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
 		NbtElement nbt = NbtIo2.readCompressed(buffer);
-		ClientGeneratorParams settings;
+		NbtElement templates = Objects.requireNonNull(((NbtCompound)(nbt)).get("templates"), "Missing templates");
+		TemplateRegistry templateRegistry;
 		try {
-			settings = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, nbt, NbtOps.INSTANCE);
+			templateRegistry = BigGlobeAutoCodec.AUTO_CODEC.decode(TemplateRegistry.CODER, templates, NbtOps.INSTANCE);
 		}
 		catch (DecodeException exception) {
-			BigGlobeNetwork.LOGGER.error("", exception);
+			BigGlobeNetwork.LOGGER.error("Exception decoding script templates: ", exception);
+			throw new RuntimeException(exception);
+		}
+		ClientGeneratorParams settings;
+		try {
+			settings = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, nbt, templateRegistry.createOps(NbtOps.INSTANCE));
+		}
+		catch (DecodeException exception) {
+			BigGlobeNetwork.LOGGER.error("Exception decoding client generator params: ", exception);
 			throw new RuntimeException(exception);
 		}
 		try {
 			settings.compile();
 		}
 		catch (ScriptParsingException exception) {
-			BigGlobeNetwork.LOGGER.error("Server sent scripts that failed to be compiled: ", exception);
+			BigGlobeNetwork.LOGGER.error("Exception compiling client generator params: ", exception);
 			throw new RuntimeException(exception);
 		}
 		ClientState.generatorParams = settings;

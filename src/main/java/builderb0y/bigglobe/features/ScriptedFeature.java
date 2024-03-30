@@ -36,7 +36,6 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -181,7 +180,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 			public ScriptParsingException exception;
 
-			public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 

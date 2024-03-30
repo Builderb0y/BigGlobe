@@ -1,5 +1,4 @@
 {
-	"type": "bigglobe:generic",
 	"script": [
 		"double depth = `bigglobe:overworld/distance_below_surface` / delay",
 		"double scale = (4.0L * peak) / (2.0L * peak - limit)",

@@ -16,7 +16,6 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.GenericScriptTemplate.GenericScriptTemplateUsage;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -245,7 +244,7 @@ public interface VolumetricOverrider extends LegacyOverrider {
 
 	public static abstract class Holder<T_Overrider extends VolumetricOverrider> extends LegacyOverrider.Holder<T_Overrider> implements VolumetricOverrider {
 
-		public Holder(ScriptUsage<GenericScriptTemplateUsage> usage) {
+		public Holder(ScriptUsage usage) {
 			super(usage);
 		}
 
