@@ -43,7 +43,6 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.compat.SodiumCompat;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -94,17 +93,17 @@ public class ClientState {
 		if (params != null) {
 			if (colorResolver == BiomeColors.GRASS_COLOR) {
 				if (params.grassColor != null) {
-					callback.setReturnValue(SodiumCompat.maybeSwapChannels(params.grassColor.getColor(params.getColumn(x, z), y)));
+					callback.setReturnValue(params.grassColor.getColor(params.getColumn(x, z), y));
 				}
 			}
 			else if (colorResolver == BiomeColors.FOLIAGE_COLOR) {
 				if (params.foliageColor != null) {
-					callback.setReturnValue(SodiumCompat.maybeSwapChannels(params.foliageColor.getColor(params.getColumn(x, z), y)));
+					callback.setReturnValue(params.foliageColor.getColor(params.getColumn(x, z), y));
 				}
 			}
 			else if (colorResolver == BiomeColors.WATER_COLOR) {
 				if (params.waterColor != null) {
-					callback.setReturnValue(SodiumCompat.maybeSwapChannels(params.waterColor.getColor(params.getColumn(x, z), y)));
+					callback.setReturnValue(params.waterColor.getColor(params.getColumn(x, z), y));
 				}
 			}
 		}
@@ -327,7 +326,7 @@ public class ClientState {
 		}
 
 		public static int redI(int packed) {
-			return packed & 255;
+			return (packed >>> 16) & 255;
 		}
 
 		public static int greenI(int packed) {
@@ -335,7 +334,7 @@ public class ClientState {
 		}
 
 		public static int blueI(int packed) {
-			return (packed >>> 16) & 255;
+			return packed & 255;
 		}
 
 		public static float redF(int packed) {
@@ -366,7 +365,7 @@ public class ClientState {
 			red   = Interpolator.clamp(0, 255, red);
 			green = Interpolator.clamp(0, 255, green);
 			blue  = Interpolator.clamp(0, 255, blue);
-			return (blue << 16) | (green << 8) | red;
+			return (red << 16) | (green << 8) | blue;
 		}
 
 		public static int packF(float red, float green, float blue) {

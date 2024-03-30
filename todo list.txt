@@ -36,6 +36,7 @@ where I left off:
 		legacy per-section stuff.
 		legacy columns.
 		"test" package (move to scripted dimension)
+		"old_value" in world preset.
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -65,10 +66,10 @@ where I left off:
 			or a structure overrider which prevents them from spawning in hilly or river-y areas.
 	use DistanceGraph for structure locating logic.
 	remove BoundInfo.
-	client horizon height needs to use synced chunk generator sea level.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 	allow scripts to declare variables with generic types?
 	use tags for feature dispatcher instead of hard-coding what spawns where.
+	make rivers shallow-er at high elevations?
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

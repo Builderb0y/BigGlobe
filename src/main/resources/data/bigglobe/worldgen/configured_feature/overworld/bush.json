@@ -18,7 +18,7 @@
 				"boolean BlockState.canLeavesReplace(:",
 					"return(this.isReplaceable() || this.isIn('bigglobe:tree_leaf_replaceables'))",
 				")",
-				"WoodPalette palette = WoodPalette.randomForBiome(getBiome(originX, originY, originZ))",
+				"WoodPalette palette = `bigglobe:overworld/wood_palette`",
 				"if (palette == null: return(false))",
 				"setBlockState(originX, originY, originZ, palette.woodState(axis: 'y'))",
 				"double centerX = originX + random.nextDouble() - 0.5L",
