@@ -37,6 +37,8 @@ where I left off:
 		legacy columns.
 		"test" package (move to scripted dimension)
 		"old_value" in world preset.
+		lakes (convert to script or remove).
+		underground pockets (convert to script).
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.

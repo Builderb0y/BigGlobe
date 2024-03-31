@@ -310,7 +310,7 @@
 									")",
 								")",
 								"else unless (biome.isIn('bigglobe:cold') || biome.isIn('bigglobe:beach'):",
-									"random.if (`bigglobe:overworld/surface_foliage`(x, z) * 0.125I:",
+									"random.if ((`bigglobe:overworld/surface_foliage`(x, z) - 0.5I) * 0.125I:",
 										"placeFeature(x, y, z, 'bigglobe:overworld/bamboo')",
 									")",
 								")",

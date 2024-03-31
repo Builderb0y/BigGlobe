@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
+import java.lang.invoke.MethodHandle;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
@@ -22,6 +23,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColumnPos;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -130,9 +132,15 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders) {
+	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders, MethodHandle[] preFetchers) {
 
 		public void override(ScriptedColumn column) {
+			for (MethodHandle fetcher : this.preFetchers) try {
+				fetcher.invokeExact(column);
+			}
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
+			}
 			for (ColumnValueOverrider.Holder overrider : this.overriders) {
 				overrider.override(column, this.structures);
 			}

@@ -308,7 +308,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public SortedOverriders getOverriders() {
 		if (this.actualOverriders == null) {
-			this.actualOverriders = new SortedOverriders(this.overriders);
+			this.actualOverriders = new SortedOverriders(this.overriders, this.columnEntryRegistry);
 		}
 		return this.actualOverriders;
 	}
@@ -366,6 +366,15 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 									column01 = columnFactory.create(params.at(quadX | 1, quadZ    )),
 									column10 = columnFactory.create(params.at(quadX,     quadZ | 1)),
 									column11 = columnFactory.create(params.at(quadX | 1, quadZ | 1));
+								for (MethodHandle handle : this.getOverriders().rawColumnValueDependencies) try {
+									handle.invokeExact(column00);
+									handle.invokeExact(column01);
+									handle.invokeExact(column10);
+									handle.invokeExact(column11);
+								}
+								catch (Throwable throwable) {
+									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+								}
 								for (ColumnValueOverrider.Holder overrider : this.getOverriders().rawColumnValues) {
 									overrider.override(column00, structures);
 									overrider.override(column01, structures);
@@ -464,7 +473,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					),
 					Purpose.rawGeneration(distantHorizons)
 				);
-				worldWrapper.overriders = new AutoOverride(structures, this.actualOverriders.rawColumnValues);
+				worldWrapper.overriders = new AutoOverride(
+					structures,
+					this.getOverriders().rawColumnValues,
+					this.getOverriders().rawColumnValueDependencies
+				);
 				for (ScriptedColumn column : columns) {
 					worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
 				}
@@ -509,7 +522,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		);
 		worldWrapper.overriders = new AutoOverride(
 			ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons()),
-			this.actualOverriders.featureColumnValues
+			this.getOverriders().featureColumnValues,
+			this.getOverriders().featureColumnValueDependencies
 		);
 		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher.normal::generate);
 	}
@@ -832,7 +846,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			return;
 		}
 		Pattern pattern = Pattern.compile(regex);
-		List<DisplayEntry> displayEntries = new ArrayList<>();
 		MethodHandles.Lookup lookup = this.columnEntryRegistry.columnLookup;
 		this.debugDisplay = (
 			this

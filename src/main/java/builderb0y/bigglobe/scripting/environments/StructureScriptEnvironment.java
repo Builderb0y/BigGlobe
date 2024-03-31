@@ -28,7 +28,7 @@ public class StructureScriptEnvironment {
 		.addMethodInvokeSpecific(StructurePieceTypeTagKey.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructurePieceTypeTagKey.class, "random", StructurePieceTypeEntry.class, long.class)
 		.addMethodInvokeSpecific(StructureEntry.class, "isIn", boolean.class, StructureTagKey.class)
-		.addFieldInvokes(StructureEntry.class, "type", "generationStep")
+		.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes")
 		.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructureTagKey.class, "random", StructureEntry.class, long.class)
 		.addMethodInvokeSpecific(StructureTypeEntry.class, "isIn", boolean.class, StructureTypeTagKey.class)

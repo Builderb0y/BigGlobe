@@ -3,7 +3,6 @@ package builderb0y.bigglobe.structures;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import net.minecraft.world.gen.structure.Structure;
@@ -17,7 +16,6 @@ import builderb0y.bigglobe.structures.dungeons.SmallDungeonStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeStructures {

@@ -69,6 +69,10 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 		return this.entry.value().getFeatureGenerationStep().asString();
 	}
 
+	public BiomeTagKey validBiomes() {
+		return new BiomeTagKey(this.entry.value().getValidBiomes().getTagKey().orElseThrow());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
