@@ -1,0 +1,16 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"+ `bigglobe:overworld/raw_cavern_noise`(y)",
+		"- (float(y - `bigglobe:overworld/cavern_center`) / 64.0I) ^ 16",
+		"- `bigglobe:overworld/cavern_stalactites`"
+	],
+	"valid": {
+		"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
+		"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
+	}
+}

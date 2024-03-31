@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "`bigglobe:overworld/cavern_darkness` * 192.0L - 768.0L",
+	"cache": false
+}

@@ -6,7 +6,7 @@
 			"name": "OverworldCaveCell",
 			"exports": {
 				"noise": { "type": "float", "is_3d": true },
-				"depth": { "type": "int", "is_3d": false },
+				"depth": { "type": "double", "is_3d": false },
 				"surface_depth": { "type": "float", "is_3d": false },
 				"floor_states": {
 					"type": {

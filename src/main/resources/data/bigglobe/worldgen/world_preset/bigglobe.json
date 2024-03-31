@@ -15,7 +15,7 @@
 						"state": "minecraft:air",
 						"children": [
 							{
-								"type": "bigglobe:simple_2d",
+								"type": "simple_2d",
 								"state": "minecraft:stone",
 								"before_children": [
 									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:",
@@ -83,7 +83,7 @@
 								},
 								"children": [
 									{
-										"type": "bigglobe:simple_3d",
+										"type": "simple_3d",
 										"state": "minecraft:air",
 										"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
 										"after_children": [
@@ -94,11 +94,11 @@
 											"boolean canGenerateFloor = rawDepth > 0.0L && floorStates != null",
 											"boolean canGenerateCeiling = rawDepth > 0.0L && ceilingStates != null",
 											"if (canGenerateFloor || canGenerateCeiling:",
-												"int basicSurfaceY = ceilInt(`bigglobe:overworld/basic_surface_y`)",
-												"int processedSurfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
-												"int maxCaveDepth = `bigglobe:overworld/cave`.depth",
+												"double basicSurfaceY = ceilInt(`bigglobe:overworld/basic_surface_y`)",
+												"double processedSurfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+												"double maxCaveDepth = ceilInt(`bigglobe:overworld/cave`.depth)",
 												"boolean hadCave = false",
-												"for (int y in range[max(basicSurfaceY - maxCaveDepth, minY), min(processedSurfaceY, maxY)):",
+												"for (int y in range[max(floorInt(basicSurfaceY - maxCaveDepth) + 1, minY), min(floorInt(processedSurfaceY) + 1, maxY)):",
 													"boolean haveCave = getBlockState(y) != null",
 													"if (haveCave && !hadCave && canGenerateFloor:",
 														"int floorDepth = floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) + 1",
@@ -128,14 +128,34 @@
 										],
 										"valid": {
 											"where": "!surfaceOnly",
-											"min_y": "ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth",
-											"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
+											"min_y": "floorInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth) + 1",
+											"max_y": "floorInt(`bigglobe:overworld/processed_surface_y`) + 1"
+										}
+									},
+									{
+										"type": "simple_3d",
+										"state": "minecraft:air",
+										"condition": "`bigglobe:overworld/biased_cavern_noise`(y) > 0.0I",
+										"children": [
+											{
+												"type": "simple_2d",
+												"state": "minecraft:lava[level=0]",
+												"valid": {
+													"min_y": "-1024",
+													"max_y": "-896"
+												}
+											}
+										],
+										"valid": {
+											"where": "!surfaceOnly",
+											"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
+											"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
 										}
 									}
 								]
 							},
 							{
-								"type": "bigglobe:simple_2d",
+								"type": "simple_2d",
 								"state": "minecraft:water[level=0]",
 								"valid": {
 									"min_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
@@ -143,7 +163,7 @@
 								}
 							},
 							{
-								"type": "bigglobe:simple_2d",
+								"type": "simple_2d",
 								"state": "bigglobe:river_water[level=0]",
 								"before_children": [
 									"int y = ceilInt(`bigglobe:overworld/river_water_y`) - 1",
@@ -160,7 +180,7 @@
 								}
 							},
 							{
-								"type": "bigglobe:simple_2d",
+								"type": "simple_2d",
 								"state": "bigglobe:cloud",
 								"after_children": [
 									"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
@@ -237,6 +257,9 @@
 								"int x in range[minModifiableX, maxModifiableX]",
 							":",
 								"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
+								"if (`bigglobe:overworld/cavern_darkness`(x, z) > 0.0L:",
+									"placeFeature(x, 0, z, 'bigglobe:overworld/caverns/sculk_decorator')",
+								")",
 							")",
 
 							";trees",

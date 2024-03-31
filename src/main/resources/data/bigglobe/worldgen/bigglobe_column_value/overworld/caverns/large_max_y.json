@@ -1,9 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"params": {
-		"type": "double",
-		"is_3d": false
-	},
-	"script": "`bigglobe:overworld/caverns/large_center` + `bigglobe:overworld/caverns/large_thickness`",
-	"cache": false
-}

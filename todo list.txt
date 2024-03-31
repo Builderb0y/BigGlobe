@@ -46,12 +46,19 @@ where I left off:
 	need to redo scripted noise which uses column values.
 	missing stuff:
 		the rest of the configured features.
-		foliage colors.
 		nether.
-		caverns (?).
+		caverns.
+			deep_dark and the_core biomes.
+			molten rock blocks.
+				convert to random ore on contact with water.
+					ores are weighted by probability of spawning at the molten rock block's position.
+					the more molten the rock is, the higher the chance of converting to ore instead of stone.
+				the more molten the rock is, the faster it damages players that step on it.
+				ths more molten the rock is, the more light it emits.
+			make rock layers fade out near the cavern top.
+			some kind of nether-themed structure in the lava of the core.
+				include portal to the nether.
 		lakes.
-		dependency tree for column value scripts.
-			auto-populate values used by overriders before the overrider is invoked.
 	swamp surface decoration (water, mud).
 	find an ocean monument to confirm they spawn correctly.
 	cave overriders for underground pockets.

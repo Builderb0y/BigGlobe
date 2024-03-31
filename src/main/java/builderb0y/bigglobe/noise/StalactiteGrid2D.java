@@ -2,6 +2,7 @@ package builderb0y.bigglobe.noise;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
@@ -11,13 +12,15 @@ import builderb0y.bigglobe.settings.Seed;
 public class StalactiteGrid2D implements Grid2D {
 
 	public final Seed salt;
-	public final @UseVerifier(name = "checkNotZero", in = StalactiteGrid2D.class, usage = MemberUsage.METHOD_IS_HANDLER) double amplitude;
 	public final @VerifyIntRange(min = 0, minInclusive = false) int scale;
+	public final @UseVerifier(name = "checkNotZero", in = StalactiteGrid2D.class, usage = MemberUsage.METHOD_IS_HANDLER) double amplitude;
+	public final @VerifyFloatRange(min = 0.0D, minInclusive = false, max = 1.0D, maxInclusive = false) double chance;
 	public final transient double rcp;
 
-	public StalactiteGrid2D(Seed salt, double amplitude, int scale) {
+	public StalactiteGrid2D(Seed salt, int scale, double amplitude, double chance) {
 		this.salt = salt;
 		this.amplitude = amplitude;
+		this.chance = chance;
 		this.rcp = 1.0D / (this.scale = scale);
 	}
 
@@ -61,17 +64,16 @@ public class StalactiteGrid2D implements Grid2D {
 			for (int offsetY = -1; offsetY <= 1; offsetY++) {
 				int newRelativeX = relativeX + offsetX;
 				int newRelativeY = relativeY + offsetY;
-				double centerX = this.getCenterX(seed, newRelativeX, newRelativeY) + offsetX;
-				double centerY = this.getCenterY(seed, newRelativeX, newRelativeY) + offsetY;
-				double size    = this.getSize   (seed, newRelativeX, newRelativeY);
-				size = BigGlobeMath.exp2(-4.0D * size);
-				double sizeSquared = size * size;
-				double distanceSquared = BigGlobeMath.squareD(centerX - fracX, centerY - fracY);
-				if (distanceSquared < sizeSquared) {
-					distanceSquared /= sizeSquared;
-					double distance = Math.sqrt(distanceSquared);
-					double height = BigGlobeMath.squareD(1.0D - distance);
-					totalHeight += height * size * this.amplitude;
+				double size = this.getSize(seed, newRelativeX, newRelativeY);
+				if (size < this.chance) {
+					double centerX = this.getCenterX(seed, newRelativeX, newRelativeY) + offsetX;
+					double centerY = this.getCenterY(seed, newRelativeX, newRelativeY) + offsetY;
+					double distanceSquared = BigGlobeMath.squareD(centerX - fracX, centerY - fracY);
+					if (distanceSquared < 1.0D) {
+						double distance = Math.sqrt(distanceSquared);
+						double height = BigGlobeMath.squareD(1.0D - distance);
+						totalHeight += height * this.amplitude;
+					}
 				}
 			}
 		}

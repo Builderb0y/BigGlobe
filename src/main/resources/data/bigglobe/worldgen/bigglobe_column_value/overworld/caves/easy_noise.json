@@ -42,7 +42,7 @@
 		")"
 	],
 	"valid": {
-		"min_y": "ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/caves/easy_depth`",
-		"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)"
+		"min_y": "floorInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/caves/easy_depth`) + 1",
+		"max_y": "floorInt(`bigglobe:overworld/processed_surface_y`) + 1"
 	}
 }

@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double step = 128.0L / `bigglobe:overworld/cavern_darkness`",
+			"double y = max(minValidYLevel, `bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
+			"y += random.nextDouble(step -: 1.0L)",
+			"double maxY = min(maxValidYLevel, `bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`)",
+			"while ((y :+ random.nextDouble(1.0L, step)) < maxY:",
+				"int floorY = floorInt(y)",
+				"if (getBlockState(originX, floorY, originZ).isAir():",
+					"placeFeature(originX, floorY, originZ, 'minecraft:sculk_patch_deep_dark')",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

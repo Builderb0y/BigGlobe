@@ -1,8 +1,9 @@
 {
-	"type": "constant",
+	"type": "script",
 	"params": {
-		"type": "int",
+		"type": "double",
 		"is_3d": false
 	},
-	"value": 768
+	"script": "min(`bigglobe:overworld/basic_surface_y` - (`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`), 768.0L)",
+	"cache": false
 }

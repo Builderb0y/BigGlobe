@@ -1,0 +1,21 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 128, "scaleY": 24, "scaleZ": 128, "amplitude": 0.5     },
+			{ "type": "smooth", "scaleX":  64, "scaleY": 16, "scaleZ":  64, "amplitude": 0.25    },
+			{ "type": "smooth", "scaleX":  32, "scaleY": 12, "scaleZ":  32, "amplitude": 0.125   },
+			{ "type": "smooth", "scaleX":  16, "scaleY":  8, "scaleZ":  16, "amplitude": 0.0625  },
+			{ "type": "smooth", "scaleX":   8, "scaleY":  4, "scaleZ":   8, "amplitude": 0.03125 }
+		]
+	},
+	"valid": {
+		"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
+		"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
+	}
+}
