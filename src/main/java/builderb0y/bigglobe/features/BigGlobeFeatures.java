@@ -43,6 +43,7 @@ public class BigGlobeFeatures {
 	public static final NetherFlowerFeature                                     NETHER_FLOWER                      = register("nether_flower",                      new             NetherFlowerFeature());
 
 	public static final ChunkSprinkleFeature                                    CHUNK_SPRINKLE                     = register("chunk_sprinkle",                     new            ChunkSprinkleFeature());
+	public static final MoltenRockReplacerFeature                               MOLTEN_ROCK_FEATURE                = register("molten_rock",                        new       MoltenRockReplacerFeature());
 	public static final BedrockFeature                                          BEDROCK                            = register("bedrock",                            new                  BedrockFeature());
 	public static final RockLayerFeature                                        ROCK_LAYER                         = register("rock_layer",                         new                RockLayerFeature());
 	public static final OreFeature                                              ORE                                = register("ore",                                new                      OreFeature());

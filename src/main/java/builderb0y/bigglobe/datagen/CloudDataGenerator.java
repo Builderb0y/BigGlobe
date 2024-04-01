@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.texturegen;
+package builderb0y.bigglobe.datagen;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.noise.Permuter;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;

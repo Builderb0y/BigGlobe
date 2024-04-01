@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.texturegen;
+package builderb0y.bigglobe.blocks;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;

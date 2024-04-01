@@ -39,6 +39,7 @@ where I left off:
 		"old_value" in world preset.
 		lakes (convert to script or remove).
 		underground pockets (convert to script).
+		connection between wood palettes and biomes.
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -49,13 +50,6 @@ where I left off:
 		nether.
 		caverns.
 			deep_dark and the_core biomes.
-			molten rock blocks.
-				convert to random ore on contact with water.
-					ores are weighted by probability of spawning at the molten rock block's position.
-					the more molten the rock is, the higher the chance of converting to ore instead of stone.
-				the more molten the rock is, the faster it damages players that step on it.
-				ths more molten the rock is, the more light it emits.
-			make rock layers fade out near the cavern top.
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
 		lakes.

@@ -232,6 +232,27 @@ public class BigGlobeBlocks {
 			AbstractBlock.Settings.copy(Blocks.WATER)
 		)
 	);
+	public static final MoltenRockBlock[] MOLTEN_ROCKS = new MoltenRockBlock[8];
+	static {
+		for (int heat = 1; heat <= 8; heat++) {
+			int lightLevel = (heat << 1) - 1;
+			assert lightLevel <= 15;
+			MOLTEN_ROCKS[heat - 1] = register(
+				"molten_rock_" + ((char)(heat + '0')),
+				new MoltenRockBlock(
+					AbstractBlock
+					.Settings
+					.create()
+					.mapColor(heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
+					.requiresTool()
+					.luminance((BlockState state) -> lightLevel)
+					.strength(0.6F)
+					.allowsSpawning((BlockState state, BlockView world, BlockPos pos, EntityType<?> entityType) -> entityType.isFireImmune()),
+					heat
+				)
+			);
+		}
+	}
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(
@@ -818,6 +839,9 @@ public class BigGlobeBlocks {
 		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
 		LandPathNodeTypesRegistry.register(BLAZING_BLOSSOM, PathNodeType.DAMAGE_FIRE, PathNodeType.DANGER_FIRE);
 		LandPathNodeTypesRegistry.register(SOUl_MAGMA, PathNodeType.DAMAGE_FIRE, PathNodeType.DANGER_FIRE);
+		for (MoltenRockBlock block : MOLTEN_ROCKS) {
+			LandPathNodeTypesRegistry.register(block, PathNodeType.DAMAGE_FIRE, PathNodeType.DANGER_FIRE);
+		}
 		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_SIGN);
 		((MutableBlockEntityType)(BlockEntityType.SIGN)).bigglobe_addValidBlock(CHARRED_WALL_SIGN);
 		((MutableBlockEntityType)(BlockEntityType.HANGING_SIGN)).bigglobe_addValidBlock(CHARRED_HANGING_SIGN);

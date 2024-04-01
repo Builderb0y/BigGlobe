@@ -57,7 +57,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 			for (int index = minYRelative; index >>> 8 <= maxYRelative; index++) {
 				int y = startY | (index >>> 8);
 				long blockSeed = Permuter.permute(sectionSeed, index);
-				float chance = BigGlobeMath.squareF(Interpolator.unmixLinear(config.empty_y, config.full_y, y));
+				double chance = BigGlobeMath.squareD(Interpolator.unmixLinear((double)(config.empty_y), (double)(config.full_y), (double)(y)));
 				if (Permuter.nextChancedBoolean(blockSeed, chance)) {
 					storage.set(index, toID);
 				}

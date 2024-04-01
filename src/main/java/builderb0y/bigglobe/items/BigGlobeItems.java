@@ -20,9 +20,8 @@ import net.minecraft.util.DyeColor;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
-import builderb0y.bigglobe.blocks.CloudBlock;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
-import builderb0y.bigglobe.texturegen.CloudColor;
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION > MC_1_19_2
@@ -98,6 +97,12 @@ public class BigGlobeItems {
 		for (CloudColor color : CloudColor.VALUES) {
 			CLOUDS     .put(color, registerDecoPlacer(BigGlobeBlocks.     CLOUDS.get(color)));
 			VOID_CLOUDS.put(color, registerDecoPlacer(BigGlobeBlocks.VOID_CLOUDS.get(color)));
+		}
+	}
+	public static final BlockItem[] MOLTEN_ROCKS = new BlockItem[8];
+	static {
+		for (int heat = 1; heat <= 8; heat++) {
+			MOLTEN_ROCKS[heat - 1] = registerBlockPlacer(BigGlobeBlocks.MOLTEN_ROCKS[heat - 1]);
 		}
 	}
 
@@ -201,6 +206,7 @@ public class BigGlobeItems {
 				entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
 				entries.addBefore(Items.SAND, OVERGROWN_SAND);
 				entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
+				entries.addBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
 				entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 				entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK);
 				entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);

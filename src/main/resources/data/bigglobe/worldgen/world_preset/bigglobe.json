@@ -151,6 +151,14 @@
 											"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
 											"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
 										}
+									},
+									{
+										"type": "simple_2d",
+										"state": "bigglobe:molten_rock_8",
+										"valid": {
+											"where": "!surfaceOnly",
+											"max_y": "-896"
+										}
 									}
 								]
 							},
@@ -223,6 +231,7 @@
 					},
 					"feature_dispatcher": {
 						"rock_replacers": [
+							"bigglobe:overworld/molten_rock",
 							"bigglobe:overworld/bedrock",
 							"bigglobe:overworld/cobblestone_sprinkle",
 							"#bigglobe:overworld/rock_layers",

@@ -3,7 +3,6 @@ package builderb0y.bigglobe.chunkgen;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
@@ -86,9 +85,8 @@ import builderb0y.bigglobe.settings.BiomeLayout.SecondarySurface;
 import builderb0y.bigglobe.settings.OverworldSettings.OverworldGlacierSettings;
 import builderb0y.bigglobe.settings.OverworldSkylandSettings.SkylandSurfaceSettings;
 import builderb0y.bigglobe.structures.LakeStructure;
-import builderb0y.bigglobe.structures.LakeStructure.Piece.Data;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
-import builderb0y.bigglobe.texturegen.CloudColor;
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
