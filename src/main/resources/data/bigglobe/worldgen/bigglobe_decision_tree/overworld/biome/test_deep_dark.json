@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "y <= `bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`"
+	},
+	"if_true": "bigglobe:overworld/biome/deep_dark",
+	"if_false": "bigglobe:overworld/biome/test_river"
+}

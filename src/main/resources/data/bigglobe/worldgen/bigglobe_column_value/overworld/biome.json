@@ -4,6 +4,6 @@
 		"type": "biome",
 		"is_3d": true
 	},
-	"root": "bigglobe:overworld/biome/test_river",
+	"root": "bigglobe:overworld/biome/test_core",
 	"cache": false
 }
