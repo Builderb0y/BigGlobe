@@ -20,6 +20,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
@@ -363,7 +364,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 				translated.flip2Z().setBlockState(0, 0, 3, HOOK_STATE);
 				translated.setBlockStateLine(0, 0, 2, 0, 0, -1, 5, TRIPWIRE_STATE);
 				(Permuter.toBoolean(Permuter.permute(seed, row)) ? translated.flip1Z() : translated)
-				.setBlockStateAndBlockEntity(0, 1, 4, Blocks.DISPENSER.getDefaultState(), DispenserBlockEntity.class, this::initDispenser);
+				.setBlockStateAndBlockEntity(0, 1, 4, Blocks.DISPENSER.getDefaultState().with(Properties.FACING, Direction.NORTH), DispenserBlockEntity.class, this::initDispenser);
 			}
 		}
 

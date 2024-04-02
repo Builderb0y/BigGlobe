@@ -267,7 +267,7 @@
 							":",
 								"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
 								"if (`bigglobe:overworld/cavern_darkness`(x, z) > 0.0L:",
-									"placeFeature(x, 0, z, 'bigglobe:overworld/caverns/sculk_decorator')",
+									"placeFeature(x, 0, z, 'bigglobe:overworld/cavern_sculk_decorator')",
 								")",
 							")",
 

@@ -9,7 +9,7 @@
 					"double verticalSmooth = horizontalFactor * -16.0I + 16.0I",
 					"double baseline = piece.minY - 0.5L",
 					"for (int y in range(piece.minY - 16, piece.maxY + 16):",
-						"float verticalFactor = (",
+						"float verticalFactor = float(",
 							"unmixSmooth(piece.maxY + 16, piece.maxY, y)",
 							"*",
 							"unmixSmooth(piece.minY - 16, piece.minY, y)",
