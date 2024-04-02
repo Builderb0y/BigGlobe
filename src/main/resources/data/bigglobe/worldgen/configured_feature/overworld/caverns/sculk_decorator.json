@@ -2,7 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"double step = 128.0L / `bigglobe:overworld/cavern_darkness`",
+			"double step = 64.0L / `bigglobe:overworld/cavern_darkness`",
+			"if (step !> 0.0L: return(false))",
 			"double y = max(minValidYLevel, `bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
 			"y += random.nextDouble(step -: 1.0L)",
 			"double maxY = min(maxValidYLevel, `bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`)",

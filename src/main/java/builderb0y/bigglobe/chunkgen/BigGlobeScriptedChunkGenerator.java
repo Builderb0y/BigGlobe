@@ -30,10 +30,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.structure.StructureTemplateManager;
+import net.minecraft.structure.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.*;
@@ -56,6 +53,7 @@ import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
+import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -626,72 +624,34 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		ChunkPos pos,
 		ChunkSectionPos sectionPos
 	) {
-		return this.setStructureStart(
-			weightedEntry,
-			structureAccessor,
-			dynamicRegistryManager,
-			noiseConfig,
-			structureManager,
-			seed,
-			chunk,
-			false
-		);
-	}
-
-	public boolean forceSetStructureStart(
-		StructureSet.WeightedEntry weightedEntry,
-		StructureAccessor structureAccessor,
-		DynamicRegistryManager dynamicRegistryManager,
-		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
-		long seed,
-		Chunk chunk
-	) {
-		return this.setStructureStart(
-			weightedEntry,
-			structureAccessor,
-			dynamicRegistryManager,
-			noiseConfig,
-			structureManager,
-			seed,
-			chunk,
-			true
-		);
-	}
-
-	public boolean setStructureStart(
-		StructureSet.WeightedEntry weightedEntry,
-		StructureAccessor structureAccessor,
-		DynamicRegistryManager dynamicRegistryManager,
-		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
-		long seed,
-		Chunk chunk,
-		boolean force
-	) {
-		ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk);
 		Structure structure = weightedEntry.structure().value();
-		Predicate<RegistryEntry<Biome>> predicate = force ? Predicates.alwaysTrue() : structure.getValidBiomes()::contains;
+		Predicate<RegistryEntry<Biome>> predicate = structure.getValidBiomes()::contains;
 		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
 			structure = delegating.delegate.value();
 		}
 		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
 		int references = existingStart != null ? existingStart.getReferences() : 0;
-		StructureStart newStart = structure.createStructureStart(
-			dynamicRegistryManager,
-			this,
-			this.biomeSource,
-			noiseConfig,
-			structureManager,
-			seed,
-			chunk.getPos(),
-			references,
-			chunk,
-			predicate
-		);
+		StructurePosition newStartPosition = structure.getValidStructurePosition(
+			new Structure.Context(
+				dynamicRegistryManager,
+				this,
+				this.biomeSource,
+				noiseConfig,
+				structureManager,
+				seed,
+				chunk.getPos(),
+				chunk,
+				Predicates.alwaysTrue()
+			)
+		)
+		.orElse(null);
+		if (newStartPosition == null) return false;
+		StructurePiecesCollector collector = newStartPosition.generate();
+		StructureStart newStart = new StructureStart(structure, chunk.getPos(), references, collector.toList());
+		if (!newStart.hasChildren()) return false;
+		int oldY = newStart.getBoundingBox().getMinY();
 		if (
-			newStart.hasChildren() &&
-			this.canStructureSpawn(
+			!this.canStructureSpawn(
 				weightedEntry.structure(),
 				newStart,
 				new Permuter(
@@ -709,19 +669,32 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				DistantHorizonsCompat.isOnDistantHorizonThread()
 			)
 		) {
-			//expand structure bounding boxes so that overriders
-			//which depend on them being expanded work properly.
-			((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
-				newStart.getBoundingBox().expand(
-					weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-					? 16
-					: 4
-				)
-			);
-			structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
-			return true;
+			return false;
 		}
-		return false;
+		int newY = newStart.getBoundingBox().getMinY();
+		if (
+			!predicate.test(
+				this.biomeSource.getBiome(
+					newStartPosition.position().getX() >> 2,
+					(newStartPosition.position().getY() + (newY - oldY)) >> 2,
+					newStartPosition.position().getZ() >> 2,
+					noiseConfig.getMultiNoiseSampler()
+				)
+			)
+		) {
+			return false;
+		}
+		//expand structure bounding boxes so that overriders
+		//which depend on them being expanded work properly.
+		((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
+			newStart.getBoundingBox().expand(
+				weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
+				? 16
+				: 4
+			)
+		);
+		structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
+		return true;
 	}
 
 	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {

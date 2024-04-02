@@ -1,6 +1,8 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:overworld/ancient_city_y_level",
+		"bigglobe:overworld/ancient_city_cavern_exclusion",
 		"bigglobe:overworld/bigger_desert_pyramid_surface_y",
 		"bigglobe:overworld/campfire_values",
 		"bigglobe:overworld/desert_pyramid_hilliness_exclusion",

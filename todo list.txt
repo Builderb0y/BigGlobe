@@ -49,7 +49,6 @@ where I left off:
 		the rest of the configured features.
 		nether.
 		caverns.
-			deep_dark and the_core biomes.
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
 		lakes.

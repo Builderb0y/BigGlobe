@@ -1,0 +1,30 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure == Structure('minecraft:ancient_city'):",
+				"for (StructurePiece piece in start.pieces:",
+					"float horizontalFactor = smooth(1.0I - 0.0625I * distanceToSquare(piece).as(float))",
+					"if (horizontalFactor !> 0.0L: continue())",
+					"double verticalSmooth = horizontalFactor * -16.0I + 16.0I",
+					"double baseline = piece.minY - 0.5L",
+					"for (int y in range(piece.minY - 16, piece.maxY + 16):",
+						"float verticalFactor = (",
+							"unmixSmooth(piece.maxY + 16, piece.maxY, y)",
+							"*",
+							"unmixSmooth(piece.minY - 16, piece.minY, y)",
+						")",
+						"`bigglobe:overworld/biased_cavern_noise`(y) += verticalFactor * horizontalFactor * float(",
+							"if (verticalSmooth == 0.0L:",
+								"sign(y - baseline)",
+							")",
+							"else (",
+								"unmixSmooth(baseline - verticalSmooth, baseline + verticalSmooth, y) * 2.0L - 1.0L",
+							")",
+						")",
+					")",
+				")",
+			")",
+		")"
+	]
+}

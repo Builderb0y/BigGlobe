@@ -221,7 +221,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 					if (caller != null) caller.addDependency(entry);
 					return new CastResult(
 						setter != null
-						? new GetterSetterInsnTree(loadColumn, getter, setter)
+						? new ArgumentedGetterSetterInsnTree(loadColumn, getter, setter, arguments[0])
 						: invokeInstance(loadColumn, getter, castArguments),
 						castArguments != arguments
 					);

@@ -3,6 +3,8 @@
 	"values": [
 		"#bigglobe:land",
 		"#bigglobe:beach",
-		"#bigglobe:ocean"
+		"#bigglobe:ocean",
+		"bigglobe:deep_dark",
+		"bigglobe:the_core"
 	]
 }
