@@ -4,9 +4,11 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.shape.VoxelShape;
 
 import builderb0y.bigglobe.items.BigGlobeItems;
@@ -35,7 +37,7 @@ public class RockBlock extends SurfaceMaterialDecorationBlock {
 			return state.with(ROCKS, rocks + 1);
 		}
 		else {
-			return this.getDefaultState();
+			return this.getDefaultState().with(Properties.WATERLOGGED, context.getWorld().getFluidState(context.getBlockPos()).isEqualAndStill(Fluids.WATER));
 		}
 	}
 

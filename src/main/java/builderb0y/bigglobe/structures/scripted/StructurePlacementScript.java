@@ -2,12 +2,11 @@ package builderb0y.bigglobe.structures.scripted;
 
 import net.minecraft.nbt.NbtCompound;
 
-import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
-import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.noise.NumberArray;
+import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -23,6 +22,8 @@ public interface StructurePlacementScript extends Script {
 		int minX, int minY, int minZ,
 		int maxX, int maxY, int maxZ,
 		int midX, int midY, int midZ,
+		int chunkMinX, int chunkMinY, int chunkMinZ,
+		int chunkMaxX, int chunkMaxY, int chunkMaxZ,
 		NbtCompound data
 	);
 
@@ -49,6 +50,7 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
@@ -61,6 +63,12 @@ public interface StructurePlacementScript extends Script {
 						.addVariableLoad("midX", TypeInfos.INT)
 						.addVariableLoad("midY", TypeInfos.INT)
 						.addVariableLoad("midZ", TypeInfos.INT)
+						.addVariableLoad("chunkMinX", TypeInfos.INT)
+						.addVariableLoad("chunkMinY", TypeInfos.INT)
+						.addVariableLoad("chunkMinZ", TypeInfos.INT)
+						.addVariableLoad("chunkMaxX", TypeInfos.INT)
+						.addVariableLoad("chunkMaxY", TypeInfos.INT)
+						.addVariableLoad("chunkMaxZ", TypeInfos.INT)
 						.addVariableLoad("data", NbtScriptEnvironment.NBT_COMPOUND_TYPE)
 						.addVariable("distantHorizons", WORLD.distantHorizons),
 						new ExternalEnvironmentParams()
@@ -77,19 +85,28 @@ public interface StructurePlacementScript extends Script {
 			int minX, int minY, int minZ,
 			int maxX, int maxY, int maxZ,
 			int midX, int midY, int midZ,
+			int chunkMinX, int chunkMinY, int chunkMinZ,
+			int chunkMaxX, int chunkMaxY, int chunkMaxZ,
 			NbtCompound data
 		) {
+			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			int used = manager.used;
 			try {
 				this.script.place(
 					world,
 					minX, minY, minZ,
 					maxX, maxY, maxZ,
 					midX, midY, midZ,
+					chunkMinX, chunkMinY, chunkMinZ,
+					chunkMaxX, chunkMaxY, chunkMaxZ,
 					data
 				);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
+			}
+			finally {
+				manager.used = used;
 			}
 		}
 	}

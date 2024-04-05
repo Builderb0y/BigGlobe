@@ -5,7 +5,7 @@
 			"unless (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline(): return(false))",
 			"int height = 0",
 			"double chance = `bigglobe:overworld/cave`.surface_depth * 0.125L",
-			"while (random.nextBoolean(chance) && getBlockState(originX, originY - height, originZ).isReplaceable():",
+			"while (random.nextBoolean(chance) && getBlockState(originX, originY - height, originZ).isAir():",
 				"++height",
 			")",
 			"if (height <= 0: return(false))",

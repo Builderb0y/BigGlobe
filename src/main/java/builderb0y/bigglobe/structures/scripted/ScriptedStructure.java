@@ -268,6 +268,12 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
+				chunkBox.getMinX(),
+				chunkBox.getMinY(),
+				chunkBox.getMinZ(),
+				chunkBox.getMaxX(),
+				chunkBox.getMaxY(),
+				chunkBox.getMaxZ(),
 				this.data
 			);
 		}
@@ -323,6 +329,12 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
+				chunkBox.getMinX(),
+				chunkBox.getMinY(),
+				chunkBox.getMinZ(),
+				chunkBox.getMaxX(),
+				chunkBox.getMaxY(),
+				chunkBox.getMaxZ(),
 				this.data
 			);
 		}

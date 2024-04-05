@@ -10,8 +10,9 @@
 					"double mixLevel = smooth(distance * 0.125)",
 					"int minY = index == 0 ? piece.maxY : piece.minY",
 					"`bigglobe:overworld/processed_surface_y` = mixLinear(minY - 0.5L, `bigglobe:overworld/processed_surface_y`, mixLevel)",
-					"`bigglobe:overworld/snow_y` = mixLinear(minY - 1.5L, `bigglobe:overworld/snow_y`, mixLevel)",
-					"`bigglobe:overworld/surface_foliage` *= float(mixLevel)",
+					"`bigglobe:overworld/basic_surface_y`     = mixLinear(minY - 0.5L, `bigglobe:overworld/basic_surface_y`,     mixLevel)",
+					"`bigglobe:overworld/snow_y`              = mixLinear(minY - 1.5L, `bigglobe:overworld/snow_y`,              mixLevel)",
+					"`bigglobe:overworld/surface_foliage`    *= float(mixLevel)",
 				")",
 			")",
 		")"

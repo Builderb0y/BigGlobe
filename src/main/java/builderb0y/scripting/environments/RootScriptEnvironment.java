@@ -43,7 +43,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				if (from.extendsOrImplements(to)) {
 					return wrapIdentityCast(value, to);
 				}
-				if (!implicit && (to.extendsOrImplements(from) || to.type.isInterface)) {
+				if (!implicit && (to.extendsOrImplements(from) || (to.type.isInterface && !from.isFinal))) {
 					return new DirectCastInsnTree(value, to);
 				}
 			}

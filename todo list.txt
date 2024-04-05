@@ -21,11 +21,29 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
+	in MC versions prior to the lighting engine rewrite of 1.20, ensure that molten rock emits light.
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	reduce depths of caves from 256 -> 512 -> 768 to 256 -> 384 -> 512.
+	reduce memory usage by keeping a ThreadLocal<QuadColumn> for generation purposes.
+	remove molten cave type?
+	read-only NBT environment.
+		use for structure overriders overriding scripted structures.
+		also use for scripted structure placements. only the layout should modify NBT.
+	is it right to have StructureScriptEnvironment itself add getter for ScriptedStructure.Piece.data?
+		this relies on everything including StructureScriptEnvironment to also include NbtScriptEnvironment.
+		I would rather make data explicit on the script interfaces that need it.
 
 4.0 stuff:
+	system to allow players to teleport to locations they've visited before.
+		map item which displays waypoints?
+			done in the past by most minimap mods.
+		structure the player can build and then teleport to it?
+			done in the past by the waystones mod I think.
+		void dimension which is has a larger coordinate scale more than the nether?
+			some way to teleport into and out of this dimension?
+			maybe some kind of exponential coordinate scale, where traveling a distance of X in the dimension moves you e^x outside the dimension?
 	things to eventually remove:
 		legacy chunk generators.
 		legacy overriders.
@@ -35,11 +53,14 @@ where I left off:
 		legacy ore, flower, and rock layer features.
 		legacy per-section stuff.
 		legacy columns.
+		ColumnValue.
 		"test" package (move to scripted dimension)
 		"old_value" in world preset.
 		lakes (convert to script or remove).
 		underground pockets (convert to script).
 		connection between wood palettes and biomes.
+	stop catching ScriptParsingException in scripted features and any other place where this is intended to be temporary.
+	make sure all commands are updated for new column values.
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -54,7 +75,6 @@ where I left off:
 		lakes.
 	swamp surface decoration (water, mud).
 	find an ocean monument to confirm they spawn correctly.
-	cave overriders for underground pockets.
 	exposed dungeons and spider pits in caves.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
@@ -69,6 +89,8 @@ where I left off:
 	use DistanceGraph for structure locating logic.
 	remove BoundInfo.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
+		add setFluidState() to WorldWrapper which modifies waterlogged property.
+		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
 	use tags for feature dispatcher instead of hard-coding what spawns where.
 	make rivers shallow-er at high elevations?

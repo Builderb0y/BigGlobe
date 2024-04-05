@@ -2,10 +2,7 @@ package builderb0y.scripting.bytecode;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +39,7 @@ public class TypeInfo {
 	public final @NotNull TypeInfo @NotNull [] superInterfaces;
 	public final @Nullable TypeInfo componentType;
 	public final boolean isGeneric;
+	public final boolean isFinal;
 
 	public Set<TypeInfo> allAssignableTypes, allCastableTypes;
 
@@ -51,7 +49,8 @@ public class TypeInfo {
 		@Nullable TypeInfo superClass,
 		@NotNull TypeInfo @NotNull [] superInterfaces,
 		@Nullable TypeInfo componentType,
-		boolean isGeneric
+		boolean isGeneric,
+		boolean isFinal
 	) {
 		this.type = type;
 		this.name = name;
@@ -59,6 +58,7 @@ public class TypeInfo {
 		this.superInterfaces = superInterfaces;
 		this.componentType = componentType;
 		this.isGeneric = isGeneric;
+		this.isFinal = isFinal;
 	}
 
 	@Contract("!null -> !null")
@@ -210,15 +210,15 @@ public class TypeInfo {
 		if (clazz.isInterface()) return makeInterface(name, allOf(clazz.getInterfaces()));
 		if (clazz.isEnum()) return makeEnum(name, allOf(clazz.getInterfaces()));
 		if (clazz.isRecord()) return makeRecord(name, allOf(clazz.getInterfaces()));
-		return makeClass(name, of(clazz.getSuperclass()), allOf(clazz.getInterfaces()));
+		return makeClass(name, of(clazz.getSuperclass()), allOf(clazz.getInterfaces()), Modifier.isFinal(clazz.getModifiers()));
 	}
 
 	public TypeInfo generic() {
-		return this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, true);
+		return this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, true, this.isFinal);
 	}
 
 	public TypeInfo notGeneric() {
-		return !this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, false);
+		return !this.isGeneric ? this : new TypeInfo(this.type, this.name, this.superClass, this.superInterfaces, this.componentType, false, this.isFinal);
 	}
 
 	public Sort getSort() {
@@ -319,35 +319,35 @@ public class TypeInfo {
 	}
 
 	public static TypeInfo makeAnnotation(Type name) {
-		return new TypeInfo(ClassType.ANNOTATION, name, TypeInfos.OBJECT, ANNOTATION_INTERFACES, null, false);
+		return new TypeInfo(ClassType.ANNOTATION, name, TypeInfos.OBJECT, ANNOTATION_INTERFACES, null, false, false);
 	}
 
 	public static TypeInfo makeArray(Type name, TypeInfo componentType) {
-		return new TypeInfo(ClassType.ARRAY, name, TypeInfos.OBJECT, ARRAY_INTERFACES, componentType, componentType.isGeneric);
+		return new TypeInfo(ClassType.ARRAY, name, TypeInfos.OBJECT, ARRAY_INTERFACES, componentType, componentType.isGeneric, false);
 	}
 
 	public static TypeInfo makeArray(TypeInfo componentType) {
 		return makeArray(Type.getType('[' + componentType.name.getDescriptor()), componentType);
 	}
 
-	public static TypeInfo makeClass(Type name, TypeInfo superClass, TypeInfo[] superInterfaces) {
-		return new TypeInfo(ClassType.CLASS, name, superClass, superInterfaces, null, false);
+	public static TypeInfo makeClass(Type name, TypeInfo superClass, TypeInfo[] superInterfaces, boolean isFinal) {
+		return new TypeInfo(ClassType.CLASS, name, superClass, superInterfaces, null, false, isFinal);
 	}
 
 	public static TypeInfo makeEnum(Type name, TypeInfo[] superInterfaces) {
-		return new TypeInfo(ClassType.ENUM, name, TypeInfos.ENUM, superInterfaces, null, false);
+		return new TypeInfo(ClassType.ENUM, name, TypeInfos.ENUM, superInterfaces, null, false, true);
 	}
 
 	public static TypeInfo makeInterface(Type name, TypeInfo[] superInterfaces) {
-		return new TypeInfo(ClassType.INTERFACE, name, TypeInfos.OBJECT, superInterfaces, null, false);
+		return new TypeInfo(ClassType.INTERFACE, name, TypeInfos.OBJECT, superInterfaces, null, false, false);
 	}
 
 	public static TypeInfo makePrimitive(Type name) {
-		return new TypeInfo(ClassType.PRIMITIVE, name, null, ARRAY_FACTORY.empty(), null, false);
+		return new TypeInfo(ClassType.PRIMITIVE, name, null, ARRAY_FACTORY.empty(), null, false, true);
 	}
 
 	public static TypeInfo makeRecord(Type name, TypeInfo[] superInterfaces) {
-		return new TypeInfo(ClassType.CLASS, name, TypeInfos.RECORD, superInterfaces, null, false);
+		return new TypeInfo(ClassType.CLASS, name, TypeInfos.RECORD, superInterfaces, null, false, true);
 	}
 
 	public Set<TypeInfo> getAllAssignableTypes() {

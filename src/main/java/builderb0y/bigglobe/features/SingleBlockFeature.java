@@ -43,7 +43,6 @@ import builderb0y.bigglobe.features.SingleBlockFeature.Config;
 import builderb0y.bigglobe.mixins.PlantBlock_CanPlantOnTopAccess;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
-import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 

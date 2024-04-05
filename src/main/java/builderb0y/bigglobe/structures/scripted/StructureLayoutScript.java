@@ -6,15 +6,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.ColumnValue;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
-import builderb0y.bigglobe.scripting.*;
+import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.bigglobe.util.CheckedList;
@@ -23,7 +19,6 @@ import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -71,7 +66,6 @@ public interface StructureLayoutScript extends Script {
 						.addMethodInvokes(Piece.class, "withRotation", "rotateAround", "symmetrify", "symmetrifyAround", "offset")
 						.addMethod(type(Piece.class), "rotateRandomly", Handlers.builder(Piece.class, "rotateRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 						.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
-						.addFieldGet(Piece.class, "data")
 						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 						.addVariableLoad("pieces", type(CheckedList.class))
 						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN),

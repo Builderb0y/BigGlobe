@@ -77,13 +77,6 @@ public class BigGlobeStructures {
 		GEODE_PIECE_TYPE        = registerPiece("geode_piece", GeodeStructure. MainPiece::new),
 		GEODE_SPIKE_PIECE_TYPE  = registerPiece("geode_spike", GeodeStructure.SpikePiece::new);
 
-	//////////////// underground pocket ////////////////
-
-	public static final StructureType<UndergroundPocketStructure>
-		UNDERGROUND_POCKET = registerType("underground_pocket", UndergroundPocketStructure.CODEC);
-	public static final BigGlobeStructurePieceType
-		UNDERGROUND_POCKET_PIECE = registerPiece("underground_pocket_piece", UndergroundPocketStructure.Piece::new);
-
 	//////////////// bigger desert pyramid ////////////////
 
 	public static final StructureType<BiggerDesertPyramidStructure>

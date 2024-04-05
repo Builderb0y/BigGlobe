@@ -4,9 +4,13 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.lwjgl.system.*;
+
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.util.InfoHolder;
 
 /**
 an abstraction above arrays of numbers.
@@ -41,6 +45,45 @@ including exceptions thrown from other locations than where the NumberArray is c
 */
 @SuppressWarnings({ "ClassNameSameAsAncestorName", "unused", "ImplicitNumericConversion", "OverloadedMethodsWithSameNumberOfParameters", "SameParameterValue", "NumericCastThatLosesPrecision" })
 public interface NumberArray extends AutoCloseable {
+
+	public static final boolean TRACE_ALLOCATIONS = Boolean.getBoolean("bigglobe.traceNumberArrayAllocations");
+
+	public static final Info INFO = new Info();
+	public static class Info extends InfoHolder {
+
+		public MethodInfo
+			allocateBytesHeap,
+			allocateShortsHeap,
+			allocateIntsHeap,
+			allocateLongsHeap,
+			allocateFloatsHeap,
+			allocateDoublesHeap,
+			allocateBooleansHeap,
+			allocateBytesDirect,
+			allocateShortsDirect,
+			allocateIntsDirect,
+			allocateLongsDirect,
+			allocateFloatsDirect,
+			allocateDoublesDirect,
+			allocateBooleansDirect,
+			getB,
+			getS,
+			getI,
+			getL,
+			getF,
+			getD,
+			getZ,
+			setB,
+			setS,
+			setI,
+			setL,
+			setF,
+			setD,
+			setZ,
+			prefix,
+			sliceFromTo,
+			sliceOffsetLength;
+	}
 
 	public static final NumberArray
 		EMPTY_BYTE    = allocateBytesHeap(0),
@@ -659,6 +702,7 @@ public interface NumberArray extends AutoCloseable {
 		public Manager manager;
 		public int byteOffset, byteLength;
 		public boolean freeable;
+		public Throwable allocator;
 
 		public Direct(Manager manager, int byteLength, int alignment) {
 			if ((byteLength & (alignment - 1)) != 0) {
@@ -672,6 +716,7 @@ public interface NumberArray extends AutoCloseable {
 			this.byteLength = byteLength;
 			this.freeable   = true;
 			manager.used += byteLength;
+			if (TRACE_ALLOCATIONS) this.allocator = new Throwable("Allocation site:");
 		}
 
 		public Direct(Manager manager, int byteOffset, int byteLength, int alignment) {
@@ -694,7 +739,7 @@ public interface NumberArray extends AutoCloseable {
 					this.manager.used = this.byteOffset;
 				}
 				else {
-					throw new IllegalStateException("Attempt to close NumberArray in wrong order!");
+					throw new IllegalStateException("Attempt to close NumberArray in wrong order!", this.allocator);
 				}
 				this.byteOffset = 0;
 				this.byteLength = 0;
@@ -1278,5 +1323,7 @@ public interface NumberArray extends AutoCloseable {
 		FLOAT,
 		DOUBLE,
 		BOOLEAN;
+
+		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 	}
 }

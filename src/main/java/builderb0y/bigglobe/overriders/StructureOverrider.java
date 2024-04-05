@@ -7,13 +7,11 @@ import net.minecraft.structure.StructurePiece;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -66,6 +64,7 @@ public interface StructureOverrider extends ColumnScript {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
+				.addEnvironment(NbtScriptEnvironment.INSTANCE) //todo: use immutable environment.
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment

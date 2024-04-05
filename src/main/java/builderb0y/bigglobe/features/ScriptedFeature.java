@@ -24,6 +24,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -198,6 +199,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 						.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+						.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 						.configureEnvironment((MutableScriptEnvironment environment) -> {
 							registry.setupExternalEnvironment(
 								environment
@@ -228,6 +230,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					this.onError(this.exception);
 					return false;
 				}
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.generate(world, originX, originY, originZ);
 				}
@@ -237,6 +241,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}

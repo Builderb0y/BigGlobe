@@ -14,6 +14,8 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.EntryWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -124,12 +126,14 @@ public interface ColumnValueOverrider extends ColumnScript {
 		@Override
 		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
 			super.addExtraFunctionsToEnvironment(registry, environment);
+			InsnTree loadColumn = load("column", registry.columnContext.columnType());
 			environment
 			.addAll(StructureScriptEnvironment.INSTANCE)
+			.addAll(NbtScriptEnvironment.INSTANCE) //todo: use immutable environment.
+			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.seed(loadColumn)))
 			.addVariableLoad("structures", type(ScriptStructures.class))
 			.addAll(JavaUtilScriptEnvironment.ALL)
 			.addFieldInvoke(EntryWrapper.class, "id");
-			InsnTree loadColumn = load("column", registry.columnContext.columnType());
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);

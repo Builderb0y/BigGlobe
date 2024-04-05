@@ -213,7 +213,10 @@ public class VoxyWorldGenerator {
 			return true;
 		}
 		if (!BigGlobeThreadPool.INSTANCE.queue.isEmpty()) {
-			Thread.onSpinWait();
+			try {
+				Thread.sleep(100L);
+			}
+			catch (InterruptedException ignored) {}
 			return true;
 		}
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;

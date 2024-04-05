@@ -17,7 +17,7 @@
 					"BlockState(",
 						"'minecraft:pointed_dripstone',",
 						"vertical_direction: 'down',",
-						"waterlogged: false,",
+						"waterlogged: getBlockState(originX, originY + offsetY, originZ).getBlock() == Block('minecraft:water'),",
 						"thickness: (",
 							"if (offsetY == height - 1:",
 								"connect ? 'tip_merge' : 'tip'",

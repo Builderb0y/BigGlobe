@@ -1,0 +1,9 @@
+{
+	"raw_placement": {
+		"template": "bigglobe:underground_pocket_fill_with_fluid",
+		"inputs": {
+			"STATE": "'minecraft:water[level=0]'"
+		}
+	},
+	"placement": "noop"
+}

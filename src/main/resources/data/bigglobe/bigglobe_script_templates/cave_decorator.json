@@ -6,14 +6,16 @@
 		"double maxY = min(maxValidYLevel, `bigglobe:overworld/processed_surface_y`)",
 		"while ((y :+ random.nextDouble(1.0L, step)) < maxY:",
 			"int floorY = floorInt(y)",
-			"if (getBlockState(originX, floorY, originZ).isAir():",
+			"BlockState state = getBlockState(originX, floorY, originZ)",
+			"if (state.isAir() || (ALLOW_WATER && state.getBlock() == Block('minecraft:water')):",
 				"placeFeature(originX, floorY, originZ, FEATURE)",
 			")",
 		")",
 		"return(true)"
 	],
 	"inputs": [
-		{ "name": "STEP",    "type": "double"            },
-		{ "name": "FEATURE", "type": "ConfiguredFeature" }
+		{ "name": "STEP",        "type": "double"            },
+		{ "name": "FEATURE",     "type": "ConfiguredFeature" },
+		{ "name": "ALLOW_WATER", "type": "boolean"           }
 	]
 }

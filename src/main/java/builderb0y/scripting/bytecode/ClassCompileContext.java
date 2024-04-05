@@ -75,7 +75,7 @@ public class ClassCompileContext {
 		TypeInfo superClass,
 		TypeInfo[] superInterfaces
 	) {
-		this(access, new TypeInfo(type, name, superClass, superInterfaces, null, false));
+		this(access, new TypeInfo(type, name, superClass, superInterfaces, null, false, (access & ACC_FINAL) != 0));
 	}
 
 	public ClassCompileContext(
@@ -85,7 +85,7 @@ public class ClassCompileContext {
 		TypeInfo superClass,
 		TypeInfo[] superInterfaces
 	) {
-		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false));
+		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false, (access & ACC_FINAL) != 0));
 	}
 
 	public ConstantValue newConstant(Object value, TypeInfo type) {
@@ -173,7 +173,7 @@ public class ClassCompileContext {
 	}
 
 	public ClassCompileContext newInnerClass(int access, String name, TypeInfo superClass, TypeInfo[] superInterfaces) {
-		return this.newInnerClass(access, TypeInfo.makeClass(Type.getObjectType(name), superClass, superInterfaces));
+		return this.newInnerClass(access, TypeInfo.makeClass(Type.getObjectType(name), superClass, superInterfaces, (access & ACC_FINAL) != 0));
 	}
 
 	public ClassCompileContext newInnerClass(int access, TypeInfo type) {

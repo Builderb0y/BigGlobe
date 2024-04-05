@@ -2,7 +2,6 @@
 	"replace": false,
 	"values": [
 		"bigglobe:underground_pockets/water",
-		"bigglobe:underground_pockets/empty",
 		"bigglobe:underground_pockets/lava"
 	]
 }

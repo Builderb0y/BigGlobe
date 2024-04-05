@@ -14,8 +14,10 @@ import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.block.enums.WallShape;
 import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.math.BlockBox;
@@ -39,6 +41,7 @@ import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class SmallDungeonStructure extends AbstractDungeonStructure {
 
@@ -130,15 +133,15 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			if (!this.hasPit() && this.support) {
 				BlockPos.Mutable pos = new BlockPos.Mutable();
 				int x = this.x(), y = this.y() - 1, z = this.z();
-				this.generateDown(world, chunkBox, pos.set(x,     y, z    ), this.palette().mainSupplier());
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z    ), this.palette().mainSupplier());
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z    ), this.palette().mainSupplier());
-				this.generateDown(world, chunkBox, pos.set(x,     y, z - 1), this.palette().mainSupplier());
-				this.generateDown(world, chunkBox, pos.set(x,     y, z + 1), this.palette().mainSupplier());
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.TALL, WallShape.TALL, WallShape.NONE, true));
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.TALL, WallShape.NONE, WallShape.NONE, true));
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.NONE, WallShape.TALL, WallShape.TALL, true));
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.NONE, WallShape.NONE, WallShape.TALL, true));
+				this.generateDown(world, chunkBox, pos.set(x,     y, z    ), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z    ), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z    ), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x,     y, z - 1), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x,     y, z + 1), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.TALL, WallShape.TALL, WallShape.NONE, true), true);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.TALL, WallShape.NONE, WallShape.NONE, true), true);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.NONE, WallShape.TALL, WallShape.TALL, true), true);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.NONE, WallShape.NONE, WallShape.TALL, true), true);
 			}
 		}
 
@@ -146,14 +149,19 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			StructureWorldAccess world,
 			BlockBox chunkBox,
 			BlockPos.Mutable pos,
-			CoordinateSupplier<BlockState> stateSupplier
+			CoordinateSupplier<BlockState> stateSupplier,
+			boolean wall
 		) {
 			if (chunkBox.contains(pos) && world.getBlockState(pos).isReplaceable()) {
 				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
 				while (true) {
 					if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
-					if (!world.getBlockState(pos).isReplaceable()) break;
-					world.setBlockState(pos, stateSupplier.get(pos), Block.NOTIFY_ALL);
+					BlockState toReplace = world.getBlockState(pos);
+					if (!toReplace.isReplaceable()) break;
+					BlockState toPlace = stateSupplier.get(pos);
+					if (wall) toPlace = toPlace.with(Properties.WATERLOGGED, toReplace.getFluidState().isEqualAndStill(Fluids.WATER));
+					world.setBlockState(pos, toPlace, Block.NOTIFY_ALL);
+					if (wall) world.getChunk(pos).markBlockForPostProcessing(pos);
 				}
 				pos.setY(pos.getY() + 1);
 				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);

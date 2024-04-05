@@ -20,6 +20,8 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.util.InfoHolder;
 
 /**
 the common superinterface of all grids.
@@ -34,6 +36,12 @@ such a way that the "real" minimum or maximum value never exceeds a certain hard
 */
 @UseCoder(name = "CODER", in = Grid.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid {
+
+	public static final Info INFO = new Info();
+	public static class Info extends InfoHolder {
+
+		public MethodInfo minValue, maxValue, getDimensions;
+	}
 
 	public static final AutoCoder<Grid> CODER = new KeyDispatchCoder<>(ReifiedType.from(Grid.class), PrimitiveCoders.INT, "dimensions") {
 

@@ -7,7 +7,6 @@
 		"bigglobe:geode",
 		"bigglobe:small_dungeon",
 		"bigglobe:medium_dungeon",
-		"bigglobe:large_dungeon",
-		"bigglobe:underground_pocket"
+		"bigglobe:large_dungeon"
 	]
 }

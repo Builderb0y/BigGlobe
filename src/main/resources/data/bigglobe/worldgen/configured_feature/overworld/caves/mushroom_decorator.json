@@ -9,6 +9,9 @@
 					"`bigglobe:overworld/cave`.surface_depth > 0.0L",
 					"? 'bigglobe:overworld/caves/mushrooms'",
 					": 'bigglobe:overworld/caves/rock'"
+				],
+				"ALLOW_WATER": [
+					"`bigglobe:overworld/cave`.surface_depth !> 0.0L"
 				]
 			}
 		}

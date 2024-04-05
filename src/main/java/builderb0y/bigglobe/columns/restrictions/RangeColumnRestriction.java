@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;

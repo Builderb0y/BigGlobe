@@ -1,0 +1,25 @@
+{
+	"script": [
+		"double peek2 = 0.8427 ^ 2 ;local maximum according to desmos.",
+		"int waterLevel = (minY + midY * 3) >> 2 - 1",
+		"for (",
+			"int z in range[chunkMinZ, chunkMaxZ],",
+			"int x in range[chunkMinX, chunkMaxX]",
+		":",
+			"double relativeX = unmixLinear(double(midX), double(maxX), double(x))",
+			"double relativeZ = unmixLinear(double(midZ), double(maxZ), double(z))",
+			"double radius2 = relativeX ^ 2 + relativeZ ^ 2",
+			"if (radius2 <= peek2:",
+				"int minWaterY = ceilInt(midY - sqrt(peek2 - radius2) * (maxY - midY))",
+				"for (int y in range[minWaterY, waterLevel]:",
+					"if (getBlockState(x, y, z).isAir():",
+						"setBlockState(x, y, z, STATE)",
+					")",
+				")",
+			")",
+		")"
+	],
+	"inputs": [
+		{ "name": "STATE", "type": "BlockState" }
+	]
+}

@@ -22,6 +22,7 @@
 		"bigglobe:overworld/surface_structure_biome_restrictions",
 		"bigglobe:overworld/surface_structure_cave_exclusion",
 		"bigglobe:overworld/underground",
+		"bigglobe:overworld/underground_pocket_cave_overrider",
 		"bigglobe:overworld/villages_hilliness_exclusion",
 		"bigglobe:overworld/well_surface_y",
 		"bigglobe:overworld/windmill_surface_y",
