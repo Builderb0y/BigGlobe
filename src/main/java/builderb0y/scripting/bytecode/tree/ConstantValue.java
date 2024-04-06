@@ -8,10 +8,10 @@ import org.objectweb.asm.Handle;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
-import static org.objectweb.asm.Opcodes.*;
 
 public interface ConstantValue extends Typeable, BytecodeEmitter {
 
@@ -47,9 +47,6 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		else if (object instanceof Character c) {
 			object = Integer.valueOf(c.charValue());
 		}
-		else if (object instanceof Boolean b) {
-			object = Integer.valueOf(b.booleanValue() ? 1 : 0);
-		}
 		if (object instanceof Number number && type.isNumber()) {
 			return switch (type.getSort()) {
 				case BYTE    -> of(number.byteValue());
@@ -59,9 +56,11 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 				case FLOAT   -> of(number.floatValue());
 				case DOUBLE  -> of(number.doubleValue());
 				case CHAR    -> of((char)(number.intValue()));
-				case BOOLEAN -> of(number.intValue() != 0);
-				case VOID, OBJECT, ARRAY -> throw new IllegalArgumentException(type.toString());
+				case VOID, OBJECT, ARRAY, BOOLEAN -> throw new IllegalArgumentException(type.toString());
 			};
+		}
+		else if (object instanceof Boolean bool && type.getSort() == Sort.BOOLEAN) {
+			return of(bool.booleanValue());
 		}
 		else {
 			if (TypeInfo.of(object.getClass()).extendsOrImplements(type)) {

@@ -1,0 +1,8 @@
+{
+	"type": "constant",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"value": false
+}

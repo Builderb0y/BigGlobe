@@ -21,7 +21,7 @@
 				},
 				"ceiling_states": {
 					"type": {
-						"type": "bigglobe:class",
+						"type": "class",
 						"name": "CaveCeilingStates",
 						"fields": {
 							"bottom": "block_state",
@@ -31,9 +31,10 @@
 					"is_3d": false
 				},
 				"decorator": {
-					"type": "bigglobe:configured_feature",
+					"type": "configured_feature",
 					"is_3d": false
-				}
+				},
+				"has_dungeons": { "type": "boolean", "is_3d": false }
 			}
 		},
 		"is_3d": false

@@ -32,7 +32,7 @@ where I left off:
 			done in the past by most minimap mods.
 		structure the player can build and then teleport to it?
 			done in the past by the waystones mod I think.
-		void dimension which is has a larger coordinate scale more than the nether?
+		hyperspace dimension which is has a larger coordinate scale more than the nether?
 			some way to teleport into and out of this dimension?
 			maybe some kind of exponential coordinate scale, where traveling a distance of X in the dimension moves you e^x outside the dimension?
 	things to eventually remove:

@@ -11,7 +11,8 @@
 		"bigglobe:overworld/caves/ledge_noise",
 		"bigglobe:overworld/caves/lush_floor",
 		"bigglobe:overworld/caves/lush_ceiling",
-		"bigglobe:overworld/caves/lush_decorator"
+		"bigglobe:overworld/caves/lush_decorator",
+		"bigglobe:overworld/caves/no_dungeons"
 	],
 	"exports": {
 		"noise":          "bigglobe:overworld/caves/easy_noise",
@@ -19,6 +20,7 @@
 		"surface_depth":  "bigglobe:overworld/caves/surface_depth_noise",
 		"floor_states":   "bigglobe:overworld/caves/lush_floor",
 		"ceiling_states": "bigglobe:overworld/caves/lush_ceiling",
-		"decorator":      "bigglobe:overworld/caves/lush_decorator"
+		"decorator":      "bigglobe:overworld/caves/lush_decorator",
+		"has_dungeons":   "bigglobe:overworld/caves/no_dungeons"
 	}
 }

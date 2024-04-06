@@ -12,7 +12,8 @@
 		"bigglobe:overworld/caves/mushroom_floor",
 		"bigglobe:overworld/caves/no_ceiling",
 		"bigglobe:overworld/caves/no_surface_depth",
-		"bigglobe:overworld/caves/mushroom_decorator"
+		"bigglobe:overworld/caves/mushroom_decorator",
+		"bigglobe:overworld/caves/no_dungeons"
 	],
 	"exports": {
 		"noise":          "bigglobe:overworld/caves/easy_noise",
@@ -20,6 +21,7 @@
 		"surface_depth":  "bigglobe:overworld/caves/surface_depth_noise",
 		"floor_states":   "bigglobe:overworld/caves/mushroom_floor",
 		"ceiling_states": "bigglobe:overworld/caves/no_ceiling",
-		"decorator":      "bigglobe:overworld/caves/mushroom_decorator"
+		"decorator":      "bigglobe:overworld/caves/mushroom_decorator",
+		"has_dungeons":   "bigglobe:overworld/caves/no_dungeons"
 	}
 }
