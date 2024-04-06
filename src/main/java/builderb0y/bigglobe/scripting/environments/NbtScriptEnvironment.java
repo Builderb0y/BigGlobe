@@ -57,81 +57,112 @@ public class NbtScriptEnvironment {
 		GET_ELEMENT = MethodInfo.getMethod(NbtScriptEnvironment.class, "getElement"),
 		SET_ELEMENT = MethodInfo.getMethod(NbtScriptEnvironment.class, "setElement");
 
-	public static final MutableScriptEnvironment INSTANCE = (
-		new MutableScriptEnvironment()
-		.addType("Nbt",           NBT_ELEMENT_TYPE)
-		.addType("NbtByte",       NBT_BYTE_TYPE)
-		.addType("NbtShort",      NBT_SHORT_TYPE)
-		.addType("NbtInt",        NBT_INT_TYPE)
-		.addType("NbtLong",       NBT_LONG_TYPE)
-		.addType("NbtFloat",      NBT_FLOAT_TYPE)
-		.addType("NbtDouble",     NBT_DOUBLE_TYPE)
-		.addType("NbtNumber",     NBT_NUMBER_TYPE)
-		.addType("NbtByteArray",  NBT_BYTE_ARRAY_TYPE)
-		.addType("NbtIntArray",   NBT_INT_ARRAY_TYPE)
-		.addType("NbtLongArray",  NBT_LONG_ARRAY_TYPE)
-		.addType("NbtList",       NBT_LIST_TYPE)
-		.addType("NbtCollection", NBT_COLLECTION_TYPE)
-		.addType("NbtString",     NBT_STRING_TYPE)
-		.addType("NbtCompound",   NBT_COMPOUND_TYPE)
+	public static MutableScriptEnvironment createCommon() {
+		return (
+			new MutableScriptEnvironment()
+			.addType("Nbt",           NBT_ELEMENT_TYPE)
+			.addType("NbtByte",       NBT_BYTE_TYPE)
+			.addType("NbtShort",      NBT_SHORT_TYPE)
+			.addType("NbtInt",        NBT_INT_TYPE)
+			.addType("NbtLong",       NBT_LONG_TYPE)
+			.addType("NbtFloat",      NBT_FLOAT_TYPE)
+			.addType("NbtDouble",     NBT_DOUBLE_TYPE)
+			.addType("NbtNumber",     NBT_NUMBER_TYPE)
+			.addType("NbtByteArray",  NBT_BYTE_ARRAY_TYPE)
+			.addType("NbtIntArray",   NBT_INT_ARRAY_TYPE)
+			.addType("NbtLongArray",  NBT_LONG_ARRAY_TYPE)
+			.addType("NbtList",       NBT_LIST_TYPE)
+			.addType("NbtCollection", NBT_COLLECTION_TYPE)
+			.addType("NbtString",     NBT_STRING_TYPE)
+			.addType("NbtCompound",   NBT_COMPOUND_TYPE)
 
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtBoolean", true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtByte",    true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtShort",   true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtInt",     true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtLong",    true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtFloat",   true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtDouble",  true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtString",  true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtBoolean", true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtByte",    true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtShort",   true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtInt",     true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtLong",    true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtFloat",   true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtDouble",  true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "nbtString",  true)
 
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asBoolean",  true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asByte",     true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asShort",    true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asInt",      true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asLong",     true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asFloat",    true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asDouble",   true)
-		.addCastInvokeStatic(NbtScriptEnvironment.class, "asString",   true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asBoolean",  true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asByte",     true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asShort",    true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asInt",      true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asLong",     true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asFloat",    true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asDouble",   true)
+			.addCastInvokeStatic(NbtScriptEnvironment.class, "asString",   true)
 
-		.addFunctionInvokeStatics(NbtScriptEnvironment.class, "nbtBoolean", "nbtByte", "nbtShort", "nbtInt", "nbtLong", "nbtFloat", "nbtDouble", "nbtString")
-		.addFunction("nbtByteArray", array(NBT_BYTE_ARRAY_CONSTRUCTOR))
-		.addFunction("nbtIntArray", array(NBT_INT_ARRAY_CONSTRUCTOR))
-		.addFunction("nbtLongArray", array(NBT_LONG_ARRAY_CONSTRUCTOR))
-		.addFunction("nbtList", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
-		})
-		.addKeyword("nbtCompound", (ExpressionParser parser, String name) -> {
-			NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE,  null);
-			return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
-		})
+			.addFunctionInvokeStatics(NbtScriptEnvironment.class, "nbtBoolean", "nbtByte", "nbtShort", "nbtInt", "nbtLong", "nbtFloat", "nbtDouble", "nbtString")
+			.addFunction("nbtByteArray", array(NBT_BYTE_ARRAY_CONSTRUCTOR))
+			.addFunction("nbtIntArray", array(NBT_INT_ARRAY_CONSTRUCTOR))
+			.addFunction("nbtLongArray", array(NBT_LONG_ARRAY_CONSTRUCTOR))
+			.addFunction("nbtList", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
+				return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
+			})
+			.addKeyword("nbtCompound", (ExpressionParser parser, String name) -> {
+				NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE, null);
+				return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
+			})
 
-		.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
-		.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-			if (arguments.length != 1) {
-				throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
-			}
-			InsnTree nameOrIndex = arguments[0];
-			if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
-				return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
-			}
-			else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-				return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
-			}
-			else {
-				throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
-			}
-		})
+			.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
+		);
+	}
 
-		.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
-			return NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
-				case NORMAL -> GetMethodMode.NORMAL;
-				case NULLABLE -> GetMethodMode.NULLABLE;
-				case RECEIVER -> GetMethodMode.RECEIVER;
-				case NULLABLE_RECEIVER -> GetMethodMode.NULLABLE_RECEIVER;
-			});
-		})
-	);
+	public static MutableScriptEnvironment createImmutable() {
+		return (
+			createCommon()
+			.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+				if (arguments.length != 1) {
+					throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+				}
+				InsnTree nameOrIndex = arguments[0];
+				if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
+					return new CastResult(invokeStatic(GET_MEMBER, receiver, nameOrIndex), false);
+				}
+				else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
+					return new CastResult(invokeStatic(GET_ELEMENT, receiver, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW)), false);
+				}
+				else {
+					throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
+				}
+			})
+			.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+				return invokeStatic(GET_MEMBER, receiver, ldc(name));
+			})
+		);
+	}
+
+	public static MutableScriptEnvironment createMutable() {
+		return (
+			createCommon()
+			.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+				if (arguments.length != 1) {
+					throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+				}
+				InsnTree nameOrIndex = arguments[0];
+				if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
+					return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
+				}
+				else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
+					return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW), SET_ELEMENT, "NbtElement", mode), false);
+				}
+				else {
+					throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
+				}
+			})
+			.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+				return NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
+					case NORMAL -> GetMethodMode.NORMAL;
+					case NULLABLE -> GetMethodMode.NULLABLE;
+					case RECEIVER -> GetMethodMode.RECEIVER;
+					case NULLABLE_RECEIVER -> GetMethodMode.NULLABLE_RECEIVER;
+				});
+			})
+		);
+	}
 
 	public static NbtByte      nbtBoolean  (boolean value) { return NbtByte  .of(value); }
 	public static NbtByte      nbtByte     (byte    value) { return NbtByte  .of(value); }

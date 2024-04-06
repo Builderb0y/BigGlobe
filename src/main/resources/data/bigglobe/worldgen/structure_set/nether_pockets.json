@@ -2,11 +2,11 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 1845368023,
-		"separation": 5,
+		"separation": 3,
 		"spacing": 6
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:underground_pockets/nether_lava" },
-		{ "weight": 1, "structure": "bigglobe:underground_pockets/nether_soul_lava" }
+		{ "weight": 100, "structure": "bigglobe:underground_pockets/nether_lava" },
+		{ "weight": 100, "structure": "bigglobe:underground_pockets/nether_soul_lava" }
 	]
 }

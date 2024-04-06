@@ -136,6 +136,16 @@
 										"type": "simple_3d",
 										"state": "minecraft:air",
 										"condition": "`bigglobe:overworld/biased_cavern_noise`(y) > 0.0I",
+										"valid": {
+											"where": "!surfaceOnly",
+											"min_y": "`bigglobe:overworld/cavern_min_y`",
+											"max_y": "`bigglobe:overworld/cavern_max_y`"
+										}
+									},
+									{
+										"type": "simple_3d",
+										"state": "minecraft:air",
+										"condition": "`bigglobe:overworld/biased_core_noise`(y) < 0.625I",
 										"children": [
 											{
 												"type": "simple_2d",
@@ -148,8 +158,8 @@
 										],
 										"valid": {
 											"where": "!surfaceOnly",
-											"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
-											"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
+											"min_y": "`bigglobe:overworld/core_min_y`",
+											"max_y": "`bigglobe:overworld/core_max_y`"
 										}
 									},
 									{
@@ -266,8 +276,9 @@
 								"int x in range[minModifiableX, maxModifiableX]",
 							":",
 								"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
-								"if (`bigglobe:overworld/cavern_darkness`(x, z) > 0.0L:",
-									"placeFeature(x, 0, z, 'bigglobe:overworld/cavern_sculk_decorator')",
+								"random.if (",
+									"int y = random.nextInt(`bigglobe:overworld/cavern_min_y`(x, z), `bigglobe:overworld/cavern_max_y`(x, z))",
+									"placeFeature(x, y, z, 'minecraft:sculk_patch_deep_dark')",
 								")",
 							")",
 

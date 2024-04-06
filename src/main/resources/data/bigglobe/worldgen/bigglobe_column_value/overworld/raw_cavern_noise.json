@@ -11,11 +11,22 @@
 			{ "type": "smooth", "scaleX":  64, "scaleY": 16, "scaleZ":  64, "amplitude": 0.25    },
 			{ "type": "smooth", "scaleX":  32, "scaleY": 12, "scaleZ":  32, "amplitude": 0.125   },
 			{ "type": "smooth", "scaleX":  16, "scaleY":  8, "scaleZ":  16, "amplitude": 0.0625  },
-			{ "type": "smooth", "scaleX":   8, "scaleY":  4, "scaleZ":   8, "amplitude": 0.03125 }
+			{ "type": "smooth", "scaleX":   8, "scaleY":  4, "scaleZ":   8, "amplitude": 0.03125 },
+			{
+				"type": "project_xz",
+				"2D_grid": {
+					"type": "sum",
+					"layers": [
+						{ "type": "stalactites", "scale": 32, "amplitude": -1.0, "chance": 0.0625   },
+						{ "type": "stalactites", "scale": 16, "amplitude": -1.0, "chance": 0.03125  },
+						{ "type": "stalactites", "scale":  8, "amplitude": -1.0, "chance": 0.015625 }
+					]
+				}
+			}
 		]
 	},
 	"valid": {
-		"min_y": "ceilInt(`bigglobe:overworld/cavern_center` - `bigglobe:overworld/cavern_thickness`)",
-		"max_y": "floorInt(`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`) + 1"
+		"min_y": "`bigglobe:overworld/cavern_min_y`",
+		"max_y": "`bigglobe:overworld/cavern_max_y`"
 	}
 }

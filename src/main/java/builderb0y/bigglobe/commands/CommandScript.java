@@ -40,7 +40,7 @@ public interface CommandScript extends Script {
 			.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 			.addEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
 			.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-			.addEnvironment(NbtScriptEnvironment.INSTANCE)
+			.addEnvironment(NbtScriptEnvironment.createMutable())
 			.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 			.addEnvironment(
 				ColumnScriptEnvironmentBuilder.createVariableXYZ(

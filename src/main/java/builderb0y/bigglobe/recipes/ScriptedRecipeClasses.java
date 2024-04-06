@@ -63,7 +63,7 @@ public class ScriptedRecipeClasses {
 				this.script = (
 					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.INSTANCE)
+					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
@@ -105,7 +105,7 @@ public class ScriptedRecipeClasses {
 				this.script = (
 					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.INSTANCE)
+					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
@@ -148,7 +148,7 @@ public class ScriptedRecipeClasses {
 				this.script = (
 					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage)
 					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.INSTANCE)
+					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) -> {

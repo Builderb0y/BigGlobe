@@ -1,0 +1,27 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "script",
+		"min": 0.125,
+		"max": 1.0,
+		"script": "1.0L - abs(shape)",
+		"inputs": {
+			"shape": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 0.5 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.25 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.125 }
+				]
+			}
+		}
+	},
+	"valid": {
+		"min_y": "`bigglobe:overworld/core_min_y`",
+		"max_y": "`bigglobe:overworld/core_max_y`"
+	}
+}

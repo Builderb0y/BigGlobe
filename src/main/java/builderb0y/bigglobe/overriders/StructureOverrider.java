@@ -13,6 +13,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -64,10 +65,11 @@ public interface StructureOverrider extends ColumnScript {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(NbtScriptEnvironment.INSTANCE) //todo: use immutable environment.
+				.addEnvironment(NbtScriptEnvironment.createImmutable())
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
+						.addFieldGet(ScriptedStructure.Piece.class, "data")
 						.addVariableLoad("start", StructureStartWrapper.TYPE)
 						.addMethodInvokeStatic(StructureOverrider.class, "move")
 						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN),

@@ -35,7 +35,6 @@ public class StructureScriptEnvironment {
 		.addMethodInvokeSpecific(StructureTypeTagKey.class, "random", StructureTypeEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructureTypeTagKey.class, "random", StructureTypeEntry.class, long.class)
 		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
-		.addFieldGet(ScriptedStructure.Piece.class, "data")
 
 		.addCastConstant(StructureEntry               .CONSTANT_FACTORY, true)
 		.addCastConstant(StructureTagKey              .CONSTANT_FACTORY, true)

@@ -19,6 +19,7 @@ import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.EntryWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -129,7 +130,8 @@ public interface ColumnValueOverrider extends ColumnScript {
 			InsnTree loadColumn = load("column", registry.columnContext.columnType());
 			environment
 			.addAll(StructureScriptEnvironment.INSTANCE)
-			.addAll(NbtScriptEnvironment.INSTANCE) //todo: use immutable environment.
+			.addAll(NbtScriptEnvironment.createImmutable())
+			.addFieldGet(ScriptedStructure.Piece.class, "data")
 			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.seed(loadColumn)))
 			.addVariableLoad("structures", type(ScriptStructures.class))
 			.addAll(JavaUtilScriptEnvironment.ALL)

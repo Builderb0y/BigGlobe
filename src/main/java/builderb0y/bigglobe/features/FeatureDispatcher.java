@@ -104,7 +104,7 @@ public interface FeatureDispatcher extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 				.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-				.addEnvironment(NbtScriptEnvironment.INSTANCE)
+				.addEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))

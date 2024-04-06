@@ -195,7 +195,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 						.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 						.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-						.addEnvironment(NbtScriptEnvironment.INSTANCE)
+						.addEnvironment(NbtScriptEnvironment.createMutable())
 						.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 						.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))

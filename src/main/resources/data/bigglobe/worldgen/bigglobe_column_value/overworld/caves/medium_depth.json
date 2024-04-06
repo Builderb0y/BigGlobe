@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "min(`bigglobe:overworld/basic_surface_y` - (`bigglobe:overworld/cavern_center` + `bigglobe:overworld/cavern_thickness`), 512.0L)",
+	"script": "min(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cavern_max_y`, 384.0L)",
 	"cache": false
 }

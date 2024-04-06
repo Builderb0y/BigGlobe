@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:script",
 	"value": {
-		"biomes": "#bigglobe:has_structure/underground_pocket/lava",
+		"biomes": "#bigglobe:has_structure/underground_pocket/nether_soul_lava",
 		"spawn_overrides": {},
 		"step": "underground_structures",
 		"layout": {

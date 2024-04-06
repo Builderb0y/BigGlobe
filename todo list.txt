@@ -25,15 +25,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	reduce depths of caves from 256 -> 512 -> 768 to 256 -> 384 -> 512.
-	reduce memory usage by keeping a ThreadLocal<QuadColumn> for generation purposes.
-	remove molten cave type?
-	read-only NBT environment.
-		use for structure overriders overriding scripted structures.
-		also use for scripted structure placements. only the layout should modify NBT.
-	is it right to have StructureScriptEnvironment itself add getter for ScriptedStructure.Piece.data?
-		this relies on everything including StructureScriptEnvironment to also include NbtScriptEnvironment.
-		I would rather make data explicit on the script interfaces that need it.
 
 4.0 stuff:
 	system to allow players to teleport to locations they've visited before.
@@ -59,8 +50,10 @@ where I left off:
 		lakes (convert to script or remove).
 		underground pockets (convert to script).
 		connection between wood palettes and biomes.
+	fully immutable NBT elements for scripts.
 	stop catching ScriptParsingException in scripted features and any other place where this is intended to be temporary.
 	make sure all commands are updated for new column values.
+	remove molten cave type?
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -94,6 +87,7 @@ where I left off:
 	allow scripts to declare variables with generic types?
 	use tags for feature dispatcher instead of hard-coding what spawns where.
 	make rivers shallow-er at high elevations?
+	glow lichen.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

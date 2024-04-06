@@ -53,13 +53,14 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(NbtScriptEnvironment.INSTANCE)
+				.addEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
 				.addEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
+						.addFieldGet(ScriptedStructure.Piece.class, "data")
 						.addVariableLoad("originX", TypeInfos.INT)
 						.addVariableLoad("originZ", TypeInfos.INT)
 						.addQualifiedSpecificConstructor(Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
