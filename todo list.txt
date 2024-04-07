@@ -66,9 +66,7 @@ where I left off:
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
 		lakes.
-	swamp surface decoration (water, mud).
-	find an ocean monument to confirm they spawn correctly.
-	exposed dungeons and spider pits in caves.
+	convert layers to inclusive bounds?
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	boulder block.

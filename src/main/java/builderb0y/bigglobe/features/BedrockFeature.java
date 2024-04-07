@@ -46,7 +46,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 		int clampedMaxY = Math.min(maxY, chunk.getTopY() - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
-		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {
+		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {
 			int startY = yCoord << 4;
 			long sectionSeed = Permuter.permute(chunkSeed, yCoord);
 			PalettedContainer<BlockState> container = chunk.getSection(chunk.sectionCoordToIndex(yCoord)).getBlockStateContainer();

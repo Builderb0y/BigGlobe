@@ -2,12 +2,6 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"unless (",
-				"getBiome(originX, originY, originZ).isIn('bigglobe:swamps') &&",
-				"`bigglobe:overworld/surface_foliage` > 0.0L",
-			":",
-				"return(false)",
-			")",
 			"--originY",
 			"unless (getBlockState(originX, originY, originZ).isIn('minecraft:dirt'): return(false))",
 			"boolean hasSolidOrWater(int x, int z:",

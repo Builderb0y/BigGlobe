@@ -6,8 +6,10 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
+import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
@@ -40,7 +42,20 @@ public class LocateNearestCommand extends AsyncCommand {
 					this.source,
 					() -> (
 						Text
-						.translatable("commands.bigglobe.locate.nearest.success", this.script.getSource(), iterator.floorX(), iterator.floorY())
+						.translatable(
+							"commands.bigglobe.locate.nearest.success",
+							this.script.getSource(),
+							iterator.floorX(),
+							iterator.floorY(),
+							CustomDisplayContext.format(
+								Math.sqrt(
+									BigGlobeMath.squareD(
+										this.source.getPosition().x - (iterator.floorX() + 0.5D),
+										this.source.getPosition().z - (iterator.floorY() + 0.5D)
+									)
+								)
+							)
+						)
 						.styled((Style style) ->
 							style
 							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("commands.bigglobe.locate.clickToTeleport")))

@@ -67,7 +67,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		//figure out what to place.
 		record EntryY(FlowerFeature.Entry entry, int y) {}
 		EntryY[] toPlace = new EntryY[256];
-		Async.setEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), toPlace, (int index) -> {
+		Async.setEach(BigGlobeThreadPool.autoExecutor(), toPlace, (int index) -> {
 			ScriptedColumn column = columns_.lookupColumn(
 				startX | (index & 15),
 				startZ | (index >>> 4)

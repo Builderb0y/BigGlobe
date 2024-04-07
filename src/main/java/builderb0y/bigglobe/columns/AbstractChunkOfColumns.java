@@ -64,6 +64,6 @@ public abstract class AbstractChunkOfColumns<T_Column extends Column> {
 	}
 
 	public void populate(Consumer<? super T_Column> populator) {
-		Async.forEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), this.columns, populator);
+		Async.forEach(BigGlobeThreadPool.autoExecutor(), this.columns, populator);
 	}
 }

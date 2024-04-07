@@ -878,7 +878,7 @@ public class BigGlobeOverworldChunkGenerator extends BigGlobeChunkGenerator {
 	public void generateFlowers(StructureWorldAccess world, ChunkOfColumns<OverworldColumn> columns, BlockPos.Mutable pos, Permuter permuter) {
 		if (this.flowerGroups.length == 0) return;
 		FlowerEntry[] entries = new FlowerEntry[256];
-		Async.setEach(BigGlobeThreadPool.INSTANCE.autoExecutor(), entries, (int index) -> {
+		Async.setEach(BigGlobeThreadPool.autoExecutor(), entries, (int index) -> {
 			OverworldColumn column = columns.getColumn(index);
 			FlowerEntryFeature.Entry ground = this.getFlowerEntry(column, false);
 			FlowerEntryFeature.Entry sky = this.getFlowerEntry(column, true);

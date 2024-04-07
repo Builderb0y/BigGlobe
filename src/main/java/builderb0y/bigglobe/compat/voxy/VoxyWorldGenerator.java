@@ -212,9 +212,9 @@ public class VoxyWorldGenerator {
 			catch (InterruptedException ignored) {}
 			return true;
 		}
-		if (!BigGlobeThreadPool.INSTANCE.queue.isEmpty()) {
+		if (BigGlobeThreadPool.isBusy()) {
 			try {
-				Thread.sleep(100L);
+				Thread.sleep(500L);
 			}
 			catch (InterruptedException ignored) {}
 			return true;
@@ -240,7 +240,7 @@ public class VoxyWorldGenerator {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		RootLayer layer = this.generator.layer;
-		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {

@@ -67,9 +67,9 @@
 						"type": "script",
 						"script": [
 							"unmixSmooth(",
-							"`bigglobe:overworld/sea_level` + 32,",
-							"`bigglobe:overworld/sea_level` - 32,",
-							"`bigglobe:overworld/basic_surface_y`",
+								"`bigglobe:overworld/sea_level` + 32,",
+								"`bigglobe:overworld/sea_level` - 32,",
+								"`bigglobe:overworld/basic_surface_y`",
 							")"
 						]
 					}

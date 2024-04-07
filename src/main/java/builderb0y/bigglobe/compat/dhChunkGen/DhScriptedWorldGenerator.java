@@ -93,7 +93,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
-		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.lodRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				final int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {

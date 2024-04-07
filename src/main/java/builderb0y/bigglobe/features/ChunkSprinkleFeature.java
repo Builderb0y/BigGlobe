@@ -41,7 +41,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 		Config config
 	) {
 		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
-		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
+		Async.loop(BigGlobeThreadPool.autoExecutor(), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
 			ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(yCoord));
 			PalettedContainer<BlockState> container = section.getBlockStateContainer();
 			if (container.hasAny(config.blocks.runtimeStates::containsKey)) {

@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -35,6 +36,10 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler {
 	@Environment(EnvType.CLIENT)
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
 		NbtElement nbt = NbtIo2.readCompressed(buffer);
+		if (nbt instanceof NbtEnd) {
+			ClientState.generatorParams = null;
+			return;
+		}
 		NbtElement templates = Objects.requireNonNull(((NbtCompound)(nbt)).get("templates"), "Missing templates");
 		TemplateRegistry templateRegistry;
 		try {

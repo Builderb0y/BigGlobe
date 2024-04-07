@@ -80,6 +80,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
@@ -168,6 +169,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final SortedStructures sortedStructures;
 	public transient long columnSeed, worldSeed;
 	public transient DisplayEntry[] debugDisplay = new DisplayEntry[0];
+	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 
 	public BigGlobeScriptedChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
@@ -204,6 +206,15 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.colors = colors;
 		this.end_overrides = end_overrides;
 		this.sortedStructures = sortedStructures;
+
+		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
+		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
+			ScriptedColumn[] columns = new ScriptedColumn[256];
+			for (int index = 0; index < 256; index++) {
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC));
+			}
+			return columns;
+		});
 	}
 
 	public BiomeSource biome_source() {
@@ -348,22 +359,26 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				int startZ = chunk.getPos().getStartZ();
 				int chunkMinY = chunk.getBottomY();
 				int chunkMaxY = chunk.getTopY();
-				ScriptedColumn[] columns = new ScriptedColumn[256];
+				ScriptedColumn[] columns = this.chunkReuseColumns.get();
 				BlockSegmentList[] lists = new BlockSegmentList[256];
-				try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.runner(distantHorizons)) {
+				try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
 					for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 						final int offsetZ_ = offsetZ;
 						for (int offsetX = 0; offsetX < 16; offsetX += 2) {
 							final int offsetX_ = offsetX;
 							async.submit(() -> {
+								int baseIndex = (offsetZ_ << 4) | offsetX_;
 								int quadX = startX | offsetX_;
 								int quadZ = startZ | offsetZ_;
-								ScriptedColumn.Factory columnFactory = this.columnEntryRegistry.columnFactory;
 								ScriptedColumn
-									column00 = columnFactory.create(params.at(quadX,     quadZ    )),
-									column01 = columnFactory.create(params.at(quadX | 1, quadZ    )),
-									column10 = columnFactory.create(params.at(quadX,     quadZ | 1)),
-									column11 = columnFactory.create(params.at(quadX | 1, quadZ | 1));
+									column00 = columns[baseIndex     ],
+									column01 = columns[baseIndex ^  1],
+									column10 = columns[baseIndex ^ 16],
+									column11 = columns[baseIndex ^ 17];
+								column00.setParamsUnchecked(params.at(quadX,     quadZ    ));
+								column01.setParamsUnchecked(params.at(quadX | 1, quadZ    ));
+								column10.setParamsUnchecked(params.at(quadX,     quadZ | 1));
+								column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
 								for (MethodHandle handle : this.getOverriders().rawColumnValueDependencies) try {
 									handle.invokeExact(column00);
 									handle.invokeExact(column01);
@@ -388,11 +403,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								this.layer.emitSegments(column01, column00, column11, column10, list01);
 								this.layer.emitSegments(column10, column11, column00, column01, list10);
 								this.layer.emitSegments(column11, column10, column01, column00, list11);
-								int baseIndex = (offsetZ_ << 4) | offsetX_;
-								columns[baseIndex     ] = column00;
-								columns[baseIndex ^  1] = column01;
-								columns[baseIndex ^ 16] = column10;
-								columns[baseIndex ^ 17] = column11;
 								lists  [baseIndex     ] = list00;
 								lists  [baseIndex ^  1] = list01;
 								lists  [baseIndex ^ 16] = list10;
@@ -422,7 +432,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				}
 				minFilledSectionY >>= 4;
 				maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
-				Async.loop(BigGlobeThreadPool.INSTANCE.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
+				Async.loop(BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;
 					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY, this.columnSeed);
@@ -487,7 +497,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 							replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
 						}
 					}
-					Async.loop(BigGlobeThreadPool.INSTANCE.executor(distantHorizons), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+					Async.loop(BigGlobeThreadPool.executor(distantHorizons), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
 						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
 					});
 					this.generateRawStructures(chunk, structureAccessor, worldWrapper);
@@ -518,6 +528,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			),
 			Purpose.features()
 		);
+		ScriptedColumn[] columns = this.chunkReuseColumns.get();
+		for (int index = 0; index < 256; index++) {
+			int x = chunk.getPos().getStartX() | (index & 15);
+			int z = chunk.getPos().getStartZ() | (index >>> 4);
+			columns[index].setParams(worldWrapper.params.at(x, z));
+			worldWrapper.columns.put(ColumnPos.pack(x, z), columns[index]);
+		}
 		worldWrapper.overriders = new AutoOverride(
 			ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons()),
 			this.getOverriders().featureColumnValues,

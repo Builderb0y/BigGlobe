@@ -134,8 +134,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 			.addFieldGet(ScriptedStructure.Piece.class, "data")
 			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.seed(loadColumn)))
 			.addVariableLoad("structures", type(ScriptStructures.class))
-			.addAll(JavaUtilScriptEnvironment.ALL)
-			.addFieldInvoke(EntryWrapper.class, "id");
+			.addAll(JavaUtilScriptEnvironment.ALL);
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);

@@ -44,7 +44,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		int maxSection,
 		Config config
 	) {
-		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
+		Async.loop(BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
 			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
 				chunk,
 				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),

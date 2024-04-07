@@ -164,7 +164,7 @@
 	"commands.bigglobe.locate.searching": "Searching...",
 	"commands.bigglobe.locate.clickToTeleport": "Click to Teleport",
 	"commands.bigglobe.locate.more": "...%d more",
-	"commands.bigglobe.locate.nearest.success": "Found %s at %d, %d",
+	"commands.bigglobe.locate.nearest.success": "Found %s at %d, %d (%d block(s) away)",
 	"commands.bigglobe.locate.nearest.fail": "Could not find %s within a million blocks of you.",
 	"commands.bigglobe.locate.largest.success": "Largest %s areas within %d blocks of you:",
 	"commands.bigglobe.locate.largest.fail": "Could not find any %s areas within %d blocks of you.",

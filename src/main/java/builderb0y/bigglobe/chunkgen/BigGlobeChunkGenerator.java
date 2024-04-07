@@ -284,7 +284,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 
 	public void generateSectionsParallelSimple(Chunk chunk, int minYInclusive, int maxYExclusive, ChunkOfColumns<? extends WorldColumn> columns, Consumer<SectionGenerationContext> generator) {
 		Async.loop(
-			BigGlobeThreadPool.INSTANCE.autoExecutor(),
+			BigGlobeThreadPool.autoExecutor(),
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
 			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1) + 1 /* convert back to exclusive */,
 			1,
@@ -306,7 +306,7 @@ public abstract class BigGlobeChunkGenerator extends ChunkGenerator implements C
 			ConcurrentLinkedQueue<LightPositionCollector> lights = chunk instanceof ProtoChunk ? new ConcurrentLinkedQueue<>() : null;
 		#endif
 		Async.loop(
-			BigGlobeThreadPool.INSTANCE.autoExecutor(),
+			BigGlobeThreadPool.autoExecutor(),
 			Math.max(chunk.getSectionIndex(minYInclusive), 0),
 			Math.min(chunk.getSectionIndex(maxYExclusive - 1 /* convert to inclusive */), chunk.getSectionArray().length - 1) + 1 /* convert back to exclusive */,
 			1,

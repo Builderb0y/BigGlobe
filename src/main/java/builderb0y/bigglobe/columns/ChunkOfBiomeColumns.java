@@ -42,7 +42,7 @@ public class ChunkOfBiomeColumns<T_Column extends WorldColumn> extends AbstractC
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
-		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.autoRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.autoRunner()) {
 			for (int index = 0; index < 16; index++) {
 				T_Column column = columns[index];
 				column.setPosUnchecked(startX | ((index & 3) << 2), startZ | (index & 0b1100));

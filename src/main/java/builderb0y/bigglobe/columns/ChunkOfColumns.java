@@ -46,7 +46,7 @@ public class ChunkOfColumns<T_Column extends Column> extends AbstractChunkOfColu
 	public void setPosUncheckedAndPopulate(int startX, int startZ, Consumer<? super T_Column> populator) {
 		checkStart(startX, startZ);
 		T_Column[] columns = this.columns;
-		try (AsyncRunner async = BigGlobeThreadPool.INSTANCE.autoRunner()) {
+		try (AsyncRunner async = BigGlobeThreadPool.autoRunner()) {
 			for (int index = 0; index < 256; index++) {
 				T_Column column = columns[index];
 				column.setPosUnchecked(startX | (index & 15), startZ | (index >>> 4));

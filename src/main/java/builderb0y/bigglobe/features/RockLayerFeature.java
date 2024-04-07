@@ -54,7 +54,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 		//floorDivide(a + b - 1, b) == ceilDivide(a, b)
 		int sectionsPerThread = (totalSections + threads - 1) / threads;
 		IRandomList<Entry> entries = new RandomAccessDelegatingContainedRandomList<>(config.entries.elements);
-		Async.loop(BigGlobeThreadPool.INSTANCE.autoExecutor(), threads, (int thread) -> {
+		Async.loop(BigGlobeThreadPool.autoExecutor(), threads, (int thread) -> {
 			try (
 				NumberArray centerSamples    = NumberArray.allocateDoublesDirect(16);
 				NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16);
