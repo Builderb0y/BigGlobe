@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": true
+	},
+	"script": [
+		";original function: 2 ^ (y / -128) * 512 + 8",
+		";a tayler series approximation of degree 4 for exp is close enough to the",
+		";exact answer but is vastly faster to compute. so, that's what we do here.",
+
+		"double width = y * (ln(2.0L) / 128.0L) ;argument for exp",
+		"width = (((width * (1.0L / 24.0L) + (1.0L / 6.0L)) * width + 0.5L) * width + 1.0L) * width + 1.0L ;tayler series approximation for exp",
+		"512.0L / width + 8.0L ;actual width"
+	],
+	"cache": false
+}

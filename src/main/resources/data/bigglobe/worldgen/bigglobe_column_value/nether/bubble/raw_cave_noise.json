@@ -1,0 +1,42 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "script",
+		"min": 0.0,
+		"max": 312520.0,
+		"script": "layer1 ^ 2 + layer2 ^ 2",
+		"inputs": {
+			"layer1": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 256, "scaleY": 128, "scaleZ": 256, "amplitude": 256.0 },
+					{ "type": "smooth", "scaleX": 128, "scaleY":  64, "scaleZ": 128, "amplitude": 128.0 },
+					{ "type": "smooth", "scaleX":  64, "scaleY":  32, "scaleZ":  64, "amplitude":  64.0 },
+					{ "type": "smooth", "scaleX":  32, "scaleY":  24, "scaleZ":  32, "amplitude":  32.0 },
+					{ "type": "smooth", "scaleX":  16, "scaleY":  16, "scaleZ":  16, "amplitude":  14.0 },
+					{ "type": "smooth", "scaleX":   8, "scaleY":   8, "scaleZ":   8, "amplitude":   6.0 },
+					{ "type": "smooth", "scaleX":   4, "scaleY":   4, "scaleZ":   4, "amplitude":   2.0 }
+				]
+			},
+			"layer2": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 128, "scaleY": 64, "scaleZ": 128, "amplitude": 128.0 },
+					{ "type": "smooth", "scaleX":  64, "scaleY": 32, "scaleZ":  64, "amplitude":  64.0 },
+					{ "type": "smooth", "scaleX":  32, "scaleY": 24, "scaleZ":  32, "amplitude":  32.0 },
+					{ "type": "smooth", "scaleX":  16, "scaleY": 16, "scaleZ":  16, "amplitude":  14.0 },
+					{ "type": "smooth", "scaleX":   8, "scaleY":  8, "scaleZ":   8, "amplitude":   6.0 },
+					{ "type": "smooth", "scaleX":   4, "scaleY":  4, "scaleZ":   4, "amplitude":   2.0 }
+				]
+			}
+		}
+	},
+	"valid": {
+		"min_y": "`bigglobe:nether/min_y` + 16",
+		"max_y": "`bigglobe:nether/max_y` - 16"
+	}
+}

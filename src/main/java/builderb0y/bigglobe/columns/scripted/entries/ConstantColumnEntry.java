@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
+import builderb0y.bigglobe.columns.scripted.ColumnValueSetter;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -42,13 +43,14 @@ public class ConstantColumnEntry implements ColumnEntry {
 
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
+		ColumnEntry.super.populateGetter(memory, context, getterMethod);
 		return_(this.params.createConstant(this.value, context.root())).emitBytecode(getterMethod);
 		getterMethod.endCode();
 	}
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-
+		ColumnEntry.super.populateSetter(memory, context, setterMethod);
 	}
 
 	@Override

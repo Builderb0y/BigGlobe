@@ -1,0 +1,27 @@
+{
+	"script": [
+		"double noise = `bigglobe:nether/bubble/raw_cave_noise`(y)",
+		"double width = `bigglobe:nether/bubble/cave_width`(y)",
+		"double result = 1.0L - 1.0L / (noise / width ^ 2 + 1.0L)",
+		"result *= mixLinear(1.0I, CAVERN_NOISE, `bigglobe:nether/bubble/cavern_scalar`(y))",
+		"double edginess = soft_distance_squared * `bigglobe:nether/bubble_size`",
+		"double horizontalBias = unmixLinear(",
+			"`bigglobe:nether/bubble_size` - width,",
+			"`bigglobe:nether/bubble_size`,",
+			"edginess",
+		") * 0.5L + 0.75L",
+		"if (horizontalBias > 0.0L:",
+			"result += horizontalBias ^ 2",
+		")",
+		"if (y < lava_level:",
+			"result += unmixLinear(lava_level, `bigglobe:nether/min_y` + 16.0L, y) ^ 2",
+		")",
+		"else if (y > `bigglobe:nether/max_y` - 24:",
+			"result += unmixLinear(`bigglobe:nether/max_y` - 24.0L, `bigglobe:nether/max_y` - 16.0L, y) ^ 2",
+		")",
+		"float(result)"
+	],
+	"inputs": [
+		{ "name": "CAVERN_NOISE", "type": "float" }
+	]
+}

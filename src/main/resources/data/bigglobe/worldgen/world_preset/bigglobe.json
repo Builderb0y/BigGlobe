@@ -12,11 +12,11 @@
 						"sea_level": 0
 					},
 					"layer": {
-						"state": "minecraft:air",
+						"state": "'minecraft:air'",
 						"children": [
 							{
 								"type": "simple_2d",
-								"state": "minecraft:stone",
+								"state": "'minecraft:stone'",
 								"before_children": [
 									"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:",
 										"setBlockStates(",
@@ -84,7 +84,7 @@
 								"children": [
 									{
 										"type": "simple_3d",
-										"state": "minecraft:air",
+										"state": "'minecraft:air'",
 										"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
 										"after_children": [
 											"OverworldCaveCell cave = `bigglobe:overworld/cave`",
@@ -97,32 +97,25 @@
 												"double basicSurfaceY = ceilInt(`bigglobe:overworld/basic_surface_y`)",
 												"double processedSurfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
 												"double maxCaveDepth = ceilInt(`bigglobe:overworld/cave`.depth)",
-												"boolean hadCave = false",
-												"for (int y in range[max(floorInt(basicSurfaceY - maxCaveDepth) + 1, minY), min(floorInt(processedSurfaceY) + 1, maxY)):",
-													"boolean haveCave = getBlockState(y) != null",
-													"if (haveCave && !hadCave && canGenerateFloor:",
-														"int floorDepth = floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) + 1",
-														"for (int offset in range(0, floorDepth]:",
-															"if (getBlockState(y - offset) != null:",
-																"floorDepth = offset - 1",
-																"break()",
-															")",
+												"int minIteration = floorInt(basicSurfaceY - maxCaveDepth)",
+												"int maxIteration = ceilInt(processedSurfaceY)",
+												"if (canGenerateFloor:",
+													"for (int y = maxIteration + 1, (y := getBottomOfSegment(y - 1)) >= minIteration, noop:",
+														"if (getBlockState(y) == BlockState('minecraft:air'):",
+															"int limit = max(getBottomOfSegment(y - 1), y - floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) - 1)",
+															"setBlockStates(limit, y, floorStates.under)",
+															"setBlockState(y - 1, floorStates.top)",
 														")",
-														"setBlockStates(y - floorDepth, y, floorStates.under)",
-														"setBlockState(y - 1, floorStates.top)",
 													")",
-													"else if (!haveCave && hadCave && canGenerateCeiling:",
-														"int ceilingDepth = floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)) + 1",
-														"for (int offset in range[0, ceilingDepth):",
-															"if (getBlockState(y + offset) != null:",
-																"ceilingDepth = offset",
-																"break()",
-															")",
+												")",
+												"if (canGenerateCeiling:",
+													"for (int y = minIteration, (y := getTopOfSegment(y)) <= maxIteration, noop:",
+														"if (getBlockState(y - 1) == BlockState('minecraft:air'):",
+															"int limit = min(getTopOfSegment(y), y + floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)) + 1)",
+															"setBlockStates(y, limit, ceilingStates.above)",
+															"setBlockState(y, ceilingStates.bottom)",
 														")",
-														"setBlockStates(y, y + ceilingDepth, ceilingStates.above)",
-														"setBlockState(y, ceilingStates.bottom)",
 													")",
-													"hadCave = haveCave",
 												")",
 											")"
 										],
@@ -134,7 +127,7 @@
 									},
 									{
 										"type": "simple_3d",
-										"state": "minecraft:air",
+										"state": "'minecraft:air'",
 										"condition": "`bigglobe:overworld/biased_cavern_noise`(y) > 0.0I",
 										"valid": {
 											"where": "!surfaceOnly",
@@ -144,12 +137,12 @@
 									},
 									{
 										"type": "simple_3d",
-										"state": "minecraft:air",
+										"state": "'minecraft:air'",
 										"condition": "`bigglobe:overworld/biased_core_noise`(y) < 0.625I",
 										"children": [
 											{
 												"type": "simple_2d",
-												"state": "minecraft:lava[level=0]",
+												"state": "'minecraft:lava[level=0]'",
 												"valid": {
 													"min_y": "-1024",
 													"max_y": "-896"
@@ -164,7 +157,7 @@
 									},
 									{
 										"type": "simple_2d",
-										"state": "bigglobe:molten_rock_8",
+										"state": "'bigglobe:molten_rock_8'",
 										"valid": {
 											"where": "!surfaceOnly",
 											"max_y": "-896"
@@ -174,7 +167,7 @@
 							},
 							{
 								"type": "simple_2d",
-								"state": "minecraft:water[level=0]",
+								"state": "'minecraft:water[level=0]'",
 								"valid": {
 									"min_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
 									"max_y": "`bigglobe:overworld/sea_level`"
@@ -182,7 +175,7 @@
 							},
 							{
 								"type": "simple_2d",
-								"state": "bigglobe:river_water[level=0]",
+								"state": "'bigglobe:river_water[level=0]'",
 								"before_children": [
 									"int y = ceilInt(`bigglobe:overworld/river_water_y`) - 1",
 									"if (y > `bigglobe:overworld/processed_surface_y`:",
@@ -199,7 +192,7 @@
 							},
 							{
 								"type": "simple_2d",
-								"state": "bigglobe:cloud",
+								"state": "'bigglobe:cloud'",
 								"after_children": [
 									"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
 									"int maxY = floorInt(bounds.max_y) + 1",
@@ -883,7 +876,49 @@
 						"max_y": 1024
 					},
 					"layer": {
-						"state": "minecraft:air"
+						"state": "`bigglobe:nether/bubble`.filler",
+						"children": [
+							{
+								"type": "simple_3d",
+								"state": "'minecraft:air'",
+								"condition": "`bigglobe:nether/bubble`.noise(y) < 0.5I",
+								"valid": {
+									"min_y": "`bigglobe:nether/min_y` + 16",
+									"max_y": "`bigglobe:nether/max_y` - 16"
+								},
+								"before_children": [
+									"BlockState state = `bigglobe:nether/bubble`.surface_state",
+									"if (state != null:",
+										"int minIteration = `bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`",
+										"int maxIteration = `bigglobe:nether/max_y`",
+										"for (int y = maxIteration, (y := getBottomOfSegment(y - 1)) >= minIteration, noop:",
+											"if (",
+												"getBlockState(y) == BlockState('minecraft:air') &&",
+												"columnSeed(16x783DBB66AE78F478UL).newSeed(y).nextBoolean(",
+													"unmixSmoother(",
+														"double(`bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`),",
+														"double(`bigglobe:nether/mid_y`),",
+														"double(y)",
+													")",
+												")",
+											":",
+												"setBlockState(y - 1, state)",
+											")",
+										")",
+									")"
+								],
+								"children": [
+									{
+										"type": "simple_2d",
+										"state": "`bigglobe:nether/bubble`.lava_fluid",
+										"valid": {
+											"min_y": "`bigglobe:nether/min_y`",
+											"max_y": "`bigglobe:nether/bubble`.lava_level"
+										}
+									}
+								]
+							}
+						]
 					},
 					"feature_dispatcher": {
 						"rock_replacers": [],
@@ -923,11 +958,11 @@
 						"max_y":  512
 					},
 					"layer": {
-						"state": "minecraft:air",
+						"state": "'minecraft:air'",
 						"children": [
 							{
 								"type": "simple_3d",
-								"state": "bigglobe:void_cloud",
+								"state": "'bigglobe:void_cloud'",
 								"condition": "`bigglobe:end/lower_ring_cloud_sdf` > 0.0I",
 								"valid": {
 									"where": [
@@ -940,7 +975,7 @@
 							},
 							{
 								"type": "simple_3d",
-								"state": "bigglobe:void_cloud",
+								"state": "'bigglobe:void_cloud'",
 								"condition": "`bigglobe:end/lower_bridge_cloud_sdf` > 0.0I",
 								"valid": {
 									"where": [
@@ -953,7 +988,7 @@
 							},
 							{
 								"type": "simple_2d",
-								"state": "minecraft:end_stone",
+								"state": "'minecraft:end_stone'",
 								"after_children": [
 									"EndSurface surface = `bigglobe:end/surface`",
 									"if (surface.surface_depth > 0:",
@@ -978,7 +1013,7 @@
 							},
 							{
 								"type": "simple_3d",
-								"state": "minecraft:end_stone",
+								"state": "'minecraft:end_stone'",
 								"condition": "`bigglobe:end/nest_sdf` > 0.0I",
 								"valid": {
 									"where": "`bigglobe:end/distance_to_origin` < 148.0L",
@@ -988,7 +1023,7 @@
 							},
 							{
 								"type": "simple_3d",
-								"state": "bigglobe:void_cloud",
+								"state": "'bigglobe:void_cloud'",
 								"condition": "`bigglobe:end/upper_ring_cloud_sdf` > 0.0I",
 								"valid": {
 									"where": [
@@ -1001,7 +1036,7 @@
 							},
 							{
 								"type": "simple_3d",
-								"state": "bigglobe:void_cloud",
+								"state": "'bigglobe:void_cloud'",
 								"condition": "`bigglobe:end/upper_bridge_cloud_sdf` > 0.0I",
 								"valid": {
 									"where": [

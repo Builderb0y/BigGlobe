@@ -52,6 +52,14 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		this.clear();
 	}
 
+	public int getTopOfSegment(int y) {
+		return this.getTopOrBottomOfSegment(y, true, Integer.MAX_VALUE - 1) + 1;
+	}
+
+	public int getBottomOfSegment(int y) {
+		return this.getTopOrBottomOfSegment(y, false, Integer.MIN_VALUE);
+	}
+
 	@Override
 	public Segment<BlockState> newSegment(int minY, int maxY, BlockState value) {
 		return new LitSegment(minY, maxY, value);

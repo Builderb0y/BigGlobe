@@ -438,6 +438,29 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 		return null;
 	}
 
+	public int getTopOrBottomOfSegment(int y, boolean top, int dflt) {
+		if (this.isEmpty()) return dflt;
+		Segment<T> end;
+		if (y < (end = this.get(0)).minY) return top ? end.minY - 1 : dflt;
+		if (y > (end = this.get(this.size() - 1)).maxY) return top ? dflt : end.maxY + 1;
+
+		int minIndex = 0, maxIndex = this.size() - 1;
+		while (maxIndex >= minIndex) {
+			int midIndex = (minIndex + maxIndex) >>> 1;
+			Segment<T> segment = this.get(midIndex);
+			if (y < segment.minY) {
+				maxIndex = midIndex - 1;
+			}
+			else if (y > segment.maxY) {
+				minIndex = midIndex + 1;
+			}
+			else {
+				return top ? segment.maxY : segment.minY;
+			}
+		}
+		return top ? this.get(minIndex).minY - 1 : this.get(maxIndex).maxY + 1;
+	}
+
 	public @Nullable T getOverlappingObject(int y) {
 		Segment<T> segment = this.getOverlappingSegment(y);
 		return segment != null ? segment.value : null;

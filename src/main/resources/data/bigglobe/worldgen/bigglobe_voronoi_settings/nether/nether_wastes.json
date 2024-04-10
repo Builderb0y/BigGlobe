@@ -1,0 +1,23 @@
+{
+	"weight": 1.0,
+	"owner": "bigglobe:nether/bubble",
+	"enables": [
+		"bigglobe:nether/bubble/biome_nether_wastes",
+		"bigglobe:nether/bubble/cave_width",
+		"bigglobe:nether/bubble/cavern_noise_nether_wastes",
+		"bigglobe:nether/bubble/filler_netherrack",
+		"bigglobe:nether/bubble/fluid_lava",
+		"bigglobe:nether/bubble/lava_level_normal",
+		"bigglobe:nether/bubble/noise_nether_wastes",
+		"bigglobe:nether/bubble/raw_cave_noise",
+		"bigglobe:nether/bubble/surface_state_none"
+	],
+	"exports": {
+		"biome": "bigglobe:nether/bubble/biome_nether_wastes",
+		"filler": "bigglobe:nether/bubble/filler_netherrack",
+		"lava_level": "bigglobe:nether/bubble/lava_level_normal",
+		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
+		"noise": "bigglobe:nether/bubble/noise_nether_wastes",
+		"surface_state": "bigglobe:nether/bubble/surface_state_none"
+	}
+}

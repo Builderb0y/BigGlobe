@@ -9,9 +9,11 @@ import java.util.stream.IntStream;
 
 import org.objectweb.asm.Type;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -756,6 +758,35 @@ public interface ColumnScript extends Script {
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+			}
+		}
+	}
+
+	public static interface ColumnToBlockStateScript extends ColumnScript {
+
+		public abstract BlockState get(ScriptedColumn column);
+
+		@Wrapper
+		public static class Holder extends BaseHolder<ColumnToBlockStateScript> implements ColumnToBlockStateScript {
+
+			public Holder(ScriptUsage usage) {
+				super(usage);
+			}
+
+			@Override
+			public Class<ColumnToBlockStateScript> getScriptClass() {
+				return ColumnToBlockStateScript.class;
+			}
+
+			@Override
+			public BlockState get(ScriptedColumn column) {
+				try {
+					return this.script.get(column);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return BlockStates.AIR;
 				}
 			}
 		}

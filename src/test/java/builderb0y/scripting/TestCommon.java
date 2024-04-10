@@ -11,17 +11,12 @@ import org.opentest4j.AssertionFailedError;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.util.ThrowingRunnable;
 import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
-import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCommon {

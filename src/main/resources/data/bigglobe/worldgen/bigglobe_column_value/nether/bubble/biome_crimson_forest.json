@@ -1,0 +1,8 @@
+{
+	"type": "constant",
+	"params": {
+		"type": "biome",
+		"is_3d": false
+	},
+	"value": "bigglobe:crimson_forest"
+}

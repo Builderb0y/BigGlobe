@@ -161,4 +161,51 @@ public class ExpressionParserTest extends TestCommon {
 		assertFail("Mismatched parentheses in comment", ";(()");
 		assertFail("Mismatched parentheses in comment", ";((comment)");
 	}
+
+	@Test
+	public void testNukedLocalVariables() throws ScriptParsingException {
+		new ScriptParser<>(
+			Runnable.class,
+			"""
+			if (false:
+				(
+					int x = 0
+				)
+			)
+			"""
+		)
+		.parse(new ScriptClassLoader())
+		.run();
+	}
+
+	@Test
+	public void testNukedLocalVariables2() throws ScriptParsingException {
+		new ScriptParser<>(
+			Runnable.class,
+			"""
+			if (true: return())
+			
+			(
+				int x = 0
+			)
+			"""
+		)
+		.parse(new ScriptClassLoader())
+		.run();
+	}
+
+	@Test
+	public void testMultipleNukedVariables() throws ScriptParsingException {
+		new ScriptParser<>(
+			Runnable.class,
+			"""
+			int a = 0
+			if (false: (int b = 0))
+			int c = 0
+			if (false: (int d = 0))
+			"""
+		)
+		.parse(new ScriptClassLoader())
+		.run();
+	}
 }

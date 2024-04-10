@@ -98,7 +98,7 @@ public interface SurfaceScript extends Script {
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.addAll(MinecraftScriptEnvironment.create())
 				.addAll(ScriptedColumn.baseEnvironment(loadMainColumn))
-				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates")
+				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 				.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))

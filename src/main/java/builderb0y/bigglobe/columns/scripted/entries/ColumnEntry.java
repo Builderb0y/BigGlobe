@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.objectweb.asm.tree.AnnotationNode;
 
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
@@ -11,10 +15,8 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
-import builderb0y.bigglobe.columns.scripted.ColumnLookupGet3DValueInsnTree;
-import builderb0y.bigglobe.columns.scripted.ColumnLookupMutableGet3DValueInsnTree;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
@@ -62,9 +64,25 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 	public default void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {}
 
-	public abstract void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod);
+	@MustBeInvokedByOverriders
+	public default void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
+		AnnotationNode annotation = new AnnotationNode(ColumnValueGetter.DESCRIPTOR);
+		annotation.values = new ArrayList<>(2);
+		annotation.values.add("value");
+		annotation.values.add(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString());
+		getterMethod.node.visibleAnnotations = new ArrayList<>(1);
+		getterMethod.node.visibleAnnotations.add(annotation);
+	}
 
-	public abstract void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod);
+	@MustBeInvokedByOverriders
+	public default void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
+		AnnotationNode annotation = new AnnotationNode(ColumnValueSetter.DESCRIPTOR);
+		annotation.values = new ArrayList<>(2);
+		annotation.values.add("value");
+		annotation.values.add(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString());
+		setterMethod.node.visibleAnnotations = new ArrayList<>(1);
+		setterMethod.node.visibleAnnotations.add(annotation);
+	}
 
 	public default void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
 		int uniqueIndex = context.mainClass.memberUniquifier++;

@@ -1,8 +1,8 @@
 {
-	"type": "bigglobe:voronoi",
+	"type": "voronoi",
 	"params": {
 		"type": {
-			"type": "bigglobe:voronoi",
+			"type": "voronoi",
 			"name": "OverworldCaveCell",
 			"exports": {
 				"noise": { "type": "float", "is_3d": true },

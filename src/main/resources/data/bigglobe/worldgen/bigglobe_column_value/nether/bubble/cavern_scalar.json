@@ -1,0 +1,25 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"unmixSmoother(",
+			"double(`bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`),",
+			"double(`bigglobe:nether/mid_y` + `bigglobe:nether/cavern_fade_radius`),",
+			"double(y)",
+		")",
+		".as(float)",
+		"*",
+		"(",
+			"1.0I - unmixClamp(",
+				"double(`bigglobe:nether/max_y` - 16 - `bigglobe:nether/cavern_fade_radius`),",
+				"double(`bigglobe:nether/max_y` - 16),",
+				"double(y)",
+			")",
+			".as(float) ^ 2",
+		")"
+	],
+	"cache": false
+}

@@ -13,7 +13,8 @@ public interface ClassOptimizer {
 			JumpToReturnOptimizer.INSTANCE,
 			JumpToNextInstructionOptimizer.INSTANCE,
 			ConstantJumpOptimizer.INSTANCE,
-			PopOptimizer.INSTANCE
+			PopOptimizer.INSTANCE,
+			UnusedLocalVariableRemover.INSTANCE
 		)
 	);
 

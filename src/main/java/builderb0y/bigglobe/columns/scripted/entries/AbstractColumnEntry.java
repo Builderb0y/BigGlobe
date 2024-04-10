@@ -113,6 +113,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
+		ColumnEntry.super.populateGetter(memory, context, getterMethod);
 		if (this.is3D()) {
 			if (this.hasField()) {
 				this.populateGetterWithField3D(memory, context, getterMethod);
@@ -478,6 +479,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
+		ColumnEntry.super.populateSetter(memory, context, setterMethod);
 		if (this.getAccessSchema().is_3d()) {
 			this.populateSetter3D(memory, context, setterMethod);
 		}

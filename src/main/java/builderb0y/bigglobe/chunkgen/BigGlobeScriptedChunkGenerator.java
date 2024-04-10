@@ -5,12 +5,14 @@ import java.io.Reader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,6 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.structure.*;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.*;
 import net.minecraft.world.ChunkRegion;
@@ -66,6 +67,7 @@ import builderb0y.autocodec.decoders.RecordDecoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -79,15 +81,14 @@ import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnValueGetter;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -111,9 +112,6 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.util.CollectionTransformer;
 
 @AddPseudoField("biome_source")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -168,7 +166,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
 	public transient long columnSeed, worldSeed;
-	public transient DisplayEntry[] debugDisplay = new DisplayEntry[0];
+	public transient Pattern displayPattern;
+	public transient DisplayEntry rootDebugDisplay;
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 
 	public BigGlobeScriptedChunkGenerator(
@@ -215,6 +214,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			}
 			return columns;
 		});
+
+		this.rootDebugDisplay = new DisplayEntry(this);
 	}
 
 	public BiomeSource biome_source() {
@@ -820,63 +821,84 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
 		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), Purpose.GENERIC));
-		for (DisplayEntry entry : this.debugDisplay) {
-			try {
-				text.add(entry.id + ": " + entry.handle.invokeExact(column, pos.getY()));
-			}
-			catch (Throwable exception) {
-				text.add(entry.id + ": " + exception);
-			}
-		}
+		this.rootDebugDisplay.forEach(column, pos.getY(), (String id, Object value) -> text.add(id + ": " + value));
 	}
 
 	public void setDisplay(String regex) {
-		if (regex == null) {
-			this.debugDisplay = new DisplayEntry[0];
-			return;
-		}
-		Pattern pattern = Pattern.compile(regex);
-		MethodHandles.Lookup lookup = this.columnEntryRegistry.columnLookup;
-		this.debugDisplay = (
-			this
-			.columnEntryRegistry
-			.registries
-			.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
-			.streamEntries()
-			.filter((RegistryEntry<ColumnEntry> entry) -> this.columnEntryRegistry.voronoiManager.getEnablingSettings(entry.value()).isEmpty())
-			.filter((RegistryEntry<ColumnEntry> entry) -> pattern.matcher(UnregisteredObjectException.getID(entry).toString()).find())
-			.map((RegistryEntry<ColumnEntry> entry) -> {
-				MethodCompileContext getter = this.columnEntryRegistry.columnContext.memories.get(entry.value()).getTyped(ColumnEntryMemory.GETTER);
-				try {
-					MethodHandle handle = lookup.findVirtual(
-						this.columnEntryRegistry.columnClass,
-						getter.info.name,
-						MethodType.methodType(
-							getter.info.returnType.toClass(this.columnEntryRegistry.loader),
-							CollectionTransformer.convertArray(
-								getter.info.paramTypes,
-								Class<?>[]::new,
-								(TypeInfo info) -> info.toClass(this.columnEntryRegistry.loader)
-							)
-						)
-					);
-					if (handle.type().parameterCount() < 2) {
-						handle = MethodHandles.dropArguments(handle, 1, int.class);
-					}
-					//primitive -> Object, because doing primitive -> String would
-					//require special-casing every primitive type, and I am lazy.
-					handle = handle.asType(MethodType.methodType(Object.class, ScriptedColumn.class, int.class));
-					return new DisplayEntry(UnregisteredObjectException.getID(entry), handle);
-				}
-				catch (Throwable throwable) {
-					BigGlobeMod.LOGGER.error("An unknown error occurred while trying to set the display for the active chunk generator: ", throwable);
-					return null;
-				}
-			})
-			.filter(Objects::nonNull)
-			.toArray(DisplayEntry[]::new)
-		);
+		this.displayPattern = Pattern.compile(regex);
+		this.rootDebugDisplay.recomputeChildren();
 	}
 
-	public static record DisplayEntry(Identifier id, MethodHandle handle) {}
+	public static class DisplayEntry {
+
+		public static final ObjectArrayFactory<DisplayEntry> ARRAY_FACTORY = new ObjectArrayFactory<>(DisplayEntry.class);
+
+		public BigGlobeScriptedChunkGenerator generator;
+		public String id;
+		public Class<?> expectedValueType;
+		public DisplayEntry[] children;
+		public MethodHandle getter;
+
+		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
+			this.generator = generator;
+			this.id = "";
+			this.getter = MethodHandles.identity(Object.class);
+			this.getter = MethodHandles.dropArguments(this.getter, 1, int.class);
+		}
+
+		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, Method method) {
+			this.generator = generator;
+			this.id = method.getDeclaredAnnotation(ColumnValueGetter.class).value();
+			try {
+				this.getter = generator.columnEntryRegistry.columnLookup.unreflect(method);
+				if (this.getter.type().parameterCount() < 2) {
+					this.getter = MethodHandles.dropArguments(this.getter, 1, int.class);
+				}
+				this.getter = this.getter.asType(MethodType.methodType(Object.class, Object.class, int.class));
+			}
+			catch (IllegalAccessException exception) {
+				throw new RuntimeException(exception);
+			}
+		}
+
+		public void forEach(Object holder, int y, BiConsumer<String, Object> results) {
+			try {
+				Object nextHolder = this.getter.invokeExact(holder, y);
+				if (!this.id.isEmpty()) results.accept(this.id, nextHolder);
+				if (nextHolder != null) {
+					if (this.expectedValueType != nextHolder.getClass()) {
+						this.expectedValueType = nextHolder.getClass();
+						this.recomputeChildren();
+					}
+					for (DisplayEntry child : this.children) {
+						child.forEach(nextHolder, y, results);
+					}
+				}
+			}
+			catch (Throwable throwable) {
+				results.accept(this.id, throwable.toString());
+			}
+		}
+
+		public void recomputeChildren() {
+			if (
+				this.generator.displayPattern != null && (
+					ScriptedColumn.class.isAssignableFrom(this.expectedValueType) ||
+					VoronoiDataBase.class.isAssignableFrom(this.expectedValueType)
+				)
+			) {
+				this.children = (
+					Arrays
+					.stream(this.expectedValueType.getDeclaredMethods())
+					.filter((Method method) -> method.isAnnotationPresent(ColumnValueGetter.class))
+					.filter((Method method) -> this.generator.displayPattern.matcher(method.getDeclaredAnnotation(ColumnValueGetter.class).value()).find())
+					.map((Method method) -> new DisplayEntry(this.generator, method))
+					.toArray(ARRAY_FACTORY)
+				);
+			}
+			else {
+				this.children = ARRAY_FACTORY.empty();
+			}
+		}
+	}
 }

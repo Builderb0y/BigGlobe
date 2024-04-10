@@ -22,7 +22,6 @@ public class UserClassDefiner {
 		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants"),
 		HASH_MIX                   = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
 
-
 	public final ExpressionParser parser;
 	public final String className;
 	public final ClassCompileContext innerClass;

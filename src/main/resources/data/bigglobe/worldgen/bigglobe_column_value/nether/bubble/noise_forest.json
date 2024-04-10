@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": {
+		"template": "bigglobe:apply_nether_bias",
+		"inputs": {
+			"CAVERN_NOISE": "`bigglobe:nether/bubble/cavern_noise_forest`(y)"
+		}
+	},
+	"valid": {
+		"min_y": "`bigglobe:nether/min_y`",
+		"max_y": "`bigglobe:nether/max_y`"
+	}
+}

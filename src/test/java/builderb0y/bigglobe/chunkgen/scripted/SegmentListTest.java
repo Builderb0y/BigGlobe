@@ -57,4 +57,21 @@ public class SegmentListTest {
 			}
 		}
 	}
+
+	@Test
+	public void testGetTopOrBottomOfSegment() {
+		SegmentList<Object> list = new SegmentList<>(0, 10);
+		list.addSegment(5, 5, new Object());
+		for (int start = -1; start <= 11; start++) {
+			int desired = start < 5 ? Integer.MIN_VALUE : start == 5 ? 5 : 6;
+			assertEquals(desired, list.getTopOrBottomOfSegment(start, false, Integer.MIN_VALUE));
+			desired = start > 5 ? Integer.MAX_VALUE : start == 5 ? 5 : 4;
+			assertEquals(desired, list.getTopOrBottomOfSegment(start, true, Integer.MAX_VALUE));
+		}
+		list.clear();
+		list.addSegment(2, 2, new Object());
+		list.addSegment(7, 7, new Object());
+		assertEquals(3, list.getTopOrBottomOfSegment(5, false, Integer.MIN_VALUE));
+		assertEquals(6, list.getTopOrBottomOfSegment(5, true, Integer.MAX_VALUE));
+	}
 }

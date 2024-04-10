@@ -142,7 +142,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-
+		throw new UnsupportedOperationException(); //should never be called, since we are not settable.
 	}
 
 	@Override
