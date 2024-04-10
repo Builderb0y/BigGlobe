@@ -1,5 +1,5 @@
 {
-	"weight": 0.25,
+	"weight": 0.75,
 	"owner": "bigglobe:nether/bubble",
 	"enables": [
 		"bigglobe:nether/bubble/biome_ashen_wastes",

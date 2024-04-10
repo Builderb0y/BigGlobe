@@ -34,11 +34,12 @@ where I left off:
 		structure the player can build and then teleport to it?
 			done in the past by the waystones mod I think.
 		hyperspace dimension which is has a larger coordinate scale more than the nether?
-			some way to teleport into and out of this dimension?
 			maybe some kind of exponential coordinate scale, where traveling a distance of X in the dimension moves you e^x outside the dimension?
+			some way to teleport into and out of this dimension.
 	things to eventually remove:
 		legacy chunk generators.
 		legacy overriders.
+			include json files.
 		legacy script interfaces.
 		legacy settings (the "settings" package, which contains data for legacy chunk generators).
 		"dimensionTypes" package.
@@ -87,6 +88,8 @@ where I left off:
 	use tags for feature dispatcher instead of hard-coding what spawns where.
 	make rivers shallow-er at high elevations?
 	glow lichen.
+	bottled aura.
+		add to loot tables of end cities.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

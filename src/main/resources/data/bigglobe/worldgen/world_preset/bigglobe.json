@@ -921,15 +921,20 @@
 						]
 					},
 					"feature_dispatcher": {
-						"rock_replacers": [],
+						"rock_replacers": [
+							"bigglobe:nether/lower_bedrock",
+							"bigglobe:nether/upper_bedrock",
+							"#bigglobe:nether/rock_layers",
+							"#bigglobe:nether/ores"
+						],
 						"raw": "noop",
 						"normal": "noop"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
 						"value": {
-							"script": "Biome('minecraft:plains')",
-							"all_possible_biomes": "bigglobe:overworld"
+							"script": "`bigglobe:nether/bubble`.biome",
+							"all_possible_biomes": "bigglobe:nether"
 						}
 					},
 					"overriders": "bigglobe:nether"
@@ -1050,7 +1055,10 @@
 						]
 					},
 					"feature_dispatcher": {
-						"rock_replacers": [],
+						"rock_replacers": [
+							"#bigglobe:end/rock_layers",
+							"#bigglobe:end/ores"
+						],
 						"raw": [
 							"for (",
 								"int z in range[minModifiableZ, maxModifiableZ],",

@@ -1,11 +1,11 @@
 {
-	"type": "bigglobe:nether_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "gold_more",
 		"blocks": {
 			"minecraft:netherrack": "minecraft:nether_gold_ore"
 		},
-		"chance": "0.25",
-		"radius": { "type": "bigglobe:average", "min": 2.0, "max": 6.0, "average": 3.0 },
-		"biomes": "bigglobe:nether_ores/gold_more"
+		"chance": "`bigglobe:nether/bubble`.biome.isIn('bigglobe:nether_ores/gold_more') ? 0.25 : 0.0",
+		"radius": { "type": "bigglobe:average", "min": 2.0, "max": 6.0, "average": 3.0 }
 	}
 }

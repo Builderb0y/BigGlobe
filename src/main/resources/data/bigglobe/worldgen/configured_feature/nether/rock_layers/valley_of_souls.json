@@ -1,6 +1,54 @@
 {
-	"type": "bigglobe:nether_rock_layer_group",
+	"type": "bigglobe:rock_layer",
 	"config": {
-		"repeat": 32.0
+		"seed": "valley_of_souls",
+		"repeat": 32.0,
+		"entries": {
+			"defaults": {
+				"center": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 16.0 },
+						{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude":  8.0 },
+						{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude":  4.0 }
+					]
+				},
+				"thickness": {
+					"type": "sum",
+					"layers": [
+						{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
+						{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
+						{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
+					]
+				},
+				"restrictions": {
+					"type": "script",
+					"script": "`bigglobe:nether/bubble`.filler == BlockState('minecraft:soul_soil') ? 1.0 : 0.0"
+				}
+			},
+			"variations": [
+				{
+					"weight": 1.0,
+					"blocks": {
+						"minecraft:soul_soil": "minecraft:netherrack",
+						"minecraft:soul_sand": "minecraft:netherrack"
+					}
+				},
+				{
+					"weight": 0.5,
+					"blocks": {
+						"minecraft:soul_soil": "minecraft:smooth_basalt"
+
+					}
+				},
+				{
+					"weight": 0.5,
+					"blocks": {
+						"minecraft:soul_soil": "minecraft:blackstone"
+
+					}
+				}
+			]
+		}
 	}
 }

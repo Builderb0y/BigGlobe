@@ -1,18 +1,8 @@
 {
-	"type": "bigglobe:script",
+	"type": "bigglobe:bedrock",
 	"config": {
-		"script": {
-			"debug_name": "ConfiguredFeatureNetherUpperBedrock",
-			"source": [
-				"if (distantHorizons: return(false))",
-				"--originY",
-				"for (int offsetY in range[0, 16):",
-					"random.if ((1.0L - offsetY * 0.0625L) ^ 2:",
-						"setBlockState(originX, originY - offsetY, originZ, 'minecraft:bedrock')",
-					")",
-				")",
-				"return(true)"
-			]
-		}
+		"state": "minecraft:bedrock",
+		"full_y": 1023,
+		"empty_y": 1007
 	}
 }

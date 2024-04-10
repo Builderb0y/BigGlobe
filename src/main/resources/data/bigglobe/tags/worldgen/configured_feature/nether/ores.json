@@ -1,0 +1,11 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether/ores/gold_less",
+		"bigglobe:nether/ores/gold_more",
+		"bigglobe:nether/ores/quartz_less",
+		"bigglobe:nether/ores/quartz_more",
+		"bigglobe:nether/ores/sulfur_less",
+		"bigglobe:nether/ores/sulfur_more"
+	]
+}

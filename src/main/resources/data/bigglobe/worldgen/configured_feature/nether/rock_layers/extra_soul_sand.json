@@ -1,6 +1,34 @@
 {
-	"type": "bigglobe:nether_rock_layer_group",
+	"type": "bigglobe:rock_layer",
 	"config": {
-		"repeat": 16.0
+		"seed": "extra_soul_sand",
+		"repeat": 16.0,
+		"entries": {
+			"weight": 1.0,
+			"center": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 16.0 },
+					{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude":  8.0 },
+					{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude":  4.0 }
+				]
+			},
+			"thickness": {
+				"type": "sum",
+				"layers": [
+					{ "type": "constant", "value": 4.0 },
+					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
+					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
+					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
+				]
+			},
+			"restrictions": {
+				"type": "script",
+				"script": "`bigglobe:nether/bubble`.filler == BlockState('minecraft:soul_soil') ? 1.0 : 0.0"
+			},
+			"blocks": {
+				"minecraft:soul_soil": "minecraft:soul_sand"
+			}
+		}
 	}
 }

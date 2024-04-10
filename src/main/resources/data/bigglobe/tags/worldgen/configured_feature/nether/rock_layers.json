@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether/rock_layers/extra_soul_sand",
+		"bigglobe:nether/rock_layers/generic",
+		"bigglobe:nether/rock_layers/inferno",
+		"bigglobe:nether/rock_layers/valley_of_souls"
+	]
+}

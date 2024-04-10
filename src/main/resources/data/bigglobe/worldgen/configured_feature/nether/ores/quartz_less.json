@@ -1,11 +1,11 @@
 {
-	"type": "bigglobe:nether_ore",
+	"type": "bigglobe:ore",
 	"config": {
+		"seed": "quartz_less",
 		"blocks": {
 			"minecraft:netherrack": "minecraft:nether_quartz_ore"
 		},
-		"chance": "0.125",
-		"radius": { "type": "bigglobe:average", "min": 2.5, "max": 6.0, "average": 3.5 },
-		"biomes": "bigglobe:nether_ores/quartz_less"
+		"chance": "`bigglobe:nether/bubble`.biome.isIn('bigglobe:nether_ores/quartz_less') ? 0.125 : 0.0",
+		"radius": { "type": "bigglobe:average", "min": 2.5, "max": 6.0, "average": 3.5 }
 	}
 }
