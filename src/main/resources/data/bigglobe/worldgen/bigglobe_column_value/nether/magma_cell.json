@@ -1,0 +1,14 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "NetherMagmaCell"
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 16,
+		"variation": 12
+	}
+}

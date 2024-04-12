@@ -6,16 +6,16 @@
 			"source": [
 				"boolean canReplace(int x, int y, int z:",
 					"BlockState state = getBlockState(x, y, z)",
-					"return(state.isReplaceable() || (state.isIn('bigglobe:magma_blocks') && y == int(`bigglobe:nether/lava_level`) - 1))",
+					"return(state.isReplaceable() || (state.isIn('bigglobe:magma_blocks') && y == int(`bigglobe:nether/bubble`.lava_level) - 1))",
 				")",
 
-				"class Column (int x,, int z)",
+				"class Column (int x, int z)",
 				"Column Column.at(int x, int z:",
 					"this.=$x(x).=$z(z)",
 				")",
 				"class Height (int y)",
 
-				"double maxHeightD = 1.0L - `bigglobe:nether/biome_edginess`",
+				"double maxHeightD = 1.0L - `bigglobe:nether/bubble`.soft_distance",
 				"maxHeightD *= exp2(random.nextDouble(3.0L, 7.0L))",
 				"int maxHeightI = random.roundInt(maxHeightD) + originY",
 				"double standardDeviation = sqrt(maxHeightD * 0.125L)",

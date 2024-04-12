@@ -11,7 +11,8 @@
 		"bigglobe:nether/bubble/noise_forest",
 		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_soul_sand",
-		"bigglobe:nether/bubble/decorator_valley_of_souls"
+		"bigglobe:nether/bubble/decorator_valley_of_souls",
+		"bigglobe:nether/bubble/lava_decorator_soul"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_valley_of_souls",
@@ -20,6 +21,7 @@
 		"lava_fluid": "bigglobe:nether/bubble/fluid_soul_lava",
 		"noise": "bigglobe:nether/bubble/noise_forest",
 		"surface_state": "bigglobe:nether/bubble/surface_state_soul_sand",
-		"decorator": "bigglobe:nether/bubble/decorator_valley_of_souls"
+		"decorator": "bigglobe:nether/bubble/decorator_valley_of_souls",
+		"lava_decorator": "bigglobe:nether/bubble/lava_decorator_soul"
 	}
 }

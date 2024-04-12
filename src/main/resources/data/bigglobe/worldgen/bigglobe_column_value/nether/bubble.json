@@ -5,13 +5,14 @@
 			"type": "voronoi",
 			"name": "NetherBubble",
 			"exports": {
-				"biome":         { "type": "biome",              "is_3d": false },
-				"filler":        { "type": "block_state",        "is_3d": false },
-				"noise":         { "type": "float",              "is_3d": true  },
-				"lava_level":    { "type": "int",                "is_3d": false },
-				"lava_fluid":    { "type": "block_state",        "is_3d": false },
-				"surface_state": { "type": "block_state",        "is_3d": false },
-				"decorator":     { "type": "configured_feature", "is_3d": false }
+				"biome":          { "type": "biome",              "is_3d": false },
+				"filler":         { "type": "block_state",        "is_3d": false },
+				"noise":          { "type": "float",              "is_3d": true  },
+				"lava_level":     { "type": "int",                "is_3d": false },
+				"lava_fluid":     { "type": "block_state",        "is_3d": false },
+				"surface_state":  { "type": "block_state",        "is_3d": false },
+				"decorator":      { "type": "configured_feature", "is_3d": false },
+				"lava_decorator": { "type": "configured_feature", "is_3d": false }
 			}
 		},
 		"is_3d": false

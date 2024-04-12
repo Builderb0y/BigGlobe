@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
@@ -107,7 +108,9 @@ public class ColumnEntryRegistry {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			DependencyDepthSorter sorter = new DependencyDepthSorter();
 			entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-			sorter.outputResults(suffix);
+			CompletableFuture.runAsync(() -> {
+				sorter.outputResults(suffix);
+			});
 		}
 		try {
 			this.loader = new ScriptClassLoader();

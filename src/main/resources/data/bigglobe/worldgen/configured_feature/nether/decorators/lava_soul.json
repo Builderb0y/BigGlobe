@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"if (",
+				"`bigglobe:nether/magma_cell`.hard_distance < 1.0L - `bigglobe:nether/bubble`.soft_distance &&",
+				"getBlockState(originX, originY - 1, originZ) == BlockState('bigglobe:soul_lava[level=0]')",
+			":",
+				"setBlockState(originX, originY - 1, originZ, 'bigglobe:soul_magma')",
+			")",
+			"random.if (1.0L / 2048.0L:",
+				"placeFeature(originX, originY, originZ, 'bigglobe:nether/obsidian_spire')",
+			")",
+			"true"
+		]
+	}
+}
