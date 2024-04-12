@@ -10,7 +10,8 @@
 		"bigglobe:nether/bubble/lava_level_normal",
 		"bigglobe:nether/bubble/noise_nether_wastes",
 		"bigglobe:nether/bubble/raw_cave_noise",
-		"bigglobe:nether/bubble/surface_state_none"
+		"bigglobe:nether/bubble/surface_state_none",
+		"bigglobe:nether/bubble/decorator_nether_wastes"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_nether_wastes",
@@ -18,6 +19,7 @@
 		"lava_level": "bigglobe:nether/bubble/lava_level_normal",
 		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
 		"noise": "bigglobe:nether/bubble/noise_nether_wastes",
-		"surface_state": "bigglobe:nether/bubble/surface_state_none"
+		"surface_state": "bigglobe:nether/bubble/surface_state_none",
+		"decorator": "bigglobe:nether/bubble/decorator_nether_wastes"
 	}
 }

@@ -52,6 +52,7 @@ where I left off:
 		lakes (convert to script or remove).
 		underground pockets (convert to script).
 		connection between wood palettes and biomes.
+		unused configured features.
 	fully immutable NBT elements for scripts.
 	stop catching ScriptParsingException in scripted features and any other place where this is intended to be temporary.
 	make sure all commands are updated for new column values.
@@ -90,6 +91,9 @@ where I left off:
 	glow lichen.
 	bottled aura.
 		add to loot tables of end cities.
+	convert custom classes (for column values) from a map to a list.
+		this will mean .new() behaves like any other constructor, instead of being weird.
+		it also means I won't need synthetic permute methods to ensure left-to-right evaluation order.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

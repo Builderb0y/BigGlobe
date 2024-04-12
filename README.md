@@ -1,1 +1,1 @@
-Current status: Released on [Modrinth](https://modrinth.com/mod/big-globe), but still in beta. Worldgen is subject to change at any time.
+A worldgen mod for Minecraft. Download it from [Modrinth](https://modrinth.com/mod/big-globe).

@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,11 +16,13 @@ import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.ArgumentedGetterSetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -52,15 +55,16 @@ public class VoronoiColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public void setupEnvironment(
+	public void setupInternalEnvironment(
 		MutableScriptEnvironment environment,
 		TypeContext typeContext,
 		DataCompileContext context,
 		MutableDependencyView dependencies
 	) {
 		environment.addType(this.name, typeContext.type());
+		VoronoiBaseCompileContext baseContext = context.root().registry.voronoiManager.getBaseContextFor(this);
 		InsnTree loadHolder = (
-			context.parent == context.root().registry.voronoiManager.getBaseContextFor(this)
+			context.parent == baseContext
 			? context.loadSelf()
 			: null
 		);
@@ -69,7 +73,7 @@ public class VoronoiColumnValueType implements ColumnValueType {
 		}
 		for (Map.Entry<String, AccessSchema> export : this.exports.entrySet()) {
 			String name = export.getKey();
-			MethodInfo getter = export.getValue().getterDescriptor(ACC_PUBLIC, "get_" + export.getKey(), context);
+			MethodInfo getter = export.getValue().getterDescriptor(ACC_PUBLIC, "get_" + export.getKey(), baseContext);
 			Runnable dependencyTrigger;
 			if (dependencies != null) {
 				@SuppressWarnings("unchecked")
@@ -123,6 +127,76 @@ public class VoronoiColumnValueType implements ColumnValueType {
 					if (dependencyTrigger != null) dependencyTrigger.run();
 					return mode.makeInvoker(parser, receiver, getter);
 				}));
+			}
+		}
+	}
+
+	@Override
+	public void setupExternalEnvironment(
+		MutableScriptEnvironment environment,
+		TypeContext typeContext,
+		ColumnCompileContext context,
+		ExternalEnvironmentParams params
+	) {
+		environment.addType(this.name, typeContext.type());
+		MutableDependencyView dependencies = params.dependencies;
+		List<RegistryEntry<VoronoiSettings>> options = context.registry.voronoiManager.getOptionsFor(this);
+		DataCompileContext selfContext = typeContext.context();
+		for (Map.Entry<String, AccessSchema> export : this.exports.entrySet()) {
+			Runnable dependencyTrigger;
+			if (dependencies != null) {
+				@SuppressWarnings("unchecked")
+				RegistryEntry<ColumnEntry>[] triggers = (
+					options
+					.stream()
+					.map(RegistryEntry::value)
+					.map(VoronoiSettings::exports)
+					.map((Map<String, RegistryEntry<ColumnEntry>> exports) -> exports.get(export.getKey()))
+					.peek(Objects::requireNonNull)
+					.toArray(RegistryEntry[]::new)
+				);
+				dependencyTrigger = () -> {
+					for (RegistryEntry<ColumnEntry> trigger : triggers) {
+						dependencies.addDependency(trigger);
+					}
+				};
+			}
+			else {
+				dependencyTrigger = null;
+			}
+			MethodInfo getter = export.getValue().getterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "get_" + export.getKey(), selfContext);
+			MethodInfo setter = export.getValue().setterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "set_" + export.getKey(), selfContext);
+			if (export.getValue().is_3d()) {
+				if (params.mutable) {
+					environment.addMethod(getter.owner, export.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (dependencyTrigger != null) dependencyTrigger.run();
+						return new CastResult(new ArgumentedGetterSetterInsnTree(receiver, getter, setter, castArguments[0]), castArguments != arguments);
+					});
+				}
+				else {
+					environment.addMethod(getter.owner, export.getKey(), new MethodHandler.Named("methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (dependencyTrigger != null) dependencyTrigger.run();
+						return new CastResult(mode.makeInvoker(parser, receiver, getter, castArguments), castArguments != arguments);
+					}));
+				}
+			}
+			else {
+				if (params.mutable) {
+					environment.addField(getter.owner, export.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+						if (dependencyTrigger != null) dependencyTrigger.run();
+						return mode.makeGetterSetter(parser, receiver, getter, setter);
+					});
+				}
+				else {
+					environment.addField(getter.owner, export.getKey(), new FieldHandler.Named("fieldInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+						if (dependencyTrigger != null) dependencyTrigger.run();
+						return mode.makeInvoker(parser, receiver, getter);
+					}));
+				}
 			}
 		}
 	}

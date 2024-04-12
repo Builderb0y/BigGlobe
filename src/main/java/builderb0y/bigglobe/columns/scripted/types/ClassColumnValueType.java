@@ -10,6 +10,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -69,7 +70,7 @@ public class ClassColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, MutableDependencyView dependencies) {
+	public void setupInternalEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, MutableDependencyView dependencies) {
 		TypeInfo type = typeContext.type();
 		environment.addType(this.name, type);
 		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {
@@ -113,6 +114,11 @@ public class ClassColumnValueType implements ColumnValueType {
 			//todo: create synthetic permute method to preserve left-to-right evaluation order.
 			return newInstance(constructor, args);
 		}));
+	}
+
+	@Override
+	public void setupExternalEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, ColumnCompileContext context, ExternalEnvironmentParams params) {
+		this.setupInternalEnvironment(environment, typeContext, context, params.dependencies);
 	}
 
 	@Override

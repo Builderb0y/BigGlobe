@@ -1,0 +1,8 @@
+{
+	"type": "constant",
+	"params": {
+		"type": "configured_feature",
+		"is_3d": false
+	},
+	"value": "bigglobe:nether/decorators/crimson_forest"
+}

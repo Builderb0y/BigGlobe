@@ -20,6 +20,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -81,11 +82,18 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 
 	public abstract InsnTree createConstant(Object object, ColumnCompileContext context);
 
-	public default void setupEnvironment(
+	public default void setupInternalEnvironment(
 		MutableScriptEnvironment environment,
 		TypeContext typeContext,
 		DataCompileContext context,
 		MutableDependencyView dependencies
+	) {}
+
+	public default void setupExternalEnvironment(
+		MutableScriptEnvironment environment,
+		TypeContext typeContext,
+		ColumnCompileContext context,
+		ExternalEnvironmentParams params
 	) {}
 
 	@Override

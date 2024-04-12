@@ -928,7 +928,19 @@
 							"#bigglobe:nether/ores"
 						],
 						"raw": "noop",
-						"normal": "noop"
+						"normal": [
+							"for (",
+								"int z in range[minModifiableZ, maxModifiableZ],",
+								"int x in range[minModifiableX, maxModifiableX]",
+							":",
+								"if (ConfiguredFeature decorator = `bigglobe:nether/bubble`(x, z).decorator,, decorator != null:",
+								"for (int baseY in range[minModifiableY, maxModifiableY) % 8:",
+									"int y = baseY | 16x5EBDEDC4EE513888UL .newSeed(x, z, baseY).nextInt(8)",
+										"placeFeature(x, y, z, decorator)",
+									")",
+								")",
+							")"
+						]
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",

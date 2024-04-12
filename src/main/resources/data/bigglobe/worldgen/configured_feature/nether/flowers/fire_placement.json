@@ -1,6 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"config": {
-		"script": "random.nextBoolean(1.0L / 2048.0L) && placeFeature(originX, originY, originZ, 'bigglobe:nether/flowers/fire')"
-	}
-}

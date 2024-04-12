@@ -10,7 +10,8 @@
 		"bigglobe:nether/bubble/lava_level_normal",
 		"bigglobe:nether/bubble/noise_forest",
 		"bigglobe:nether/bubble/raw_cave_noise",
-		"bigglobe:nether/bubble/surface_state_warped_nylium"
+		"bigglobe:nether/bubble/surface_state_warped_nylium",
+		"bigglobe:nether/bubble/decorator_warped_forest"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_warped_forest",
@@ -18,6 +19,7 @@
 		"lava_level": "bigglobe:nether/bubble/lava_level_normal",
 		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
 		"noise": "bigglobe:nether/bubble/noise_forest",
-		"surface_state": "bigglobe:nether/bubble/surface_state_warped_nylium"
+		"surface_state": "bigglobe:nether/bubble/surface_state_warped_nylium",
+		"decorator": "bigglobe:nether/bubble/decorator_warped_forest"
 	}
 }

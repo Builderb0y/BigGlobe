@@ -168,7 +168,7 @@ public class ColumnEntryRegistry {
 			}
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupEnvironment(environment, entry.getValue(), context, dependencies);
+			entry.getKey().setupInternalEnvironment(environment, entry.getValue(), context, dependencies);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class ColumnEntryRegistry {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(environment, memory, this.columnContext, params);
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
-			entry.getKey().setupEnvironment(environment, entry.getValue(), this.columnContext, params.dependencies);
+			entry.getKey().setupExternalEnvironment(environment, entry.getValue(), this.columnContext, params);
 		}
 	}
 

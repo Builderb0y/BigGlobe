@@ -2,11 +2,10 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": {
-			"debug_name": "ConfiguredFeatureNetherHiddenLavaLargeNetherrack",
 			"template": "bigglobe:hidden_lava_large",
 			"inputs": {
 				"REPLACE": "'bigglobe:hidden_lava_replaceables_netherrack'",
-				"SPILL_CHANCE": "unmixLinear(512.0L, `bigglobe:nether/min_y`, double(originY)) * 0.0625L"
+				"SPILL_CHANCE": "unmixLinear(double(`bigglobe:nether/mid_y`), double(`bigglobe:nether/min_y`), double(originY)) * 0.0625L"
 			}
 		}
 	}
