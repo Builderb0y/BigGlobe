@@ -1,0 +1,22 @@
+{
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"if (",
+				"`bigglobe:end/warp_radius`(x, z).isBetween(",
+					"`bigglobe:end/ring_cloud_min_radius`(x, z),",
+					"`bigglobe:end/ring_cloud_max_radius`(x, z)",
+				")",
+			":",
+				"placeFeature(x, 0, z, 'bigglobe:end/lower_ring_aura_infused_void_clouds')",
+				"placeFeature(x, 0, z, 'bigglobe:end/upper_ring_aura_infused_void_clouds')",
+			")",
+			"else if (`bigglobe:end/warp_radius`(x, z) > `bigglobe:end/bridge_cloud_min_radius`(x, z):",
+				"placeFeature(x, 0, z, 'bigglobe:end/lower_bridge_aura_infused_void_clouds')",
+				"placeFeature(x, 0, z, 'bigglobe:end/upper_bridge_aura_infused_void_clouds')",
+			")",
+		")"
+	]
+}

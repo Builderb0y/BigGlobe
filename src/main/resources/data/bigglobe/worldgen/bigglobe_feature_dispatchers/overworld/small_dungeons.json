@@ -1,0 +1,28 @@
+{
+	"dispatcher": [
+		"if (minModifiableX & 2x10000 == 0 && minModifiableZ & 2x10000 == 0:",
+			"for (int baseY in range[minModifiableY, maxModifiableY) % 32:",
+				"repeat attemptLoop (16:",
+					"int x = minModifiableX | random.nextInt(16)",
+					"int z = minModifiableZ | random.nextInt(16)",
+					"int y = baseY | random.nextInt(16)",
+					"if (",
+						"y.isBetween[",
+							"ceilInt(`bigglobe:overworld/basic_surface_y`(x, z) - `bigglobe:overworld/cave`(x, z).depth),",
+							"ceilInt(`bigglobe:overworld/basic_surface_y`(x, z)) - 16",
+						")",
+						"&& `bigglobe:overworld/cave`(x, z).has_dungeons",
+						"&& getBlockState(x, y, z).isAir()",
+						"&& getBlockState(x, y - 1, z).blocksLight()",
+						"&& placeFeature(x, y, z,",
+							"random.if ('bigglobe:overworld/caves/dungeon')",
+							"else ('bigglobe:overworld/caves/spider_pit')",
+						")",
+					":",
+						"break(attemptLoop)",
+					")",
+				")",
+			")",
+		")"
+	]
+}

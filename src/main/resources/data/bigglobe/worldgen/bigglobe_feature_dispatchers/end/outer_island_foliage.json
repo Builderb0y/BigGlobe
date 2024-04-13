@@ -1,0 +1,12 @@
+{
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"if (`bigglobe:end/has_mountain`(x, z):",
+				"placeFeature(x, floorInt(`bigglobe:end/mountain_max_y`(x, z)) + 1, z, 'bigglobe:end/foliage')",
+			")",
+		")"
+	]
+}

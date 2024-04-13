@@ -89,7 +89,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.FeatureDispatcher.DualFeatureDispatcher;
+import builderb0y.bigglobe.features.FeatureDispatcher.FeatureDispatchers;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
@@ -129,7 +129,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	) {}
 	public final Height height;
 	public final RootLayer layer;
-	public final DualFeatureDispatcher feature_dispatcher;
+	public final FeatureDispatchers feature_dispatcher;
 	public final RegistryEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
 	public static record ColorOverrides(
@@ -177,7 +177,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@VerifyNullable String reload_dimension,
 		Height height,
 		RootLayer layer,
-		DualFeatureDispatcher feature_dispatcher,
+		FeatureDispatchers feature_dispatcher,
 		BiomeSource biome_source,
 		RegistryEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
@@ -502,7 +502,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
 					});
 					this.generateRawStructures(chunk, structureAccessor, worldWrapper);
-					this.feature_dispatcher.raw.generate(worldWrapper);
+					this.feature_dispatcher.generateRaw(worldWrapper);
 				});
 			},
 			executor
@@ -541,7 +541,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			this.getOverriders().featureColumnValues,
 			this.getOverriders().featureColumnValueDependencies
 		);
-		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher.normal::generate);
+		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher::generateNormal);
 	}
 
 	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {

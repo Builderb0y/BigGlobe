@@ -1,0 +1,32 @@
+{
+	"dispatcher": [
+		";rocks",
+		"repeat (",
+			"random.roundInt(",
+				"`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L +",
+				"(`bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8) / `bigglobe:overworld/river_depth`(minModifiableX | 8, minModifiableZ | 8)) * 12.0L",
+			")",
+		":",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"placeFeature(x, y, z, 'bigglobe:overworld/rock')",
+		")",
+
+		";flint",
+		"random.if (1.0L - `bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8):",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"placeFeature(x, y, z, 'bigglobe:overworld/flint')",
+		")",
+
+		";sticks",
+		"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"placeFeature(x, y, z, 'bigglobe:overworld/stick')",
+		")"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
+			"random.if (",
+				"int y = random.nextInt(`bigglobe:overworld/cavern_min_y`(x, z), `bigglobe:overworld/cavern_max_y`(x, z))",
+				"placeFeature(x, y, z, 'minecraft:sculk_patch_deep_dark')",
+			")",
+		")"
+	]
+}

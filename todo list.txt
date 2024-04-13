@@ -25,6 +25,28 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	nether overriders.
+	add group-typed feature dispatchers.
+		raw_root
+			glaciers
+			aura_infused_clouds
+		normal_root
+			caves
+				small_dungeons
+				cave_decorators
+			swamp_surface
+			large_surface
+				trees
+				bushes
+				skyland_trees
+				glacier_surface
+					glacier_ice_spikes
+			medium_surface
+				medium_foliage
+			small_surface
+				flowers
+				surface_materials
+				small_foliage
 
 4.0 stuff:
 	implicit Y parameter for 3D column values when used by other 3D column values.
@@ -53,6 +75,7 @@ where I left off:
 		underground pockets (convert to script).
 		connection between wood palettes and biomes.
 		unused configured features.
+		unused tags.
 	fully immutable NBT elements for scripts.
 	stop catching ScriptParsingException in scripted features and any other place where this is intended to be temporary.
 	make sure all commands are updated for new column values.

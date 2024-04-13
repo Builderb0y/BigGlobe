@@ -1,0 +1,16 @@
+{
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"if (",
+				"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+				"`bigglobe:overworld/biome`(x, y, z).isIn('bigglobe:swamps') &&",
+				"`bigglobe:overworld/surface_foliage`(x, z) > 0.0L",
+			":",
+				"placeFeature(x, y, z, 'bigglobe:overworld/swamp_surface')",
+			")",
+		")"
+	]
+}

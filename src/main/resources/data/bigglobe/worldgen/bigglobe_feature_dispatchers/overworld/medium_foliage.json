@@ -1,0 +1,32 @@
+{
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"Biome biome = `bigglobe:overworld/biome`(x, y, z)",
+			"if (biome == Biome('bigglobe:river'):",
+				"noop",
+			")",
+			"else if (biome.isIn('bigglobe:ocean'):",
+				"random.if (`bigglobe:overworld/surface_foliage`(x, z) * 0.125I:",
+					"placeFeature(x, y, z, 'bigglobe:overworld/kelp')",
+				")",
+			")",
+			"else if (biome.isIn('bigglobe:hot'):",
+				"random.if (",
+					"float chance = max(`bigglobe:overworld/surface_foliage`(x, z) * 2.0I + 1.0I, 0.0I)",
+					"chance * 0.03125I / (chance + 1.0I) * max(1.0I - `bigglobe:overworld/magicalness`(x, z) ^ 2 * 4.0I, 0.0I)",
+				":",
+					"placeFeature(x, y, z, 'bigglobe:overworld/cactus')",
+				")",
+			")",
+			"else unless (biome.isIn('bigglobe:cold') || biome.isIn('bigglobe:beach'):",
+				"random.if ((`bigglobe:overworld/surface_foliage`(x, z) - 0.5I) * 0.125I:",
+					"placeFeature(x, y, z, 'bigglobe:overworld/bamboo')",
+				")",
+			")",
+		")"
+	]
+}

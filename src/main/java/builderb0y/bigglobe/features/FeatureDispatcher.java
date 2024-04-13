@@ -2,6 +2,7 @@ package builderb0y.bigglobe.features;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,11 +10,12 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -25,24 +27,54 @@ import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public interface FeatureDispatcher extends Script {
 
-	public abstract void generate(WorldWrapper world);
+	public abstract void generate(WorldWrapper world, RandomGenerator random);
 
-	public static class DualFeatureDispatcher {
+	public static class FeatureDispatchers {
 
 		public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
 		public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
-		public final Holder raw, normal;
+		public final RegistryEntry<FeatureDispatcher.Holder>[] raw, normal;
 
-		public DualFeatureDispatcher(
+		public FeatureDispatchers(
 			TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers,
-			Holder raw,
-			Holder normal
+			RegistryEntry<FeatureDispatcher.Holder>[] raw,
+			RegistryEntry<FeatureDispatcher.Holder>[] normal
 		) {
 			this.rock_replacers = rock_replacers;
 			this.raw = raw;
 			this.normal = normal;
+		}
+
+		public void generateRaw(WorldWrapper world) {
+			long chunkSeed = Permuter.permute(
+				world.seed() ^ 0x8938ECF5EEA7B9B2L,
+				minModifiableX(world) >> 4,
+				minModifiableY(world) >> 4,
+				minModifiableZ(world) >> 4
+			);
+			Permuter permuter = new Permuter(0L);
+			for (RegistryEntry<FeatureDispatcher.Holder> entry : this.raw) {
+				permuter.setSeed(Permuter.permute(chunkSeed, UnregisteredObjectException.getID(entry).hashCode()));
+				entry.value().generate(world, permuter);
+			}
+		}
+
+		public void generateNormal(WorldWrapper world) {
+			long chunkSeed = Permuter.permute(
+				world.seed() ^ 0xDD59B178ABC90AC1L,
+				minModifiableX(world) >> 4,
+				minModifiableY(world) >> 4,
+				minModifiableZ(world) >> 4
+			);
+			Permuter permuter = new Permuter(0L);
+			for (RegistryEntry<FeatureDispatcher.Holder> entry : this.normal) {
+				permuter.setSeed(Permuter.permute(chunkSeed, UnregisteredObjectException.getID(entry).hashCode()));
+				entry.value().generate(world, permuter);
+			}
 		}
 
 		public ConfiguredRockReplacerFeature<?> @NotNull [] getFlattenedRockReplacers() {
@@ -87,13 +119,17 @@ public interface FeatureDispatcher extends Script {
 	public static int maxAccessibleY(WorldWrapper world) { return world.coordination.immutableArea().getMaxY(); }
 	public static int maxAccessibleZ(WorldWrapper world) { return world.coordination.immutableArea().getMaxZ(); }
 
-	@Wrapper
+	@AddPseudoField("dispatcher")
 	public static class Holder extends ScriptHolder<FeatureDispatcher> implements FeatureDispatcher {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage usage) throws ScriptParsingException {
-			super(usage);
+		public Holder(ScriptUsage dispatcher) throws ScriptParsingException {
+			super(dispatcher);
+		}
+
+		public ScriptUsage dispatcher() {
+			return this.usage;
 		}
 
 		@Override
@@ -105,7 +141,7 @@ public interface FeatureDispatcher extends Script {
 				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 				.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.addEnvironment(NbtScriptEnvironment.createMutable())
-				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
+				.addEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
@@ -133,9 +169,9 @@ public interface FeatureDispatcher extends Script {
 		}
 
 		@Override
-		public void generate(WorldWrapper world) {
+		public void generate(WorldWrapper world, RandomGenerator random) {
 			try {
-				this.script.generate(world);
+				this.script.generate(world, random);
 			}
 			catch (Throwable throwable) {
 				BigGlobeMod.LOGGER.error("Exception generating features in area " + world.coordination.mutableArea(), throwable);
