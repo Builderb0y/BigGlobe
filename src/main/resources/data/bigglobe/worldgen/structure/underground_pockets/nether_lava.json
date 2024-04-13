@@ -5,7 +5,7 @@
 		"spawn_overrides": {},
 		"step": "underground_structures",
 		"layout": {
-			"template": "bigglobe:underground_pocket_type",
+			"template": "bigglobe:nether_pocket_type",
 			"inputs": {
 				"TYPE": "'bigglobe:underground_pockets/lava'"
 			}

@@ -89,7 +89,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.features.FeatureDispatcher.FeatureDispatchers;
+import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;

@@ -24,8 +24,5 @@
 			"- curve(`bigglobe:overworld/raw_erosion_8`,       8.0L)",
 			"+ curve(`bigglobe:overworld/raw_erosion_4`,       4.0L)",
 		")"
-	],
-	"valid": {
-		"where": "`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level`"
-	}
+	]
 }

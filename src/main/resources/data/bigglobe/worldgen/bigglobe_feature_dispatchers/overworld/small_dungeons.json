@@ -1,4 +1,5 @@
 {
+	"type": "script",
 	"dispatcher": [
 		"if (minModifiableX & 2x10000 == 0 && minModifiableZ & 2x10000 == 0:",
 			"for (int baseY in range[minModifiableY, maxModifiableY) % 32:",

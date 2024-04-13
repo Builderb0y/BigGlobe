@@ -240,23 +240,8 @@
 							"#bigglobe:overworld/rock_layers",
 							"#bigglobe:overworld/ores"
 						],
-						"raw": [
-							"bigglobe:overworld/glaciers",
-							"bigglobe:overworld/aura_infused_clouds"
-						],
-						"normal": [
-							"bigglobe:overworld/small_dungeons",
-							"bigglobe:overworld/cave_decorators",
-							"bigglobe:overworld/swamp_surface",
-							"bigglobe:overworld/trees",
-							"bigglobe:overworld/bushes",
-							"bigglobe:overworld/skyland_trees",
-							"bigglobe:overworld/glacier_surface",
-							"bigglobe:overworld/medium_foliage",
-							"bigglobe:overworld/flowers",
-							"bigglobe:overworld/surface_materials",
-							"bigglobe:overworld/small_foliage"
-						]
+						"raw": "bigglobe:overworld/raw_root",
+						"normal": "bigglobe:overworld/normal_root"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
@@ -753,11 +738,8 @@
 							"#bigglobe:nether/rock_layers",
 							"#bigglobe:nether/ores"
 						],
-						"raw": [],
-						"normal": [
-							"bigglobe:nether/lava_surface",
-							"bigglobe:nether/bubble_decorator"
-						]
+						"raw": "bigglobe:nether/raw_root",
+						"normal": "bigglobe:nether/normal_root"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",
@@ -888,14 +870,8 @@
 							"#bigglobe:end/rock_layers",
 							"#bigglobe:end/ores"
 						],
-						"raw": [
-							"bigglobe:end/aura_infused_void_clouds"
-						],
-						"normal": [
-							"bigglobe:end/nest_spikes",
-							"bigglobe:end/outer_island_spikes",
-							"bigglobe:end/outer_island_foliage"
-						]
+						"raw": "bigglobe:end/raw_root",
+						"normal": "bigglobe:end/normal_root"
 					},
 					"biome_source": {
 						"type": "bigglobe:scripted",

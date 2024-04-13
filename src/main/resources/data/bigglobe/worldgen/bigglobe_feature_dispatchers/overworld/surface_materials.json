@@ -1,4 +1,5 @@
 {
+	"type": "script",
 	"dispatcher": [
 		";rocks",
 		"repeat (",

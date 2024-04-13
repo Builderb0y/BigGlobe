@@ -14,7 +14,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.features.FeatureDispatcher;
+import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomLists.ConstantComputedRandomList;
@@ -41,7 +41,7 @@ public class BigGlobeDynamicRegistries {
 	public static final RegistryKey<Registry<Overrider>>                                 OVERRIDER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_overrider"));
 	public static final RegistryKey<Registry<CombinedStructureScripts>> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_script_structure_placement"));
 	public static final RegistryKey<Registry<WoodPalette>>                            WOOD_PALETTE_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
-	public static final RegistryKey<Registry<FeatureDispatcher.Holder>>         FEATURE_DISPATCHER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_feature_dispatchers"));
+	public static final RegistryKey<Registry<FeatureDispatcher>>                FEATURE_DISPATCHER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_feature_dispatchers"));
 
 	#if MC_VERSION == MC_1_19_2
 		public static final List<Info<?>> INFOS = new ArrayList<>(9);
@@ -54,7 +54,7 @@ public class BigGlobeDynamicRegistries {
 			INFOS.add(info(OVERRIDER_REGISTRY_KEY,                  Overrider               .class, null));
 			INFOS.add(info(SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, CombinedStructureScripts.class, null));
 			INFOS.add(info(WOOD_PALETTE_REGISTRY_KEY,               WoodPalette             .class, null));
-			INFOS.add(info(FEATURE_DISPATCHER_REGISTRY_KEY,         FeatureDispatcher.Holder.class, null));
+			INFOS.add(info(FEATURE_DISPATCHER_REGISTRY_KEY,         FeatureDispatcher       .class, null));
 		}
 
 		public static <E> DynamicRegistryManager.Info<E> info(RegistryKey<Registry<E>> key, Class<E> clazz, Codec<E> networkCodec) {
@@ -91,7 +91,7 @@ public class BigGlobeDynamicRegistries {
 			);
 			addBefore(RegistryKeyVersions.structure(), SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
 			addBefore(RegistryKeyVersions.configuredCarver(),        WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));
-			addAfter (RegistryKeyVersions.placedFeature(),     FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher.Holder.class));
+			addAfter (RegistryKeyVersions.placedFeature(),     FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
 		}
 
 		public static <T> void addBefore(RegistryKey<? extends Registry<?>> after, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {

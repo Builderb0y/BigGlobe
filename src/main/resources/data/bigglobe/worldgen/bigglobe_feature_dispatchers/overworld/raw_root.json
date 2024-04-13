@@ -1,0 +1,7 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:overworld/glaciers",
+		"bigglobe:overworld/aura_infused_clouds"
+	]
+}

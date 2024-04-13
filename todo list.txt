@@ -26,27 +26,7 @@ testing:
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	nether overriders.
-	add group-typed feature dispatchers.
-		raw_root
-			glaciers
-			aura_infused_clouds
-		normal_root
-			caves
-				small_dungeons
-				cave_decorators
-			swamp_surface
-			large_surface
-				trees
-				bushes
-				skyland_trees
-				glacier_surface
-					glacier_ice_spikes
-			medium_surface
-				medium_foliage
-			small_surface
-				flowers
-				surface_materials
-				small_foliage
+	geode overriders in the nether, to make them stop spawning in mid-air.
 
 4.0 stuff:
 	implicit Y parameter for 3D column values when used by other 3D column values.
@@ -72,7 +52,6 @@ where I left off:
 		"test" package (move to scripted dimension)
 		"old_value" in world preset.
 		lakes (convert to script or remove).
-		underground pockets (convert to script).
 		connection between wood palettes and biomes.
 		unused configured features.
 		unused tags.
@@ -84,6 +63,7 @@ where I left off:
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
 	cave noise should be salted with voronoi seed.
+	Seed should be able to extract manual seeds from parents of current decode context.
 	need to redo scripted noise which uses column values.
 	missing stuff:
 		the rest of the configured features.

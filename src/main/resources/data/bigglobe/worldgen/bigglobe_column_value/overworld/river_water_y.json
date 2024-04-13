@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "max(`bigglobe:overworld/cliffy_surface_y` + `bigglobe:overworld/river_water_depth`, `bigglobe:overworld/sea_level`)"
+	"script": "max(`bigglobe:overworld/cliffy_snow` + `bigglobe:overworld/river_water_depth`, `bigglobe:overworld/sea_level`)"
 }

@@ -67,7 +67,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
-import builderb0y.bigglobe.features.FeatureDispatcher;
+import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.overriders.Overrider;
@@ -116,34 +116,34 @@ public class BigGlobeAutoCodec {
 		return identifier.getNamespace().equals(defaultNamespace) ? identifier.getPath() : identifier.toString();
 	}
 
-	public static final RegistryCoders<Block>                           BLOCK_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryVersions.block());
-	public static final RegistryCoders<Item>                            ITEM_REGISTRY_CODERS                          = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryVersions.item());
-	public static final RegistryCoders<Fluid>                           FLUID_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Fluid                                 .class), RegistryVersions.fluid());
-	public static final RegistryCoders<Potion>                          POTION_REGISTRY_CODERS                        = new RegistryCoders<>(ReifiedType.from(Potion                                .class), RegistryVersions.potion());
-	public static final RegistryCoders<BlockEntityType<?>>              BLOCK_ENTITY_TYPE_REGISTRY_CODERS             = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), RegistryVersions.blockEntityType());
-	public static final RegistryCoders<EntityType<?>>                   ENTITY_TYPE_REGISTRY_CODERS                   = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), RegistryVersions.entityType());
-	public static final RegistryCoders<DimensionType>                   DIMENSION_TYPE_REGISTRY_CODERS                = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeyVersions.dimensionType());
-	public static final RegistryCoders<ConfiguredCarver<?>>             CONFIGURED_CARVER_REGISTRY_CODERS             = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeyVersions.configuredCarver());
-	public static final RegistryCoders<ConfiguredFeature<?, ?>>         CONFIGURED_FEATURE_REGISTRY_CODERS            = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeyVersions.configuredFeature());
-	public static final RegistryCoders<PlacedFeature>                   PLACED_FEATURE_REGISTRY_CODERS                = new RegistryCoders<>(ReifiedType.from(PlacedFeature                         .class), RegistryKeyVersions.placedFeature());
-	public static final RegistryCoders<Structure>                       STRUCTURE_REGISTRY_CODERS                     = new RegistryCoders<>(ReifiedType.from(Structure                             .class), RegistryKeyVersions.structure());
-	public static final RegistryCoders<StructureSet>                    STRUCTURE_SET_REGISTRY_CODERS                 = new RegistryCoders<>(ReifiedType.from(StructureSet                          .class), RegistryKeyVersions.structureSet());
-	public static final RegistryCoders<StructureProcessorList>          STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS      = new RegistryCoders<>(ReifiedType.from(StructureProcessorList                .class), RegistryKeyVersions.processorList());
-	public static final RegistryCoders<StructurePool>                   STRUCTURE_POOL_REGISTRY_CODERS                = new RegistryCoders<>(ReifiedType.from(StructurePool                         .class), RegistryKeyVersions.templatePool());
-	public static final RegistryCoders<Biome>                           BIOME_REGISTRY_CODERS                         = new RegistryCoders<>(ReifiedType.from(Biome                                 .class), RegistryKeyVersions.biome());
-	public static final RegistryCoders<DensityFunction>                 DENSITY_FUNCTION_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(DensityFunction                       .class), RegistryKeyVersions.densityFunction());
-	public static final RegistryCoders<ChunkGeneratorSettings>          CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS      = new RegistryCoders<>(ReifiedType.from(ChunkGeneratorSettings                .class), RegistryKeyVersions.chunkGeneratorSettings());
-	public static final RegistryCoders<WorldPreset>                     WORLD_PRESET_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WorldPreset                           .class), RegistryKeyVersions.worldPreset());
-	public static final RegistryCoders<WoodPalette>                     WOOD_PALETTE_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(WoodPalette                           .class), BigGlobeDynamicRegistries.              WOOD_PALETTE_REGISTRY_KEY);
-	public static final RegistryCoders<ScriptTemplate>                  SCRIPT_TEMPLATE_REGISTRY_CODERS               = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.           SCRIPT_TEMPLATE_REGISTRY_KEY);
-	public static final RegistryCoders<Grid>                            GRID_TEMPLATE_REGISTRY_CODERS                 = new RegistryCoders<>(ReifiedType.from(Grid                                  .class), BigGlobeDynamicRegistries.             GRID_TEMPLATE_REGISTRY_KEY);
-	public static final RegistryCoders<ColumnEntry>                     COLUMN_ENTRY_REGISTRY_CODERS                  = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.              COLUMN_ENTRY_REGISTRY_KEY);
-	public static final RegistryCoders<VoronoiSettings>                 VORONOI_SETTINGS_REGISTRY_CODERS              = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.          VORONOI_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<DecisionTreeSettings>            DECISION_TREE_SETTINGS_REGISTRY_CODERS        = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.    DECISION_TREE_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<Overrider>                       OVERRIDER_REGISTRY_CODERS                     = new RegistryCoders<>(ReifiedType.from(Overrider                             .class), BigGlobeDynamicRegistries.                 OVERRIDER_REGISTRY_KEY);
-	public static final RegistryCoders<CombinedStructureScripts>        SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS    = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
-	public static final RegistryCoders<FeatureDispatcher.Holder>        FEATURE_DISPATCHER_CODERS                     = new RegistryCoders<>(ReifiedType.from(FeatureDispatcher.Holder              .class), BigGlobeDynamicRegistries.        FEATURE_DISPATCHER_REGISTRY_KEY);
-	public static final RegistryCoders<?>[]                             DYNAMIC_REGISTRY_CODERS                       = {
+	public static final RegistryCoders<Block>                                         BLOCK_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryVersions.block());
+	public static final RegistryCoders<Item>                                           ITEM_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryVersions.item());
+	public static final RegistryCoders<Fluid>                                         FLUID_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Fluid                                 .class), RegistryVersions.fluid());
+	public static final RegistryCoders<Potion>                                       POTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Potion                                .class), RegistryVersions.potion());
+	public static final RegistryCoders<BlockEntityType<?>>                BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), RegistryVersions.blockEntityType());
+	public static final RegistryCoders<EntityType<?>>                           ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), RegistryVersions.entityType());
+	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeyVersions.dimensionType());
+	public static final RegistryCoders<ConfiguredCarver<?>>               CONFIGURED_CARVER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeyVersions.configuredCarver());
+	public static final RegistryCoders<ConfiguredFeature<?, ?>>          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeyVersions.configuredFeature());
+	public static final RegistryCoders<PlacedFeature>                        PLACED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(PlacedFeature                         .class), RegistryKeyVersions.placedFeature());
+	public static final RegistryCoders<Structure>                                 STRUCTURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Structure                             .class), RegistryKeyVersions.structure());
+	public static final RegistryCoders<StructureSet>                          STRUCTURE_SET_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructureSet                          .class), RegistryKeyVersions.structureSet());
+	public static final RegistryCoders<StructureProcessorList>     STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructureProcessorList                .class), RegistryKeyVersions.processorList());
+	public static final RegistryCoders<StructurePool>                        STRUCTURE_POOL_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructurePool                         .class), RegistryKeyVersions.templatePool());
+	public static final RegistryCoders<Biome>                                         BIOME_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Biome                                 .class), RegistryKeyVersions.biome());
+	public static final RegistryCoders<DensityFunction>                    DENSITY_FUNCTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DensityFunction                       .class), RegistryKeyVersions.densityFunction());
+	public static final RegistryCoders<ChunkGeneratorSettings>     CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ChunkGeneratorSettings                .class), RegistryKeyVersions.chunkGeneratorSettings());
+	public static final RegistryCoders<WorldPreset>                            WORLD_PRESET_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WorldPreset                           .class), RegistryKeyVersions.worldPreset());
+	public static final RegistryCoders<WoodPalette>                            WOOD_PALETTE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WoodPalette                           .class), BigGlobeDynamicRegistries.              WOOD_PALETTE_REGISTRY_KEY);
+	public static final RegistryCoders<ScriptTemplate>                      SCRIPT_TEMPLATE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ScriptTemplate                        .class), BigGlobeDynamicRegistries.           SCRIPT_TEMPLATE_REGISTRY_KEY);
+	public static final RegistryCoders<Grid>                                  GRID_TEMPLATE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Grid                                  .class), BigGlobeDynamicRegistries.             GRID_TEMPLATE_REGISTRY_KEY);
+	public static final RegistryCoders<ColumnEntry>                            COLUMN_ENTRY_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ColumnEntry                           .class), BigGlobeDynamicRegistries.              COLUMN_ENTRY_REGISTRY_KEY);
+	public static final RegistryCoders<VoronoiSettings>                    VORONOI_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(VoronoiSettings                       .class), BigGlobeDynamicRegistries.          VORONOI_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<DecisionTreeSettings>         DECISION_TREE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings                  .class), BigGlobeDynamicRegistries.    DECISION_TREE_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<Overrider>                                 OVERRIDER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Overrider                             .class), BigGlobeDynamicRegistries.                 OVERRIDER_REGISTRY_KEY);
+	public static final RegistryCoders<CombinedStructureScripts> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
+	public static final RegistryCoders<FeatureDispatcher>                         FEATURE_DISPATCHER_CODERS = new RegistryCoders<>(ReifiedType.from(FeatureDispatcher                     .class), BigGlobeDynamicRegistries.        FEATURE_DISPATCHER_REGISTRY_KEY);
+	public static final RegistryCoders<?>[]                                         DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
 		FLUID_REGISTRY_CODERS,
@@ -173,7 +173,6 @@ public class BigGlobeAutoCodec {
 		FEATURE_DISPATCHER_CODERS,
 	};
 
-	@SuppressWarnings("OverrideOnly") //it should allow super calls. that should be a thing.
 	public static final AutoCodec AUTO_CODEC = new AutoCodec() {
 
 		@Override

@@ -9,8 +9,5 @@
 		"inputs": {
 			"HEIGHT": "`bigglobe:overworld/raw_snow`"
 		}
-	},
-	"valid": {
-		"where": "`bigglobe:overworld/processed_surface_y` > 0.0L"
 	}
 }

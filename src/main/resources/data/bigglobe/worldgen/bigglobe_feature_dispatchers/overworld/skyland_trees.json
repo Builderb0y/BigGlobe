@@ -1,4 +1,5 @@
 {
+	"type": "script",
 	"dispatcher": [
 		"repeat (2:",
 			"int x = minModifiableX | random.nextInt(16)",

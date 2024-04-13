@@ -1,0 +1,7 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:overworld/small_dungeons",
+		"bigglobe:overworld/cave_decorators"
+	]
+}

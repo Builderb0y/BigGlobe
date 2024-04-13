@@ -1,4 +1,5 @@
 {
+	"type": "script",
 	"dispatcher": [
 		"double magicalness = `bigglobe:overworld/magicalness`(minModifiableX | 8, minModifiableZ | 8)",
 		"double innerness = `bigglobe:overworld/glacier_crack_threshold`(minModifiableX | 8, minModifiableZ | 8) - 1.0L",

@@ -49,6 +49,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
+import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.util.ClientWorldEvents;
@@ -65,6 +66,7 @@ public class ClientState {
 	public static ClientGeneratorParams generatorParams;
 	/** used by {@link ClientWorld_CustomTimeSpeed}. */
 	public static double timeSpeed = 1.0D;
+	public static boolean dangerousRapids;
 
 	static {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -77,6 +79,7 @@ public class ClientState {
 		BigGlobeNetwork.LOGGER.debug("Syncing ClientState to " + player);
 		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
+		DangerousRapidsPacket.INSTANCE.send(player);
 	}
 
 	@Environment(EnvType.CLIENT)

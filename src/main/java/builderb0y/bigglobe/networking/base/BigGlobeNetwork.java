@@ -31,6 +31,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 
@@ -47,6 +48,7 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 		this.handlerToId.defaultReturnValue((byte)(-1));
 		this.register(SettingsSyncS2CPacketHandler.INSTANCE);
 		this.register(TimeSpeedS2CPacketHandler.INSTANCE);
+		this.register(DangerousRapidsPacket.INSTANCE);
 	}
 
 	public byte nextId() {

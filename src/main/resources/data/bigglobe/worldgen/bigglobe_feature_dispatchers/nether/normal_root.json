@@ -1,0 +1,7 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:nether/bubble_decorator",
+		"bigglobe:nether/lava_surface"
+	]
+}

@@ -1,0 +1,41 @@
+{
+	"script": [
+		"double netherTop(int x, int z:",
+			"`bigglobe:nether/max_y`(x, z)",
+		")",
+		"double netherBottom(int x, int z:",
+			"`bigglobe:nether/min_y`(x, z)",
+		")",
+		"int horizontalSize = random.nextInt(32, 96)",
+		"double verticalSize = horizontalSize / 4.0L",
+		"int minX = originX - horizontalSize",
+		"int minZ = originZ - horizontalSize",
+		"int maxX = originX + horizontalSize",
+		"int maxZ = originZ + horizontalSize",
+		"double minY = `bigglobe:nether/bubble`(originX, originZ).lava_level + verticalSize",
+		"double maxY = `bigglobe:nether/max_y`(originX, originZ) - verticalSize",
+		"if (maxY > minY:",
+			"repeat (16:",
+				"double centerY = random.nextDouble(minY, maxY)",
+				"if (`bigglobe:nether/bubble`.noise(int(centerY)) > 0.5I:",
+					"pieces.add(",
+						"ScriptStructurePiece.new(",
+							"originX - horizontalSize,",
+							"floorInt(centerY - verticalSize),",
+							"originZ - horizontalSize,",
+							"originX + horizontalSize,",
+							"ceilInt(centerY + verticalSize),",
+							"originZ + horizontalSize,",
+							"TYPE,",
+							"nbtCompound()",
+						")",
+					")",
+					"break()",
+				")",
+			")",
+		")"
+	],
+	"inputs": [
+		{ "name": "TYPE", "type": "ScriptStructurePlacement" }
+	]
+}

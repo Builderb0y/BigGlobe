@@ -1,0 +1,6 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:end/aura_infused_void_clouds"
+	]
+}

@@ -1,0 +1,8 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:overworld/trees",
+		"bigglobe:overworld/bushes",
+		"bigglobe:overworld/skyland_trees"
+	]
+}

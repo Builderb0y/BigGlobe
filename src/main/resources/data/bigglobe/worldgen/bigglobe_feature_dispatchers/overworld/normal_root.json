@@ -1,0 +1,11 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:overworld/caves",
+		"bigglobe:overworld/swamp_surface",
+		"bigglobe:overworld/large_surface",
+		"bigglobe:overworld/glacier_surface",
+		"bigglobe:overworld/medium_foliage",
+		"bigglobe:overworld/small_surface"
+	]
+}
