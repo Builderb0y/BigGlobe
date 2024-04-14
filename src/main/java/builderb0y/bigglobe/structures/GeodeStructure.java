@@ -107,18 +107,19 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		double radius = this.radius.get(context.random().nextLong());
-		Vector3d center = randomPosInChunk(context, radius, radius);
-		if (center == null) return Optional.empty();
+		BlockPos centerBlock = randomBlockInChunk(context, radius, BigGlobeMath.ceilI(radius));
+		if (centerBlock == null) return Optional.empty();
+		Vector3d center = new Vector3d(
+			centerBlock.getX() + context.random().nextDouble(),
+			centerBlock.getY() + context.random().nextDouble(),
+			centerBlock.getZ() + context.random().nextDouble()
+		);
 
 		long worldSeed = context.seed();
 		long chunkSeed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(
-					BigGlobeMath.floorI(center.x),
-					BigGlobeMath.floorI(center.y),
-					BigGlobeMath.floorI(center.z)
-				),
+				centerBlock,
 				(StructurePiecesCollector collector) -> {
 					MainPiece mainPiece = new MainPiece(
 						BigGlobeStructures.GEODE_PIECE_TYPE,
@@ -219,18 +220,24 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				double x,
 				double y,
 				double z,
+				int offsetX,
+				int offsetY,
+				int offsetZ,
 				double radius,
 				Grid3D noise,
 				BlocksConfig[] blocks,
 				GrowthConfig @VerifyNullable [] growth
 			) {
-				this.x = x;
-				this.y = y;
-				this.z = z;
-				this.noise  = noise;
-				this.radius = radius;
-				this.blocks = blocks;
-				this.growth = growth;
+				this.x       = x;
+				this.y       = y;
+				this.z       = z;
+				this.offsetX = offsetX;
+				this.offsetY = offsetY;
+				this.offsetZ = offsetZ;
+				this.noise   = noise;
+				this.radius  = radius;
+				this.blocks  = blocks;
+				this.growth  = growth;
 			}
 		}
 
@@ -255,7 +262,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					BigGlobeMath.floorI(y + radius),
 					BigGlobeMath.floorI(z + radius)
 				),
-				new Data(x, y, z, radius, noise, blocks, growth)
+				new Data(x, y, z, 0, 0, 0, radius, noise, blocks, growth)
 			);
 		}
 

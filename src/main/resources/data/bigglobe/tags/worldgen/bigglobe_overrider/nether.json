@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:nether/pocket_noise"
+		"bigglobe:nether/pocket_noise",
+		"bigglobe:nether/geode_no_floating"
 	]
 }

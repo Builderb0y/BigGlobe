@@ -85,7 +85,7 @@ public class LakeStructure extends BigGlobeStructure implements RawGenerationStr
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		Vector3d pos = randomPosAtSurface(context, 0.0D);
+		Vector3d pos = null; //randomPosAtSurface(context, 0.0D);
 		if (pos == null) return Optional.empty();
 
 		Permuter permuter = Permuter.from(context.random());

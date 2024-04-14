@@ -7,15 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.concurrent.ForkJoinPool;
 
 import me.cortex.voxy.client.core.IGetVoxelCore;
 import me.cortex.voxy.common.voxelization.VoxelizedSection;
 import me.cortex.voxy.common.voxelization.WorldConversionFactory;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.other.Mapper;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.*;
 
@@ -27,7 +24,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntry.Reference;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
@@ -214,7 +210,7 @@ public class VoxyWorldGenerator {
 		}
 		if (BigGlobeThreadPool.isBusy()) {
 			try {
-				Thread.sleep(500L);
+				Thread.sleep(100L);
 			}
 			catch (InterruptedException ignored) {}
 			return true;

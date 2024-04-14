@@ -48,44 +48,17 @@ public abstract class BigGlobeStructure extends Structure {
 		}
 	}
 
-	public static @Nullable Vector3d randomPosAtSurface(Context context, double offset) {
-		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
-		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
-		WorldColumn column = WorldColumn.forGenerator(
-			context.seed(),
-			context.chunkGenerator(),
-			context.noiseConfig(),
-			BigGlobeMath.floorI(x),
-			BigGlobeMath.floorI(z)
-		);
-		double y = column.getFinalTopHeightD();
-		if (!Double.isNaN(y)) {
-			return new Vector3d(x, y + offset, z);
-		}
-		else {
-			return null;
-		}
-	}
-
-	public static @Nullable BlockPos randomBlockInChunk(Context context, int horizontalRadius, int verticalRadius) {
+	public static @Nullable BlockPos randomBlockInChunk(Context context, double horizontalRadius, int verticalRadius) {
 		int bits = context.random().nextInt();
 		int x = context.chunkPos().getStartX() | (bits & 15);
 		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
-		WorldColumn column = WorldColumn.forGenerator(
-			context.seed(),
-			context.chunkGenerator(),
-			context.noiseConfig(),
-			x,
-			z
-		);
 		int minY = context.chunkGenerator().getMinimumY() + verticalRadius;
-		int maxY = column.getFinalTopHeightI();
+		int maxY = context.chunkGenerator().getHeight(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
 		for (int angleIndex = 0; angleIndex < 8; angleIndex++) {
 			double angle = angleIndex * (BigGlobeMath.TAU / 8.0D);
 			int x2 = BigGlobeMath.floorI(x + Math.cos(angle) * horizontalRadius);
 			int z2 = BigGlobeMath.floorI(z + Math.sin(angle) * horizontalRadius);
-			column.setPosUnchecked(x2, z2);
-			maxY = Math.min(maxY, column.getFinalTopHeightI());
+			maxY = Math.min(maxY, context.chunkGenerator().getHeight(x2, z2, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig()));
 		}
 		maxY -= verticalRadius;
 		if (maxY >= minY) {
@@ -95,34 +68,4 @@ public abstract class BigGlobeStructure extends Structure {
 		else {
 			return null;
 		}
-	}
-
-	public static @Nullable Vector3d randomPosInChunk(Context context, double horizontalRadius, double verticalRadius) {
-		double x = context.chunkPos().getStartX() + 16.0D * context.random().nextDouble();
-		double z = context.chunkPos().getStartZ() + 16.0D * context.random().nextDouble();
-		WorldColumn column = WorldColumn.forGenerator(
-			context.seed(),
-			context.chunkGenerator(),
-			context.noiseConfig(),
-			BigGlobeMath.floorI(x),
-			BigGlobeMath.floorI(z)
-		);
-		double minY = column.getFinalBottomHeightD() + verticalRadius;
-		double maxY = column.getFinalTopHeightD();
-		for (int angleIndex = 0; angleIndex < 8; angleIndex++) {
-			double angle = angleIndex * (BigGlobeMath.TAU / 8.0D);
-			int x2 = BigGlobeMath.floorI(x + Math.cos(angle) * horizontalRadius);
-			int z2 = BigGlobeMath.floorI(z + Math.sin(angle) * horizontalRadius);
-			column.setPosUnchecked(x2, z2);
-			maxY = Math.min(maxY, column.getFinalTopHeightD());
-		}
-		maxY -= verticalRadius;
-		if (maxY >= minY) {
-			double y = context.random().nextDouble() * (maxY - minY) + minY;
-			return new Vector3d(x, y, z);
-		}
-		else {
-			return null;
-		}
-	}
-}
+	}}
