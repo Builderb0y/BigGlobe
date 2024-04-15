@@ -1,0 +1,17 @@
+{
+	"type": "structure",
+	"script": [
+		"if (",
+			"start.structure.type == StructureType('minecraft:fortress') ||",
+			"start.structure == Structure('minecraft:bastion_remnant')",
+		":",
+			"int midX = start.midX",
+			"int midZ = start.midZ",
+			"if (`bigglobe:nether/bubble`(midX, midZ).soft_distance_squared > 0.5: return(false))",
+			"int minY = `bigglobe:nether/bubble`(midX, midZ).lava_level",
+			"int maxY = `bigglobe:nether/max_y`(midX, midZ) - 64",
+			"return(start.moveToRange(minY, maxY))",
+		")",
+		"return(true)"
+	]
+}

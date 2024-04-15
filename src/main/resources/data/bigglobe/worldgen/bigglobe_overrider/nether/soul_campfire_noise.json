@@ -1,0 +1,31 @@
+{
+	"type": "column_value",
+	"script": [
+		"float unmixSmoothD2F(int low, int high, int y:",
+			"unmixSmooth(double(low), double(high), double(y)).as(float)",
+		")",
+		"for (StructureStart start in structures:",
+			"if (start.structure == Structure('bigglobe:soul_campfire'):",
+				"float horizontalDistance = distanceToCircle(start).as(float)",
+				"if (horizontalDistance < 8.0I:",
+					"double bottomY = start.minY + 0.5L",
+					"horizontalDistance *= 0.125I",
+					"double fade = horizontalDistance ^ 2 * 8.0L",
+					"double low  = bottomY - fade",
+					"double high = bottomY + fade",
+					"for (int y in range(start.minY - 8, start.maxY + 8):",
+						"float toAdd = (",
+							"low == high",
+							"? (y < bottomY ? 1.0I : -1.0I)",
+							": unmixSmooth(high, low, double(y)).as(float) * 2.0I - 1.0I",
+						")",
+						"toAdd *= unmixSmoothD2F(start.minY - 8, start.minY, y)",
+						"toAdd *= unmixSmoothD2F(start.maxY + 8, start.maxY, y)",
+						"toAdd *= smooth(1.0I - horizontalDistance)",
+						"`bigglobe:nether/bubble`.noise(y) += toAdd * 0.5I",
+					")",
+				")",
+			")",
+		")"
+	]
+}

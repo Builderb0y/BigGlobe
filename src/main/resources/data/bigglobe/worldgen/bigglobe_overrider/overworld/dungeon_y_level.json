@@ -14,7 +14,6 @@
 				"int(`bigglobe:overworld/basic_surface_y`(start.maxX, start.maxZ))",
 			")",
 			"- 16",
-			"- start.sizeY",
 
 			"int minSpawnY = int(",
 				"max(",
@@ -23,13 +22,11 @@
 					"`bigglobe:overworld/basic_surface_y`(start.maxX, start.minZ),",
 					"`bigglobe:overworld/basic_surface_y`(start.maxX, start.maxZ)",
 				")",
-				"- cell.depth",
+				"- cell.depth.as(int)",
 			")",
 			"+ 16",
 
-			"if (minSpawnY >= maxSpawnY: return(false))",
-
-			"start.move(random.nextInt(minSpawnY, maxSpawnY) - start.minY)",
+			"return(start.moveToRange(minSpawnY, maxSpawnY))",
 		")",
 		"return(true)"
 	]

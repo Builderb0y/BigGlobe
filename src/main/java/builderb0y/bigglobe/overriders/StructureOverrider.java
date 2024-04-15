@@ -7,14 +7,14 @@ import net.minecraft.structure.StructurePiece;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -39,11 +39,23 @@ public interface StructureOverrider extends ColumnScript {
 		}
 	}
 
+	public static boolean moveToRange(StructureStartWrapper start, int minY, int maxY, RandomGenerator random) {
+		int minMove = minY - start.minY();
+		int maxMove = maxY - start.maxY();
+		if (maxMove > minMove) {
+			move(start, random.nextInt(minMove, maxMove));
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public static record Entry(Holder script) implements Overrider {
 
 		@Override
 		public Type getOverriderType() {
-			return Type.STRUCTURE;
+			return Overrider.Type.STRUCTURE;
 		}
 	}
 
@@ -69,9 +81,18 @@ public interface StructureOverrider extends ColumnScript {
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
-						.addFieldGet(ScriptedStructure.Piece.class, "data")
+						.addFieldGet(Piece.class, "data")
 						.addVariableLoad("start", StructureStartWrapper.TYPE)
-						.addMethodInvokeStatic(StructureOverrider.class, "move")
+						.addMethodInvokeStatics(StructureOverrider.class, "move", "moveToRange")
+						.addMethod(
+							type(StructureStartWrapper.class),
+							"moveToRange",
+							Handlers
+							.builder(StructureOverrider.class, "moveToRange")
+							.addReceiverArgument(StructureStartWrapper.class)
+							.addArguments("II", loadRandom)
+							.buildMethod()
+						)
 						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN),
 						new ExternalEnvironmentParams().withLookup(load("columns", type(ScriptedColumnLookup.class)))
 					);

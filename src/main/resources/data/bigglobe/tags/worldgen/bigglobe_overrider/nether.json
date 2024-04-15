@@ -1,7 +1,11 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:nether/geode_no_floating",
 		"bigglobe:nether/pocket_noise",
-		"bigglobe:nether/geode_no_floating"
+		"bigglobe:nether/portal_temple_noise",
+		"bigglobe:nether/soul_campfire_noise",
+		"bigglobe:nether/structure_noise",
+		"bigglobe:nether/structure_y"
 	]
 }

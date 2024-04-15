@@ -4,7 +4,7 @@
 		"if (start.structure == Structure('minecraft:ancient_city'):",
 			"int minY = `bigglobe:overworld/cavern_min_y`(start.midX, start.midZ) + 16",
 			"int maxY = `bigglobe:overworld/cavern_max_y`(start.midX, start.midZ) - 16",
-			"start.move(random.nextInt(minY, maxY - start.sizeY) - start.minY)",
+			"return(start.moveToRange(minY, maxY))",
 		")",
 		"return(true)"
 	]

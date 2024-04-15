@@ -674,14 +674,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				newStart,
 				new Permuter(
 					Permuter.permute(
-						Permuter.permute(
-							this.columnSeed ^ 0xD59E69D9AB0D41BAL,
-							chunk.getPos().x,
-							chunk.getPos().z,
-							//String.hashCode() will be cached, which means faster permutation times.
-							UnregisteredObjectException.getID(weightedEntry.structure()).hashCode()
-						),
-						chunk.getPos()
+						this.columnSeed ^ 0xD59E69D9AB0D41BAL,
+						//String.hashCode() will be cached, which means faster permutation times.
+						UnregisteredObjectException.getID(weightedEntry.structure()).hashCode(),
+						chunk.getPos().x,
+						chunk.getPos().z
 					)
 				),
 				DistantHorizonsCompat.isOnDistantHorizonThread()

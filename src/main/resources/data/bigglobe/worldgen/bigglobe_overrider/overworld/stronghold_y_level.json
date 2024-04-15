@@ -2,20 +2,14 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure.type == StructureType('minecraft:stronghold'):",
-			"if (distantHorizons: return(false))",
 			"int minSurface = min(",
 				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.minZ)),",
 				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.maxZ)),",
 				"int(`bigglobe:overworld/basic_surface_y`(start.maxX, start.minZ)),",
 				"int(`bigglobe:overworld/basic_surface_y`(start.maxX, start.maxZ))",
 			")",
-			"double caveDepth = `bigglobe:overworld/cave`(start.midX, start.midZ).depth",
-			"int chosenY = minSurface - (",
-				"caveDepth >= 1.0L",
-				"? random.nextInt(int(caveDepth) >> 1, int(caveDepth))",
-				": random.nextInt(256, 512)",
-			")",
-			"start.move(chosenY - start.maxY)",
+			"int caveDepth = `bigglobe:overworld/cave`(start.midX, start.midZ).depth.as(int)",
+			"return(start.moveToRange(minSurface - caveDepth, minSurface))",
 		")",
 		"return(true)"
 	]

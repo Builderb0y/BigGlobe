@@ -2,8 +2,8 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 1669365714,
-		"separation": 8,
-		"spacing": 16
+		"separation": 4,
+		"spacing": 8
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:portal_temple" },

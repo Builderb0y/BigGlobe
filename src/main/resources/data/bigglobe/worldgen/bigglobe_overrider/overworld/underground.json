@@ -1,6 +1,11 @@
 {
 	"type": "structure",
 	"script": [
-		"return(!(distantHorizons && start.structure.type.isIn('bigglobe:underground')))"
+		"!(",
+			"distantHorizons && (",
+				"start.structure.isIn('bigglobe:underground') ||",
+				"start.structure.type.isIn('bigglobe:underground')",
+			")",
+		")"
 	]
 }
