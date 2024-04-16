@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether_pillars/broken",
+		"bigglobe:nether_pillars/extra",
+		"bigglobe:nether_pillars/normal"
+	]
+}

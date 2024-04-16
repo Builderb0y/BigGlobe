@@ -25,7 +25,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	nether pillars.
 
 4.0 stuff:
 	implicit Y parameter for 3D column values when used by other 3D column values.
@@ -139,6 +138,13 @@ changelog:
 		* Some underground structures are now less secret.
 		* Deserts are now slightly more interesting.
 		* Added rivers.
+			* Be careful not to fall in, because they flow faster than you can swim!
+				* There is a gameruls to make them flow at the same rate as vanilla.
+		* Added the core at the bottom of the world.
+			* Full of molten rock, glows, and will burn you if you touch it.
+			* Cooling molten rock down with water will turn it into a random ore.
+				* The ores are weighted based on how likely they would've been to spawn at that location.
+			* Molten rock can't be collected, even with silk touch, but it can be moved by pistons.
 		* You can now place 1-6 rocks per block, instead of the number of rocks per block just being random.
 
 AutoCodec:
@@ -192,6 +198,7 @@ scripting:
 	make user class declaration into another InsnTree?
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
+	make it so that constant template inputs remain constants without being turned into variables.
 
 features:
 	general:
