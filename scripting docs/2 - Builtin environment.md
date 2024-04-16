@@ -224,6 +224,19 @@ void notYetImplemented(int value:
 	* If you only provide one number, then the 2nd number is implicitly 0.
 		* Providing only one instance of Comparable is not allowed, because there is no standardized way to get a "zero" Comparable instance for arbitrary types.
 	* If you've studied these documents well, you might suspect that `>:` and the other cases are operators. But they're not! You are allowed to have a space between them. This is (at the time of writing this) the only place where the expression parser does not group them together.
+* noscope (4.0+) allows you to group expressions together without declaring a new scope. Any variables declared in the noscope block will be available in the same scope as the noscope keyword itself.
+	```
+	(int x = 2)
+	print(x) ;error: x is not accessible here
+
+	noscope(int x = 2)
+	print(x) ;works just fine
+
+	;a practical example:
+	if (noscope(int y := ...) > 2:
+		print(y)
+	)
+	```
 
 # Member keywords
 

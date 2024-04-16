@@ -11,8 +11,7 @@
 		"bigglobe:nether/bubble/noise_forest",
 		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_ashen_netherrack",
-		"bigglobe:nether/bubble/decorator_ashen_wastes",
-		"bigglobe:nether/bubble/lava_decorator_normal"
+		"bigglobe:nether/bubble/decorator_ashen_wastes"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_ashen_wastes",
@@ -21,7 +20,6 @@
 		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
 		"noise": "bigglobe:nether/bubble/noise_forest",
 		"surface_state": "bigglobe:nether/bubble/surface_state_ashen_netherrack",
-		"decorator": "bigglobe:nether/bubble/decorator_ashen_wastes",
-		"lava_decorator": "bigglobe:nether/bubble/lava_decorator_normal"
+		"decorator": "bigglobe:nether/bubble/decorator_ashen_wastes"
 	}
 }

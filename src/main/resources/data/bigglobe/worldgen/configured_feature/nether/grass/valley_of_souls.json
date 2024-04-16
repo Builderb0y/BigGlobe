@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 1.0,
+		"randomize_radius": 8,
+		"entries": [
+			{ "weight":   1.0, "radius": 8, "state": "minecraft:wither_skeleton_skull" },
+			{ "weight":   7.0, "radius": 8, "state": "minecraft:skeleton_skull" },
+			{ "weight":  24.0, "radius": 8, "state": "minecraft:wither_rose" },
+			{ "weight": 224.0, "radius": 8, "state": "bigglobe:wart_weed" },
+			{ "weight": 768.0, "radius": 8, "state": "bigglobe:charred_grass" }
+		]
+	}
+}

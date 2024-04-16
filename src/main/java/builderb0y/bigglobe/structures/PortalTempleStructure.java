@@ -590,7 +590,9 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			CoordinateSupplier<BlockState> netherBricks = netherBricks(this.crackedChance);
 
 			//empty out existing areas
-			root.setBlockStateCuboid(-11, 1, -11, 11, 11, 11, BlockStates.AIR);
+			root.setBlockStateCuboid(-10, 1, -10, 10, 1, 10, BlockStates.AIR);
+			root.setBlockStateCuboid(-11, 2, -11, 11, 11, 11, BlockStates.AIR);
+			rotate4.setBlockStateLine(-11, 1, -1, 0, 0, 1, 3, BlockStates.AIR);
 			rotate4.setBlockStateCuboid(-15, 1, -6, -12, 11, 6, BlockStates.AIR);
 			//floor
 			root.setBlockStateCuboid(-15, 0, -6, 15, 0, 6, netherBricks);

@@ -3,8 +3,8 @@
 	"config": {
 		"script": [
 			"int y = min(",
-				"random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/bubble`.lava_level),",
-				"random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/bubble`.lava_level)",
+				"random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`),",
+				"random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
 			")",
 			"return (",
 				"y.isBetween[minValidYLevel, maxValidYLevel) &&",

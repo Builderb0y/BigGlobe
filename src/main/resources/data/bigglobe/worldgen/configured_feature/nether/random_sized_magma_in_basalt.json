@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double chance = unmixLinear(",
+				"double(`bigglobe:nether/max_y`),",
+				"double(`bigglobe:nether/min_y`),",
+				"double(originY)",
+			")",
+			"* 0.25L",
+			"random.if (chance:",
+				"random.if (chance:",
+					"placeFeature(originX, originY, originZ, 'bigglobe:nether/hidden_lava_large_basalt')",
+				")",
+				"else (",
+					"placeFeature(originX, originY, originZ, 'bigglobe:nether/hidden_lava_small')",
+				")",
+			")",
+			"else (",
+				"setBlockState(originX, originY, originZ, 'minecraft:magma_block')",
+				"true",
+			")"
+		]
+	}
+}

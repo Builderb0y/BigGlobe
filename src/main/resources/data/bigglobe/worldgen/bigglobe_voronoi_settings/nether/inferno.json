@@ -11,8 +11,7 @@
 		"bigglobe:nether/bubble/noise_inferno",
 		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_blackstone",
-		"bigglobe:nether/bubble/decorator_inferno",
-		"bigglobe:nether/bubble/lava_decorator_normal"
+		"bigglobe:nether/bubble/decorator_inferno"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_inferno",
@@ -21,7 +20,6 @@
 		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
 		"noise": "bigglobe:nether/bubble/noise_inferno",
 		"surface_state": "bigglobe:nether/bubble/surface_state_blackstone",
-		"decorator": "bigglobe:nether/bubble/decorator_inferno",
-		"lava_decorator": "bigglobe:nether/bubble/lava_decorator_normal"
+		"decorator": "bigglobe:nether/bubble/decorator_inferno"
 	}
 }

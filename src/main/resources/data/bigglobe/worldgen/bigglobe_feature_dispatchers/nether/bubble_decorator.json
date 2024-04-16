@@ -5,11 +5,7 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"ConfiguredFeature decorator = `bigglobe:nether/bubble`(x, z).decorator",
-			"for (int baseY in range[minModifiableY, maxModifiableY) % 8:",
-				"int y = baseY | 16x5EBDEDC4EE513888UL .newSeed(x, z, baseY).nextInt(8)",
-				"placeFeature(x, y, z, decorator)",
-			")",
+			"placeFeature(x, 0, z, `bigglobe:nether/bubble`(x, z).decorator)",
 		")"
 	]
 }

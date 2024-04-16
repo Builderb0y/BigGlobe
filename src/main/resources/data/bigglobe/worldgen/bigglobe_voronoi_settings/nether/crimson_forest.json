@@ -11,8 +11,7 @@
 		"bigglobe:nether/bubble/noise_forest",
 		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_crimson_nylium",
-		"bigglobe:nether/bubble/decorator_crimson_forest",
-		"bigglobe:nether/bubble/lava_decorator_normal"
+		"bigglobe:nether/bubble/decorator_crimson_forest"
 	],
 	"exports": {
 		"biome": "bigglobe:nether/bubble/biome_crimson_forest",
@@ -21,7 +20,6 @@
 		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
 		"noise": "bigglobe:nether/bubble/noise_forest",
 		"surface_state": "bigglobe:nether/bubble/surface_state_crimson_nylium",
-		"decorator": "bigglobe:nether/bubble/decorator_crimson_forest",
-		"lava_decorator": "bigglobe:nether/bubble/lava_decorator_normal"
+		"decorator": "bigglobe:nether/bubble/decorator_crimson_forest"
 	}
 }

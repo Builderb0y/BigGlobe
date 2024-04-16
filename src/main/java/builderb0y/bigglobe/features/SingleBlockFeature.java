@@ -102,7 +102,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 				}
 			}
 			else {
-				return true;
+				return false;
 			}
 			states[offsetY] = newState;
 		}

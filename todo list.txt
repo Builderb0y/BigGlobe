@@ -26,7 +26,6 @@ testing:
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	nether pillars.
-	ancient debris.
 
 4.0 stuff:
 	implicit Y parameter for 3D column values when used by other 3D column values.

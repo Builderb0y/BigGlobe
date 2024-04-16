@@ -179,6 +179,12 @@ public class BuiltinScriptEnvironment {
 		.addKeyword("compare", (ExpressionParser parser, String name) -> {
 			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();
 		})
+		.addKeyword("noscope", (ExpressionParser parser, String name) -> {
+			parser.input.expectAfterWhitespace('(');
+			InsnTree tree = parser.nextScript();
+			parser.input.expectAfterWhitespace(')');
+			return tree;
+		})
 
 		//////////////// member keywords ////////////////
 
