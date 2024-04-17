@@ -8,13 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -43,6 +41,8 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.bigglobe.util.AsyncConsumer;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -257,16 +257,29 @@ public class ColumnEntryRegistry {
 				throw new RuntimeException(exception);
 			}
 			if (this.compileables != null) {
-				RuntimeException mainException = null;
-				for (DelayedCompileable compileable : this.compileables) try {
-					compileable.compile(this.columnEntryRegistry);
-				}
-				catch (Exception exception) {
-					if (mainException == null) mainException = new RuntimeException("Some registry objects failed to compile, see below:");
-					mainException.addSuppressed(exception);
+				MutableObject<RuntimeException> mainException = new MutableObject<>(null);
+				try (AsyncConsumer<Exception> async = new AsyncConsumer<>(BigGlobeThreadPool.mainExecutor(), (Exception exception) -> {
+					if (exception != null) {
+						RuntimeException main = mainException.getValue();
+						if (main == null) mainException.setValue(main = new RuntimeException("Some registry objects failed to compile, see below:"));
+						main.addSuppressed(exception);
+					}
+				})) {
+					for (DelayedCompileable compileable : this.compileables) {
+						async.submit(() -> {
+							try {
+								compileable.compile(this.columnEntryRegistry);
+								return null;
+							}
+							catch (Exception exception) {
+								return exception;
+							}
+						});
+					}
 				}
 				this.compileables = null;
-				if (mainException != null) throw mainException;
+				RuntimeException main = mainException.getValue();
+				if (main != null) throw main;
 			}
 		}
 	}
