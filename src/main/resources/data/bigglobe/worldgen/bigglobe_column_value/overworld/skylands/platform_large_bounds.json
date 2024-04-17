@@ -4,11 +4,11 @@
 		"type": {
 			"type": "class",
 			"name": "SkylandBounds",
-			"fields": {
-				"min_y": "double",
-				"max_y": "double",
-				"surface_depth": "int"
-			}
+			"fields": [
+				{ "name": "min_y",         "type": "double" },
+				{ "name": "max_y",         "type": "double" },
+				{ "name": "surface_depth", "type": "int"    }
+			]
 		},
 		"is_3d": false
 	},
@@ -22,6 +22,6 @@
 		"double outness = platformCell.soft_distance / exclusion",
 		"if (outness !<= 1.0L: return(null))",
 		"double curve = exclusion * seed.newSeed().nextDouble(32.0L, 64.0L) * (outness - 1.0L) / (outness * 2.0L + 1.0L)",
-		"SkylandBounds.new(min_y: top + curve, max_y: top, surface_depth: `bigglobe:overworld/skylands/plains_surface_depth`)"
+		"SkylandBounds.new(top + curve, top, `bigglobe:overworld/skylands/plains_surface_depth`)"
 	]
 }

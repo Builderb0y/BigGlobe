@@ -4,12 +4,12 @@
 		"type": {
 			"type": "class",
 			"name": "EndSurface",
-			"fields": {
-				"surface_state": "block_state",
-				"subsurface_state": "block_state",
-				"surface_depth": "int",
-				"biome": "biome"
-			}
+			"fields": [
+				{ "name": "surface_state",    "type": "block_state" },
+				{ "name": "subsurface_state", "type": "block_state" },
+				{ "name": "surface_depth",    "type": "int"         },
+				{ "name": "biome",            "type": "biome"       }
+			]
 		},
 		"is_3d": false
 	},

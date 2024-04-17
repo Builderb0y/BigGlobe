@@ -9,11 +9,11 @@
 					"type": {
 						"type": "class",
 						"name": "SkylandBounds",
-						"fields": {
-							"min_y": "double",
-							"max_y": "double",
-							"surface_depth": "int"
-						}
+						"fields": [
+							{ "name": "min_y",         "type": "double" },
+							{ "name": "max_y",         "type": "double" },
+							{ "name": "surface_depth", "type": "int"    }
+						]
 					},
 					"is_3d": false
 				},

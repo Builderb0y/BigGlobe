@@ -4,11 +4,11 @@
 		"type": {
 			"type": "class",
 			"name": "SkylandBounds",
-			"fields": {
-				"min_y": "double",
-				"max_y": "double",
-				"surface_depth": "int"
-			}
+			"fields": [
+				{ "name": "min_y",         "type": "double" },
+				{ "name": "max_y",         "type": "double" },
+				{ "name": "surface_depth", "type": "int"    }
+			]
 		},
 		"is_3d": false
 	},
@@ -24,6 +24,6 @@
 		"double lowerCurve = center - 128.0L * (rawLowerCurve - bias)",
 		"unless (upperCurve > lowerCurve: return(null))",
 		"double surfaceDepth = columnSeed(16xE1194746F0739D03UL).nextDouble(2.0L, 7.0L) - spiral * 32.0L - rawUpperCurve * 8.0L",
-		"SkylandBounds.new(min_y: lowerCurve, max_y: upperCurve, surface_depth: floorInt(surfaceDepth))"
+		"SkylandBounds.new(lowerCurve, upperCurve, floorInt(surfaceDepth))"
 	]
 }

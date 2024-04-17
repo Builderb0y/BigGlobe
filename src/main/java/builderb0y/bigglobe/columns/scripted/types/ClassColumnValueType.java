@@ -6,24 +6,17 @@ import java.util.stream.Collectors;
 
 import com.mojang.datafixers.util.Unit;
 
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.CustomClassCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
-import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -31,14 +24,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ClassColumnValueType implements ColumnValueType {
 
 	public final String name;
-	public final Map<@IdentifierName String, ColumnValueType> fields;
-	public final transient ClassColumnValueField[] fieldsInOrder;
+	public final ClassColumnValueField[] fields;
+	public final transient Map<String, ColumnValueType> lookup;
 
-	public ClassColumnValueType(String name, Map<@IdentifierName String, ColumnValueType> fields) {
+	public ClassColumnValueType(String name, ClassColumnValueField[] fields) {
 		this.name = name;
 		this.fields = fields;
-		//order is arbitrary as long as it's consistent.
-		this.fieldsInOrder = fields.entrySet().stream().map((Map.Entry<String, ColumnValueType> entry) -> new ClassColumnValueField(entry.getKey(), entry.getValue())).toArray(ClassColumnValueField[]::new);
+		this.lookup = Arrays.stream(fields).collect(Collectors.toMap(ClassColumnValueField::name, ClassColumnValueField::type));
 	}
 
 	@Override
@@ -54,14 +46,14 @@ public class ClassColumnValueType implements ColumnValueType {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = (Map<String, Object>)(object);
 		Map<String, InsnTree> constants = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, Object> entry) -> {
-			ColumnValueType type = this.fields.get(entry.getKey());
+			ColumnValueType type = this.lookup.get(entry.getKey());
 			if (type == null) throw new IllegalArgumentException("Undeclared field specified: " + entry.getKey());
 			return type.createConstant(entry.getValue(), context);
 		}));
-		int length = this.fieldsInOrder.length;
+		int length = this.fields.length;
 		InsnTree[] args = new InsnTree[length];
 		for (int index = 0; index < length; index++) {
-			String name = this.fieldsInOrder[index].name;
+			String name = this.fields[index].name;
 			InsnTree constant = constants.get(name);
 			if (constant == null) throw new IllegalArgumentException("Unspecified field: " + name);
 			args[index] = constant;
@@ -73,13 +65,13 @@ public class ClassColumnValueType implements ColumnValueType {
 	public void setupInternalEnvironment(MutableScriptEnvironment environment, TypeContext typeContext, DataCompileContext context, MutableDependencyView dependencies) {
 		TypeInfo type = typeContext.type();
 		environment.addType(this.name, type);
-		for (Map.Entry<String, ColumnValueType> entry : this.fields.entrySet()) {
+		for (ClassColumnValueField field : this.fields) {
 			environment.addFieldGet(
 				new FieldInfo(
 					ACC_PUBLIC,
 					type,
-					entry.getKey(),
-					context.root().getTypeContext(entry.getValue()).type()
+					field.name,
+					context.root().getTypeContext(field.type).type()
 				)
 			);
 		}
@@ -89,31 +81,13 @@ public class ClassColumnValueType implements ColumnValueType {
 			"<init>",
 			TypeInfos.VOID,
 			Arrays
-			.stream(this.fieldsInOrder)
+			.stream(this.fields)
 			.map(ClassColumnValueField::type)
 			.map(context.root()::getTypeContext)
 			.map(TypeContext::type)
 			.toArray(TypeInfo.ARRAY_FACTORY)
 		);
-		environment.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("Constructor for " + this.name, (ExpressionParser parser, InsnTree receiver, String theStringNew, MemberKeywordMode mode) -> {
-			if (!receiver.getConstantValue().isConstant() || !receiver.getConstantValue().asJavaObject().equals(type)) return null;
-			NamedValues namedValues = NamedValues.parse(parser, null, (ExpressionParser theSameParser, String name) -> {
-				if (!this.fields.containsKey(name)) {
-					throw new ScriptParsingException("Unknown field: " + name + "; valid fields are: " + this.fields, theSameParser.input);
-				}
-			});
-			Map<String, InsnTree> lookup = Arrays.stream(namedValues.values()).collect(Collectors.toMap(NamedValue::name, NamedValue::value));
-			InsnTree[] args = new InsnTree[constructor.paramTypes.length];
-			ClassColumnValueField[] parameters = this.fieldsInOrder;
-			for (int index = 0, size = parameters.length; index < size; index++) {
-				String name = parameters[index].name();
-				InsnTree tree = lookup.get(name);
-				if (tree == null) throw new ScriptParsingException("Must specify " + name, parser.input);
-				args[index] = tree.cast(parser, constructor.paramTypes[index], CastMode.IMPLICIT_THROW);
-			}
-			//todo: create synthetic permute method to preserve left-to-right evaluation order.
-			return newInstance(constructor, args);
-		}));
+		environment.addQualifiedConstructor(constructor);
 	}
 
 	@Override
@@ -123,7 +97,7 @@ public class ClassColumnValueType implements ColumnValueType {
 
 	@Override
 	public int hashCode() {
-		return this.name.hashCode() * 31 + this.fields.hashCode();
+		return this.name.hashCode() * 31 + Arrays.hashCode(this.fields);
 	}
 
 	@Override
@@ -131,14 +105,14 @@ public class ClassColumnValueType implements ColumnValueType {
 		return this == obj || (
 			obj instanceof ClassColumnValueType that &&
 			this.name.equals(that.name) &&
-			this.fields.equals(that.fields)
+			Arrays.equals(this.fields, that.fields)
 		);
 	}
 
 	@Override
 	public String toString() {
-		return "{ type: class, name: " + this.name + ", fields: " + this.fields + " }";
+		return "{ type: class, name: " + this.name + ", fields: " + Arrays.toString(this.fields) + " }";
 	}
 
-	public static record ClassColumnValueField(String name, ColumnValueType type) {}
+	public static record ClassColumnValueField(@IdentifierName String name, ColumnValueType type) {}
 }

@@ -69,7 +69,6 @@ where I left off:
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
 		lakes.
-	convert layers to inclusive bounds?
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	boulder block.
@@ -91,9 +90,6 @@ where I left off:
 	glow lichen.
 	bottled aura.
 		add to loot tables of end cities.
-	convert custom classes (for column values) from a map to a list.
-		this will mean .new() behaves like any other constructor, instead of being weird.
-		it also means I won't need synthetic permute methods to ensure left-to-right evaluation order.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

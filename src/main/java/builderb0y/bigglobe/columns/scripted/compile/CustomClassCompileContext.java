@@ -38,7 +38,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 			ACC_PUBLIC,
 			"<init>",
 			TypeInfos.VOID,
-			Arrays.stream(spec.fieldsInOrder)
+			Arrays.stream(spec.fields)
 			.map((ClassColumnValueField field) -> new LazyVarInfo(
 				field.name(),
 				parent.getTypeContext(field.type()).type()
@@ -47,8 +47,8 @@ public class CustomClassCompileContext extends DataCompileContext {
 		);
 		invokeInstance(load("this", this.mainClass.info), MethodInfo.getConstructor(Object.class)).emitBytecode(this.constructor);
 		LoadInsnTree loadSelf = load(new LazyVarInfo("this", this.mainClass.info));
-		List<FieldCompileContext> fieldCompileContexts = new ArrayList<>(spec.fieldsInOrder.length);
-		for (ClassColumnValueField field : spec.fieldsInOrder) {
+		List<FieldCompileContext> fieldCompileContexts = new ArrayList<>(spec.fields.length);
+		for (ClassColumnValueField field : spec.fields) {
 			FieldCompileContext fieldContext = this.mainClass.newField(ACC_PUBLIC, field.name(), parent.getTypeContext(field.type()).type());
 			putField(
 				loadSelf,

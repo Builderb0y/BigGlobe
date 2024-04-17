@@ -10,12 +10,12 @@
 				"surface_depth": { "type": "float", "is_3d": false },
 				"floor_states": {
 					"type": {
-						"type": "bigglobe:class",
+						"type": "class",
 						"name": "CaveFloorStates",
-						"fields": {
-							"top": "block_state",
-							"under": "block_state"
-						}
+						"fields": [
+							{ "name": "top",   "type": "block_state" },
+							{ "name": "under", "type": "block_state" }
+						]
 					},
 					"is_3d": false
 				},
@@ -23,10 +23,10 @@
 					"type": {
 						"type": "class",
 						"name": "CaveCeilingStates",
-						"fields": {
-							"bottom": "block_state",
-							"above": "block_state"
-						}
+						"fields": [
+							{ "name": "bottom", "type": "block_state" },
+							{ "name": "above",  "type": "block_state" }
+						]
 					},
 					"is_3d": false
 				},

@@ -1,13 +1,13 @@
 {
-	"type": "bigglobe:constant",
+	"type": "constant",
 	"params": {
 		"type": {
-			"type": "bigglobe:class",
+			"type": "class",
 			"name": "CaveCeilingStates",
-			"fields": {
-				"bottom": "block_state",
-				"above": "block_state"
-			}
+			"fields": [
+				{ "name": "bottom", "type": "block_state" },
+				{ "name": "above",  "type": "block_state" }
+			]
 		},
 		"is_3d": false
 	}
