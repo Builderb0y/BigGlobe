@@ -5,7 +5,7 @@
 		"is_3d": true
 	},
 	"script": [
-		"`bigglobe:overworld/raw_cavern_noise`(y) - (",
+		"`bigglobe:overworld/raw_cavern_noise` - (",
 			"unmixLinear(",
 				"`bigglobe:overworld/cavern_min_y`.as(double),",
 				"`bigglobe:overworld/cavern_max_y`.as(double),",

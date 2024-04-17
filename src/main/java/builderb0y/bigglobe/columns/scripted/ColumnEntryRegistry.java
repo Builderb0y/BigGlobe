@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
@@ -43,6 +44,7 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -160,14 +162,14 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, MutableDependencyView dependencies) {
+	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, @Nullable InsnTree loadY, MutableDependencyView dependencies) {
 		VoronoiDataBase.INFO.addAll(environment, null);
 		for (ColumnEntryMemory memory : context.getMemories().values()) {
-			memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, false, dependencies);
+			memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, false, loadY, dependencies);
 		}
 		if (!(context instanceof ColumnCompileContext)) {
 			for (ColumnEntryMemory memory : context.root().getMemories().values()) {
-				memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, true, dependencies);
+				memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, true, loadY, dependencies);
 			}
 		}
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {

@@ -31,14 +31,14 @@
 		")",
 		"return(",
 			"curve(",
-				"`bigglobe:overworld/caves/biased_primary_noise`(y),",
-				"`bigglobe:overworld/caves/easy_width`(y)",
+				"`bigglobe:overworld/caves/biased_primary_noise`,",
+				"`bigglobe:overworld/caves/easy_width`",
 			")",
 			"* curve(",
-				"`bigglobe:overworld/caves/biased_secondary_noise`(y),",
+				"`bigglobe:overworld/caves/biased_secondary_noise`,",
 				"8.0I",
 			")",
-			"+ `bigglobe:overworld/caves/ledge_noise`(y)",
+			"+ `bigglobe:overworld/caves/ledge_noise`",
 		")"
 	],
 	"valid": {

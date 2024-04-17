@@ -98,8 +98,13 @@ public abstract class DataCompileContext {
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 		.addEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
-			if (includeY) environment.addVariableLoad("y", TypeInfos.INT);
-			this.root().registry.setupInternalEnvironment(environment, this, dependencies);
+			if (includeY) {
+				environment.addVariableLoad("y", TypeInfos.INT);
+				this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies);
+			}
+			else {
+				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies);
+			}
 		})
 		.parseEntireInput()
 		.emitBytecode(method);

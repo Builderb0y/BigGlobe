@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.AnnotationNode;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -125,6 +126,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		ColumnEntryMemory memory,
 		DataCompileContext context,
 		boolean useColumn,
+		@Nullable InsnTree loadY,
 		MutableDependencyView dependencies
 	) {
 		String name = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
@@ -144,6 +146,16 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 				dependencies.addDependency(self);
 				return new CastResult(mode.makeInvoker(parser, receiver, getter, castArguments), castArguments != arguments);
 			}));
+			if (loadY != null) {
+				environment.addVariable(name, new VariableHandler.Named("functionInvoke: " + getter + " for receiver " + loadHolder.describe() + " at Y level " + loadY.describe(), (ExpressionParser parser, String name1) -> {
+					dependencies.addDependency(self);
+					return invokeInstance(loadHolder, getter, loadY);
+				}));
+				environment.addField(getter.owner, name, new FieldHandler.Named("methodInvoke: " + getter + " at Y level " + loadY.describe(), (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+					dependencies.addDependency(self);
+					return mode.makeInvoker(parser, receiver, getter, loadY);
+				}));
+			}
 		}
 		else {
 			InsnTree tree = invokeInstance(loadHolder, getter);
@@ -296,7 +308,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, MutableDependencyView)},
+	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, InsnTree, MutableDependencyView)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {

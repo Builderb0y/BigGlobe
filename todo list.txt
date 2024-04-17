@@ -27,7 +27,6 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 
 4.0 stuff:
-	implicit Y parameter for 3D column values when used by other 3D column values.
 	system to allow players to teleport to locations they've visited before.
 		map item which displays waypoints?
 			done in the past by most minimap mods.
