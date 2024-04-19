@@ -1,15 +1,12 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
-import builderb0y.bigglobe.columns.scripted.ColumnValueSetter;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -46,11 +43,6 @@ public class ConstantColumnEntry implements ColumnEntry {
 		ColumnEntry.super.populateGetter(memory, context, getterMethod);
 		return_(this.params.createConstant(this.value, context.root())).emitBytecode(getterMethod);
 		getterMethod.endCode();
-	}
-
-	@Override
-	public void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		ColumnEntry.super.populateSetter(memory, context, setterMethod);
 	}
 
 	@Override

@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -25,7 +24,6 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
@@ -52,6 +50,8 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 public class ColumnEntryRegistry {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
+	public static final Object IMAGE_SAVE_LOCK = new Object();
+	public static Thread imageSaveThread;
 
 	public final BetterRegistry.Lookup registries;
 	public final VoronoiManager voronoiManager;
@@ -110,9 +110,15 @@ public class ColumnEntryRegistry {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			DependencyDepthSorter sorter = new DependencyDepthSorter();
 			entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-			CompletableFuture.runAsync(() -> {
-				sorter.outputResults(suffix);
-			});
+			synchronized (IMAGE_SAVE_LOCK) {
+				if (imageSaveThread != null) try {
+					imageSaveThread.join();
+				}
+				catch (InterruptedException exception) {
+					throw new RuntimeException("interrupted?", exception);
+				}
+				(imageSaveThread = new Thread(() -> sorter.outputResults(suffix), "Big Globe graph image saver thread")).start();
+			}
 		}
 		try {
 			this.loader = new ScriptClassLoader();

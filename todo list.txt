@@ -64,11 +64,9 @@ where I left off:
 	need to redo scripted noise which uses column values.
 	missing stuff:
 		the rest of the configured features.
-		nether.
 		caverns.
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
-		lakes.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	boulder block.

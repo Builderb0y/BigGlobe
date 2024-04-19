@@ -1,0 +1,26 @@
+{
+	"raw_placement": [
+		"BlockState fluid = BlockState(data.fluid.asString())",
+		"double radius = piece.sizeX >> 1",
+		"for (",
+			"int z in range[chunkMinZ, chunkMaxZ],",
+			"int x in range[chunkMinX, chunkMaxX]",
+		":",
+			"double distance = sqrt((x - piece.midX) ^ 2 + (z - piece.midZ) ^ 2)",
+			"if (distance < radius:",
+				"for (int y in range[ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), piece.maxY - 4):",
+					"setBlockState(x, y, z, fluid)",
+				")",
+			")",
+		")"
+	],
+	"placement": [
+		"for (int attempt in range[0, 16):",
+			"int x = chunkMinX | (worldSeed # 16x55CF845D32B27DD5UL).newSeed(chunkMinX >> 4, chunkMinZ >> 4, attempt).nextInt(16)",
+			"int z = chunkMinZ | (worldSeed # 16x1FBE78D377715686UL).newSeed(chunkMinX >> 4, chunkMinZ >> 4, attempt).nextInt(16)",
+			"if ((x - midX) ^ 2 + (z - midZ) ^ 2 < ((maxX - minX) >> 1) ^ 2:",
+				"placeFeature(x, maxY - 4, z, ConfiguredFeature(data.decorator.asString()))",
+			")",
+		")"
+	]
+}

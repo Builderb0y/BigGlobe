@@ -2,9 +2,6 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -78,15 +75,11 @@ import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnValueGetter;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
@@ -380,11 +373,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								column01.setParamsUnchecked(params.at(quadX | 1, quadZ    ));
 								column10.setParamsUnchecked(params.at(quadX,     quadZ | 1));
 								column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
-								for (MethodHandle handle : this.getOverriders().rawColumnValueDependencies) try {
-									handle.invokeExact(column00);
-									handle.invokeExact(column01);
-									handle.invokeExact(column10);
-									handle.invokeExact(column11);
+								for (String name : this.getOverriders().rawColumnValueDependencies) try {
+									column00.preComputeColumnValue(name);
+									column01.preComputeColumnValue(name);
+									column10.preComputeColumnValue(name);
+									column11.preComputeColumnValue(name);
 								}
 								catch (Throwable throwable) {
 									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
@@ -529,18 +522,27 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			),
 			Purpose.features()
 		);
+		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons());
 		ScriptedColumn[] columns = this.chunkReuseColumns.get();
-		for (int index = 0; index < 256; index++) {
-			int x = chunk.getPos().getStartX() | (index & 15);
-			int z = chunk.getPos().getStartZ() | (index >>> 4);
-			columns[index].setParams(worldWrapper.params.at(x, z));
-			worldWrapper.columns.put(ColumnPos.pack(x, z), columns[index]);
-		}
 		worldWrapper.overriders = new AutoOverride(
-			ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons()),
+			structures,
 			this.getOverriders().featureColumnValues,
 			this.getOverriders().featureColumnValueDependencies
 		);
+		try (AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(BigGlobeThreadPool.autoExecutor(), (ScriptedColumn column) -> {
+			worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
+		})) {
+			for (int index = 0; index < 256; index++) {
+				final int index_ = index;
+				async.submit(() -> {
+					int x = chunk.getPos().getStartX() | (index_ & 15);
+					int z = chunk.getPos().getStartZ() | (index_ >>> 4);
+					columns[index_].setParamsUnchecked(worldWrapper.params.at(x, z));
+					worldWrapper.overriders.override(columns[index_]);
+					return columns[index_];
+				});
+			}
+		}
 		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher::generateNormal);
 	}
 
@@ -834,41 +836,30 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		public String id;
 		public Class<?> expectedValueType;
 		public DisplayEntry[] children;
-		public MethodHandle getter;
 
 		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
 			this.generator = generator;
 			this.id = "";
-			this.getter = MethodHandles.identity(Object.class);
-			this.getter = MethodHandles.dropArguments(this.getter, 1, int.class);
 		}
 
 		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, Method method) {
 			this.generator = generator;
 			this.id = method.getDeclaredAnnotation(ColumnValueGetter.class).value();
-			try {
-				this.getter = generator.columnEntryRegistry.columnLookup.unreflect(method);
-				if (this.getter.type().parameterCount() < 2) {
-					this.getter = MethodHandles.dropArguments(this.getter, 1, int.class);
-				}
-				this.getter = this.getter.asType(MethodType.methodType(Object.class, Object.class, int.class));
-			}
-			catch (IllegalAccessException exception) {
-				throw new RuntimeException(exception);
-			}
 		}
 
-		public void forEach(Object holder, int y, BiConsumer<String, Object> results) {
+		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
 			try {
-				Object nextHolder = this.getter.invokeExact(holder, y);
-				if (!this.id.isEmpty()) results.accept(this.id, nextHolder);
-				if (nextHolder != null) {
-					if (this.expectedValueType != nextHolder.getClass()) {
-						this.expectedValueType = nextHolder.getClass();
+				Object value = holder.getColumnValue(this.id, y);
+				if (!this.id.isEmpty()) results.accept(this.id, value);
+				if (value != null) {
+					if (this.expectedValueType != value.getClass()) {
+						this.expectedValueType = value.getClass();
 						this.recomputeChildren();
 					}
-					for (DisplayEntry child : this.children) {
-						child.forEach(nextHolder, y, results);
+					if (value instanceof ColumnValueHolder nextHolder) {
+						for (DisplayEntry child : this.children) {
+							child.forEach(nextHolder, y, results);
+						}
 					}
 				}
 			}
@@ -879,10 +870,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 		public void recomputeChildren() {
 			if (
-				this.generator.displayPattern != null && (
-					ScriptedColumn.class.isAssignableFrom(this.expectedValueType) ||
-					VoronoiDataBase.class.isAssignableFrom(this.expectedValueType)
-				)
+				this.generator.displayPattern != null &&
+				ColumnValueHolder.class.isAssignableFrom(this.expectedValueType)
 			) {
 				this.children = (
 					Arrays

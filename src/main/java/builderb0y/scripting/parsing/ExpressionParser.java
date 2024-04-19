@@ -66,9 +66,6 @@ public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bytecode.dumpScripts", "bigglobe_scripts");
 
-	public static final MethodInfo
-		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants");
-
 	public static void clinit() {}
 
 	public final ExpressionReader input;
@@ -778,23 +775,7 @@ public class ExpressionParser {
 					return ldc(string.toString());
 				}
 				else {
-					return invokeDynamic(
-						MAKE_CONCAT_WITH_CONSTANTS,
-						new MethodInfo(
-							ACC_PUBLIC | ACC_STATIC,
-							TypeInfos.OBJECT, //ignored
-							"concat",
-							TypeInfos.STRING,
-							arguments
-							.stream()
-							.map(InsnTree::getTypeInfo)
-							.toArray(TypeInfo.ARRAY_FACTORY)
-						),
-						new ConstantValue[] {
-							constant(string.toString())
-						},
-						arguments.toArray(InsnTree.ARRAY_FACTORY)
-					);
+					return concat(string.toString(), arguments.toArray(InsnTree[]::new));
 				}
 			}
 			else if (c == '$') {

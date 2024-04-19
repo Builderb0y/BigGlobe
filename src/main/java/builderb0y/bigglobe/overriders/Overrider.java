@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.overriders;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -21,13 +23,11 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.MethodCompileContext;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureOverrider.Entry {
@@ -78,7 +78,7 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 		public final ColumnEntryRegistry registry;
 		public final StructureOverrider.Holder[] structures;
 		public final ColumnValueOverrider.Holder[] rawColumnValues, featureColumnValues;
-		public final MethodHandle[] rawColumnValueDependencies, featureColumnValueDependencies;
+		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
 		public SortedOverriders(RegistryEntryList<Overrider> tag, ColumnEntryRegistry registry) {
 			this.registry = registry;
@@ -91,7 +91,7 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues);
 		}
 
-		public MethodHandle[] extractDependencies(ColumnValueOverrider.Holder[] holders) {
+		public String[] extractDependencies(ColumnValueOverrider.Holder[] holders) {
 			IndirectDependencyCollector collector = new IndirectDependencyCollector();
 			for (ColumnValueOverrider.Holder holder : holders) {
 				holder.streamDirectDependencies().forEach(collector);
@@ -99,32 +99,17 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 			return (
 				collector
 				.stream()
-				.map(RegistryEntry::value)
-				.filter(ColumnEntry.class::isInstance)
-				.map(ColumnEntry.class::cast)
-				.map((ColumnEntry entry) -> {
-					ColumnEntryMemory memory = this.registry.columnContext.memories.get(entry);
-					if (memory == null) return null;
-					MethodCompileContext getter = memory.getTyped(ColumnEntryMemory.GETTER);
-					if (getter.info.paramTypes.length != 0) return null;
-					Class<?> returnType = getter.info.returnType.toClass(this.registry.loader);
-					try {
-						return (
-							this.registry.columnLookup.findVirtual(
-								this.registry.columnClass,
-								getter.info.name,
-								MethodType.methodType(returnType)
-							)
-							.asType(MethodType.methodType(void.class, ScriptedColumn.class))
-						);
-					}
-					catch (Exception exception) {
-						BigGlobeMod.LOGGER.error("Failed to acquire getter " + memory.getTyped(ColumnEntryMemory.ACCESSOR_ID) + "; it will not be pre-fetched for overriders.");
-						return null;
-					}
+				.filter((RegistryEntry<? extends DependencyView> registryEntry) -> {
+					return (
+						registryEntry.value() instanceof ColumnEntry columnEntry &&
+						this.registry.voronoiManager.getEnablingSettings(columnEntry).isEmpty() &&
+						columnEntry.hasField()
+					);
 				})
-				.filter(Objects::nonNull)
-				.toArray(MethodHandle[]::new)
+				.map(UnregisteredObjectException::getID)
+				.map(Identifier::toString)
+				.map(String::intern)
+				.toArray(String[]::new)
 			);
 		}
 	}

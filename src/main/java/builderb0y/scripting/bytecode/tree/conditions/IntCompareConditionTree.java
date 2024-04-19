@@ -48,27 +48,27 @@ public class IntCompareConditionTree implements ConditionTree {
 	}
 
 	public static ConditionTree equal(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPEQ, IFEQ, (l, r) -> l == r);
+		return createInt(left, right, IF_ICMPEQ, IFEQ, (int l, int r) -> l == r);
 	}
 
 	public static ConditionTree notEqual(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPNE, IFNE, (l, r) -> l != r);
+		return createInt(left, right, IF_ICMPNE, IFNE, (int l, int r) -> l != r);
 	}
 
 	public static ConditionTree lessThan(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPLT, IFLT, (l, r) -> l < r);
+		return createInt(left, right, IF_ICMPLT, IFLT, (int l, int r) -> l < r);
 	}
 
 	public static ConditionTree greaterThan(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPGT, IFGT, (l, r) -> l > r);
+		return createInt(left, right, IF_ICMPGT, IFGT, (int l, int r) -> l > r);
 	}
 
 	public static ConditionTree lessThanOrEqual(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPLE, IFLE, (l, r) -> l <= r);
+		return createInt(left, right, IF_ICMPLE, IFLE, (int l, int r) -> l <= r);
 	}
 
 	public static ConditionTree greaterThanOrEqual(InsnTree left, InsnTree right) {
-		return createInt(left, right, IF_ICMPGE, IFGE, (l, r) -> l >= r);
+		return createInt(left, right, IF_ICMPGE, IFGE, (int l, int r) -> l >= r);
 	}
 
 	public void toInt(MethodCompileContext method) {}

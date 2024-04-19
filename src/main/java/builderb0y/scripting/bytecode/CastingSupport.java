@@ -7,16 +7,13 @@ import org.objectweb.asm.Opcodes;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.instructions.casting.D2ZInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.F2ZInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandlerData;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MultiCastHandler;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

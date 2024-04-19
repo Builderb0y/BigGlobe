@@ -1,7 +1,7 @@
 {
-	"type": "bigglobe:lake",
+	"type": "bigglobe:script",
 	"value": {
-		"biomes": "#bigglobe:has_structure/water_lake",
+		"biomes": "#bigglobe:has_structure/lake",
 		"spawn_overrides": {
 			"monster": {
 				"bounding_box": "full",
@@ -18,17 +18,20 @@
 			}
 		},
 		"step": "surface_structures",
-		"horizontal_radius": { "type": "uniform", "min": 32.0, "max": 96.0 },
-		"vertical_depth": { "type": "uniform", "min": 0.125, "max": 0.25 },
-		"fluid": "minecraft:water[level=0]",
-		"primary_surface": {
-			"top": "minecraft:mud",
-			"under": "minecraft:mud"
-		},
-		"secondary_surfaces": {
-			"under": "minecraft:clay",
-			"depth": "random.nextDouble(3.0L, 7.0L)"
-		},
-		"fluid_surface_feature": "bigglobe:overworld/lakes/water_lake_surface"
+		"layout": {
+			"template": "bigglobe:lake_structure_placement",
+			"inputs": {
+				"RADIUS": "random.nextInt(32, 96)",
+				"DEPTH": "random.nextDouble(0.125L, 0.25L)",
+				"DATA": [
+					"nbtCompound(",
+						"fluid: 'minecraft:water',",
+						"surface: 'minecraft:mud',",
+						"subsurface: 'minecraft:clay',",
+						"decorator: 'bigglobe:overworld/water_lake_surface'",
+					")"
+				]
+			}
+		}
 	}
 }

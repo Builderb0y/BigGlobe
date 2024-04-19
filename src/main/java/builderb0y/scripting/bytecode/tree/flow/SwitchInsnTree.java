@@ -62,7 +62,7 @@ public class SwitchInsnTree implements InsnTree {
 		else {
 			return TypeMerger.computeMostSpecificType(
 				Stream.concat(Stream.of(defaultCase), cases.values().stream())
-				.filter(tree -> !tree.jumpsUnconditionally())
+				.filter((InsnTree tree) -> !tree.jumpsUnconditionally())
 				.map(InsnTree::getTypeInfo)
 				.toArray(TypeInfo.ARRAY_FACTORY)
 			);
@@ -72,7 +72,7 @@ public class SwitchInsnTree implements InsnTree {
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Reference2ObjectMap<InsnTree, Label> starts = new Reference2ObjectOpenHashMap<>(this.cases.size());
-		this.cases.values().forEach(body -> starts.computeIfAbsent(body, $ -> label()));
+		this.cases.values().forEach((InsnTree body) -> starts.computeIfAbsent(body, $ -> label()));
 		InsnTree defaultCase = this.cases.defaultReturnValue();
 		if (defaultCase != null) {
 			starts.computeIfAbsent(defaultCase, $ -> label());
@@ -80,8 +80,9 @@ public class SwitchInsnTree implements InsnTree {
 		Label end = label();
 		int minKey = this.cases.firstIntKey();
 		int maxKey = this.cases.lastIntKey();
-		int range = maxKey - minKey + 1;
+		long range = ((long)(maxKey)) - ((long)(minKey)) + 1L; //overflow-conscious code.
 		int occupancy = this.cases.size();
+		if (occupancy > 65536) throw new IllegalArgumentException("Too many cases!");
 		//step 1: emit the TABLESWITCH or LOOKUPSWITCH instruction.
 		this.value.emitBytecode(method);
 		if (occupancy < range >> 2) { //sparse, use lookup switch.
@@ -92,12 +93,13 @@ public class SwitchInsnTree implements InsnTree {
 			);
 		}
 		else { //dense, use table switch.
-			Label[] labels = new Label[range];
+			int intRange = Math.toIntExact(range);
+			Label[] labels = new Label[intRange];
 			for (Int2ObjectMap.Entry<InsnTree> entry : this.cases.int2ObjectEntrySet()) {
 				labels[entry.getIntKey() - minKey] = starts.get(entry.getValue());
 			}
 			Label defaultLabel = starts.getOrDefault(defaultCase, end);
-			for (int index = 0; index < range; index++) {
+			for (int index = 0; index < intRange; index++) {
 				if (labels[index] == null) {
 					labels[index] = defaultLabel;
 				}

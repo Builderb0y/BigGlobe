@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
-import java.lang.invoke.MethodHandle;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
@@ -132,11 +131,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders, MethodHandle[] preFetchers) {
+	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders, String[] preFetch) {
 
 		public void override(ScriptedColumn column) {
-			for (MethodHandle fetcher : this.preFetchers) try {
-				fetcher.invokeExact(column);
+			for (String name : this.preFetch) try {
+				column.preComputeColumnValue(name);
 			}
 			catch (Throwable throwable) {
 				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);

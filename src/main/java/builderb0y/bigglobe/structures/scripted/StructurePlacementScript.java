@@ -15,6 +15,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 public interface StructurePlacementScript extends Script {
 
 	public abstract void place(
@@ -24,7 +26,7 @@ public interface StructurePlacementScript extends Script {
 		int midX, int midY, int midZ,
 		int chunkMinX, int chunkMinY, int chunkMinZ,
 		int chunkMaxX, int chunkMaxY, int chunkMaxZ,
-		NbtCompound data
+		ScriptedStructure.Piece piece
 	);
 
 	@Wrapper
@@ -49,6 +51,7 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
@@ -69,7 +72,8 @@ public interface StructurePlacementScript extends Script {
 						.addVariableLoad("chunkMaxX", TypeInfos.INT)
 						.addVariableLoad("chunkMaxY", TypeInfos.INT)
 						.addVariableLoad("chunkMaxZ", TypeInfos.INT)
-						.addVariableLoad("data", NbtScriptEnvironment.NBT_COMPOUND_TYPE)
+						.addVariableLoad("piece", type(ScriptedStructure.Piece.class))
+						.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data")
 						.addVariable("distantHorizons", WORLD.distantHorizons),
 						new ExternalEnvironmentParams()
 						.withLookup(WORLD.loadSelf)
@@ -87,7 +91,7 @@ public interface StructurePlacementScript extends Script {
 			int midX, int midY, int midZ,
 			int chunkMinX, int chunkMinY, int chunkMinZ,
 			int chunkMaxX, int chunkMaxY, int chunkMaxZ,
-			NbtCompound data
+			ScriptedStructure.Piece piece
 		) {
 			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
 			int used = manager.used;
@@ -99,7 +103,7 @@ public interface StructurePlacementScript extends Script {
 					midX, midY, midZ,
 					chunkMinX, chunkMinY, chunkMinZ,
 					chunkMaxX, chunkMaxY, chunkMaxZ,
-					data
+					piece
 				);
 			}
 			catch (Throwable throwable) {

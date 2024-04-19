@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode;
 
+import java.lang.invoke.StringConcatFactory;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -477,6 +478,29 @@ public class InsnTrees implements ExtendedOpcodes {
 		T[] array = (T[])(Array.newInstance(element.getClass(), times));
 		Arrays.fill(array, element);
 		return array;
+	}
+
+	public static final MethodInfo
+		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants");
+
+	public static InsnTree concat(String template, InsnTree... arguments) {
+		return invokeDynamic(
+			MAKE_CONCAT_WITH_CONSTANTS,
+			new MethodInfo(
+				ACC_PUBLIC | ACC_STATIC,
+				TypeInfos.OBJECT, //ignored
+				"concat",
+				TypeInfos.STRING,
+				Arrays
+				.stream(arguments)
+				.map(InsnTree::getTypeInfo)
+				.toArray(TypeInfo.ARRAY_FACTORY)
+			),
+			new ConstantValue[] {
+				constant(template)
+			},
+			arguments
+		);
 	}
 
 	@SafeVarargs

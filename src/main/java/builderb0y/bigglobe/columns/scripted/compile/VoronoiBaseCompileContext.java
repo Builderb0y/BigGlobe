@@ -5,7 +5,7 @@ import java.util.Map;
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;

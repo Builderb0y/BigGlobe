@@ -18,11 +18,11 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
-import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -67,58 +67,104 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 	@MustBeInvokedByOverriders
 	public default void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		AnnotationNode annotation = new AnnotationNode(ColumnValueGetter.DESCRIPTOR);
-		annotation.values = new ArrayList<>(2);
-		annotation.values.add("value");
-		annotation.values.add(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString());
-		getterMethod.node.visibleAnnotations = new ArrayList<>(1);
-		getterMethod.node.visibleAnnotations.add(annotation);
+		annotateWithAccessorID(memory, ColumnValueGetter.DESCRIPTOR, getterMethod);
 	}
 
 	@MustBeInvokedByOverriders
 	public default void populateSetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext setterMethod) {
-		AnnotationNode annotation = new AnnotationNode(ColumnValueSetter.DESCRIPTOR);
+		annotateWithAccessorID(memory, ColumnValueSetter.DESCRIPTOR, setterMethod);
+	}
+
+	@MustBeInvokedByOverriders
+	public default void populatePreComputer(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext preComputeMethod) {
+		annotateWithAccessorID(memory, ColumnValuePreComputer.DESCRIPTOR, preComputeMethod);
+	}
+
+	public static void annotateWithAccessorID(ColumnEntryMemory memory, String annotationDescriptor, MethodCompileContext method) {
+		AnnotationNode annotation = new AnnotationNode(annotationDescriptor);
 		annotation.values = new ArrayList<>(2);
 		annotation.values.add("value");
 		annotation.values.add(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString());
-		setterMethod.node.visibleAnnotations = new ArrayList<>(1);
-		setterMethod.node.visibleAnnotations.add(annotation);
+		method.node.visibleAnnotations = new ArrayList<>(1);
+		method.node.visibleAnnotations.add(annotation);
 	}
 
 	public default void emitFieldGetterAndSetter(ColumnEntryMemory memory, DataCompileContext context) {
+		this.setupMemory(memory, context);
+		if (this.hasField()) {
+			if (this.isSettable()) {
+				this.populateField(memory, context, memory.getTyped(ColumnEntryMemory.FIELD));
+				this.populateGetter(memory, context, memory.getTyped(ColumnEntryMemory.GETTER));
+				this.populatePreComputer(memory, context, memory.getTyped(ColumnEntryMemory.PRE_COMPUTER));
+				this.populateSetter(memory, context, memory.getTyped(ColumnEntryMemory.SETTER));
+			}
+			else {
+				this.populateField(memory, context, memory.getTyped(ColumnEntryMemory.FIELD));
+				this.populateGetter(memory, context, memory.getTyped(ColumnEntryMemory.GETTER));
+				this.populatePreComputer(memory, context, memory.getTyped(ColumnEntryMemory.PRE_COMPUTER));
+			}
+		}
+		else {
+			this.populateGetter(memory, context, memory.getTyped(ColumnEntryMemory.GETTER));
+		}
+	}
+
+	public default void setupMemory(ColumnEntryMemory memory, DataCompileContext context) {
 		int uniqueIndex = context.mainClass.memberUniquifier++;
-		int flagIndex = context.flagsIndex++;
-		memory.putTyped(ColumnEntryMemory.FLAGS_INDEX, flagIndex);
 		Identifier accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
 		String internalName = DataCompileContext.internalName(accessID, uniqueIndex);
 		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
+
 		if (this.hasField()) {
+			int flagIndex = context.flagsIndex++;
+			memory.putTyped(ColumnEntryMemory.FLAGS_INDEX, flagIndex);
+
 			FieldCompileContext valueField = context.mainClass.newField(ACC_PUBLIC, internalName, accessContext.fieldType());
 			memory.putTyped(ColumnEntryMemory.FIELD, valueField);
 			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, accessContext.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
+			MethodCompileContext preComputer = context.mainClass.newMethod(ACC_PUBLIC, "precompute_" + internalName, TypeInfos.VOID);
+			memory.putTyped(ColumnEntryMemory.PRE_COMPUTER, preComputer);
 
 			if (this.isSettable()) {
 				MethodCompileContext setterMethod = context.mainClass.newMethod(ACC_PUBLIC, "set_" + internalName, TypeInfos.VOID, this.getAccessSchema().setterParameters(context));
 				memory.putTyped(ColumnEntryMemory.SETTER, setterMethod);
-
-				this.populateField(memory, context, valueField);
-				this.populateGetter(memory, context, getterMethod);
-				this.populateSetter(memory, context, setterMethod);
-			}
-			else {
-				this.populateField(memory, context, valueField);
-				this.populateGetter(memory, context, getterMethod);
 			}
 		}
 		else {
 			MethodCompileContext getterMethod = context.mainClass.newMethod(ACC_PUBLIC, "get_" + internalName, accessContext.exposedType(), this.getAccessSchema().getterParameters());
 			memory.putTyped(ColumnEntryMemory.GETTER, getterMethod);
-
-			this.populateGetter(memory, context, getterMethod);
 		}
+	}
+
+	public default InsnTree createGenericGetter(ColumnEntryMemory memory, DataCompileContext context) {
+		return invokeInstance(
+			context.loadSelf(),
+			memory.getTyped(ColumnEntryMemory.GETTER).info,
+			this.getAccessSchema().is_3d()
+			? new InsnTree[] { load("y", TypeInfos.INT) }
+			: InsnTree.ARRAY_FACTORY.empty()
+		);
+	}
+
+	public default InsnTree createGenericSetter(ColumnEntryMemory memory, DataCompileContext context, InsnTree value) {
+		return invokeInstance(
+			context.loadSelf(),
+			memory.getTyped(ColumnEntryMemory.SETTER).info,
+			this.getAccessSchema().is_3d()
+			? new InsnTree[] { load("y", TypeInfos.INT), value }
+			: new InsnTree[] { value }
+		);
+	}
+
+	public default InsnTree createGenericPreComputer(ColumnEntryMemory memory, DataCompileContext context) {
+		if (!this.hasField()) throw new UnsupportedOperationException("Can't pre-compute without field");
+		return invokeInstance(
+			context.loadSelf(),
+			memory.getTyped(ColumnEntryMemory.PRE_COMPUTER).info
+		);
 	}
 
 	public default void setupInternalEnvironment(
@@ -328,7 +374,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		public static final Key<MethodCompileContext>
 			GETTER = new Key<>("getter"),
 			SETTER = new Key<>("setter"),
-			COMPUTER = new Key<>("computer"),
+			COMPUTE_TEST = new Key<>("computeTest"),
+			COMPUTE_NO_TEST = new Key<>("computeNoTest"),
+			PRE_COMPUTER = new Key<>("preComputer"),
 			VALID_WHERE = new Key<>("validWhere");
 		public static final Key<TypeContext>
 			TYPE_CONTEXT = new Key<>("typeContext");

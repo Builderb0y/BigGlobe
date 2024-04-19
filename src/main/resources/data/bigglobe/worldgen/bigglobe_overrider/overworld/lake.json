@@ -1,0 +1,37 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure.isIn('bigglobe:lakes'):",
+				"ScriptStructurePiece piece = start.pieces.(0)",
+				"double distance = sqrt((x - piece.midX) ^ 2 + (z - piece.midZ) ^ 2)",
+				"double radius = piece.sizeX >> 1",
+				"double basicTarget = max(`bigglobe:overworld/basic_surface_y`, piece.maxY)",
+				"double processedTarget = max(`bigglobe:overworld/processed_surface_y`, piece.maxY)",
+				"double snowTarget = min(`bigglobe:overworld/snow_y`, piece.maxY - 0.5L)",
+				"if (distance < radius:",
+					"double fraction = (1.0L - (distance / radius) ^ 2) ^ 2",
+					"`bigglobe:overworld/snow_y` = mixLinear(snowTarget, piece.minY, fraction)",
+					"fraction *= Grid2D('bigglobe:lake_noise').getValue(x, z)",
+					"`bigglobe:overworld/basic_surface_y` = mixLinear(basicTarget, piece.minY, fraction)",
+					"`bigglobe:overworld/processed_surface_y` = mixLinear(processedTarget, piece.minY, fraction)",
+
+					"float lakeChance = unmixSmooth(piece.maxY, piece.maxY - 4, `bigglobe:overworld/processed_surface_y`).as(float)",
+					"`bigglobe:overworld/surface_foliage` *= 1.0I - lakeChance,,",
+					"(worldSeed # 16x73675EE7D46B59A3UL).newSeed(x, z).if (lakeChance:",
+						"`bigglobe:overworld/lake_surface_states` = LakeSurfaceStates.new(",
+							"BlockState(piece.data.surface.asString()),",
+							"BlockState(piece.data.subsurface.asString())",
+						")",
+					")",
+				")",
+				"else if (distance < radius + 16.0L:",
+					"double fraction = unmixSmooth(radius, radius + 16.0L, distance)",
+					"`bigglobe:overworld/basic_surface_y` = mixLinear(basicTarget, `bigglobe:overworld/basic_surface_y`, fraction)",
+					"`bigglobe:overworld/processed_surface_y` = mixLinear(processedTarget, `bigglobe:overworld/processed_surface_y`, fraction)",
+					"`bigglobe:overworld/snow_y` = mixLinear(snowTarget, `bigglobe:overworld/snow_y`, fraction)",
+				")",
+			")",
+		")"
+	]
+}

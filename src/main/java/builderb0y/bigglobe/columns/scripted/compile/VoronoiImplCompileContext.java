@@ -1,15 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Type;
 
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
@@ -109,6 +107,7 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 
 	@Override
 	public void prepareForCompile() {
+		this.addGenericGetterAndPreComputer(this.memories);
 		for (int index = 1, max = this.flagsIndex >>> 5; index <= max; index++) {
 			this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
 		}

@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:lakes/water",
+		"bigglobe:water_lake",
 		"bigglobe:underground_pockets/water"
 	]
 }

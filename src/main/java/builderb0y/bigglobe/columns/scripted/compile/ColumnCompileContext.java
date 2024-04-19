@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps.UnmodifiableMap;
 import org.objectweb.asm.Type;
-
-import net.minecraft.registry.RegistryKey;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -144,6 +141,7 @@ public class ColumnCompileContext extends DataCompileContext {
 
 	@Override
 	public void prepareForCompile() {
+		this.addGenericGetterAndPreComputer(this.memories);
 		MethodCompileContext clear = this.mainClass.newMethod(ACC_PUBLIC, "clear", TypeInfos.VOID);
 		for (int index = 0, max = this.flagsIndex >>> 5; index <= max; index++) {
 			FieldCompileContext flagsField = this.mainClass.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);

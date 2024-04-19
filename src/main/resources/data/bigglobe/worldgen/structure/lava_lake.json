@@ -1,0 +1,23 @@
+{
+	"type": "bigglobe:script",
+	"value": {
+		"biomes": "#bigglobe:has_structure/lake",
+		"spawn_overrides": {},
+		"step": "surface_structures",
+		"layout": {
+			"template": "bigglobe:lake_structure_placement",
+			"inputs": {
+				"RADIUS": "random.nextInt(32, 96)",
+				"DEPTH": "random.nextDouble(0.125L, 0.25L)",
+				"DATA": [
+					"nbtCompound(",
+						"fluid: 'minecraft:lava',",
+						"surface: 'minecraft:blackstone',",
+						"subsurface: 'minecraft:basalt[axis=y]',",
+						"decorator: 'bigglobe:overworld/lava_lake_surface'",
+					")"
+				]
+			}
+		}
+	}
+}

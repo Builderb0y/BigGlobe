@@ -1,0 +1,33 @@
+{
+	"script": [
+		"double minSample = `bigglobe:overworld/basic_surface_y`",
+		"double maxSample = minSample",
+		"for (int angleIndex in range[0, 8):",
+			"double angle = angleIndex * (tau / 8.0L)",
+			"int sampleX = floorInt(originX + cos(angle) * RADIUS)",
+			"int sampleZ = floorInt(originZ + sin(angle) * RADIUS)",
+			"double sampleY = `bigglobe:overworld/basic_surface_y`(sampleX, sampleZ)",
+			"minSample = min(minSample, sampleY)",
+			"maxSample = max(maxSample, sampleY)",
+		")",
+		"if (maxSample - minSample !< 16.0L: return())",
+		"double depth = RADIUS * DEPTH + 4.0L",
+		"pieces.add(",
+			"ScriptStructurePiece.new(",
+				"originX - RADIUS,",
+				"floorInt(minSample - depth),",
+				"originZ - RADIUS,",
+				"originX + RADIUS,",
+				"ceilInt(minSample),",
+				"originZ + RADIUS,",
+				"'bigglobe:lake',",
+				"DATA",
+			")",
+		")"
+	],
+	"inputs": [
+		{ "name": "RADIUS", "type": "int" },
+		{ "name": "DEPTH",  "type": "double" },
+		{ "name": "DATA",   "type": "NbtCompound" }
+	]
+}

@@ -3,10 +3,10 @@
 		"type": "minecraft:random_spread",
 		"salt": 1772046710,
 		"separation": 8,
-		"spacing": 32
+		"spacing": 16
 	},
 	"structures": [
-		{ "weight": 2, "structure": "bigglobe:lakes/water" },
-		{ "weight": 1, "structure": "bigglobe:lakes/lava" }
+		{ "weight": 1, "structure": "bigglobe:water_lake" },
+		{ "weight": 1, "structure": "bigglobe:lava_lake" }
 	]
 }

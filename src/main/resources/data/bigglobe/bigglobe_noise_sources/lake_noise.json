@@ -1,0 +1,15 @@
+{
+	"dimensions": 2,
+	"type": "change_range",
+	"min": 0.0,
+	"max": 1.0,
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.4 },
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.16 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.064 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.0256 }
+		]
+	}
+}

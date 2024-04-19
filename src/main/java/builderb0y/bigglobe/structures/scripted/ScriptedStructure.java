@@ -274,7 +274,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				chunkBox.getMaxX(),
 				chunkBox.getMaxY(),
 				chunkBox.getMaxZ(),
-				this.data
+				this
 			);
 		}
 
@@ -335,7 +335,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				chunkBox.getMaxX(),
 				chunkBox.getMaxY(),
 				chunkBox.getMaxZ(),
-				this.data
+				this
 			);
 		}
 	}
