@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"placeFeature(x, ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), z, 'bigglobe:overworld/surface_small_foliage')",
+			"SkylandBounds bounds = `bigglobe:overworld/skyland`(x, z).bounds",
+			"if (bounds != null && bounds.max_y > bounds.min_y:",
+				"placeFeature(x, floorInt(bounds.max_y) + 1, z, 'bigglobe:overworld/skylands/small_foliage')",
+			")",
+		")"
+	]
+}

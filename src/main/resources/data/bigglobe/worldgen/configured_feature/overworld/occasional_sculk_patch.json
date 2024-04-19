@@ -1,9 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"config": {
-		"script": [
-			"random.nextBoolean((1.0 - `bigglobe:overworld/cavern_edginess_squared`) ^ 2 / 256.0) &&",
-			"placeFeature(originX, originY, originZ, 'minecraft:sculk_patch_deep_dark')"
-		]
-	}
-}

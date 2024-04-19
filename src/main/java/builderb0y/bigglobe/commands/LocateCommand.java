@@ -155,7 +155,7 @@ public class LocateCommand {
 			return true;
 		}
 		catch (ScriptParsingException exception) {
-			source.sendError(Text.literal(exception.getLocalizedMessage()));
+			exception.getLocalizedMessage().lines().map(Text::literal).forEachOrdered(source::sendError);
 			return false;
 		}
 	}

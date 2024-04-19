@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"repeat (3:",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"placeFeature(x, y, z, 'bigglobe:overworld/waterfall')",
+		")"
+	]
+}

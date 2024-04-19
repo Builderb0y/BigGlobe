@@ -1,0 +1,13 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"random.if (0.25I:",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"SkylandBounds bounds = `bigglobe:overworld/skyland`(x, z).bounds",
+			"if (bounds != null:",
+				"placeFeature(x, floorInt(bounds.min_y) - 1, z, 'bigglobe:overworld/skylands/amethyst_crystals')",
+			")",
+		")"
+	]
+}

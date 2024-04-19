@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
@@ -23,6 +24,7 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.util.TypeInfos;
@@ -133,6 +135,11 @@ public interface SurfaceScript extends Script {
 				newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
 					throw new ScriptParsingException("For technical reasons, you cannot return from inside a " + (z ? "dz" : "dx") + " block", parser1.input);
 				}));
+				List<FunctionHandler> higherOrderDerivatives = Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
+					throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
+				});
+				newParser.environment.mutable().functions.put("dx", higherOrderDerivatives);
+				newParser.environment.mutable().functions.put("dz", higherOrderDerivatives);
 				VariableCapturer capturer = new VariableCapturer(newParser);
 				capturer.addCapturedParameters();
 

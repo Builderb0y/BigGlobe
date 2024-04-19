@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"repeat (16:",
+				"placeFeature(",
+					"originX + random.nextInt(-6, 7),",
+					"originY + random.nextInt(-2, 3),",
+					"originZ + random.nextInt(-6, 7),",
+					"'bigglobe:nether/foliage/twisting_vines_floor'",
+				")",
+			")",
+			"true"
+		]
+	}
+}

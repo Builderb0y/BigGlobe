@@ -52,9 +52,9 @@ where I left off:
 		connection between wood palettes and biomes.
 		unused configured features.
 		unused tags.
+		commands that still use legacy column values.
+		worldgen timings command and associated logic.
 	fully immutable NBT elements for scripts.
-	stop catching ScriptParsingException in scripted features and any other place where this is intended to be temporary.
-	make sure all commands are updated for new column values.
 	remove molten cave type?
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
@@ -63,7 +63,6 @@ where I left off:
 	Seed should be able to extract manual seeds from parents of current decode context.
 	need to redo scripted noise which uses column values.
 	missing stuff:
-		the rest of the configured features.
 		caverns.
 			some kind of nether-themed structure in the lava of the core.
 				include portal to the nether.
@@ -83,7 +82,6 @@ where I left off:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
-	use tags for feature dispatcher instead of hard-coding what spawns where.
 	make rivers shallow-er at high elevations?
 	glow lichen.
 	bottled aura.
@@ -124,6 +122,7 @@ where I left off:
 	add mixins for ServerWorld.getSeaLevel() to delegate to chunk generator in big globe worlds.
 	ensure that cave floor features can't replace snow.
 	fix random.switch() using implicit random instead of explicit random in RandomScriptEnvironment.
+	see if waterfalls need fixing due to typo of +1 becoming -1 in loop bounds.
 
 changelog:
 	4.0:

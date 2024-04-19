@@ -178,57 +178,46 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-			public ScriptParsingException exception;
-
 			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-				try {
-					this.script = (
-						new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage)
-						.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
-						.addEnvironment(MathScriptEnvironment.INSTANCE)
-						.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-						.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-						.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-						.addEnvironment(NbtScriptEnvironment.createMutable())
-						.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
-						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-						.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-						.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-						.configureEnvironment((MutableScriptEnvironment environment) -> {
-							registry.setupExternalEnvironment(
-								environment
-								.addVariableLoad("originX", TypeInfos.INT)
-								.addVariableLoad("originY", TypeInfos.INT)
-								.addVariableLoad("originZ", TypeInfos.INT)
-								.addVariable("distantHorizons", WORLD.distantHorizons)
-								.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
-								.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" )))),
-								new ExternalEnvironmentParams()
-								.withLookup(WORLD.loadSelf)
-								.withX(load("originX", TypeInfos.INT))
-								.withY(load("originY", TypeInfos.INT))
-								.withZ(load("originZ", TypeInfos.INT))
-							);
-						})
-						.parse(new ScriptClassLoader(registry.loader))
-					);
-				}
-				catch (ScriptParsingException exception) {
-					this.exception = exception;
-				}
+				this.script = (
+					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage)
+					.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+					.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+					.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+					.addEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+					.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						registry.setupExternalEnvironment(
+							environment
+							.addVariableLoad("originX", TypeInfos.INT)
+							.addVariableLoad("originY", TypeInfos.INT)
+							.addVariableLoad("originZ", TypeInfos.INT)
+							.addVariable("distantHorizons", WORLD.distantHorizons)
+							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
+							.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" )))),
+							new ExternalEnvironmentParams()
+							.withLookup(WORLD.loadSelf)
+							.withX(load("originX", TypeInfos.INT))
+							.withY(load("originY", TypeInfos.INT))
+							.withZ(load("originZ", TypeInfos.INT))
+						);
+					})
+					.parse(new ScriptClassLoader(registry.loader))
+				);
 			}
 
 			@Override
 			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
-				if (this.exception != null) {
-					this.onError(this.exception);
-					return false;
-				}
 				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {

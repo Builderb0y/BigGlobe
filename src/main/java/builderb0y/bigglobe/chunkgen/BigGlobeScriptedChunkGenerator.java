@@ -849,8 +849,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
 			try {
-				Object value = holder.getColumnValue(this.id, y);
-				if (!this.id.isEmpty()) results.accept(this.id, value);
+				Object value;
+				if (this.id.isEmpty()) {
+					value = holder;
+				}
+				else {
+					value = holder.getColumnValue(this.id, y);
+					results.accept(this.id, value);
+				}
 				if (value != null) {
 					if (this.expectedValueType != value.getClass()) {
 						this.expectedValueType = value.getClass();

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,16 +14,28 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.WorldColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
-import builderb0y.bigglobe.commands.CommandScript.LazyCommandScript;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
+import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class EvaluateCommand {
 
@@ -33,11 +46,12 @@ public class EvaluateCommand {
 			.requires((ServerCommandSource source) -> source.hasPermissionLevel(4) && getGenerator(source) != null)
 			.then(
 				CommandManager
-				.argument("script", new CommandScriptArgument())
+				.argument("script", StringArgumentType.greedyString())
 				.executes((CommandContext<ServerCommandSource> context) -> {
-					LazyCommandScript script = context.getArgument("script", LazyCommandScript.class);
-					ServerWorld actualWorld = context.getSource().getWorld();
+					CommandScript.Holder script = new CommandScript.Holder(context.getArgument("script", String.class));
+					if (!LocateCommand.compile(script, context.getSource())) return 0;
 					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
+					ServerWorld actualWorld = context.getSource().getWorld();
 					Vec3d position = context.getSource().getPosition();
 					WorldWrapper world = new WorldWrapper(
 						new WorldDelegator(actualWorld),
@@ -46,12 +60,12 @@ public class EvaluateCommand {
 						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite()),
 						Purpose.GENERIC
 					);
-					WorldColumn column = WorldColumn.forWorld(
-						actualWorld,
+					Object result = script.evaluate(
+						world,
 						BigGlobeMath.floorI(position.x),
+						BigGlobeMath.floorI(position.y),
 						BigGlobeMath.floorI(position.z)
 					);
-					Object result = script.evaluate(world, column, column.x, BigGlobeMath.floorI(position.y), column.z);
 					if (result instanceof Throwable) {
 						context.getSource().sendError(Text.literal(" = " + result + "; check your logs for more info."));
 					}
@@ -66,5 +80,67 @@ public class EvaluateCommand {
 
 	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(ServerCommandSource source) {
 		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
+	}
+
+	public static interface CommandScript extends Script {
+
+		public abstract Object evaluate(WorldWrapper world, int originX, int originY, int originZ);
+
+		public static class Holder extends ScriptHolder<CommandScript> implements CommandScript {
+
+			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
+
+			public Holder(String source) {
+				super(new ScriptUsage(source));
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				this.script = (
+					new ScriptParser<>(CommandScript.class, this.usage.findSource(), null) {
+
+						@Override
+						public InsnTree createReturn(InsnTree value) {
+							if (value.getTypeInfo().isVoid()) return return_(seq(value, ldc(null, TypeInfos.OBJECT)));
+							else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW));
+						}
+					}
+					.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+					.addEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+					.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+					.addEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+					.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+					.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						registry.setupExternalEnvironment(
+							environment,
+							new ExternalEnvironmentParams()
+							.withLookup(WORLD.loadSelf)
+							.withX(load("originX", TypeInfos.INT))
+							.withY(load("originY", TypeInfos.INT))
+							.withZ(load("originZ", TypeInfos.INT))
+						);
+					})
+					.parse(new ScriptClassLoader(registry.loader))
+				);
+			}
+
+			@Override
+			public Object evaluate(WorldWrapper world, int originX, int originY, int originZ) {
+				try {
+					return this.script.evaluate(world, originX, originY, originZ);
+				}
+				catch (Throwable throwable) {
+					ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);
+					ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.getSource()));
+					return throwable;
+				}
+			}
+		}
 	}
 }

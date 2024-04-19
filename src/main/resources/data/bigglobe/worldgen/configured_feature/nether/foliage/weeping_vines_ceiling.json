@@ -2,11 +2,11 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"unless (random.nextBoolean(0.125): return(false))",
 			"unless (getBlockState(originX, originY + 1, originZ).hasFullCubeCollision(): return(false))",
-			"while (random.nextBoolean(0.75) && getBlockState(originX, originY, originZ).isAir():",
+			"while (getBlockState(originX, originY, originZ).isAir():",
 				"setBlockState(originX, originY, originZ, 'minecraft:weeping_vines_plant')",
 				"--originY",
+				"unless (random.nextBoolean(0.75): break())",
 			")",
 			"++originY",
 			"if (getBlockState(originX, originY, originZ) == BlockState('minecraft:weeping_vines_plant'):",

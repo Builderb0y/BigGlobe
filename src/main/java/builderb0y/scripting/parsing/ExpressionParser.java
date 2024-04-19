@@ -5,7 +5,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.invoke.StringConcatFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +30,6 @@ import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.ThrowingFunction;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InsnTree.UpdateOp;
@@ -51,7 +49,6 @@ import builderb0y.scripting.parsing.UserMethodDefiner.UserExtensionMethodDefiner
 import builderb0y.scripting.parsing.UserMethodDefiner.UserFunctionDefiner;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.StringSimilarity;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -91,7 +88,7 @@ public class ExpressionParser {
 		this.clazz = from.clazz;
 		this.method = from.method;
 		this.currentLine = from.currentLine;
-		this.environment = from.environment;
+		this.environment = new RootScriptEnvironment(from.environment);
 	}
 
 	/**

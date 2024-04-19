@@ -29,6 +29,7 @@
 							")",
 						")",
 						"else (",
+							"placeFeature(originX, y, originZ, 'bigglobe:nether/foliage/twisting_vines_cluster')",
 							"placeFeature(originX, y, originZ, 'bigglobe:nether/grass/warped_forest')",
 						")",
 					")",
