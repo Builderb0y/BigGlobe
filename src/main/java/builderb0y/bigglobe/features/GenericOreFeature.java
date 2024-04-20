@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.features.ores;
+package builderb0y.bigglobe.features;
 
 import java.util.Map;
 

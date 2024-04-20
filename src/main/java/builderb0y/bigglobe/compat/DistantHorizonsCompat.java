@@ -24,9 +24,6 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.*;
-import builderb0y.bigglobe.compat.dhChunkGen.DhEndWorldGenerator;
-import builderb0y.bigglobe.compat.dhChunkGen.DhNetherWorldGenerator;
-import builderb0y.bigglobe.compat.dhChunkGen.DhOverworldWorldGenerator;
 import builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
@@ -88,17 +85,6 @@ public class DistantHorizonsCompat {
 
 	public static class DHCode {
 
-		public static final Map<Class<? extends BigGlobeChunkGenerator>, DhWorldGeneratorFactory<?>> GENERATOR_FACTORIES = new HashMap<>(4);
-		static {
-			registerHyperspeedGenerator(BigGlobeOverworldChunkGenerator.class, DhOverworldWorldGenerator::new);
-			registerHyperspeedGenerator(   BigGlobeNetherChunkGenerator.class,    DhNetherWorldGenerator::new);
-			registerHyperspeedGenerator(      BigGlobeEndChunkGenerator.class,       DhEndWorldGenerator::new);
-		}
-
-		public static <G extends BigGlobeChunkGenerator> void registerHyperspeedGenerator(Class<G> generatorClass, DhWorldGeneratorFactory<G> hyperspeedFactory) {
-			GENERATOR_FACTORIES.put(generatorClass, hyperspeedFactory);
-		}
-
 		public static void init() {
 			try {
 				//make sure method we intend to override is present in the version of distant horizons the user has installed.
@@ -113,7 +99,6 @@ public class DistantHorizonsCompat {
 			DhApiEventRegister.on(DhApiLevelLoadEvent.class, new DhApiLevelLoadEvent() {
 
 				@Override
-				@SuppressWarnings({ "unchecked", "rawtypes" })
 				public void onLevelLoad(DhApiEventParam<EventParam> param) {
 					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
 					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
@@ -126,29 +111,9 @@ public class DistantHorizonsCompat {
 								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
 							}
 						}
-						else if (generator instanceof BigGlobeChunkGenerator chunkGenerator) {
-							if (BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.hyperspeedGeneration) {
-								DhWorldGeneratorFactory factory = GENERATOR_FACTORIES.get(chunkGenerator.getClass());
-								if (factory != null) {
-									BigGlobeMod.LOGGER.info("Initializing hyperspeed DH world generator.");
-									DhApi.worldGenOverrides.registerWorldGeneratorOverride(levelWrapper, factory.create(levelWrapper, serverWorld, chunkGenerator));
-								}
-								else {
-									BigGlobeMod.LOGGER.warn("Don't know how to initialize hyperspeed world generator for unknown chunk generator subclass: " + chunkGenerator.getClass());
-								}
-							}
-							else {
-								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
-							}
-						}
 					}
 				}
 			});
-		}
-
-		public static interface DhWorldGeneratorFactory<G extends BigGlobeChunkGenerator> {
-
-			public abstract IDhApiWorldGenerator create(IDhApiLevelWrapper levelWrapper, ServerWorld serverWorld, G generator);
 		}
 	}
 }

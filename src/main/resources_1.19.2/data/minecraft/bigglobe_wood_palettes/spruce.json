@@ -23,6 +23,5 @@
 		"sapling_grow": "bigglobe:overworld/trees/artificial/spruce",
 		"natural_surface": "bigglobe:overworld/trees/natural/spruce",
 		"skylands": "bigglobe:overworld/trees/skylands/spruce"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/spruce"
+	}
 }

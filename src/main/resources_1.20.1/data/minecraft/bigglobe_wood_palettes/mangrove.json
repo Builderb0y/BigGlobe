@@ -24,6 +24,5 @@
 	"features": {
 		"sapling_grow": "bigglobe:overworld/trees/artificial/mangrove",
 		"natural_surface": "bigglobe:overworld/trees/natural/mangrove"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/mangrove"
+	}
 }

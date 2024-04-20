@@ -11,7 +11,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.StringIdentifiable;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.commands.LocateMinMaxCommand.Result;
@@ -152,7 +151,7 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 
 		@Override
 		public String valueToString() {
-			return CustomDisplayContext.format(this.value);
+			return BigGlobeCommands.format(this.value);
 		}
 	}
 

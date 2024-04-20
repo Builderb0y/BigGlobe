@@ -25,6 +25,5 @@
 		"sapling_grow": "bigglobe:overworld/trees/artificial/oak",
 		"natural_surface": "bigglobe:overworld/trees/natural/oak",
 		"skylands": "bigglobe:overworld/trees/skylands/oak"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/oak"
+	}
 }

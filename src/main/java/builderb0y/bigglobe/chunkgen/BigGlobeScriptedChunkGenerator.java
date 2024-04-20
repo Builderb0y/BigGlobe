@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -68,7 +69,6 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator.SortedStructures;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
@@ -82,6 +82,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -92,7 +93,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
-import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -131,6 +132,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		ColorScript.@VerifyNullable Holder water
 	) {}
 	public final @VerifyNullable ColorOverrides colors;
+	public static record NetherOverrides(
+		boolean place_portal_at_high_y_level
+	) {}
+	public final @VerifyNullable NetherOverrides nether_overrides;
 	public static record EndOverrides(
 		Spawning spawning,
 		InnerGateways inner_gateways,
@@ -175,6 +180,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		RegistryEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
 		@VerifyNullable ColorOverrides colors,
+		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
 		SortedStructures sortedStructures
 	) {
@@ -196,6 +202,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.overriders = overriders;
 		this.spawn_point = spawn_point;
 		this.colors = colors;
+		this.nether_overrides = nether_overrides;
 		this.end_overrides = end_overrides;
 		this.sortedStructures = sortedStructures;
 
@@ -270,6 +277,29 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				}
 			}
 		};
+	}
+
+	@Wrapper
+	public static class SortedStructures {
+
+		public final BetterRegistry<Structure> registry;
+		public final RegistryEntry<Structure>[] sortedStructures;
+
+		@SuppressWarnings("unchecked")
+		public SortedStructures(BetterRegistry<Structure> registry) {
+			this.registry = registry;
+			this.sortedStructures = (
+				registry
+					.streamEntries()
+					.sorted(
+						Comparator.comparing(
+								(RegistryEntry<Structure> entry) -> entry.value().getFeatureGenerationStep()
+							)
+							.thenComparing(UnregisteredObjectException::getID)
+					)
+					.toArray(RegistryEntry[]::new)
+			);
+		}
 	}
 
 	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, Purpose purpose) {

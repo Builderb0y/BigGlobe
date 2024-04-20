@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.features.flowers;
+package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
 
@@ -14,7 +14,6 @@ import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
-import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;

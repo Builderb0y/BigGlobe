@@ -6,14 +6,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.structure.IglooGenerator;
 import net.minecraft.structure.SimpleStructurePiece;
-import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.overriders.StructureOverrider;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 
 @Mixin(IglooGenerator.Piece.class)
 public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends SimpleStructurePiece {
@@ -29,7 +29,7 @@ public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends Simpl
 	tries to query their bounding box before they move,
 	and gets the wrong bounding box. this causes them to be placed on a hill or in a pit.
 	to get around this, I would normally just move the structure via
-	{@link BigGlobeChunkGenerator#moveStructure(StructureStart, int, int, int)},
+	{@link StructureOverrider#move(StructureStartWrapper, int)},
 	but they still move when generating, so now they are underground or floating in the sky.
 	so, I now need to prevent them from moving on their own when I already moved them myself.
 	*/

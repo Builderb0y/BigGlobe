@@ -25,6 +25,5 @@
 		"sapling_grow": "bigglobe:overworld/trees/artificial/cherry",
 		"natural_surface": "bigglobe:overworld/trees/natural/cherry",
 		"skylands": "bigglobe:overworld/trees/skylands/cherry"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/cherry"
+	}
 }

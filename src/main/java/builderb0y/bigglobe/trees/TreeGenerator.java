@@ -8,7 +8,6 @@ import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;

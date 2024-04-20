@@ -12,7 +12,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.commands.AsyncLocateCommand.Result;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
@@ -87,7 +86,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 				.append(Text.literal(" (").formatted(Formatting.WHITE))
 				.append(
 					Text.literal(
-						CustomDisplayContext.format(
+						BigGlobeCommands.format(
 							Math.sqrt(
 								BigGlobeMath.squareD(
 									source.getPosition().x - (this.x + 0.5D),

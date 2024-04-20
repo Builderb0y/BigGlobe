@@ -6,7 +6,6 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
-import builderb0y.bigglobe.columns.ColumnValue.CustomDisplayContext;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -47,7 +46,7 @@ public class LocateNearestCommand extends AsyncCommand {
 							this.script.getSource(),
 							iterator.floorX(),
 							iterator.floorY(),
-							CustomDisplayContext.format(
+							BigGlobeCommands.format(
 								Math.sqrt(
 									BigGlobeMath.squareD(
 										this.source.getPosition().x - (iterator.floorX() + 0.5D),

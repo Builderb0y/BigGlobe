@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.commands;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,6 +18,24 @@ import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeCommands {
 
+	public static final String NOT_APPLICABLE = "N/A";
+	public static final DecimalFormat DECIMAL_FORMAT;
+	static {
+		DECIMAL_FORMAT = new DecimalFormat();
+		DECIMAL_FORMAT.setDecimalSeparatorAlwaysShown(true);
+		DECIMAL_FORMAT.setMinimumFractionDigits(1);
+		DECIMAL_FORMAT.setMaximumFractionDigits(3);
+		DecimalFormatSymbols symbols = DECIMAL_FORMAT.getDecimalFormatSymbols();
+		symbols.setNaN(NOT_APPLICABLE);
+		DECIMAL_FORMAT.setDecimalFormatSymbols(symbols);
+	}
+
+	public static String format(double number) {
+		synchronized (DECIMAL_FORMAT) {
+			return DECIMAL_FORMAT.format(number);
+		}
+	}
+
 	public static void init() {
 		BigGlobeMod.LOGGER.debug("Registering command event handler...");
 		CommandRegistrationCallback.EVENT.register(BigGlobeCommands::registerCommands);
@@ -27,11 +48,10 @@ public class BigGlobeCommands {
 		RegistrationEnvironment environment
 	) {
 		BigGlobeMod.LOGGER.debug("Registering commands to dispatcher...");
-		LocateCommand         .register(dispatcher);
-		RespawnCommand        .register(dispatcher);
-		EvaluateCommand       .register(dispatcher);
-		WorldgenTimingsCommand.register(dispatcher);
-		DumpRegistriesCommand .register(dispatcher);
+		LocateCommand        .register(dispatcher);
+		RespawnCommand       .register(dispatcher);
+		EvaluateCommand      .register(dispatcher);
+		DumpRegistriesCommand.register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering commands to dispatcher.");
 	}
 

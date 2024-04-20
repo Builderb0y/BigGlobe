@@ -2,7 +2,6 @@ package builderb0y.bigglobe;
 
 import org.junit.jupiter.api.Test;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.util.Async;
@@ -19,7 +18,6 @@ public class ReleaseChecks {
 			fail("TEST_ITEM should be commented out before release.");
 		}
 		catch (NoSuchFieldException expected) {}
-		assertFalse(BigGlobeChunkGenerator.WORLD_SLICES);
 		assertFalse(Async.DEBUG_SYNC);
 		assertFalse(SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE);
 	}

@@ -1,10 +1,6 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import builderb0y.autocodec.util.TypeFormatter;
-import builderb0y.bigglobe.columns.ColumnValue;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public class NotColumnRestriction implements ColumnRestriction {

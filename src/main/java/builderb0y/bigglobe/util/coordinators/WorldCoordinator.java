@@ -7,14 +7,11 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
@@ -22,7 +19,6 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 
 	public final StructureWorldAccess world;
 	public final int setBlockFlags;
-	public WorldColumn column;
 
 	public WorldCoordinator(StructureWorldAccess world, int setBlockFlags) {
 		this.world = world;

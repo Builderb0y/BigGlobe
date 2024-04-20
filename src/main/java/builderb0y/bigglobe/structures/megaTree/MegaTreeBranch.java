@@ -4,7 +4,6 @@ import org.joml.Vector3d;
 
 import net.minecraft.world.Heightmap;
 
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.Interpolator;

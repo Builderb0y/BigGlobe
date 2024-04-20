@@ -14,7 +14,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
@@ -29,7 +29,7 @@ public class SaplingGrowHandler {
 
 	public static boolean replaceSaplingGrowth(ServerWorld world, BlockPos origin, BlockState saplingState, Random random) {
 		if (
-			world.getChunkManager().getChunkGenerator() instanceof BigGlobeChunkGenerator
+			world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator
 			? BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds
 			: BigGlobeConfig.INSTANCE.get().bigGlobeTreesInOtherWorlds
 		) {

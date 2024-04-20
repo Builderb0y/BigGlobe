@@ -6,14 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.profiler.Profiler;
 
-import builderb0y.bigglobe.commands.WorldgenTimingsCommand;
-
-/**
-simplified version of {@link Profiler} designed to
-track timings of worldgen specifically across threads.
-the backing map, {@link #timings} is
-manipulated by {@link WorldgenTimingsCommand}.
-*/
 public class WorldgenProfiler {
 
 	public @Nullable ConcurrentHashMap<Object, Long> timings;

@@ -3,7 +3,6 @@ package builderb0y.bigglobe.structures;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
@@ -11,7 +10,6 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 

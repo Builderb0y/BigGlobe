@@ -6,7 +6,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Chunk;
 
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;

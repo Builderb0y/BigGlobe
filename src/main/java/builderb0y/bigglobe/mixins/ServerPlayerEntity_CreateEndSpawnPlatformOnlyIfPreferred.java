@@ -9,7 +9,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeEndChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(ServerPlayerEntity.class)

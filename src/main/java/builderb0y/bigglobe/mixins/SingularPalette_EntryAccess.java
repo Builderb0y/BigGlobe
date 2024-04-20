@@ -3,21 +3,14 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.block.BlockState;
 import net.minecraft.world.chunk.SingularPalette;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeOverworldChunkGenerator;
-import builderb0y.bigglobe.columns.ChunkOfColumns;
-import builderb0y.bigglobe.overriders.ScriptStructures;
+import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 
 /**
-used for optimization in {@link BigGlobeOverworldChunkGenerator#generateRawSectionsAndCaves(Chunk, ChunkOfColumns, ScriptStructures, boolean)}.
-we first make a guess as to what the majority of blocks in the chunk section will be,
-based on information at the center of the chunk section,
-and set the entire chunk section to that block with this hook.
-we clean up any inaccuracies in that guess afterwards.
-in many cases, this represents 4096 block setting
-operations that we *don't* need to perform.
+used for optimization in {@link SectionGenerationContext#setAllStates(BlockState)}
+to fill a chunk section with a specific block state in one operation.
 */
 @Mixin(SingularPalette.class)
 public interface SingularPalette_EntryAccess {

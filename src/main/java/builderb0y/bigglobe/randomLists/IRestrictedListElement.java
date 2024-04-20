@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.randomLists;
 
-import builderb0y.bigglobe.columns.WorldColumn;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 

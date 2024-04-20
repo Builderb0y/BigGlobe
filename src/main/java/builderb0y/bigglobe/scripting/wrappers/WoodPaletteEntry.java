@@ -46,20 +46,6 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 		);
 	}
 
-	public static @Nullable WoodPaletteEntry randomForBiome(BiomeEntry biome, RandomGenerator random) {
-		List<RegistryEntry<WoodPalette>> cache = WoodPalette.BIOME_CACHE.get().getOrDefault(biome.key(), Collections.emptyList());
-		return switch (cache.size()) {
-			case 0 -> null;
-			case 1 -> new WoodPaletteEntry(cache.get(0));
-			default -> new WoodPaletteEntry(cache.get(random.nextInt(cache.size())));
-		};
-	}
-
-	public static Collection<WoodPaletteEntry> allForBiome(BiomeEntry biome) {
-		List<RegistryEntry<WoodPalette>> cache = WoodPalette.BIOME_CACHE.get().get(biome.key());
-		return cache == null ? Collections.emptyList() : Collections2.transform(cache, WoodPaletteEntry::new);
-	}
-
 	public WoodPalette palette() {
 		return this.entry.value();
 	}

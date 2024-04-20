@@ -13,7 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeNetherChunkGenerator;
 import builderb0y.bigglobe.util.NetherPortalUtil;
 
 @Mixin(NetherPortalMatcher.class)
@@ -26,7 +25,12 @@ public class ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWor
 		BlockPos searchingCenter,
 		CallbackInfoReturnable<IntBox> callback
 	) {
-		if (world.getChunkManager() instanceof ServerChunkManager serverChunkManager && serverChunkManager.getChunkGenerator() instanceof BigGlobeNetherChunkGenerator) {
+		if (
+			world.getChunkManager() instanceof ServerChunkManager serverChunkManager &&
+			serverChunkManager.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
+			generator.nether_overrides != null &&
+			generator.nether_overrides.place_portal_at_high_y_level()
+		) {
 			BlockPos bestPosition = NetherPortalUtil.findBestPortalPosition(world, searchingCenter, areaSize);
 			if (bestPosition != null) {
 				BlockBox box = NetherPortalUtil.toBoundingBox(bestPosition, areaSize);

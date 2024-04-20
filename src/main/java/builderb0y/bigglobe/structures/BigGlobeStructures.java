@@ -95,13 +95,6 @@ public class BigGlobeStructures {
 	public static final BigGlobeStructurePieceType
 		MEGA_TREE_BALL_TYPE = registerPiece("mega_tree_ball", MegaTreeBall::new);
 
-	//////////////// lake ////////////////
-
-	public static final StructureType<LakeStructure>
-		LAKE_TYPE       = registerType("lake", LakeStructure.CODEC);
-	public static final BigGlobeStructurePieceType
-		LAKE_PIECE_TYPE = registerPiece("lake_piece", LakeStructure.Piece::new);
-
 	//////////////// portal temple ////////////////
 
 	public static final StructureType<PortalTempleStructure>
@@ -114,13 +107,6 @@ public class BigGlobeStructures {
 		PORTAL_TEMPLE_TABLE         = registerPiece("portal_temple_table",         PortalTempleStructure.       TablePiece::new),
 		PORTAL_TEMPLE_FURNACE       = registerPiece("portal_temple_furnace",       PortalTempleStructure.     FurnacePiece::new),
 		PORTAL_TEMPLE_SPAWNER       = registerPiece("portal_temple_spawner",       PortalTempleStructure.     SpawnerPiece::new);
-
-	//////////////// pillar ////////////////
-
-	public static final StructureType<NetherPillarStructure>
-		NETHER_PILLAR = registerType("nether_pillar", NetherPillarStructure.CODEC);
-	public static final BigGlobeStructurePieceType
-		NETHER_PILLAR_PIECE = registerPiece("nether_pillar_piece", NetherPillarStructure.Piece::new);
 
 	//////////////// scripted ////////////////
 

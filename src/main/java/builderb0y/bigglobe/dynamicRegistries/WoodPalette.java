@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
@@ -9,49 +12,36 @@ import org.jetbrains.annotations.Range;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.*;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.block.enums.DoorHinge;
+import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.block.enums.StairShape;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.util.ServerValue;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @SuppressWarnings("unused")
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class WoodPalette {
 
-	public static final ServerValue<Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>>>
-		BIOME_CACHE = new ServerValue<>(WoodPalette::computeBiomeCache);
-
 	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") Block>> blocks;
 	public final @DefaultEmpty Map<@Intern String, RegistryEntry<ConfiguredFeature<?, ?>>> features;
-	/** a tag containing biomes whose trees are made of this wood palette. */
-	public final @VerifyNullable TagKey<Biome> biomes;
-	public transient Set<RegistryKey<Biome>> biomeSet;
 
 	public WoodPalette(
 		EnumMap<WoodPaletteType, IRandomList<Block>> blocks,
-		Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features,
-		@VerifyNullable TagKey<Biome> biomes
+		Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features
 	) {
 		this.blocks = blocks;
 		this.features = features;
-		this.biomes = biomes;
 	}
 
 	public static <T_Encoded> void verify(VerifyContext<T_Encoded, WoodPalette> context) throws VerifyException {
@@ -70,40 +60,6 @@ public class WoodPalette {
 				return builder.toString();
 			});
 		}
-	}
-
-	public Set<RegistryKey<Biome>> getBiomeSet() {
-		if (this.biomeSet == null) {
-			if (this.biomes != null) {
-				Optional<RegistryEntryList.Named<Biome>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.biome()).getEntryList(this.biomes);
-				if (list.isPresent()) {
-					this.biomeSet = list.get().stream().map(UnregisteredObjectException::getKey).collect(Collectors.toSet());
-				}
-				else {
-					this.biomeSet = Collections.emptySet();
-				}
-			}
-			else {
-				this.biomeSet = Collections.emptySet();
-			}
-		}
-		return this.biomeSet;
-	}
-
-	public static Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>> computeBiomeCache() {
-		Map<RegistryKey<Biome>, List<RegistryEntry<WoodPalette>>> map = new HashMap<>();
-		BigGlobeMod
-		.getCurrentServer()
-		.getRegistryManager()
-		.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
-		.streamEntries()
-		.sequential()
-		.forEach((RegistryEntry<WoodPalette> entry) -> {
-			entry.value().getBiomeSet().forEach((RegistryKey<Biome> key) -> {
-				map.computeIfAbsent(key, $ -> new ArrayList<>(8)).add(entry);
-			});
-		});
-		return map;
 	}
 
 	public RegistryEntry<ConfiguredFeature<?, ?>> getSaplingGrowFeature() {

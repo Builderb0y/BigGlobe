@@ -23,6 +23,5 @@
 	},
 	"features": {
 		"sapling_grow": "bigglobe:overworld/trees/artificial/azalea"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/azalea"
+	}
 }

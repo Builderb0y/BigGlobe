@@ -18,7 +18,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.poi.PointOfInterestStorage;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 /**
 by default, big globe will expand bounding boxes of
@@ -39,7 +39,7 @@ then when the chunk generates,
 it won't have smooth slopes easing into the structure anymore.
 
 solution 1: re-expand the bounding box elsewhere if the
-ChunkGenerator is an instance of {@link BigGlobeChunkGenerator}.
+ChunkGenerator is an instance of {@link BigGlobeScriptedChunkGenerator}.
 
 solution 2: save the bounding box to disk.
 

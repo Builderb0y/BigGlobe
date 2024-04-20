@@ -24,6 +24,5 @@
 	"features": {
 		"sapling_grow": "bigglobe:nether/trees/artificial/warped",
 		"natural_surface": "bigglobe:nether/trees/natural/warped"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/warped"
+	}
 }

@@ -14,7 +14,6 @@ import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 @Environment(EnvType.CLIENT)
 public class DisplayColumnsClientCommand {

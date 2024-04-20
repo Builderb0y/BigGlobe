@@ -21,6 +21,5 @@
 	},
 	"features": {
 		"sapling_grow": "bigglobe:overworld/trees/artificial/acacia"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/azalea"
+	}
 }

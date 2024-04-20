@@ -4,18 +4,13 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.common.Case;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
-import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.BlockStateWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WoodPaletteEntry;
 import builderb0y.bigglobe.scripting.wrappers.WoodPaletteTagKey;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
@@ -34,19 +29,6 @@ public class WoodPaletteScriptEnvironment {
 			.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
 			.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, long.class)
 			.addFieldInvoke(WoodPaletteEntry.class, "features")
-			.addQualifiedFunctionInvokeStatics(WoodPaletteEntry.class, "randomForBiome", "allForBiome")
-			.addQualifiedFunction(type(WoodPaletteEntry.class), "randomForBiome", new FunctionHandler.Named("randomForBiome(Biome)", (parser, name, arguments) -> {
-				InsnTree biome = ScriptEnvironment.castArgument(parser, "randomForBiome", BiomeEntry.TYPE, CastMode.IMPLICIT_NULL, arguments);
-				if (biome == null) return null;
-				return new CastResult(
-					invokeStatic(
-						MethodInfo.getMethod(WoodPaletteEntry.class, "randomForBiome"),
-						biome,
-						loadRandom
-					),
-					biome != arguments[0]
-				);
-			}))
 		);
 		for (WoodPaletteType type : WoodPaletteType.VALUES) {
 			String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);

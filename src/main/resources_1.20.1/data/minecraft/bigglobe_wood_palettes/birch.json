@@ -25,6 +25,5 @@
 		"sapling_grow": "bigglobe:overworld/trees/artificial/birch",
 		"natural_surface": "bigglobe:overworld/trees/natural/birch",
 		"skylands": "bigglobe:overworld/trees/skylands/birch"
-	},
-	"biomes": "minecraft:bigglobe_wood_palette/birch"
+	}
 }

@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:overworld_structure_overrider",
-	"config": {
-		"script": [
-			"return(!(distantHorizons && start.structure.type.isIn('bigglobe:underground')))"
-		]
-	}
-}

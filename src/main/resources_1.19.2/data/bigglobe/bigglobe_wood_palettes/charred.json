@@ -22,6 +22,5 @@
 	"features": {
 		"sapling_grow": "bigglobe:nether/trees/artificial/charred",
 		"natural_surface": "bigglobe:nether/trees/natural/charred"
-	},
-	"biomes": "bigglobe:bigglobe_wood_palette/charred"
+	}
 }
