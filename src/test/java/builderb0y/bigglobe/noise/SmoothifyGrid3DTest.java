@@ -2,7 +2,7 @@ package builderb0y.bigglobe.noise;
 
 import org.junit.jupiter.api.Test;
 
-import builderb0y.bigglobe.settings.Seed.NumberSeed;
+import builderb0y.bigglobe.settings.Seed;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +14,7 @@ public class SmoothifyGrid3DTest {
 	@Test
 	public void testAll() {
 		Grid.TESTING.setTrue();
-		Grid3D grid = new SmoothGrid3D(new NumberSeed(gridSalt), 1.0F, 16, 8, 16);
+		Grid3D grid = new SmoothGrid3D(new Seed(gridSalt), 1.0F, 16, 8, 16);
 		NumberArray values = NumberArray.allocateDoublesHeap(sampleCount);
 		for (int x = -32; x < 32; x++) {
 			for (int z = -32; z < 32; z++) {

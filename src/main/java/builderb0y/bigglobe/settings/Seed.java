@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ import builderb0y.bigglobe.noise.Permuter;
 
 @UseEncoder(name = "encode", usage = MemberUsage.METHOD_IS_HANDLER)
 @UseDecoder(name = "new", in = Seed.SeedDecoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
-public abstract class Seed {
+public class Seed {
 
 	public static final int
 		AUTO   = 1 << 0,
@@ -47,11 +48,9 @@ public abstract class Seed {
 		return this.value ^ other.value;
 	}
 
-	public abstract <T_Encoded> T_Encoded doEncode(EncodeContext<T_Encoded, Seed> context);
-
 	public static <T_Encoded> T_Encoded encode(EncodeContext<T_Encoded, Seed> context) {
 		Seed seed = context.input;
-		return seed == null ? context.empty() : seed.doEncode(context);
+		return seed == null ? context.empty() : context.createLong(seed.value);
 	}
 
 	@Target(ElementType.TYPE_USE)
@@ -78,18 +77,34 @@ public abstract class Seed {
 			if (this.modes == 0) throw new FactoryException("@SeedModes annotation specified no modes.");
 		}
 
-		@Override
-		public <T_Encoded> @Nullable Seed decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-			if ((this.modes & AUTO) != 0 && context.isEmpty()) {
-				return new AutoSeed(context);
-			}
-			Number number;
-			if ((this.modes & NUMBER) != 0 && (number = context.tryAsNumber()) != null) {
-				return new NumberSeed(number.longValue());
+		public <T_Encoded> long recursiveDecodeSeed(DecodeContext<T_Encoded> context, String key, boolean last) throws DecodeException {
+			DecodeContext<T_Encoded> value = context.getMember(key);
+			if ((this.modes & AUTO) != 0 && value.isEmpty()) {
+				long seed;
+				if (context.parent != null) {
+					seed = this.recursiveDecodeSeed(context.parent, key, false);
+				}
+				else {
+					seed = 0L;
+				}
+				if (context.path instanceof ObjectDecodePath objectDecodePath) {
+					seed = Permuter.permute(seed, objectDecodePath.memberName());
+				}
+				else if (context.path instanceof ArrayDecodePath arrayDecodePath) {
+					seed = Permuter.permute(seed, arrayDecodePath.index());
+				}
+				if (last) {
+					seed = Permuter.permute(seed, key);
+				}
+				return seed;
 			}
 			String string;
-			if ((this.modes & STRING) != 0 && (string = context.tryAsString()) != null) {
-				return new StringSeed(string);
+			if ((this.modes & STRING) != 0 && (string = value.tryAsString()) != null) {
+				return Permuter.permute(0L, string);
+			}
+			Number number;
+			if ((this.modes & NUMBER) != 0 && (number = value.tryAsNumber()) != null) {
+				return number.longValue();
 			}
 			throw new DecodeException(() -> {
 				StringBuilder builder = context.pathToStringBuilder().append(" must be ");
@@ -113,61 +128,17 @@ public abstract class Seed {
 				return builder.toString();
 			});
 		}
-	}
-
-	public static long computeSeedFromPath(DecodeContext<?> context) {
-		long seed;
-		if (context.parent != null) {
-			seed = computeSeedFromPath(context.parent);
-		}
-		else {
-			seed = 0L;
-		}
-		if (context.path instanceof ObjectDecodePath path) {
-			seed = Permuter.permute(seed, path.memberName());
-		}
-		else if (context.path instanceof ArrayDecodePath path) {
-			seed = Permuter.permute(seed, path.index());
-		}
-		return seed;
-	}
-
-	public static class AutoSeed extends Seed {
-
-		public AutoSeed(DecodeContext<?> context) {
-			super(computeSeedFromPath(context));
-		}
 
 		@Override
-		public <T_Encoded> T_Encoded doEncode(EncodeContext<T_Encoded, Seed> context) {
-			return context.createLong(this.value);
-		}
-	}
-
-	public static class NumberSeed extends Seed {
-
-		public NumberSeed(long value) {
-			super(value);
-		}
-
-		@Override
-		public <T_Encoded> T_Encoded doEncode(EncodeContext<T_Encoded, Seed> context) {
-			return context.createLong(this.value);
-		}
-	}
-
-	public static class StringSeed extends Seed {
-
-		public final String source;
-
-		public StringSeed(String source) {
-			super(Permuter.permute(0L, source));
-			this.source = source;
-		}
-
-		@Override
-		public <T_Encoded> T_Encoded doEncode(EncodeContext<T_Encoded, Seed> context) {
-			return context.createString(this.source);
+		public <T_Encoded> @Nullable Seed decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			String key = ((ObjectDecodePath)(context.path)).memberName();
+			return new Seed(
+				this.recursiveDecodeSeed(
+					Objects.requireNonNull(context.parent, "context.parent"),
+					key,
+					true
+				)
+			);
 		}
 	}
 }

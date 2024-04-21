@@ -9,8 +9,6 @@ import javax.swing.*;
 
 import net.minecraft.util.math.MathHelper;
 
-import builderb0y.bigglobe.settings.Seed.NumberSeed;
-
 public class VornoiTest {
 
 	public static void main(String[] args) {
@@ -35,7 +33,7 @@ public class VornoiTest {
 		}
 
 		public void newDiagram() {
-			this.diagram = new VoronoiDiagram2D(new NumberSeed(0x14a604764c3e173dL), 128, 96);
+			this.diagram = new VoronoiDiagram2D(new Seed(0x14a604764c3e173dL), 128, 96);
 		}
 	}
 

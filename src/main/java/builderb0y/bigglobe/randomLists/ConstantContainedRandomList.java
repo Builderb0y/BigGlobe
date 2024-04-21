@@ -13,9 +13,7 @@ can offer better performance characteristics in the
 by utilizing the algorithm outlined in
 {@link RandomAccessKnownTotalWeightRandomList}.
 */
-public class ConstantContainedRandomList<E extends IWeightedListElement> extends ConstantComputedRandomList<E>{
-
-	public double totalWeight;
+public class ConstantContainedRandomList<E extends IWeightedListElement> extends ConstantComputedRandomList<E> {
 
 	public ConstantContainedRandomList() {}
 

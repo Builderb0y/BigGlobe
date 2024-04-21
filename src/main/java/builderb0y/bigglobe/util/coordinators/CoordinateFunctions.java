@@ -8,11 +8,9 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
 public class CoordinateFunctions {
@@ -24,7 +22,7 @@ public class CoordinateFunctions {
 
 		public default CoordinateRunnable then(CoordinateRunnable other) {
 			Objects.requireNonNull(other);
-			return pos -> {
+			return (BlockPos.Mutable pos) -> {
 				this.accept(pos);
 				other.accept(pos);
 			};
@@ -38,7 +36,7 @@ public class CoordinateFunctions {
 
 		public default CoordinateConsumer<T> then(CoordinateConsumer<? super T> other) {
 			Objects.requireNonNull(other);
-			return (pos, arg) -> {
+			return (BlockPos.Mutable pos, T arg) -> {
 				this.accept(pos, arg);
 				other.accept(pos, arg);
 			};
@@ -67,7 +65,7 @@ public class CoordinateFunctions {
 
 		public default CoordinateBooleanSupplier or(CoordinateBooleanSupplier other) {
 			Objects.requireNonNull(other);
-			return pos -> {
+			return (BlockPos.Mutable pos) -> {
 				int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 				return this.test(pos) || other.test(pos.set(x, y, z));
 			};
@@ -75,7 +73,7 @@ public class CoordinateFunctions {
 
 		public default CoordinateBooleanSupplier and(CoordinateBooleanSupplier other) {
 			Objects.requireNonNull(other);
-			return pos -> {
+			return (BlockPos.Mutable pos) -> {
 				int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 				return this.test(pos) && other.test(pos.set(x, y, z));
 			};
@@ -89,7 +87,7 @@ public class CoordinateFunctions {
 
 		public default CoordinatePredicate<T> or(CoordinatePredicate<? super T> other) {
 			Objects.requireNonNull(other);
-			return (pos, arg) -> {
+			return (BlockPos.Mutable pos, T arg) -> {
 				int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 				return this.test(pos, arg) || other.test(pos.set(x, y, z), arg);
 			};
@@ -97,7 +95,7 @@ public class CoordinateFunctions {
 
 		public default CoordinatePredicate<T> and(CoordinatePredicate<? super T> other) {
 			Objects.requireNonNull(other);
-			return (pos, arg) -> {
+			return (BlockPos.Mutable pos, T arg) -> {
 				int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 				return this.test(pos, arg) && other.test(pos.set(x, y, z), arg);
 			};
@@ -200,39 +198,39 @@ public class CoordinateFunctions {
 		//////////////////////////////// internal helper methods ////////////////////////////////
 
 		public static LineConsumer<CoordinateRunnable> getCoordinates() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getCoordinates(x, y, z, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateRunnable action) -> coordinator.getCoordinates(x, y, z, action);
 		}
 
 		public static LineConsumer<CoordinateConsumer<BlockState>> getBlockState() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getBlockState(x, y, z, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateConsumer<BlockState> action) -> coordinator.getBlockState(x, y, z, action);
 		}
 
 		public static LineConsumer<CoordinateConsumer<FluidState>> getFluidState() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getFluidState(x, y, z, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateConsumer<FluidState> action) -> coordinator.getFluidState(x, y, z, action);
 		}
 
 		public static LineConsumer<CoordinateConsumer<BlockEntity>> getBlockEntity() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getBlockEntity(x, y, z, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateConsumer<BlockEntity> action) -> coordinator.getBlockEntity(x, y, z, action);
 		}
 
 		public static LineConsumer<CoordinateConsumer<Chunk>> getChunk() {
-			return (coordinator, x, y, z, index, action) -> coordinator.getChunk(x, y, z, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateConsumer<Chunk> action) -> coordinator.getChunk(x, y, z, action);
 		}
 
 		public static LineConsumer<BlockState> setBlockState() {
-			return (coordinator, x, y, z, index, state) -> coordinator.setBlockState(x, y, z, state);
+			return (Coordinator coordinator, int x, int y, int z, int index, BlockState state) -> coordinator.setBlockState(x, y, z, state);
 		}
 
 		public static LineConsumer<CoordinateSupplier<BlockState>> setBlockState_supplier() {
-			return (coordinator, x, y, z, index, supplier) -> coordinator.setBlockState(x, y, z, supplier);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateSupplier<BlockState> supplier) -> coordinator.setBlockState(x, y, z, supplier);
 		}
 
 		public static LineConsumer<CoordinateUnaryOperator<BlockState>> modifyBlockState() {
-			return (coordinator, x, y, z, index, mapper) -> coordinator.modifyBlockState(x, y, z, mapper);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateUnaryOperator<BlockState> mapper) -> coordinator.modifyBlockState(x, y, z, mapper);
 		}
 
 		public static LineConsumer<CoordinateFunction<ServerWorld, Entity>> addEntity() {
-			return (coordinator, x, y, z, index, supplier) -> coordinator.addEntity(x, y, z, supplier);
+			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateFunction<ServerWorld, Entity> supplier) -> coordinator.addEntity(x, y, z, supplier);
 		}
 	}
 
@@ -242,11 +240,11 @@ public class CoordinateFunctions {
 		public abstract void run(Coordinator coordinator, int x, int y, int z, int index, A arg1, B arg2);
 
 		public static <B> LineBiConsumer<Class<B>, CoordinateConsumer<B>> getBlockEntitiesByClass() {
-			return (coordinator, x, y, z, index, blockEntityClass, action) -> coordinator.getBlockEntity(x, y, z, blockEntityClass, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, Class<B> blockEntityClass, CoordinateConsumer<B> action) -> coordinator.getBlockEntity(x, y, z, blockEntityClass, action);
 		}
 
 		public static <B extends BlockEntity> LineBiConsumer<BlockEntityType<B>, CoordinateConsumer<B>> getBlockEntitiesByType() {
-			return (coordinator, x, y, z, index, blockEntityType, action) -> coordinator.getBlockEntity(x, y, z, blockEntityType, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) -> coordinator.getBlockEntity(x, y, z, blockEntityType, action);
 		}
 	}
 
@@ -256,15 +254,15 @@ public class CoordinateFunctions {
 		public abstract void run(Coordinator coordinator, int x, int y, int z, int index, A arg1, B arg2, C arg3);
 
 		public static <B> LineTriConsumer<BlockState, Class<B>, CoordinateConsumer<B>> setBlockStateAndBlockEntityByClass() {
-			return (coordinator, x, y, z, index, state, blockEntityClass, action) -> coordinator.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) -> coordinator.setBlockStateAndBlockEntity(x, y, z, state, blockEntityClass, action);
 		}
 
 		public static <B extends BlockEntity> LineTriConsumer<BlockState, BlockEntityType<B>, CoordinateConsumer<B>> setBlockStateAndBlockEntityByType() {
-			return (coordinator, x, y, z, index, state, blockEntityType, action) -> coordinator.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
+			return (Coordinator coordinator, int x, int y, int z, int index, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) -> coordinator.setBlockStateAndBlockEntity(x, y, z, state, blockEntityType, action);
 		}
 
 		public static <E extends Entity> LineTriConsumer<Class<E>, CoordinateSupplier<Box>, CoordinateConsumer<List<E>>> getEntities() {
-			return (coordinator, x, y, z, index, entityClass, boxSupplier, entityAction) -> coordinator.getEntities(x, y, z, entityClass, boxSupplier, entityAction);
+			return (Coordinator coordinator, int x, int y, int z, int index, Class<E> entityClass, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) -> coordinator.getEntities(x, y, z, entityClass, boxSupplier, entityAction);
 		}
 	}
 }
