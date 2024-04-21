@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.compat.satin.SatinCompat;
 import builderb0y.bigglobe.entities.WaypointEntity.Orbit;
 import builderb0y.bigglobe.math.BigGlobeMath;
 
@@ -43,62 +44,63 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				float size = history * (-1.0F / 16.0F / 16.0F) + 0.0625F;
 
 				buffer
-					.vertex(
-						matrices.peek().getPositionMatrix(),
-						scratch.x + (unit1.x + unit2.x) * size,
-						scratch.y + (unit1.y + unit2.y) * size + 1.0F,
-						scratch.z + (unit1.z + unit2.z) * size
-					)
-					.texture(0.0F, 0.0F)
-					.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
-					.color(orbit.color)
-					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(fullbright)
-					.next();
+				.vertex(
+					matrices.peek().getPositionMatrix(),
+					scratch.x + (unit1.x + unit2.x) * size,
+					scratch.y + (unit1.y + unit2.y) * size + 1.0F,
+					scratch.z + (unit1.z + unit2.z) * size
+				)
+				.texture(0.0F, 0.0F)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.color(orbit.color)
+				.overlay(OverlayTexture.DEFAULT_UV)
+				.light(fullbright)
+				.next();
 
 				buffer
-					.vertex(
-						matrices.peek().getPositionMatrix(),
-						scratch.x + (unit1.x - unit2.x) * size,
-						scratch.y + (unit1.y - unit2.y) * size + 1.0F,
-						scratch.z + (unit1.z - unit2.z) * size
-					)
-					.texture(0.0F, 1.0F)
-					.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
-					.color(orbit.color)
-					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(fullbright)
-					.next();
+				.vertex(
+					matrices.peek().getPositionMatrix(),
+					scratch.x + (unit1.x - unit2.x) * size,
+					scratch.y + (unit1.y - unit2.y) * size + 1.0F,
+					scratch.z + (unit1.z - unit2.z) * size
+				)
+				.texture(0.0F, 1.0F)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.color(orbit.color)
+				.overlay(OverlayTexture.DEFAULT_UV)
+				.light(fullbright)
+				.next();
 
 				buffer
-					.vertex(
-						matrices.peek().getPositionMatrix(),
-						scratch.x + (-unit1.x - unit2.x) * size,
-						scratch.y + (-unit1.y - unit2.y) * size + 1.0F,
-						scratch.z + (-unit1.z - unit2.z) * size
-					)
-					.texture(1.0F, 1.0F)
-					.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
-					.color(orbit.color)
-					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(fullbright)
-					.next();
+				.vertex(
+					matrices.peek().getPositionMatrix(),
+					scratch.x + (-unit1.x - unit2.x) * size,
+					scratch.y + (-unit1.y - unit2.y) * size + 1.0F,
+					scratch.z + (-unit1.z - unit2.z) * size
+				)
+				.texture(1.0F, 1.0F)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.color(orbit.color)
+				.overlay(OverlayTexture.DEFAULT_UV)
+				.light(fullbright)
+				.next();
 
 				buffer
-					.vertex(
-						matrices.peek().getPositionMatrix(),
-						scratch.x + (-unit1.x + unit2.x) * size,
-						scratch.y + (-unit1.y + unit2.y) * size + 1.0F,
-						scratch.z + (-unit1.z + unit2.z) * size
-					)
-					.texture(1.0F, 0.0F)
-					.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
-					.color(orbit.color)
-					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(fullbright)
-					.next();
+				.vertex(
+					matrices.peek().getPositionMatrix(),
+					scratch.x + (-unit1.x + unit2.x) * size,
+					scratch.y + (-unit1.y + unit2.y) * size + 1.0F,
+					scratch.z + (-unit1.z + unit2.z) * size
+				)
+				.texture(1.0F, 0.0F)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.color(orbit.color)
+				.overlay(OverlayTexture.DEFAULT_UV)
+				.light(fullbright)
+				.next();
 			}
 		}
+		SatinCompat.markWaypointRendered(entity);
 	}
 
 	@Override

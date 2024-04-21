@@ -91,12 +91,10 @@ public class WaypointEntity extends Entity {
 			}
 		}
 		else {
-			if (BigGlobeMath.modulus_BP(this.getWorld().getTime(), 10L) == 0) {
-				float oldHealth = this.getHealth();
-				float newHealth = Math.min(oldHealth + 0.5F, MAX_HEALTH);
-				if (oldHealth != newHealth) {
-					this.setHealth(newHealth);
-				}
+			float oldHealth = this.getHealth();
+			float newHealth = Math.min(oldHealth + 0.05F, MAX_HEALTH);
+			if (oldHealth != newHealth) {
+				this.setHealth(newHealth);
 			}
 		}
 	}
@@ -123,7 +121,7 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	protected void initDataTracker() {
-		this.dataTracker.startTracking(HEALTH, 16.0F);
+		this.dataTracker.startTracking(HEALTH, 0.0F);
 	}
 
 	@Override

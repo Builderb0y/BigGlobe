@@ -1,0 +1,31 @@
+{
+	"vertex": "minecraft:screenquad",
+	"fragment": "bigglobe:waypoint_warp",
+	"attributes": [ "Position" ],
+	"samplers": [
+		{ "name": "DiffuseSampler" },
+		{ "name": "DiffuseDepthSampler" }
+	],
+	"uniforms": [
+		{ "name": "ProjMat",                 "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+		{ "name": "ActualProjMat",           "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+		{ "name": "OutSize",                 "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
+		{ "name": "bigglobe_waypoint_count", "type": "int",       "count": 1,  "values": [ 0 ] },
+		{ "name": "bigglobe_waypoint_0",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_1",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_2",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_3",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_4",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_5",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_6",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_7",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_8",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_9",     "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_10",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_11",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_12",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_13",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_14",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] },
+		{ "name": "bigglobe_waypoint_15",    "type": "float",     "count": 4,  "values": [ 0.0, 0.0, 0.0, 0.0 ] }
+	]
+}
