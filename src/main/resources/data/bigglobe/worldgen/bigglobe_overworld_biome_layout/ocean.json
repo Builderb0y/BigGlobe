@@ -1,5 +1,0 @@
-{
-	"parent": "!bigglobe:glacier",
-	"restrictions": { "type": "range", "property": "max_y", "mid": -8.0, "max": -4.0 },
-	"biome": "bigglobe:ocean"
-}

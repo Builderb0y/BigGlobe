@@ -1,5 +1,0 @@
-{
-	"parent": "bigglobe:root",
-	"biome": "bigglobe:end_plains",
-	"restrictions": { "type": "range", "property": "end/mountain_thickness", "min": 0.0 }
-}

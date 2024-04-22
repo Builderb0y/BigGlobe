@@ -52,6 +52,11 @@ public class BigGlobeConfig {
 	public boolean bigGlobeTreesInOtherWorlds = false;
 
 	@Tooltip(count = 3)
+	@UseName("Hyperspace Enabled")
+	@DefaultIgnore
+	public boolean hyperspaceEnabled = true;
+
+	@Tooltip(count = 3)
 	@UseName("Output Data Pack Debugging Information")
 	@DefaultIgnore
 	public boolean dataPackDebugging = false;

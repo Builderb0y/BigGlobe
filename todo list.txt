@@ -105,6 +105,7 @@ where I left off:
 	ensure that cave floor features can't replace snow.
 	fix random.switch() using implicit random instead of explicit random in RandomScriptEnvironment.
 	see if waterfalls need fixing due to typo of +1 becoming -1 in loop bounds.
+	disable raids in end dimension.
 
 changelog:
 	4.0:

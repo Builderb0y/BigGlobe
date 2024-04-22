@@ -1,5 +1,0 @@
-{
-	"parent": "bigglobe:shallow_ocean",
-	"restrictions": { "type": "range", "property": "overworld/glacier_crack_threshold", "min": 0.0, "mid": 1.0, "smooth": false },
-	"biome": "bigglobe:glacier"
-}

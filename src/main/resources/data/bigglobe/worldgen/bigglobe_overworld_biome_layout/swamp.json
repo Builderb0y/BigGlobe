@@ -1,5 +1,0 @@
-{
-	"parent": "!bigglobe:hot_plains",
-	"restrictions": { "type": "range", "property": "overworld/magicalness", "mid": -0.75, "max": -0.5 },
-	"biome": "bigglobe:swamp"
-}

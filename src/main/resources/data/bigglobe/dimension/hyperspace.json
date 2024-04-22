@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:hyperspace",
+	"generator": {
+		"type": "bigglobe:empty",
+		"value": {
+			"biome_source": {
+				"type": "minecraft:fixed",
+				"biome": "bigglobe:hyperspace"
+			}
+		}
+	}
+}

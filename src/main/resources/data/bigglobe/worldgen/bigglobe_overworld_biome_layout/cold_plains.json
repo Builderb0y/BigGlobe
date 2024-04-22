@@ -1,6 +1,0 @@
-{
-	"parent": "!bigglobe:beach",
-	"restrictions": { "type": "range", "property": "overworld/snow_chance", "min": 0.0, "mid": 1.0, "smooth": false },
-	"biome": "bigglobe:cold_plains",
-	"player_spawn_friendly": false
-}

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.entities;
 
 import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -11,6 +12,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION > MC_1_19_2
@@ -60,18 +62,22 @@ public class BigGlobeEntityTypes {
 		4,
 		20
 	);
-	public static final EntityType<WaypointEntity> WAYPOINT = register(
-		"waypoint",
-		WaypointEntity::new,
-		SpawnGroup.MISC,
-		true,
-		true,
-		true,
-		true,
-		ImmutableSet.of(),
-		EntityDimensions.changing(2.0F, 2.0F),
-		8,
-		Integer.MAX_VALUE
+	public static final @Nullable EntityType<WaypointEntity> WAYPOINT = (
+		BigGlobeConfig.INSTANCE.get().hyperspaceEnabled
+		? register(
+			"waypoint",
+			WaypointEntity::new,
+			SpawnGroup.MISC,
+			true,
+			true,
+			true,
+			true,
+			ImmutableSet.of(),
+			EntityDimensions.changing(2.0F, 2.0F),
+			8,
+			Integer.MAX_VALUE
+		)
+		: null
 	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }

@@ -11,6 +11,7 @@ import builderb0y.bigglobe.compat.satin.SatinCompat;
 import builderb0y.bigglobe.compat.voxy.VoxyCompat;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.hyperspace.HyperspaceDimensionEffects;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
@@ -30,6 +31,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeNetwork.initClient();
 		BigGlobeCommands.initClient();
 		BigGlobeParticles.initClient();
+		HyperspaceDimensionEffects.init();
 		SatinCompat.init();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		DistantHorizonsCompat.init();

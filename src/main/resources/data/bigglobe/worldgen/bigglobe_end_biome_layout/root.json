@@ -1,7 +1,0 @@
-{
-	"biome": "bigglobe:the_void",
-	"primary_surface": {
-		"top": "minecraft:end_stone",
-		"under": "minecraft:end_stone"
-	}
-}

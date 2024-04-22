@@ -1,9 +1,0 @@
-{
-	"parent": "!bigglobe:swamp_light_forest",
-	"restrictions": { "type": "range", "property": "overworld/height_adjusted_foliage", "mid": -0.625, "max": -0.375 },
-	"biome": "bigglobe:swamp_wasteland",
-	"primary_surface": {
-		"top": "minecraft:coarse_dirt",
-		"under": "minecraft:coarse_dirt"
-	}
-}

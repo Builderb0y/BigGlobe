@@ -1,9 +1,0 @@
-{
-	"parent": "bigglobe:swamp",
-	"restrictions": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.125, "mid": 0.375 },
-	"biome": "bigglobe:swamp_forest",
-	"primary_surface": {
-		"top": "bigglobe:overgrown_podzol[snowy=false]",
-		"under": "minecraft:dirt"
-	}
-}

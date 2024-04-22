@@ -1,5 +1,0 @@
-{
-	"parent": "bigglobe:ocean",
-	"restrictions": { "type": "range", "property": "max_y", "mid": -64.0, "max": -32.0 },
-	"biome": "bigglobe:deep_ocean"
-}

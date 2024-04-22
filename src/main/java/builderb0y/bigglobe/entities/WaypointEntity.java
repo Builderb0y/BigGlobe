@@ -2,6 +2,7 @@ package builderb0y.bigglobe.entities;
 
 import java.util.random.RandomGenerator;
 
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -14,12 +15,19 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
+import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -43,7 +51,7 @@ public class WaypointEntity extends Entity {
 				this.orbits[index] = (
 					(index & 1) == 0
 					? new CircularOrbit(permuter, circularHue)
-					: new LinearOrbit(permuter, linearHue)
+					: new   LinearOrbit(permuter,   linearHue)
 				);
 			}
 		}
@@ -62,7 +70,7 @@ public class WaypointEntity extends Entity {
 	@Override
 	public ActionResult interact(PlayerEntity player, Hand hand) {
 		ItemStack stack = player.getStackInHand(hand);
-		if (stack.hasCustomName()) {
+		if (stack.getItem() == Items.NAME_TAG && stack.hasCustomName()) {
 			if (!player.getWorld().isClient) {
 				this.setCustomName(stack.getName());
 				stack.decrement(1);
@@ -71,6 +79,20 @@ public class WaypointEntity extends Entity {
 		}
 		else {
 			return ActionResult.PASS;
+		}
+	}
+
+	@Override
+	public void onPlayerCollision(PlayerEntity player) {
+		super.onPlayerCollision(player);
+		if (!this.getWorld().isClient && player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D) {
+			ServerWorld hyperspace = this.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
+			ServerPlayerEntity newPlayer = (ServerPlayerEntity)(FabricDimensions.teleport(player, hyperspace, new TeleportTarget(new Vec3d(0.0D, 8.0D, 0.0D), player.getVelocity(), player.getYaw(), player.getPitch())));
+			if (newPlayer != null) {
+				newPlayer.getAbilities().allowFlying = true;
+				newPlayer.getAbilities().flying = true;
+				newPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(newPlayer.getAbilities()));
+			}
 		}
 	}
 

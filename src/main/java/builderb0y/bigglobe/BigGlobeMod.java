@@ -85,6 +85,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
 		BigGlobeScriptedChunkGenerator.init();
+		EmptyChunkGenerator.init();
 		#if MC_VERSION == MC_1_19_2
 			BigGlobeDynamicRegistries.addBuiltin();
 		#endif
