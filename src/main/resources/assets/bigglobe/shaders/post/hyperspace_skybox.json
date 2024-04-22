@@ -1,0 +1,16 @@
+{
+	"targets": [
+		{
+			"name": "dummy",
+			"width": 1,
+			"height": 1
+		}
+	],
+	"passes": [
+		{
+			"name": "bigglobe:hyperspace_skybox",
+			"intarget": "dummy",
+			"outtarget": "minecraft:main"
+		}
+	]
+}

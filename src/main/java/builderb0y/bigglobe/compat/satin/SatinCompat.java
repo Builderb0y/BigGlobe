@@ -8,9 +8,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import ladysnake.satin.api.event.PostWorldRenderCallback;
 import ladysnake.satin.api.managed.ManagedShaderEffect;
 import ladysnake.satin.api.managed.ShaderEffectManager;
-import ladysnake.satin.api.managed.uniform.Uniform1i;
-import ladysnake.satin.api.managed.uniform.Uniform4f;
-import ladysnake.satin.api.managed.uniform.UniformMat4;
+import ladysnake.satin.api.managed.uniform.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -22,8 +23,10 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity;
+import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.math.BigGlobeMath;
 
+@Environment(EnvType.CLIENT)
 public class SatinCompat {
 
 	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
@@ -61,32 +64,55 @@ public class SatinCompat {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class SatinCode {
 
-		public static final ManagedShaderEffect WAYPOINT_WARP = ShaderEffectManager.getInstance().manage(BigGlobeMod.modID("shaders/post/waypoint_warp.json"));
-		public static final UniformMat4
-			ACTUAL_PROJ_MAT = WAYPOINT_WARP.findUniformMat4("ActualProjMat"),
-			MODEL_VIEW_MAT  = WAYPOINT_WARP.findUniformMat4("ModelViewMat");
-		//satin does not provide uniform arrays, so I have to make 16 different uniforms instead.
-		public static final Uniform1i COUNT = WAYPOINT_WARP.findUniform1i("bigglobe_waypoint_count");
-		public static final Uniform4f[] POSITIONS = {
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_0"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_1"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_2"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_3"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_4"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_5"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_6"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_7"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_8"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_9"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_10"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_11"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_12"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_13"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_14"),
-			WAYPOINT_WARP.findUniform4f("bigglobe_waypoint_15"),
-		};
+		@Environment(EnvType.CLIENT)
+		public static class WaypointWarp {
+
+			public static final ManagedShaderEffect
+				SHADER = ShaderEffectManager.getInstance().manage(BigGlobeMod.modID("shaders/post/waypoint_warp.json"));
+			public static final UniformMat4
+				ACTUAL_PROJ_MAT = SHADER.findUniformMat4("ActualProjMat"),
+				MODEL_VIEW_MAT  = SHADER.findUniformMat4("ModelViewMat");
+			//satin does not provide uniform arrays, so I have to make 16 different uniforms instead.
+			public static final Uniform1i
+				COUNT = SHADER.findUniform1i("bigglobe_waypoint_count");
+			public static final Uniform4f[] POSITIONS = {
+				SHADER.findUniform4f("bigglobe_waypoint_0"),
+				SHADER.findUniform4f("bigglobe_waypoint_1"),
+				SHADER.findUniform4f("bigglobe_waypoint_2"),
+				SHADER.findUniform4f("bigglobe_waypoint_3"),
+				SHADER.findUniform4f("bigglobe_waypoint_4"),
+				SHADER.findUniform4f("bigglobe_waypoint_5"),
+				SHADER.findUniform4f("bigglobe_waypoint_6"),
+				SHADER.findUniform4f("bigglobe_waypoint_7"),
+				SHADER.findUniform4f("bigglobe_waypoint_8"),
+				SHADER.findUniform4f("bigglobe_waypoint_9"),
+				SHADER.findUniform4f("bigglobe_waypoint_10"),
+				SHADER.findUniform4f("bigglobe_waypoint_11"),
+				SHADER.findUniform4f("bigglobe_waypoint_12"),
+				SHADER.findUniform4f("bigglobe_waypoint_13"),
+				SHADER.findUniform4f("bigglobe_waypoint_14"),
+				SHADER.findUniform4f("bigglobe_waypoint_15"),
+			};
+		}
+
+		@Environment(EnvType.CLIENT)
+		public static class HyperspaceSkybox {
+
+			public static final ManagedShaderEffect
+				SHADER = ShaderEffectManager.getInstance().manage(BigGlobeMod.modID("shaders/post/hyperspace_skybox.json"));
+			public static final UniformMat4
+				PROJ_MAT_INVERSE = SHADER.findUniformMat4("ProjMatInverse"),
+				MODEL_VIEW_INVERSE = SHADER.findUniformMat4("ModelViewInverse");
+			public static final Uniform3f
+				CAMERA_POSITION = SHADER.findUniform3f("cameraPosition");
+			public static final Uniform1f
+				TIME = SHADER.findUniform1f("time");
+			public static final Matrix4f
+				SCRATCH_MATRIX = new Matrix4f();
+		}
 
 		public static void init() {
 			WorldRenderEvents.BEFORE_ENTITIES.register((WorldRenderContext context) -> {
@@ -105,14 +131,35 @@ public class SatinCompat {
 							1.0F
 						);
 						RenderSystem.getModelViewMatrix().transform(position);
-						POSITIONS[count++].set(position.x, position.y, position.z, waypoint.getHealth() / WaypointEntity.MAX_HEALTH);
+						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.getHealth() / WaypointEntity.MAX_HEALTH);
 					}
-					COUNT.set(count);
-					ACTUAL_PROJ_MAT.set(RenderSystem.getProjectionMatrix());
-					MODEL_VIEW_MAT.set(RenderSystem.getModelViewMatrix());
-					WAYPOINT_WARP.render(tickDelta);
+					WaypointWarp.COUNT.set(count);
+					WaypointWarp.ACTUAL_PROJ_MAT.set(RenderSystem.getProjectionMatrix());
+					WaypointWarp.MODEL_VIEW_MAT.set(RenderSystem.getModelViewMatrix());
+					WaypointWarp.SHADER.render(tickDelta);
 					visibleWaypoints.clear();
 				}
+			});
+			DimensionRenderingRegistry.registerSkyRenderer(HyperspaceConstants.WORLD_KEY, (WorldRenderContext context) -> {
+				HyperspaceSkybox.PROJ_MAT_INVERSE.set(HyperspaceSkybox.SCRATCH_MATRIX.set(context.projectionMatrix()).invert());
+				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(HyperspaceSkybox.SCRATCH_MATRIX.set(context.matrixStack().peek().getPositionMatrix()).transpose());
+				Vec3d pos = context.camera().getPos();
+				HyperspaceSkybox.CAMERA_POSITION.set((float)(pos.x), (float)(pos.y), (float)(pos.z));
+				HyperspaceSkybox.TIME.set(
+					(
+						(
+							(float)(
+								BigGlobeMath.modulus_BP(
+									context.world().getTime(),
+									24000L
+								)
+							)
+						)
+						+ context.tickDelta()
+					)
+					/ 20.0F
+				);
+				HyperspaceSkybox.SHADER.render(context.tickDelta());
 			});
 		}
 	}

@@ -1,0 +1,19 @@
+{
+	"blend": {
+		"func": "add",
+		"srcrgb": "srcalpha",
+		"dstrgb": "1-srcalpha"
+	},
+	"vertex": "minecraft:screenquad",
+	"fragment": "bigglobe:hyperspace_skybox",
+	"attributes": [ "Position" ],
+	"samplers": [],
+	"uniforms": [
+		{ "name": "ProjMat",          "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+		{ "name": "ProjMatInverse",   "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+		{ "name": "ModelViewInverse", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+		{ "name": "OutSize",          "type": "float",     "count": 2,  "values": [ 1.0, 1.0 ] },
+		{ "name": "cameraPosition",   "type": "float",     "count": 3,  "values": [ 0.0, 0.0, 0.0 ] },
+		{ "name": "time",             "type": "float",     "count": 1,  "values": [ 0.0 ] }
+	]
+}

@@ -22,6 +22,7 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 	in MC versions prior to the lighting engine rewrite of 1.20, ensure that molten rock emits light.
+	test all hyperspace renderers (waypoints and dimension) with shaders.
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
