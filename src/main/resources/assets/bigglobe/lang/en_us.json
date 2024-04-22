@@ -184,12 +184,10 @@
 	"commands.bigglobe.respawn.area_obstructed": "Your spawn point is obstructed.",
 	"commands.bigglobe.respawn.multi.fail": "Some players failed to be respawned.",
 
-	"commands.bigglobe.profiler.started": "Started worldgen profiling for %s",
-	"commands.bigglobe.profiler.alreadyRunning": "The profiler is already running in this world.",
-	"commands.bigglobe.profiler.dump.header": "Worldgen timings since the last clear:",
-	"commands.bigglobe.profiler.stopped": "Stopped worldgen profiling for %s",
-	"commands.bigglobe.profiler.restarted": "Restarted worldgen profiling for %s",
-	"commands.bigglobe.profiler.notRunning": "The profiler is not running in this world.",
+	"entity.bigglobe.torch_arrow": "Torch Arrow",
+	"entity.bigglobe.rock": "Rock",
+	"entity.bigglobe.string": "String",
+	"entity.bigglobe.waypoint": "Waypoint",
 
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
 

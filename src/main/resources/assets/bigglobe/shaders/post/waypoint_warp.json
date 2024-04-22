@@ -4,17 +4,17 @@
 	],
 	"passes": [
 		{
-			"name": "blit",
-			"intarget": "minecraft:main",
-			"outtarget": "swap"
-		},
-		{
 			"name": "bigglobe:waypoint_warp",
-			"intarget": "swap",
-			"outtarget": "minecraft:main",
+			"intarget": "minecraft:main",
+			"outtarget": "swap",
 			"auxtargets": [
 				{ "name": "DiffuseDepthSampler", "id": "minecraft:main:depth" }
 			]
+		},
+		{
+			"name": "blit",
+			"intarget": "swap",
+			"outtarget": "minecraft:main"
 		}
 	]
 }

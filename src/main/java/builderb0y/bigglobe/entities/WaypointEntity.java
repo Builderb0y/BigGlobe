@@ -13,7 +13,10 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
@@ -25,7 +28,7 @@ import builderb0y.bigglobe.util.Vectors;
 public class WaypointEntity extends Entity {
 
 	public static final TrackedData<Float> HEALTH = DataTracker.registerData(WaypointEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	public static final float MAX_HEALTH = 16.0F;
+	public static final float MAX_HEALTH = 10.0F;
 
 	public Orbit[] orbits;
 
@@ -49,6 +52,26 @@ public class WaypointEntity extends Entity {
 	@Override
 	public boolean canHit() {
 		return true;
+	}
+
+	@Override
+	public boolean canBeHitByProjectile() {
+		return false;
+	}
+
+	@Override
+	public ActionResult interact(PlayerEntity player, Hand hand) {
+		ItemStack stack = player.getStackInHand(hand);
+		if (stack.hasCustomName()) {
+			if (!player.getWorld().isClient) {
+				this.setCustomName(stack.getName());
+				stack.decrement(1);
+			}
+			return ActionResult.SUCCESS;
+		}
+		else {
+			return ActionResult.PASS;
+		}
 	}
 
 	@Override
@@ -140,8 +163,8 @@ public class WaypointEntity extends Entity {
 
 		public Orbit(RandomGenerator random, double hue) {
 			Vector3d color = CloudColor.smoothHue(hue);
-			double saturation = random.nextDouble() * 0.5D;
-			double brightness = random.nextDouble() * 0.25F + 0.75F;
+			double saturation = random.nextDouble();
+			double brightness = random.nextDouble() * 0.25D + 0.75D;
 			color.x = Interpolator.mixLinear(color.x, 1.0D, saturation) * brightness;
 			color.y = Interpolator.mixLinear(color.y, 1.0D, saturation) * brightness;
 			color.z = Interpolator.mixLinear(color.z, 1.0D, saturation) * brightness;

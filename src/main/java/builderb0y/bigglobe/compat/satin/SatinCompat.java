@@ -28,7 +28,6 @@ public class SatinCompat {
 
 	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
 	public static Vec3d cameraPosition = Vec3d.ZERO;
-	public static Matrix4f actualProjection = new Matrix4f();
 	public static final TreeSet<WaypointEntity> visibleWaypoints = ENABLED ? new TreeSet<>(
 		Comparator.comparingDouble((WaypointEntity entity) -> {
 			return BigGlobeMath.squareD(
@@ -65,7 +64,9 @@ public class SatinCompat {
 	public static class SatinCode {
 
 		public static final ManagedShaderEffect WAYPOINT_WARP = ShaderEffectManager.getInstance().manage(BigGlobeMod.modID("shaders/post/waypoint_warp.json"));
-		public static final UniformMat4 ACTUAL_PROJ_MAT = WAYPOINT_WARP.findUniformMat4("ActualProjMat");
+		public static final UniformMat4
+			ACTUAL_PROJ_MAT = WAYPOINT_WARP.findUniformMat4("ActualProjMat"),
+			MODEL_VIEW_MAT  = WAYPOINT_WARP.findUniformMat4("ModelViewMat");
 		//satin does not provide uniform arrays, so I have to make 16 different uniforms instead.
 		public static final Uniform1i COUNT = WAYPOINT_WARP.findUniform1i("bigglobe_waypoint_count");
 		public static final Uniform4f[] POSITIONS = {
@@ -90,7 +91,6 @@ public class SatinCompat {
 		public static void init() {
 			WorldRenderEvents.BEFORE_ENTITIES.register((WorldRenderContext context) -> {
 				cameraPosition = context.camera().getPos();
-				actualProjection.set(context.projectionMatrix());
 			});
 			PostWorldRenderCallback.EVENT.register((Camera camera, float tickDelta, long nanoTime) -> {
 				if (!visibleWaypoints.isEmpty()) {
@@ -108,7 +108,8 @@ public class SatinCompat {
 						POSITIONS[count++].set(position.x, position.y, position.z, waypoint.getHealth() / WaypointEntity.MAX_HEALTH);
 					}
 					COUNT.set(count);
-					ACTUAL_PROJ_MAT.set(actualProjection);
+					ACTUAL_PROJ_MAT.set(RenderSystem.getProjectionMatrix());
+					MODEL_VIEW_MAT.set(RenderSystem.getModelViewMatrix());
 					WAYPOINT_WARP.render(tickDelta);
 					visibleWaypoints.clear();
 				}
