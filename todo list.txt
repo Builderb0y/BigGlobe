@@ -26,9 +26,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	improve network threading.
-		old way was unsafe due to executing tasks in the network thread.
-		new way is slow due to decoding packets on main thread.
 
 4.0 stuff:
 	system to allow players to teleport to locations they've visited before.

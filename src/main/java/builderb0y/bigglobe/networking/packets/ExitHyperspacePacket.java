@@ -8,8 +8,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -24,7 +22,7 @@ import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
 
-public class ExitHyperspacePacket implements C2SPlayPacketHandler {
+public class ExitHyperspacePacket implements C2SPlayPacketHandler<ExitHyperspacePacket.Data> {
 
 	public static final ExitHyperspacePacket INSTANCE = new ExitHyperspacePacket();
 
@@ -35,9 +33,15 @@ public class ExitHyperspacePacket implements C2SPlayPacketHandler {
 	}
 
 	@Override
-	public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public Data decode(ServerPlayerEntity player, PacketByteBuf buffer) {
 		boolean owned = buffer.readBoolean();
+		UUID owner = owned ? player.getGameProfile().getId() : null;
 		UUID uuid = buffer.readUuid();
+		return new Data(owner, uuid);
+	}
+
+	@Override
+	public void process(ServerPlayerEntity player, Data data, PacketSender responseSender) {
 		if (player.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
 			return;
 		}
@@ -47,11 +51,11 @@ public class ExitHyperspacePacket implements C2SPlayPacketHandler {
 		}
 		ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
 		if (manager != null) {
-			WaypointList<ServerWaypointData> list = manager.forUUID(owned ? player.getGameProfile().getId() : null, false);
+			WaypointList<ServerWaypointData> list = manager.forUUID(data.owner, false);
 			if (list != null) {
-				ServerWaypointData waypoint = list.waypoints.get(uuid);
+				ServerWaypointData waypoint = list.waypoints.get(data.uuid);
 				if (waypoint != null) {
-					ServerWorld destination = server.getWorld(waypoint.world());
+					ServerWorld destination = BigGlobeMod.getCurrentServer().getWorld(waypoint.world());
 					if (destination != null) {
 						ServerPlayerEntity newPlayer = FabricDimensions.teleport(player, destination, new TeleportTarget(waypoint.position(), player.getVelocity(), player.getYaw(), player.getPitch()));
 						if (newPlayer != null) {
@@ -62,7 +66,7 @@ public class ExitHyperspacePacket implements C2SPlayPacketHandler {
 					}
 					else {
 						player.sendMessage(Text.translatable("hyperspace.invalid_destination_dimension"), true);
-						list.waypoints.remove(uuid);
+						list.waypoints.remove(data.uuid);
 					}
 				}
 				else {
@@ -70,11 +74,13 @@ public class ExitHyperspacePacket implements C2SPlayPacketHandler {
 				}
 			}
 			else {
-				BigGlobeMod.LOGGER.warn(player + " attempted to exit hyperspace without any " + (owned ? "private" : "public") + " waypoints. UUID: " + uuid);
+				BigGlobeMod.LOGGER.warn(player + " attempted to exit hyperspace without any " + (data.owner != null ? "private" : "public") + " waypoints. UUID: " + data.uuid);
 			}
 		}
 		else {
 			BigGlobeMod.LOGGER.warn(player + " attempted to exit hyperspace without hyperspace being enabled.");
 		}
 	}
+
+	public static record Data(UUID owner, UUID uuid) {}
 }

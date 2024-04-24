@@ -31,27 +31,30 @@ public class SatinCompat {
 
 	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
 	public static Vec3d cameraPosition = Vec3d.ZERO;
-	public static final TreeSet<WaypointEntity> visibleWaypoints = ENABLED ? new TreeSet<>(
-		Comparator.comparingDouble((WaypointEntity entity) -> {
-			return BigGlobeMath.squareD(
-				entity.getX() - cameraPosition.x,
-				entity.getY() + 1.0D - cameraPosition.y,
-				entity.getZ() - cameraPosition.z
-			);
-		})
-		.thenComparingInt(WaypointEntity::getId)
-	)
-	: null;
+	public static final TreeSet<WaypointEntity> visibleWaypoints = (
+		ENABLED
+		? new TreeSet<>(
+			Comparator.comparingDouble((WaypointEntity entity) -> {
+				return BigGlobeMath.squareD(
+					entity.getX() - cameraPosition.x,
+					entity.getY() + 1.0D - cameraPosition.y,
+					entity.getZ() - cameraPosition.z
+				);
+			})
+			.thenComparingInt(WaypointEntity::getId)
+		)
+		: null
+	);
 
 	public static void init() {
 		if (ENABLED) try {
 			SatinCode.init();
 		}
 		catch (LinkageError error) {
-			BigGlobeMod.LOGGER.error("Failed to setup satin integration. Waypoints will be boring.", error);
+			BigGlobeMod.LOGGER.error("Failed to setup satin integration. Waypoints and hyperspace will look boring.", error);
 		}
 		else {
-			BigGlobeMod.LOGGER.info("Satin is not installed. Waypoints will be boring.");
+			BigGlobeMod.LOGGER.info("Satin is not installed. Waypoints and hyperspace will look boring.");
 		}
 	}
 

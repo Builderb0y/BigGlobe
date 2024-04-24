@@ -35,7 +35,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.networking.packets.*;
 
-public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHandler, S2CLoginPacketHandler, S2CPlayPacketHandler {
+public class BigGlobeNetwork implements ClientPlayNetworking.PlayChannelHandler, ServerPlayNetworking.PlayChannelHandler {
 
 	public static final Identifier NETWORK_ID = BigGlobeMod.modID("network");
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Network");
@@ -79,62 +79,60 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public CompletableFuture<@Nullable PacketByteBuf> receive(MinecraftClient client, ClientLoginNetworkHandler handler, PacketByteBuf buffer, Consumer<GenericFutureListener<? extends io.netty.util.concurrent.Future<? super Void>>> listenerAdder) {
+	public void receive(
+		MinecraftClient client,
+		ClientPlayNetworkHandler networkHandler,
+		PacketByteBuf buffer,
+		PacketSender responseSender
+	) {
 		byte id = buffer.readByte();
-		if (this.getHandler(id) instanceof S2CLoginPacketHandler packetHandler) {
-			return packetHandler.receive(client, handler, buffer, listenerAdder);
-		}
-		else {
-			LOGGER.warn("No server to client login packet handler registered for ID " + Byte.toUnsignedInt(id));
-			return null;
-		}
-	}
-
-	@Override
-	public void receive(MinecraftServer server, ServerLoginNetworkHandler handler, boolean understood, PacketByteBuf buffer, LoginSynchronizer synchronizer, PacketSender responseSender) {
-		byte id = buffer.readByte();
-		if (this.getHandler(id) instanceof C2SLoginPacketHandler packetHandler) {
-			packetHandler.receive(server, handler, understood, buffer, synchronizer, responseSender);
-		}
-		else {
-			LOGGER.warn("No client to server login packet handler registered for ID " + Byte.toUnsignedInt(id));
-		}
-	}
-
-	@Override
-	@Environment(EnvType.CLIENT)
-	public void receive(MinecraftClient client, ClientPlayNetworkHandler networkHandler, PacketByteBuf buffer, PacketSender responseSender) {
-		byte id = buffer.readByte();
-		if (this.getHandler(id) instanceof S2CPlayPacketHandler packetHandler) {
-			PacketByteBuf copy = new PacketByteBuf(Unpooled.buffer(buffer.readableBytes()));
-			buffer.readBytes(copy);
-			client.executeSync(() -> {
-				packetHandler.receive(client, networkHandler, copy, responseSender);
-			});
+		if (this.getHandler(id) instanceof S2CPlayPacketHandler<?> packetHandler) {
+			this.doReceive(client, buffer, responseSender, packetHandler);
 		}
 		else {
 			LOGGER.warn("No server to client play packet handler registered for ID " + Byte.toUnsignedInt(id));
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
+	public <T> void doReceive(
+		MinecraftClient client,
+		PacketByteBuf buffer,
+		PacketSender responseSender,
+		S2CPlayPacketHandler<T> handler
+	) {
+		T data = handler.decode(buffer);
+		client.executeSync(() -> {
+			handler.process(data, responseSender);
+		});
+	}
+
 	@Override
 	public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler networkHandler, PacketByteBuf buffer, PacketSender responseSender) {
 		byte id = buffer.readByte();
-		if (this.getHandler(id) instanceof C2SPlayPacketHandler packetHandler) {
-			PacketByteBuf copy = new PacketByteBuf(Unpooled.buffer(buffer.readableBytes()));
-			buffer.readBytes(copy);
-			server.executeSync(() -> {
-				packetHandler.receive(server, player, networkHandler, copy, responseSender);
-			});
+		if (this.getHandler(id) instanceof C2SPlayPacketHandler<?> packetHandler) {
+			this.doReceive(server, player, buffer, responseSender, packetHandler);
 		}
 		else {
 			LOGGER.warn("No client to server play packet handler registered for ID " + Byte.toUnsignedInt(id));
 		}
 	}
 
+	public <T> void doReceive(
+		MinecraftServer server,
+		ServerPlayerEntity player,
+		PacketByteBuf buffer,
+		PacketSender responseSender,
+		C2SPlayPacketHandler<T> handler
+	) {
+		T data = handler.decode(player, buffer);
+		server.executeSync(() -> {
+			handler.process(player, data, responseSender);
+		});
+	}
+
 	public static void init() {
 		LOGGER.debug("Initializing common network...");
-		ServerLoginNetworking.registerGlobalReceiver(NETWORK_ID, INSTANCE);
 		ServerPlayNetworking.registerGlobalReceiver(NETWORK_ID, INSTANCE);
 		LOGGER.debug("Done initializing common network.");
 	}
@@ -142,7 +140,6 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
 		LOGGER.debug("Initializing client network...");
-		ClientLoginNetworking.registerGlobalReceiver(NETWORK_ID, INSTANCE);
 		ClientPlayNetworking.registerGlobalReceiver(NETWORK_ID, INSTANCE);
 		LOGGER.debug("Done initializing client network.");
 	}

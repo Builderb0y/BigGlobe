@@ -195,7 +195,7 @@ public abstract class WaypointManager<D extends WaypointManager.WaypointData> ex
 
 	public static class ClientWaypointManager extends WaypointManager<ClientWaypointData> {
 
-		public static final ClientWaypointManager INSTANCE = new ClientWaypointManager();
+		public static ClientWaypointManager INSTANCE = new ClientWaypointManager();
 
 		@Environment(EnvType.CLIENT)
 		public static void init() {
@@ -228,7 +228,7 @@ public abstract class WaypointManager<D extends WaypointManager.WaypointData> ex
 		}
 
 		@Environment(EnvType.CLIENT)
-		public void fromByteBuffer(PacketByteBuf buffer) {
+		public static ClientWaypointManager fromByteBuffer(PacketByteBuf buffer) {
 			int worldCount = buffer.readVarInt();
 			Int2ObjectMap<RegistryKey<World>> worlds = new Int2ObjectOpenHashMap<>(worldCount);
 			for (int worldIndex = 0; worldIndex < worldCount; worldIndex++) {
@@ -248,15 +248,15 @@ public abstract class WaypointManager<D extends WaypointManager.WaypointData> ex
 			for (int privateIndex = 0; privateIndex < privateCount; privateIndex++) {
 				privateList.add(ClientWaypointData.fromByteBuffer(buffer, worlds, playerUUID));
 			}
-			this.owners.clear();
-			this.owners.put(null, publicList);
-			this.owners.put(playerUUID, privateList);
-
-			this.setupInitialWaypoints();
+			ClientWaypointManager manager = new ClientWaypointManager();
+			manager.owners.put(null, publicList);
+			manager.owners.put(playerUUID, privateList);
+			return manager;
 		}
 
 		@Environment(EnvType.CLIENT)
-		public void setupInitialWaypoints() {
+		public static void setInstance(ClientWaypointManager instance) {
+			INSTANCE = instance;
 			ClientWorld world = MinecraftClient.getInstance().world;
 			if (world != null && world.getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 				for (Entity entity : world.getEntities()) {
@@ -268,7 +268,7 @@ public abstract class WaypointManager<D extends WaypointManager.WaypointData> ex
 				for (int index = 0, length = chunks.length(); index < length; index++) {
 					WorldChunk chunk = chunks.getPlain(index);
 					if (chunk != null) {
-						this.onChunkLoaded(world, chunk);
+						instance.onChunkLoaded(world, chunk);
 					}
 				}
 			}
