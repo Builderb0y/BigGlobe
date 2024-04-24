@@ -16,3 +16,10 @@ accessible class net/minecraft/world/biome/Biome$Weather
 #used by spore particles in the end to, you know, construct the particle.
 #did you know that crimson and warped spore particles are instances of WaterSuspendParticle?
 accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/particle/SpriteProvider;DDDDDD)V
+
+#used to get the list of loaded chunks on the client,
+#which itself is used to manage the fake client-side waypoint entities,
+#and load and unload them at the correct times.
+accessible class net/minecraft/client/world/ClientChunkManager$ClientChunkMap
+accessible field net/minecraft/client/world/ClientChunkManager chunks Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
+accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;

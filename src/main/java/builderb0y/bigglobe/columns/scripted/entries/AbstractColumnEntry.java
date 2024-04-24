@@ -338,30 +338,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 	public void populateExtract(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext extractMethod) {
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		extractMethod.setCode(
-			"""
-			var array = arrayField
-			unless (array.valid: return(fallback))
-			if (y >= array.minCached && y < array.maxCached:
-				return(array.array.get(y - array.minCached))
-			)
-			"""
-			+ (
-				this.hasValid()
-				? (
-					this.valid.min_y() != null
-					? (
-						this.valid.max_y() != null
-						? "if (y >= array.minAccessible && y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
-						: "if (y >= array.minAccessible: return(compute(y)))\nreturn(fallback)"
-					)
-					: (
-						this.valid.max_y() != null
-						? "if (y < array.maxAccessible: return(compute(y)))\nreturn(fallback)"
-						: "return(compute(y))"
-					)
-				)
-				: "return(compute(y))"
-			),
+			this.extractSource(),
 			new MutableScriptEnvironment()
 			.addVariableLoad("y", TypeInfos.INT)
 			.addVariable("arrayField", getField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info))
@@ -384,6 +361,126 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 			.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(accessContext.exposedType()) : ConstantValue.of(0))
 			.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
 		);
+	}
+
+	public String extractSource() {
+		if (this.hasValid()) {
+			if (this.valid.where() != null) {
+				if (this.valid.min_y() != null) {
+					if (this.valid.max_y() != null) {
+						return """
+							var array = arrayField
+							unless (array.valid: return(fallback))
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y >= array.minAccessible && y < array.maxAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+					else {
+						return """
+							var array = arrayField
+							unless (array.valid: return(fallback))
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y >= array.minAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+				}
+				else {
+					if (this.valid.max_y() != null) {
+						return """
+							var array = arrayField
+							unless (array.valid: return(fallback))
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y < array.maxAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+					else {
+						return """
+							var array = arrayField
+							unless (array.valid: return(fallback))
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							return(compute(y))
+						""";
+					}
+				}
+			}
+			else {
+				if (this.valid.min_y() != null) {
+					if (this.valid.max_y() != null) {
+						return """
+							var array = arrayField
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y >= array.minAccessible && y < array.maxAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+					else {
+						return """
+							var array = arrayField
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y >= array.minAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+				}
+				else {
+					if (this.valid.max_y() != null) {
+						return """
+							var array = arrayField
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							if (y < array.maxAccessible:
+								return(compute(y))
+							)
+							return(fallback)
+						""";
+					}
+					else {
+						return """
+							var array = arrayField
+							if (y >= array.minCached && y < array.maxCached:
+								return(array.array.get(y - array.minCached))
+							)
+							return(compute(y))
+						""";
+					}
+				}
+			}
+		}
+		else {
+			return """
+				var array = arrayField
+				if (y >= array.minCached && y < array.maxCached:
+					return(array.array.get(y - array.minCached))
+				)
+				return(compute(y))
+			""";
+		}
 	}
 
 	public String getComputeSource(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment computeEnvironment) {

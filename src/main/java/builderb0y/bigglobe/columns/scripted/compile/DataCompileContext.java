@@ -21,7 +21,7 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
-import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
+import builderb0y.scripting.bytecode.tree.conditions.IntCompareZeroConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.SwitchInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ConditionToBooleanInsnTree;
@@ -138,7 +138,7 @@ public abstract class DataCompileContext {
 					FieldInfo field = this.flagsField(flagIndex);
 					int mask = flagsFieldBitmask(flagIndex);
 					InsnTree case_ = new ConditionToBooleanInsnTree(
-						new IntCompareConditionTree(
+						new IntCompareZeroConditionTree(
 							new BitwiseAndInsnTree(
 								getField(
 									this.loadSelf(),
@@ -147,7 +147,6 @@ public abstract class DataCompileContext {
 								ldc(mask),
 								IAND
 							),
-							ldc(0),
 							IFNE
 						)
 					);

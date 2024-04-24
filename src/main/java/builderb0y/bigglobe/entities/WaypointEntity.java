@@ -3,12 +3,14 @@ package builderb0y.bigglobe.entities;
 import java.util.random.RandomGenerator;
 
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -23,13 +25,19 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
+import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointData;
+import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointManager;
+import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.mixinInterfaces.WaypointEntranceTracker;
+import builderb0y.bigglobe.networking.packets.ExitHyperspacePacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
 
@@ -38,6 +46,9 @@ public class WaypointEntity extends Entity {
 	public static final TrackedData<Float> HEALTH = DataTracker.registerData(WaypointEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	public static final float MAX_HEALTH = 10.0F;
 
+	public @Nullable ServerWaypointData data;
+	/** true if this entity is client-side only and does not exist on the server. */
+	public boolean isFake;
 	public Orbit[] orbits;
 
 	public WaypointEntity(EntityType<?> type, World world) {
@@ -59,12 +70,18 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public boolean canHit() {
-		return true;
+		return !this.isFake;
 	}
 
 	@Override
 	public boolean canBeHitByProjectile() {
 		return false;
+	}
+
+	@Nullable
+	@Override
+	public ItemStack getPickBlockStack() {
+		return BigGlobeItems.WAYPOINT != null ? new ItemStack(BigGlobeItems.WAYPOINT) : null;
 	}
 
 	@Override
@@ -85,20 +102,46 @@ public class WaypointEntity extends Entity {
 	@Override
 	public void onPlayerCollision(PlayerEntity player) {
 		super.onPlayerCollision(player);
-		if (!this.getWorld().isClient && player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D) {
-			ServerWorld hyperspace = this.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
-			ServerPlayerEntity newPlayer = (ServerPlayerEntity)(FabricDimensions.teleport(player, hyperspace, new TeleportTarget(new Vec3d(0.0D, 8.0D, 0.0D), player.getVelocity(), player.getYaw(), player.getPitch())));
-			if (newPlayer != null) {
-				newPlayer.getAbilities().allowFlying = true;
-				newPlayer.getAbilities().flying = true;
-				newPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(newPlayer.getAbilities()));
+		if (this.data == null) return;
+		if (player.hasPortalCooldown()) {
+			player.setPortalCooldown(20);
+			return;
+		}
+		if (
+			player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.getHealth() / MAX_HEALTH &&
+			(this.data.owner() == null || this.data.owner().equals(player.getGameProfile().getId()))
+		) {
+			if (this.getWorld().isClient) {
+				if (this.isFake && this.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+					ExitHyperspacePacket.INSTANCE.send(this.data.owner() != null, this.data.uuid());
+				}
+			}
+			else {
+				if (this.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
+					((WaypointEntranceTracker)(player)).bigglobe_setWaypointEntrance(this.data);
+					ServerWorld hyperspace = this.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
+					ServerPlayerEntity newPlayer = (ServerPlayerEntity)(FabricDimensions.teleport(player, hyperspace, new TeleportTarget(new Vec3d(0.0D, 8.0D, 0.0D), player.getVelocity(), player.getYaw(), player.getPitch())));
+					if (newPlayer != null) {
+						newPlayer.setPortalCooldown(20);
+					}
+				}
 			}
 		}
 	}
 
+	public boolean isVulnerableTo(DamageSource damageSource) {
+		return (
+			damageSource.getSource() instanceof PlayerEntity player && (
+				this.data == null ||
+				this.data.owner() == null ||
+				this.data.owner().equals(player.getGameProfile().getId())
+			)
+		);
+	}
+
 	@Override
 	public boolean isInvulnerableTo(DamageSource damageSource) {
-		return !(damageSource.getSource() instanceof PlayerEntity);
+		return !this.isVulnerableTo(damageSource);
 	}
 
 	@Override
@@ -118,6 +161,32 @@ public class WaypointEntity extends Entity {
 			this.setHealth(newHealth);
 		}
 		return true;
+	}
+
+	@Override
+	public void remove(RemovalReason reason) {
+		if (reason == RemovalReason.KILLED && this.getWorld() instanceof ServerWorld serverWorld) {
+			ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
+			if (manager != null) {
+				manager.removeWaypoint(this.data);
+			}
+			if (BigGlobeItems.WAYPOINT != null && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+				ItemStack stack = new ItemStack(BigGlobeItems.WAYPOINT);
+				if (this.hasCustomName()) {
+					stack.setCustomName(this.getCustomName());
+				}
+				ItemEntity entity = new ItemEntity(
+					this.getWorld(),
+					this.getX(),
+					this.getY() + 1.0D,
+					this.getZ(),
+					stack
+				);
+				entity.setToDefaultPickupDelay();
+				this.getWorld().spawnEntity(entity);
+			}
+		}
+		super.remove(reason);
 	}
 
 	public float getHealth() {
@@ -150,12 +219,12 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	protected boolean canAddPassenger(Entity passenger) {
+	public boolean canAddPassenger(Entity passenger) {
 		return false;
 	}
 
 	@Override
-	protected boolean couldAcceptPassenger() {
+	public boolean couldAcceptPassenger() {
 		return false;
 	}
 
@@ -165,18 +234,20 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	protected void initDataTracker() {
+	public void initDataTracker() {
 		this.dataTracker.startTracking(HEALTH, 0.0F);
 	}
 
 	@Override
-	protected void readCustomDataFromNbt(NbtCompound nbt) {
-
+	public void writeCustomDataToNbt(NbtCompound nbt) {
+		if (this.data != null) nbt.put("waypoint", this.data.toNBT());
 	}
 
 	@Override
-	protected void writeCustomDataToNbt(NbtCompound nbt) {
-
+	public void readCustomDataFromNbt(NbtCompound nbt) {
+		if (nbt.get("waypoint") instanceof NbtCompound compound) {
+			this.data = ServerWaypointData.fromNBT(compound);
+		}
 	}
 
 	public static abstract class Orbit {

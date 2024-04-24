@@ -22,10 +22,13 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 	in MC versions prior to the lighting engine rewrite of 1.20, ensure that molten rock emits light.
-	test all hyperspace renderers (waypoints and dimension) with shaders.
+	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	improve network threading.
+		old way was unsafe due to executing tasks in the network thread.
+		new way is slow due to decoding packets on main thread.
 
 4.0 stuff:
 	system to allow players to teleport to locations they've visited before.
@@ -69,6 +72,7 @@ where I left off:
 	glow lichen.
 	bottled aura.
 		add to loot tables of end cities.
+	items might not be added to creative menu in 1.19.2.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.
@@ -107,6 +111,7 @@ where I left off:
 	fix random.switch() using implicit random instead of explicit random in RandomScriptEnvironment.
 	see if waterfalls need fixing due to typo of +1 becoming -1 in loop bounds.
 	disable raids in end dimension.
+	items might not be added to creative menu in 1.19.2.
 
 changelog:
 	4.0:

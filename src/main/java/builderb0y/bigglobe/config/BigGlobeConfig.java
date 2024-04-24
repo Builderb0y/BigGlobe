@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Excluded;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.RequiresRestart;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
 import builderb0y.autocodec.annotations.Mirror;
@@ -51,6 +52,7 @@ public class BigGlobeConfig {
 	@DefaultIgnore
 	public boolean bigGlobeTreesInOtherWorlds = false;
 
+	@RequiresRestart
 	@Tooltip(count = 3)
 	@UseName("Hyperspace Enabled")
 	@DefaultIgnore

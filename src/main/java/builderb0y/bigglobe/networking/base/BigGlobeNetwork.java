@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2ByteMap;
 import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
@@ -31,9 +33,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
-import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
-import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
+import builderb0y.bigglobe.networking.packets.*;
 
 public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHandler, S2CLoginPacketHandler, S2CPlayPacketHandler {
 
@@ -49,6 +49,8 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 		this.register(SettingsSyncS2CPacketHandler.INSTANCE);
 		this.register(TimeSpeedS2CPacketHandler.INSTANCE);
 		this.register(DangerousRapidsPacket.INSTANCE);
+		this.register(WaypointListS2CPacket.INSTANCE);
+		this.register(ExitHyperspacePacket.INSTANCE);
 	}
 
 	public byte nextId() {
@@ -104,7 +106,11 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler networkHandler, PacketByteBuf buffer, PacketSender responseSender) {
 		byte id = buffer.readByte();
 		if (this.getHandler(id) instanceof S2CPlayPacketHandler packetHandler) {
-			packetHandler.receive(client, networkHandler, buffer, responseSender);
+			PacketByteBuf copy = new PacketByteBuf(Unpooled.buffer(buffer.readableBytes()));
+			buffer.readBytes(copy);
+			client.executeSync(() -> {
+				packetHandler.receive(client, networkHandler, copy, responseSender);
+			});
 		}
 		else {
 			LOGGER.warn("No server to client play packet handler registered for ID " + Byte.toUnsignedInt(id));
@@ -115,7 +121,11 @@ public class BigGlobeNetwork implements C2SLoginPacketHandler, C2SPlayPacketHand
 	public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler networkHandler, PacketByteBuf buffer, PacketSender responseSender) {
 		byte id = buffer.readByte();
 		if (this.getHandler(id) instanceof C2SPlayPacketHandler packetHandler) {
-			packetHandler.receive(server, player, networkHandler, buffer, responseSender);
+			PacketByteBuf copy = new PacketByteBuf(Unpooled.buffer(buffer.readableBytes()));
+			buffer.readBytes(copy);
+			server.executeSync(() -> {
+				packetHandler.receive(server, player, networkHandler, copy, responseSender);
+			});
 		}
 		else {
 			LOGGER.warn("No client to server play packet handler registered for ID " + Byte.toUnsignedInt(id));

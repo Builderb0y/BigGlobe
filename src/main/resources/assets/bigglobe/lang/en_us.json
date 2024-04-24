@@ -109,6 +109,7 @@
 	"item.bigglobe.spelunking_rope.tooltip": "Attach to a rope anchor on the edge of a cliff",
 	"item.bigglobe.sulfur": "Sulfur",
 	"item.bigglobe.torch_arrow": "Torch Arrow",
+	"item.bigglobe.waypoint": "Waypoint",
 
 	"item.minecraft.potion.effect.wither": "Potion of Withering",
 	"item.minecraft.potion.effect.long_wither": "Potion of Withering",
@@ -192,6 +193,9 @@
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
 
 	"tooltip.bigglobe.ball_of_string.remaining": "%d/%d block(s) remaining",
+
+	"hyperspace.invalid_destination_dimension": "This waypoint leads to a non-existent dimension.",
+	"hyperspace.invalid_destination": "This waypoint was destroyed after you entered hyperspace.",
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
 

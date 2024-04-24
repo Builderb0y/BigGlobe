@@ -20,9 +20,12 @@ import net.minecraft.util.DyeColor;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+import org.jetbrains.annotations.Nullable;
 
 #if MC_VERSION > MC_1_19_2
 	import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -147,6 +150,7 @@ public class BigGlobeItems {
 		)
 	);
 	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings()));
+	public static final @Nullable WaypointItem WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("waypoint", new WaypointItem(settings())) : null;
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
@@ -240,6 +244,7 @@ public class BigGlobeItems {
 				entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
 				entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
 				entries.addAfter(Items.LEAD, string(16), string(64), string(256));
+				if (WAYPOINT != null) entries.addAfter(Items.ENDER_EYE, WAYPOINT);
 			});
 			ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 				entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
