@@ -10,26 +10,26 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import builderb0y.bigglobe.hyperspace.ClientWaypointManager;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 
 @Mixin(PlayerEntity.class)
 public class PlayerEntity_TrackWaypoints implements WaypointTracker {
 
-	public ClientWaypointManager bigglobe_waypoints;
+	public PlayerWaypointManager bigglobe_waypoints;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void bigglobe_initClientWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
-		this.bigglobe_waypoints = new ClientWaypointManager(null);
+	private void bigglobe_initPlayerWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
+		this.bigglobe_waypoints = PlayerWaypointManager.forPlayer((PlayerEntity)(Object)(this));
 	}
 
 	@Override
-	public ClientWaypointManager bigglobe_getWaypointManager() {
+	public PlayerWaypointManager bigglobe_getWaypointManager() {
 		return this.bigglobe_waypoints;
 	}
 
 	@Override
-	public void bigglobe_setWaypointManager(ClientWaypointManager entrance) {
+	public void bigglobe_setWaypointManager(PlayerWaypointManager entrance) {
 		this.bigglobe_waypoints = entrance;
 	}
 

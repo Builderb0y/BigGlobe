@@ -27,6 +27,8 @@ testing:
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	save hyperspace entrance location to player NBT.
+	replace waypoint UUIDs with varints, incremented every time a waypoint is created.
+		remove unused IDs on save.
 
 4.0 stuff:
 	system to allow players to teleport to locations they've visited before.

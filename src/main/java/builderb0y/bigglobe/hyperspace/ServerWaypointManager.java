@@ -1,21 +1,28 @@
 package builderb0y.bigglobe.hyperspace;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
-import builderb0y.bigglobe.networking.packets.WaypointAddS2CPacket;
-import builderb0y.bigglobe.networking.packets.WaypointRemoveS2CPacket;
 
+/**
+manages all the waypoints on a server,
+including all public waypoints, and all
+private waypoints created by every player.
+*/
 public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	public static final Type<ServerWaypointManager>
@@ -23,8 +30,12 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	public ServerWaypointManager() {}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ServerWaypointManager(NbtCompound nbt) {
-		this.readNbt(nbt);
+		for (NbtCompound waypointNBT : (Iterable<NbtCompound>)(Iterable)(nbt.getList("waypoints", NbtElement.COMPOUND_TYPE))) {
+			ServerWaypointData waypoint = ServerWaypointData.fromNBT(waypointNBT);
+			if (waypoint != null) this.addWaypoint(waypoint, false);
+		}
 	}
 
 	public static @Nullable ServerWaypointManager get(ServerWorld world) {
@@ -35,35 +46,73 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 		return world.getPersistentStateManager().getOrCreate(ServerWaypointManager.TYPE, "bigglobe_hyperspace_waypoints");
 	}
 
+	public Stream<ServerWaypointData> getVisibleWaypoints(PlayerEntity player) {
+		return this.getVisibleWaypoints(player.getGameProfile().getId(), player.getWorld().getRegistryKey());
+	}
+
+	public Stream<ServerWaypointData> getVisibleWaypoints(UUID playerUUID, RegistryKey<World> playerWorld) {
+		Stream<ServerWaypointData> stream;
+		WaypointLookup<ServerWaypointData> global = this.byOwner.get(null);
+		if (playerUUID == null) {
+			if (global != null && !global.isEmpty()) {
+				stream = global.values().stream();
+			}
+			else {
+				return Stream.empty();
+			}
+		}
+		else {
+			WaypointLookup<ServerWaypointData> owned = this.byOwner.get(playerUUID);
+			if (global != null && !global.isEmpty()) {
+				if (owned != null && !owned.isEmpty()) {
+					stream = Stream.concat(global.values().stream(), owned.values().stream());
+				}
+				else {
+					stream = global.values().stream();
+				}
+			}
+			else {
+				if (owned != null && !owned.isEmpty()) {
+					stream = owned.values().stream();
+				}
+				else {
+					return Stream.empty();
+				}
+			}
+		}
+		if (playerWorld != HyperspaceConstants.WORLD_KEY) {
+			stream = stream.filter((ServerWaypointData data) -> data.destinationPosition().world() == playerWorld);
+		}
+		return stream;
+	}
+
 	@Override
-	public boolean addWaypoint(ServerWaypointData waypoint, boolean executeCallbacks) {
-		if (super.addWaypoint(waypoint, executeCallbacks)) {
-			if (executeCallbacks) {
+	public boolean addWaypoint(ServerWaypointData waypoint, boolean sync) {
+		if (super.addWaypoint(waypoint, sync)) {
+			if (sync) {
 				MinecraftServer server = BigGlobeMod.currentServer;
 				if (server != null) {
 					if (waypoint.owner() != null) {
 						ServerPlayerEntity player = server.getPlayerManager().getPlayer(waypoint.owner());
 						if (player != null) {
-							ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							ClientWaypointData clientWaypoint;
+							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+							PlayerWaypointData clientWaypoint;
 							if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 								clientWaypoint = waypoint.relativize(clientManager.entrance.position());
 							}
 							else {
 								clientWaypoint = waypoint.absolutize();
 							}
-							clientManager.addWaypoint(clientWaypoint, false);
-							WaypointAddS2CPacket.INSTANCE.send(player, clientWaypoint);
+							clientManager.addWaypoint(clientWaypoint, true);
 						}
 					}
 					else {
-						ServerWorld world = server.getWorld(waypoint.world());
+						ServerWorld world = server.getWorld(waypoint.position().world());
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-								ClientWaypointData clientWaypoint = waypoint.absolutize();
-								clientManager.addWaypoint(clientWaypoint, false);
-								WaypointAddS2CPacket.INSTANCE.send(player, clientWaypoint);
+								PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+								PlayerWaypointData clientWaypoint = waypoint.absolutize();
+								clientManager.addWaypoint(clientWaypoint, true);
 							}
 						}
 						else {
@@ -72,10 +121,9 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 						world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-								ClientWaypointData clientWaypoint = waypoint.relativize(clientManager.entrance.position());
-								clientManager.addWaypoint(clientWaypoint, false);
-								WaypointAddS2CPacket.INSTANCE.send(player, clientWaypoint);
+								PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+								PlayerWaypointData clientWaypoint = waypoint.relativize(clientManager.entrance.position());
+								clientManager.addWaypoint(clientWaypoint, true);
 							}
 						}
 					}
@@ -89,26 +137,24 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	}
 
 	@Override
-	public ServerWaypointData removeWaypoint(UUID owner, UUID uuid, boolean executeCallbacks) {
-		ServerWaypointData removed = super.removeWaypoint(owner, uuid, executeCallbacks);
-		if (removed != null && executeCallbacks) {
+	public ServerWaypointData removeWaypoint(UUID owner, UUID uuid, boolean sync) {
+		ServerWaypointData removed = super.removeWaypoint(owner, uuid, sync);
+		if (removed != null && sync) {
 			MinecraftServer server = BigGlobeMod.currentServer;
 			if (server != null) {
 				if (owner != null) {
 					ServerPlayerEntity player = server.getPlayerManager().getPlayer(owner);
 					if (player != null) {
-						ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-						clientManager.removeWaypoint(owner, uuid, false);
-						WaypointRemoveS2CPacket.INSTANCE.send(player, true, uuid);
+						PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+						clientManager.removeWaypoint(owner, uuid, true);
 					}
 				}
 				else {
-					ServerWorld world = server.getWorld(removed.world());
+					ServerWorld world = server.getWorld(removed.position().world());
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(owner, uuid, false);
-							WaypointRemoveS2CPacket.INSTANCE.send(player, false, uuid);
+							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+							clientManager.removeWaypoint(owner, uuid, true);
 						}
 					}
 					else {
@@ -117,9 +163,8 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							ClientWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(owner, uuid, false);
-							WaypointRemoveS2CPacket.INSTANCE.send(player, false, uuid);
+							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+							clientManager.removeWaypoint(owner, uuid, true);
 						}
 					}
 				}
@@ -131,16 +176,10 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	@Override
 	public NbtCompound writeNbt(NbtCompound nbt) {
 		NbtList waypoints = new NbtList();
-		this.getAllWaypoints().map(ServerWaypointData::toNBT).forEach(waypoints::add);
+		for (ServerWaypointData waypoint : this.getAllWaypoints()) {
+			waypoints.add(waypoint.toNBT());
+		}
 		nbt.put("waypoints", waypoints);
 		return nbt;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void readNbt(NbtCompound nbt) {
-		for (NbtCompound waypointNBT : (Iterable<NbtCompound>)(Iterable)(nbt.getList("waypoints", NbtElement.COMPOUND_TYPE))) {
-			ServerWaypointData waypoint = ServerWaypointData.fromNBT(waypointNBT);
-			if (waypoint != null) this.addWaypoint(waypoint, false);
-		}
 	}
 }

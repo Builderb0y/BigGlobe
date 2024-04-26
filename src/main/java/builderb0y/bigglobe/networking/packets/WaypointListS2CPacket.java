@@ -3,6 +3,7 @@ package builderb0y.bigglobe.networking.packets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.ToIntFunction;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -16,15 +17,12 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
-import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -47,92 +45,73 @@ waypoints:
 		display position packed Y (int).
 		display position packed Z (int).
 */
-public class WaypointListS2CPacket implements S2CPlayPacketHandler<ClientWaypointManager> {
+public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWaypointData>> {
 
 	public static final WaypointListS2CPacket INSTANCE = new WaypointListS2CPacket();
 
-	public void recompute(ServerPlayerEntity player, ServerWaypointData entrance) {
-		ServerWaypointManager serverManager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
-		if (serverManager == null) return;
-		ClientWaypointManager newManager = new ClientWaypointManager(entrance);
-		PackedPosition entrancePosition = entrance != null ? entrance.position() : null;
-		serverManager.getRelevantWaypoints(
-			player.getGameProfile().getId(),
-			player.getWorld().getRegistryKey()
-		)
-		.forEachOrdered((ServerWaypointData waypoint) -> {
-			newManager.addWaypoint(waypoint.toClientData(entrancePosition), false);
-		});
-		((WaypointTracker)(player)).bigglobe_setWaypointManager(newManager);
-	}
-
 	public void send(ServerPlayerEntity player) {
-		ClientWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+		PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
 		PacketByteBuf buffer = this.buffer();
-		buffer.writeUuid(player.getGameProfile().getId());
+
 		boolean isHyperspace = player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY;
 		buffer.writeBoolean(isHyperspace);
 		Object2IntMap<RegistryKey<World>> worlds = new Object2IntLinkedOpenHashMap<>(4);
 		worlds.defaultReturnValue(-1);
-		for (ServerWorld world : BigGlobeMod.getCurrentServer().getWorlds()) {
-			worlds.put(world.getRegistryKey(), worlds.size());
+		worlds.put(HyperspaceConstants.WORLD_KEY, 0);
+		ToIntFunction<RegistryKey<World>> computer = (RegistryKey<World> $) -> worlds.size();
+		int waypointCount = 0;
+		for (PlayerWaypointData data : manager.getAllWaypoints()) {
+			worlds.computeIfAbsent(data.destination().position().world(), computer);
+			waypointCount++;
 		}
 		buffer.writeVarInt(worlds.size());
 		for (Object2IntMap.Entry<RegistryKey<World>> entry : worlds.object2IntEntrySet()) {
 			buffer.writeRegistryKey(entry.getKey());
 		}
 
-		//if the waypoint is modified using external NBT editor tools,
-		//or if a world disappears while the server is running
-		//(do mystcraft-like mods do that?), then our count will be inaccurate.
-		//so we need to pre-filter all waypoints before syncing them to the client.
-		int waypointCount = Math.toIntExact(manager.getAllWaypoints().filter((ClientWaypointData waypoint) -> worlds.containsKey(waypoint.world())).count());
 		buffer.writeVarInt(waypointCount);
-		manager.getAllWaypoints().filter((ClientWaypointData waypoint) -> worlds.containsKey(waypoint.world())).forEach((ClientWaypointData waypoint) -> {
-			buffer.writeBoolean(waypoint.owner() != null);
-			buffer.writeVarInt(worlds.getInt(waypoint.world()));
-			waypoint.destination().position().write(buffer);
+		for (PlayerWaypointData waypoint : manager.getAllWaypoints()) {
 			buffer.writeUuid(waypoint.uuid());
-			if (isHyperspace) waypoint.clientPosition().write(buffer);
-		});
+			buffer.writeBoolean(waypoint.owner() != null);
+			waypoint.destinationPosition().writeBulk(buffer, worlds);
+			if (isHyperspace) waypoint.displayPosition().writeBulk(buffer, worlds);
+		}
 
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public ClientWaypointManager decode(PacketByteBuf buffer) {
-		UUID playerUUID = buffer.readUuid();
-
-		ClientWaypointManager manager = new ClientWaypointManager(null);
+	public List<SyncedWaypointData> decode(PacketByteBuf buffer) {
 		boolean isHyperspace = buffer.readBoolean();
-		int numberOfWorlds = buffer.readVarInt();
-		List<RegistryKey<World>> worlds = new ArrayList<>(numberOfWorlds);
-		for (int worldIndex = 0; worldIndex < numberOfWorlds; worldIndex++) {
+		int worldCount = buffer.readVarInt();
+		List<RegistryKey<World>> worlds = new ArrayList<>(worldCount);
+		for (int worldIndex = 0; worldIndex < worldCount; worldIndex++) {
 			worlds.add(buffer.readRegistryKey(RegistryKeyVersions.world()));
 		}
-		int numberOfWaypoints = buffer.readVarInt();
-		for (int waypointIndex = 0; waypointIndex < numberOfWaypoints; waypointIndex++) {
-			boolean isPrivate = buffer.readBoolean();
-			UUID owner = isPrivate ? playerUUID : null;
-			RegistryKey<World> world = worlds.get(buffer.readVarInt());
-			PackedPosition destinationPosition = PackedPosition.read(buffer);
+		int waypointCount = buffer.readVarInt();
+		List<SyncedWaypointData> waypoints = new ArrayList<>(waypointCount);
+		for (int waypointIndex = 0; waypointIndex < waypointCount; waypointIndex++) {
 			UUID uuid = buffer.readUuid();
-			PackedPosition clientPosition = isHyperspace ? PackedPosition.read(buffer) : destinationPosition;
-			ServerWaypointData serverWaypoint = new ServerWaypointData(world, destinationPosition, uuid, owner);
-			ClientWaypointData waypoint = new ClientWaypointData(serverWaypoint, clientPosition);
-			manager.addWaypoint(waypoint, false);
+			boolean owned = buffer.readBoolean();
+			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
+			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readBulk(buffer, worlds) : destination;
+			waypoints.add(new SyncedWaypointData(uuid, owned, destination, displayPosition));
 		}
-		return manager;
+		return waypoints;
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void process(ClientWaypointManager data, PacketSender responseSender) {
+	public void process(List<SyncedWaypointData> waypoints, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
 			player.setPortalCooldown(20);
-			ClientWaypointManager.setOnClient(player, data);
+			PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+			manager.clear();
+			for (SyncedWaypointData waypoint : waypoints) {
+				manager.addWaypoint(waypoint.resolve(player), true);
+			}
 		}
 	}
 }

@@ -2,12 +2,9 @@ package builderb0y.bigglobe.hyperspace;
 
 import java.util.UUID;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.*;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -17,15 +14,29 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
+/**
+data about a specific waypoint that is known to the server.
+the displayed position of a server waypoint is
+always the same as its destination position.
+*/
 public record ServerWaypointData(
-	RegistryKey<World> world,
-	PackedPosition position,
+	PackedWorldPos position,
 	UUID uuid,
 	@Nullable UUID owner
 )
 implements WaypointData {
 
-	public ClientWaypointData relativize(PackedPosition entrance) {
+	@Override
+	public PackedWorldPos destinationPosition() {
+		return this.position;
+	}
+
+	@Override
+	public PackedWorldPos displayPosition() {
+		return this.position;
+	}
+
+	public PlayerWaypointData relativize(PackedWorldPos entrance) {
 		double x = this.position.x() - entrance.x();
 		double y = this.position.y() - entrance.y();
 		double z = this.position.z() - entrance.z();
@@ -35,20 +46,20 @@ implements WaypointData {
 			y *= scalar;
 			z *= scalar;
 		}
-		return new ClientWaypointData(this, new PackedPosition(x, y, z));
+		return new PlayerWaypointData(this, new PackedWorldPos(HyperspaceConstants.WORLD_KEY, x, y, z));
 	}
 
-	public ClientWaypointData absolutize() {
-		return new ClientWaypointData(this, this.position);
+	public PlayerWaypointData absolutize() {
+		return new PlayerWaypointData(this, this.position);
 	}
 
-	public ClientWaypointData toClientData(PackedPosition entrance) {
+	public PlayerWaypointData toClientData(PackedWorldPos entrance) {
 		return entrance != null ? this.relativize(entrance) : this.absolutize();
 	}
 
 	public NbtCompound toNBT() {
 		NbtCompound nbt = new NbtCompound();
-		nbt.putString("world", this.world.getValue().toString());
+		nbt.putString("world", this.position.world().getValue().toString());
 
 		NbtList position = new NbtList();
 		position.add(NbtDouble.of(this.position.x()));
@@ -80,11 +91,11 @@ implements WaypointData {
 			world = RegistryKey.of(RegistryKeyVersions.world(), worldIdentifier);
 		}
 
-		PackedPosition position;
+		PackedWorldPos position;
 		{
 			NbtList positionNBT = nbt.getList("pos", NbtElement.DOUBLE_TYPE);
 			if (positionNBT.size() == 3) {
-				position = new PackedPosition(positionNBT.getDouble(0), positionNBT.getDouble(1), positionNBT.getDouble(2));
+				position = new PackedWorldPos(world, positionNBT.getDouble(0), positionNBT.getDouble(1), positionNBT.getDouble(2));
 			}
 			else {
 				BigGlobeMod.LOGGER.warn("Attempt to load waypoint with invalid position: " + nbt);
@@ -116,43 +127,6 @@ implements WaypointData {
 			}
 		}
 
-		return new ServerWaypointData(world, position, uuid, owner);
-	}
-
-	public void toIncrementalByteBuffer(PacketByteBuf buffer) {
-		buffer.writeRegistryKey(this.world);
-		buffer
-			.writeDouble(this.position.x())
-			.writeDouble(this.position.y())
-			.writeDouble(this.position.z())
-			.writeUuid(this.uuid)
-			.writeBoolean(this.owner != null);
-	}
-
-	public static ServerWaypointData fromIncrementalByteBuffer(PacketByteBuf buffer, UUID owner) {
-		RegistryKey<World> world = buffer.readRegistryKey(RegistryKeyVersions.world());
-		double x = buffer.readDouble();
-		double y = buffer.readDouble();
-		double z = buffer.readDouble();
-		UUID uuid = buffer.readUuid();
-		return new ServerWaypointData(world, new PackedPosition(x, y, z), uuid, owner);
-	}
-
-	public void toBulkByteBuffer(PacketByteBuf buffer, Object2IntMap<RegistryKey<World>> worldIDs) {
-		buffer
-			.writeVarInt(worldIDs.getInt(this.world))
-			.writeDouble(this.position.x())
-			.writeDouble(this.position.y())
-			.writeDouble(this.position.z())
-			.writeUuid(this.uuid);
-	}
-
-	public static ServerWaypointData fromBulkByteBuffer(PacketByteBuf buffer, Int2ObjectMap<RegistryKey<World>> worldIDs, UUID owner) {
-		RegistryKey<World> world = worldIDs.get(buffer.readVarInt());
-		double x = buffer.readDouble();
-		double y = buffer.readDouble();
-		double z = buffer.readDouble();
-		UUID uuid = buffer.readUuid();
-		return new ServerWaypointData(world, new PackedPosition(x, y, z), uuid, owner);
+		return new ServerWaypointData(position, uuid, owner);
 	}
 }

@@ -9,7 +9,7 @@ import net.minecraft.util.ActionResult;
 
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.PackedPosition;
+import builderb0y.bigglobe.hyperspace.PackedWorldPos;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 
@@ -31,8 +31,8 @@ public class WaypointItem extends Item {
 				manager != null &&
 				manager.addWaypoint(
 					new ServerWaypointData(
-						serverWorld.getRegistryKey(),
-						new PackedPosition(
+						new PackedWorldPos(
+							serverWorld.getRegistryKey(),
 							context.getBlockPos().getX() + 0.5D,
 							context.getBlockPos().getY() + 2.5D,
 							context.getBlockPos().getZ() + 0.5D

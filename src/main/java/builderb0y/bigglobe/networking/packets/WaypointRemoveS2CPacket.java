@@ -12,7 +12,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import builderb0y.bigglobe.hyperspace.ClientWaypointManager;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
@@ -21,18 +20,17 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<WaypointRem
 
 	public static final WaypointRemoveS2CPacket INSTANCE = new WaypointRemoveS2CPacket();
 
-	public void send(ServerPlayerEntity player, boolean owned, UUID uuid) {
+	public void send(ServerPlayerEntity player, UUID uuid, boolean owned) {
 		PacketByteBuf buffer = this.buffer();
-		buffer.writeBoolean(owned);
-		if (owned) buffer.writeUuid(player.getGameProfile().getId());
 		buffer.writeUuid(uuid);
+		buffer.writeBoolean(owned);
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public Data decode(PacketByteBuf buffer) {
-		return new Data(buffer.readBoolean() ? buffer.readUuid() : null, buffer.readUuid());
+		return new Data(buffer.readUuid(), buffer.readBoolean());
 	}
 
 	@Override
@@ -40,10 +38,9 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<WaypointRem
 	public void process(Data data, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
-			ClientWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-			manager.removeWaypoint(data.owner, data.uuid, true);
+			((WaypointTracker)(player)).bigglobe_getWaypointManager().removeWaypoint(data.owned ? player.getGameProfile().getId() : null, data.uuid, true);
 		}
 	}
 
-	public static record Data(UUID owner, UUID uuid) {}
+	public static record Data(UUID uuid, boolean owned) {}
 }

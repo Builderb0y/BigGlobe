@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
-import builderb0y.bigglobe.hyperspace.ClientWaypointManager;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 
 public interface WaypointTracker {
 
-	public abstract ClientWaypointManager bigglobe_getWaypointManager();
+	public abstract PlayerWaypointManager bigglobe_getWaypointManager();
 
-	public abstract void bigglobe_setWaypointManager(ClientWaypointManager data);
+	public abstract void bigglobe_setWaypointManager(PlayerWaypointManager data);
 }

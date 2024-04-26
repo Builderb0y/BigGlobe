@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.hyperspace;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,6 +10,7 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 
+@Environment(EnvType.CLIENT)
 public class HyperspaceDimensionEffects extends DimensionEffects {
 
 	public HyperspaceDimensionEffects() {

@@ -14,9 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.hyperspace.ClientWaypointData;
-import builderb0y.bigglobe.hyperspace.ClientWaypointManager;
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
+import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
@@ -24,7 +22,6 @@ import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 public class UseWaypointPacket implements C2SPlayPacketHandler<UseWaypointPacket.Data> {
 
 	public static final UseWaypointPacket INSTANCE = new UseWaypointPacket();
-	public static boolean teleporting;
 
 	public void send(boolean owned, UUID uuid) {
 		PacketByteBuf buffer = this.buffer();
@@ -46,26 +43,22 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<UseWaypointPacket
 			player.setPortalCooldown(20);
 			return;
 		}
-		ClientWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-		ClientWaypointData waypoint = manager.getWaypoint(data.owner, data.uuid);
+		PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+		PlayerWaypointData waypoint = manager.getWaypoint(data.owner, data.uuid);
 		if (waypoint != null) {
-			if (player.getEyePos().squaredDistanceTo(waypoint.clientPosition().x(), waypoint.clientPosition().y(), waypoint.clientPosition().z()) <= 1.0D) {
+			if (
+				player.getWorld().getRegistryKey() == waypoint.displayPosition().world() &&
+				player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= 1.0D
+			) {
 				if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-					ServerWorld destinationWorld = player.getServer().getWorld(waypoint.destination().world());
+					ServerWorld destinationWorld = player.getServer().getWorld(waypoint.destinationPosition().world());
 					if (destinationWorld != null) {
-						teleporting = true;
-						try {
-							ServerPlayerEntity newPlayer = FabricDimensions.teleport(player, destinationWorld, new TeleportTarget(waypoint.destination().position().toMCVec(), player.getVelocity(), player.getYaw(), player.getPitch()));
-							if (newPlayer != null) {
-								newPlayer.setPortalCooldown(20);
-								newPlayer.interactionManager.getGameMode().setAbilities(newPlayer.getAbilities());
-								newPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(newPlayer.getAbilities()));
-								WaypointListS2CPacket.INSTANCE.recompute(newPlayer, null);
-								WaypointListS2CPacket.INSTANCE.send(newPlayer);
-							}
-						}
-						finally {
-							teleporting = false;
+						manager.entrance = null;
+						ServerPlayerEntity newPlayer = FabricDimensions.teleport(player, destinationWorld, new TeleportTarget(waypoint.destination().position().toMCVec(), player.getVelocity(), player.getYaw(), player.getPitch()));
+						if (newPlayer != null) {
+							newPlayer.setPortalCooldown(20);
+							newPlayer.interactionManager.getGameMode().setAbilities(newPlayer.getAbilities());
+							newPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(newPlayer.getAbilities()));
 						}
 					}
 					else {
@@ -75,17 +68,10 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<UseWaypointPacket
 				else {
 					ServerWorld hyperspace = player.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
 					if (hyperspace != null) {
-						teleporting = true;
-						try {
-							ServerPlayerEntity newPlayer = FabricDimensions.teleport(player, hyperspace, new TeleportTarget(Vec3d.ZERO, player.getVelocity(), player.getYaw(), player.getPitch()));
-							if (newPlayer != null) {
-								newPlayer.setPortalCooldown(20);
-								WaypointListS2CPacket.INSTANCE.recompute(newPlayer, waypoint.destination());
-								WaypointListS2CPacket.INSTANCE.send(newPlayer);
-							}
-						}
-						finally {
-							teleporting = false;
+						manager.entrance = waypoint.destination();
+						ServerPlayerEntity newPlayer = FabricDimensions.teleport(player, hyperspace, new TeleportTarget(Vec3d.ZERO, player.getVelocity(), player.getYaw(), player.getPitch()));
+						if (newPlayer != null) {
+							newPlayer.setPortalCooldown(20);
 						}
 					}
 				}

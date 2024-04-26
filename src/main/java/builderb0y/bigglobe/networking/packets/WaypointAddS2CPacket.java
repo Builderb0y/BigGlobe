@@ -10,50 +10,52 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
 
-import builderb0y.bigglobe.hyperspace.ClientWaypointData;
-import builderb0y.bigglobe.hyperspace.PackedPosition;
-import builderb0y.bigglobe.hyperspace.ServerWaypointData;
+import builderb0y.bigglobe.hyperspace.PackedWorldPos;
+import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
+import builderb0y.bigglobe.hyperspace.SyncedWaypointData;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
-public class WaypointAddS2CPacket implements S2CPlayPacketHandler<ClientWaypointData> {
+public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypointData> {
 
 	public static final WaypointAddS2CPacket INSTANCE = new WaypointAddS2CPacket();
+	public static final int
+		HAS_OWNER = 1 << 0,
+		HAS_DISPLAYED_POSITION = 1 << 1;
 
-	public void send(ServerPlayerEntity player, ClientWaypointData waypoint) {
+	public void send(ServerPlayerWaypointManager manager, SyncedWaypointData waypoint) {
+		int flags = 0;
+		if (waypoint.owned()) flags |= HAS_OWNER;
+		if (manager.entrance != null) flags |= HAS_DISPLAYED_POSITION;
+
 		PacketByteBuf buffer = this.buffer();
-		buffer.writeBoolean(waypoint.owner() != null);
-		if (waypoint.owner() != null) buffer.writeUuid(waypoint.owner());
-		buffer.writeRegistryKey(waypoint.world());
-		waypoint.destination().position().write(buffer);
+		buffer.writeByte(flags);
 		buffer.writeUuid(waypoint.uuid());
-		waypoint.clientPosition().write(buffer);
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		waypoint.destinationPosition().write(buffer);
+		if (manager.entrance != null) waypoint.displayedPosition().write(buffer);
+
+		ServerPlayNetworking.send(manager.serverPlayer(), BigGlobeNetwork.NETWORK_ID, buffer);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public ClientWaypointData decode(PacketByteBuf buffer) {
-		boolean owned = buffer.readBoolean();
-		UUID owner = owned ? buffer.readUuid() : null;
-		RegistryKey<World> world = buffer.readRegistryKey(RegistryKeyVersions.world());
-		PackedPosition destination = PackedPosition.read(buffer);
+	public SyncedWaypointData decode(PacketByteBuf buffer) {
+		int flags = buffer.readByte();
+		boolean owned = (flags & HAS_OWNER) != 0;
+		boolean hasDisplayedPosition = (flags & HAS_DISPLAYED_POSITION) != 0;
 		UUID uuid = buffer.readUuid();
-		PackedPosition clientPosition = PackedPosition.read(buffer);
-		return new ClientWaypointData(new ServerWaypointData(world, destination, uuid, owner), clientPosition);
+		PackedWorldPos destination = PackedWorldPos.read(buffer);
+		PackedWorldPos displayedPosition = hasDisplayedPosition ? PackedWorldPos.read(buffer) : destination;
+		return new SyncedWaypointData(uuid, owned, destination, displayedPosition);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void process(ClientWaypointData waypoint, PacketSender responseSender) {
+	public void process(SyncedWaypointData waypoint, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player == null) return;
-		((WaypointTracker)(player)).bigglobe_getWaypointManager().addWaypoint(waypoint, true);
+		((WaypointTracker)(player)).bigglobe_getWaypointManager().addWaypoint(waypoint.resolve(player), true);
 	}
 }
