@@ -8,11 +8,10 @@ import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.satin.SatinCompat;
-import builderb0y.bigglobe.compat.voxy.VoxyCompat;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.hyperspace.HyperspaceDimensionEffects;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ClientWaypointManager;
+import builderb0y.bigglobe.hyperspace.ClientWaypointManager;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
@@ -37,7 +36,6 @@ public class BigGlobeClient implements ClientModInitializer {
 		SatinCompat.init();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		DistantHorizonsCompat.init();
-		VoxyCompat.init();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}
 }

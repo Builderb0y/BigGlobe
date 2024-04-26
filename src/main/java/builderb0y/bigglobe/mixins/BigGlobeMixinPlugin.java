@@ -83,6 +83,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                             Boolean.TRUE);
+		defaults.put(mixinPackage + ".Voxy_WorldEngine_UseBigGlobeGenerator",                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                          Boolean.TRUE);
 		return defaults;
@@ -243,6 +244,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 				yield defaultEnabled && checkMod(mixinClassName, "imm_ptl_core");
 			}
 			#endif
+			case "builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator" -> {
+				yield checkMod(mixinClassName, "voxy");
+			}
 			default -> {
 				yield defaultEnabled;
 			}

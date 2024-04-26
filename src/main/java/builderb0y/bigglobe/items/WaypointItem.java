@@ -8,10 +8,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
-import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointData;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointManager;
+import builderb0y.bigglobe.hyperspace.PackedPosition;
+import builderb0y.bigglobe.hyperspace.ServerWaypointData;
+import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 
 public class WaypointItem extends Item {
 
@@ -26,31 +26,25 @@ public class WaypointItem extends Item {
 			context.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY &&
 			context.getWorld() instanceof ServerWorld serverWorld
 		) {
-			WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(serverWorld);
-			if (entity != null) {
-				entity.setPosition(
-					context.getBlockPos().getX() + 0.5D,
-					context.getBlockPos().getY() + 1.5D,
-					context.getBlockPos().getZ() + 0.5D
-				);
-				if (serverWorld.isSpaceEmpty(entity)) {
-					if (context.getStack().hasCustomName()) {
-						entity.setCustomName(context.getStack().getName());
-					}
-					entity.data = new ServerWaypointData(
+			ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
+			if (
+				manager != null &&
+				manager.addWaypoint(
+					new ServerWaypointData(
 						serverWorld.getRegistryKey(),
-						entity.getPos(),
+						new PackedPosition(
+							context.getBlockPos().getX() + 0.5D,
+							context.getBlockPos().getY() + 2.5D,
+							context.getBlockPos().getZ() + 0.5D
+						),
 						UUID.randomUUID(),
 						context.getPlayer() != null ? context.getPlayer().getGameProfile().getId() : null
-					);
-					serverWorld.spawnEntity(entity);
-					context.getStack().decrement(1);
-					ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
-					if (manager != null) {
-						manager.addWaypoint(entity.data);
-					}
-					return ActionResult.SUCCESS;
-				}
+					),
+					true
+				)
+			) {
+				context.getStack().decrement(1);
+				return ActionResult.SUCCESS;
 			}
 		}
 		return super.useOnBlock(context);

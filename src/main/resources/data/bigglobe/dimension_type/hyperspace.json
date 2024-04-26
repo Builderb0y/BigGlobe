@@ -7,10 +7,10 @@
 	"has_ceiling": false,
 	"has_raids": false,
 	"has_skylight": false,
-	"height": 16,
+	"height": 128,
 	"infiniburn": "#minecraft:infiniburn_end",
-	"logical_height": 16,
-	"min_y": 0,
+	"logical_height": 128,
+	"min_y": -64,
 	"monster_spawn_block_light_limit": 0,
 	"monster_spawn_light_level": {
 		"type": "minecraft:uniform",

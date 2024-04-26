@@ -26,6 +26,7 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	save hyperspace entrance location to player NBT.
 
 4.0 stuff:
 	system to allow players to teleport to locations they've visited before.
@@ -109,6 +110,7 @@ where I left off:
 	see if waterfalls need fixing due to typo of +1 becoming -1 in loop bounds.
 	disable raids in end dimension.
 	items might not be added to creative menu in 1.19.2.
+	fix networking code to decode on network thread and process on main thread.
 
 changelog:
 	4.0:

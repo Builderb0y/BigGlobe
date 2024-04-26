@@ -3,6 +3,10 @@
 	"generator": {
 		"type": "bigglobe:empty",
 		"value": {
+			"height": {
+				"min_y": -64,
+				"max_y":  64
+			},
 			"biome_source": {
 				"type": "minecraft:fixed",
 				"biome": "bigglobe:hyperspace"

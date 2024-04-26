@@ -20,20 +20,13 @@ public class MinecraftClient_SetWorldEvent {
 
 	@Inject(method = "joinWorld", at = @At("HEAD"))
 	private void bigglobe_unloadOnJoinWorld(ClientWorld world, CallbackInfo callback) {
-		if (this.world != null) {
-			ClientWorldEvents.UNLOAD.invoker().unload(this.world);
-		}
-	}
-
-	@Inject(method = "joinWorld", at = @At("TAIL"))
-	private void bigglobe_loadOnJoinWorld(ClientWorld world, CallbackInfo callback) {
-		ClientWorldEvents.LOAD.invoker().load(world);
+		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, world);
 	}
 
 	@Inject(method = { "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", "enterReconfiguration" }, at = @At("HEAD"))
 	private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
 		if (this.world != null) {
-			ClientWorldEvents.UNLOAD.invoker().unload(this.world);
+			ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
 		}
 	}
 }

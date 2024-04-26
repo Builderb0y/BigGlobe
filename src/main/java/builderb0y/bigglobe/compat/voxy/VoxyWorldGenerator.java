@@ -14,7 +14,6 @@ import me.cortex.voxy.common.voxelization.WorldConversionFactory;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.other.Mapper;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.*;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -22,7 +21,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntry.Reference;
-import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -43,14 +42,13 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
-import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class VoxyWorldGenerator {
 
-	public static VoxyWorldGenerator INSTANCE;
 	public static final int WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
 
+	public final WorldEngine engine;
 	public final ServerWorld world;
 	public final BigGlobeScriptedChunkGenerator generator;
 	public final DistanceGraph distanceGraph;
@@ -59,7 +57,8 @@ public class VoxyWorldGenerator {
 	public final long[] sectionInstance;
 	public volatile boolean running;
 
-	public VoxyWorldGenerator(ServerWorld world, BigGlobeScriptedChunkGenerator generator, DistanceGraph graph) {
+	public VoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator, DistanceGraph graph) {
+		this.engine = engine;
 		this.world = world;
 		this.distanceGraph = graph;
 		this.generator = generator;
@@ -74,88 +73,52 @@ public class VoxyWorldGenerator {
 		this.sectionInstance = new long[16 * 16 * 16 + 8 * 8 * 8 + 4 * 4 * 4 + 2 * 2 * 2 + 1];
 	}
 
-	public static void init() {
-		ClientWorldEvents.LOAD.register((ClientWorld world) -> {
-			if (BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread) {
-				IntegratedServer server = MinecraftClient.getInstance().getServer();
-				if (server != null) {
-					ServerWorld serverWorld = server.getWorld(world.getRegistryKey());
-					if (serverWorld != null && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-						Session session = ((MinecraftServer_SessionAccess)(serverWorld.getServer())).bigglobe_getSession();
-						Path dimensionFolder = session.getWorldDirectory(serverWorld.getRegistryKey());
-						Path distanceGraphFile = dimensionFolder.resolve("voxy").resolve("bigglobe_progress.dat");
-						DistanceGraph graph;
-						if (Files.exists(distanceGraphFile)) {
-							try (
-								BitInputStream bits = new BitInputStream(
-									new DataInputStream(
-										Files.newInputStream(distanceGraphFile)
-									)
-								)
-							) {
-								graph = DistanceGraphIO.read(
-									-WORLD_SIZE_IN_CHUNKS,
-									-WORLD_SIZE_IN_CHUNKS,
-									+WORLD_SIZE_IN_CHUNKS,
-									+WORLD_SIZE_IN_CHUNKS,
-									bits
-								);
-							}
-							catch (IOException exception) {
-								BigGlobeMod.LOGGER.error("Exception loading voxy progress file. Restarting progress.");
-								graph = new DistanceGraph(
-									-WORLD_SIZE_IN_CHUNKS,
-									-WORLD_SIZE_IN_CHUNKS,
-									+WORLD_SIZE_IN_CHUNKS,
-									+WORLD_SIZE_IN_CHUNKS
-								);
-							}
-						}
-						else {
-							graph = new DistanceGraph(
-								-WORLD_SIZE_IN_CHUNKS,
-								-WORLD_SIZE_IN_CHUNKS,
-								+WORLD_SIZE_IN_CHUNKS,
-								+WORLD_SIZE_IN_CHUNKS
-							);
-						}
-						(INSTANCE = new VoxyWorldGenerator(serverWorld, generator, graph)).start();
-					}
-				}
+	public static VoxyWorldGenerator createGenerator(ClientWorld newWorld, WorldEngine engine) {
+		MinecraftServer server;
+		ServerWorld serverWorld;
+		if (
+			BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread &&
+			(server = MinecraftClient.getInstance().getServer()) != null &&
+			(serverWorld = server.getWorld(newWorld.getRegistryKey())) != null &&
+			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
+		) {
+			return new VoxyWorldGenerator(engine, serverWorld, generator, load(serverWorld));
+		}
+		else {
+			return null;
+		}
+	}
+
+	public static DistanceGraph load(ServerWorld serverWorld) {
+		Session session = ((MinecraftServer_SessionAccess)(serverWorld.getServer())).bigglobe_getSession();
+		Path dimensionFolder = session.getWorldDirectory(serverWorld.getRegistryKey());
+		Path distanceGraphFile = dimensionFolder.resolve("voxy").resolve("bigglobe_progress.dat");
+		if (Files.exists(distanceGraphFile)) {
+			try (
+				BitInputStream bits = new BitInputStream(
+					new DataInputStream(
+						Files.newInputStream(distanceGraphFile)
+					)
+				)
+			) {
+				return DistanceGraphIO.read(
+					-WORLD_SIZE_IN_CHUNKS,
+					-WORLD_SIZE_IN_CHUNKS,
+					+WORLD_SIZE_IN_CHUNKS,
+					+WORLD_SIZE_IN_CHUNKS,
+					bits
+				);
 			}
-		});
-		ClientWorldEvents.UNLOAD.register((ClientWorld world) -> {
-			if (INSTANCE != null) {
-				INSTANCE.stop();
-				Session session = ((MinecraftServer_SessionAccess)(INSTANCE.world.getServer())).bigglobe_getSession();
-				Path dimensionFolder = session.getWorldDirectory(INSTANCE.world.getRegistryKey());
-				Path voxyFolder = dimensionFolder.resolve("voxy");
-				Path distanceGraphFile = voxyFolder.resolve("bigglobe_progress.dat");
-				Path writeFile = voxyFolder.resolve("bigglobe_progress.tmp");
-				try {
-					Files.createDirectories(voxyFolder);
-					try (
-						BitOutputStream bits = new BitOutputStream(
-							new DataOutputStream(
-								Files.newOutputStream(
-									writeFile,
-									StandardOpenOption.CREATE,
-									StandardOpenOption.TRUNCATE_EXISTING
-								)
-							)
-						)
-					) {
-						DistanceGraphIO.write(INSTANCE.distanceGraph, bits);
-						Files.deleteIfExists(distanceGraphFile);
-						Files.move(writeFile, distanceGraphFile);
-					}
-				}
-				catch (IOException exception) {
-					BigGlobeMod.LOGGER.error("Exception saving voxy progress: ", exception);
-				}
-				INSTANCE = null;
+			catch (IOException exception) {
+				BigGlobeMod.LOGGER.error("Exception loading voxy progress file. Restarting progress.");
 			}
-		});
+		}
+		return new DistanceGraph(
+			-WORLD_SIZE_IN_CHUNKS,
+			-WORLD_SIZE_IN_CHUNKS,
+			+WORLD_SIZE_IN_CHUNKS,
+			+WORLD_SIZE_IN_CHUNKS
+		);
 	}
 
 	public void start() {
@@ -174,7 +137,38 @@ public class VoxyWorldGenerator {
 		}
 	}
 
+	public void save() {
+		if (this.thread.isAlive()) throw new IllegalStateException("Can't save while generation is in-progress");
+		Session session = ((MinecraftServer_SessionAccess)(this.world.getServer())).bigglobe_getSession();
+		Path dimensionFolder = session.getWorldDirectory(this.world.getRegistryKey());
+		Path voxyFolder = dimensionFolder.resolve("voxy");
+		Path distanceGraphFile = voxyFolder.resolve("bigglobe_progress.dat");
+		Path writeFile = voxyFolder.resolve("bigglobe_progress.tmp");
+		try {
+			Files.createDirectories(voxyFolder);
+			try (
+				BitOutputStream bits = new BitOutputStream(
+					new DataOutputStream(
+						Files.newOutputStream(
+							writeFile,
+							StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING
+						)
+					)
+				)
+			) {
+				DistanceGraphIO.write(this.distanceGraph, bits);
+				Files.deleteIfExists(distanceGraphFile);
+				Files.move(writeFile, distanceGraphFile);
+			}
+		}
+		catch (IOException exception) {
+			BigGlobeMod.LOGGER.error("Exception saving voxy progress: ", exception);
+		}
+	}
+
 	public void runLoop() {
+		BigGlobeMod.LOGGER.info("Big Globe voxy generation thread started.");
 		int failures = 0;
 		while (true) try {
 			if (!this.running) {
@@ -201,13 +195,6 @@ public class VoxyWorldGenerator {
 	}
 
 	public boolean generateNextChunk() {
-		if (GLFW.glfwGetKey(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_F3) == GLFW.GLFW_PRESS) {
-			try {
-				Thread.sleep(1000L);
-			}
-			catch (InterruptedException ignored) {}
-			return true;
-		}
 		if (BigGlobeThreadPool.isBusy()) {
 			try {
 				Thread.sleep(100L);
@@ -223,12 +210,11 @@ public class VoxyWorldGenerator {
 		int chunkZ = player.getBlockZ() >> 4;
 		DistanceGraph.Query query = this.distanceGraph.query(chunkX, chunkZ);
 		if (query == null) return false;
-		WorldEngine worldEngine = ((IGetVoxelCore)(MinecraftClient.getInstance().worldRenderer)).getVoxelCore().getWorldEngine();
-		this.createChunk(query.closestX, query.closestZ, biome, worldEngine);
+		this.createChunk(query.closestX, query.closestZ, biome);
 		return true;
 	}
 
-	public void createChunk(int chunkX, int chunkZ, RegistryEntry<Biome> biome, WorldEngine engine) {
+	public void createChunk(int chunkX, int chunkZ, RegistryEntry<Biome> biome) {
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
 		ScriptedColumn[] columns = this.columns;
@@ -276,13 +262,13 @@ public class VoxyWorldGenerator {
 			}
 		}
 		for (int y = minY; y < maxY; y += 16) {
-			VoxelizedSection section = this.convertSection(chunkX, y >> 4, chunkZ, lists, biome, engine);
-			if (section != null) engine.insertUpdate(section);
+			VoxelizedSection section = this.convertSection(chunkX, y >> 4, chunkZ, lists, biome);
+			if (section != null) this.engine.insertUpdate(section);
 		}
 	}
 
-	public @Nullable VoxelizedSection convertSection(int chunkX, int chunkY, int chunkZ, BlockSegmentList[] lists, RegistryEntry<Biome> biome, WorldEngine engine) {
-		int biomeID = engine.getMapper().getIdForBiome(biome);
+	public @Nullable VoxelizedSection convertSection(int chunkX, int chunkY, int chunkZ, BlockSegmentList[] lists, RegistryEntry<Biome> biome) {
+		int biomeID = this.engine.getMapper().getIdForBiome(biome);
 		long[] section = null;
 		BlockState previousColumnState = null;
 		int previousColumnStateID = -1;
@@ -306,7 +292,7 @@ public class VoxyWorldGenerator {
 							stateID = previousColumnStateID;
 						}
 						else {
-							stateID = previousColumnStateID = engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
+							stateID = previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
 						}
 						byte startLightLevel = segment.lightLevel;
 						int diminishment = segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
@@ -328,7 +314,7 @@ public class VoxyWorldGenerator {
 		}
 		if (section == null) return null;
 		VoxelizedSection result = new VoxelizedSection(section, chunkX, chunkY, chunkZ);
-		WorldConversionFactory.mipSection(result, engine.getMapper());
+		WorldConversionFactory.mipSection(result, this.engine.getMapper());
 		return result;
 	}
 }

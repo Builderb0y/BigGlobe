@@ -2,7 +2,6 @@ package builderb0y.bigglobe.entities;
 
 import java.util.random.RandomGenerator;
 
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -12,38 +11,29 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointData;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointManager;
+import builderb0y.bigglobe.hyperspace.ServerWaypointData;
+import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.mixinInterfaces.WaypointEntranceTracker;
-import builderb0y.bigglobe.networking.packets.ExitHyperspacePacket;
+import builderb0y.bigglobe.networking.packets.UseWaypointPacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
 
 public class WaypointEntity extends Entity {
 
-	public static final TrackedData<Float> HEALTH = DataTracker.registerData(WaypointEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	//public static final TrackedData<Float> HEALTH = DataTracker.registerData(WaypointEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	public static final float MAX_HEALTH = 10.0F;
 
 	public @Nullable ServerWaypointData data;
@@ -102,30 +92,13 @@ public class WaypointEntity extends Entity {
 	@Override
 	public void onPlayerCollision(PlayerEntity player) {
 		super.onPlayerCollision(player);
-		if (this.data == null) return;
-		if (player.hasPortalCooldown()) {
-			player.setPortalCooldown(20);
-			return;
-		}
 		if (
-			player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.getHealth() / MAX_HEALTH &&
-			(this.data.owner() == null || this.data.owner().equals(player.getGameProfile().getId()))
+			this.isFake &&
+			this.data != null &&
+			!player.hasPortalCooldown() &&
+			player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.getHealth() / MAX_HEALTH
 		) {
-			if (this.getWorld().isClient) {
-				if (this.isFake && this.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-					ExitHyperspacePacket.INSTANCE.send(this.data.owner() != null, this.data.uuid());
-				}
-			}
-			else {
-				if (this.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
-					((WaypointEntranceTracker)(player)).bigglobe_setWaypointEntrance(this.data);
-					ServerWorld hyperspace = this.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
-					ServerPlayerEntity newPlayer = (ServerPlayerEntity)(FabricDimensions.teleport(player, hyperspace, new TeleportTarget(new Vec3d(0.0D, 8.0D, 0.0D), player.getVelocity(), player.getYaw(), player.getPitch())));
-					if (newPlayer != null) {
-						newPlayer.setPortalCooldown(20);
-					}
-				}
-			}
+			UseWaypointPacket.INSTANCE.send(this.data.owner() != null, this.data.uuid());
 		}
 	}
 
@@ -168,7 +141,7 @@ public class WaypointEntity extends Entity {
 		if (reason == RemovalReason.KILLED && this.getWorld() instanceof ServerWorld serverWorld) {
 			ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
 			if (manager != null) {
-				manager.removeWaypoint(this.data);
+				manager.removeWaypoint(this.data.owner(), this.data.uuid(), true);
 			}
 			if (BigGlobeItems.WAYPOINT != null && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
 				ItemStack stack = new ItemStack(BigGlobeItems.WAYPOINT);
@@ -190,11 +163,12 @@ public class WaypointEntity extends Entity {
 	}
 
 	public float getHealth() {
-		return this.dataTracker.get(HEALTH);
+		return MAX_HEALTH;
+		//return this.dataTracker.get(HEALTH);
 	}
 
 	public void setHealth(float health) {
-		this.dataTracker.set(HEALTH, health);
+		//this.dataTracker.set(HEALTH, health);
 	}
 
 	@Override
@@ -235,7 +209,7 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void initDataTracker() {
-		this.dataTracker.startTracking(HEALTH, 0.0F);
+		//this.dataTracker.startTracking(HEALTH, 0.0F);
 	}
 
 	@Override

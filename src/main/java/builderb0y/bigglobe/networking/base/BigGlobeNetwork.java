@@ -2,32 +2,21 @@ package builderb0y.bigglobe.networking.base;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2ByteMap;
 import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking.LoginSynchronizer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -50,7 +39,9 @@ public class BigGlobeNetwork implements ClientPlayNetworking.PlayChannelHandler,
 		this.register(TimeSpeedS2CPacketHandler.INSTANCE);
 		this.register(DangerousRapidsPacket.INSTANCE);
 		this.register(WaypointListS2CPacket.INSTANCE);
-		this.register(ExitHyperspacePacket.INSTANCE);
+		this.register(WaypointAddS2CPacket.INSTANCE);
+		this.register(WaypointRemoveS2CPacket.INSTANCE);
+		this.register(UseWaypointPacket.INSTANCE);
 	}
 
 	public byte nextId() {

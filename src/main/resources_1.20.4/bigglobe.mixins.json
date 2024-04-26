@@ -43,6 +43,7 @@
 		"PalettedContainer_DataAccess",
 		"PlantBlock_CanPlantOnTopAccess",
 		"PlayerEntity_FlyInHyperspace",
+		"PlayerEntity_TrackWaypoints",
 		"PlayerManager_InitializeSpawnPoint",
 		"PlayerManager_SyncOverworldSettingsHook",
 		"PortalForcer_PlaceInNetherCaverns",
@@ -52,7 +53,6 @@
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
-		"ServerPlayerEntity_TrackWaypointEntrance",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_OverrideGetSeaLevel",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
@@ -68,6 +68,7 @@
 		"StructureStart_ChildrenGetter",
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
+		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],

@@ -51,7 +51,7 @@
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
-		"ServerPlayerEntity_TrackWaypointEntrance",
+		"PlayerEntity_TrackWaypoints",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_OverrideGetSeaLevel",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",

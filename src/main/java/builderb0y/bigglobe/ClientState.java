@@ -3,15 +3,12 @@ package builderb0y.bigglobe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collector;
 
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import org.joml.Vector3d;
-import org.joml.Vector4d;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.color.world.BiomeColors;
@@ -27,7 +24,6 @@ import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.biome.ColorResolver;
 
 import builderb0y.autocodec.annotations.Hidden;
@@ -50,20 +46,12 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointData;
-import builderb0y.bigglobe.hyperspace.WaypointManager.ServerWaypointManager;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.mixinInterfaces.WaypointEntranceTracker;
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
-import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
-import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
-import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
-import builderb0y.bigglobe.networking.packets.WaypointListS2CPacket;
+import builderb0y.bigglobe.networking.packets.*;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -90,44 +78,20 @@ public class ClientState {
 		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
-		if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			ServerWaypointData data = ((WaypointEntranceTracker)(player)).bigglobe_getWaypointEntrance();
-			Vec3d center;
-			if (data != null) {
-				center = data.position();
-			}
-			else {
-				player.teleport(0.0D, 8.0D, 0.0D);
-				ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
-				if (manager != null) {
-					center = (
-						manager
-						.getRelevantWaypoints(player.getGameProfile().getId())
-						.map(ServerWaypointData::position)
-						.collect(
-							Collector.of(
-								Vector4d::new,
-								(Vector4d sum, Vec3d value) -> sum.add(value.x, value.y, value.z, 1.0D),
-								Vector4d::add,
-								(Vector4d vec) -> vec.w == 0.0D ? Vec3d.ZERO : new Vec3d(vec.x / vec.w, vec.y / vec.w, vec.z / vec.w)
-							)
-						)
-					);
-				}
-				else {
-					center = Vec3d.ZERO;
-				}
-			}
-			WaypointListS2CPacket.INSTANCE.send(player, center);
+		if (!UseWaypointPacket.teleporting) {
+			WaypointListS2CPacket.INSTANCE.recompute(player, null);
+			WaypointListS2CPacket.INSTANCE.send(player);
 		}
 	}
 
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
-		ClientWorldEvents.UNLOAD.register((ClientWorld world) -> {
-			BigGlobeMod.LOGGER.info("Resetting ClientState on disconnect.");
-			generatorParams = null;
-			timeSpeed = 1.0D;
+		ClientWorldEvents.WORLD_CHANGED.register((ClientWorld oldWorld, ClientWorld newWorld) -> {
+			if (newWorld == null) {
+				BigGlobeMod.LOGGER.info("Resetting ClientState on disconnect.");
+				generatorParams = null;
+				timeSpeed = 1.0D;
+			}
 		});
 	}
 

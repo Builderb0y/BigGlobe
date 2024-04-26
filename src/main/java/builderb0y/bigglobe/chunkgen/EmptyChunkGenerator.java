@@ -52,8 +52,12 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	public static final Codec<EmptyChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(EmptyChunkGenerator.class);
 
-	public EmptyChunkGenerator(BiomeSource biome_source) {
+	public static record Height(int min_y, int max_y) {}
+	public final Height height;
+
+	public EmptyChunkGenerator(Height height, BiomeSource biome_source) {
 		super(biome_source);
+		this.height = height;
 	}
 
 	public BiomeSource biome_source() {
@@ -86,7 +90,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getWorldHeight() {
-		return 16;
+		return this.height.max_y - this.height.min_y;
 	}
 
 	@Override
@@ -96,24 +100,24 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getSeaLevel() {
-		return 0;
+		return this.height.min_y;
 	}
 
 	@Override
 	public int getMinimumY() {
-		return 0;
+		return this.height.max_y;
 	}
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		return 0;
+		return this.height.min_y;
 	}
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		BlockState[] states = new BlockState[16];
 		Arrays.fill(states, BlockStates.AIR);
-		return new VerticalBlockSample(0, states);
+		return new VerticalBlockSample(this.height.min_y, states);
 	}
 
 	@Override
