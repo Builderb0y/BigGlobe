@@ -6,7 +6,7 @@
 			"int z = minModifiableZ | random.nextInt(16)",
 			"if (`bigglobe:overworld/skyland`(x, z).tree_feature != null:",
 				"SkylandBounds bounds = `bigglobe:overworld/skyland`(x, z).bounds",
-				"if (bounds != null:",
+				"if (bounds != null && bounds.max_y > bounds.min_y:",
 					"placeFeature(x, floorInt(bounds.min_y) - 1, z, 'bigglobe:overworld/skylands/hanging_roots')",
 				")",
 			")",

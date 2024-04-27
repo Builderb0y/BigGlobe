@@ -28,14 +28,29 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	public static final Type<ServerWaypointManager>
 		TYPE = new Type<>(ServerWaypointManager::new, ServerWaypointManager::new, null);
 
+	public int nextID;
+
 	public ServerWaypointManager() {}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ServerWaypointManager(NbtCompound nbt) {
+		HyperspaceStorageVersions.update(nbt);
+		this.nextID = nbt.getInt("nextID");
 		for (NbtCompound waypointNBT : (Iterable<NbtCompound>)(Iterable)(nbt.getList("waypoints", NbtElement.COMPOUND_TYPE))) {
 			ServerWaypointData waypoint = ServerWaypointData.fromNBT(waypointNBT);
 			if (waypoint != null) this.addWaypoint(waypoint, false);
 		}
+	}
+
+	@Override
+	public NbtCompound writeNbt(NbtCompound nbt) {
+		NbtList waypoints = new NbtList();
+		for (ServerWaypointData waypoint : this.getAllWaypoints()) {
+			waypoints.add(waypoint.toNBT());
+		}
+		nbt.put("waypoints", waypoints);
+		nbt.putByte("version", (byte)(HyperspaceStorageVersions.CURRENT_VERSION));
+		return nbt;
 	}
 
 	public static @Nullable ServerWaypointManager get(ServerWorld world) {
@@ -44,6 +59,14 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 			if (world == null) return null;
 		}
 		return world.getPersistentStateManager().getOrCreate(ServerWaypointManager.TYPE, "bigglobe_hyperspace_waypoints");
+	}
+
+	public int nextID() {
+		int prevID = this.nextID;
+		int nextID = prevID + 1;
+		if (nextID == 0) throw new IllegalStateException("Ran out of IDs for waypoints.");
+		this.nextID = nextID;
+		return prevID;
 	}
 
 	public Stream<ServerWaypointData> getVisibleWaypoints(PlayerEntity player) {
@@ -137,16 +160,16 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	}
 
 	@Override
-	public ServerWaypointData removeWaypoint(UUID owner, UUID uuid, boolean sync) {
-		ServerWaypointData removed = super.removeWaypoint(owner, uuid, sync);
+	public ServerWaypointData removeWaypoint(int id, boolean sync) {
+		ServerWaypointData removed = super.removeWaypoint(id, sync);
 		if (removed != null && sync) {
 			MinecraftServer server = BigGlobeMod.currentServer;
 			if (server != null) {
-				if (owner != null) {
-					ServerPlayerEntity player = server.getPlayerManager().getPlayer(owner);
+				if (removed.owner() != null) {
+					ServerPlayerEntity player = server.getPlayerManager().getPlayer(removed.owner());
 					if (player != null) {
 						PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-						clientManager.removeWaypoint(owner, uuid, true);
+						clientManager.removeWaypoint(id, true);
 					}
 				}
 				else {
@@ -154,7 +177,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
 							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(owner, uuid, true);
+							clientManager.removeWaypoint(id, true);
 						}
 					}
 					else {
@@ -164,22 +187,12 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
 							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(owner, uuid, true);
+							clientManager.removeWaypoint(id, true);
 						}
 					}
 				}
 			}
 		}
 		return removed;
-	}
-
-	@Override
-	public NbtCompound writeNbt(NbtCompound nbt) {
-		NbtList waypoints = new NbtList();
-		for (ServerWaypointData waypoint : this.getAllWaypoints()) {
-			waypoints.add(waypoint.toNBT());
-		}
-		nbt.put("waypoints", waypoints);
-		return nbt;
 	}
 }

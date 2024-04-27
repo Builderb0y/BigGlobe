@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.hyperspace;
 
-import java.util.UUID;
-
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -49,10 +47,10 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 	}
 
 	@Override
-	public @Nullable PlayerWaypointData removeWaypoint(UUID owner, UUID uuid, boolean sync) {
-		PlayerWaypointData removed = super.removeWaypoint(owner, uuid, sync);
+	public @Nullable PlayerWaypointData removeWaypoint(int id, boolean sync) {
+		PlayerWaypointData removed = super.removeWaypoint(id, sync);
 		if (removed != null && sync) {
-			WaypointRemoveS2CPacket.INSTANCE.send(this.serverPlayer(), uuid, owner != null);
+			WaypointRemoveS2CPacket.INSTANCE.send(this.serverPlayer(), id);
 		}
 		return removed;
 	}

@@ -21,7 +21,7 @@ always the same as its destination position.
 */
 public record ServerWaypointData(
 	PackedWorldPos position,
-	UUID uuid,
+	int id,
 	@Nullable UUID owner
 )
 implements WaypointData {
@@ -67,7 +67,7 @@ implements WaypointData {
 		position.add(NbtDouble.of(this.position.z()));
 		nbt.put("pos", position);
 
-		nbt.putUuid("uuid", this.uuid);
+		nbt.putInt("id", this.id);
 		if (this.owner != null) nbt.putUuid("owner", this.owner);
 		return nbt;
 	}
@@ -103,14 +103,7 @@ implements WaypointData {
 			}
 		}
 
-		UUID uuid;
-		try {
-			uuid = nbt.getUuid("uuid");
-		}
-		catch (IllegalArgumentException exception) {
-			BigGlobeMod.LOGGER.warn("Attempt to load waypoint with invalid UUID: " + nbt, exception);
-			return null;
-		}
+		int id = nbt.getInt("id");
 
 		UUID owner;
 		{
@@ -127,6 +120,6 @@ implements WaypointData {
 			}
 		}
 
-		return new ServerWaypointData(position, uuid, owner);
+		return new ServerWaypointData(position, id, owner);
 	}
 }

@@ -20,8 +20,8 @@ public record PlayerWaypointData(
 implements WaypointData {
 
 	@Override
-	public UUID uuid() {
-		return this.destination.uuid();
+	public int id() {
+		return this.destination.id();
 	}
 
 	@Override
@@ -35,6 +35,6 @@ implements WaypointData {
 	}
 
 	public SyncedWaypointData sync() {
-		return new SyncedWaypointData(this.uuid(), this.owner() != null, this.destinationPosition(), this.displayPosition);
+		return new SyncedWaypointData(this.id(), this.owner() != null, this.destinationPosition(), this.displayPosition);
 	}
 }

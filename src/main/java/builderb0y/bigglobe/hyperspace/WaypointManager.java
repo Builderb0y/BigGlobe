@@ -2,7 +2,6 @@ package builderb0y.bigglobe.hyperspace;
 
 import java.util.*;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.PersistentState;
@@ -25,13 +24,12 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 		return this.allWaypoints.values();
 	}
 
-	public @Nullable D getWaypoint(@Nullable UUID owner, @NotNull UUID uuid) {
-		Map<UUID, D> ownedByOwner = this.byOwner.get(owner);
-		return ownedByOwner != null ? ownedByOwner.get(uuid) : null;
+	public @Nullable D getWaypoint(int id) {
+		return this.allWaypoints.get(id);
 	}
 
 	public Collection<D> getWaypointsInChunk(WorldChunkPos pos) {
-		Map<UUID, D> map = this.byChunk.get(pos);
+		WaypointLookup<D> map = this.byChunk.get(pos);
 		return map != null ? map.values() : Collections.emptySet();
 	}
 
@@ -40,30 +38,33 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 			BigGlobeMod.LOGGER.warn("Attempt to add waypoint to hyperspace: " + waypoint);
 			return false;
 		}
-		D old = this.allWaypoints.putIfAbsent(waypoint.uuid(), waypoint);
+		D old = this.allWaypoints.putIfAbsent(waypoint.id(), waypoint);
 		if (old != null) {
 			BigGlobeMod.LOGGER.warn("Attempt to add duplicate waypoint " + old + " -> " + waypoint);
 			return false;
 		}
-		this.byOwner.computeIfAbsent(waypoint.owner(), $ -> new WaypointLookup<>()).put(waypoint.uuid(), waypoint);
-		this.byChunk.computeIfAbsent(waypoint.displayChunkPos(), $ -> new WaypointLookup<>()).put(waypoint.uuid(), waypoint);
+		this.byOwner.computeIfAbsent(waypoint.owner(), (@Nullable UUID $) -> new WaypointLookup<>()).put(waypoint.id(), waypoint);
+		this.byChunk.computeIfAbsent(waypoint.displayChunkPos(), (WorldChunkPos $) -> new WaypointLookup<>()).put(waypoint.id(), waypoint);
+		this.markDirty();
 		return true;
 	}
 
-	public @Nullable D removeWaypoint(UUID owner, UUID uuid, boolean sync) {
-		D removed = this.allWaypoints.remove(uuid);
+	public @Nullable D removeWaypoint(int id, boolean sync) {
+		D removed = this.allWaypoints.remove(id);
 		if (removed == null) {
-			BigGlobeMod.LOGGER.warn("Attempt to remove non-existent waypoint with UUID " + uuid + " owned by " + owner);
+			BigGlobeMod.LOGGER.warn("Attempt to remove non-existent waypoint with ID " + id);
 			return null;
 		}
-		WaypointLookup<D> byOwner = this.byOwner.get(owner);
-		byOwner.remove(uuid);
-		if (byOwner.isEmpty()) this.byOwner.remove(owner);
+		WaypointLookup<D> byOwner = this.byOwner.get(removed.owner());
+		byOwner.remove(id);
+		if (byOwner.isEmpty()) this.byOwner.remove(removed.owner());
 
 		WorldChunkPos chunkPos = removed.displayChunkPos();
 		WaypointLookup<D> byChunk = this.byChunk.get(chunkPos);
-		byChunk.remove(uuid);
+		byChunk.remove(id);
 		if (byChunk.isEmpty()) this.byChunk.remove(chunkPos);
+
+		this.markDirty();
 
 		return removed;
 	}
@@ -72,5 +73,7 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 		this.allWaypoints.clear();
 		this.byOwner.clear();
 		this.byChunk.clear();
+
+		this.markDirty();
 	}
 }

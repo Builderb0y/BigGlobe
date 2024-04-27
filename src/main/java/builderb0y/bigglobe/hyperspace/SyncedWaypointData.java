@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.hyperspace;
 
-import java.util.UUID;
 
 import net.minecraft.entity.player.PlayerEntity;
 
@@ -13,7 +12,7 @@ then the owner of the waypoint is assumed to be the player receiving it.
 otherwise, the waypoint is assumed to be public.
 */
 public record SyncedWaypointData(
-	UUID uuid,
+	int id,
 	boolean owned,
 	PackedWorldPos destinationPosition,
 	PackedWorldPos displayedPosition
@@ -23,7 +22,7 @@ public record SyncedWaypointData(
 		return new PlayerWaypointData(
 			new ServerWaypointData(
 				this.destinationPosition,
-				this.uuid,
+				this.id,
 				this.owned ? player.getGameProfile().getId() : null
 			),
 			this.displayedPosition

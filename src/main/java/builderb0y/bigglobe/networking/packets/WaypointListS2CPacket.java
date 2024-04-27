@@ -27,19 +27,18 @@ import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
 schema:
-player UUID (UUID).
 is hyperspace dimension (boolean).
 number of worlds (varint).
 worlds:
 	registry key.
 number of waypoints (varint).
 waypoints:
+	ID (varint).
 	is private (boolean).
 	destination world ID (varint).
 	destination packed X (int).
 	destination packed Y (int).
 	destination packed Z (int).
-	UUID (UUID).
 	if hyperspace:
 		display position packed X (int).
 		display position packed Y (int).
@@ -71,10 +70,10 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 
 		buffer.writeVarInt(waypointCount);
 		for (PlayerWaypointData waypoint : manager.getAllWaypoints()) {
-			buffer.writeUuid(waypoint.uuid());
+			buffer.writeVarInt(waypoint.id());
 			buffer.writeBoolean(waypoint.owner() != null);
 			waypoint.destinationPosition().writeBulk(buffer, worlds);
-			if (isHyperspace) waypoint.displayPosition().writeBulk(buffer, worlds);
+			if (isHyperspace) waypoint.displayPosition().writePositionOnly(buffer);
 		}
 
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
@@ -92,11 +91,11 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		int waypointCount = buffer.readVarInt();
 		List<SyncedWaypointData> waypoints = new ArrayList<>(waypointCount);
 		for (int waypointIndex = 0; waypointIndex < waypointCount; waypointIndex++) {
-			UUID uuid = buffer.readUuid();
+			int id = buffer.readVarInt();
 			boolean owned = buffer.readBoolean();
 			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
-			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readBulk(buffer, worlds) : destination;
-			waypoints.add(new SyncedWaypointData(uuid, owned, destination, displayPosition));
+			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
+			waypoints.add(new SyncedWaypointData(id, owned, destination, displayPosition));
 		}
 		return waypoints;
 	}

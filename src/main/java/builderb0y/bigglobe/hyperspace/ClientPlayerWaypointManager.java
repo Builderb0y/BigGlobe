@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.hyperspace;
 
 import java.util.List;
-import java.util.UUID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -97,8 +96,8 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	}
 
 	@Override
-	public PlayerWaypointData removeWaypoint(UUID owner, UUID uuid, boolean sync) {
-		PlayerWaypointData waypoint = super.removeWaypoint(owner, uuid, sync);
+	public PlayerWaypointData removeWaypoint(int id, boolean sync) {
+		PlayerWaypointData waypoint = super.removeWaypoint(id, sync);
 		if (waypoint != null && sync) {
 			ClientWorld world = this.clientPlayer().clientWorld;
 			List<WaypointEntity> found = world.getEntitiesByClass(
@@ -111,13 +110,13 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 					waypoint.displayPosition().y() + 1.0D,
 					waypoint.displayPosition().z() + 1.0D
 				),
-				(WaypointEntity entity) -> entity.isFake && entity.data != null && entity.data.uuid().equals(waypoint.uuid())
+				(WaypointEntity entity) -> entity.isFake && entity.data != null && entity.data.id() == waypoint.id()
 			);
 			switch (found.size()) {
-				case 0 -> BigGlobeMod.LOGGER.warn("Did not find any waypoints in client world with UUID " + waypoint.uuid());
+				case 0 -> BigGlobeMod.LOGGER.warn("Did not find any waypoints in client world with ID " + waypoint.id());
 				case 1 -> found.get(0).discard();
 				default -> {
-					BigGlobeMod.LOGGER.warn("Found more than one waypoint in client world with UUID " + waypoint.uuid());
+					BigGlobeMod.LOGGER.warn("Found more than one waypoint in client world with ID " + waypoint.id());
 					found.forEach(WaypointEntity::discard);
 				}
 			}

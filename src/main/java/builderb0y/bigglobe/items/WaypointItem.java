@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.items;
 
-import java.util.UUID;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
@@ -37,7 +35,7 @@ public class WaypointItem extends Item {
 							context.getBlockPos().getY() + 2.5D,
 							context.getBlockPos().getZ() + 0.5D
 						),
-						UUID.randomUUID(),
+						manager.nextID(),
 						context.getPlayer() != null ? context.getPlayer().getGameProfile().getId() : null
 					),
 					true

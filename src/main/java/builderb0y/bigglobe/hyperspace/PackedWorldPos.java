@@ -63,9 +63,17 @@ public record PackedWorldPos(RegistryKey<World> world, double x, double y, doubl
 		return BigGlobeMath.floorI(coordinate * 64.0D);
 	}
 
+	public void writePositionOnly(PacketByteBuf buffer) {
+		buffer.writeInt(this.packedX()).writeInt(this.packedY()).writeInt(this.packedZ());
+	}
+
+	public static PackedWorldPos readPositionOnly(PacketByteBuf buffer, RegistryKey<World> world) {
+		return new PackedWorldPos(world, buffer.readInt(), buffer.readInt(), buffer.readInt());
+	}
+
 	public void write(PacketByteBuf buffer) {
 		buffer.writeRegistryKey(this.world);
-		buffer.writeInt(this.packedX()).writeInt(this.packedY()).writeInt(this.packedZ());
+		this.writePositionOnly(buffer);
 	}
 
 	public static PackedWorldPos read(PacketByteBuf buffer) {
@@ -74,7 +82,7 @@ public record PackedWorldPos(RegistryKey<World> world, double x, double y, doubl
 
 	public void writeBulk(PacketByteBuf buffer, Object2IntMap<RegistryKey<World>> worlds) {
 		buffer.writeVarInt(worlds.getInt(this.world));
-		buffer.writeInt(this.packedX()).writeInt(this.packedY()).writeInt(this.packedZ());
+		this.writePositionOnly(buffer);
 	}
 
 	public static PackedWorldPos readBulk(PacketByteBuf buffer, List<RegistryKey<World>> worlds) {

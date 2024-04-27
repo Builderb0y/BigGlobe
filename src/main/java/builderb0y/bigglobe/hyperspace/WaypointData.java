@@ -13,9 +13,12 @@ this data includes things like who owns it, where it is, and so on.
 */
 public interface WaypointData {
 
-	public static final Hash.Strategy<WaypointData> UUID_STRATEGY = HashStrategies.map(HashStrategies.defaultStrategy(), WaypointData::uuid);
+	public static final Hash.Strategy<WaypointData> ID_STRATEGY = HashStrategies.of(
+		WaypointData::id,
+		(WaypointData a, WaypointData b) -> a.id() == b.id()
+	);
 
-	public abstract UUID uuid();
+	public abstract int id();
 
 	public abstract UUID owner();
 

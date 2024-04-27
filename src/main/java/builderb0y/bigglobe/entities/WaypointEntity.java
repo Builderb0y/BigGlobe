@@ -98,7 +98,7 @@ public class WaypointEntity extends Entity {
 			!player.hasPortalCooldown() &&
 			player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.getHealth() / MAX_HEALTH
 		) {
-			UseWaypointPacket.INSTANCE.send(this.data.owner() != null, this.data.uuid());
+			UseWaypointPacket.INSTANCE.send(this.data.id());
 		}
 	}
 
@@ -138,10 +138,10 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void remove(RemovalReason reason) {
-		if (reason == RemovalReason.KILLED && this.getWorld() instanceof ServerWorld serverWorld) {
+		if (reason == RemovalReason.KILLED && this.getWorld() instanceof ServerWorld serverWorld && this.data != null) {
 			ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
 			if (manager != null) {
-				manager.removeWaypoint(this.data.owner(), this.data.uuid(), true);
+				manager.removeWaypoint(this.data.id(), true);
 			}
 			if (BigGlobeItems.WAYPOINT != null && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
 				ItemStack stack = new ItemStack(BigGlobeItems.WAYPOINT);
