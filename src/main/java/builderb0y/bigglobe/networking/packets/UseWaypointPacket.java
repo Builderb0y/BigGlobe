@@ -91,7 +91,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 		else {
 			ServerWorld hyperspace = player.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
 			if (hyperspace != null) {
-				manager.entrance = waypoint.destination();
+				manager.entrance = waypoint.destination().position();
 				ServerPlayerEntity newPlayer = FabricDimensions.teleport(
 					player,
 					hyperspace,

@@ -28,7 +28,7 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 		ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(this.serverPlayer()));
 		if (manager != null) {
 			this.clear();
-			manager.getVisibleWaypoints(this.serverPlayer()).forEach((ServerWaypointData waypoint) -> this.addWaypoint(waypoint.toClientData(this.entrance != null ? this.entrance.position() : null), false));
+			manager.getVisibleWaypoints(this.serverPlayer()).forEach((ServerWaypointData waypoint) -> this.addWaypoint(waypoint.toClientData(this.entrance != null ? this.entrance.pos() : null), false));
 			WaypointListS2CPacket.INSTANCE.send(this.serverPlayer());
 		}
 	}

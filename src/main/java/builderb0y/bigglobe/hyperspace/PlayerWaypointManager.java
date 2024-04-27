@@ -18,14 +18,15 @@ and all of their own private waypoints while in hyperspace,
 but in other dimensions their view of waypoints will be filtered to
 not include waypoints that are in a different dimension than them.
 
-this class also keeps track of an "entrance" waypoint.
-when the player is in hyperspace, this is the waypoint they entered hyperspace from.
-when the player is in any other dimension, this waypoint is null.
+this class also keeps track of an "entrance" position.
+when the player is in hyperspace, this is the position
+of the waypoint they entered hyperspace from.
+when the player is in any other dimension, this position is null.
 */
 public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypointData> {
 
 	public final PlayerEntity player;
-	public @Nullable ServerWaypointData entrance;
+	public @Nullable PackedWorldPos entrance;
 
 	public PlayerWaypointManager(PlayerEntity player) {
 		this.player = player;

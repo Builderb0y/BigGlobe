@@ -44,12 +44,13 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	@Override
 	public NbtCompound writeNbt(NbtCompound nbt) {
+		nbt.putByte("version", (byte)(HyperspaceStorageVersions.CURRENT_VERSION));
 		NbtList waypoints = new NbtList();
 		for (ServerWaypointData waypoint : this.getAllWaypoints()) {
 			waypoints.add(waypoint.toNBT());
 		}
 		nbt.put("waypoints", waypoints);
-		nbt.putByte("version", (byte)(HyperspaceStorageVersions.CURRENT_VERSION));
+		nbt.putInt("nextID", this.nextID);
 		return nbt;
 	}
 
@@ -121,7 +122,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
 							PlayerWaypointData clientWaypoint;
 							if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-								clientWaypoint = waypoint.relativize(clientManager.entrance.position());
+								clientWaypoint = waypoint.relativize(clientManager.entrance != null ? clientManager.entrance.pos() : PackedPos.ZERO);
 							}
 							else {
 								clientWaypoint = waypoint.absolutize();
@@ -145,7 +146,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
 								PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-								PlayerWaypointData clientWaypoint = waypoint.relativize(clientManager.entrance.position());
+								PlayerWaypointData clientWaypoint = waypoint.relativize(clientManager.entrance != null ? clientManager.entrance.pos() : PackedPos.ZERO);
 								clientManager.addWaypoint(clientWaypoint, true);
 							}
 						}

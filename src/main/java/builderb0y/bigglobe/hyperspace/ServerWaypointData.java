@@ -36,7 +36,7 @@ implements WaypointData {
 		return this.position;
 	}
 
-	public PlayerWaypointData relativize(PackedWorldPos entrance) {
+	public PlayerWaypointData relativize(PackedPos entrance) {
 		double x = this.position.x() - entrance.x();
 		double y = this.position.y() - entrance.y();
 		double z = this.position.z() - entrance.z();
@@ -53,7 +53,7 @@ implements WaypointData {
 		return new PlayerWaypointData(this, this.position);
 	}
 
-	public PlayerWaypointData toClientData(PackedWorldPos entrance) {
+	public PlayerWaypointData toClientData(PackedPos entrance) {
 		return entrance != null ? this.relativize(entrance) : this.absolutize();
 	}
 
