@@ -6,6 +6,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 import net.minecraft.block.Block;
@@ -14,8 +16,15 @@ import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootManager;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.LootTables;
+import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -153,6 +162,14 @@ public class BigGlobeItems {
 	public static final @Nullable WaypointItem
 		PUBLIC_WAYPOINT  = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("public_waypoint",  new WaypointItem(settings(), false)) : null,
 		PRIVATE_WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("private_waypoint", new WaypointItem(settings(), true )) : null;
+	public static final EnumMap<CloudColor, AuraBottleItem> AURA_BOTTLES = new EnumMap<>(CloudColor.class);
+	static {
+		for (CloudColor color : CloudColor.VALUES) {
+			if (color != CloudColor.BLANK) {
+				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(settings(), color)));
+			}
+		}
+	}
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
@@ -188,6 +205,27 @@ public class BigGlobeItems {
 		FuelRegistry.INSTANCE.add(SOUL_LAVA_BUCKET, 20000);
 		FuelRegistry.INSTANCE.add(SULFUR, 1200);
 		FuelRegistry.INSTANCE.add(SULFUR_BLOCK, 12000);
+		LootTableEvents.MODIFY.register(
+			(
+				ResourceManager resourceManager,
+				LootManager lootManager,
+				Identifier id,
+				LootTable.Builder tableBuilder,
+				LootTableSource source
+			)
+			-> {
+				if (source.isBuiltin() && LootTables.END_CITY_TREASURE_CHEST.equals(id)) {
+					tableBuilder.pool(
+						LootPool.builder().with(
+							TagEntry
+							.expandBuilder(BigGlobeItemTags.AURA_BOTTLES)
+							.weight(100)
+							.quality(1)
+						)
+					);
+				}
+			}
+		);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -257,6 +295,7 @@ public class BigGlobeItems {
 				entries.addAfter(Items.GUNPOWDER, ASH);
 				entries.addAfter(Items.FLINT, ROCK);
 				entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
+				entries.addAfter(Items.EXPERIENCE_BOTTLE, AURA_BOTTLES.values().toArray(Item[]::new));
 			});
 			ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 				entries.addAfter(Items.CROSSBOW, SLINGSHOT);
@@ -265,7 +304,7 @@ public class BigGlobeItems {
 	}
 
 	public static ItemStack string(int blocks) {
-		ItemStack stack = new ItemStack(BigGlobeItems.BALL_OF_STRING);
+		ItemStack stack = new ItemStack(BALL_OF_STRING);
 		stack.getOrCreateNbt().putInt(BallOfStringItem.MAX_DAMAGE_KEY, blocks);
 		return stack;
 	}

@@ -28,14 +28,6 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 
 4.0 stuff:
-	system to allow players to teleport to locations they've visited before.
-		map item which displays waypoints?
-			done in the past by most minimap mods.
-		structure the player can build and then teleport to it?
-			done in the past by the waystones mod I think.
-		hyperspace dimension which is has a larger coordinate scale more than the nether?
-			maybe some kind of exponential coordinate scale, where traveling a distance of X in the dimension moves you e^x outside the dimension?
-			some way to teleport into and out of this dimension.
 	things to eventually remove:
 		"test" package (move to scripted dimension)
 	fully immutable NBT elements for scripts.
@@ -43,7 +35,6 @@ where I left off:
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
-	Seed should be able to extract manual seeds from parents of current decode context.
 	need to redo scripted noise which uses column values.
 	missing stuff:
 		caverns.
@@ -65,10 +56,7 @@ where I left off:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
-	make rivers shallow-er at high elevations?
 	glow lichen.
-	bottled aura.
-		add to loot tables of end cities.
 	items might not be added to creative menu in 1.19.2.
 
 3.x stuff:
@@ -110,6 +98,7 @@ where I left off:
 	disable raids in end dimension.
 	items might not be added to creative menu in 1.19.2.
 	fix networking code to decode on network thread and process on main thread.
+	fix "group": "GROUP" in slingshot recipe.
 
 changelog:
 	4.0:

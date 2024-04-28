@@ -221,7 +221,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					false
 				)
 			));
 		}
@@ -794,7 +796,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					true
 				)
 			));
 		}
