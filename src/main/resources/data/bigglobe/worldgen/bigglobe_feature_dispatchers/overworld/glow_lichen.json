@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"for (int baseY in range[minModifiableY, maxModifiableY) % 16:",
+			"repeat (2:",
+				"int x = minModifiableX | random.nextInt(16)",
+				"int z = minModifiableZ | random.nextInt(16)",
+				"int y = baseY | random.nextInt(16)",
+				"if (",
+					"y.isBetween[",
+						"floorInt(`bigglobe:overworld/basic_surface_y`(x, z) - `bigglobe:overworld/cave`(x, z).depth),",
+						"ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+					")",
+				":",
+					"placeFeature(x, y, z, 'minecraft:glow_lichen')",
+				")",
+			")",
+		")"
+	]
+}

@@ -56,7 +56,6 @@ where I left off:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
-	glow lichen.
 	items might not be added to creative menu in 1.19.2.
 
 3.x stuff:
