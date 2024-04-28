@@ -2,6 +2,8 @@ package builderb0y.bigglobe.entities;
 
 import java.util.random.RandomGenerator;
 
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -18,6 +20,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
@@ -28,17 +31,53 @@ import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.networking.packets.UseWaypointPacket;
+import builderb0y.bigglobe.networking.packets.WaypointRemoveC2SPacket;
+import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
 
 public class WaypointEntity extends Entity {
 
-	//public static final TrackedData<Float> HEALTH = DataTracker.registerData(WaypointEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	public static final float MAX_HEALTH = 10.0F;
+	static {
+		AttackEntityCallback.EVENT.register((PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
+			if (
+				entity instanceof WaypointEntity waypoint &&
+				waypoint.isFake &&
+				waypoint.data != null &&
+				!player.isSpectator()
+			) {
+				player.attack(waypoint);
+				if (!(waypoint.health > 0.0F)) {
+					WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
+				}
+				return ActionResult.FAIL;
+			}
+			else {
+				return ActionResult.PASS;
+			}
+		});
+		UseEntityCallback.EVENT.register((PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
+			if (
+				entity instanceof WaypointEntity waypoint &&
+				waypoint.isFake &&
+				waypoint.data != null &&
+				!player.isSpectator() &&
+				player.getStackInHand(hand).getItem() == Items.NAME_TAG
+			) {
+				WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
+				return ActionResult.FAIL;
+			}
+			else {
+				return ActionResult.PASS;
+			}
+		});
+	}
 
 	public @Nullable ServerWaypointData data;
 	/** true if this entity is client-side only and does not exist on the server. */
 	public boolean isFake;
+	public float health;
 	public Orbit[] orbits;
 
 	public WaypointEntity(EntityType<?> type, World world) {
@@ -60,11 +99,16 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public boolean canHit() {
-		return !this.isFake;
+		return true;
 	}
 
 	@Override
 	public boolean canBeHitByProjectile() {
+		return false;
+	}
+
+	@Override
+	public boolean canUsePortals() {
 		return false;
 	}
 
@@ -75,29 +119,11 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public ActionResult interact(PlayerEntity player, Hand hand) {
-		ItemStack stack = player.getStackInHand(hand);
-		if (stack.getItem() == Items.NAME_TAG && stack.hasCustomName()) {
-			if (!player.getWorld().isClient) {
-				this.setCustomName(stack.getName());
-				stack.decrement(1);
-			}
-			return ActionResult.SUCCESS;
-		}
-		else {
-			return ActionResult.PASS;
-		}
-	}
-
-	@Override
 	public void onPlayerCollision(PlayerEntity player) {
 		super.onPlayerCollision(player);
-		if (
-			this.isFake &&
+		if (this.isFake &&
 			this.data != null &&
-			!player.hasPortalCooldown() &&
-			player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.getHealth() / MAX_HEALTH
-		) {
+			!player.hasPortalCooldown() && player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.health / MAX_HEALTH) {
 			UseWaypointPacket.INSTANCE.send(this.data.id());
 		}
 	}
@@ -122,16 +148,16 @@ public class WaypointEntity extends Entity {
 		if (this.isInvulnerableTo(source)) {
 			return false;
 		}
-		if (this.getWorld().isClient) {
+		if (this.isFake != this.getWorld().isClient) {
 			return true;
 		}
-		float newHealth = this.getHealth() - amount;
+		float newHealth = this.health - amount;
 		if (!(newHealth > 0.0F)) {
-			this.setHealth(0.0F);
+			this.health = 0.0F;
 			this.remove(RemovalReason.KILLED);
 		}
 		else {
-			this.setHealth(newHealth);
+			this.health = newHealth;
 		}
 		return true;
 	}
@@ -162,15 +188,6 @@ public class WaypointEntity extends Entity {
 		super.remove(reason);
 	}
 
-	public float getHealth() {
-		return MAX_HEALTH;
-		//return this.dataTracker.get(HEALTH);
-	}
-
-	public void setHealth(float health) {
-		//this.dataTracker.set(HEALTH, health);
-	}
-
 	@Override
 	public void tick() {
 		if (this.getWorld().isClient) {
@@ -178,13 +195,7 @@ public class WaypointEntity extends Entity {
 				orbit.tick();
 			}
 		}
-		else {
-			float oldHealth = this.getHealth();
-			float newHealth = Math.min(oldHealth + 0.05F, MAX_HEALTH);
-			if (oldHealth != newHealth) {
-				this.setHealth(newHealth);
-			}
-		}
+		this.health = Math.min(this.health + 0.05F, MAX_HEALTH);
 	}
 
 	@Override
@@ -209,19 +220,17 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void initDataTracker() {
-		//this.dataTracker.startTracking(HEALTH, 0.0F);
+
 	}
 
 	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt) {
-		if (this.data != null) nbt.put("waypoint", this.data.toNBT());
+		//not savable
 	}
 
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {
-		if (nbt.get("waypoint") instanceof NbtCompound compound) {
-			this.data = ServerWaypointData.fromNBT(compound);
-		}
+		//not savable
 	}
 
 	public static abstract class Orbit {

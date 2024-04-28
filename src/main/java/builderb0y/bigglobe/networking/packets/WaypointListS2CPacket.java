@@ -2,7 +2,6 @@ package builderb0y.bigglobe.networking.packets;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.ToIntFunction;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
@@ -14,15 +13,18 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
+import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -33,8 +35,12 @@ worlds:
 	registry key.
 number of waypoints (varint).
 waypoints:
+	flags (byte).
+		if the recipient of this packet is also the owner of the waypoint,
+		then the {@link #OWNED_BY_RECIPIENT} flag is set.
+		if the waypoint is public, then the {@link #OWNED_BY_RECIPIENT} flag is NOT set.
+		if the waypoint has a name, then the {@link #HAS_NAME} flag is set.
 	ID (varint).
-	is private (boolean).
 	destination world ID (varint).
 	destination packed X (int).
 	destination packed Y (int).
@@ -43,10 +49,15 @@ waypoints:
 		display position packed X (int).
 		display position packed Y (int).
 		display position packed Z (int).
+	if hasName:
+		name (NBT element).
 */
 public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWaypointData>> {
 
 	public static final WaypointListS2CPacket INSTANCE = new WaypointListS2CPacket();
+	public static final int
+		OWNED_BY_RECIPIENT = 1 << 0,
+		HAS_NAME = 1 << 1;
 
 	public void send(ServerPlayerEntity player) {
 		PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
@@ -70,10 +81,16 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 
 		buffer.writeVarInt(waypointCount);
 		for (PlayerWaypointData waypoint : manager.getAllWaypoints()) {
+			int flags = 0;
+			if (waypoint.owner() != null) flags |= OWNED_BY_RECIPIENT;
+			Text name = waypoint.destination().name();
+			NbtElement nbtName = TextCoding.toNbt(name);
+			if (nbtName != null) flags |= HAS_NAME;
+			buffer.writeByte(flags);
 			buffer.writeVarInt(waypoint.id());
-			buffer.writeBoolean(waypoint.owner() != null);
 			waypoint.destinationPosition().writeBulk(buffer, worlds);
 			if (isHyperspace) waypoint.displayPosition().writePositionOnly(buffer);
+			if (nbtName != null) buffer.writeNbt(nbtName);
 		}
 
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
@@ -91,11 +108,14 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		int waypointCount = buffer.readVarInt();
 		List<SyncedWaypointData> waypoints = new ArrayList<>(waypointCount);
 		for (int waypointIndex = 0; waypointIndex < waypointCount; waypointIndex++) {
+			int flags = buffer.readByte();
+			boolean owned = (flags & OWNED_BY_RECIPIENT) != 0;
+			boolean hasName = (flags & HAS_NAME) != 0;
 			int id = buffer.readVarInt();
-			boolean owned = buffer.readBoolean();
 			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
 			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
-			waypoints.add(new SyncedWaypointData(id, owned, destination, displayPosition));
+			Text name = hasName ? TextCoding.read(buffer) : null;
+			waypoints.add(new SyncedWaypointData(id, owned, destination, displayPosition, name));
 		}
 		return waypoints;
 	}

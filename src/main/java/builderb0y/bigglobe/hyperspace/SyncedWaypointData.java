@@ -1,7 +1,10 @@
 package builderb0y.bigglobe.hyperspace;
 
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 
 /**
 information about a waypoint for the purposes of syncing that waypoint to a client.
@@ -15,15 +18,17 @@ public record SyncedWaypointData(
 	int id,
 	boolean owned,
 	PackedWorldPos destinationPosition,
-	PackedWorldPos displayedPosition
+	PackedWorldPos displayedPosition,
+	@Nullable Text name
 ) {
 
 	public PlayerWaypointData resolve(PlayerEntity player) {
 		return new PlayerWaypointData(
 			new ServerWaypointData(
-				this.destinationPosition,
 				this.id,
-				this.owned ? player.getGameProfile().getId() : null
+				this.owned ? player.getGameProfile().getId() : null,
+				this.destinationPosition,
+				this.name
 			),
 			this.displayedPosition
 		);

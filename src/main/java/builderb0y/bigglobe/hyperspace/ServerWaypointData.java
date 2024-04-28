@@ -6,12 +6,15 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.*;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -20,9 +23,10 @@ the displayed position of a server waypoint is
 always the same as its destination position.
 */
 public record ServerWaypointData(
-	PackedWorldPos position,
 	int id,
-	@Nullable UUID owner
+	@Nullable UUID owner,
+	PackedWorldPos position,
+	@Nullable Text name
 )
 implements WaypointData {
 
@@ -34,6 +38,10 @@ implements WaypointData {
 	@Override
 	public PackedWorldPos displayPosition() {
 		return this.position;
+	}
+
+	public ServerWaypointData withName(Text name) {
+		return new ServerWaypointData(this.id, this.owner, this.position, name);
 	}
 
 	public PlayerWaypointData relativize(PackedPos entrance) {
@@ -60,15 +68,15 @@ implements WaypointData {
 	public NbtCompound toNBT() {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("world", this.position.world().getValue().toString());
-
-		NbtList position = new NbtList();
-		position.add(NbtDouble.of(this.position.x()));
-		position.add(NbtDouble.of(this.position.y()));
-		position.add(NbtDouble.of(this.position.z()));
-		nbt.put("pos", position);
+		nbt.put("pos", this.position.pos().toNbt());
 
 		nbt.putInt("id", this.id);
 		if (this.owner != null) nbt.putUuid("owner", this.owner);
+
+		if (this.name != null) {
+			NbtElement nbtName = TextCoding.toNbt(this.name);
+			if (nbtName != null) nbt.put("name", nbtName);
+		}
 		return nbt;
 	}
 
@@ -120,6 +128,8 @@ implements WaypointData {
 			}
 		}
 
-		return new ServerWaypointData(position, id, owner);
+		Text name = TextCoding.fromNbt(nbt.get("name"));
+
+		return new ServerWaypointData(id, owner, position, name);
 	}
 }

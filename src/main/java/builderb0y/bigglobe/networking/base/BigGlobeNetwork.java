@@ -42,6 +42,8 @@ public class BigGlobeNetwork implements ClientPlayNetworking.PlayChannelHandler,
 		this.register(WaypointAddS2CPacket.INSTANCE);
 		this.register(WaypointRemoveS2CPacket.INSTANCE);
 		this.register(UseWaypointPacket.INSTANCE);
+		this.register(WaypointRenameC2SPacket.INSTANCE);
+		this.register(WaypointRemoveC2SPacket.INSTANCE);
 	}
 
 	public byte nextId() {

@@ -134,7 +134,7 @@ public class SatinCompat {
 							1.0F
 						);
 						RenderSystem.getModelViewMatrix().transform(position);
-						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.getHealth() / WaypointEntity.MAX_HEALTH);
+						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.health / WaypointEntity.MAX_HEALTH);
 					}
 					WaypointWarp.COUNT.set(count);
 					WaypointWarp.ACTUAL_PROJ_MAT.set(RenderSystem.getProjectionMatrix());

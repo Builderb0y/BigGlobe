@@ -29,14 +29,17 @@ public class WaypointItem extends Item {
 				manager != null &&
 				manager.addWaypoint(
 					new ServerWaypointData(
+						manager.nextID(),
+						context.getPlayer() != null ? context.getPlayer().getGameProfile().getId() : null,
 						new PackedWorldPos(
 							serverWorld.getRegistryKey(),
 							context.getBlockPos().getX() + 0.5D,
 							context.getBlockPos().getY() + 2.5D,
 							context.getBlockPos().getZ() + 0.5D
 						),
-						manager.nextID(),
-						context.getPlayer() != null ? context.getPlayer().getGameProfile().getId() : null
+						context.getStack().hasCustomName()
+						? context.getStack().getName()
+						: null
 					),
 					true
 				)

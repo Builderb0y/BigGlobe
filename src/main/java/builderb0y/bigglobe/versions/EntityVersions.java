@@ -7,6 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.math.BigGlobeMath;
+
 public class EntityVersions {
 
 	public static World getWorld(Entity entity) {
@@ -31,5 +33,13 @@ public class EntityVersions {
 		#else
 			return player.getProjectileType(weapon);
 		#endif
+	}
+
+	public static double getReachDistance(PlayerEntity player) {
+		return 8.0D;
+	}
+
+	public static double getReachDistanceSquared(PlayerEntity player) {
+		return BigGlobeMath.squareD(getReachDistance(player));
 	}
 }

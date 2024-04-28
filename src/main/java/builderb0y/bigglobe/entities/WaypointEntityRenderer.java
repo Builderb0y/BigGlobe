@@ -36,7 +36,7 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 		Vector3f unit1 = new Vector3f(normal).cross(0.0F, 1.0F, 0.0F).normalize();
 		Vector3f unit2 = new Vector3f(unit1).cross(normal).normalize();
 		Vector3f scratch = new Vector3f();
-		int maxOrbits = BigGlobeMath.roundI(entity.getHealth() / WaypointEntity.MAX_HEALTH * entity.orbits.length);
+		int maxOrbits = BigGlobeMath.roundI(entity.health / WaypointEntity.MAX_HEALTH * entity.orbits.length);
 		for (int i = 0; i < maxOrbits; i++) {
 			Orbit orbit = entity.orbits[i];
 			for (int history = 0; history < 16; history++) {

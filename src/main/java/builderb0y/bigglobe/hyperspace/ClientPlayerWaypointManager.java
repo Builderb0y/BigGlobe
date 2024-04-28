@@ -11,13 +11,15 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.WaypointEntity;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
-import builderb0y.bigglobe.versions.BlockPosVersions;
 
 /**
 manages waypoints visible to a ClientPlayerEntity.
@@ -77,13 +79,20 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 		if (super.addWaypoint(waypoint, sync)) {
 			if (BigGlobeEntityTypes.WAYPOINT != null && sync) {
 				ClientWorld world = this.clientPlayer().clientWorld;
-				if (world.isChunkLoaded(BlockPosVersions.floor(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z()))) {
+				Chunk chunk = world.getChunk(
+					BigGlobeMath.floorI(waypoint.displayPosition().x()) >> 4,
+					BigGlobeMath.floorI(waypoint.displayPosition().z()) >> 4,
+					ChunkStatus.FULL,
+					false
+				);
+				if (chunk != null && waypoint.displayPosition().y() - 1.0D >= chunk.getBottomY() && waypoint.displayPosition().y() - 1.0D < chunk.getTopY()) {
 					WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
 					if (entity != null) {
 						entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
-						entity.setHealth(WaypointEntity.MAX_HEALTH);
+						entity.health = WaypointEntity.MAX_HEALTH;
 						entity.isFake = true;
 						entity.data = waypoint.destination();
+						entity.setCustomName(waypoint.destination().name());
 						world.addEntity(entity);
 					}
 				}
@@ -133,9 +142,10 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 						WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
 						if (entity != null) {
 							entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
-							entity.setHealth(WaypointEntity.MAX_HEALTH);
+							entity.health = WaypointEntity.MAX_HEALTH;
 							entity.isFake = true;
 							entity.data = waypoint.destination();
+							entity.setCustomName(waypoint.destination().name());
 							world.addEntity(entity);
 						}
 					}
