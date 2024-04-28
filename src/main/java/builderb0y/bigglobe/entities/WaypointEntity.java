@@ -11,22 +11,19 @@ import org.joml.Vector3f;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
-import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -38,7 +35,7 @@ import builderb0y.bigglobe.util.Vectors;
 
 public class WaypointEntity extends Entity {
 
-	public static final float MAX_HEALTH = 10.0F;
+	public static final float MAX_HEALTH = 5.0F;
 	static {
 		AttackEntityCallback.EVENT.register((PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
 			if (
@@ -115,7 +112,17 @@ public class WaypointEntity extends Entity {
 	@Nullable
 	@Override
 	public ItemStack getPickBlockStack() {
-		return BigGlobeItems.WAYPOINT != null ? new ItemStack(BigGlobeItems.WAYPOINT) : null;
+		if (this.data != null) {
+			Item item = this.data.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
+			if (item != null) {
+				ItemStack stack = new ItemStack(item);
+				if (this.data.name() != null) {
+					stack.setCustomName(this.data.name());
+				}
+				return stack;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -160,32 +167,6 @@ public class WaypointEntity extends Entity {
 			this.health = newHealth;
 		}
 		return true;
-	}
-
-	@Override
-	public void remove(RemovalReason reason) {
-		if (reason == RemovalReason.KILLED && this.getWorld() instanceof ServerWorld serverWorld && this.data != null) {
-			ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
-			if (manager != null) {
-				manager.removeWaypoint(this.data.id(), true);
-			}
-			if (BigGlobeItems.WAYPOINT != null && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-				ItemStack stack = new ItemStack(BigGlobeItems.WAYPOINT);
-				if (this.hasCustomName()) {
-					stack.setCustomName(this.getCustomName());
-				}
-				ItemEntity entity = new ItemEntity(
-					this.getWorld(),
-					this.getX(),
-					this.getY() + 1.0D,
-					this.getZ(),
-					stack
-				);
-				entity.setToDefaultPickupDelay();
-				this.getWorld().spawnEntity(entity);
-			}
-		}
-		super.remove(reason);
 	}
 
 	@Override

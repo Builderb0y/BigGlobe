@@ -32,7 +32,6 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeCommands.initClient();
 		BigGlobeParticles.initClient();
 		HyperspaceDimensionEffects.init();
-		ClientPlayerWaypointManager.init();
 		SatinCompat.init();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		DistantHorizonsCompat.init();

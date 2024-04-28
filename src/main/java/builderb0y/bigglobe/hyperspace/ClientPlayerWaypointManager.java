@@ -34,29 +34,6 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 		super(player);
 	}
 
-	public static void init() {
-		ClientChunkEvents.CHUNK_LOAD.register((ClientWorld world, WorldChunk chunk) -> {
-			//MinecraftClient
-			//.getInstance()
-			//.player
-			//.as(WaypointTracker)
-			//.bigglobe_getWaypointManager()
-			//.as(ClientPlayerWaypointManager)
-			//.onChunkLoaded(world, chunk)
-			(
-				(ClientPlayerWaypointManager)(
-					(
-						(WaypointTracker)(
-							MinecraftClient.getInstance().player
-						)
-					)
-					.bigglobe_getWaypointManager()
-				)
-			)
-			.onChunkLoaded(world, chunk);
-		});
-	}
-
 	public ClientPlayerEntity clientPlayer() {
 		return (ClientPlayerEntity)(this.player);
 	}
@@ -65,11 +42,9 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	public void clear() {
 		super.clear();
 		ClientWorld world = this.clientPlayer().clientWorld;
-		if (world.getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			for (Entity entity : world.getEntities()) {
-				if (entity instanceof WaypointEntity waypoint && waypoint.isFake) {
-					entity.discard();
-				}
+		for (Entity entity : world.getEntities()) {
+			if (entity instanceof WaypointEntity waypoint && waypoint.isFake) {
+				entity.discard();
 			}
 		}
 	}
@@ -79,22 +54,14 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 		if (super.addWaypoint(waypoint, sync)) {
 			if (BigGlobeEntityTypes.WAYPOINT != null && sync) {
 				ClientWorld world = this.clientPlayer().clientWorld;
-				Chunk chunk = world.getChunk(
-					BigGlobeMath.floorI(waypoint.displayPosition().x()) >> 4,
-					BigGlobeMath.floorI(waypoint.displayPosition().z()) >> 4,
-					ChunkStatus.FULL,
-					false
-				);
-				if (chunk != null && waypoint.displayPosition().y() - 1.0D >= chunk.getBottomY() && waypoint.displayPosition().y() - 1.0D < chunk.getTopY()) {
-					WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
-					if (entity != null) {
-						entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
-						entity.health = WaypointEntity.MAX_HEALTH;
-						entity.isFake = true;
-						entity.data = waypoint.destination();
-						entity.setCustomName(waypoint.destination().name());
-						world.addEntity(entity);
-					}
+				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
+				if (entity != null) {
+					entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
+					entity.health = WaypointEntity.MAX_HEALTH;
+					entity.isFake = true;
+					entity.data = waypoint.destination();
+					entity.setCustomName(waypoint.destination().name());
+					world.addEntity(entity);
 				}
 			}
 			return true;
@@ -131,26 +98,5 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 			}
 		}
 		return waypoint;
-	}
-
-	public void onChunkLoaded(ClientWorld world, WorldChunk chunk) {
-		if (BigGlobeEntityTypes.WAYPOINT != null) {
-			WaypointLookup<PlayerWaypointData> waypoints = this.byChunk.get(new WorldChunkPos(chunk));
-			if (waypoints != null && !waypoints.isEmpty()) {
-				for (PlayerWaypointData waypoint : waypoints.values()) {
-					if (waypoint.displayPosition().y() - 1.0D >= chunk.getBottomY() && waypoint.displayPosition().y() - 1.0D < chunk.getTopY()) {
-						WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
-						if (entity != null) {
-							entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
-							entity.health = WaypointEntity.MAX_HEALTH;
-							entity.isFake = true;
-							entity.data = waypoint.destination();
-							entity.setCustomName(waypoint.destination().name());
-							world.addEntity(entity);
-						}
-					}
-				}
-			}
-		}
 	}
 }

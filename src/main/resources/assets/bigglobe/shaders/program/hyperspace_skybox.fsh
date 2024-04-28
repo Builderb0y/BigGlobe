@@ -134,5 +134,9 @@ void main() {
 	}
 	starSum *= noise.x;
 
-	fragColor = vec4(color + starSum * 4.0, 1.0);
+	color += starSum * 4.0;
+	float distanceFromOrigin = length(cameraPosition);
+	color *= exp2((dot(norm, cameraPosition) / distanceFromOrigin * -0.5 - 0.5) * distanceFromOrigin * 0.03125);
+
+	fragColor = vec4(color, 1.0);
 }

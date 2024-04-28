@@ -150,7 +150,9 @@ public class BigGlobeItems {
 		)
 	);
 	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings()));
-	public static final @Nullable WaypointItem WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("waypoint", new WaypointItem(settings())) : null;
+	public static final @Nullable WaypointItem
+		PUBLIC_WAYPOINT  = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("public_waypoint",  new WaypointItem(settings(), false)) : null,
+		PRIVATE_WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("private_waypoint", new WaypointItem(settings(), true )) : null;
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
@@ -244,7 +246,8 @@ public class BigGlobeItems {
 				entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
 				entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
 				entries.addAfter(Items.LEAD, string(16), string(64), string(256));
-				if (WAYPOINT != null) entries.addAfter(Items.ENDER_EYE, WAYPOINT);
+				if (PRIVATE_WAYPOINT != null) entries.addAfter(Items.ENDER_EYE, PRIVATE_WAYPOINT);
+				if (PUBLIC_WAYPOINT  != null) entries.addAfter(Items.ENDER_EYE, PUBLIC_WAYPOINT );
 			});
 			ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 				entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);

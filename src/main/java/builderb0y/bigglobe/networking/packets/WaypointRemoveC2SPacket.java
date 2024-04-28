@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -44,8 +45,9 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 			if (waypoint != null) {
 				if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getReachDistanceSquared(player)) {
 					serverManager.removeWaypoint(id, true);
-					if (BigGlobeItems.WAYPOINT != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-						ItemStack stack = new ItemStack(BigGlobeItems.WAYPOINT);
+					Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
+					if (drop != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+						ItemStack stack = new ItemStack(drop);
 						stack.setCustomName(waypoint.destination().name());
 						ItemEntity entity = new ItemEntity(player.getWorld(), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
 						if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {

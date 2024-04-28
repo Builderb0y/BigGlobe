@@ -13,8 +13,11 @@ import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 
 public class WaypointItem extends Item {
 
-	public WaypointItem(Settings settings) {
+	public final boolean isPrivate;
+
+	public WaypointItem(Settings settings, boolean isPrivate) {
 		super(settings);
+		this.isPrivate = isPrivate;
 	}
 
 	@Override
@@ -30,13 +33,18 @@ public class WaypointItem extends Item {
 				manager.addWaypoint(
 					new ServerWaypointData(
 						manager.nextID(),
-						context.getPlayer() != null ? context.getPlayer().getGameProfile().getId() : null,
+
+						this.isPrivate && context.getPlayer() != null
+						? context.getPlayer().getGameProfile().getId()
+						: null,
+
 						new PackedWorldPos(
 							serverWorld.getRegistryKey(),
 							context.getBlockPos().getX() + 0.5D,
 							context.getBlockPos().getY() + 2.5D,
 							context.getBlockPos().getZ() + 0.5D
 						),
+
 						context.getStack().hasCustomName()
 						? context.getStack().getName()
 						: null
