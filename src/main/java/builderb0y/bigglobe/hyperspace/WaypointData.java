@@ -5,7 +5,6 @@ import java.util.UUID;
 import it.unimi.dsi.fastutil.Hash;
 
 import builderb0y.autocodec.util.HashStrategies;
-import builderb0y.bigglobe.math.BigGlobeMath;
 
 /**
 data about a specific waypoint.
@@ -25,12 +24,4 @@ public interface WaypointData {
 	public abstract PackedWorldPos destinationPosition();
 
 	public abstract PackedWorldPos displayPosition();
-
-	public default WorldChunkPos displayChunkPos() {
-		return new WorldChunkPos(
-			this.displayPosition().world(),
-			BigGlobeMath.floorI(this.displayPosition().x()) >> 4,
-			BigGlobeMath.floorI(this.displayPosition().z()) >> 4
-		);
-	}
 }

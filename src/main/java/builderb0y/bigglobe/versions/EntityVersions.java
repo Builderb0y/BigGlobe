@@ -42,4 +42,12 @@ public class EntityVersions {
 	public static double getReachDistanceSquared(PlayerEntity player) {
 		return BigGlobeMath.squareD(getReachDistance(player));
 	}
+
+	public static void setPortalCooldown(Entity entity, int cooldown) {
+		#if MC_VERSION > MC_1_19_4
+			entity.setPortalCooldown(cooldown);
+		#else
+			((Entity_PortalCooldownSetter)(entity)).bigglobe_setPortalCooldown(cooldown);
+		#endif
+	}
 }

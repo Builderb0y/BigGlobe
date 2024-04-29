@@ -14,20 +14,20 @@ public class DataPointListBuilder extends ArrayList<DhApiTerrainDataPoint> {
 
 	public IDhApiLevelWrapper level;
 	public byte detailLevel;
-	public int lightLevel;
+	public int skyLightLevel;
 	public Object[] query;
 	public IDhApiBiomeWrapper biome;
 
 	public DataPointListBuilder(IDhApiLevelWrapper level, byte detailLevel) {
 		this.level = level;
 		this.detailLevel = detailLevel;
-		this.lightLevel = 0x0F;
+		this.skyLightLevel = 15;
 		this.query = new Object[1];
 	}
 
 	public void add(IDhApiBlockStateWrapper state, int minY, int maxY) {
 		assert maxY > minY;
-		this.add(new DhApiTerrainDataPoint(this.detailLevel, this.lightLevel, maxY, minY, state, this.biome));
+		this.add(new DhApiTerrainDataPoint(this.detailLevel, ((BlockState)(state.getWrappedMcObject())).getLuminance(), this.skyLightLevel, maxY, minY, state, this.biome));
 	}
 
 	public void add(BlockState state, int minY, int maxY) {

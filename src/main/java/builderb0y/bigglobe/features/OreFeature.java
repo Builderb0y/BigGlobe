@@ -52,17 +52,9 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 			);
 			ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
 			generateAllIntersecting(
-				context.storage(),
-				/**
-				the implementation used for columns is WorldWrapper,
-				which is not thread-safe. I expect many threads to be
-				querying columns at the same time, so I need to lock it.
-				*/
+				context,
 				worldWrapper,
 				offsetColumn,
-				context.startX(),
-				context.startY(),
-				context.startZ(),
 				config,
 				config.getReplacer(context),
 				config.seed.xor(context.worldSeed())
@@ -71,16 +63,17 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 	}
 
 	public static void generateAllIntersecting(
-		PaletteStorage storage,
+		SectionGenerationContext context,
 		WorldWrapper columns,
 		ScriptedColumn offsetColumn,
-		int startXAbsolute,
-		int startYAbsolute,
-		int startZAbsolute,
 		Config ore,
 		PaletteIdReplacer replacer,
 		long oreSeed
 	) {
+		PaletteStorage storage = context.storage();
+		int startXAbsolute = context.startX();
+		int startYAbsolute = context.startY();
+		int startZAbsolute = context.startZ();
 		for (int offsetX = -16; offsetX <= 16; offsetX += 16) {
 			long seedX = Permuter.permute(oreSeed, startXAbsolute + offsetX);
 			for (int offsetZ = -16; offsetZ <= 16; offsetZ += 16) {

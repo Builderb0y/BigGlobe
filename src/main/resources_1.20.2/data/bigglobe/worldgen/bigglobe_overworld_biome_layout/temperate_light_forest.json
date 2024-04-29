@@ -1,9 +1,0 @@
-{
-	"parent": "!bigglobe:cherry_forest",
-	"restrictions": { "type": "range", "property": "overworld/height_adjusted_foliage", "min": 0.125, "mid": 0.375 },
-	"biome": "bigglobe:temperate_plains",
-	"primary_surface": {
-		"top": "bigglobe:overgrown_podzol[snowy=false]",
-		"under": "minecraft:dirt"
-	}
-}

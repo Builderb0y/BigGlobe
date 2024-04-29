@@ -41,6 +41,7 @@ import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class MediumDungeonStructure extends AbstractDungeonStructure {
 
@@ -152,7 +153,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			if (chunkBox.contains(pos)) {
 				CoordinateSupplier<BlockState> mainSupplier = this.palette().mainSupplier();
 				while (true) {
-					if (world.getBlockState(pos).isReplaceable()) {
+					if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
 						world.setBlockState(pos, mainSupplier.get(pos), Block.NOTIFY_ALL);
 						if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
 					}

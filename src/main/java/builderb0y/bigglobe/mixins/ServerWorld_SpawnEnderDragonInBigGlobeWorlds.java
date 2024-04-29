@@ -63,7 +63,7 @@ public abstract class ServerWorld_SpawnEnderDragonInBigGlobeWorlds extends World
 		#endif
 		CallbackInfo callback
 	) {
-		if (this.enderDragonFight == null && dimensionOptions.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (this.enderDragonFight == null && dimensionOptions.#if MC_VERSION > MC_1_19_2 chunkGenerator() #else getChunkGenerator() #endif instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			this.enderDragonFight = new EnderDragonFight((ServerWorld)(Object)(this), server.getSaveProperties().getGeneratorOptions().getSeed(), server.getSaveProperties().getDragonFight());
 		}
 	}

@@ -19,6 +19,7 @@ public class NbtIo2 {
 	//////////////////////////////// writing ////////////////////////////////
 
 	public static void write(OutputStream stream, NbtElement element) throws IOException {
+		if (element == null) element = NbtEnd.INSTANCE;
 		DataOutputStream data = new DataOutputStream(stream);
 		data.writeByte(element.getType());
 		element.write(data);

@@ -10,6 +10,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -50,11 +51,11 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 					scratch.y + (unit1.y + unit2.y) * size + 1.0F,
 					scratch.z + (unit1.z + unit2.z) * size
 				)
-				.texture(0.0F, 0.0F)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.color(orbit.color)
+				.texture(0.0F, 0.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -64,11 +65,11 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 					scratch.y + (unit1.y - unit2.y) * size + 1.0F,
 					scratch.z + (unit1.z - unit2.z) * size
 				)
-				.texture(0.0F, 1.0F)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.color(orbit.color)
+				.texture(0.0F, 1.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -78,11 +79,11 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 					scratch.y + (-unit1.y - unit2.y) * size + 1.0F,
 					scratch.z + (-unit1.z - unit2.z) * size
 				)
-				.texture(1.0F, 1.0F)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.color(orbit.color)
+				.texture(1.0F, 1.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -92,16 +93,30 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 					scratch.y + (-unit1.y + unit2.y) * size + 1.0F,
 					scratch.z + (-unit1.z + unit2.z) * size
 				)
-				.texture(1.0F, 0.0F)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.color(orbit.color)
+				.texture(1.0F, 0.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
+				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
 				.next();
 			}
 		}
 		SatinCompat.markWaypointRendered(entity);
 	}
+
+	#if MC_VERSION < MC_1_20_4
+		//1.20.4 has this built in, so this override is only necessary in older versions.
+		@Override
+		public boolean hasLabel(WaypointEntity entity) {
+			return (
+				entity.shouldRenderName() || (
+					entity.hasCustomName() &&
+					MinecraftClient.getInstance().crosshairTarget instanceof EntityHitResult hit &&
+					hit.getEntity() == entity
+				)
+			);
+		}
+	#endif
 
 	@Override
 	public Identifier getTexture(WaypointEntity entity) {

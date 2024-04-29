@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
@@ -61,7 +62,16 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		}
 
 		public Data(MegaTreeStructure actualStructure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
-			this(BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure()).getEntry(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
+			this(getActualEntry(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
+		}
+
+		public static RegistryEntry<Structure> getActualEntry(MegaTreeStructure structure) {
+			Registry<Structure> registry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure());
+			#if MC_VERSION > MC_1_19_2
+				return registry.getEntry(structure);
+			#else
+				return registry.getEntry(registry.getKey(structure).orElseThrow()).orElseThrow();
+			#endif
 		}
 
 		public Vector3d position() {

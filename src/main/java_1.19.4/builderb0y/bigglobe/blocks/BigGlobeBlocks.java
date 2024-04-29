@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.blocks;
 
+import java.util.EnumMap;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -14,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.block.sapling.SaplingGenerator;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.GrassColors;
@@ -21,6 +24,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -29,6 +33,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
@@ -47,11 +52,13 @@ public class BigGlobeBlocks {
 
 	public static final BlockSetType CHARRED_BLOCK_SET_TYPE = BlockSetTypeRegistry.registerWood(BigGlobeMod.modID("charred"));
 	public static final WoodType CHARRED_WOOD_TYPE = WoodTypeRegistry.register(BigGlobeMod.modID("charred"), CHARRED_BLOCK_SET_TYPE);
+	public static final Material CLOUD_MATERIAL = new Material(MapColor.WHITE, false, true, true, true, false, false, PistonBehavior.NORMAL);
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = register(
 		"overgrown_sand",
 		new OvergrownSandBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(Blocks.SAND)
 			.ticksRandomly()
 		)
@@ -59,7 +66,8 @@ public class BigGlobeBlocks {
 	public static final SnowyBlock OVERGROWN_PODZOL = register(
 		"overgrown_podzol",
 		new SnowyBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.SOIL, MapColor.DARK_GREEN)
 			.strength(0.5F)
 			.sounds(BlockSoundGroup.GRAVEL)
@@ -70,7 +78,8 @@ public class BigGlobeBlocks {
 		new FlowerBlock(
 			StatusEffects.LUCK,
 			5,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT)
 			.noCollision()
 			.breakInstantly()
@@ -82,7 +91,8 @@ public class BigGlobeBlocks {
 	public static final ShortGrassBlock SHORT_GRASS = register(
 		"short_grass",
 		new ShortGrassBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(Blocks.GRASS)
 			.offset(OffsetType.XZ)
 		)
@@ -90,7 +100,8 @@ public class BigGlobeBlocks {
 	public static final MushroomSporesBlock MUSHROOM_SPORES = register(
 		"mushroom_spores",
 		new MushroomSporesBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.REPLACEABLE_PLANT, MapColor.PURPLE)
 			.noCollision()
 			.breakInstantly()
@@ -111,7 +122,8 @@ public class BigGlobeBlocks {
 
 		public static final SurfaceMaterialDecorationBlock
 			STICK = new SurfaceMaterialDecorationBlock(
-				AbstractBlock.Settings
+				AbstractBlock
+				.Settings
 				.of(Material.WOOD)
 				.breakInstantly()
 				.noCollision()
@@ -120,7 +132,8 @@ public class BigGlobeBlocks {
 				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
 			),
 			FLINT = new SurfaceMaterialDecorationBlock(
-				AbstractBlock.Settings
+				AbstractBlock
+				.Settings
 				.of(Material.STONE, MapColor.IRON_GRAY)
 				.breakInstantly()
 				.noCollision()
@@ -132,7 +145,8 @@ public class BigGlobeBlocks {
 	public static final RockBlock ROCK = register(
 		"rock",
 		new RockBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.IRON_GRAY)
 			.breakInstantly()
 			.noCollision()
@@ -144,7 +158,8 @@ public class BigGlobeBlocks {
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
 		"spelunking_rope",
 		new SpelunkingRopeBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOL, MapColor.OAK_TAN)
 			.strength(0.8f)
 			.sounds(BlockSoundGroup.WOOL)
@@ -153,7 +168,8 @@ public class BigGlobeBlocks {
 	public static final RopeAnchorBlock ROPE_ANCHOR = register(
 		"rope_anchor",
 		new RopeAnchorBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.METAL, MapColor.IRON_GRAY)
 			.requiresTool()
 			.strength(5.0F)
@@ -163,7 +179,8 @@ public class BigGlobeBlocks {
 	public static final Block CRYSTALLINE_PRISMARINE = register(
 		"crystalline_prismarine",
 		new Block(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(Blocks.PRISMARINE)
 			.luminance(state -> 4)
 		)
@@ -191,8 +208,7 @@ public class BigGlobeBlocks {
 				new CloudBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(MapColor.WHITE)
+					.of(CLOUD_MATERIAL, MapColor.WHITE)
 					.strength(0.2F)
 					.sounds(BlockSoundGroup.WOOL)
 					.luminance(
@@ -200,7 +216,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					false
 				)
 			));
 		}
@@ -222,8 +240,7 @@ public class BigGlobeBlocks {
 				new MoltenRockBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
+					.of(Material.STONE, heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
 					.requiresTool()
 					.luminance((BlockState state) -> lightLevel)
 					.strength(0.6F)
@@ -236,7 +253,8 @@ public class BigGlobeBlocks {
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT)
 			.breakInstantly()
 			.noCollision()
@@ -250,7 +268,8 @@ public class BigGlobeBlocks {
 	public static final AshenNetherrackBlock ASHEN_NETHERRACK = register(
 		"ashen_netherrack",
 		new AshenNetherrackBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.BLACK)
 			.requiresTool()
 			.strength(0.4F)
@@ -260,7 +279,8 @@ public class BigGlobeBlocks {
 	public static final Block SULFUR_ORE = register(
 		"sulfur_ore",
 		new ExperienceDroppingBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.DARK_RED)
 			.strength(3.0F)
 			.requiresTool(),
@@ -270,7 +290,8 @@ public class BigGlobeBlocks {
 	public static final Block SULFUR_BLOCK = register(
 		"sulfur_block",
 		new Block(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.YELLOW)
 			.strength(5.0F, 6.0F)
 			.requiresTool()
@@ -279,7 +300,8 @@ public class BigGlobeBlocks {
 	public static final NetherGrassBlock WART_WEED = register(
 		"wart_weed",
 		new NetherGrassBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.NETHER_SHOOTS, MapColor.RED)
 			.nonOpaque()
 			.noCollision()
@@ -291,7 +313,8 @@ public class BigGlobeBlocks {
 	public static final NetherGrassBlock CHARRED_GRASS = register(
 		"charred_grass",
 		new NetherGrassBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.NETHER_SHOOTS, MapColor.BLACK)
 			.nonOpaque()
 			.noCollision()
@@ -305,7 +328,8 @@ public class BigGlobeBlocks {
 		new BlazingBlossomBlock(
 			StatusEffects.FIRE_RESISTANCE,
 			8,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT, MapColor.TERRACOTTA_ORANGE)
 			.breakInstantly()
 			.nonOpaque()
@@ -319,7 +343,8 @@ public class BigGlobeBlocks {
 		new NetherFlowerBlock(
 			StatusEffects.GLOWING,
 			8,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT, MapColor.PALE_YELLOW)
 			.breakInstantly()
 			.nonOpaque()
@@ -334,7 +359,8 @@ public class BigGlobeBlocks {
 		"soul_lava",
 		new SoulLavaBlock(
 			BigGlobeFluids.SOUL_LAVA,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.LAVA, MapColor.DIAMOND_BLUE)
 			.noCollision()
 			.ticksRandomly()
@@ -360,7 +386,8 @@ public class BigGlobeBlocks {
 	public static final Block CHARRED_PLANKS = register(
 		"charred_planks",
 		new Block(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.strength(2.0F, 3.0F)
 			.sounds(BlockSoundGroup.WOOD)
@@ -383,7 +410,8 @@ public class BigGlobeBlocks {
 					return KEY;
 				}
 			},
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT)
 			.noCollision()
 			.nonOpaque()
@@ -395,7 +423,8 @@ public class BigGlobeBlocks {
 	public static final Block CHARRED_LOG = register(
 		"charred_log",
 		new PillarBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.NETHER_WOOD, MapColor.BLACK)
 			.strength(2.0F)
 			.sounds(BlockSoundGroup.WOOD)
@@ -404,7 +433,8 @@ public class BigGlobeBlocks {
 	public static final Block STRIPPED_CHARRED_LOG = register(
 		"stripped_charred_log",
 		new PillarBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.NETHER_WOOD, MapColor.BLACK)
 			.strength(2.0F)
 			.sounds(BlockSoundGroup.WOOD))
@@ -412,7 +442,8 @@ public class BigGlobeBlocks {
 	public static final Block CHARRED_WOOD = register(
 		"charred_wood",
 		new PillarBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.strength(2.0F)
 			.sounds(BlockSoundGroup.WOOD)
@@ -421,7 +452,8 @@ public class BigGlobeBlocks {
 	public static final Block STRIPPED_CHARRED_WOOD = register(
 		"stripped_charred_wood",
 		new PillarBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.strength(2.0F)
 			.sounds(BlockSoundGroup.WOOD)
@@ -431,7 +463,8 @@ public class BigGlobeBlocks {
 	public static final LeavesBlock CHARRED_LEAVES = register(
 		"charred_leaves",
 		new LeavesBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.LEAVES, MapColor.BLACK)
 			.strength(0.2F)
 			.ticksRandomly()
@@ -445,7 +478,8 @@ public class BigGlobeBlocks {
 	public static final SignBlock CHARRED_SIGN = register(
 		"charred_sign",
 		new SignBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.noCollision()
 			.nonOpaque()
@@ -457,7 +491,8 @@ public class BigGlobeBlocks {
 	public static final WallSignBlock CHARRED_WALL_SIGN = register(
 		"charred_wall_sign",
 		new WallSignBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.noCollision()
 			.nonOpaque()
@@ -471,7 +506,8 @@ public class BigGlobeBlocks {
 		"charred_pressure_plate",
 		new PressurePlateBlock(
 			PressurePlateBlock.ActivationRule.EVERYTHING,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.noCollision()
 			.nonOpaque()
@@ -489,7 +525,8 @@ public class BigGlobeBlocks {
 	public static final TrapdoorBlock CHARRED_TRAPDOOR = register(
 		"charred_trapdoor",
 		new TrapdoorBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.strength(3.0F)
 			.sounds(BlockSoundGroup.WOOD),
@@ -510,7 +547,8 @@ public class BigGlobeBlocks {
 	public static final ButtonBlock CHARRED_BUTTON = register(
 		"charred_button",
 		new ButtonBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD)
 			.noCollision()
 			.strength(0.5F)
@@ -542,7 +580,8 @@ public class BigGlobeBlocks {
 	public static final Block CHARRED_DOOR = register(
 		"charred_door",
 		new DoorBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.WOOD, MapColor.BLACK)
 			.strength(3.0F)
 			.sounds(BlockSoundGroup.WOOD),
@@ -552,7 +591,8 @@ public class BigGlobeBlocks {
 	public static final HiddenLavaBlock HIDDEN_LAVA = register(
 		"hidden_lava",
 		new HiddenLavaBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.LAVA)
 			.dropsNothing()
 		)
@@ -560,7 +600,8 @@ public class BigGlobeBlocks {
 	public static final Block ROUGH_QUARTZ = register(
 		"rough_quartz",
 		new AmethystBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.AMETHYST, MapColor.OFF_WHITE)
 			.strength(1.5F)
 			.sounds(BlockSoundGroup.AMETHYST_BLOCK)
@@ -570,7 +611,8 @@ public class BigGlobeBlocks {
 	public static final Block BUDDING_QUARTZ = register(
 		"budding_quartz",
 		new BuddingQuartzBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.AMETHYST, MapColor.OFF_WHITE)
 			.ticksRandomly()
 			.strength(1.5F)
@@ -581,7 +623,8 @@ public class BigGlobeBlocks {
 	public static final Block QUARTZ_CLUSTER = register(
 		"quartz_cluster",
 		new AmethystClusterBlock(7, 3,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.AMETHYST, MapColor.OFF_WHITE)
 			.nonOpaque()
 			.ticksRandomly()
@@ -592,7 +635,8 @@ public class BigGlobeBlocks {
 	public static final Block LARGE_QUARTZ_BUD = register(
 		"large_quartz_bud",
 		new AmethystClusterBlock(5, 3,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.MEDIUM_AMETHYST_BUD)
 		)
@@ -600,7 +644,8 @@ public class BigGlobeBlocks {
 	public static final Block MEDIUM_QUARTZ_BUD = register(
 		"medium_quartz_bud",
 		new AmethystClusterBlock(4, 3,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.LARGE_AMETHYST_BUD)
 		)
@@ -608,7 +653,8 @@ public class BigGlobeBlocks {
 	public static final Block SMALL_QUARTZ_BUD = register(
 		"small_quartz_bud",
 		new AmethystClusterBlock(3, 4,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.SMALL_AMETHYST_BUD)
 		)
@@ -619,7 +665,8 @@ public class BigGlobeBlocks {
 	public static final Block CHORUS_NYLIUM = register(
 		"chorus_nylium",
 		new ChorusNyliumBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.PURPLE)
 			.sounds(BlockSoundGroup.STONE)
 			.strength(3.0F, 9.0F)
@@ -629,7 +676,8 @@ public class BigGlobeBlocks {
 	public static final Block OVERGROWN_END_STONE = register(
 		"overgrown_end_stone",
 		new OvergrownEndStoneBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.STONE, MapColor.PALE_PURPLE)
 			.sounds(BlockSoundGroup.STONE)
 			.strength(3.0F, 9.0F)
@@ -639,7 +687,8 @@ public class BigGlobeBlocks {
 	public static final TallPlantBlock TALL_CHORUS_SPORES = register(
 		"tall_chorus_spores",
 		new TallPlantBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT, MapColor.PURPLE)
 			.sounds(BlockSoundGroup.GRASS)
 			.offset(OffsetType.XZ)
@@ -657,7 +706,8 @@ public class BigGlobeBlocks {
 	public static final ChorusSporeBlock MEDIUM_CHORUS_SPORES = register(
 		"medium_chorus_spores",
 		new ChorusSporeBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.REPLACEABLE_PLANT, MapColor.PURPLE)
 			.sounds(BlockSoundGroup.GRASS)
 			.offset(OffsetType.XZ)
@@ -671,7 +721,8 @@ public class BigGlobeBlocks {
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
 		"short_chorus_spores",
 		new ChorusSporeBlock(
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.PLANT, MapColor.PURPLE)
 			.sounds(BlockSoundGroup.GRASS)
 			.offset(OffsetType.XZ)
@@ -690,8 +741,7 @@ public class BigGlobeBlocks {
 				new CloudBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(MapColor.BLACK)
+					.of(CLOUD_MATERIAL, MapColor.BLACK)
 					.strength(0.2F)
 					.sounds(BlockSoundGroup.WOOL)
 					.luminance(
@@ -699,7 +749,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					true
 				)
 			));
 		}
@@ -713,7 +765,8 @@ public class BigGlobeBlocks {
 		int lightLevel = plant.getDefaultState().getLuminance();
 		return new FlowerPotBlock(
 			plant,
-			AbstractBlock.Settings
+			AbstractBlock
+			.Settings
 			.of(Material.DECORATION)
 			.mapColor(plant.getDefaultMapColor())
 			.breakInstantly()
@@ -779,6 +832,12 @@ public class BigGlobeBlocks {
 			),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
+		);
+		ColorProviderRegistry.BLOCK.register(
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+			},
+			RIVER_WATER
 		);
 	}
 }

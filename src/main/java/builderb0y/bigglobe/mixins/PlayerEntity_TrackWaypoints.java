@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -22,7 +23,11 @@ public class PlayerEntity_TrackWaypoints implements WaypointTracker {
 	public PlayerWaypointManager bigglobe_waypoints;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void bigglobe_initPlayerWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
+	#if MC_VERSION > MC_1_19_2
+		private void bigglobe_initPlayerWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
+	#else
+		private void bigglobe_initPlayerWaypointManager(World world, BlockPos blockPos, float f, GameProfile gameProfile, PlayerPublicKey playerPublicKey, CallbackInfo callback) {
+	#endif
 		this.bigglobe_waypoints = PlayerWaypointManager.forPlayer((PlayerEntity)(Object)(this));
 	}
 

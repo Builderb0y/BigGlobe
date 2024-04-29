@@ -11,6 +11,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 
 #if MC_VERSION > MC_1_19_2
 import net.minecraft.registry.entry.RegistryEntryOwner;

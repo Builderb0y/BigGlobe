@@ -1,25 +1,15 @@
 package builderb0y.bigglobe.hyperspace;
 
-import java.util.List;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.entity.Entity.RemovalReason;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.WaypointEntity;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 
 /**
 manages waypoints visible to a ClientPlayerEntity.
@@ -60,8 +50,9 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 					entity.health = WaypointEntity.MAX_HEALTH;
 					entity.isFake = true;
 					entity.data = waypoint.destination();
+					entity.setId(waypoint.destination().entityId());
 					entity.setCustomName(waypoint.destination().name());
-					world.addEntity(entity);
+					world.addEntity(#if MC_VERSION < MC_1_20_2 entity.getId(), #endif entity);
 				}
 			}
 			return true;
@@ -75,27 +66,7 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	public PlayerWaypointData removeWaypoint(int id, boolean sync) {
 		PlayerWaypointData waypoint = super.removeWaypoint(id, sync);
 		if (waypoint != null && sync) {
-			ClientWorld world = this.clientPlayer().clientWorld;
-			List<WaypointEntity> found = world.getEntitiesByClass(
-				WaypointEntity.class,
-				new Box(
-					waypoint.displayPosition().x() - 1.0D,
-					waypoint.displayPosition().y() - 1.0D,
-					waypoint.displayPosition().z() - 1.0D,
-					waypoint.displayPosition().x() + 1.0D,
-					waypoint.displayPosition().y() + 1.0D,
-					waypoint.displayPosition().z() + 1.0D
-				),
-				(WaypointEntity entity) -> entity.isFake && entity.data != null && entity.data.id() == waypoint.id()
-			);
-			switch (found.size()) {
-				case 0 -> BigGlobeMod.LOGGER.warn("Did not find any waypoints in client world with ID " + waypoint.id());
-				case 1 -> found.get(0).discard();
-				default -> {
-					BigGlobeMod.LOGGER.warn("Found more than one waypoint in client world with ID " + waypoint.id());
-					found.forEach(WaypointEntity::discard);
-				}
-			}
+			this.clientPlayer().clientWorld.removeEntity(waypoint.destination().entityId(), RemovalReason.DISCARDED);
 		}
 		return waypoint;
 	}

@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.blocks;
 
+import java.util.EnumMap;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -25,6 +27,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -222,7 +225,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					false
 				)
 			));
 		}
@@ -805,7 +810,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning(Blocks::never),
+					color,
+					true
 				)
 			));
 		}
@@ -888,6 +895,12 @@ public class BigGlobeBlocks {
 			),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
+		);
+		ColorProviderRegistry.BLOCK.register(
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+			},
+			RIVER_WATER
 		);
 	}
 }

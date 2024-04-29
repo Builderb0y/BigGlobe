@@ -16,6 +16,7 @@ import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 
@@ -35,7 +36,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 	@Override
 	public void process(ServerPlayerEntity player, Integer data, PacketSender responseSender) {
 		if (player.hasPortalCooldown()) {
-			player.setPortalCooldown(20);
+			EntityVersions.setPortalCooldown(player, 20);
 			return;
 		}
 		PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
@@ -79,7 +80,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 					)
 				);
 				if (newPlayer != null) {
-					newPlayer.setPortalCooldown(20);
+					EntityVersions.setPortalCooldown(newPlayer, 20);
 					newPlayer.interactionManager.getGameMode().setAbilities(newPlayer.getAbilities());
 					newPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(newPlayer.getAbilities()));
 				}
@@ -103,7 +104,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 					)
 				);
 				if (newPlayer != null) {
-					newPlayer.setPortalCooldown(20);
+					EntityVersions.setPortalCooldown(newPlayer, 20);
 				}
 			}
 		}

@@ -10,6 +10,7 @@ import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.PackedWorldPos;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
+import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 
 public class WaypointItem extends Item {
 
@@ -33,6 +34,7 @@ public class WaypointItem extends Item {
 				manager.addWaypoint(
 					new ServerWaypointData(
 						manager.nextID(),
+						Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(),
 
 						this.isPrivate && context.getPlayer() != null
 						? context.getPlayer().getGameProfile().getId()

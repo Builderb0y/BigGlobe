@@ -135,7 +135,7 @@ public class RiverWaterBlock extends FluidBlock {
 	}
 
 	@Override
-	public ItemStack tryDrainFluid(@Nullable PlayerEntity player, WorldAccess world, BlockPos pos, BlockState state) {
+	public ItemStack tryDrainFluid(#if MC_VERSION >= MC_1_20_2 @Nullable PlayerEntity player, #endif WorldAccess world, BlockPos pos, BlockState state) {
 		//don't set block to air.
 		return state.get(LEVEL) == 0 ? new ItemStack(this.fluid.getBucketItem()) : ItemStack.EMPTY;
 	}

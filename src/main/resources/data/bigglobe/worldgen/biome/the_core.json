@@ -20,6 +20,7 @@
 	},
 	"features": [ [], [], [], [], [], [], [], [] ],
 	"has_precipitation": true,
+	"precipitation": "none",
 	"spawn_costs": {},
 	"spawners": {
 		"ambient": [],

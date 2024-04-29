@@ -20,4 +20,10 @@ public class RegistryEntryListVersions {
 	public static <T> @Nullable TagKey<T> getKeyNullable(RegistryEntryList<T> list) {
 		return getKeyOptional(list).orElse(null);
 	}
+
+	public static <T> TagKey<T> getKeyOrThrow(RegistryEntryList<T> list) {
+		TagKey<T> key = getKeyNullable(list);
+		if (key != null) return key;
+		else throw new IllegalArgumentException(list + " has no key!");
+	}
 }

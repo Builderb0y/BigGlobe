@@ -1,8 +1,8 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:forest",
-		"#bigglobe:plains",
-		"#bigglobe:swamps"
+		"#bigglobe:dense_forest",
+		"#bigglobe:light_forest",
+		"bigglobe:swamp_forest"
 	]
 }

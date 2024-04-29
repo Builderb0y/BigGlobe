@@ -33,6 +33,11 @@ import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
 
+#if MC_VERSION <= MC_1_19_2
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+#endif
+
 public class WaypointEntity extends Entity {
 
 	public static final float MAX_HEALTH = 5.0F;
@@ -41,12 +46,17 @@ public class WaypointEntity extends Entity {
 			if (
 				entity instanceof WaypointEntity waypoint &&
 				waypoint.isFake &&
-				waypoint.data != null &&
-				!player.isSpectator()
+				waypoint.data != null
 			) {
-				player.attack(waypoint);
-				if (!(waypoint.health > 0.0F)) {
-					WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
+				if (!player.isSpectator()) {
+					#if MC_VERSION > MC_1_19_2
+					waypoint.damage(player.getDamageSources().playerAttack(player), 1.0F);
+					#else
+					waypoint.damage(DamageSource.player(player), 1.0F);
+					#endif
+					if (!(waypoint.health > 0.0F)) {
+						WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
+					}
 				}
 				return ActionResult.FAIL;
 			}
@@ -59,10 +69,11 @@ public class WaypointEntity extends Entity {
 				entity instanceof WaypointEntity waypoint &&
 				waypoint.isFake &&
 				waypoint.data != null &&
-				!player.isSpectator() &&
 				player.getStackInHand(hand).getItem() == Items.NAME_TAG
 			) {
-				WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
+				if (!player.isSpectator()) {
+					WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
+				}
 				return ActionResult.FAIL;
 			}
 			else {
@@ -99,10 +110,12 @@ public class WaypointEntity extends Entity {
 		return true;
 	}
 
-	@Override
-	public boolean canBeHitByProjectile() {
-		return false;
-	}
+	#if MC_VERSION > MC_1_19_2
+		@Override
+		public boolean canBeHitByProjectile() {
+			return false;
+		}
+	#endif
 
 	@Override
 	public boolean canUsePortals() {
@@ -189,10 +202,13 @@ public class WaypointEntity extends Entity {
 		return false;
 	}
 
-	@Override
-	public boolean couldAcceptPassenger() {
-		return false;
-	}
+	#if MC_VERSION > MC_1_19_2
+
+		@Override
+		public boolean couldAcceptPassenger() {
+			return false;
+		}
+	#endif
 
 	@Override
 	public boolean canAvoidTraps() {
@@ -206,13 +222,21 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt) {
-		//not savable
+		//not savable.
 	}
 
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {
-		//not savable
+		//not savable.
 	}
+
+	#if MC_VERSION <= MC_1_19_2
+
+		@Override
+		public Packet<?> createSpawnPacket() {
+			return new EntitySpawnS2CPacket(this);
+		}
+	#endif
 
 	public static abstract class Orbit {
 

@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
@@ -70,7 +71,7 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 	}
 
 	public BiomeTagKey validBiomes() {
-		return new BiomeTagKey(this.entry.value().getValidBiomes().getTagKey().orElseThrow());
+		return new BiomeTagKey(RegistryEntryListVersions.getKeyOrThrow(this.entry.value().getValidBiomes()));
 	}
 
 	@Override

@@ -25,12 +25,17 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.JomlVersions;
 
 @Environment(EnvType.CLIENT)
 public class SatinCompat {
 
 	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
 	public static Vec3d cameraPosition = Vec3d.ZERO;
+	public static final Matrix4f SCRATCH_MATRIX = new Matrix4f();
+	#if MC_VERSION <= MC_1_19_2
+	public static final net.minecraft.util.math.Matrix4f MC_SCRATCH = new net.minecraft.util.math.Matrix4f();
+	#endif
 	public static final TreeSet<WaypointEntity> visibleWaypoints = (
 		ENABLED
 		? new TreeSet<>(
@@ -113,8 +118,6 @@ public class SatinCompat {
 				CAMERA_POSITION = SHADER.findUniform3f("cameraPosition");
 			public static final Uniform1f
 				TIME = SHADER.findUniform1f("time");
-			public static final Matrix4f
-				SCRATCH_MATRIX = new Matrix4f();
 		}
 
 		public static void init() {
@@ -133,7 +136,7 @@ public class SatinCompat {
 							waypoint.getZ() - cameraPosition.z,
 							1.0F
 						);
-						RenderSystem.getModelViewMatrix().transform(position);
+						JomlVersions.coerce(RenderSystem.getModelViewMatrix(), SCRATCH_MATRIX).transform(position);
 						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.health / WaypointEntity.MAX_HEALTH);
 					}
 					WaypointWarp.COUNT.set(count);
@@ -144,8 +147,13 @@ public class SatinCompat {
 				}
 			});
 			DimensionRenderingRegistry.registerSkyRenderer(HyperspaceConstants.WORLD_KEY, (WorldRenderContext context) -> {
-				HyperspaceSkybox.PROJ_MAT_INVERSE.set(HyperspaceSkybox.SCRATCH_MATRIX.set(context.projectionMatrix()).invert());
-				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(HyperspaceSkybox.SCRATCH_MATRIX.set(context.matrixStack().peek().getPositionMatrix()).transpose());
+				#if MC_VERSION > MC_1_19_2
+					HyperspaceSkybox.PROJ_MAT_INVERSE.set(SCRATCH_MATRIX.set(context.projectionMatrix()).invert());
+					HyperspaceSkybox.MODEL_VIEW_INVERSE.set(SCRATCH_MATRIX.set(context.matrixStack().peek().getPositionMatrix()).transpose());
+				#else
+					HyperspaceSkybox.PROJ_MAT_INVERSE.set(JomlVersions.copy(JomlVersions.coerce(context.projectionMatrix(), SCRATCH_MATRIX).invert(), MC_SCRATCH));
+					HyperspaceSkybox.MODEL_VIEW_INVERSE.set(JomlVersions.copy(JomlVersions.coerce(context.matrixStack().peek().getPositionMatrix(), SCRATCH_MATRIX).transpose(), MC_SCRATCH));
+				#endif
 				Vec3d pos = context.camera().getPos();
 				HyperspaceSkybox.CAMERA_POSITION.set((float)(pos.x), (float)(pos.y), (float)(pos.z));
 				HyperspaceSkybox.TIME.set(

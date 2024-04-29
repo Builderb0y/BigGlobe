@@ -24,7 +24,9 @@ import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
+import builderb0y.bigglobe.util.NbtIo2;
 import builderb0y.bigglobe.util.TextCoding;
+import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -41,6 +43,7 @@ waypoints:
 		if the waypoint is public, then the {@link #OWNED_BY_RECIPIENT} flag is NOT set.
 		if the waypoint has a name, then the {@link #HAS_NAME} flag is set.
 	ID (varint).
+	entity ID (varint).
 	destination world ID (varint).
 	destination packed X (int).
 	destination packed Y (int).
@@ -88,9 +91,10 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			if (nbtName != null) flags |= HAS_NAME;
 			buffer.writeByte(flags);
 			buffer.writeVarInt(waypoint.id());
+			buffer.writeVarInt(waypoint.destination().entityId());
 			waypoint.destinationPosition().writeBulk(buffer, worlds);
 			if (isHyperspace) waypoint.displayPosition().writePositionOnly(buffer);
-			if (nbtName != null) buffer.writeNbt(nbtName);
+			if (nbtName != null) NbtIo2.write(buffer, nbtName);
 		}
 
 		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
@@ -112,10 +116,11 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			boolean owned = (flags & OWNED_BY_RECIPIENT) != 0;
 			boolean hasName = (flags & HAS_NAME) != 0;
 			int id = buffer.readVarInt();
+			int entityID = buffer.readVarInt();
 			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
 			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
 			Text name = hasName ? TextCoding.read(buffer) : null;
-			waypoints.add(new SyncedWaypointData(id, owned, destination, displayPosition, name));
+			waypoints.add(new SyncedWaypointData(id, entityID, owned, destination, displayPosition, name));
 		}
 		return waypoints;
 	}
@@ -125,7 +130,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 	public void process(List<SyncedWaypointData> waypoints, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
-			player.setPortalCooldown(20);
+			EntityVersions.setPortalCooldown(player, 20);
 			PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
 			manager.clear();
 			for (SyncedWaypointData waypoint : waypoints) {

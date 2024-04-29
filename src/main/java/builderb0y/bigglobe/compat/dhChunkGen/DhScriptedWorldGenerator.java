@@ -137,7 +137,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		for (int index = segments.size(); --index >= 0;) {
 			LitSegment segment = segments.getLit(index);
 			if (segment.value.isAir()) continue;
-			builder.lightLevel = segment.lightLevel;
+			builder.skyLightLevel = segment.lightLevel;
 			builder.add(segment.value, segment.minY, segment.maxY + 1);
 		}
 	}

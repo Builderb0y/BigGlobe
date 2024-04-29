@@ -35,6 +35,6 @@ implements WaypointData {
 	}
 
 	public SyncedWaypointData sync() {
-		return new SyncedWaypointData(this.id(), this.owner() != null, this.destinationPosition(), this.displayPosition, this.destination.name());
+		return new SyncedWaypointData(this.id(), this.destination.entityId(), this.owner() != null, this.destinationPosition(), this.displayPosition, this.destination.name());
 	}
 }

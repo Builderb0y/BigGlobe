@@ -70,6 +70,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                      Boolean.TRUE);
+		#if MC_VERSION <= MC_1_19_2
+		defaults.put(mixinPackage + ".ProjectileEntity_DontHitWaypoints",                                      Boolean.TRUE);
+		#endif
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",               Boolean.TRUE);

@@ -98,6 +98,7 @@ where I left off:
 	items might not be added to creative menu in 1.19.2.
 	fix networking code to decode on network thread and process on main thread.
 	fix "group": "GROUP" in slingshot recipe.
+	add expanded_ecosphere to "breaks" section in fabric.mods.json.
 
 changelog:
 	4.0:

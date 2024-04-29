@@ -1,9 +1,13 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Lifecycle;
 
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;

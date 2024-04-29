@@ -38,34 +38,39 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 
 	@Override
 	public void process(ServerPlayerEntity player, Integer id, PacketSender responseSender) {
-		ServerWaypointManager serverManager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
-		if (serverManager != null) {
-			PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-			PlayerWaypointData waypoint = clientManager.getWaypoint(id);
-			if (waypoint != null) {
-				if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getReachDistanceSquared(player)) {
-					serverManager.removeWaypoint(id, true);
-					Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
-					if (drop != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-						ItemStack stack = new ItemStack(drop);
-						stack.setCustomName(waypoint.destination().name());
-						ItemEntity entity = new ItemEntity(player.getWorld(), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
-						if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-							entity.setNoGravity(true);
+		if (!player.isSpectator()) {
+			ServerWaypointManager serverManager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
+			if (serverManager != null) {
+				PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+				PlayerWaypointData waypoint = clientManager.getWaypoint(id);
+				if (waypoint != null) {
+					if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getReachDistanceSquared(player)) {
+						serverManager.removeWaypoint(id, true);
+						Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
+						if (drop != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+							ItemStack stack = new ItemStack(drop);
+							stack.setCustomName(waypoint.destination().name());
+							ItemEntity entity = new ItemEntity(player.getWorld(), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
+							if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+								entity.setNoGravity(true);
+							}
+							player.getWorld().spawnEntity(entity);
 						}
-						player.getWorld().spawnEntity(entity);
+					}
+					else {
+						BigGlobeMod.LOGGER.warn(player + " attempted to destroy a waypoint without being near it: " + waypoint);
 					}
 				}
 				else {
-					BigGlobeMod.LOGGER.warn(player + " attempted to destroy a waypoint without being near it: " + waypoint);
+					BigGlobeMod.LOGGER.warn(player + " attempted to destroy a non-existent waypoint with ID " + id);
 				}
 			}
 			else {
-				BigGlobeMod.LOGGER.warn(player + " attempted to destroy a non-existent waypoint with ID " + id);
+				BigGlobeMod.LOGGER.warn(player + " attempted to destroy a waypoint while hyperspace is disabled.");
 			}
 		}
 		else {
-			BigGlobeMod.LOGGER.warn(player + " attempted to destroy a waypoint while hyperspace is disabled.");
+			BigGlobeMod.LOGGER.warn(player + " attempted to destroy a waypoint while in spectator mode.");
 		}
 	}
 }

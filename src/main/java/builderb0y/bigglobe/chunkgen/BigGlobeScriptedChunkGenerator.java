@@ -4,10 +4,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -27,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.structure.*;
@@ -49,7 +45,6 @@ import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
@@ -83,6 +78,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
@@ -107,7 +103,15 @@ import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
+#if MC_VERSION > MC_1_19_2
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+#endif
+
 @AddPseudoField("biome_source")
+#if MC_VERSION <= MC_1_19_2
+@AddPseudoField("structure_set_registry")
+#endif
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
@@ -170,7 +174,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public BigGlobeScriptedChunkGenerator(
 		#if MC_VERSION == MC_1_19_2
-			BetterRegistry<StructureSet> structureSetRegistry,
+			BetterRegistry<StructureSet> structure_set_registry,
 		#endif
 		@VerifyNullable String reload_dimension,
 		Height height,
@@ -186,7 +190,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	) {
 		super(
 			#if (MC_VERSION == MC_1_19_2)
-				((BetterHardCodedRegistry<StructureSet>)(structureSetRegistry)).registry,
+				((BetterHardCodedRegistry<StructureSet>)(structure_set_registry)).registry,
 				Optional.empty(),
 			#endif
 			biome_source
@@ -221,6 +225,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public BiomeSource biome_source() {
 		return this.biomeSource;
 	}
+
+	#if MC_VERSION <= MC_1_19_2
+		public BetterRegistry<StructureSet> structure_set_registry() {
+			return new BetterHardCodedRegistry<>(this.structureSetRegistry);
+		}
+	#endif
 
 	public static void init() {
 		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("scripted"), CODEC);
@@ -681,7 +691,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
 		int references = existingStart != null ? existingStart.getReferences() : 0;
-		StructurePosition newStartPosition = structure.getValidStructurePosition(
+		StructurePosition newStartPosition = structure.
+		#if MC_VERSION > MC_1_19_2
+			getValidStructurePosition
+		#else
+			getStructurePosition
+		#endif
+		(
 			new Structure.Context(
 				dynamicRegistryManager,
 				this,

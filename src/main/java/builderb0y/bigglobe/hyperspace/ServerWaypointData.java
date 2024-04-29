@@ -7,13 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -24,6 +24,7 @@ always the same as its destination position.
 */
 public record ServerWaypointData(
 	int id,
+	int entityId,
 	@Nullable UUID owner,
 	PackedWorldPos position,
 	@Nullable Text name
@@ -41,7 +42,7 @@ implements WaypointData {
 	}
 
 	public ServerWaypointData withName(Text name) {
-		return new ServerWaypointData(this.id, this.owner, this.position, name);
+		return new ServerWaypointData(this.id, this.entityId, this.owner, this.position, name);
 	}
 
 	public PlayerWaypointData relativize(PackedPos entrance) {
@@ -130,6 +131,6 @@ implements WaypointData {
 
 		Text name = TextCoding.fromNbt(nbt.get("name"));
 
-		return new ServerWaypointData(id, owner, position, name);
+		return new ServerWaypointData(id, Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(), owner, position, name);
 	}
 }

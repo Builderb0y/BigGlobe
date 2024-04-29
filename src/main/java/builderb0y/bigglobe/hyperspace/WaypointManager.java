@@ -18,7 +18,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 
 	public WaypointLookup<D> allWaypoints = new WaypointLookup<>();
 	public Map<@Nullable UUID, WaypointLookup<D>> byOwner = new HashMap<>(16);
-	public Map<WorldChunkPos, WaypointLookup<D>> byChunk = new HashMap<>(16);
 
 	public Collection<D> getAllWaypoints() {
 		return this.allWaypoints.values();
@@ -26,11 +25,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 
 	public @Nullable D getWaypoint(int id) {
 		return this.allWaypoints.get(id);
-	}
-
-	public Collection<D> getWaypointsInChunk(WorldChunkPos pos) {
-		WaypointLookup<D> map = this.byChunk.get(pos);
-		return map != null ? map.values() : Collections.emptySet();
 	}
 
 	public boolean addWaypoint(D waypoint, boolean sync) {
@@ -44,7 +38,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 			return false;
 		}
 		this.byOwner.computeIfAbsent(waypoint.owner(), (@Nullable UUID $) -> new WaypointLookup<>()).put(waypoint.id(), waypoint);
-		this.byChunk.computeIfAbsent(waypoint.displayChunkPos(), (WorldChunkPos $) -> new WaypointLookup<>()).put(waypoint.id(), waypoint);
 		this.markDirty();
 		return true;
 	}
@@ -59,11 +52,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 		byOwner.remove(id);
 		if (byOwner.isEmpty()) this.byOwner.remove(removed.owner());
 
-		WorldChunkPos chunkPos = removed.displayChunkPos();
-		WaypointLookup<D> byChunk = this.byChunk.get(chunkPos);
-		byChunk.remove(id);
-		if (byChunk.isEmpty()) this.byChunk.remove(chunkPos);
-
 		this.markDirty();
 
 		return removed;
@@ -72,7 +60,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 	public void clear() {
 		this.allWaypoints.clear();
 		this.byOwner.clear();
-		this.byChunk.clear();
 
 		this.markDirty();
 	}

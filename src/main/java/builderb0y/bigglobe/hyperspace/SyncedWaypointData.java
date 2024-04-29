@@ -16,6 +16,7 @@ otherwise, the waypoint is assumed to be public.
 */
 public record SyncedWaypointData(
 	int id,
+	int entityId,
 	boolean owned,
 	PackedWorldPos destinationPosition,
 	PackedWorldPos displayedPosition,
@@ -26,6 +27,7 @@ public record SyncedWaypointData(
 		return new PlayerWaypointData(
 			new ServerWaypointData(
 				this.id,
+				this.entityId,
 				this.owned ? player.getGameProfile().getId() : null,
 				this.destinationPosition,
 				this.name

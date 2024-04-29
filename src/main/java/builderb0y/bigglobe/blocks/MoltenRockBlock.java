@@ -7,6 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -84,7 +85,11 @@ public class MoltenRockBlock extends Block {
 			!EnchantmentHelper.hasFrostWalker(living) &&
 			world.random.nextInt((10 - this.heat) * 10) == 0
 		) {
+			#if MC_VERSION > MC_1_19_2
 			entity.damage(world.getDamageSources().hotFloor(), this.heat * 0.5F);
+			#else
+			entity.damage(DamageSource.HOT_FLOOR, this.heat * 0.5F);
+			#endif
 		}
 	}
 }

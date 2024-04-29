@@ -152,12 +152,12 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			CoordinateSupplier<BlockState> stateSupplier,
 			boolean wall
 		) {
-			if (chunkBox.contains(pos) && world.getBlockState(pos).isReplaceable()) {
+			if (chunkBox.contains(pos) && BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
 				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
 				while (true) {
 					if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
 					BlockState toReplace = world.getBlockState(pos);
-					if (!toReplace.isReplaceable()) break;
+					if (!BlockStateVersions.isReplaceable(toReplace)) break;
 					BlockState toPlace = stateSupplier.get(pos);
 					if (wall) toPlace = toPlace.with(Properties.WATERLOGGED, toReplace.getFluidState().isEqualAndStill(Fluids.WATER));
 					world.setBlockState(pos, toPlace, Block.NOTIFY_ALL);

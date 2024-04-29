@@ -5,7 +5,6 @@ import java.util.EnumMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -37,6 +36,7 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 import org.jetbrains.annotations.Nullable;
 
 #if MC_VERSION > MC_1_19_2
+	import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 	import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 #endif
 
@@ -63,7 +63,7 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE        = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
 		SLATED_PRISMARINE_STAIRS = registerBlockPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings())),
+		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(LegacyItemGroup.DECORATIONS))),
 		ASHEN_NETHERRACK         = registerBlockPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerBlockPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerBlockPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -78,9 +78,9 @@ public class BigGlobeItems {
 		CHARRED_WOOD             = registerBlockPlacer(BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerBlockPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
 		CHARRED_LEAVES           = registerDecoPlacer(BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register("charred_sign", new ColoredSignItem(settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_SIGN             = register("charred_sign", new ColoredSignItem(settings(LegacyItemGroup.DECORATIONS).maxCount(16), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
 		#if MC_VERSION >= MC_1_20_0
-		CHARRED_HANGING_SIGN     = register("charred_hanging_sign", new ColoredHangingSignItem(settings().maxCount(16), BigGlobeBlocks.CHARRED_HANGING_SIGN, BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_HANGING_SIGN     = register("charred_hanging_sign", new ColoredHangingSignItem(settings(LegacyItemGroup.DECORATIONS).maxCount(16), BigGlobeBlocks.CHARRED_HANGING_SIGN, BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN, DyeColor.LIGHT_GRAY)),
 		#endif
 		CHARRED_PRESSURE_PLATE   = registerRedstonePlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
 		CHARRED_TRAPDOOR         = registerRedstonePlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
@@ -89,7 +89,7 @@ public class BigGlobeItems {
 		CHARRED_SLAB             = registerBlockPlacer(BigGlobeBlocks.CHARRED_SLAB),
 		CHARRED_FENCE_GATE       = registerRedstonePlacer(BigGlobeBlocks.CHARRED_FENCE_GATE),
 		CHARRED_FENCE            = registerDecoPlacer(BigGlobeBlocks.CHARRED_FENCE),
-		CHARRED_DOOR             = register("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, settings())),
+		CHARRED_DOOR             = register("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, settings(LegacyItemGroup.REDSTONE))),
 		SOUL_MAGMA               = registerBlockPlacer(BigGlobeBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ             = registerBlockPlacer(BigGlobeBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ           = registerBlockPlacer(BigGlobeBlocks.BUDDING_QUARTZ),
@@ -121,7 +121,7 @@ public class BigGlobeItems {
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
 		new TorchArrowItem(
-			settings()
+			settings(LegacyItemGroup.COMBAT)
 		)
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
@@ -131,42 +131,40 @@ public class BigGlobeItems {
 			-2.8F,
 			ToolMaterials.IRON,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
-			settings()
+			settings(LegacyItemGroup.TOOLS)
 			.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
 		)
 	);
 	public static final SlingshotItem SLINGSHOT = register(
 		"slingshot",
 		new SlingshotItem(
-			settings()
-			.maxDamage(192)
+			settings(LegacyItemGroup.COMBAT).maxDamage(192)
 		)
 	);
 	public static final BallOfStringItem BALL_OF_STRING = register(
 		"ball_of_string",
 		new BallOfStringItem(
-			settings()
-			.maxCount(1)
+			settings(LegacyItemGroup.TOOLS).maxCount(1)
 		)
 	);
-	public static final Item ASH = register("ash", new Item(settings()));
-	public static final Item SULFUR = register("sulfur", new Item(settings()));
+	public static final Item ASH = register("ash", new Item(settings(LegacyItemGroup.BREWING)));
+	public static final Item SULFUR = register("sulfur", new Item(settings(LegacyItemGroup.MATERIALS)));
 	public static final BucketItem SOUL_LAVA_BUCKET = register(
 		"soul_lava_bucket",
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
-			settings().recipeRemainder(Items.BUCKET).maxCount(1)
+			settings(LegacyItemGroup.TOOLS).recipeRemainder(Items.BUCKET).maxCount(1)
 		)
 	);
-	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings()));
+	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings(LegacyItemGroup.BREWING)));
 	public static final @Nullable WaypointItem
-		PUBLIC_WAYPOINT  = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("public_waypoint",  new WaypointItem(settings(), false)) : null,
-		PRIVATE_WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("private_waypoint", new WaypointItem(settings(), true )) : null;
+		PUBLIC_WAYPOINT  = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("public_waypoint",  new WaypointItem(settings(LegacyItemGroup.TOOLS), false)) : null,
+		PRIVATE_WAYPOINT = BigGlobeConfig.INSTANCE.get().hyperspaceEnabled ? register("private_waypoint", new WaypointItem(settings(LegacyItemGroup.TOOLS), true )) : null;
 	public static final EnumMap<CloudColor, AuraBottleItem> AURA_BOTTLES = new EnumMap<>(CloudColor.class);
 	static {
 		for (CloudColor color : CloudColor.VALUES) {
 			if (color != CloudColor.BLANK) {
-				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(settings(), color)));
+				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(settings(LegacyItemGroup.MATERIALS), color)));
 			}
 		}
 	}
@@ -174,22 +172,22 @@ public class BigGlobeItems {
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
 	public static BlockItem registerBlockPlacer(Block block) {
-		return registerPlacer(block);
+		return registerPlacer(block, LegacyItemGroup.BUILDING_BLOCKS);
 	}
 
 	public static BlockItem registerDecoPlacer(Block block) {
-		return registerPlacer(block);
+		return registerPlacer(block, LegacyItemGroup.DECORATIONS);
 	}
 
 	public static BlockItem registerRedstonePlacer(Block block) {
-		return registerPlacer(block);
+		return registerPlacer(block, LegacyItemGroup.REDSTONE);
 	}
 
-	public static BlockItem registerPlacer(Block block) {
+	public static BlockItem registerPlacer(Block block, LegacyItemGroup group) {
 		return Registry.register(
 			RegistryVersions.item(),
 			RegistryVersions.block().getId(block),
-			new BlockItem(block, settings())
+			new BlockItem(block, settings(group))
 		);
 	}
 
@@ -197,8 +195,26 @@ public class BigGlobeItems {
 		return Registry.register(RegistryVersions.item(), BigGlobeMod.modID(name), item);
 	}
 
-	public static Item.Settings settings() {
-		return new Item.Settings();
+	public static Item.Settings settings(LegacyItemGroup group) {
+		return (
+			new Item.Settings()
+			#if MC_VERSION <= MC_1_19_2
+			.group(
+				switch (group) {
+					case BUILDING_BLOCKS -> ItemGroup.BUILDING_BLOCKS;
+					case DECORATIONS -> ItemGroup.DECORATIONS;
+					case REDSTONE -> ItemGroup.REDSTONE;
+					case TRANSPORTATION -> ItemGroup.TRANSPORTATION;
+					case MISC -> ItemGroup.MISC;
+					case FOOD -> ItemGroup.FOOD;
+					case TOOLS -> ItemGroup.TOOLS;
+					case COMBAT -> ItemGroup.COMBAT;
+					case BREWING -> ItemGroup.BREWING;
+					case MATERIALS -> ItemGroup.MATERIALS;
+				}
+			)
+			#endif
+		);
 	}
 
 	public static void init() {
@@ -307,5 +323,18 @@ public class BigGlobeItems {
 		ItemStack stack = new ItemStack(BALL_OF_STRING);
 		stack.getOrCreateNbt().putInt(BallOfStringItem.MAX_DAMAGE_KEY, blocks);
 		return stack;
+	}
+
+	public static enum LegacyItemGroup {
+		BUILDING_BLOCKS,
+		DECORATIONS,
+		REDSTONE,
+		TRANSPORTATION,
+		MISC,
+		FOOD,
+		TOOLS,
+		COMBAT,
+		BREWING,
+		MATERIALS;
 	}
 }

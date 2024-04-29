@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.blocks;
 
+import java.util.EnumMap;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.block.sapling.SaplingGenerator;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.GrassColors;
@@ -20,6 +23,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -30,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
@@ -47,6 +52,7 @@ public class BigGlobeBlocks {
 	static { BigGlobeMod.LOGGER.debug("Registering blocks..."); }
 
 	public static final SignType CHARRED_WOOD_TYPE = SignTypeRegistry.registerSignType(BigGlobeMod.modID("charred"));
+	public static final Material CLOUD_MATERIAL = new Material(MapColor.WHITE, false, true, true, true, false, false, PistonBehavior.NORMAL);
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = register(
 		"overgrown_sand",
@@ -191,8 +197,7 @@ public class BigGlobeBlocks {
 				new CloudBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(MapColor.WHITE)
+					.of(CLOUD_MATERIAL, MapColor.WHITE)
 					.strength(0.2F)
 					.sounds(BlockSoundGroup.WOOL)
 					.luminance(
@@ -200,7 +205,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning((BlockState blockState, BlockView blockView, BlockPos blockPos, EntityType<?> object) -> false),
+					color,
+					false
 				)
 			));
 		}
@@ -222,8 +229,7 @@ public class BigGlobeBlocks {
 				new MoltenRockBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
+					.of(Material.STONE, heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
 					.requiresTool()
 					.luminance((BlockState state) -> lightLevel)
 					.strength(0.6F)
@@ -689,8 +695,7 @@ public class BigGlobeBlocks {
 				new CloudBlock(
 					AbstractBlock
 					.Settings
-					.create()
-					.mapColor(MapColor.BLACK)
+					.of(CLOUD_MATERIAL, MapColor.BLACK)
 					.strength(0.2F)
 					.sounds(BlockSoundGroup.WOOL)
 					.luminance(
@@ -698,7 +703,9 @@ public class BigGlobeBlocks {
 						? (BlockState state) -> 0
 						: (BlockState state) -> 5
 					)
-					.allowsSpawning(Blocks::never)
+					.allowsSpawning((BlockState blockState, BlockView blockView, BlockPos blockPos, EntityType<?> object) -> false),
+					color,
+					true
 				)
 			));
 		}
@@ -771,13 +778,19 @@ public class BigGlobeBlocks {
 		);
 
 		ColorProviderRegistry.BLOCK.register(
-			(state, world, pos, tintIndex) -> (
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> (
 				world != null && pos != null
 				? BiomeColors.getGrassColor(world, pos)
 				: GrassColors.getColor(0.5D, 1.0D)
 			),
 			OVERGROWN_PODZOL,
 			SHORT_GRASS
+		);
+		ColorProviderRegistry.BLOCK.register(
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+			},
+			RIVER_WATER
 		);
 	}
 }

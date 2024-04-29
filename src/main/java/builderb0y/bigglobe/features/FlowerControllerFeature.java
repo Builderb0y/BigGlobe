@@ -33,6 +33,7 @@ import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
 public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Config> {
 
@@ -184,7 +185,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 							return true;
 						}
 						else {
-							BigGlobeMod.LOGGER.warn("A flower controller references tag " + this.flowers.getTagKey().orElseThrow() + " which contains " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
+							BigGlobeMod.LOGGER.warn("A flower controller references tag " + RegistryEntryListVersions.getKeyNullable(this.flowers) + " which contains " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
 							return false;
 						}
 					})

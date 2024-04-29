@@ -38,48 +38,53 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 
 	@Override
 	public void process(ServerPlayerEntity player, Data data, PacketSender responseSender) {
-		ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
-		if (manager != null) {
-			ServerWaypointData waypoint = manager.getWaypoint(data.id);
-			if (waypoint != null) {
-				if (waypoint.owner() == null || waypoint.owner().equals(player.getGameProfile().getId())) {
-					if (
-						(
-							player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
-							player.getWorld().getRegistryKey() == waypoint.position().world()
-						)
-						&& player.getEyePos().squaredDistanceTo(waypoint.position().x(), waypoint.position().y(), waypoint.position().z()) <= EntityVersions.getReachDistanceSquared(player)
-					) {
-						ItemStack heldItem = player.getStackInHand(data.hand);
-						if (heldItem.getItem() == Items.NAME_TAG) {
-							Text name = heldItem.hasCustomName() ? heldItem.getName() : null;
-							if (!Objects.equals(name, waypoint.name())) {
-								if (!player.isCreative()) {
-									heldItem.decrement(1);
+		if (!player.isSpectator()) {
+			ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
+			if (manager != null) {
+				ServerWaypointData waypoint = manager.getWaypoint(data.id);
+				if (waypoint != null) {
+					if (waypoint.owner() == null || waypoint.owner().equals(player.getGameProfile().getId())) {
+						if (
+							(
+								player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
+								player.getWorld().getRegistryKey() == waypoint.position().world()
+							)
+							&& player.getEyePos().squaredDistanceTo(waypoint.position().x(), waypoint.position().y(), waypoint.position().z()) <= EntityVersions.getReachDistanceSquared(player)
+						) {
+							ItemStack heldItem = player.getStackInHand(data.hand);
+							if (heldItem.getItem() == Items.NAME_TAG) {
+								Text name = heldItem.hasCustomName() ? heldItem.getName() : null;
+								if (!Objects.equals(name, waypoint.name())) {
+									if (!player.isCreative()) {
+										heldItem.decrement(1);
+									}
+									player.swingHand(data.hand);
+									manager.removeWaypoint(data.id, true);
+									manager.addWaypoint(waypoint.withName(name), true);
 								}
-								player.swingHand(data.hand);
-								manager.removeWaypoint(data.id, true);
-								manager.addWaypoint(waypoint.withName(name), true);
+							}
+							else {
+								BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without holding a nametag.");
 							}
 						}
 						else {
-							BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without holding a nametag.");
+							BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without being near it: " + waypoint);
 						}
 					}
 					else {
-						BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without being near it: " + waypoint);
+						BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint which doesn't belong to them: " + waypoint);
 					}
 				}
 				else {
-					BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint which doesn't belong to them: " + waypoint);
+					BigGlobeMod.LOGGER.warn(player + " attempted to rename a non-existent waypoint with ID " + data.id);
 				}
 			}
 			else {
-				BigGlobeMod.LOGGER.warn(player + " attempted to rename a non-existent waypoint with ID " + data.id);
+				BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint while hyperspace is disabled.");
 			}
 		}
 		else {
-			BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint while hyperspace is disabled.");
+			BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint while in spectator mode.");
 		}
 	}
 

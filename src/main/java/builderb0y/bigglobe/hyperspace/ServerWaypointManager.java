@@ -25,8 +25,10 @@ private waypoints created by every player.
 */
 public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
-	public static final Type<ServerWaypointManager>
-		TYPE = new Type<>(ServerWaypointManager::new, ServerWaypointManager::new, null);
+	#if MC_VERSION >= MC_1_20_2
+		public static final Type<ServerWaypointManager>
+			TYPE = new Type<>(ServerWaypointManager::new, ServerWaypointManager::new, null);
+	#endif
 
 	public int nextID;
 
@@ -59,7 +61,11 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 			world = world.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
 			if (world == null) return null;
 		}
-		return world.getPersistentStateManager().getOrCreate(ServerWaypointManager.TYPE, "bigglobe_hyperspace_waypoints");
+		#if MC_VERSION >= MC_1_20_2
+			return world.getPersistentStateManager().getOrCreate(ServerWaypointManager.TYPE, "bigglobe_hyperspace_waypoints");
+		#else
+			return world.getPersistentStateManager().getOrCreate(ServerWaypointManager::new, ServerWaypointManager::new, "bigglobe_hyperspace_waypoints");
+		#endif
 	}
 
 	public int nextID() {
