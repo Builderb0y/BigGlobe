@@ -57,7 +57,9 @@ public class NbtIo2 {
 	public static NbtElement read(InputStream stream, long limit) throws IOException {
 		DataInputStream data = new DataInputStream(stream);
 		NbtType<?> type = NbtTypes.byId(data.readUnsignedByte());
-		#if MC_VERSION >= MC_1_20_2
+		#if MC_VERSION >= MC_1_20_4
+			return type.read(data, NbtSizeTracker.of(limit));
+		#elif MC_VERSION >= MC_1_20_2
 			return type.read(data, NbtTagSizeTracker.of(limit));
 		#else
 			return type.read(data, 0, new NbtTagSizeTracker(limit));

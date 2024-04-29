@@ -34,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 

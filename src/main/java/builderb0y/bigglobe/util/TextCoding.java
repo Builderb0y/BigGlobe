@@ -10,12 +10,14 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
 #if MC_VERSION >= MC_1_20_4
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.text.TextCodecs;
+#elif MC_VERSION >= MC_1_20_2
+import net.minecraft.nbt.NbtTagSizeTracker;
 #endif
 
 public class TextCoding {
@@ -49,7 +51,9 @@ public class TextCoding {
 	}
 
 	public static @Nullable Text read(PacketByteBuf buffer) {
-		#if MC_VERSION >= MC_1_20_2
+		#if MC_VERSION >= MC_1_20_4
+			return fromNbt(buffer.readNbt(NbtSizeTracker.of(16384L)));
+		#elif MC_VERSION >= MC_1_20_2
 			return fromNbt(buffer.readNbt(NbtTagSizeTracker.of(16384L)));
 		#else
 			return fromNbt(NbtIo2.read(buffer, 16384L));

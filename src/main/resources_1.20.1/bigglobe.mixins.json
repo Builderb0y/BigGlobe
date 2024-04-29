@@ -51,7 +51,7 @@
 		"PortalForcer_PlaceInNetherCaverns",
 		"RailBlock_RotateProperly",
 		"RegistryLoader_AddBigGlobeEntries",
-		"DynamicRegistryManager_LoadColumnEntryRegistry",
+		"RegistryLoader_LoadColumnEntryRegistry",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",

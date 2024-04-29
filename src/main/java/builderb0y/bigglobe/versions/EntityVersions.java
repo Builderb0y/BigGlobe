@@ -9,6 +9,10 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
+#if MC_VERSION <= MC_1_19_4
+import builderb0y.bigglobe.mixins.Entity_PortalCooldownSetter;
+#endif
+
 public class EntityVersions {
 
 	public static World getWorld(Entity entity) {

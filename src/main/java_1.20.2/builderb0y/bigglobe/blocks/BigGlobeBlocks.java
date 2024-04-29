@@ -7,9 +7,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
-import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
-import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeRegistry;
 import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
@@ -36,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
