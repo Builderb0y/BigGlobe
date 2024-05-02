@@ -188,7 +188,7 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 	}
 
 	@Override
-	public void emitGameEvent(GameEvent event, Vec3d emitterPos, Emitter emitter) {
+	public void emitGameEvent(#if MC_VERSION >= MC_1_20_5 RegistryEntry<GameEvent> #else GameEvent #endif event, Vec3d emitterPos, Emitter emitter) {
 		this.world.emitGameEvent(event, emitterPos, emitter);
 	}
 

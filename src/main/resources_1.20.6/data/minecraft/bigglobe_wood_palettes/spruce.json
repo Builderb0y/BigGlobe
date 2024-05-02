@@ -1,0 +1,29 @@
+{
+	"blocks": {
+		"log": "minecraft:spruce_log",
+		"wood": "minecraft:spruce_wood",
+		"stripped_log": "minecraft:stripped_spruce_log",
+		"stripped_wood": "minecraft:stripped_spruce_wood",
+		"planks": "minecraft:spruce_planks",
+		"stairs": "minecraft:spruce_stairs",
+		"slab": "minecraft:spruce_slab",
+		"fence": "minecraft:spruce_fence",
+		"fence_gate": "minecraft:spruce_fence_gate",
+		"door": "minecraft:spruce_door",
+		"trapdoor": "minecraft:spruce_trapdoor",
+		"pressure_plate": "minecraft:spruce_pressure_plate",
+		"button": "minecraft:spruce_button",
+		"leaves": "minecraft:spruce_leaves",
+		"sapling": "minecraft:spruce_sapling",
+		"potted_sapling": "minecraft:potted_spruce_sapling",
+		"standing_sign": "minecraft:spruce_sign",
+		"wall_sign": "minecraft:spruce_wall_sign",
+		"hanging_sign": "minecraft:spruce_hanging_sign",
+		"wall_hanging_sign": "minecraft:spruce_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/spruce",
+		"natural_surface": "bigglobe:overworld/trees/natural/spruce",
+		"skylands": "bigglobe:overworld/trees/skylands/spruce"
+	}
+}

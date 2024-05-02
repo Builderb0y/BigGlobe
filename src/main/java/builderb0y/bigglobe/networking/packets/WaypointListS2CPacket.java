@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -97,7 +96,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			if (nbtName != null) NbtIo2.write(buffer, nbtName);
 		}
 
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}
 
 	@Override

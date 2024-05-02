@@ -12,21 +12,25 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
 public class ShortGrassBlock extends PlantBlock implements Fertilizable {
 
 	public static final VoxelShape SHAPE = Block.createCuboidShape(2.0D, 0.0D, 2.0D, 14.0D, 6.0D, 14.0D);
 
-	public ShortGrassBlock(Settings settings) {
-		super(settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<ShortGrassBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ShortGrassBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public ShortGrassBlock(Settings settings) {
+		super(settings);
+	}
 
 	@Override
 	@Deprecated

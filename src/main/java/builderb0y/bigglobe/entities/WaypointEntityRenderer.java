@@ -55,7 +55,7 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.texture(0.0F, 0.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -69,7 +69,7 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.texture(0.0F, 1.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -83,7 +83,7 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.texture(1.0F, 1.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
 				.next();
 
 				buffer
@@ -97,7 +97,7 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.texture(1.0F, 0.0F)
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
-				.normal(matrices.peek().getNormalMatrix(), 0.0F, 1.0F, 0.0F)
+				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
 				.next();
 			}
 		}

@@ -15,15 +15,13 @@ import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
-import net.minecraft.loot.LootManager;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
 import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.Registry;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -31,6 +29,7 @@ import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.blocks.CloudColor;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +37,10 @@ import org.jetbrains.annotations.Nullable;
 #if MC_VERSION > MC_1_19_2
 	import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 	import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+#endif
+
+#if MC_VERSION < MC_1_20_5
+	import net.minecraft.loot.LootManager;
 #endif
 
 public class BigGlobeItems {
@@ -223,9 +226,13 @@ public class BigGlobeItems {
 		FuelRegistry.INSTANCE.add(SULFUR_BLOCK, 12000);
 		LootTableEvents.MODIFY.register(
 			(
-				ResourceManager resourceManager,
-				LootManager lootManager,
-				Identifier id,
+				#if MC_VERSION >= MC_1_20_5
+					RegistryKey<LootTable> id,
+				#else
+					ResourceManager resourceManager,
+					LootManager lootManager,
+					Identifier id,
+				#endif
 				LootTable.Builder tableBuilder,
 				LootTableSource source
 			)
@@ -321,7 +328,7 @@ public class BigGlobeItems {
 
 	public static ItemStack string(int blocks) {
 		ItemStack stack = new ItemStack(BALL_OF_STRING);
-		stack.getOrCreateNbt().putInt(BallOfStringItem.MAX_DAMAGE_KEY, blocks);
+		ItemStackVersions.setMaxDamage(stack, blocks);
 		return stack;
 	}
 

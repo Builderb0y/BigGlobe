@@ -12,6 +12,8 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Position;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
@@ -48,4 +50,14 @@ public class RockItem extends BlockItem implements SlingshotAmmunition {
 		rockEntity.setItem(stack);
 		return rockEntity;
 	}
+
+	#if MC_VERSION >= MC_1_20_5
+
+		@Override
+		public ProjectileEntity createEntity(World world, Position pos, ItemStack stack, Direction direction) {
+			RockEntity rockEntity = new RockEntity(BigGlobeEntityTypes.ROCK, pos.getY(), pos.getY(), pos.getZ(), world);
+			rockEntity.setItem(stack);
+			return rockEntity;
+		}
+	#endif
 }

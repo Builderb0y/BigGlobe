@@ -175,7 +175,7 @@ public class RockEntity extends ThrownItemEntity {
 	}
 
 	@Override
-	public float getGravity() {
+	public #if MC_VERSION >= MC_1_20_5 double #else float #endif getGravity() {
 		return 0.05F;
 	}
 }

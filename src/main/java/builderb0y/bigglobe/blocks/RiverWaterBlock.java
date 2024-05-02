@@ -29,22 +29,24 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import builderb0y.bigglobe.ClientState;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
 public class RiverWaterBlock extends FluidBlock {
 
-	public RiverWaterBlock(FlowableFluid fluid, Settings settings) {
-		super(fluid, settings);
-	}
-
-	#if MC_VERSION >= MC_1_20_4
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<RiverWaterBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RiverWaterBlock.class);
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new UnsupportedOperationException();
+			return CODEC;
 		}
 	#endif
+
+	public RiverWaterBlock(FlowableFluid fluid, Settings settings) {
+		super(fluid, settings);
+	}
 
 	public boolean isDangerous(World world) {
 		if (world.isClient) {

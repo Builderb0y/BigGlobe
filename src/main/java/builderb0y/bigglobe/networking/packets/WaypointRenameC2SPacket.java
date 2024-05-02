@@ -19,6 +19,7 @@ import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRenameC2SPacket.Data> {
 
@@ -28,7 +29,7 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
 		buffer.writeEnumConstant(hand);
-		ClientPlayNetworking.send(BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToServer(buffer);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 						) {
 							ItemStack heldItem = player.getStackInHand(data.hand);
 							if (heldItem.getItem() == Items.NAME_TAG) {
-								Text name = heldItem.hasCustomName() ? heldItem.getName() : null;
+								Text name = ItemStackVersions.getCustomName(heldItem);
 								if (!Objects.equals(name, waypoint.name())) {
 									if (!player.isCreative()) {
 										heldItem.decrement(1);

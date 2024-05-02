@@ -106,6 +106,9 @@ public class BigGlobeEntityTypes {
 				spawnableFarFromPlayer,
 				canSpawnInside,
 				dimensions,
+				#if MC_VERSION >= MC_1_20_5
+				1.0F,
+				#endif
 				maxTrackDistance,
 				trackTickInterval
 				#if MC_VERSION > MC_1_19_2

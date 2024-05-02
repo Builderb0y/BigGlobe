@@ -14,6 +14,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateConsumer;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -139,17 +140,17 @@ public class CoordinatorScriptEnvironment {
 
 	public static CoordinateConsumer<BlockEntity> setter(NbtCompound data) {
 		return (BlockPos.Mutable pos, BlockEntity blockEntity) -> {
-			blockEntity.readNbt(data);
+			BlockEntityVersions.readFromNbt(blockEntity, data);
 			blockEntity.markDirty();
 		};
 	}
 
 	public static CoordinateConsumer<BlockEntity> merger(NbtCompound data) {
 		return (BlockPos.Mutable pos, BlockEntity blockEntity) -> {
-			NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
+			NbtCompound oldData = BlockEntityVersions.writeToNbt(blockEntity);
 			NbtCompound newData = oldData.copy().copyFrom(data);
 			if (!oldData.equals(newData)) {
-				blockEntity.readNbt(newData);
+				BlockEntityVersions.readFromNbt(blockEntity, newData);
 				blockEntity.markDirty();
 			}
 		};

@@ -29,6 +29,7 @@ import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.WorldPropertiesVersions;
 
 public class RespawnCommand {
 
@@ -148,11 +149,27 @@ public class RespawnCommand {
 			WorldProperties properties = world.getLevelProperties();
 			if (
 				force || (
-					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY(),     properties.getSpawnZ()))) &&
-					BlockStateVersions.canSpawnInside(world.getBlockState(new BlockPos(properties.getSpawnX(), properties.getSpawnY() + 1, properties.getSpawnZ())))
+					BlockStateVersions.canSpawnInside(
+						world.getBlockState(
+							WorldPropertiesVersions.getSpawnPos(properties)
+						)
+					)
+					&&
+					BlockStateVersions.canSpawnInside(
+						world.getBlockState(
+							WorldPropertiesVersions.getSpawnPos(properties).up()
+						)
+					)
 				)
 			) {
-				player.teleport(world, properties.getSpawnX() + 0.5D, properties.getSpawnY(), properties.getSpawnZ() + 0.5D, properties.getSpawnAngle(), 0.0F);
+				player.teleport(
+					world,
+					WorldPropertiesVersions.getSpawnX(properties) + 0.5D,
+					WorldPropertiesVersions.getSpawnY(properties),
+					WorldPropertiesVersions.getSpawnZ(properties) + 0.5D,
+					properties.getSpawnAngle(),
+					0.0F
+				);
 				return null;
 			}
 			else {

@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -24,6 +25,7 @@ import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -44,7 +46,11 @@ import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 
 public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	public static final Codec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptedStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class);
+	#else
+		public static final Codec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class).codec();
+	#endif
 
 	public final StructureLayoutScript.Holder layout;
 
@@ -107,7 +113,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			this.originalBoundingBox = BlockBox.CODEC.parse(NbtOps.INSTANCE, nbt.get("OBB")).getOrThrow(true, BigGlobeMod.LOGGER::error);
+			this.originalBoundingBox = WorldUtil.blockBoxFromIntArray(nbt.getIntArray("OBB"));
 			NbtElement transform = nbt.get("transform");
 			if (transform != null) try {
 				this.transformation = BigGlobeAutoCodec.AUTO_CODEC.decode(SymmetricOffset.CODER, transform, NbtOps.INSTANCE);
@@ -136,7 +142,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			nbt.putString("script", this.placement.id());
 			nbt.put("data", this.data);
 			nbt.put("transform", BigGlobeAutoCodec.AUTO_CODEC.encode(SymmetricOffset.CODER, this.transformation, NbtOps.INSTANCE));
-			nbt.put("OBB", BlockBox.CODEC.encodeStart(NbtOps.INSTANCE, this.originalBoundingBox).getOrThrow(true, BigGlobeMod.LOGGER::error));
+			nbt.put("OBB", WorldUtil.blockBoxToNbt(this.originalBoundingBox));
 		}
 
 		public Piece symmetrify(Symmetry symmetry) {

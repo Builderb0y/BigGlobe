@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -52,7 +53,11 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class LargeDungeonStructure extends AbstractDungeonStructure {
 
-	public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LargeDungeonStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class);
+	#else
+		public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LargeDungeonStructure.class);
+	#endif
 
 	public LargeDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config, room_decorators, spawner_entries, palettes);

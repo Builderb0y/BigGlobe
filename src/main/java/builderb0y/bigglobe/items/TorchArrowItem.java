@@ -3,6 +3,7 @@ package builderb0y.bigglobe.items;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ArrowItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -11,7 +12,7 @@ import builderb0y.bigglobe.entities.TorchArrowEntity;
 
 public class TorchArrowItem extends ArrowItem {
 
-	public TorchArrowItem(Settings settings) {
+	public TorchArrowItem(Item.Settings settings) {
 		super(settings);
 	}
 
@@ -19,4 +20,8 @@ public class TorchArrowItem extends ArrowItem {
 	public PersistentProjectileEntity createArrow(World world, ItemStack stack, LivingEntity shooter) {
 		return new TorchArrowEntity(BigGlobeEntityTypes.TORCH_ARROW, world, shooter);
 	}
+
+	#if MC_VERSION >= MC_1_20_5
+
+	#endif
 }

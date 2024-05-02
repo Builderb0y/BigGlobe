@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,8 +116,11 @@ import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
-	public static final AutoCoder<BigGlobeScriptedChunkGenerator> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(BigGlobeScriptedChunkGenerator.class);
-	public static final Codec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CODER);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class);
+	#else
+		public static final Codec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class).codec();
+	#endif
 
 	public final @VerifyNullable String reload_dimension;
 	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
@@ -345,7 +349,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	#endif
 
 	@Override
-	public Codec<? extends ChunkGenerator> getCodec() {
+	public #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif<? extends ChunkGenerator> getCodec() {
 		return CODEC;
 	}
 

@@ -23,6 +23,7 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -89,7 +90,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		BlockPos pos = new BlockPos(this.centerX, this.centerY, this.centerZ);
 		BlockState oldState = world.getBlockState(pos);
 		BlockEntity oldBlockEntity = world.getBlockEntity(pos);
-		NbtCompound oldBlockData = oldBlockEntity == null ? null : oldBlockEntity.createNbt();
+		NbtCompound oldBlockData = oldBlockEntity == null ? null : BlockEntityVersions.writeToNbt(oldBlockEntity);
 		WorldUtil.setBlockState(world, pos, BlockStates.DELAYED_GENERATION, this.flags);
 		DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, DelayedGenerationBlockEntity.class);
 		if (blockEntity != null) {
@@ -154,7 +155,7 @@ public class SerializableBlockQueue extends BlockQueue {
 				BlockPos pos = BlockEntity.posFromNbt(blockEntityNBT);
 				BlockState state = queue.queuedBlocks.get(pos.asLong());
 				if (state != null && state.hasBlockEntity()) {
-					BlockEntity blockEntity = BlockEntity.createFromNbt(pos, state, blockEntityNBT);
+					BlockEntity blockEntity = BlockEntityVersions.createFromNbt(pos, state, blockEntityNBT);
 					if (blockEntity != null) queue.queueBlockEntity(pos, blockEntity);
 				}
 			}
@@ -196,7 +197,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		if (!this.queuedBlockEntities.isEmpty()) {
 			NbtList blockEntities = new NbtList();
 			for (BlockEntity blockEntity : this.queuedBlockEntities.values()) {
-				blockEntities.add(blockEntity.createNbtWithIdentifyingData());
+				blockEntities.add(BlockEntityVersions.writeToNbt(blockEntity));
 			}
 			nbt.put("blockEntities", blockEntities);
 		}

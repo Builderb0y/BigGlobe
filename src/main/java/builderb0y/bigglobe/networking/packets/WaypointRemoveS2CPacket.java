@@ -21,7 +21,7 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<Integer> {
 	public void send(ServerPlayerEntity player, int id) {
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}
 
 	@Override

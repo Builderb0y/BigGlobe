@@ -28,13 +28,23 @@
 				")",
 				"else (return(ItemStack.EMPTY))",
 			")",
-			"NbtCompound nbt = ball.nbt ?: (ball.nbt := nbtCompound())",
-			"int damage = nbt.Damage.asInt()",
-			"int maxDamage = nbt.MaxDamage.asInt()",
-			"damage -= string",
-			"if (damage < 0: maxDamage -= (damage =: 0))",
-			"nbt.=$Damage(damage).=$MaxDamage(maxDamage)",
-			"return(ball)"
+			"NbtCompound nbt = ball.nbt ?: nbtCompound()",
+			"if (MinecraftVersion.CURRENT >= MinecraftVersion('1.20.5'):",
+				"NbtCompound components = nbt.components ?: (nbt.components := nbtCompound())",
+				"int damage = nbt.components.`minecraft:damage`.asInt()",
+				"int maxDamage = nbt.components.`minecraft:max_damage`.asInt()",
+				"damage -= string",
+				"if (damage < 0: maxDamage -= (damage =: 0))",
+				"components.=$`minecraft:damage`(damage).=$`minecraft:max_damage`(maxDamage)",
+			")",
+			"else (",
+				"int damage = nbt.Damage.asInt()",
+				"int maxDamage = nbt.MaxDamage.asInt()",
+				"damage -= string",
+				"if (damage < 0: maxDamage -= (damage =: 0))",
+				"nbt.=$Damage(damage).=$MaxDamage(maxDamage)",
+			")",
+			"return(ItemStack('bigglobe:ball_of_string', nbt))"
 		]
 	}
 }

@@ -16,7 +16,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldEvents;
 
+import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.features.OreFeature;
@@ -26,20 +28,22 @@ import builderb0y.bigglobe.util.RandomSelector;
 
 public class MoltenRockBlock extends Block {
 
-	public final int heat;
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<MoltenRockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MoltenRockBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
+
+	public final @VerifyIntRange(min = 1, max = 8) int heat;
 
 	public MoltenRockBlock(Settings settings, int heat) {
 		super(settings);
 		this.heat = heat;
 	}
-
-	#if MC_VERSION >= MC_1_20_4
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new UnsupportedOperationException();
-		}
-	#endif
 
 	@Override
 	@Deprecated

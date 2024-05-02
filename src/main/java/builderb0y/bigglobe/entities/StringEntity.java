@@ -52,11 +52,20 @@ public class StringEntity extends Entity {
 		this.setSilent(true);
 	}
 
-	@Override
-	public void initDataTracker() {
-		this.dataTracker.startTracking(PREVIOUS_ID, 0);
-		this.dataTracker.startTracking(NEXT_ID, 0);
-	}
+	#if MC_VERSION >= MC_1_20_5
+
+		@Override
+		public void initDataTracker(DataTracker.Builder builder) {
+			builder.add(PREVIOUS_ID, 0).add(NEXT_ID, 0);
+		}
+	#else
+
+		@Override
+		public void initDataTracker() {
+			this.dataTracker.startTracking(PREVIOUS_ID, 0);
+			this.dataTracker.startTracking(NEXT_ID, 0);
+		}
+	#endif
 
 	@Override
 	public Box getVisibilityBoundingBox() {
@@ -98,7 +107,7 @@ public class StringEntity extends Entity {
 	}
 
 	public void tickMovement(Entity prevEntity, Entity nextEntity) {
-		Vec3d gravity = this.applyGravity();
+		Vec3d gravity = this.applyGravitationalVelocity();
 		Vec3d motion = gravity;
 		Vec3d adjustment = this.adjustToNeighbors(prevEntity, nextEntity);
 		if (adjustment != null) {
@@ -110,7 +119,7 @@ public class StringEntity extends Entity {
 		this.move(MovementType.SELF, motion);
 	}
 
-	public Vec3d applyGravity() {
+	public Vec3d applyGravitationalVelocity() {
 		this.addVelocity(0.0D, -0.04D, 0.0D);
 		if (EntityVersions.isOnGround(this)) {
 			this.setVelocity(Vec3d.ZERO);

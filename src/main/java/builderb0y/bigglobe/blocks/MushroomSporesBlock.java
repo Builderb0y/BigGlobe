@@ -11,21 +11,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
 public class MushroomSporesBlock extends PlantBlock {
 
 	public static final VoxelShape SHAPE = Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
 
-	public MushroomSporesBlock(Settings settings) {
-		super(settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<MushroomSporesBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MushroomSporesBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public MushroomSporesBlock(Settings settings) {
+		super(settings);
+	}
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {

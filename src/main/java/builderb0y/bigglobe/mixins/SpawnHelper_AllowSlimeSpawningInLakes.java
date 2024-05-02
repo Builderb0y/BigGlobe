@@ -16,6 +16,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.structures.BigGlobeStructureTags;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 @Mixin(SpawnHelper.class)
 public class SpawnHelper_AllowSlimeSpawningInLakes {
@@ -52,7 +53,8 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 			callback.setReturnValue(
 				//also vanilla logic.
 				world.isSpaceEmpty(
-					spawnEntry.type.createSimpleBoundingBox(
+					EntityVersions.getBoundingBox(
+						spawnEntry.type,
 						pos.getX() + 0.5,
 						pos.getY(),
 						pos.getZ() + 0.5

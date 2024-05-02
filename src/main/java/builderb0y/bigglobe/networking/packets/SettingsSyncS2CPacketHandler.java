@@ -5,7 +5,6 @@ import java.util.Objects;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
@@ -82,6 +81,6 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 		NbtElement nbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientGeneratorParams.NULLABLE_CODER, params, NbtOps.INSTANCE);
 		PacketByteBuf buffer = this.buffer();
 		NbtIo2.writeCompressed(buffer, nbt);
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}
 }

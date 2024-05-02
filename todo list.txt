@@ -26,6 +26,13 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
+	test to make sure slingshot still works.
+	verify that right clicking blocks with empty hand still works.
+		rope anchor.
+	make sure portal temple armor stands can still have armor sometimes.
+	make sure portal temple banners still have patterns on them.
+	make tree trunk thicknesses scriptable.
+	clean up ScriptedRecipeSerializer in old MC Versions (remove preprocessors)
 
 4.0 stuff:
 	things to eventually remove:
@@ -56,7 +63,6 @@ where I left off:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
-	items might not be added to creative menu in 1.19.2.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

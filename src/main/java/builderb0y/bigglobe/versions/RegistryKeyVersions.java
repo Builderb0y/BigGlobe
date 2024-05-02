@@ -3,6 +3,7 @@ package builderb0y.bigglobe.versions;
 import net.minecraft.block.Block;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.loot.LootTable;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.structure.StructurePieceType;
@@ -68,5 +69,9 @@ public class RegistryKeyVersions {
 		public static RegistryKey<Registry<World                  >> world                 () { return RegistryKeys.WORLD                   ; }
 		public static RegistryKey<Registry<StructureType<?>       >> structureType         () { return RegistryKeys.STRUCTURE_TYPE          ; }
 		public static RegistryKey<Registry<StructurePieceType     >> structurePieceType    () { return RegistryKeys.STRUCTURE_PIECE         ; }
+	#endif
+
+	#if MC_VERSION >= MC_1_20_5
+		public static RegistryKey<Registry<LootTable>> lootTable() { return RegistryKeys.LOOT_TABLE; }
 	#endif
 }

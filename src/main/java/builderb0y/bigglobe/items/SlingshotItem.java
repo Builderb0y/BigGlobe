@@ -7,8 +7,10 @@ import java.util.function.Predicate;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -24,13 +26,18 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
 mostly a copy-paste of {@link BowItem} but edited to work with rocks,
 which are not an instance of {@link ArrowItem}.
 */
-public class SlingshotItem extends RangedWeaponItem implements Vanishable {
+public class SlingshotItem extends RangedWeaponItem
+	#if MC_VERSION < MC_1_20_5
+	implements Vanishable
+	#endif
+{
 
 	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeyVersions.item(), BigGlobeMod.modID("slingshot_ammunition"));
 	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(AMMUNITION);
@@ -61,7 +68,7 @@ public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 			SlingshotAmmunition arrowItem = ammunitionStack.getItem() instanceof SlingshotAmmunition ammo ? ammo : (SlingshotAmmunition)(BigGlobeItems.ROCK);
 			ProjectileEntity projectile = arrowItem.createProjectile(world, user, ammunitionStack, stack);
 			projectile.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, progress * 1.5F, 1.0F);
-			stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(p.getActiveHand()));
+			ItemStackVersions.damage(stack, playerEntity, playerEntity.getActiveHand());
 			world.spawnEntity(projectile);
 		}
 		world.playSound(null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (world.getRandom().nextFloat() * 0.4F + 1.2F) + progress * 0.5F);
@@ -72,6 +79,11 @@ public class SlingshotItem extends RangedWeaponItem implements Vanishable {
 			}
 		}
 		playerEntity.incrementStat(Stats.USED.getOrCreateStat(this));
+	}
+
+	@Override
+	public void shoot(LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
+
 	}
 
 	@Override

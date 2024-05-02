@@ -1,0 +1,29 @@
+{
+	"blocks": {
+		"log": "minecraft:cherry_log",
+		"wood": "minecraft:cherry_wood",
+		"stripped_log": "minecraft:stripped_cherry_log",
+		"stripped_wood": "minecraft:stripped_cherry_wood",
+		"planks": "minecraft:cherry_planks",
+		"stairs": "minecraft:cherry_stairs",
+		"slab": "minecraft:cherry_slab",
+		"fence": "minecraft:cherry_fence",
+		"fence_gate": "minecraft:cherry_fence_gate",
+		"door": "minecraft:cherry_door",
+		"trapdoor": "minecraft:cherry_trapdoor",
+		"pressure_plate": "minecraft:cherry_pressure_plate",
+		"button": "minecraft:cherry_button",
+		"leaves": "minecraft:cherry_leaves",
+		"sapling": "minecraft:cherry_sapling",
+		"potted_sapling": "minecraft:potted_cherry_sapling",
+		"standing_sign": "minecraft:cherry_sign",
+		"wall_sign": "minecraft:cherry_wall_sign",
+		"hanging_sign": "minecraft:cherry_hanging_sign",
+		"wall_hanging_sign": "minecraft:cherry_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/cherry",
+		"natural_surface": "bigglobe:overworld/trees/natural/cherry",
+		"skylands": "bigglobe:overworld/trees/skylands/cherry"
+	}
+}

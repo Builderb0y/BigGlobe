@@ -3,7 +3,6 @@ package builderb0y.bigglobe.networking.packets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +32,6 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 		boolean dangerousRapids = player.server.getGameRules().get(BigGlobeGameRules.DANGEROUS_RAPIDS).get();
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeBoolean(dangerousRapids);
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}
 }

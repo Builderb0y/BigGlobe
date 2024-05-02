@@ -7,6 +7,7 @@ import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -45,12 +46,18 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.BlockPosVersions;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class PortalTempleStructure extends BigGlobeStructure {
 
-	public static final Codec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(PortalTempleStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(PortalTempleStructure.class);
+	#else
+		public static final Codec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(PortalTempleStructure.class).codec();
+	#endif
 
 	public final @VerifyRandomRange(min = 0.0D, max = 1.0D) RandomSource cracked_chance;
 
@@ -327,16 +334,16 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			if (!box.contains(pos)) return false;
 			if (!world.setBlockState(pos, this.state, Block.NOTIFY_ALL)) return false;
 			if (this.blockEntityData != null) {
-				BlockEntity tileEntity = WorldUtil.getBlockEntity(world, pos, BlockEntity.class);
-				if (tileEntity != null) {
-					NbtCompound oldNBT = tileEntity.createNbt();
+				BlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, BlockEntity.class);
+				if (blockEntity != null) {
+					NbtCompound oldNBT = BlockEntityVersions.writeToNbt(blockEntity);
 					NbtCompound newNBT = oldNBT.copy().copyFrom(this.blockEntityData);
 					newNBT.putInt("x", pos.getX());
 					newNBT.putInt("y", pos.getY());
 					newNBT.putInt("z", pos.getZ());
 					if (!oldNBT.equals(newNBT)) {
-						tileEntity.readNbt(newNBT);
-						tileEntity.markDirty();
+						BlockEntityVersions.readFromNbt(blockEntity, newNBT);
+						blockEntity.markDirty();
 					}
 				}
 			}
@@ -511,7 +518,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 								}
 								ItemStack stack = new ItemStack(item, 1);
 								stack.setDamage(random.nextInt(stack.getMaxDamage()));
-								stack.writeNbt(itemNBT);
+								ItemStackVersions.toNbt(stack, itemNBT);
 							}
 							armorItemsNBT.add(itemNBT);
 						}
@@ -723,8 +730,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 								world,
 								world.getLocalDifficulty(pos),
 								SpawnReason.STRUCTURE,
-								null,
-								nbt
+								null
+								#if MC_VERSION < MC_1_20_5 , nbt #endif
 							);
 						}
 						world.spawnEntityAndPassengers(entity);

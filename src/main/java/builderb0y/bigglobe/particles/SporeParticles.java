@@ -3,6 +3,7 @@ package builderb0y.bigglobe.particles;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -14,6 +15,8 @@ import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.particle.WaterSuspendParticle;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registry;
@@ -50,15 +53,18 @@ public class SporeParticles {
 			return Type.INSTANCE;
 		}
 
-		@Override
 		public void write(PacketByteBuf buffer) {
 			buffer.writeByte(this.red);
 			buffer.writeByte(this.green);
 			buffer.writeByte(this.blue);
 		}
 
+		public static Effect read(PacketByteBuf buffer) {
+			return new Effect(buffer.readUnsignedByte(), buffer.readUnsignedByte(), buffer.readUnsignedByte());
+		}
+
 		@Override
-		public String asString() {
+		public String #if MC_VERSION >= MC_1_20_5 toString #else asString #endif() {
 			return "SporeParticles$Effect: { red: " + this.red + ", green: " + this.green + ", blue: " + this.blue + " }";
 		}
 	}
@@ -68,13 +74,27 @@ public class SporeParticles {
 		public static final Type INSTANCE = new Type();
 
 		public Type() {
-			super(false, ServerFactory.INSTANCE);
+			super(false #if MC_VERSION < MC_1_20_5 , ServerFactory.INSTANCE #endif);
 		}
 
-		@Override
-		public Codec<Effect> getCodec() {
-			return Effect.CODEC;
-		}
+		#if MC_VERSION >= MC_1_20_5
+
+			@Override
+			public MapCodec<Effect> getCodec() {
+				return Effect.CODEC.fieldOf("value");
+			}
+
+			@Override
+			public PacketCodec<? super RegistryByteBuf, Effect> getPacketCodec() {
+				return PacketCodec.of(Effect::write, Effect::read);
+			}
+		#else
+
+			@Override
+			public Codec<Effect> getCodec() {
+				return Effect.CODEC;
+			}
+		#endif
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -95,27 +115,30 @@ public class SporeParticles {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public static class ServerFactory implements ParticleEffect.Factory<Effect> {
+	#if MC_VERSION < MC_1_20_5
 
-		public static final ServerFactory INSTANCE = new ServerFactory();
+		@SuppressWarnings("deprecation")
+		public static class ServerFactory implements ParticleEffect.Factory<Effect> {
 
-		@Override
-		public Effect read(ParticleType<Effect> type, StringReader reader) throws CommandSyntaxException {
-			return new Effect(nextComponent(reader), nextComponent(reader), nextComponent(reader));
+			public static final ServerFactory INSTANCE = new ServerFactory();
+
+			@Override
+			public Effect read(ParticleType<Effect> type, StringReader reader) throws CommandSyntaxException {
+				return new Effect(nextComponent(reader), nextComponent(reader), nextComponent(reader));
+			}
+
+			public static int nextComponent(StringReader reader) throws CommandSyntaxException {
+				reader.expect(' ');
+				int value = reader.readInt();
+				if (value < 0) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooLow().createWithContext(reader, value, 0);
+				if (value > 255) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooHigh().createWithContext(reader, value, 255);
+				return value;
+			}
+
+			@Override
+			public Effect read(ParticleType<Effect> type, PacketByteBuf buffer) {
+				return new Effect(buffer.readUnsignedByte(), buffer.readUnsignedByte(), buffer.readUnsignedByte());
+			}
 		}
-
-		public static int nextComponent(StringReader reader) throws CommandSyntaxException {
-			reader.expect(' ');
-			int value = reader.readInt();
-			if (value < 0) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooLow().createWithContext(reader, value, 0);
-			if (value > 255) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooHigh().createWithContext(reader, value, 255);
-			return value;
-		}
-
-		@Override
-		public Effect read(ParticleType<Effect> type, PacketByteBuf buffer) {
-			return new Effect(buffer.readUnsignedByte(), buffer.readUnsignedByte(), buffer.readUnsignedByte());
-		}
-	}
+	#endif
 }

@@ -13,19 +13,23 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
 public class OvergrownEndStoneBlock extends Block implements Fertilizable {
+
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<OvergrownEndStoneBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(OvergrownEndStoneBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
 
 	public OvergrownEndStoneBlock(Settings settings) {
 		super(settings);
 	}
-
-	#if MC_VERSION >= MC_1_20_3
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new NotImplementedException();
-		}
-	#endif
 
 	@Override
 	public boolean isFertilizable(

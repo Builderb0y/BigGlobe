@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -26,7 +27,11 @@ import builderb0y.bigglobe.util.TagOrObject;
 
 public class DelegatingStructure extends Structure {
 
-	public static final Codec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DelegatingStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelegatingStructure.class);
+	#else
+		public static final Codec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DelegatingStructure.class);
+	#endif
 
 	public final RegistryEntry<Structure> delegate;
 	public final @EncodeInline NullableConfig nullable_config;

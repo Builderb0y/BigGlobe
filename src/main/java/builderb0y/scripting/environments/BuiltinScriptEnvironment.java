@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.scripting.environments.MinecraftVersion;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -38,15 +39,15 @@ public class BuiltinScriptEnvironment {
 	public static PrintSink PRINTER = PrintSink.forPrintStream(System.out);
 
 	public static final MethodInfo
-		STRING_CONCAT_FACTORY      = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
-		PRINTLN_BOOLEAN            = MethodInfo.findMethod(PrintSink.class, "println", void.class, boolean.class),
-		PRINTLN_CHAR               = MethodInfo.findMethod(PrintSink.class, "println", void.class,    char.class),
-		PRINTLN_INT                = MethodInfo.findMethod(PrintSink.class, "println", void.class,     int.class),
-		PRINTLN_LONG               = MethodInfo.findMethod(PrintSink.class, "println", void.class,    long.class),
-		PRINTLN_FLOAT              = MethodInfo.findMethod(PrintSink.class, "println", void.class,   float.class),
-		PRINTLN_DOUBLE             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  double.class),
-		PRINTLN_STRING             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  String.class),
-		PRINTLN_OBJECT             = MethodInfo.findMethod(PrintSink.class, "println", void.class,  Object.class);
+		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
+		PRINTLN_BOOLEAN       = MethodInfo.findMethod(PrintSink.class, "println", void.class, boolean.class),
+		PRINTLN_CHAR          = MethodInfo.findMethod(PrintSink.class, "println", void.class,    char.class),
+		PRINTLN_INT           = MethodInfo.findMethod(PrintSink.class, "println", void.class,     int.class),
+		PRINTLN_LONG          = MethodInfo.findMethod(PrintSink.class, "println", void.class,    long.class),
+		PRINTLN_FLOAT         = MethodInfo.findMethod(PrintSink.class, "println", void.class,   float.class),
+		PRINTLN_DOUBLE        = MethodInfo.findMethod(PrintSink.class, "println", void.class,  double.class),
+		PRINTLN_STRING        = MethodInfo.findMethod(PrintSink.class, "println", void.class,  String.class),
+		PRINTLN_OBJECT        = MethodInfo.findMethod(PrintSink.class, "println", void.class,  Object.class);
 	public static final FieldInfo
 		PRINTER_FIELD = FieldInfo.getField(BuiltinScriptEnvironment.class, "PRINTER");
 
@@ -90,6 +91,11 @@ public class BuiltinScriptEnvironment {
 		.addType("String",     TypeInfos.STRING)
 		//.addType("Throwable",  TypeInfos.THROWABLE)
 		.addType("Class",      TypeInfos.CLASS)
+
+		.addType("MinecraftVersion", type(MinecraftVersion.class))
+		.addCastConstant(MinecraftVersion.CONSTANT_FACTORY, true)
+		.addFieldInvokes(MinecraftVersion.class, "major", "minor", "bugfix")
+		.addQualifiedVariableGetStatic(MinecraftVersion.class, "CURRENT")
 
 		//////////////// functions ////////////////
 
@@ -177,7 +183,7 @@ public class BuiltinScriptEnvironment {
 			return new ContinueInsnTree(loopName);
 		})
 		.addKeyword("compare", (ExpressionParser parser, String name) -> {
-			return SpecialFunctionSyntax.Compare.parse(parser).buildInsnTree();
+			return Compare.parse(parser).buildInsnTree();
 		})
 		.addKeyword("noscope", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');

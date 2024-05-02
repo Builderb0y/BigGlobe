@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -35,7 +36,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	public ServerWaypointManager() {}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ServerWaypointManager(NbtCompound nbt) {
+	public ServerWaypointManager(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup lookup #endif) {
 		HyperspaceStorageVersions.update(nbt);
 		this.nextID = nbt.getInt("nextID");
 		for (NbtCompound waypointNBT : (Iterable<NbtCompound>)(Iterable)(nbt.getList("waypoints", NbtElement.COMPOUND_TYPE))) {
@@ -45,7 +46,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	}
 
 	@Override
-	public NbtCompound writeNbt(NbtCompound nbt) {
+	public NbtCompound writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup lookup #endif) {
 		nbt.putByte("version", (byte)(HyperspaceStorageVersions.CURRENT_VERSION));
 		NbtList waypoints = new NbtList();
 		for (ServerWaypointData waypoint : this.getAllWaypoints()) {

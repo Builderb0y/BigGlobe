@@ -9,27 +9,31 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 
 public class BlazingBlossomBlock extends NetherFlowerBlock {
 
-	public BlazingBlossomBlock(StatusEffect suspiciousStewEffect, int effectDuration, Settings settings) {
-		super(suspiciousStewEffect, effectDuration, settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<BlazingBlossomBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BlazingBlossomBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public BlazingBlossomBlock(#if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspiciousStewEffect, int effectDuration, Settings settings) {
+		super(suspiciousStewEffect, effectDuration, settings);
+	}
 
 	@Override
 	@Deprecated

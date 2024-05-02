@@ -1,0 +1,30 @@
+{
+	"blocks": {
+		"log": "minecraft:oak_log",
+		"wood": "minecraft:oak_wood",
+		"stripped_log": "minecraft:stripped_oak_log",
+		"stripped_wood": "minecraft:stripped_oak_wood",
+		"planks": "minecraft:oak_planks",
+		"stairs": "minecraft:oak_stairs",
+		"slab": "minecraft:oak_slab",
+		"fence": "minecraft:oak_fence",
+		"fence_gate": "minecraft:oak_fence_gate",
+		"door": "minecraft:oak_door",
+		"trapdoor": "minecraft:oak_trapdoor",
+		"pressure_plate": "minecraft:oak_pressure_plate",
+		"button": "minecraft:oak_button",
+		"leaves": [
+			{ "weight": 1.0, "block": "minecraft:flowering_azalea_leaves" },
+			{ "weight": 3.0, "block": "minecraft:azalea_leaves" }
+		],
+		"sapling": "minecraft:flowering_azalea",
+		"potted_sapling": "minecraft:potted_flowering_azalea_bush",
+		"standing_sign": "minecraft:oak_sign",
+		"wall_sign": "minecraft:oak_wall_sign",
+		"hanging_sign": "minecraft:oak_hanging_sign",
+		"wall_hanging_sign": "minecraft:oak_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/flowering_azalea"
+	}
+}

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,23 +15,26 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class AshenNetherrackBlock extends Block implements Fertilizable {
 
 	public static final RegistryKey<ConfiguredFeature<?, ?>> PATCH_CHARRED_GRASS = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("patch_charred_grass"));
 
-	public AshenNetherrackBlock(Settings settings) {
-		super(settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<AshenNetherrackBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(AshenNetherrackBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public AshenNetherrackBlock(Settings settings) {
+		super(settings);
+	}
 
 	@Override
 	public boolean isFertilizable(

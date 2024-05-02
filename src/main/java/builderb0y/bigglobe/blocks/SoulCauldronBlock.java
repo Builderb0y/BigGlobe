@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 #if MC_VERSION >= MC_1_20_3
@@ -39,17 +40,19 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 			return CauldronBehavior.emptyCauldron(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.ITEM_BUCKET_FILL_LAVA);
 		};
 
-	public SoulCauldronBlock(Settings settings) {
-		super(settings, BEHAVIOR_MAP);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public SoulCauldronBlock(Settings settings) {
+		super(settings, BEHAVIOR_MAP);
+	}
 
 	public static void init() {
 		#if MC_VERSION >= MC_1_20_3

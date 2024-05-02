@@ -66,7 +66,7 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 		if (manager.entrance != null) waypoint.displayedPosition().writePositionOnly(buffer);
 		if (name != null) NbtIo2.write(buffer, name);
 
-		ServerPlayNetworking.send(manager.serverPlayer(), BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(manager.serverPlayer(), buffer);
 	}
 
 	@Override

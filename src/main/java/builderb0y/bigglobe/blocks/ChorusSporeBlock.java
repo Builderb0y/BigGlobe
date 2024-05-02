@@ -12,9 +12,20 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 
 public class ChorusSporeBlock extends PlantBlock implements Fertilizable {
+
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<ChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusSporeBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
 
 	public final Block growInto;
 	public final VoxelShape shape;
@@ -24,14 +35,6 @@ public class ChorusSporeBlock extends PlantBlock implements Fertilizable {
 		this.growInto = into;
 		this.shape = shape;
 	}
-
-	#if MC_VERSION >= MC_1_20_3
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new NotImplementedException();
-		}
-	#endif
 
 	@Override
 	@Deprecated

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,23 +15,26 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ChorusNyliumBlock extends Block implements Fertilizable {
 
 	public static final RegistryKey<ConfiguredFeature<?, ?>> FEATURE_KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("patch_chorus_spores"));
 
-	public ChorusNyliumBlock(Settings settings) {
-		super(settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<ChorusNyliumBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusNyliumBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public ChorusNyliumBlock(Settings settings) {
+		super(settings);
+	}
 
 	@Override
 	public boolean isFertilizable(

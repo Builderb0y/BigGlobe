@@ -1,0 +1,28 @@
+{
+	"blocks": {
+		"log": "minecraft:crimson_stem",
+		"wood": "minecraft:crimson_hyphae",
+		"stripped_log": "minecraft:stripped_crimson_stem",
+		"stripped_wood": "minecraft:stripped_crimson_hyphae",
+		"planks": "minecraft:crimson_planks",
+		"stairs": "minecraft:crimson_stairs",
+		"slab": "minecraft:crimson_slab",
+		"fence": "minecraft:crimson_fence",
+		"fence_gate": "minecraft:crimson_fence_gate",
+		"door": "minecraft:crimson_door",
+		"trapdoor": "minecraft:crimson_trapdoor",
+		"pressure_plate": "minecraft:crimson_pressure_plate",
+		"button": "minecraft:crimson_button",
+		"leaves": "minecraft:nether_wart_block",
+		"sapling": "minecraft:crimson_fungus",
+		"potted_sapling": "minecraft:potted_crimson_fungus",
+		"standing_sign": "minecraft:crimson_sign",
+		"wall_sign": "minecraft:crimson_wall_sign",
+		"hanging_sign": "minecraft:crimson_hanging_sign",
+		"wall_hanging_sign": "minecraft:crimson_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:nether/trees/artificial/crimson",
+		"natural_surface": "bigglobe:nether/trees/natural/crimson"
+	}
+}

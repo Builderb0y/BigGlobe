@@ -20,6 +20,7 @@ import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 
@@ -28,7 +29,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 	public void send(int id) {
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
-		ClientPlayNetworking.send(BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToServer(buffer);
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 						Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
 						if (drop != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
 							ItemStack stack = new ItemStack(drop);
-							stack.setCustomName(waypoint.destination().name());
+							ItemStackVersions.setCustomName(stack, waypoint.destination().name());
 							ItemEntity entity = new ItemEntity(player.getWorld(), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
 							if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 								entity.setNoGravity(true);

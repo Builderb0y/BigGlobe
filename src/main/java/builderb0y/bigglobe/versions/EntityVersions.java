@@ -1,10 +1,12 @@
 package builderb0y.bigglobe.versions;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -53,5 +55,9 @@ public class EntityVersions {
 		#else
 			((Entity_PortalCooldownSetter)(entity)).bigglobe_setPortalCooldown(cooldown);
 		#endif
+	}
+
+	public static Box getBoundingBox(EntityType<?> type, double x, double y, double z) {
+		return type. #if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif (x, y, z);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -31,7 +32,11 @@ import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
 public class MegaTreeStructure extends BigGlobeStructure {
 
-	public static final Codec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MegaTreeStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MegaTreeStructure.class);
+	#else
+		public static final Codec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MegaTreeStructure.class);
+	#endif
 
 	public static record FoliageRange(double min, double max) {
 

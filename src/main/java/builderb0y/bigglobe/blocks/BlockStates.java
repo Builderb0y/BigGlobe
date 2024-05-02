@@ -17,15 +17,8 @@ public class BlockStates {
 
 	public static final BlockState
 		AIR                    = Blocks.AIR.getDefaultState(),
-		BEDROCK                = Blocks.BEDROCK.getDefaultState(),
 		STONE                  = Blocks.STONE.getDefaultState(),
-		COBBLESTONE            = Blocks.COBBLESTONE.getDefaultState(),
-		DEEPSLATE              = Blocks.DEEPSLATE.getDefaultState(),
-		COBBLED_DEEPSLATE      = Blocks.COBBLED_DEEPSLATE.getDefaultState(),
-		DIRT                   = Blocks.DIRT.getDefaultState(),
-		GRASS_BLOCK            = Blocks.GRASS_BLOCK.getDefaultState(),
 		SAND                   = Blocks.SAND.getDefaultState(),
-		OVERGROWN_SAND         = BigGlobeBlocks.OVERGROWN_SAND.getDefaultState(),
 		SANDSTONE              = Blocks.SANDSTONE.getDefaultState(),
 		CUT_SANDSTONE          = Blocks.CUT_SANDSTONE.getDefaultState(),
 		CHISELED_SANDSTONE     = Blocks.CHISELED_SANDSTONE.getDefaultState(),
@@ -41,9 +34,6 @@ public class BlockStates {
 		OBSIDIAN               = Blocks.OBSIDIAN.getDefaultState(),
 		CRYING_OBSIDIAN        = Blocks.CRYING_OBSIDIAN.getDefaultState(),
 		SOUL_SAND              = Blocks.SOUL_SAND.getDefaultState(),
-		SOUL_SOIL              = Blocks.SOUL_SOIL.getDefaultState(),
-
-		END_STONE              = Blocks.END_STONE.getDefaultState(),
 
 		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
 

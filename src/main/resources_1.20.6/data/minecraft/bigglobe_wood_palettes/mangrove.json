@@ -1,0 +1,28 @@
+{
+	"blocks": {
+		"log": "minecraft:mangrove_log",
+		"wood": "minecraft:mangrove_wood",
+		"stripped_log": "minecraft:stripped_mangrove_log",
+		"stripped_wood": "minecraft:stripped_mangrove_wood",
+		"planks": "minecraft:mangrove_planks",
+		"stairs": "minecraft:mangrove_stairs",
+		"slab": "minecraft:mangrove_slab",
+		"fence": "minecraft:mangrove_fence",
+		"fence_gate": "minecraft:mangrove_fence_gate",
+		"door": "minecraft:mangrove_door",
+		"trapdoor": "minecraft:mangrove_trapdoor",
+		"pressure_plate": "minecraft:mangrove_pressure_plate",
+		"button": "minecraft:mangrove_button",
+		"leaves": "minecraft:mangrove_leaves",
+		"sapling": "minecraft:mangrove_propagule",
+		"potted_sapling": "minecraft:potted_mangrove_propagule",
+		"standing_sign": "minecraft:mangrove_sign",
+		"wall_sign": "minecraft:mangrove_wall_sign",
+		"hanging_sign": "minecraft:mangrove_hanging_sign",
+		"wall_hanging_sign": "minecraft:mangrove_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/mangrove",
+		"natural_surface": "bigglobe:overworld/trees/natural/mangrove"
+	}
+}

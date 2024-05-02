@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
@@ -26,15 +27,17 @@ import builderb0y.autocodec.imprinters.ImprintContext;
 import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.autocodec.util.DFUVersions;
 
 @UseImprinter(name = "new", in = VariationsList.Imprinter.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 @UseEncoder  (name = "new", in = VariationsList.Encoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public class VariationsList<T> {
 
-	@SuppressWarnings("deprecation")
-	public static final Consumer<String> THROW_DECODE = (String s) -> {
-		throw AutoCodecUtil.rethrow(new DecodeException(s));
-	};
+	public static <T> T unwrap(DataResult<T> result) {
+		T actualResult = DFUVersions.getResult(result);
+		if (actualResult != null) return actualResult;
+		else throw AutoCodecUtil.rethrow(new DecodeException(DFUVersions.getMessageLazy(result)));
+	}
 
 	public transient Dynamic<?> source;
 	public transient List<T> elements;
@@ -87,17 +90,15 @@ public class VariationsList<T> {
 				T_Encoded[] layers = (T_Encoded[])(
 					variations /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
 						(T_Encoded list /* [ {}, {} ] */) -> ops.createList(
-							ops
-							.getStream(list)
-							.getOrThrow(false, THROW_DECODE)
+							unwrap(ops.getStream(list))
 							.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
 						)
 					)
 					.toArray()
 				);
-				Stream<T_Encoded> stream = ops.getStream(layers[0]).getOrThrow(false, THROW_DECODE);
+				Stream<T_Encoded> stream = unwrap(ops.getStream(layers[0]));
 				for (int index = 1, length = layers.length; index < length; index++) {
-					stream = flatten(stream, (T_Encoded[])(ops.getStream(layers[index]).getOrThrow(false, THROW_DECODE).toArray()), ops, deep);
+					stream = flatten(stream, (T_Encoded[])(unwrap(ops.getStream(layers[index])).toArray()), ops, deep);
 				}
 				return stream;
 			}

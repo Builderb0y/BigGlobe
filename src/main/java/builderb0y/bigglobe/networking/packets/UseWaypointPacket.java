@@ -25,7 +25,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 	public void send(int id) {
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
-		ClientPlayNetworking.send(BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToServer(buffer);
 	}
 
 	@Override

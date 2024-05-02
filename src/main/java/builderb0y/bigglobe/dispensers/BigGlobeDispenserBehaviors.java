@@ -18,22 +18,27 @@ import builderb0y.bigglobe.mixins.DispenserBlock_BehaviorsAccess;
 public class BigGlobeDispenserBehaviors {
 
 	public static void init() {
-		DispenserBlock.registerBehavior(BigGlobeItems.TORCH_ARROW, new ProjectileDispenserBehavior() {
+		#if MC_VERSION >= MC_1_20_5
+			DispenserBlock.registerBehavior(BigGlobeItems.TORCH_ARROW, new ProjectileDispenserBehavior(BigGlobeItems.TORCH_ARROW));
+			DispenserBlock.registerBehavior(BigGlobeItems.ROCK, new ProjectileDispenserBehavior(BigGlobeItems.ROCK));
+		#else
+			DispenserBlock.registerBehavior(BigGlobeItems.TORCH_ARROW, new ProjectileDispenserBehavior() {
 
-			@Override
-			public ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
-				TorchArrowEntity entity = new TorchArrowEntity(BigGlobeEntityTypes.TORCH_ARROW, position.getX(), position.getY(), position.getZ(), world);
-				entity.pickupType = PickupPermission.ALLOWED;
-				return entity;
-			}
-		});
-		DispenserBlock.registerBehavior(BigGlobeItems.ROCK, new ProjectileDispenserBehavior() {
+				@Override
+				public ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+					TorchArrowEntity entity = new TorchArrowEntity(BigGlobeEntityTypes.TORCH_ARROW, position.getX(), position.getY(), position.getZ(), world);
+					entity.pickupType = PickupPermission.ALLOWED;
+					return entity;
+				}
+			});
+			DispenserBlock.registerBehavior(BigGlobeItems.ROCK, new ProjectileDispenserBehavior() {
 
-			@Override
-			public ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
-				return new RockEntity(BigGlobeEntityTypes.ROCK, position.getX(), position.getY(), position.getZ(), world);
-			}
-		});
+				@Override
+				public ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+					return new RockEntity(BigGlobeEntityTypes.ROCK, position.getX(), position.getY(), position.getZ(), world);
+				}
+			});
+		#endif
 		DispenserBlock.registerBehavior(BigGlobeItems.SOUL_LAVA_BUCKET, DispenserBlock_BehaviorsAccess.bigglobe_getBehaviors().get(Items.LAVA_BUCKET));
 	}
 }

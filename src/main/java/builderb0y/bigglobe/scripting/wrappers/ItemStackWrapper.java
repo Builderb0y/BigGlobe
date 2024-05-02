@@ -3,8 +3,14 @@ package builderb0y.bigglobe.scripting.wrappers;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtInt;
+import net.minecraft.nbt.NbtString;
 
+import builderb0y.bigglobe.versions.ItemStackVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -24,27 +30,41 @@ public class ItemStackWrapper {
 	}
 
 	public static ItemStack create(Item item, NbtCompound nbt) {
-		ItemStack stack = new ItemStack(item);
-		stack.setNbt(nbt);
-		return stack;
+		NbtElement oldID = nbt.put("id", NbtString.of(RegistryVersions.item().getId(item).toString()));
+		try {
+			return create(nbt);
+		}
+		finally {
+			if (oldID != null) nbt.put("id", oldID);
+		}
 	}
 
 	public static ItemStack create(Item item, int count, NbtCompound nbt) {
-		ItemStack stack = new ItemStack(item, count);
-		stack.setNbt(nbt);
-		return stack;
+		NbtElement oldID = nbt.put("id", NbtString.of(RegistryVersions.item().getId(item).toString()));
+		try {
+			NbtElement oldCount = nbt.put("count", NbtInt.of(count));
+			try {
+				return create(nbt);
+			}
+			finally {
+				if (oldCount != null) nbt.put("count", oldCount);
+			}
+		}
+		finally {
+			if (oldID != null) nbt.put("id", oldID);
+		}
 	}
 
 	public static ItemStack create(NbtCompound nbt) {
-		return ItemStack.fromNbt(nbt);
+		ItemStack stack = ItemStackVersions.fromNbt(nbt);
+		if (stack.isEmpty()) {
+			BuiltinScriptEnvironment.PRINTER.println("A script attempted to create an ItemStack from invalid NBT data: " + nbt);
+		}
+		return stack;
 	}
 
 	public static Item item(ItemStack stack) {
 		return stack.getItem();
-	}
-
-	public static ItemStack copy(ItemStack stack) {
-		return stack.copy();
 	}
 
 	//////////////////////////////// count ////////////////////////////////
@@ -65,10 +85,6 @@ public class ItemStackWrapper {
 		return stack.getCount();
 	}
 
-	public static void count(ItemStack stack, int count) {
-		stack.setCount(count);
-	}
-
 	//////////////////////////////// damage ////////////////////////////////
 
 	public static int maxDamage(ItemStack stack) {
@@ -83,17 +99,9 @@ public class ItemStackWrapper {
 		return stack.getDamage();
 	}
 
-	public static void damage(ItemStack stack, int damage) {
-		stack.setDamage(damage);
-	}
-
 	//////////////////////////////// nbt ////////////////////////////////
 
 	public static NbtCompound nbt(ItemStack stack) {
-		return stack.getNbt();
-	}
-
-	public static void nbt(ItemStack stack, NbtCompound nbt) {
-		stack.setNbt(nbt);
+		return ItemStackVersions.toNbt(stack);
 	}
 }

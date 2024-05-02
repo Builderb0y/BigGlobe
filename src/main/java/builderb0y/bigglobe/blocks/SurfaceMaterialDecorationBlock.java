@@ -18,9 +18,20 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.WorldVersions;
 
 public class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
+
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<SurfaceMaterialDecorationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SurfaceMaterialDecorationBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
 
 	public final VoxelShape shape;
 
@@ -29,14 +40,6 @@ public class SurfaceMaterialDecorationBlock extends Block implements Waterloggab
 		this.shape = shape;
 		this.setDefaultState(this.getDefaultState().with(Properties.WATERLOGGED, Boolean.FALSE));
 	}
-
-	#if MC_VERSION >= MC_1_20_3
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new NotImplementedException();
-		}
-	#endif
 
 	@Override
 	@Deprecated

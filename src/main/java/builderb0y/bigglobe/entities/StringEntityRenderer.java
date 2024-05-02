@@ -73,7 +73,7 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 							)
 						)
 					)
-					.normal(matrix.getNormalMatrix(), (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
+					.normal(matrix #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
 					.next();
 					return this;
 				}

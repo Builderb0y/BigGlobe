@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -59,7 +60,11 @@ import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 #endif
 public class EmptyChunkGenerator extends ChunkGenerator {
 
-	public static final Codec<EmptyChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(EmptyChunkGenerator.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<EmptyChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(EmptyChunkGenerator.class);
+	#else
+		public static final Codec<EmptyChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(EmptyChunkGenerator.class).codec();
+	#endif
 
 	public static record Height(int min_y, int max_y) {}
 	public final Height height;
@@ -96,7 +101,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public Codec<? extends ChunkGenerator> getCodec() {
+	public #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif <? extends ChunkGenerator> getCodec() {
 		return CODEC;
 	}
 

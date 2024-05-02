@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -45,7 +46,11 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class MediumDungeonStructure extends AbstractDungeonStructure {
 
-	public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MediumDungeonStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class);
+	#else
+		public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MediumDungeonStructure.class);
+	#endif
 
 	public MediumDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config, room_decorators, spawner_entries, palettes);

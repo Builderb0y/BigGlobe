@@ -15,20 +15,23 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class DelayedGenerationBlock extends Block implements BlockEntityProvider {
+
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<DelayedGenerationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelayedGenerationBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
 
 	public DelayedGenerationBlock(Settings settings) {
 		super(settings);
 	}
-
-	#if MC_VERSION >= MC_1_20_3
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new NotImplementedException();
-		}
-	#endif
 
 	@Nullable
 	@Override

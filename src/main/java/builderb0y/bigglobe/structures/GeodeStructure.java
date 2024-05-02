@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.concurrent.RecursiveAction;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.joml.Vector3d;
 
 import net.minecraft.block.Block;
@@ -43,7 +44,11 @@ import builderb0y.bigglobe.util.Vectors;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(GeodeStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class);
+	#else
+		public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(GeodeStructure.class);
+	#endif
 
 	public final Grid3D noise;
 	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 112.0D) RandomSource radius;

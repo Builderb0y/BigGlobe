@@ -14,6 +14,7 @@ import net.minecraft.world.level.ServerWorldProperties;
 
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.WorldPropertiesVersions;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServer_InitializeSpawnPoint {
@@ -37,11 +38,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 					world,
 					world.getChunkManager().getChunkGenerator(),
 					world.random,
-					new BlockPos(
-						worldProperties.getSpawnX(),
-						worldProperties.getSpawnY(),
-						worldProperties.getSpawnZ()
-					)
+					WorldPropertiesVersions.getSpawnPos(worldProperties)
 				);
 			}
 			callback.cancel();

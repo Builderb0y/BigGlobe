@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.loot;
 
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.condition.LootCondition;
 import net.minecraft.loot.context.LootContext;
@@ -30,7 +31,8 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 public class ChoosePotionLootFunction extends ConditionalLootFunction {
 
 	#if MC_VERSION >= MC_1_20_2
-		public static final LootFunctionType SERIALIZER = new LootFunctionType(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ChoosePotionLootFunction.class));
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public static final LootFunctionType SERIALIZER = new LootFunctionType(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ChoosePotionLootFunction.class) #if MC_VERSION >= MC_1_20_5 .fieldOf("value") #endif);
 	#else
 		public static final Serializer SERIALIZER = new Serializer();
 	#endif

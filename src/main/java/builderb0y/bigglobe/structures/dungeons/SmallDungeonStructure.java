@@ -3,7 +3,9 @@ package builderb0y.bigglobe.structures.dungeons;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
+import com.ibm.icu.util.CodePointTrie.Small;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -45,7 +47,11 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class SmallDungeonStructure extends AbstractDungeonStructure {
 
-	public static final Codec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SmallDungeonStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class);
+	#else
+		public static final Codec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SmallDungeonStructure.class);
+	#endif
 
 	public SmallDungeonStructure(Config config, TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
 		super(config, room_decorators, spawner_entries, palettes);

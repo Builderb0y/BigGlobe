@@ -48,6 +48,7 @@ public class ClientPrintSink implements PrintSink {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void println(String value) {
 		if (MinecraftClient.getInstance().getServer() != null) {
 			ClientPlayerEntity player = MinecraftClient.getInstance().player;

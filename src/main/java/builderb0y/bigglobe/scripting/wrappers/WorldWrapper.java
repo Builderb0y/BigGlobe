@@ -38,6 +38,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -318,7 +319,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
-				return blockEntity.createNbtWithIdentifyingData();
+				return BlockEntityVersions.writeToNbt(blockEntity);
 			}
 		}
 		return null;
@@ -329,7 +330,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
-				blockEntity.readNbt(nbt);
+				BlockEntityVersions.readFromNbt(blockEntity, nbt);
 				blockEntity.markDirty();
 			}
 		}
@@ -340,10 +341,10 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
-				NbtCompound oldData = blockEntity.createNbtWithIdentifyingData();
+				NbtCompound oldData = BlockEntityVersions.writeToNbt(blockEntity);
 				NbtCompound newData = oldData.copy().copyFrom(nbt);
 				if (!oldData.equals(newData)) {
-					blockEntity.readNbt(newData);
+					BlockEntityVersions.readFromNbt(blockEntity, newData);
 					blockEntity.markDirty();
 				}
 			}

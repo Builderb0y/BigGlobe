@@ -122,8 +122,17 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 	}
 
 	#if MC_VERSION < MC_1_20_3
+
 		@Override
 		public ItemStack asItemStack() {
+			return new ItemStack(BigGlobeItems.TORCH_ARROW);
+		}
+	#endif
+
+	#if MC_VERSION >= MC_1_20_5
+
+		@Override
+		protected ItemStack getDefaultItemStack() {
 			return new ItemStack(BigGlobeItems.TORCH_ARROW);
 		}
 	#endif

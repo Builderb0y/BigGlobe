@@ -15,22 +15,25 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.TagsVersions;
 import builderb0y.bigglobe.versions.WorldVersions;
 
 public class SoulLavaBlock extends FluidBlock {
 
-	public SoulLavaBlock(FlowableFluid fluid, Settings settings) {
-		super(fluid, settings);
-	}
-
 	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<SoulLavaBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulLavaBlock.class);
+
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public MapCodec getCodec() {
-			throw new NotImplementedException();
+			return CODEC;
 		}
 	#endif
+
+	public SoulLavaBlock(FlowableFluid fluid, Settings settings) {
+		super(fluid, settings);
+	}
 
 	@Override
 	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
@@ -64,7 +67,7 @@ public class SoulLavaBlock extends FluidBlock {
 	}
 
 	@Override
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+	public boolean canPathfindThrough(BlockState state, #if MC_VERSION < MC_1_20_5 BlockView world, BlockPos pos, #endif NavigationType type) {
 		return false;
 	}
 }

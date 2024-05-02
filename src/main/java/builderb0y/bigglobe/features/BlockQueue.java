@@ -24,6 +24,7 @@ import net.minecraft.world.chunk.light.LightingProvider;
 
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 
 /**
 used by features which cannot compute their own space requirements with certainty in advance.
@@ -118,10 +119,10 @@ public class BlockQueue {
 				BlockEntity worldBlockEntity = world.getBlockEntity(pos.set(entry.getLongKey()));
 				if (worldBlockEntity != null) {
 					BlockEntity queuedBlockEntity = entry.getValue();
-					worldBlockEntity.readNbt(queuedBlockEntity.createNbt());
+					BlockEntityVersions.readFromNbt(worldBlockEntity, BlockEntityVersions.writeToNbt(queuedBlockEntity));
 				}
 			}
-			#if MC_VERSION < MC_1_20_0
+			#if MC_VERSION <= MC_1_19_4
 				if ((this.flags & Block.SKIP_LIGHTING_UPDATES) != 0 && world instanceof World) {
 					LightingProvider lightManager = world.getLightingProvider();
 					for (

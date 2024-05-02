@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,10 +20,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -37,10 +34,17 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+
+#if MC_VERSION >= MC_1_20_5
+	import net.minecraft.item.Item.TooltipContext;
+#else
+	import net.minecraft.client.item.TooltipContext;
+#endif
 
 public class SpelunkingRopeBlock extends FallingBlock {
 
@@ -55,23 +59,35 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		SOUTH_EXTRUSION = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.75D,  0.625D, 0.25D, 1.0D  ),
 		WEST_EXTRUSION  = VoxelShapes.cuboidUnchecked(0.0D,   0.0D, 0.375D, 0.25D,  0.25D, 0.625D);
 
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<SpelunkingRopeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SpelunkingRopeBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
+
 	public SpelunkingRopeBlock(Settings settings) {
 		super(settings);
 	}
 
-	#if MC_VERSION >= MC_1_20_3
+	#if MC_VERSION >= MC_1_20_5
+
 		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			throw new NotImplementedException();
+		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType options) {
+			super.appendTooltip(stack, context, tooltip, options);
+			tooltip.add(Text.translatable("item.bigglobe.spelunking_rope.tooltip"));
+		}
+	#else
+
+		@Override
+		public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
+			super.appendTooltip(stack, world, tooltip, options);
+			tooltip.add(Text.translatable("item.bigglobe.spelunking_rope.tooltip"));
 		}
 	#endif
-
-	@Override
-	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
-		super.appendTooltip(stack, world, tooltip, options);
-		tooltip.add(Text.translatable("item.bigglobe.spelunking_rope.tooltip"));
-	}
 
 	@Override
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
@@ -193,23 +209,42 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		};
 	}
 
-	@Override
-	@Deprecated
-	@SuppressWarnings("deprecation")
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		ItemStack stack = player.getStackInHand(hand);
-		if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-			BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
-			if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
-				this.playPlacementSound(player, world, pos);
-				return ActionResult.SUCCESS;
+	#if MC_VERSION >= MC_1_20_5
+
+		@Override
+		public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+			if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
+				BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
+				if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
+					this.playPlacementSound(player, world, pos);
+					return ItemActionResult.SUCCESS;
+				}
+				else {
+					return ItemActionResult.FAIL;
+				}
 			}
-			else {
-				return ActionResult.FAIL;
-			}
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
-		return ActionResult.PASS;
-	}
+	#else
+
+		@Override
+		@Deprecated
+		@SuppressWarnings("deprecation")
+		public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+			ItemStack stack = player.getStackInHand(hand);
+			if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
+				BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
+				if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
+					this.playPlacementSound(player, world, pos);
+					return ActionResult.SUCCESS;
+				}
+				else {
+					return ActionResult.FAIL;
+				}
+			}
+			return ActionResult.PASS;
+		}
+	#endif
 
 	public boolean placeRopesAuto(World world, BlockPos.Mutable mutablePos, BlockState toPlace, PlayerEntity player, ItemStack stack) {
 		if (world.isClient) {

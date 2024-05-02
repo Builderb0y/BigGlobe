@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -17,6 +18,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
@@ -41,7 +43,7 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 			world.setBlockState(pos, this.oldState != null ? this.oldState : BlockStates.AIR);
 			if (this.oldBlockData != null) {
 				BlockEntity blockEntity = world.getBlockEntity(pos);
-				if (blockEntity != null) blockEntity.readNbt(this.oldBlockData);
+				if (blockEntity != null) BlockEntityVersions.readFromNbt(blockEntity, this.oldBlockData);
 			}
 			if (!this.blockQueue.hasSpace(world)) {
 				return;
@@ -51,8 +53,8 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
+	public void readNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
+		super.readNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
 		try {
 			this.blockQueue = SerializableBlockQueue.read(nbt.getCompound("queue"));
 		}
@@ -72,8 +74,8 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void writeNbt(NbtCompound nbt) {
-		super.writeNbt(nbt);
+	public void writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
+		super.writeNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
 		nbt.put("queue", this.blockQueue.toNBT());
 		if (this.oldState != null) nbt.putString("old_state", BlockArgumentParser.stringifyBlockState(this.oldState));
 		if (this.oldBlockData != null) nbt.put("old_data", this.oldBlockData);

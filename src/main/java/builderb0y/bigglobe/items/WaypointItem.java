@@ -11,6 +11,7 @@ import builderb0y.bigglobe.hyperspace.PackedWorldPos;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointItem extends Item {
 
@@ -47,9 +48,7 @@ public class WaypointItem extends Item {
 							context.getBlockPos().getZ() + 0.5D
 						),
 
-						context.getStack().hasCustomName()
-						? context.getStack().getName()
-						: null
+						ItemStackVersions.getCustomName(context.getStack())
 					),
 					true
 				)

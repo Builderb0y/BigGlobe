@@ -12,6 +12,7 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -32,6 +33,7 @@ import builderb0y.bigglobe.networking.packets.WaypointRemoveC2SPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.versions.ItemStackVersions;
 
 #if MC_VERSION <= MC_1_19_2
 import net.minecraft.network.Packet;
@@ -130,7 +132,7 @@ public class WaypointEntity extends Entity {
 			if (item != null) {
 				ItemStack stack = new ItemStack(item);
 				if (this.data.name() != null) {
-					stack.setCustomName(this.data.name());
+					ItemStackVersions.setCustomName(stack, this.data.name());
 				}
 				return stack;
 			}
@@ -216,8 +218,8 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public void initDataTracker() {
-
+	public void initDataTracker(#if MC_VERSION >= MC_1_20_5 DataTracker.Builder builder #endif) {
+		//not synced.
 	}
 
 	@Override

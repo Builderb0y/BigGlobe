@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
 import net.minecraft.block.*;
@@ -41,7 +42,11 @@ import builderb0y.bigglobe.util.coordinators.Coordinator;
 
 public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
-	public static final Codec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(BiggerDesertPyramidStructure.class);
+	#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BiggerDesertPyramidStructure.class);
+	#else
+		public static final Codec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(BiggerDesertPyramidStructure.class);
+	#endif
 
 	public BiggerDesertPyramidStructure(Config config) {
 		super(config);

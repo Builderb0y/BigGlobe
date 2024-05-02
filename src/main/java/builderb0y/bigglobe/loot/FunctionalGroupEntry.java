@@ -31,7 +31,7 @@ import builderb0y.autocodec.annotations.DefaultEmpty;
 public class FunctionalGroupEntry extends LootPoolEntry {
 
 	#if MC_VERSION >= MC_1_20_2
-		public static final LootPoolEntryType SERIALIZER = new LootPoolEntryType(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FunctionalGroupEntry.class));
+		public static final LootPoolEntryType SERIALIZER = new LootPoolEntryType(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FunctionalGroupEntry.class) #if MC_VERSION >= MC_1_20_5 .fieldOf("value") #endif);
 	#else
 		public static final Serializer SERIALIZER = new Serializer();
 	#endif

@@ -22,6 +22,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.versions.ItemStackVersions;
+
 public class PercussiveHammerItem extends MiningToolItem {
 
 	public static final List<SoundPulse> pulses = new LinkedList<>();
@@ -31,7 +33,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 	}
 
 	public PercussiveHammerItem(float attackDamage, float attackSpeed, ToolMaterial material, TagKey<Block> effectiveBlocks, Settings settings) {
-		super(attackDamage, attackSpeed, material, effectiveBlocks, settings);
+		super(#if MC_VERSION < MC_1_20_5 attackDamage, attackSpeed, #endif material, effectiveBlocks, settings);
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 					pos.mutableCopy(),
 					context.getSide().getOpposite()
 				));
-				context.getStack().damage(1, context.getPlayer(), player -> player.sendToolBreakStatus(context.getHand()));
+				ItemStackVersions.damage(context.getStack(), context.getPlayer(), context.getHand());
 			}
 			return ActionResult.SUCCESS;
 		}

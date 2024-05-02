@@ -14,7 +14,9 @@ public class CraftingGrid extends ArrayWrapper<ItemStack> {
 	public CraftingGrid(Stream<ItemStack> stream, int width, int height, boolean mutable) {
 		super(
 			stream
-			.map(ItemStack::copy) //defend against scripts modifying immutable crafting grids.
+			//~~defend against scripts modifying immutable crafting grids.~~
+			//ItemStack's are now immutable to scripts.
+			//.map(ItemStack::copy)
 			.toArray(ItemStack[]::new)
 		);
 		this.width = width;

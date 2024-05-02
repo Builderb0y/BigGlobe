@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -11,11 +12,22 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.shape.VoxelShape;
 
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 public class RockBlock extends SurfaceMaterialDecorationBlock {
 
 	public static final IntProperty ROCKS = IntProperty.of("rocks", 1, 6);
+
+	#if MC_VERSION >= MC_1_20_3
+		public static final MapCodec<RockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RockBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec getCodec() {
+			return CODEC;
+		}
+	#endif
 
 	public RockBlock(Settings settings, VoxelShape shape) {
 		super(settings, shape);

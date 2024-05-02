@@ -19,6 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -438,7 +439,15 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		public void initChest(BlockPos pos, ChestBlockEntity chest) {
-			chest.setLootTable(BigGlobeMod.modID("chests/advanced_dungeon"), this.seed);
+			Identifier identifier = BigGlobeMod.modID("chests/advanced_dungeon");
+			chest.setLootTable(
+				#if MC_VERSION >= MC_1_20_5
+					RegistryKey.of(RegistryKeyVersions.lootTable(), identifier),
+				#else
+					identifier,
+				#endif
+				this.seed
+			);
 		}
 
 		@Override

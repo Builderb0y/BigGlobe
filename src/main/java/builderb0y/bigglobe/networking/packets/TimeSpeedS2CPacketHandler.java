@@ -3,7 +3,6 @@ package builderb0y.bigglobe.networking.packets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +32,6 @@ public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler<Double> {
 		double speed = player.server.getGameRules().get(BigGlobeGameRules.DAYLIGHT_CYCLE_SPEED).get();
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeDouble(speed);
-		ServerPlayNetworking.send(player, BigGlobeNetwork.NETWORK_ID, buffer);
+		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}
 }
