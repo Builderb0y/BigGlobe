@@ -19,7 +19,7 @@ public class MinecraftClient_SetWorldEvent {
 	@Shadow @Nullable public ClientWorld world;
 
 	@Inject(method = "joinWorld", at = @At("HEAD"))
-	private void bigglobe_unloadOnJoinWorld(ClientWorld world, CallbackInfo callback) {
+	private void bigglobe_unloadOnJoinWorld(ClientWorld world, #if MC_VERSION >= MC_1_20_5 net.minecraft.client.gui.screen.DownloadingTerrainScreen.WorldEntryReason reason, #endif CallbackInfo callback) {
 		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, world);
 	}
 

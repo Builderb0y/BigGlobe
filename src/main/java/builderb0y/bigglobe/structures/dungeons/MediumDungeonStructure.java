@@ -49,7 +49,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class);
 	#else
-		public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MediumDungeonStructure.class);
+		public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class).codec();
 	#endif
 
 	public MediumDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {

@@ -30,7 +30,7 @@ public class DelegatingStructure extends Structure {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelegatingStructure.class);
 	#else
-		public static final Codec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DelegatingStructure.class);
+		public static final Codec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelegatingStructure.class).codec();
 	#endif
 
 	public final RegistryEntry<Structure> delegate;

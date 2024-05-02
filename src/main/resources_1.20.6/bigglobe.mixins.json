@@ -33,7 +33,6 @@
 		"Items_PlaceableSticks",
 		"ItemStack_DynamicMaxDamage",
 		"MinecraftServer_InitializeSpawnPoint",
-		"MinecraftServer_LoadSmallerSpawnArea",
 		"MinecraftServer_SessionAccess",
 		"MobSpawnerLogic_GettersAndSettersForEverything",
 		"MobSpawnerLogic_SpawnLightning",

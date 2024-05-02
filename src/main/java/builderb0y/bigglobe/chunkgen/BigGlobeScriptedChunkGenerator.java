@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
 import com.google.common.hash.Hashing;
@@ -289,6 +290,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				catch (Exception exception) {
 					throw AutoCodecUtil.rethrow(exception);
 				}
+			}
+
+			@Override
+			public @Nullable Stream<String> getKeys() {
+				return coder.getKeys();
 			}
 		};
 	}

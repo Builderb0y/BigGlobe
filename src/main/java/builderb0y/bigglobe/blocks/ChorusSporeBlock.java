@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.*;
 import net.minecraft.server.world.ServerWorld;
@@ -12,36 +11,28 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 
-public class ChorusSporeBlock extends PlantBlock implements Fertilizable {
+public abstract class ChorusSporeBlock extends PlantBlock implements Fertilizable {
 
 	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<ChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusSporeBlock.class);
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
+		public abstract MapCodec getCodec();
 	#endif
 
-	public final Block growInto;
-	public final VoxelShape shape;
+	public final Block grow_into;
 
-	public ChorusSporeBlock(Settings settings, Block into, VoxelShape shape) {
+	public ChorusSporeBlock(Settings settings, Block grow_into) {
 		super(settings);
-		this.growInto = into;
-		this.shape = shape;
+		this.grow_into = grow_into;
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return this.shape;
-	}
+	public abstract VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context);
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
@@ -65,6 +56,6 @@ public class ChorusSporeBlock extends PlantBlock implements Fertilizable {
 
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		SingleBlockFeature.place(world, pos, this.growInto.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
+		SingleBlockFeature.place(world, pos, this.grow_into.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
 	}
 }

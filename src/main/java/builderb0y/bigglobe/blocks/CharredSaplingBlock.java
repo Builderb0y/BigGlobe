@@ -10,11 +10,13 @@ import net.minecraft.world.BlockView;
 #if MC_VERSION >= MC_1_20_3
 import net.minecraft.block.SaplingGenerator;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 #else
 import net.minecraft.block.sapling.SaplingGenerator;
 #endif
 
+@AddPseudoField("generator")
 public class CharredSaplingBlock extends SaplingBlock {
 
 	#if MC_VERSION >= MC_1_20_3
@@ -29,6 +31,10 @@ public class CharredSaplingBlock extends SaplingBlock {
 
 	public CharredSaplingBlock(SaplingGenerator generator, Settings settings) {
 		super(generator, settings);
+	}
+
+	public SaplingGenerator generator() {
+		return this.generator;
 	}
 
 	@Override

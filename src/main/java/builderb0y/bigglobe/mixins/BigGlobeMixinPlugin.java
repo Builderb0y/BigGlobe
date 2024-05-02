@@ -62,7 +62,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		#endif
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                                  Boolean.TRUE);
+		#if MC_VERSION < MC_1_20_5
 		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                                   Boolean.FALSE);
+		#endif
 		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                             Boolean.TRUE);

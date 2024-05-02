@@ -5,18 +5,23 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 public class RockBlock extends SurfaceMaterialDecorationBlock {
 
+	public static final VoxelShape SHAPE = VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
 	public static final IntProperty ROCKS = IntProperty.of("rocks", 1, 6);
 
 	#if MC_VERSION >= MC_1_20_3
@@ -29,9 +34,16 @@ public class RockBlock extends SurfaceMaterialDecorationBlock {
 		}
 	#endif
 
-	public RockBlock(Settings settings, VoxelShape shape) {
-		super(settings, shape);
+	public RockBlock(Settings settings) {
+		super(settings);
 		this.setDefaultState(this.getDefaultState().with(ROCKS, 1));
+	}
+
+	@Override
+	@Deprecated
+	@SuppressWarnings("deprecation")
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return SHAPE;
 	}
 
 	@Override

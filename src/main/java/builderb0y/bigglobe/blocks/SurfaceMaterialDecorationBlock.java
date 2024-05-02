@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -18,35 +17,26 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.WorldVersions;
 
-public class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
+public abstract class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
 
 	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<SurfaceMaterialDecorationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SurfaceMaterialDecorationBlock.class);
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
+		public abstract MapCodec getCodec();
 	#endif
 
-	public final VoxelShape shape;
-
-	public SurfaceMaterialDecorationBlock(AbstractBlock.Settings settings, VoxelShape shape) {
+	public SurfaceMaterialDecorationBlock(AbstractBlock.Settings settings) {
 		super(settings);
-		this.shape = shape;
 		this.setDefaultState(this.getDefaultState().with(Properties.WATERLOGGED, Boolean.FALSE));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return this.shape;
-	}
+	public abstract VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context);
 
 	@Override
 	@Deprecated

@@ -121,7 +121,7 @@ public class BigGlobeBlocks {
 	public static class VanillaBlocks {
 
 		public static final SurfaceMaterialDecorationBlock
-			STICK = new SurfaceMaterialDecorationBlock(
+			STICK = new StickBlock(
 				AbstractBlock.Settings
 				.create()
 				.mapColor(MapColor.BROWN)
@@ -129,10 +129,9 @@ public class BigGlobeBlocks {
 				.noCollision()
 				.offset(OffsetType.XZ)
 				.sounds(BlockSoundGroup.WOOD)
-				.pistonBehavior(PistonBehavior.DESTROY),
-				VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
+				.pistonBehavior(PistonBehavior.DESTROY)
 			),
-			FLINT = new SurfaceMaterialDecorationBlock(
+			FLINT = new FlintBlock(
 				AbstractBlock.Settings
 				.create()
 				.mapColor(MapColor.IRON_GRAY)
@@ -140,8 +139,7 @@ public class BigGlobeBlocks {
 				.noCollision()
 				.offset(OffsetType.XZ)
 				.sounds(BlockSoundGroup.STONE)
-				.pistonBehavior(PistonBehavior.DESTROY),
-				VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D)
+				.pistonBehavior(PistonBehavior.DESTROY)
 			);
 	}
 	public static final RockBlock ROCK = register(
@@ -154,8 +152,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.offset(OffsetType.XZ)
 			.sounds(BlockSoundGroup.STONE)
-			.pistonBehavior(PistonBehavior.DESTROY),
-			VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D)
+			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
@@ -542,7 +539,7 @@ public class BigGlobeBlocks {
 	);
 	public static final PressurePlateBlock CHARRED_PRESSURE_PLATE = register(
 		"charred_pressure_plate",
-		new PressurePlateBlock(
+		new CharredPressurePlateBlock(
 			CHARRED_BLOCK_SET_TYPE,
 			AbstractBlock.Settings
 			.create()
@@ -552,13 +549,7 @@ public class BigGlobeBlocks {
 			.strength(0.5F)
 			.sounds(BlockSoundGroup.WOOD)
 			.pistonBehavior(PistonBehavior.DESTROY)
-		) {
-
-			@Override
-			public int getTickRate() {
-				return 10;
-			}
-		}
+		)
 	);
 	public static final TrapdoorBlock CHARRED_TRAPDOOR = register(
 		"charred_trapdoor",
@@ -727,7 +718,7 @@ public class BigGlobeBlocks {
 	);
 	public static final TallPlantBlock TALL_CHORUS_SPORES = register(
 		"tall_chorus_spores",
-		new TallPlantBlock(
+		new TallChorusSporeBlock(
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.PURPLE)
@@ -737,17 +728,11 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY)
-		) {
-
-			@Override
-			public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-				return floor.isOpaqueFullCube(world, pos);
-			}
-		}
+		)
 	);
 	public static final ChorusSporeBlock MEDIUM_CHORUS_SPORES = register(
 		"medium_chorus_spores",
-		new ChorusSporeBlock(
+		new MediumChorusSporeBlock(
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.PURPLE)
@@ -758,13 +743,12 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			TALL_CHORUS_SPORES,
-			VoxelShapes.fullCube()
+			TALL_CHORUS_SPORES
 		)
 	);
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
 		"short_chorus_spores",
-		new ChorusSporeBlock(
+		new ShortChorusSporeBlock(
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.PURPLE)
@@ -775,8 +759,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			MEDIUM_CHORUS_SPORES,
-			VoxelShapes.cuboidUnchecked(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D)
+			MEDIUM_CHORUS_SPORES
 		)
 	);
 	public static final EnumMap<CloudColor, CloudBlock> VOID_CLOUDS = new EnumMap<>(CloudColor.class);

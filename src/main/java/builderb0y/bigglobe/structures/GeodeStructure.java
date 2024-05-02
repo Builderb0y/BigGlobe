@@ -47,7 +47,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class);
 	#else
-		public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(GeodeStructure.class);
+		public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class).codec();
 	#endif
 
 	public final Grid3D noise;

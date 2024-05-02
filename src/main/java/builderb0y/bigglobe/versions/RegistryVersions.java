@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.loot.entry.LootPoolEntryType;
@@ -62,6 +63,7 @@ public class RegistryVersions {
 			public static Registry     <MapCodec<? extends ChunkGenerator>> chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
 			public static Registry     <MapCodec<? extends BiomeSource   >> biomeSource           () { return Registries.BIOME_SOURCE        ; }
 			public static Registry     <LootFunctionType<?>               > lootFunctionType      () { return Registries.LOOT_FUNCTION_TYPE  ; }
+			public static Registry     <StatusEffect                      > statusEffect          () { return Registries.STATUS_EFFECT       ; }
 		#else
 			public static Registry     <Codec<? extends ChunkGenerator>   > chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
 			public static Registry     <Codec<? extends BiomeSource   >   > biomeSource           () { return Registries.BIOME_SOURCE        ; }

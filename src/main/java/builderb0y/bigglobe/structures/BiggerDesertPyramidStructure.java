@@ -45,7 +45,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BiggerDesertPyramidStructure.class);
 	#else
-		public static final Codec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(BiggerDesertPyramidStructure.class);
+		public static final Codec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BiggerDesertPyramidStructure.class).codec();
 	#endif
 
 	public BiggerDesertPyramidStructure(Config config) {

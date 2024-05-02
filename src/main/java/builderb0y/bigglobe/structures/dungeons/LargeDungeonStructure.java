@@ -56,7 +56,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class);
 	#else
-		public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(LargeDungeonStructure.class);
+		public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class).codec();
 	#endif
 
 	public LargeDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {

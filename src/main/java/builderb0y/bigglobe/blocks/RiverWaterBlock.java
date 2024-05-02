@@ -13,6 +13,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FlowableFluid;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -28,10 +29,13 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
+@AddPseudoField("fluid")
 public class RiverWaterBlock extends FluidBlock {
 
 	#if MC_VERSION >= MC_1_20_3
@@ -46,6 +50,11 @@ public class RiverWaterBlock extends FluidBlock {
 
 	public RiverWaterBlock(FlowableFluid fluid, Settings settings) {
 		super(fluid, settings);
+	}
+
+	@UseSuperClass(Fluid.class)
+	public FlowableFluid fluid() {
+		return this.fluid;
 	}
 
 	public boolean isDangerous(World world) {

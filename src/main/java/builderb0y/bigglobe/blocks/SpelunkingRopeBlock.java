@@ -3,7 +3,6 @@ package builderb0y.bigglobe.blocks;
 import java.util.List;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;

@@ -35,7 +35,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MegaTreeStructure.class);
 	#else
-		public static final Codec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(MegaTreeStructure.class);
+		public static final Codec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MegaTreeStructure.class).codec();
 	#endif
 
 	public static record FoliageRange(double min, double max) {

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowerBlock;
@@ -31,8 +30,8 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 		}
 	#endif
 
-	public BlazingBlossomBlock(#if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspiciousStewEffect, int effectDuration, Settings settings) {
-		super(suspiciousStewEffect, effectDuration, settings);
+	public BlazingBlossomBlock(#if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspicious_stew_effect, float effect_duration, Settings settings) {
+		super(suspicious_stew_effect, effect_duration, settings);
 	}
 
 	@Override

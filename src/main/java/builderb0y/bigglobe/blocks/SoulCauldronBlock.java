@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.AbstractCauldronBlock;
 import net.minecraft.block.BlockState;

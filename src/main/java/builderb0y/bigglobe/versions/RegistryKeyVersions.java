@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.versions;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.loot.LootTable;
@@ -72,6 +73,7 @@ public class RegistryKeyVersions {
 	#endif
 
 	#if MC_VERSION >= MC_1_20_5
-		public static RegistryKey<Registry<LootTable>> lootTable() { return RegistryKeys.LOOT_TABLE; }
+		public static RegistryKey<Registry<LootTable>>    lootTable   () { return RegistryKeys.LOOT_TABLE   ; }
+		public static RegistryKey<Registry<StatusEffect>> statusEffect() { return RegistryKeys.STATUS_EFFECT; }
 	#endif
 }

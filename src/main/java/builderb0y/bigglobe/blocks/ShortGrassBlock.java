@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.block.*;
 import net.minecraft.server.world.ServerWorld;

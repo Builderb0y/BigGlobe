@@ -1,18 +1,20 @@
 package builderb0y.bigglobe.codecs;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.loot.condition.LootCondition;
@@ -24,6 +26,7 @@ import net.minecraft.loot.function.LootFunctionTypes;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -55,8 +58,12 @@ import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.imprinters.MapImprinter;
 import builderb0y.autocodec.logging.*;
+import builderb0y.autocodec.reflection.PseudoField;
 import builderb0y.autocodec.reflection.ReflectionManager;
+import builderb0y.autocodec.reflection.memberViews.FieldLikeMemberView;
+import builderb0y.autocodec.reflection.memberViews.PseudoFieldView;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.FloatRangeVerifier;
 import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -122,6 +129,9 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<Potion>                                       POTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Potion                                .class), RegistryVersions.potion());
 	public static final RegistryCoders<BlockEntityType<?>>                BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), RegistryVersions.blockEntityType());
 	public static final RegistryCoders<EntityType<?>>                           ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), RegistryVersions.entityType());
+	#if MC_VERSION >= MC_1_20_5
+	public static final RegistryCoders<StatusEffect>                          STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StatusEffect                          .class), RegistryVersions.statusEffect());
+	#endif
 	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeyVersions.dimensionType());
 	public static final RegistryCoders<ConfiguredCarver<?>>               CONFIGURED_CARVER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeyVersions.configuredCarver());
 	public static final RegistryCoders<ConfiguredFeature<?, ?>>          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeyVersions.configuredFeature());
@@ -150,6 +160,9 @@ public class BigGlobeAutoCodec {
 		POTION_REGISTRY_CODERS,
 		BLOCK_ENTITY_TYPE_REGISTRY_CODERS,
 		ENTITY_TYPE_REGISTRY_CODERS,
+		#if MC_VERSION >= MC_1_20_5
+		STATUS_EFFECT_REGISTRY_CODERS,
+		#endif
 		DIMENSION_TYPE_REGISTRY_CODERS,
 		CONFIGURED_CARVER_REGISTRY_CODERS,
 		CONFIGURED_FEATURE_REGISTRY_CODERS,
@@ -224,6 +237,10 @@ public class BigGlobeAutoCodec {
 								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
 								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
 							#endif
+							#if MC_VERSION >= MC_1_20_5
+								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC, false));
+								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC, false));
+							#endif
 						}
 					};
 				}
@@ -264,6 +281,13 @@ public class BigGlobeAutoCodec {
 								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
 								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
 							#endif
+
+							#if MC_VERSION >= MC_1_20_3
+								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC, false));
+								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC, false));
+								this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC, false));
+								this.addRaw(WoodType.class, autoCodec.wrapDFUCodec(WoodType.CODEC, false));
+							#endif
 						}
 					};
 				}
@@ -298,6 +322,49 @@ public class BigGlobeAutoCodec {
 		@Override
 		public @NotNull ReflectionManager createReflectionManager() {
 			return new ReflectionManager() {
+
+				#if MC_VERSION >= MC_1_20_5
+					public static final Method BLOCK_SETTINGS_GETTER;
+
+					static {
+						try {
+							BLOCK_SETTINGS_GETTER = AbstractBlock.class.getDeclaredMethod(
+								FabricLoader
+								.getInstance()
+								.getMappingResolver()
+								.mapMethodName(
+									"intermediary",
+									"net.minecraft.class_4970",
+									"method_54095",
+									"()Lnet/minecraft/class_4970$class_2251;"
+								)
+							);
+						}
+						catch (NoSuchMethodException exception) {
+							throw AutoCodecUtil.rethrow(exception);
+						}
+					}
+
+					@Override
+					public @NotNull <T_Owner> ClassCache<T_Owner> createClassCache(@NotNull Class<T_Owner> owner) {
+						ClassCache<T_Owner> cache = super.createClassCache(owner);
+						if (owner == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
+							cache.methods = new Method[] { BLOCK_SETTINGS_GETTER };
+						}
+						return cache;
+					}
+
+					@Override
+					public @NotNull <T_Owner> TypeCache<T_Owner> createTypeCache(@NotNull ReifiedType<T_Owner> owner) {
+						TypeCache<T_Owner> cache = super.createTypeCache(owner);
+						if (owner.getRawClass() == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
+							cache.fields = new FieldLikeMemberView[] {
+								new PseudoFieldView<>(owner, new PseudoField(owner.getRawClass(), "settings", BLOCK_SETTINGS_GETTER, null))
+							};
+						}
+						return cache;
+					}
+				#endif
 
 				@Override
 				public boolean canView(@NotNull Class<?> clazz) {

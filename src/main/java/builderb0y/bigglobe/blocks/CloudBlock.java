@@ -35,10 +35,10 @@ public class CloudBlock extends Block {
 	public final CloudColor color;
 	public final boolean isVoid;
 
-	public CloudBlock(Settings settings, CloudColor color, boolean aVoid) {
+	public CloudBlock(Settings settings, CloudColor color, boolean isVoid) {
 		super(settings);
 		this.color = color;
-		this.isVoid = aVoid;
+		this.isVoid = isVoid;
 	}
 
 	#if MC_VERSION >= MC_1_20_5
