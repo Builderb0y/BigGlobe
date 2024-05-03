@@ -231,6 +231,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		return this.biomeSource;
 	}
 
+	#if MC_VERSION >= MC_1_20_5
+
+		@Override
+		public void initializeIndexedFeaturesList() {
+			//no-op.
+		}
+	#endif
+
 	#if MC_VERSION <= MC_1_19_2
 		public BetterRegistry<StructureSet> structure_set_registry() {
 			return new BetterHardCodedRegistry<>(this.structureSetRegistry);

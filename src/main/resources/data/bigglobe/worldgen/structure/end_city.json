@@ -1,7 +1,5 @@
 {
 	"type": "bigglobe:delegating",
-	"value": {
-		"delegate": "minecraft:end_city",
-		"biomes": "#bigglobe:has_structure/end_city"
-	}
+	"delegate": "minecraft:end_city",
+	"biomes": "#bigglobe:has_structure/end_city"
 }

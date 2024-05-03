@@ -24,6 +24,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.random.Random;
@@ -460,8 +461,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public static final RandomList<String> CHEST_LOOT_TABLES = (
 			new RandomList<String>(2)
-			.addSelf(LootTables.NETHER_BRIDGE_CHEST.toString().intern(), 100.0F)
-			.addSelf(LootTables.RUINED_PORTAL_CHEST.toString().intern(), 50.0F)
+			.addSelf(LootTables.NETHER_BRIDGE_CHEST #if MC_VERSION >= MC_1_20_5 .getValue() #endif .toString().intern(), 100.0F)
+			.addSelf(LootTables.RUINED_PORTAL_CHEST #if MC_VERSION >= MC_1_20_5 .getValue() #endif .toString().intern(),  50.0F)
 		);
 
 		public final double crackedChance;
@@ -529,20 +530,20 @@ public class PortalTempleStructure extends BigGlobeStructure {
 						boolean invertColors = random.nextBoolean();
 						NbtCompound bannerNBT = new NbtCompound();
 						NbtList patterns = new NbtList();
-						patterns.add(this.pattern("cbo", true, invertColors));
-						patterns.add(this.pattern("bt", true, invertColors));
-						patterns.add(this.pattern("tt", true, invertColors));
-						patterns.add(this.pattern("bts", false, invertColors));
-						patterns.add(this.pattern("tts", false, invertColors));
-						patterns.add(this.pattern("mr", false, invertColors));
-						patterns.add(this.pattern("mc", true, invertColors));
-						patterns.add(this.pattern("bo", 15));
-						bannerNBT.put("Patterns", patterns);
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:curly_border"     #else "cbo" #endif, true, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangle_bottom"  #else "bt"  #endif, true, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangle_top"     #else "tt"  #endif, true, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangles_bottom" #else "bts" #endif, false, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangles_top"    #else "tts" #endif, false, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:rhombus"          #else "mr"  #endif, false, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:circle"           #else "mc"  #endif, true, invertColors));
+						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:border"           #else "bo"  #endif, 15));
+						bannerNBT.put(#if MC_VERSION >= MC_1_20_5 "patterns" #else "Patterns" #endif, patterns);
 						MainBuildingPiece.this.decorations.add(new PositionState(
 							archPosition.up(2),
 							(invertColors ? Blocks.MAGENTA_WALL_BANNER : Blocks.PURPLE_WALL_BANNER)
-								.getDefaultState()
-								.with(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
+							.getDefaultState()
+							.with(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
 							bannerNBT
 						));
 					}
@@ -554,8 +555,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 				public NbtCompound pattern(String patternName, int color) {
 					NbtCompound nbt = new NbtCompound();
-					nbt.putString("Pattern", patternName);
-					nbt.putByte("Color", (byte)(color));
+					#if MC_VERSION >= MC_1_20_5
+						nbt.putString("pattern", patternName);
+						nbt.putString("color", DyeColor.byId(color).asString());
+					#else
+						nbt.putString("Pattern", patternName);
+						nbt.putByte("Color", (byte)(color));
+					#endif
 					return nbt;
 				}
 			});

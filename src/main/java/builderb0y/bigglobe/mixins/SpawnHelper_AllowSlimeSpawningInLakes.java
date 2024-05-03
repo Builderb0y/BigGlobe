@@ -23,7 +23,14 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 
 	@Inject(
 		method = "canSpawn(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/SpawnGroup;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/world/biome/SpawnSettings$SpawnEntry;Lnet/minecraft/util/math/BlockPos$Mutable;D)Z",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/SpawnRestriction;getLocation(Lnet/minecraft/entity/EntityType;)Lnet/minecraft/entity/SpawnRestriction$Location;"),
+		at = @At(
+			value = "INVOKE",
+			#if MC_VERSION >= MC_1_20_5
+			target = "Lnet/minecraft/entity/SpawnRestriction;isSpawnPosAllowed(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)Z"
+			#else
+			target = "Lnet/minecraft/entity/SpawnRestriction;getLocation(Lnet/minecraft/entity/EntityType;)Lnet/minecraft/entity/SpawnRestriction$Location;"
+			#endif
+		),
 		cancellable = true
 	)
 	private static void bigglobe_canSpawn(

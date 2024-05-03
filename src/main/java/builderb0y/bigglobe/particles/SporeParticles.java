@@ -38,7 +38,11 @@ public class SporeParticles {
 
 	public static class Effect implements ParticleEffect {
 
-		public static final Codec<Effect> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Effect.class);
+		#if MC_VERSION >= MC_1_20_5
+		public static final MapCodec<Effect> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(Effect.class);
+		#else
+		public static final Codec<Effect> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(Effect.class).codec();
+		#endif
 
 		public final int red, green, blue;
 
@@ -81,7 +85,7 @@ public class SporeParticles {
 
 			@Override
 			public MapCodec<Effect> getCodec() {
-				return Effect.CODEC.fieldOf("value");
+				return Effect.CODEC;
 			}
 
 			@Override

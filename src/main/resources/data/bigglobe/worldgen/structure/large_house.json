@@ -1,22 +1,20 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/large_house",
-		"spawn_overrides": {},
-		"step": "surface_structures",
-		"layout": [
-			"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
-			"WoodPalette woodPalette = `bigglobe:overworld/wood_palette` ?: return()",
+	"biomes": "#bigglobe:has_structure/large_house",
+	"spawn_overrides": {},
+	"step": "surface_structures",
+	"layout": [
+		"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+		"WoodPalette woodPalette = `bigglobe:overworld/wood_palette` ?: return()",
 
-			"pieces.add(",
-				"ScriptStructurePiece.new(",
-					"-7, 0, -7, 7, 11, 7,",
-					"'bigglobe:large_house',",
-					"nbtCompound(palette: woodPalette.id)",
-				")",
-				".symmetrify(Symmetry.randomRotation())",
-				".offset(originX, originY, originZ)",
-			")"
-		]
-	}
+		"pieces.add(",
+			"ScriptStructurePiece.new(",
+				"-7, 0, -7, 7, 11, 7,",
+				"'bigglobe:large_house',",
+				"nbtCompound(palette: woodPalette.id)",
+			")",
+			".symmetrify(Symmetry.randomRotation())",
+			".offset(originX, originY, originZ)",
+		")"
+	]
 }

@@ -1,73 +1,71 @@
 {
 	"type": "bigglobe:medium_dungeon",
-	"value": {
-		"biomes": "#bigglobe:has_structure/medium_dungeon",
-		"spawn_overrides": {},
-		"step": "underground_structures",
-		"terrain_adaptation": "bury",
-		"room_decorators": "bigglobe:overworld/dungeons/medium",
-		"spawner_entries": [
-			{ "weight": 14, "entity": "minecraft:zombie" },
-			{ "weight": 10, "entity": "minecraft:skeleton" },
-			{ "weight":  7, "entity": "minecraft:spider" },
-			{ "weight":  2, "entity": "minecraft:husk" },
-			{ "weight":  2, "entity": "minecraft:stray" },
-			{ "weight":  1, "entity": "minecraft:cave_spider" }
-		],
-		"palettes": [
-			{
-				"weight": 1.0,
-				"main": [
-					{ "weight": 1.0, "block": "minecraft:cobblestone" },
-					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone" }
-				],
-				"slab": [
-					{ "weight": 1.0, "block": "minecraft:cobblestone_slab" },
-					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_slab" }
-				],
-				"stairs": [
-					{ "weight": 1.0, "block": "minecraft:cobblestone_stairs" },
-					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_stairs" }
-				],
-				"wall": [
-					{ "weight": 1.0, "block": "minecraft:cobblestone_wall" },
-					{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_wall" }
-				]
+	"biomes": "#bigglobe:has_structure/medium_dungeon",
+	"spawn_overrides": {},
+	"step": "underground_structures",
+	"terrain_adaptation": "bury",
+	"room_decorators": "bigglobe:overworld/dungeons/medium",
+	"spawner_entries": [
+		{ "weight": 14, "entity": "minecraft:zombie" },
+		{ "weight": 10, "entity": "minecraft:skeleton" },
+		{ "weight":  7, "entity": "minecraft:spider" },
+		{ "weight":  2, "entity": "minecraft:husk" },
+		{ "weight":  2, "entity": "minecraft:stray" },
+		{ "weight":  1, "entity": "minecraft:cave_spider" }
+	],
+	"palettes": [
+		{
+			"weight": 1.0,
+			"main": [
+				{ "weight": 1.0, "block": "minecraft:cobblestone" },
+				{ "weight": 1.0, "block": "minecraft:mossy_cobblestone" }
+			],
+			"slab": [
+				{ "weight": 1.0, "block": "minecraft:cobblestone_slab" },
+				{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_slab" }
+			],
+			"stairs": [
+				{ "weight": 1.0, "block": "minecraft:cobblestone_stairs" },
+				{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_stairs" }
+			],
+			"wall": [
+				{ "weight": 1.0, "block": "minecraft:cobblestone_wall" },
+				{ "weight": 1.0, "block": "minecraft:mossy_cobblestone_wall" }
+			]
+		},
+		{
+			"weight": 1.0,
+			"main": [
+				{ "weight": 1.0, "block": "minecraft:stone_bricks" },
+				{ "weight": 1.5, "block": "minecraft:mossy_stone_bricks" },
+				{ "weight": 0.5, "block": "minecraft:cracked_stone_bricks" }
+			],
+			"slab": [
+				{ "weight": 1.0, "block": "minecraft:stone_brick_slab" },
+				{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_slab" }
+			],
+			"stairs": [
+				{ "weight": 1.0, "block": "minecraft:stone_brick_stairs" },
+				{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_stairs" }
+			],
+			"wall": [
+				{ "weight": 1.0, "block": "minecraft:stone_brick_wall" },
+				{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_wall" }
+			]
+		},
+		{
+			"weight": 2.0,
+			"restrictions": {
+				"type": "script",
+				"script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 256, `bigglobe:overworld/basic_surface_y` - 512, y)"
 			},
-			{
-				"weight": 1.0,
-				"main": [
-					{ "weight": 1.0, "block": "minecraft:stone_bricks" },
-					{ "weight": 1.5, "block": "minecraft:mossy_stone_bricks" },
-					{ "weight": 0.5, "block": "minecraft:cracked_stone_bricks" }
-				],
-				"slab": [
-					{ "weight": 1.0, "block": "minecraft:stone_brick_slab" },
-					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_slab" }
-				],
-				"stairs": [
-					{ "weight": 1.0, "block": "minecraft:stone_brick_stairs" },
-					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_stairs" }
-				],
-				"wall": [
-					{ "weight": 1.0, "block": "minecraft:stone_brick_wall" },
-					{ "weight": 1.0, "block": "minecraft:mossy_stone_brick_wall" }
-				]
-			},
-			{
-				"weight": 2.0,
-				"restrictions": {
-					"type": "script",
-					"script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 256, `bigglobe:overworld/basic_surface_y` - 512, y)"
-				},
-				"main": [
-					{ "weight": 1.0, "block": "minecraft:deepslate" },
-					{ "weight": 1.0, "block": "minecraft:cobbled_deepslate" }
-				],
-				"slab": "minecraft:cobbled_deepslate_slab",
-				"stairs": "minecraft:cobbled_deepslate_stairs",
-				"wall": "minecraft:cobbled_deepslate_wall"
-			}
-		]
-	}
+			"main": [
+				{ "weight": 1.0, "block": "minecraft:deepslate" },
+				{ "weight": 1.0, "block": "minecraft:cobbled_deepslate" }
+			],
+			"slab": "minecraft:cobbled_deepslate_slab",
+			"stairs": "minecraft:cobbled_deepslate_stairs",
+			"wall": "minecraft:cobbled_deepslate_wall"
+		}
+	]
 }

@@ -1,49 +1,47 @@
 {
 	"type": "bigglobe:scripted",
-	"value": {
-		"category": "misc",
-		"width": 1,
-		"height": 1,
-		"matches": [
-			"boolean haveBall = false",
-			"for (ItemStack stack in input:",
-				"if (stack.empty: continue())",
-				"else if (stack.item == Item('bigglobe:ball_of_string'): haveBall = true)",
-				"else (return(false))",
+	"category": "misc",
+	"width": 1,
+	"height": 1,
+	"matches": [
+		"boolean haveBall = false",
+		"for (ItemStack stack in input:",
+			"if (stack.empty: continue())",
+			"else if (stack.item == Item('bigglobe:ball_of_string'): haveBall = true)",
+			"else (return(false))",
+		")",
+		"return(haveBall)"
+	],
+	"output": [
+		"int balls = 0",
+		"for (ItemStack stack in input:",
+			"if (stack.empty: continue())",
+			"else if (stack.item == Item('bigglobe:ball_of_string'):",
+				"if (stack.damage < stack.maxDamage: ++balls)",
 			")",
-			"return(haveBall)"
-		],
-		"output": [
-			"int balls = 0",
-			"for (ItemStack stack in input:",
-				"if (stack.empty: continue())",
-				"else if (stack.item == Item('bigglobe:ball_of_string'):",
-					"if (stack.damage < stack.maxDamage: ++balls)",
+			"else (return(ItemStack.EMPTY))",
+		")",
+		"return(ItemStack.new('minecraft:string', balls))"
+	],
+	"remainder": [
+		"for (int slot, ItemStack stack in input:",
+			"if (stack.item == Item('bigglobe:ball_of_string'):",
+				"NbtCompound nbt = stack.nbt",
+				"if (MinecraftVersion.CURRENT >= MinecraftVersion('1.20.5'):",
+					"Nbt components = nbt.components ?: (nbt.components := nbtCompound())",
+					"if (noscope(int damage := components.`minecraft:damage`.asInt()) < components.`minecraft:max_damage`.asInt():",
+						"components.`minecraft:damage` = damage + 1",
+						"stack = ItemStack.new(nbt)",
+					")",
 				")",
-				"else (return(ItemStack.EMPTY))",
+				"else (",
+					"if (noscope(int damage := nbt.Damage.asInt()) < nbt.MaxDamage.asInt():",
+						"nbt.Damage = damage + 1",
+						"stack = ItemStack.new(nbt)",
+					")",
+				")",
+				"output.(slot) = stack",
 			")",
-			"return(ItemStack.new('minecraft:string', balls))"
-		],
-		"remainder": [
-			"for (int slot, ItemStack stack in input:",
-				"if (stack.item == Item('bigglobe:ball_of_string'):",
-					"NbtCompound nbt = stack.nbt",
-					"if (MinecraftVersion.CURRENT >= MinecraftVersion('1.20.5'):",
-						"NbtCompound components = nbt.components ?: (nbt.components := nbtCompound())",
-						"if (noscope(int damage := components.`minecraft:damage`.asInt()) < components.`minecraft:max_damage`.asInt():",
-							"components.`minecraft:damage` = damage + 1",
-							"stack = ItemStack.new(nbt)",
-						")",
-					")",
-					"else (",
-						"if (noscope(int damage := nbt.Damage.asInt()) < nbt.MaxDamage.asInt():",
-							"nbt.Damage = damage + 1",
-							"stack = ItemStack.new(nbt)",
-						")",
-					")",
-					"output.(slot) = stack",
-				")",
-			")"
-		]
-	}
+		")"
+	]
 }

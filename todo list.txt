@@ -26,11 +26,6 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	test to make sure slingshot still works.
-	verify that right clicking blocks with empty hand still works.
-		rope anchor.
-	make sure portal temple armor stands can still have armor sometimes.
-	make sure portal temple banners still have patterns on them.
 	make tree trunk thicknesses scriptable.
 	clean up ScriptedRecipeSerializer in old MC Versions (remove preprocessors)
 

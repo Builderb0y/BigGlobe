@@ -1,14 +1,12 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/underground_pocket/nether_soul_lava",
-		"spawn_overrides": {},
-		"step": "underground_structures",
-		"layout": {
-			"template": "bigglobe:nether_pocket_type",
-			"inputs": {
-				"TYPE": "'bigglobe:underground_pockets/soul_lava'"
-			}
+	"biomes": "#bigglobe:has_structure/underground_pocket/nether_soul_lava",
+	"spawn_overrides": {},
+	"step": "underground_structures",
+	"layout": {
+		"template": "bigglobe:nether_pocket_type",
+		"inputs": {
+			"TYPE": "'bigglobe:underground_pockets/soul_lava'"
 		}
 	}
 }

@@ -1,37 +1,35 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/lake",
-		"spawn_overrides": {
-			"monster": {
-				"bounding_box": "full",
-				"spawns": [
-					{ "type": "minecraft:zombie",          "weight":  95, "minCount": 2, "maxCount": 4 },
-					{ "type": "minecraft:zombie_villager", "weight":   5, "minCount": 1, "maxCount": 2 },
-					{ "type": "minecraft:skeleton",        "weight": 100, "minCount": 2, "maxCount": 4 },
-					{ "type": "minecraft:spider",          "weight": 100, "minCount": 1, "maxCount": 4 },
-					{ "type": "minecraft:creeper",         "weight": 100, "minCount": 2, "maxCount": 4 },
-					{ "type": "minecraft:slime",           "weight": 100, "minCount": 1, "maxCount": 2 },
-					{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
-					{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
-				]
-			}
-		},
-		"step": "surface_structures",
-		"layout": {
-			"template": "bigglobe:lake_structure_placement",
-			"inputs": {
-				"RADIUS": "random.nextInt(32, 96)",
-				"DEPTH": "random.nextDouble(0.125L, 0.25L)",
-				"DATA": [
-					"nbtCompound(",
-						"fluid: 'minecraft:water',",
-						"surface: 'minecraft:mud',",
-						"subsurface: 'minecraft:clay',",
-						"decorator: 'bigglobe:overworld/water_lake_surface'",
-					")"
-				]
-			}
+	"biomes": "#bigglobe:has_structure/lake",
+	"spawn_overrides": {
+		"monster": {
+			"bounding_box": "full",
+			"spawns": [
+				{ "type": "minecraft:zombie",          "weight":  95, "minCount": 2, "maxCount": 4 },
+				{ "type": "minecraft:zombie_villager", "weight":   5, "minCount": 1, "maxCount": 2 },
+				{ "type": "minecraft:skeleton",        "weight": 100, "minCount": 2, "maxCount": 4 },
+				{ "type": "minecraft:spider",          "weight": 100, "minCount": 1, "maxCount": 4 },
+				{ "type": "minecraft:creeper",         "weight": 100, "minCount": 2, "maxCount": 4 },
+				{ "type": "minecraft:slime",           "weight": 100, "minCount": 1, "maxCount": 2 },
+				{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
+				{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
+			]
+		}
+	},
+	"step": "surface_structures",
+	"layout": {
+		"template": "bigglobe:lake_structure_placement",
+		"inputs": {
+			"RADIUS": "random.nextInt(32, 96)",
+			"DEPTH": "random.nextDouble(0.125L, 0.25L)",
+			"DATA": [
+				"nbtCompound(",
+					"fluid: 'minecraft:water',",
+					"surface: 'minecraft:mud',",
+					"subsurface: 'minecraft:clay',",
+					"decorator: 'bigglobe:overworld/water_lake_surface'",
+				")"
+			]
 		}
 	}
 }

@@ -1,35 +1,33 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/soul_campfire",
-		"spawn_overrides": {},
-		"step": "surface_structures",
-		"layout": [
-			"boolean isTerrainAt(int y:",
-				"return(`bigglobe:nether/bubble`(originX, originZ).noise(y) > 0.5I)",
-			")",
+	"biomes": "#bigglobe:has_structure/soul_campfire",
+	"spawn_overrides": {},
+	"step": "surface_structures",
+	"layout": [
+		"boolean isTerrainAt(int y:",
+			"return(`bigglobe:nether/bubble`(originX, originZ).noise(y) > 0.5I)",
+		")",
 
-			"int getY(:",
-				"repeat (16:",
-					"int y = random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
-					"unless (isTerrainAt(y):",
-						"do until (isTerrainAt(y):",
-							"if (:-- y < `bigglobe:nether/bubble`(originX, originZ).lava_level: return(16x8000_0000U))",
-						")",
-						"return(y + 1)",
+		"int getY(:",
+			"repeat (16:",
+				"int y = random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
+				"unless (isTerrainAt(y):",
+					"do until (isTerrainAt(y):",
+						"if (:-- y < `bigglobe:nether/bubble`(originX, originZ).lava_level: return(16x8000_0000U))",
 					")",
+					"return(y + 1)",
 				")",
-				"return(16x8000_0000U)",
 			")",
+			"return(16x8000_0000U)",
+		")",
 
-			"int y = getY()",
-			"unless (y == 16x8000_0000U:",
-				"pieces.add(ScriptStructurePiece.new(",
-					"originX - 4, y - 1, originZ - 4, originX + 4, y, originZ + 4,",
-					"'bigglobe:soul_campfire',",
-					"nbtCompound()",
-				"))",
-			")"
-		]
-	}
+		"int y = getY()",
+		"unless (y == 16x8000_0000U:",
+			"pieces.add(ScriptStructurePiece.new(",
+				"originX - 4, y - 1, originZ - 4, originX + 4, y, originZ + 4,",
+				"'bigglobe:soul_campfire',",
+				"nbtCompound()",
+			"))",
+		")"
+	]
 }

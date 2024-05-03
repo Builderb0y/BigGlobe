@@ -12,11 +12,9 @@
 		"particle": {
 			"options": {
 				"type": "bigglobe:spore",
-				"value": {
-					"red": 222,
-					"green": 225,
-					"blue": 167
-				}
+				"red": 222,
+				"green": 225,
+				"blue": 167
 			},
 			"probability": 0.01
 		},

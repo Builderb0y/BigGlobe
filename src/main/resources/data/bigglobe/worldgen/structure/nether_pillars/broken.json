@@ -1,18 +1,16 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/nether_pillar/broken",
-		"spawn_overrides": {},
-		"step": "raw_generation",
-		"terrain_adaptation": "none",
-		"layout": {
-			"template": "bigglobe:nether_pillar_structure",
-			"inputs": {
-				"PILLARS_PER_CHUNK": "0.25",
-				"CENTER_ATTEMPTS": "16",
-				"MAX_RADIUS": "96.0",
-				"BROKEN_CHANCE": "0.625"
-			}
+	"biomes": "#bigglobe:has_structure/nether_pillar/broken",
+	"spawn_overrides": {},
+	"step": "raw_generation",
+	"terrain_adaptation": "none",
+	"layout": {
+		"template": "bigglobe:nether_pillar_structure",
+		"inputs": {
+			"PILLARS_PER_CHUNK": "0.25",
+			"CENTER_ATTEMPTS": "16",
+			"MAX_RADIUS": "96.0",
+			"BROKEN_CHANCE": "0.625"
 		}
 	}
 }

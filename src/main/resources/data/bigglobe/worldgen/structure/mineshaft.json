@@ -1,7 +1,5 @@
 {
 	"type": "bigglobe:delegating",
-	"value": {
-		"delegate": "minecraft:mineshaft",
-		"biomes": "#bigglobe:has_structure/mineshaft"
-	}
+	"delegate": "minecraft:mineshaft",
+	"biomes": "#bigglobe:has_structure/mineshaft"
 }

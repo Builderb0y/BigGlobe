@@ -21,7 +21,11 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 @AddPseudoField("conditions")
 public class ChoosePotionLootFunction extends ConditionalLootFunction {
 
-	public static final LootFunctionType<ChoosePotionLootFunction> SERIALIZER = new LootFunctionType<>(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ChoosePotionLootFunction.class).fieldOf("value"));
+	#if MC_VERSION >= MC_1_20_5
+		public static final LootFunctionType<ChoosePotionLootFunction> SERIALIZER = new LootFunctionType<>(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChoosePotionLootFunction.class));
+	#else
+		public static final LootFunctionType<ChoosePotionLootFunction> SERIALIZER = new LootFunctionType<>(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChoosePotionLootFunction.class)).codec();
+	#endif
 
 	public final IRandomList<@UseName("potion") RegistryEntry<Potion>> potions;
 

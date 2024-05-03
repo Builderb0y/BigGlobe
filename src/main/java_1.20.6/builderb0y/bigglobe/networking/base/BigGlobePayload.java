@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.networking.base;
 
+import io.netty.buffer.Unpooled;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -14,12 +16,14 @@ public record BigGlobePayload(PacketByteBuf buffer) implements CustomPayload {
 
 		@Override
 		public BigGlobePayload decode(RegistryByteBuf buffer) {
-			return new BigGlobePayload(buffer);
+			PacketByteBuf copy = new PacketByteBuf(Unpooled.buffer(buffer.readableBytes()));
+			copy.writeBytes(buffer);
+			return new BigGlobePayload(copy);
 		}
 
 		@Override
 		public void encode(RegistryByteBuf buffer, BigGlobePayload value) {
-			buffer.writeBytes(value.buffer, 0, buffer.writerIndex());
+			buffer.writeBytes(value.buffer, 0, value.buffer.writerIndex());
 		}
 	};
 

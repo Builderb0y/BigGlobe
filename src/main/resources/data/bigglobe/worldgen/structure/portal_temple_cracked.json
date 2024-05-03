@@ -1,10 +1,8 @@
 {
 	"type": "bigglobe:portal_temple",
-	"value": {
-		"biomes": "#bigglobe:has_structure/portal_temple",
-		"spawn_overrides": {},
-		"step": "surface_structures",
-		"terrain_adaptation": "beard_thin",
-		"cracked_chance": { "type": "uniform", "min": 0.5, "max": 0.75 }
-	}
+	"biomes": "#bigglobe:has_structure/portal_temple",
+	"spawn_overrides": {},
+	"step": "surface_structures",
+	"terrain_adaptation": "beard_thin",
+	"cracked_chance": { "type": "uniform", "min": 0.5, "max": 0.75 }
 }

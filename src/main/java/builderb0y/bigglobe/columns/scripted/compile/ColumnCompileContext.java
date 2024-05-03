@@ -68,7 +68,7 @@ public class ColumnCompileContext extends DataCompileContext {
 		}
 		{
 			MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
-			return_(invokeStatic(MethodInfo.getMethod(MethodHandles.class, "lookup"))).emitBytecode(lookup);
+			return_(invokeStatic(MethodInfo.findMethod(MethodHandles.class, "lookup", MethodHandles.Lookup.class))).emitBytecode(lookup);
 			lookup.endCode();
 		}
 		{

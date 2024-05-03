@@ -1,9 +1,7 @@
 {
 	"type": "bigglobe:bigger_desert_pyramid",
-	"value": {
-		"biomes": "#bigglobe:has_structure/bigger_desert_pyramid",
-		"spawn_overrides": {},
-		"step": "surface_structures",
-		"terrain_adaptation": "beard_thin"
-	}
+	"biomes": "#bigglobe:has_structure/bigger_desert_pyramid",
+	"spawn_overrides": {},
+	"step": "surface_structures",
+	"terrain_adaptation": "beard_thin"
 }

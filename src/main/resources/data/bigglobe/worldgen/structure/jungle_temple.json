@@ -1,7 +1,5 @@
 {
 	"type": "bigglobe:delegating",
-	"value": {
-		"delegate": "minecraft:jungle_pyramid",
-		"biomes": "#bigglobe:has_structure/jungle_temple"
-	}
+	"delegate": "minecraft:jungle_pyramid",
+	"biomes": "#bigglobe:has_structure/jungle_temple"
 }

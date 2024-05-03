@@ -1,14 +1,12 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/underground_pocket/lava",
-		"spawn_overrides": {},
-		"step": "underground_structures",
-		"layout": {
-			"template": "bigglobe:underground_pocket_type",
-			"inputs": {
-				"TYPE": "'bigglobe:underground_pockets/lava'"
-			}
+	"biomes": "#bigglobe:has_structure/underground_pocket/lava",
+	"spawn_overrides": {},
+	"step": "underground_structures",
+	"layout": {
+		"template": "bigglobe:underground_pocket_type",
+		"inputs": {
+			"TYPE": "'bigglobe:underground_pockets/lava'"
 		}
 	}
 }

@@ -1,34 +1,32 @@
 {
 	"type": "bigglobe:script",
-	"value": {
-		"biomes": "#bigglobe:has_structure/well",
-		"spawn_overrides": {},
-		"step": "surface_structures",
-		"layout": [
-			"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
-			"WoodPalette palette = `bigglobe:overworld/wood_palette`",
-			"Biome biome = `bigglobe:overworld/biome`(originY)",
+	"biomes": "#bigglobe:has_structure/well",
+	"spawn_overrides": {},
+	"step": "surface_structures",
+	"layout": [
+		"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+		"WoodPalette palette = `bigglobe:overworld/wood_palette`",
+		"Biome biome = `bigglobe:overworld/biome`(originY)",
 
-			"int type = 0",
-			"if (biome.isIn('bigglobe:hot'):",
-				"if (biome == Biome('bigglobe:hot_wasteland'):",
-					"type = 2",
-					"palette = 'minecraft:acacia'",
-				")",
-				"else (",
-					"type = 1",
-				")",
+		"int type = 0",
+		"if (biome.isIn('bigglobe:hot'):",
+			"if (biome == Biome('bigglobe:hot_wasteland'):",
+				"type = 2",
+				"palette = 'minecraft:acacia'",
 			")",
-			"random.if (palette = null)",
+			"else (",
+				"type = 1",
+			")",
+		")",
+		"random.if (palette = null)",
 
-			"pieces.add(ScriptStructurePiece.new(",
-				"originX - 2, originY - random.nextInt(8, 24), originZ - 2, originX + 2, originY + 4, originZ + 2,",
-				"'bigglobe:well',",
-				"nbtCompound(",
-					"palette: palette.?id,",
-					"type: type",
-				")",
-			"))"
-		]
-	}
+		"pieces.add(ScriptStructurePiece.new(",
+			"originX - 2, originY - random.nextInt(8, 24), originZ - 2, originX + 2, originY + 4, originZ + 2,",
+			"'bigglobe:well',",
+			"nbtCompound(",
+				"palette: palette.?id,",
+				"type: type",
+			")",
+		"))"
+	]
 }
