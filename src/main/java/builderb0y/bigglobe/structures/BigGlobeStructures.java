@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.structures;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.registry.Registry;

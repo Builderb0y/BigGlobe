@@ -63,11 +63,14 @@ public class RegistryVersions {
 			public static Registry     <MapCodec<? extends ChunkGenerator>> chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
 			public static Registry     <MapCodec<? extends BiomeSource   >> biomeSource           () { return Registries.BIOME_SOURCE        ; }
 			public static Registry     <LootFunctionType<?>               > lootFunctionType      () { return Registries.LOOT_FUNCTION_TYPE  ; }
-			public static Registry     <StatusEffect                      > statusEffect          () { return Registries.STATUS_EFFECT       ; }
 		#else
 			public static Registry     <Codec<? extends ChunkGenerator>   > chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
 			public static Registry     <Codec<? extends BiomeSource   >   > biomeSource           () { return Registries.BIOME_SOURCE        ; }
 			public static Registry     <LootFunctionType                  > lootFunctionType      () { return Registries.LOOT_FUNCTION_TYPE  ; }
+		#endif
+
+		#if MC_VERSION >= MC_1_20_3
+			public static Registry     <StatusEffect                      > statusEffect          () { return Registries.STATUS_EFFECT       ; }
 		#endif
 	#endif
 

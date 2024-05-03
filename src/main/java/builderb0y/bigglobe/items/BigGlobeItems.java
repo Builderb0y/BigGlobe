@@ -21,7 +21,9 @@ import net.minecraft.loot.LootTables;
 import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;

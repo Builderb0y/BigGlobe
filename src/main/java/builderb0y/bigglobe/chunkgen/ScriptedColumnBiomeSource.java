@@ -31,7 +31,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class);
 	#else
-		public static final Codec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptedColumnBiomeSource.class);
+		public static final Codec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class).codec();
 	#endif
 
 	public final ColumnYToBiomeScript.Holder script;

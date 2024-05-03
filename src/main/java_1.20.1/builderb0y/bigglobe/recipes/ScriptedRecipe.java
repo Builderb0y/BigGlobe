@@ -12,12 +12,14 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
+import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.recipes.ScriptedRecipeClasses.ScriptedRecipeData;
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 
 @AddPseudoField("id")
 public class ScriptedRecipe extends SpecialCraftingRecipe {
 
+	@EncodeInline
 	public final ScriptedRecipeData value;
 
 	public ScriptedRecipe(Identifier id, ScriptedRecipeData value) {

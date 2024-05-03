@@ -2,23 +2,29 @@ package builderb0y.bigglobe.items;
 
 import java.util.List;
 
-import net.minecraft.client.item.TooltipType;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.StringEntity;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
-#if MC_VERSION < MC_1_20_5
+#if MC_VERSION >= MC_1_20_5
+	import net.minecraft.client.item.TooltipType;
+#else
 	import net.minecraft.client.item.TooltipContext;
 #endif
 
@@ -63,7 +69,13 @@ public class BallOfStringItem extends Item
 
 		@Override
 		public int bigglobe_getMaxDamage(ItemStack stack) {
-			return getMaxString(stack);
+			NbtCompound nbt = stack.getNbt();
+			return nbt != null ? nbt.getInt(MAX_DAMAGE_KEY) : 0;
+		}
+
+		@Override
+		public void bigglobe_setMaxDamage(ItemStack stack, int maxDamage) {
+			stack.getOrCreateNbt().putInt(MAX_DAMAGE_KEY, maxDamage);
 		}
 
 		@Override

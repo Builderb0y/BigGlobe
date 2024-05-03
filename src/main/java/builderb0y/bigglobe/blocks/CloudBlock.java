@@ -11,7 +11,6 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.item.Items;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -19,6 +18,10 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
+
+#if MC_VERSION >= MC_1_20_5
+import net.minecraft.util.ItemActionResult;
+#endif
 
 public class CloudBlock extends Block {
 

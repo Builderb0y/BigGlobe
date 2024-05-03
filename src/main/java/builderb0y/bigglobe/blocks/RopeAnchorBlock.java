@@ -12,7 +12,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -29,6 +28,10 @@ import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.WorldVersions;
 
 import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
+
+#if MC_VERSION >= MC_1_20_5
+import net.minecraft.util.ItemActionResult;
+#endif
 
 public class RopeAnchorBlock extends HorizontalFacingBlock {
 

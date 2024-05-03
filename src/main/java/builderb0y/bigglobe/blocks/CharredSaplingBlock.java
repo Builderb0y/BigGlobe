@@ -14,9 +14,13 @@ import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 #else
 import net.minecraft.block.sapling.SaplingGenerator;
+
+import builderb0y.autocodec.annotations.AddPseudoField;
 #endif
 
+#if MC_VERSION >= MC_1_20_3
 @AddPseudoField("generator")
+#endif
 public class CharredSaplingBlock extends SaplingBlock {
 
 	#if MC_VERSION >= MC_1_20_3
@@ -27,15 +31,16 @@ public class CharredSaplingBlock extends SaplingBlock {
 		public MapCodec getCodec() {
 			return CODEC;
 		}
+
+		public SaplingGenerator generator() {
+			return this.generator;
+		}
 	#endif
 
 	public CharredSaplingBlock(SaplingGenerator generator, Settings settings) {
 		super(generator, settings);
 	}
 
-	public SaplingGenerator generator() {
-		return this.generator;
-	}
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {

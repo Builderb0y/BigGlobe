@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,6 +39,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
 #if MC_VERSION >= MC_1_20_5
+	import net.minecraft.client.item.TooltipType;
 	import net.minecraft.item.Item.TooltipContext;
 #else
 	import net.minecraft.client.item.TooltipContext;

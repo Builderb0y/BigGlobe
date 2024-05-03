@@ -5,6 +5,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
+
+import builderb0y.bigglobe.items.DynamicMaxDamageItem;
 
 #if MC_VERSION >= MC_1_20_5
 import net.minecraft.component.DataComponentTypes;
@@ -19,8 +22,7 @@ public class ItemStackVersions {
 		#if MC_VERSION >= MC_1_20_5
 			return stack.getOrDefault(DataComponentTypes.MAX_DAMAGE, 0);
 		#else
-			NbtCompound nbt = stack.getNbt();
-			return nbt != null ? nbt.getInt(MAX_DAMAGE_KEY) : 0;
+			return stack.getMaxDamage();
 		#endif
 	}
 
@@ -37,7 +39,9 @@ public class ItemStackVersions {
 		#if MC_VERSION >= MC_1_20_5
 			stack.set(DataComponentTypes.MAX_DAMAGE, maxDamage);
 		#else
-			stack.getOrCreateNbt().putInt(MAX_DAMAGE_KEY, maxDamage);
+			if (stack.getItem() instanceof DynamicMaxDamageItem dynamic) {
+				dynamic.bigglobe_setMaxDamage(stack, maxDamage);
+			}
 		#endif
 	}
 
@@ -45,7 +49,7 @@ public class ItemStackVersions {
 		#if MC_VERSION >= MC_1_20_5
 			stack.set(DataComponentTypes.DAMAGE, damage);
 		#else
-			stack.getOrCreateNbt().putInt(MAX_DAMAGE_KEY, damage);
+			stack.getOrCreateNbt().putInt(ItemStack.DAMAGE_KEY, damage);
 		#endif
 	}
 
@@ -69,7 +73,7 @@ public class ItemStackVersions {
 		#if MC_VERSION >= MC_1_20_5
 			stack.damage(1, player, LivingEntity.getSlotForHand(hand));
 		#else
-			stack.damage(1, player, player -> player.sendToolBreakStatus(hand));
+			stack.damage(1, player, p -> p.sendToolBreakStatus(hand));
 		#endif
 	}
 
@@ -77,7 +81,7 @@ public class ItemStackVersions {
 		#if MC_VERSION >= MC_1_20_5
 			return (NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager()));
 		#else
-			return stack.writeNbt();
+			return stack.writeNbt(new NbtCompound());
 		#endif
 	}
 

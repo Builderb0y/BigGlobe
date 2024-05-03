@@ -1094,7 +1094,6 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	public class NodeList extends AbstractList<Node<T>> implements Deque<Node<T>>, Cloneable {
 
-		@Override
 		public NodeList reversed() {
 			throw new UnsupportedOperationException("todo: support reversing.");
 		}
@@ -1450,7 +1449,6 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	public class ElementList extends AbstractList<T> implements Deque<T>, Cloneable {
 
-		@Override
 		public ElementList reversed() {
 			throw new UnsupportedOperationException("todo: support reversing.");
 		}

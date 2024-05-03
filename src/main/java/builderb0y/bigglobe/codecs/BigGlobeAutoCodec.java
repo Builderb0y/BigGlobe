@@ -129,7 +129,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<Potion>                                       POTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Potion                                .class), RegistryVersions.potion());
 	public static final RegistryCoders<BlockEntityType<?>>                BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), RegistryVersions.blockEntityType());
 	public static final RegistryCoders<EntityType<?>>                           ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), RegistryVersions.entityType());
-	#if MC_VERSION >= MC_1_20_5
+	#if MC_VERSION >= MC_1_20_3
 	public static final RegistryCoders<StatusEffect>                          STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StatusEffect                          .class), RegistryVersions.statusEffect());
 	#endif
 	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeyVersions.dimensionType());
@@ -160,7 +160,7 @@ public class BigGlobeAutoCodec {
 		POTION_REGISTRY_CODERS,
 		BLOCK_ENTITY_TYPE_REGISTRY_CODERS,
 		ENTITY_TYPE_REGISTRY_CODERS,
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_20_3
 		STATUS_EFFECT_REGISTRY_CODERS,
 		#endif
 		DIMENSION_TYPE_REGISTRY_CODERS,
@@ -323,7 +323,7 @@ public class BigGlobeAutoCodec {
 		public @NotNull ReflectionManager createReflectionManager() {
 			return new ReflectionManager() {
 
-				#if MC_VERSION >= MC_1_20_5
+				#if MC_VERSION >= MC_1_20_3
 					public static final Method BLOCK_SETTINGS_GETTER;
 
 					static {

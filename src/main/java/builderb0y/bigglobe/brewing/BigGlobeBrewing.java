@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.brewing;
 
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
-
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
@@ -14,6 +12,10 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION >= MC_1_20_5
+import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+#endif
 
 public class BigGlobeBrewing {
 

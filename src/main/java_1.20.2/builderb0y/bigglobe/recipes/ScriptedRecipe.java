@@ -10,11 +10,13 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
+import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.bigglobe.recipes.ScriptedRecipeClasses.ScriptedRecipeData;
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 
 public class ScriptedRecipe extends SpecialCraftingRecipe {
 
+	@EncodeInline
 	public final ScriptedRecipeData value;
 
 	public ScriptedRecipe(ScriptedRecipeData value) {

@@ -15,8 +15,6 @@ import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.particle.WaterSuspendParticle;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registry;
@@ -24,6 +22,11 @@ import net.minecraft.registry.Registry;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION >= MC_1_20_5
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+#endif
 
 public class SporeParticles {
 

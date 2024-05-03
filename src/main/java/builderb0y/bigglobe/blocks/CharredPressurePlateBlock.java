@@ -8,7 +8,9 @@ import net.minecraft.block.PressurePlateBlock;
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
+#if MC_VERSION >= MC_1_20_3
 @AddPseudoField("type")
+#endif
 public class CharredPressurePlateBlock extends PressurePlateBlock {
 
 	#if MC_VERSION >= MC_1_20_3
@@ -19,15 +21,20 @@ public class CharredPressurePlateBlock extends PressurePlateBlock {
 		public MapCodec getCodec() {
 			return CODEC;
 		}
+
+		public CharredPressurePlateBlock(BlockSetType type, Settings settings) {
+			super(type, settings);
+		}
+
+		public BlockSetType type() {
+			return this.blockSetType;
+		}
+	#else
+
+		public CharredPressurePlateBlock(ActivationRule type, Settings settings, BlockSetType blockSetType) {
+			super(type, settings, blockSetType);
+		}
 	#endif
-
-	public CharredPressurePlateBlock(BlockSetType type, Settings settings) {
-		super(type, settings);
-	}
-
-	public BlockSetType type() {
-		return this.blockSetType;
-	}
 
 	@Override
 	public int getTickRate() {

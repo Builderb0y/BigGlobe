@@ -21,7 +21,7 @@ public class BlockEntityVersions {
 		#if MC_VERSION >= MC_1_20_5
 			return blockEntity.createNbtWithIdentifyingData(BigGlobeMod.getCurrentServer().getRegistryManager());
 		#else
-			return BlockEntity.writeNbt();
+			return blockEntity.createNbtWithIdentifyingData();
 		#endif
 	}
 

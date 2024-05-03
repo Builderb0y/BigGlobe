@@ -81,10 +81,13 @@ public class SlingshotItem extends RangedWeaponItem
 		playerEntity.incrementStat(Stats.USED.getOrCreateStat(this));
 	}
 
-	@Override
-	public void shoot(LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
+	#if MC_VERSION >= MC_1_20_5
 
-	}
+		@Override
+		public void shoot(LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
+
+		}
+	#endif
 
 	@Override
 	public int getMaxUseTime(ItemStack stack) {

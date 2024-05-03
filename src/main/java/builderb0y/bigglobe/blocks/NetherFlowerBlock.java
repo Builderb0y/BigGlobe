@@ -26,17 +26,35 @@ public class NetherFlowerBlock extends FlowerBlock {
 		}
 	#endif
 
-	public NetherFlowerBlock(#if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspicious_stew_effect, float effect_duration, Settings settings) {
-		super(suspicious_stew_effect, effect_duration, settings);
-	}
+	#if MC_VERSION >= MC_1_20_5
 
-	public #if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspicious_stew_effect() {
-		return this.getStewEffects().effects().get(0).effect();
-	}
+		public NetherFlowerBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, float effect_duration, Settings settings) {
+			super(suspicious_stew_effect, effect_duration, settings);
+		}
 
-	public float effect_duration() {
-		return this.getStewEffects().effects().get(0).duration() / 20.0F;
-	}
+		public RegistryEntry<StatusEffect> suspicious_stew_effect() {
+			return this.getStewEffects().effects().get(0).effect();
+		}
+
+		public float effect_duration() {
+			return this.getStewEffects().effects().get(0).duration() / 20.0F;
+		}
+	#else
+
+		public NetherFlowerBlock(StatusEffect suspicious_stew_effect, int effect_duration, Settings settings) {
+			super(suspicious_stew_effect, effect_duration, settings);
+		}
+
+		#if MC_VERSION >= MC_1_20_3
+			public StatusEffect suspicious_stew_effect() {
+				return this.getStewEffects().get(0).effect();
+			}
+
+			public int effect_duration() {
+				return this.getStewEffects().get(0).duration();
+			}
+		#endif
+	#endif
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {

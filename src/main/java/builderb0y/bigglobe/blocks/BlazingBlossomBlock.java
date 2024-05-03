@@ -30,9 +30,17 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 		}
 	#endif
 
-	public BlazingBlossomBlock(#if MC_VERSION >= MC_1_20_5 RegistryEntry<StatusEffect> #else StatusEffect #endif suspicious_stew_effect, float effect_duration, Settings settings) {
-		super(suspicious_stew_effect, effect_duration, settings);
-	}
+	#if MC_VERSION >= MC_1_20_5
+
+		public BlazingBlossomBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, float effect_duration, Settings settings) {
+			super(suspicious_stew_effect, effect_duration, settings);
+		}
+	#else
+
+		public BlazingBlossomBlock(StatusEffect suspicious_stew_effect, int effect_duration, Settings settings) {
+			super(suspicious_stew_effect, effect_duration, settings);
+		}
+	#endif
 
 	@Override
 	@Deprecated

@@ -16,46 +16,20 @@ public class ScriptedRecipeSerializer implements RecipeSerializer<ScriptedRecipe
 	public static final AutoCoder<ScriptedRecipe> SCRIPTED_RECIPE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(ScriptedRecipe.class);
 	public static final Codec<ScriptedRecipe> SCRIPTED_RECIPE_CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SCRIPTED_RECIPE_CODER);
 
-	#if MC_VERSION >= MC_1_20_2
-		@Override
-		public Codec<ScriptedRecipe> codec() {
-			return SCRIPTED_RECIPE_CODEC;
-		}
+	@Override
+	public Codec<ScriptedRecipe> codec() {
+		return SCRIPTED_RECIPE_CODEC;
+	}
 
-		@Override
-		public ScriptedRecipe read(PacketByteBuf buffer) {
-			try {
-				return BigGlobeAutoCodec.AUTO_CODEC.decode(SCRIPTED_RECIPE_CODER, buffer.readNbt(), NbtOps.INSTANCE);
-			}
-			catch (DecodeException exception) {
-				throw new RuntimeException(exception);
-			}
+	@Override
+	public ScriptedRecipe read(PacketByteBuf buffer) {
+		try {
+			return BigGlobeAutoCodec.AUTO_CODEC.decode(SCRIPTED_RECIPE_CODER, buffer.readNbt(), NbtOps.INSTANCE);
 		}
-	#else
-		@Override
-		public ScriptedRecipe read(Identifier id, JsonObject json) {
-			json = json.deepCopy();
-			json.addProperty("id", id.toString());
-			try {
-				return BigGlobeAutoCodec.AUTO_CODEC.decode(SCRIPTED_RECIPE_CODER, json, JsonOps.INSTANCE);
-			}
-			catch (DecodeException exception) {
-				throw new RuntimeException(exception);
-			}
+		catch (DecodeException exception) {
+			throw new RuntimeException(exception);
 		}
-
-		@Override
-		public ScriptedRecipe read(Identifier id, PacketByteBuf buf) {
-			NbtCompound nbt = buf.readNbt();
-			nbt.putString("id", id.toString());
-			try {
-				return BigGlobeAutoCodec.AUTO_CODEC.decode(SCRIPTED_RECIPE_CODER, nbt, NbtOps.INSTANCE);
-			}
-			catch (DecodeException exception) {
-				throw new RuntimeException(exception);
-			}
-		}
-	#endif
+	}
 
 	@Override
 	public void write(PacketByteBuf buffer, ScriptedRecipe recipe) {
