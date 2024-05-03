@@ -10,9 +10,20 @@ import builderb0y.scripting.bytecode.ConstantFactory;
 
 public record MinecraftVersion(int major, int minor, int bugfix) implements Comparable<MinecraftVersion> {
 
-	public static final MinecraftVersion CURRENT = of(
-		SharedConstants.getGameVersion().getName()
-	);
+	public static final MinecraftVersion CURRENT;
+
+	static {
+		MinecraftVersion current;
+		try {
+			current = of(
+				SharedConstants.getGameVersion().getName()
+			);
+		}
+		catch (Throwable throwable) {
+			current = null; //probably in a unit test.
+		}
+		CURRENT = current;
+	}
 
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 

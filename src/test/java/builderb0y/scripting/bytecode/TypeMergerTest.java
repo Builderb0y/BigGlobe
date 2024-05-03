@@ -101,17 +101,21 @@ public class TypeMergerTest {
 
 	@Test
 	public void testCommonSuperTypes() {
+		Set<TypeInfo> expected = new HashSet<>();
+		expected.add(TypeInfo.of(AbstractList.class));
+		expected.add(TypeInfo.of(AbstractCollection.class));
+		expected.add(TypeInfo.of(Object.class));
+		expected.add(TypeInfo.of(List.class));
+		expected.add(TypeInfo.of(Collection.class));
+		expected.add(TypeInfo.of(Iterable.class));
+		expected.add(TypeInfo.of(Cloneable.class));
+		expected.add(TypeInfo.of(Serializable.class));
+		//handle java 21, if present at runtime.
+		try { expected.add(TypeInfo.of(Class.forName("java.util.SequencedCollection"))); }
+		catch (ClassNotFoundException ignored) {}
+
 		assertEquals(
-			Set.of(
-				TypeInfo.of(AbstractList.class),
-				TypeInfo.of(AbstractCollection.class),
-				TypeInfo.of(Object.class),
-				TypeInfo.of(List.class),
-				TypeInfo.of(Collection.class),
-				TypeInfo.of(Iterable.class),
-				TypeInfo.of(Cloneable.class),
-				TypeInfo.of(Serializable.class)
-			),
+			expected,
 			TypeMerger.computeAllCommonTypes(
 				TypeInfo.of(LinkedList.class),
 				TypeInfo.of(ArrayList.class)

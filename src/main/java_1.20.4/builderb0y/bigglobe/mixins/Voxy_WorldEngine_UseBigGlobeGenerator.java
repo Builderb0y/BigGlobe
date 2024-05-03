@@ -16,7 +16,7 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 
 	public VoxyWorldGenerator bigglobe_generator;
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(method = "<init>", at = @At("RETURN"), remap = false)
 	private void bigglobe_startGenerator(
 		StorageBackend storageBackend,
 		int ingestWorkers,
@@ -30,7 +30,7 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 		}
 	}
 
-	@Inject(method = "shutdown", at = @At("HEAD"))
+	@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
 	private void bigglobe_stopGenerator(CallbackInfo callback) {
 		VoxyWorldGenerator generator = this.bigglobe_generator;
 		if (generator != null) {
