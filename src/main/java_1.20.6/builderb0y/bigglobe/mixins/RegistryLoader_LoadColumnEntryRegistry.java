@@ -14,7 +14,6 @@ import net.minecraft.registry.DynamicRegistryManager.Immutable;
 import net.minecraft.registry.RegistryLoader.RegistryLoadable;
 import net.minecraft.registry.RegistryOps.RegistryInfo;
 import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
-import net.minecraft.resource.ResourceManager;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -23,7 +22,6 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistr
 @Mixin(RegistryLoader.class)
 public class RegistryLoader_LoadColumnEntryRegistry {
 
-	#if MC_VERSION >= MC_1_20_5
 	@Inject(
 		method = "load",
 		at = @At(
@@ -42,27 +40,6 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 		List<?> loadableRegistries,
 		RegistryInfoGetter registryInfoGetter
 	) {
-	#else
-
-	@Inject(
-		method = "load(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/DynamicRegistryManager;Ljava/util/List;)Lnet/minecraft/registry/DynamicRegistryManager$Immutable;",
-		at = @At(
-			value = "INVOKE",
-			target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V",
-			ordinal = 0
-		),
-		locals = LocalCapture.CAPTURE_FAILHARD
-	)
-	private static void bigglobe_beginLoading(
-		ResourceManager resourceManager,
-		DynamicRegistryManager baseRegistryManager,
-		List<RegistryLoader.Entry<?>> entries,
-		CallbackInfoReturnable<Immutable> callback,
-		Map<RegistryKey<?>, Exception> map,
-		List<?> loadableRegistries,
-		RegistryInfoGetter registryInfoGetter
-	) {
-	#endif
 		ColumnEntryRegistry.Loading.beginLoad(new BetterRegistry.Lookup() {
 
 			@Override
