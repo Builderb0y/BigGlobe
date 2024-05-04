@@ -19,7 +19,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 
@@ -40,7 +39,7 @@ public class LocateCommand {
 						);
 						if (!compile(script, context.getSource())) return 0;
 						LocateNearestCommand command = new LocateNearestCommand(context.getSource(), script);
-						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable("commands.bigglobe.locate.searching"), false);
+						context.getSource().sendFeedback(() -> Text.translatable("commands.bigglobe.locate.searching"), false);
 						command.start(context.getInput());
 						return 1;
 					})
@@ -63,7 +62,7 @@ public class LocateCommand {
 								script,
 								context.getArgument("range", int.class)
 							);
-							ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable("commands.bigglobe.locate.searching"), false);
+							source.sendFeedback(() -> Text.translatable("commands.bigglobe.locate.searching"), false);
 							command.start(context.getInput());
 							return 1;
 						})
@@ -88,7 +87,7 @@ public class LocateCommand {
 								CompareMode.MIN,
 								context.getArgument("range", int.class)
 							);
-							ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable("commands.bigglobe.locate.searching"), false);
+							source.sendFeedback(() -> Text.translatable("commands.bigglobe.locate.searching"), false);
 							command.start(context.getInput());
 							return 1;
 						})
@@ -113,7 +112,7 @@ public class LocateCommand {
 								CompareMode.MAX,
 								context.getArgument("range", int.class)
 							);
-							ServerCommandSourceVersions.sendFeedback(source, () -> Text.translatable("commands.bigglobe.locate.searching"), false);
+							source.sendFeedback(() -> Text.translatable("commands.bigglobe.locate.searching"), false);
 							command.start(context.getInput());
 							return 1;
 						})

@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
@@ -16,8 +15,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-
-import builderb0y.bigglobe.versions.WorldVersions;
 
 public abstract class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
 
@@ -57,7 +54,7 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Wa
 	@SuppressWarnings("deprecation")
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
 		if (state.get(Properties.WATERLOGGED)) {
-			WorldVersions.scheduleFluidTick(world, pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+			world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}
 		if (direction == Direction.DOWN && !this.canPlaceAt(state, world, pos)) {
 			return BlockStates.AIR;
@@ -81,13 +78,4 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Wa
 		super.appendProperties(builder);
 		builder.add(Properties.WATERLOGGED);
 	}
-
-	#if MC_VERSION < MC_1_20_0
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public PistonBehavior getPistonBehavior(BlockState state) {
-			return PistonBehavior.DESTROY;
-		}
-	#endif
 }

@@ -50,7 +50,7 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 								player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
 								player.getWorld().getRegistryKey() == waypoint.position().world()
 							)
-							&& player.getEyePos().squaredDistanceTo(waypoint.position().x(), waypoint.position().y(), waypoint.position().z()) <= EntityVersions.getReachDistanceSquared(player)
+							&& player.getEyePos().squaredDistanceTo(waypoint.position().x(), waypoint.position().y(), waypoint.position().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
 						) {
 							ItemStack heldItem = player.getStackInHand(data.hand);
 							if (heldItem.getItem() == Items.NAME_TAG) {

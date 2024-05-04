@@ -22,11 +22,7 @@ public abstract class ClientWorld_CustomTimeSpeed extends World {
 	private double bigglobe_customTime;
 
 	public ClientWorld_CustomTimeSpeed() {
-		#if MC_VERSION <= MC_1_19_2
-			super(null, null, null, null, false, false, 0L, 0);
-		#else
-			super(null, null, null, null, null, false, false, 0L, 0);
-		#endif
+		super(null, null, null, null, null, false, false, 0L, 0);
 	}
 
 	@Shadow

@@ -26,7 +26,6 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -70,7 +69,7 @@ public class EvaluateCommand {
 						context.getSource().sendError(Text.literal(" = " + result + "; check your logs for more info."));
 					}
 					else {
-						ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.literal(" = " + result), false);
+						context.getSource().sendFeedback(() -> Text.literal(" = " + result), false);
 					}
 					return result instanceof Number number ? number.intValue() : 1;
 				})

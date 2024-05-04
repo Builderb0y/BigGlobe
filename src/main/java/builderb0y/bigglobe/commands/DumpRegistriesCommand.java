@@ -27,12 +27,8 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
-#if MC_VERSION > MC_1_19_2
 import net.minecraft.registry.RegistryLoader;
-#endif
 
 public class DumpRegistriesCommand {
 
@@ -43,7 +39,7 @@ public class DumpRegistriesCommand {
 			.executes(context -> {
 				try {
 					dumpEverything(context);
-					ServerCommandSourceVersions.sendFeedback(context.getSource(), () -> Text.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);
+					context.getSource().sendFeedback(() -> Text.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);
 				}
 				catch (Throwable throwable) {
 					BigGlobeMod.LOGGER.error("Error dumping registries:", throwable);
@@ -62,20 +58,13 @@ public class DumpRegistriesCommand {
 		//File recipeRoot     = new File(root, "recipes");
 		//File lootTablesRoot = new File(root, "loot_tables");
 		RegistryOps<JsonElement> ops = RegistryOps.of(JsonOps.INSTANCE, context.getSource().getRegistryManager());
-		#if MC_VERSION == MC_1_19_2
-			Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(DynamicRegistryManager.INFOS.size());
-			for (DynamicRegistryManager.Info<?> info : DynamicRegistryManager.INFOS.values()) {
-				dynamicCodecs.put(info.registry(), info.entryCodec());
-			}
-		#else
-			Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
-			for (RegistryLoader.Entry<?> entry : RegistryLoader.DYNAMIC_REGISTRIES) {
-				dynamicCodecs.put(entry.key(), entry.elementCodec());
-			}
-			for (RegistryLoader.Entry<?> entry : RegistryLoader.DIMENSION_REGISTRIES) {
-				dynamicCodecs.put(entry.key(), entry.elementCodec());
-			}
-		#endif
+		Map<RegistryKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryLoader.DYNAMIC_REGISTRIES.size() + RegistryLoader.DIMENSION_REGISTRIES.size());
+		for (RegistryLoader.Entry<?> entry : RegistryLoader.DYNAMIC_REGISTRIES) {
+			dynamicCodecs.put(entry.key(), entry.elementCodec());
+		}
+		for (RegistryLoader.Entry<?> entry : RegistryLoader.DIMENSION_REGISTRIES) {
+			dynamicCodecs.put(entry.key(), entry.elementCodec());
+		}
 
 		dumpRegistries(context, registryRoot, tagsRoot, dynamicCodecs, ops);
 		//this code is disabled because mojang has not implemented shaped recipe serializing yet.

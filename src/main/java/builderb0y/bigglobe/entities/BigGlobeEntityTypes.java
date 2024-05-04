@@ -15,9 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION > MC_1_19_2
 import net.minecraft.resource.featuretoggle.FeatureSet;
-#endif
 
 public class BigGlobeEntityTypes {
 
@@ -110,10 +108,8 @@ public class BigGlobeEntityTypes {
 				1.0F,
 				#endif
 				maxTrackDistance,
-				trackTickInterval
-				#if MC_VERSION > MC_1_19_2
-					, FeatureSet.empty()
-				#endif
+				trackTickInterval,
+				FeatureSet.empty()
 			)
 		);
 	}

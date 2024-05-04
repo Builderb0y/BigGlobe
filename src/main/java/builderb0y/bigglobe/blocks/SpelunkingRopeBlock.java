@@ -335,13 +335,4 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
 		return state.with(FACING, mirror.apply(state.get(FACING)));
 	}
-
-	#if MC_VERSION < MC_1_20_0
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public PistonBehavior getPistonBehavior(BlockState state) {
-			return PistonBehavior.DESTROY;
-		}
-	#endif
 }

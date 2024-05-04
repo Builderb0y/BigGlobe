@@ -2,6 +2,7 @@ package builderb0y.bigglobe.versions;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -11,10 +12,6 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
-#if MC_VERSION <= MC_1_19_4
-import builderb0y.bigglobe.mixins.Entity_PortalCooldownSetter;
-#endif
-
 public class EntityVersions {
 
 	public static World getWorld(Entity entity) {
@@ -22,11 +19,7 @@ public class EntityVersions {
 	}
 
 	public static ServerWorld getServerWorld(ServerPlayerEntity player) {
-		#if MC_VERSION < MC_1_20_0
-			return player.getWorld();
-		#else
-			return player.getServerWorld();
-		#endif
+		return player.getServerWorld();
 	}
 
 	public static boolean isOnGround(Entity entity) {
@@ -34,27 +27,35 @@ public class EntityVersions {
 	}
 
 	public static ItemStack getAmmunition(PlayerEntity player, ItemStack weapon) {
-		#if MC_VERSION <= MC_1_19_2
-			return player.getArrowType(weapon);
+		return player.getProjectileType(weapon);
+	}
+
+	public static double getBlockReachDistance(PlayerEntity player) {
+		#if MC_VERSION >= MC_1_20_5
+			return player.getAttributeValue(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE);
 		#else
-			return player.getProjectileType(weapon);
+			return 8.0D;
 		#endif
 	}
 
-	public static double getReachDistance(PlayerEntity player) {
-		return 8.0D;
+	public static double getBlockReachDistanceSquared(PlayerEntity player) {
+		return BigGlobeMath.squareD(getBlockReachDistance(player));
 	}
 
-	public static double getReachDistanceSquared(PlayerEntity player) {
-		return BigGlobeMath.squareD(getReachDistance(player));
+	public static double getEntityReachDistance(PlayerEntity player) {
+		#if MC_VERSION >= MC_1_20_5
+			return player.getAttributeValue(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE);
+		#else
+			return 8.0D;
+		#endif
+	}
+
+	public static double getEntityReachDistanceSquared(PlayerEntity player) {
+		return BigGlobeMath.squareD(getEntityReachDistance(player));
 	}
 
 	public static void setPortalCooldown(Entity entity, int cooldown) {
-		#if MC_VERSION > MC_1_19_4
-			entity.setPortalCooldown(cooldown);
-		#else
-			((Entity_PortalCooldownSetter)(entity)).bigglobe_setPortalCooldown(cooldown);
-		#endif
+		entity.setPortalCooldown(cooldown);
 	}
 
 	public static Box getBoundingBox(EntityType<?> type, double x, double y, double z) {

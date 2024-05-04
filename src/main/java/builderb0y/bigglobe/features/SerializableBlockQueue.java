@@ -27,9 +27,7 @@ import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION > MC_1_19_2
 import net.minecraft.registry.RegistryWrapper;
-#endif
 
 public class SerializableBlockQueue extends BlockQueue {
 
@@ -137,16 +135,10 @@ public class SerializableBlockQueue extends BlockQueue {
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
 		NbtList paletteNBT = nbt.getList("palette", NbtElement.COMPOUND_TYPE);
 		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
-		#if MC_VERSION == MC_1_19_2
-			for (int index = 0, size = paletteNBT.size(); index < size; index++) {
-				palette.add(NbtHelper.toBlockState(paletteNBT.getCompound(index)));
-			}
-		#else
-			RegistryWrapper<Block> registry = RegistryVersions.block().getReadOnlyWrapper();
-			for (int index = 0, size = paletteNBT.size(); index < size; index++) {
-				palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
-			}
-		#endif
+		RegistryWrapper<Block> registry = RegistryVersions.block().getReadOnlyWrapper();
+		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
+			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
+		}
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
 		NbtList blockEntities = nbt.getList("blockEntities", NbtElement.COMPOUND_TYPE);

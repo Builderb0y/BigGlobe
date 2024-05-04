@@ -10,7 +10,6 @@ import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.TagsVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 

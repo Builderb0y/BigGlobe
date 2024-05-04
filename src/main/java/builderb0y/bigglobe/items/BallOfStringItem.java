@@ -104,18 +104,17 @@ public class BallOfStringItem extends Item
 		return true;
 	}
 
+	@Override
 	#if MC_VERSION >= MC_1_20_5
-		@Override
-		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-			super.appendTooltip(stack, context, tooltip, type);
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 	#else
-		@Override
-		public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-			super.appendTooltip(stack, world, tooltip, context);
+	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+		super.appendTooltip(stack, world, tooltip, context);
 	#endif
 
-			int damage = ItemStackVersions.getDamage(stack);
-			int maxDamage = ItemStackVersions.getMaxDamage(stack);
+		int damage = ItemStackVersions.getDamage(stack);
+		int maxDamage = ItemStackVersions.getMaxDamage(stack);
 		tooltip.add(Text.translatable("tooltip." + BigGlobeMod.MODID + ".ball_of_string.remaining", maxDamage - damage, maxDamage));
 	}
 
@@ -130,15 +129,4 @@ public class BallOfStringItem extends Item
 		ItemStackVersions.setDamage(stack, damage);
 		ItemStackVersions.setMaxDamage(stack, maxDamage);
 	}
-
-	#if MC_VERSION <= MC_1_19_2
-		@Override
-		public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-			if (this.isIn(group)) {
-				stacks.add(BigGlobeItems.string(16));
-				stacks.add(BigGlobeItems.string(64));
-				stacks.add(BigGlobeItems.string(256));
-			}
-		}
-	#endif
 }

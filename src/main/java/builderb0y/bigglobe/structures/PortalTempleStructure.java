@@ -48,7 +48,6 @@ import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
-import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -312,7 +311,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public PositionState(NbtCompound nbt) {
 			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(#if (MC_VERSION > MC_1_19_2) RegistryVersions.block().getReadOnlyWrapper(), #endif nbt);
+			this.state = NbtHelper.toBlockState(RegistryVersions.block().getReadOnlyWrapper(), nbt);
 			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
@@ -727,7 +726,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				double x = posNBT.getDouble(0) + this.centerPos.getX();
 				double y = posNBT.getDouble(1) + this.centerPos.getY();
 				double z = posNBT.getDouble(2) + this.centerPos.getZ();
-				BlockPos pos = BlockPosVersions.floor(x, y, z);
+				BlockPos pos = BlockPos.ofFloored(x, y, z);
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x, y, z));
 					EntityType.getEntityFromNbt(nbt, world.toServerWorld()).ifPresent(entity -> {
@@ -1259,11 +1258,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
 			root.setBlockState(0, 0, 0, Blocks.SPAWNER.getDefaultState());
 			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
-				#if MC_VERSION <= MC_1_19_2
-					spawner.getLogic().setEntityId(EntityType.BLAZE);
-				#else
-					spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
-				#endif
+				spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
 			});
 		}
 	}

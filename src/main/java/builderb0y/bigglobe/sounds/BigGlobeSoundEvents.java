@@ -16,11 +16,7 @@ public class BigGlobeSoundEvents {
 		return Registry.register(
 			RegistryVersions.soundEvent(),
 			id,
-			#if MC_VERSION <= MC_1_19_2
-				new SoundEvent(id)
-			#else
-				SoundEvent.of(id)
-			#endif
+			SoundEvent.of(id)
 		);
 	}
 

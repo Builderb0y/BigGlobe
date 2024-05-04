@@ -10,11 +10,7 @@ import net.minecraft.registry.tag.TagKey;
 public class RegistryEntryListVersions {
 
 	public static <T> Optional<TagKey<T>> getKeyOptional(RegistryEntryList<T> list) {
-		#if MC_VERSION <= MC_1_19_2
-			return list.getStorage().left();
-		#else
-			return list.getTagKey();
-		#endif
+		return list.getTagKey();
 	}
 
 	public static <T> @Nullable TagKey<T> getKeyNullable(RegistryEntryList<T> list) {

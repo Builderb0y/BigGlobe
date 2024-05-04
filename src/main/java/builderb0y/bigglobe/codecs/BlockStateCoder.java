@@ -45,19 +45,11 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static <T_Encoded> void verifyNormal(VerifyContext<T_Encoded, BlockState> context) throws VerifyException {
 		BlockState state = context.object;
-		#if MC_VERSION >= MC_1_20_0
-			if (state != null && (state.hasBlockEntity() || PointOfInterestTypes.getTypeForState(state).isPresent())) {
-		#else
-			if (state != null && (state.getLuminance() != 0 || state.hasBlockEntity() || PointOfInterestTypes.getTypeForState(state).isPresent())) {
-		#endif
+		if (state != null && (state.hasBlockEntity() || PointOfInterestTypes.getTypeForState(state).isPresent())) {
 			throw new VerifyException(() -> {
 				StringBuilder message = new StringBuilder("For technical reasons, ");
 				context.appendPathTo(message);
-				#if MC_VERSION >= MC_1_20_0
-					return message.append(" cannot have a BlockEntity or be a point of interest. (was ").append(state).append(')').toString();
-				#else
-					return message.append(" cannot emit light, have a BlockEntity, or be a point of interest. (was ").append(state).append(')').toString();
-				#endif
+				return message.append(" cannot have a BlockEntity or be a point of interest. (was ").append(state).append(')').toString();
 			});
 		}
 	}

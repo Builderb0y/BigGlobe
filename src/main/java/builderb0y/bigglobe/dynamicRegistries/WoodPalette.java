@@ -27,7 +27,6 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.versions.BlockStateVersions;
 
 @SuppressWarnings("unused")
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
@@ -92,10 +91,8 @@ public class WoodPalette {
 	public Block pottedSaplingBlock  (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.POTTED_SAPLING   ); }
 	public Block standingSignBlock   (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.STANDING_SIGN    ); }
 	public Block wallSignBlock       (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_SIGN        ); }
-	#if MC_VERSION >= MC_1_20_0
 	public Block hangingSignBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.HANGING_SIGN     ); }
 	public Block wallHangingSignBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_HANGING_SIGN); }
-	#endif
 
 	//////////////////////////////// blocks ////////////////////////////////
 
@@ -123,10 +120,8 @@ public class WoodPalette {
 	public IRandomList<Block> pottedSaplingBlocks  () { return this.getBlocks(WoodPaletteType.POTTED_SAPLING   ); }
 	public IRandomList<Block> standingSignBlocks   () { return this.getBlocks(WoodPaletteType.STANDING_SIGN    ); }
 	public IRandomList<Block> wallSignBlocks       () { return this.getBlocks(WoodPaletteType.WALL_SIGN        ); }
-	#if MC_VERSION >= MC_1_20_0
 	public IRandomList<Block> hangingSignBlocks    () { return this.getBlocks(WoodPaletteType.HANGING_SIGN     ); }
 	public IRandomList<Block> wallHangingSignBlocks() { return this.getBlocks(WoodPaletteType.WALL_HANGING_SIGN); }
-	#endif
 
 	//////////////////////////////// states ////////////////////////////////
 
@@ -136,25 +131,25 @@ public class WoodPalette {
 
 	public BlockState logState(RandomGenerator random, Axis axis) {
 		BlockState state = this.getState(random, WoodPaletteType.LOG);
-		state = BlockStateVersions.withIfExists(state, Properties.AXIS, axis);
+		state = state.withIfExists(Properties.AXIS, axis);
 		return state;
 	}
 
 	public BlockState woodState(RandomGenerator random, Axis axis) {
 		BlockState state = this.getState(random, WoodPaletteType.WOOD);
-		state = BlockStateVersions.withIfExists(state, Properties.AXIS, axis);
+		state = state.withIfExists(Properties.AXIS, axis);
 		return state;
 	}
 
 	public BlockState strippedLogState(RandomGenerator random, Axis axis) {
 		BlockState state = this.getState(random, WoodPaletteType.STRIPPED_LOG);
-		state = BlockStateVersions.withIfExists(state, Properties.AXIS, axis);
+		state = state.withIfExists(Properties.AXIS, axis);
 		return state;
 	}
 
 	public BlockState strippedWoodState(RandomGenerator random, Axis axis) {
 		BlockState state = this.getState(random, WoodPaletteType.STRIPPED_WOOD);
-		state = BlockStateVersions.withIfExists(state, Properties.AXIS, axis);
+		state = state.withIfExists(Properties.AXIS, axis);
 		return state;
 	}
 
@@ -164,76 +159,76 @@ public class WoodPalette {
 
 	public BlockState stairsState(RandomGenerator random, Direction facing, BlockHalf half, StairShape shape, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.STAIRS);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.BLOCK_HALF, half);
-		state = BlockStateVersions.withIfExists(state, Properties.STAIR_SHAPE, shape);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
+		state = state.withIfExists(Properties.HORIZONTAL_FACING, facing);
+		state = state.withIfExists(Properties.BLOCK_HALF, half);
+		state = state.withIfExists(Properties.STAIR_SHAPE, shape);
+		state = state.withIfExists(Properties.WATERLOGGED, waterlogged);
 		return state;
 	}
 
 	public BlockState slabState(RandomGenerator random, BlockHalf half, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.SLAB);
-		state = BlockStateVersions.withIfExists(state, Properties.BLOCK_HALF, half);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
+		state = state.withIfExists(Properties.BLOCK_HALF, half);
+		state = state.withIfExists(Properties.WATERLOGGED, waterlogged);
 		return state;
 	}
 
 	public BlockState fenceState(RandomGenerator random, boolean north, boolean east, boolean south, boolean west, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.FENCE);
-		state = BlockStateVersions.withIfExists(state, Properties.NORTH, north);
-		state = BlockStateVersions.withIfExists(state, Properties.EAST, east);
-		state = BlockStateVersions.withIfExists(state, Properties.SOUTH, south);
-		state = BlockStateVersions.withIfExists(state, Properties.WEST, west);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
+		state = state.withIfExists(Properties.NORTH, north);
+		state = state.withIfExists(Properties.EAST, east);
+		state = state.withIfExists(Properties.SOUTH, south);
+		state = state.withIfExists(Properties.WEST, west);
+		state = state.withIfExists(Properties.WATERLOGGED, waterlogged);
 		return state;
 	}
 
 	public BlockState fenceGateState(RandomGenerator random, Direction facing, boolean open, boolean in_wall, boolean powered) {
 		BlockState state = this.getState(random, WoodPaletteType.FENCE_GATE);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.OPEN, open);
-		state = BlockStateVersions.withIfExists(state, Properties.IN_WALL, in_wall);
-		state = BlockStateVersions.withIfExists(state, Properties.POWERED, powered);
+		state = state.withIfExists(Properties.HORIZONTAL_FACING, facing);
+		state = state.withIfExists(Properties.OPEN, open);
+		state = state.withIfExists(Properties.IN_WALL, in_wall);
+		state = state.withIfExists(Properties.POWERED, powered);
 		return state;
 	}
 
 	public BlockState doorState(RandomGenerator random, Direction facing, DoubleBlockHalf half, DoorHinge hinge, boolean open, boolean powered) {
 		BlockState state = this.getState(random, WoodPaletteType.DOOR);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.DOUBLE_BLOCK_HALF, half);
-		state = BlockStateVersions.withIfExists(state, Properties.DOOR_HINGE, hinge);
-		state = BlockStateVersions.withIfExists(state, Properties.OPEN, open);
-		state = BlockStateVersions.withIfExists(state, Properties.POWERED, powered);
+		state = state.withIfExists(Properties.HORIZONTAL_FACING, facing);
+		state = state.withIfExists(Properties.DOUBLE_BLOCK_HALF, half);
+		state = state.withIfExists(Properties.DOOR_HINGE, hinge);
+		state = state.withIfExists(Properties.OPEN, open);
+		state = state.withIfExists(Properties.POWERED, powered);
 		return state;
 	}
 
 	public BlockState trapdoorState(RandomGenerator random, Direction facing, BlockHalf half, boolean open, boolean powered, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.TRAPDOOR);
-		state = BlockStateVersions.withIfExists(state, Properties.HORIZONTAL_FACING, facing);
-		state = BlockStateVersions.withIfExists(state, Properties.BLOCK_HALF, half);
-		state = BlockStateVersions.withIfExists(state, Properties.OPEN, open);
-		state = BlockStateVersions.withIfExists(state, Properties.POWERED, powered);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
+		state = state.withIfExists(Properties.HORIZONTAL_FACING, facing);
+		state = state.withIfExists(Properties.BLOCK_HALF, half);
+		state = state.withIfExists(Properties.OPEN, open);
+		state = state.withIfExists(Properties.POWERED, powered);
+		state = state.withIfExists(Properties.WATERLOGGED, waterlogged);
 		return state;
 	}
 
 	public BlockState pressurePlateState(RandomGenerator random, boolean powered) {
 		BlockState state = this.getState(random, WoodPaletteType.PRESSURE_PLATE);
-		state = BlockStateVersions.withIfExists(state, Properties.POWERED, powered);
+		state = state.withIfExists(Properties.POWERED, powered);
 		return state;
 	}
 
 	public BlockState leavesState(RandomGenerator random, @Range(from = 1, to = 7) int distance, boolean persistent, boolean waterlogged) {
 		BlockState state = this.getState(random, WoodPaletteType.LEAVES);
-		state = BlockStateVersions.withIfExists(state, Properties.DISTANCE_1_7, distance);
-		state = BlockStateVersions.withIfExists(state, Properties.PERSISTENT, persistent);
-		state = BlockStateVersions.withIfExists(state, Properties.WATERLOGGED, waterlogged);
+		state = state.withIfExists(Properties.DISTANCE_1_7, distance);
+		state = state.withIfExists(Properties.PERSISTENT, persistent);
+		state = state.withIfExists(Properties.WATERLOGGED, waterlogged);
 		return state;
 	}
 
 	public BlockState saplingState(RandomGenerator random, @Range(from = 0, to = 1) int stage) {
 		BlockState state = this.getState(random, WoodPaletteType.SAPLING);
-		state = BlockStateVersions.withIfExists(state, Properties.STAGE, stage);
+		state = state.withIfExists(Properties.STAGE, stage);
 		return state;
 	}
 
@@ -262,10 +257,8 @@ public class WoodPalette {
 		POTTED_SAPLING,
 		STANDING_SIGN,
 		WALL_SIGN,
-		#if MC_VERSION >= MC_1_20_0
 		HANGING_SIGN,
 		WALL_HANGING_SIGN,
-		#endif
 		;
 
 		public static final WoodPaletteType[] VALUES = values();

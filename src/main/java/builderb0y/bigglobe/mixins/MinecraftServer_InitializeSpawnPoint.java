@@ -29,11 +29,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				#if MC_VERSION <= MC_1_19_2
-					ConfiguredFeature<?, ?> feature = MiscConfiguredFeatures.BONUS_CHEST.value();
-				#else
-					ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(MiscConfiguredFeatures.BONUS_CHEST);
-				#endif
+				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(MiscConfiguredFeatures.BONUS_CHEST);
 				if (feature != null) feature.generate(
 					world,
 					world.getChunkManager().getChunkGenerator(),

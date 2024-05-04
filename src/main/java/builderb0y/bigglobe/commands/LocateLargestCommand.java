@@ -5,14 +5,11 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestCommand.Result> {
 
@@ -97,7 +94,7 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 				this.source.sendError(Text.translatable("commands.bigglobe.locate.largest.fail", this.predicate.getSource(), this.radius));
 			}
 			else {
-				ServerCommandSourceVersions.sendFeedback(this.source, () -> Text.translatable("commands.bigglobe.locate.largest.success", this.predicate.getSource(), this.radius), false);
+				this.source.sendFeedback(() -> Text.translatable("commands.bigglobe.locate.largest.success", this.predicate.getSource(), this.radius), false);
 				this.sendResults();
 			}
 		}

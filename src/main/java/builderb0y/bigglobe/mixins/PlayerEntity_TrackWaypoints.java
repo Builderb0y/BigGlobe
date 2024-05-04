@@ -23,11 +23,7 @@ public class PlayerEntity_TrackWaypoints implements WaypointTracker {
 	public PlayerWaypointManager bigglobe_waypoints;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	#if MC_VERSION > MC_1_19_2
-		private void bigglobe_initPlayerWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
-	#else
-		private void bigglobe_initPlayerWaypointManager(World world, BlockPos blockPos, float f, GameProfile gameProfile, PlayerPublicKey playerPublicKey, CallbackInfo callback) {
-	#endif
+	private void bigglobe_initPlayerWaypointManager(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo callback) {
 		this.bigglobe_waypoints = PlayerWaypointManager.forPlayer((PlayerEntity)(Object)(this));
 	}
 

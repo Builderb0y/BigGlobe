@@ -1,9 +1,14 @@
 package builderb0y.bigglobe.recipes;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
 
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
@@ -16,30 +21,18 @@ import builderb0y.scripting.parsing.*;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-#if MC_VERSION >= MC_1_19_4
-	import builderb0y.autocodec.annotations.MemberUsage;
-	import builderb0y.autocodec.annotations.UseCoder;
-	import builderb0y.autocodec.coders.AutoCoder;
-	import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-	import net.minecraft.recipe.book.CraftingRecipeCategory;
-#endif
-
 public class ScriptedRecipeClasses {
 
-	#if MC_VERSION >= MC_1_19_4
-		public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC, false);
-	#endif
+	public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC, false);
 
 	/** workaround for only some MC versions needing "value": {} */
 	public static record ScriptedRecipeData(
-		#if MC_VERSION >= MC_1_19_4
 		@UseCoder(
 			name = "CATEGORY_CODER",
 			in = ScriptedRecipeClasses.class,
 			usage = MemberUsage.FIELD_CONTAINS_HANDLER
 		)
 		CraftingRecipeCategory category,
-		#endif
 		int width,
 		int height,
 		CraftingMatchesScript.Holder matches,

@@ -3,7 +3,6 @@ package builderb0y.bigglobe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
@@ -16,7 +15,12 @@ import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.registry.*;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryOps.RegistryInfo;
+import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
+import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -47,7 +51,9 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
-import builderb0y.bigglobe.networking.packets.*;
+import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
+import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
+import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -56,11 +62,6 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 import builderb0y.scripting.util.InfoHolder;
-
-#if MC_VERSION > MC_1_19_2
-import net.minecraft.registry.RegistryOps.RegistryInfo;
-import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
-#endif
 
 public class ClientState {
 
@@ -125,7 +126,7 @@ public class ClientState {
 	}
 
 	public static <T> SimpleRegistry<T> convertToSimpleRegistry(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
-		SimpleRegistry<T> registry = new SimpleRegistry<>(key, Lifecycle.experimental() #if MC_VERSION <= MC_1_19_2 , null #endif);
+		SimpleRegistry<T> registry = new SimpleRegistry<>(key, Lifecycle.experimental());
 		for (Map.Entry<Identifier, T> entry : map.entrySet()) {
 			Registry.register(registry, entry.getKey(), entry.getValue());
 		}
@@ -144,38 +145,18 @@ public class ClientState {
 			SimpleRegistry<ScriptTemplate> registry = convertToSimpleRegistry(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, this);
 			return RegistryOps.of(
 				delegate,
-				#if MC_VERSION > MC_1_19_2
-					new RegistryInfoGetter() {
+				new RegistryInfoGetter() {
 
-						@Override
-						@SuppressWarnings({ "unchecked", "rawtypes" })
-						public <T> Optional<RegistryInfo<T>> getRegistryInfo(RegistryKey<? extends Registry<? extends T>> key) {
-							return (
-								((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))
-								? (Optional)(Optional.of(new RegistryInfo<>(registry.getEntryOwner(), registry.createMutableEntryLookup(), registry.getLifecycle())))
-								: Optional.empty()
-							);
-						}
+					@Override
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					public <T> Optional<RegistryInfo<T>> getRegistryInfo(RegistryKey<? extends Registry<? extends T>> key) {
+						return (
+							((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))
+							? (Optional)(Optional.of(new RegistryInfo<>(registry.getEntryOwner(), registry.createMutableEntryLookup(), registry.getLifecycle())))
+							: Optional.empty()
+						);
 					}
-				#else
-					new DynamicRegistryManager() {
-
-						@Override
-						@SuppressWarnings({ "unchecked", "rawtypes" })
-						public <E> Optional<Registry<E>> getOptionalManaged(RegistryKey<? extends Registry<? extends E>> registryKey) {
-							return (
-								((RegistryKey<?>)(registryKey)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))
-								? (Optional)(Optional.of(registry))
-								: Optional.empty()
-							);
-						}
-
-						@Override
-						public Stream<DynamicRegistryManager.Entry<?>> streamManagedRegistries() {
-							return Stream.of(new DynamicRegistryManager.Entry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, registry));
-						}
-					}
-				#endif
+				}
 			);
 		}
 	}

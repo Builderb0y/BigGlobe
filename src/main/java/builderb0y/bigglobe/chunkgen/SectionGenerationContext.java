@@ -20,9 +20,6 @@ public class SectionGenerationContext {
 	public final ChunkSection section;
 	public final int sectionStartY;
 	public final long worldSeed;
-	#if MC_VERSION < MC_1_20_0
-	public final @Nullable LightPositionCollector lights;
-	#endif
 
 	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed) {
 		if ((sectionStartY & 15) != 0) {
@@ -32,9 +29,6 @@ public class SectionGenerationContext {
 		this.section       = section;
 		this.sectionStartY = sectionStartY;
 		this.worldSeed     = worldSeed;
-		#if MC_VERSION < MC_1_20_0
-			this.lights = chunk instanceof ProtoChunk ? new LightPositionCollector(this.startX(), this.startY(), this.startZ()) : null;
-		#endif
 	}
 
 	public static SectionGenerationContext forSectionIndex(Chunk chunk, ChunkSection section, int index, long worldSeed) {
@@ -49,27 +43,6 @@ public class SectionGenerationContext {
 		return new SectionGenerationContext(chunk, section, blockCoord, worldSeed);
 	}
 
-	public void addLight(int index) {
-		#if MC_VERSION < MC_1_20_0
-			if (this.lights != null) {
-				this.lights.add(index);
-			}
-		#endif
-	}
-
-	public boolean hasLights() {
-		#if MC_VERSION < MC_1_20_0
-			return this.lights != null && !this.lights.isEmpty();
-		#else
-			return false;
-		#endif
-	}
-
-	#if MC_VERSION < MC_1_20_0
-		public @Nullable LightPositionCollector lights() { return this.lights; }
-	#else
-		public @Nullable LightPositionCollector lights() { return null; }
-	#endif
 	public Chunk chunk() { return this.chunk; }
 	public ChunkPos chunkPos() { return this.chunk.getPos(); }
 	public ChunkSection section() { return this.section; }

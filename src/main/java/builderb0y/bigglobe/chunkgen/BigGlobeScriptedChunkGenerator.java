@@ -4,7 +4,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -26,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.structure.*;
@@ -47,6 +51,7 @@ import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
@@ -80,9 +85,8 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
-import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
+import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
@@ -91,7 +95,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
-import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -100,20 +103,13 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
+import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION > MC_1_19_2
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-#endif
-
 @AddPseudoField("biome_source")
-#if MC_VERSION <= MC_1_19_2
-@AddPseudoField("structure_set_registry")
-#endif
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
@@ -178,9 +174,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 
 	public BigGlobeScriptedChunkGenerator(
-		#if MC_VERSION == MC_1_19_2
-			BetterRegistry<StructureSet> structure_set_registry,
-		#endif
 		@VerifyNullable String reload_dimension,
 		Height height,
 		RootLayer layer,
@@ -193,13 +186,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@VerifyNullable EndOverrides end_overrides,
 		SortedStructures sortedStructures
 	) {
-		super(
-			#if (MC_VERSION == MC_1_19_2)
-				((BetterHardCodedRegistry<StructureSet>)(structure_set_registry)).registry,
-				Optional.empty(),
-			#endif
-			biome_source
-		);
+		super(biome_source);
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
@@ -236,12 +223,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@Override
 		public void initializeIndexedFeaturesList() {
 			//no-op.
-		}
-	#endif
-
-	#if MC_VERSION <= MC_1_19_2
-		public BetterRegistry<StructureSet> structure_set_registry() {
-			return new BetterHardCodedRegistry<>(this.structureSetRegistry);
 		}
 	#endif
 
@@ -348,19 +329,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.columnSeed = Hashing.sha256().hashLong(columnSeed).asLong();
 	}
 
-	#if MC_VERSION > MC_1_19_2
-		@Override
-		public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
-			this.setSeed(seed);
-			return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
-		}
-	#else
-		@Override
-		public void computeStructurePlacementsIfNeeded(NoiseConfig noiseConfig) {
-			this.setSeed(noiseConfig.getLegacyWorldSeed());
-			super.computeStructurePlacementsIfNeeded(noiseConfig);
-		}
-	#endif
+	@Override
+	public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
+		this.setSeed(seed);
+		return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
+	}
 
 	@Override
 	public #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif<? extends ChunkGenerator> getCodec() {
@@ -709,13 +682,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
 		int references = existingStart != null ? existingStart.getReferences() : 0;
-		StructurePosition newStartPosition = structure.
-		#if MC_VERSION > MC_1_19_2
-			getValidStructurePosition
-		#else
-			getStructurePosition
-		#endif
-		(
+		StructurePosition newStartPosition = structure.getValidStructurePosition(
 			new Structure.Context(
 				dynamicRegistryManager,
 				this,
@@ -791,9 +758,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public CompletableFuture<Chunk> populateBiomes(
-		#if MC_VERSION == MC_1_19_2
-			Registry<Biome> biomeRegistry,
-		#endif
 		Executor executor,
 		NoiseConfig noiseConfig,
 		Blender blender,
@@ -802,9 +766,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	) {
 		if (!(this.biomeSource instanceof ScriptedColumnBiomeSource source)) {
 			return super.populateBiomes(
-				#if MC_VERSION == MC_1_19_2
-					biomeRegistry,
-				#endif
 				executor,
 				noiseConfig,
 				blender,

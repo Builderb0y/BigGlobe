@@ -485,11 +485,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
-			#if MC_VERSION <= MC_1_19_2
-				spawner.getLogic().setEntityId(this.spawnerType);
-			#else
-				spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
-			#endif
+			spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
 		}
 	}
 

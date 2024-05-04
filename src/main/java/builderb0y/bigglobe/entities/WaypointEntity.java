@@ -35,11 +35,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
-#if MC_VERSION <= MC_1_19_2
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-#endif
-
 public class WaypointEntity extends Entity {
 
 	public static final float MAX_HEALTH = 5.0F;
@@ -51,11 +46,7 @@ public class WaypointEntity extends Entity {
 				waypoint.data != null
 			) {
 				if (!player.isSpectator()) {
-					#if MC_VERSION > MC_1_19_2
 					waypoint.damage(player.getDamageSources().playerAttack(player), 1.0F);
-					#else
-					waypoint.damage(DamageSource.player(player), 1.0F);
-					#endif
 					if (!(waypoint.health > 0.0F)) {
 						WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
 					}
@@ -112,12 +103,10 @@ public class WaypointEntity extends Entity {
 		return true;
 	}
 
-	#if MC_VERSION > MC_1_19_2
-		@Override
-		public boolean canBeHitByProjectile() {
-			return false;
-		}
-	#endif
+	@Override
+	public boolean canBeHitByProjectile() {
+		return false;
+	}
 
 	@Override
 	public boolean canUsePortals() {
@@ -204,13 +193,10 @@ public class WaypointEntity extends Entity {
 		return false;
 	}
 
-	#if MC_VERSION > MC_1_19_2
-
-		@Override
-		public boolean couldAcceptPassenger() {
-			return false;
-		}
-	#endif
+	@Override
+	public boolean couldAcceptPassenger() {
+		return false;
+	}
 
 	@Override
 	public boolean canAvoidTraps() {
@@ -231,14 +217,6 @@ public class WaypointEntity extends Entity {
 	public void readCustomDataFromNbt(NbtCompound nbt) {
 		//not savable.
 	}
-
-	#if MC_VERSION <= MC_1_19_2
-
-		@Override
-		public Packet<?> createSpawnPacket() {
-			return new EntitySpawnS2CPacket(this);
-		}
-	#endif
 
 	public static abstract class Orbit {
 

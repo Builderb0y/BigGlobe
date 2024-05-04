@@ -8,6 +8,7 @@ import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -18,7 +19,6 @@ import net.minecraft.world.*;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.versions.TagsVersions;
 
 public abstract class SoulLavaFluid extends FlowableFluid {
 
@@ -32,17 +32,10 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 		return BigGlobeFluids.SOUL_LAVA;
 	}
 
-	#if MC_VERSION <= MC_1_19_2
-		@Override
-		public boolean isInfinite() {
-			return false;
-		}
-	#else
-		@Override
-		public boolean isInfinite(World world) {
-			return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
-		}
-	#endif
+	@Override
+	public boolean isInfinite(World world) {
+		return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
+	}
 
 	@Override
 	public void beforeBreakingBlock(WorldAccess world, BlockPos pos, BlockState state) {
@@ -67,7 +60,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	@Override
 	@SuppressWarnings("deprecation") //this is what vanilla does.
 	public boolean canBeReplacedWith(FluidState state, BlockView world, BlockPos pos, Fluid fluid, Direction direction) {
-		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(TagsVersions.water());
+		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(FluidTags.WATER);
 	}
 
 	@Override

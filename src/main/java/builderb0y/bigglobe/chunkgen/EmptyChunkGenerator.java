@@ -50,14 +50,9 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION > MC_1_19_2
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-#endif
 
 @AddPseudoField("biome_source")
-#if MC_VERSION <= MC_1_19_2
-@AddPseudoField("structure_set_registry")
-#endif
 public class EmptyChunkGenerator extends ChunkGenerator {
 
 	#if MC_VERSION >= MC_1_20_5
@@ -70,31 +65,16 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	public final Height height;
 
 	public EmptyChunkGenerator(
-		#if MC_VERSION <= MC_1_19_2
-		BetterRegistry<StructureSet> structure_set_registry,
-		#endif
 		Height height,
 		BiomeSource biome_source
 	) {
-		super(
-			#if MC_VERSION <= MC_1_19_2
-			((BetterHardCodedRegistry<StructureSet>)(structure_set_registry)).registry,
-			Optional.empty(),
-			#endif
-			biome_source
-		);
+		super(biome_source);
 		this.height = height;
 	}
 
 	public BiomeSource biome_source() {
 		return this.biomeSource;
 	}
-
-	#if MC_VERSION <= MC_1_19_2
-		public BetterRegistry<StructureSet> structure_set_registry() {
-			return new BetterHardCodedRegistry<>(this.structureSetRegistry);
-		}
-	#endif
 
 	public static void init() {
 		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("empty"), CODEC);
@@ -173,17 +153,10 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		return Pool.empty();
 	}
 
-	#if MC_VERSION > MC_1_19_2
-		@Override
-		public void setStructureStarts(DynamicRegistryManager registryManager, StructurePlacementCalculator placementCalculator, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager) {
+	@Override
+	public void setStructureStarts(DynamicRegistryManager registryManager, StructurePlacementCalculator placementCalculator, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager) {
 
-		}
-	#else
-		@Override
-		public void setStructureStarts(DynamicRegistryManager dynamicRegistryManager, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, StructureTemplateManager structureTemplateManager, long l) {
-
-		}
-	#endif
+	}
 
 	@Override
 	public boolean trySetStructureStart(WeightedEntry weightedEntry, StructureAccessor structureAccessor, DynamicRegistryManager dynamicRegistryManager, NoiseConfig noiseConfig, StructureTemplateManager structureManager, long seed, Chunk chunk, ChunkPos pos, ChunkSectionPos sectionPos) {

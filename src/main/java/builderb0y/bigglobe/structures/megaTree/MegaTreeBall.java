@@ -67,11 +67,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 		public static RegistryEntry<Structure> getActualEntry(MegaTreeStructure structure) {
 			Registry<Structure> registry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure());
-			#if MC_VERSION > MC_1_19_2
-				return registry.getEntry(structure);
-			#else
-				return registry.getEntry(registry.getKey(structure).orElseThrow()).orElseThrow();
-			#endif
+			return registry.getEntry(structure);
 		}
 
 		public Vector3d position() {

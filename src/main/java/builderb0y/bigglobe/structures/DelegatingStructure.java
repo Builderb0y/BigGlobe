@@ -64,11 +64,7 @@ public class DelegatingStructure extends Structure {
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		#if MC_VERSION <= MC_1_19_2
-			return this.delegate.value().getStructurePosition(context);
-		#else
-			return this.delegate.value().getValidStructurePosition(context);
-		#endif
+		return this.delegate.value().getValidStructurePosition(context);
 	}
 
 	public boolean canDelegateStart() {

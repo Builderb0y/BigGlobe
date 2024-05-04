@@ -18,7 +18,6 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class BigGlobeSpawnLocator {
@@ -113,7 +112,7 @@ public class BigGlobeSpawnLocator {
 		}
 
 		public BlockPos toBlockPos() {
-			return BlockPosVersions.floor(this.x, this.y, this.z);
+			return BlockPos.ofFloored(this.x, this.y, this.z);
 		}
 	}
 }

@@ -89,11 +89,7 @@ public class MoltenRockBlock extends Block {
 			!EnchantmentHelper.hasFrostWalker(living) &&
 			world.random.nextInt((10 - this.heat) * 10) == 0
 		) {
-			#if MC_VERSION > MC_1_19_2
 			entity.damage(world.getDamageSources().hotFloor(), this.heat * 0.5F);
-			#else
-			entity.damage(DamageSource.HOT_FLOOR, this.heat * 0.5F);
-			#endif
 		}
 	}
 }

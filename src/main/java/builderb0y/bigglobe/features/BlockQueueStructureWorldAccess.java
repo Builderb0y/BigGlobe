@@ -43,9 +43,7 @@ import net.minecraft.world.tick.QueryableTickScheduler;
 
 import builderb0y.bigglobe.blocks.BlockStates;
 
-#if MC_VERSION > MC_1_19_2
 import net.minecraft.resource.featuretoggle.FeatureSet;
-#endif
 
 public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
@@ -269,10 +267,8 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 		return this.world.getWorldBorder();
 	}
 
-	#if MC_VERSION > MC_1_19_2
-		@Override
-		public FeatureSet getEnabledFeatures() {
-			return this.world.getEnabledFeatures();
-		}
-	#endif
+	@Override
+	public FeatureSet getEnabledFeatures() {
+		return this.world.getEnabledFeatures();
+	}
 }

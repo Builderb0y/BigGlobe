@@ -4,13 +4,11 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +23,6 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.versions.WorldVersions;
 
 import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
 
@@ -62,8 +59,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
 		if (state.get(HAS_ROPE) && newState != state) {
 			Direction direction = state.get(FACING);
-			WorldVersions.scheduleBlockTick(
-				world,
+			world.scheduleBlockTick(
 				new BlockPos(
 					pos.getX() + direction.getOffsetX(),
 					pos.getY() - 1,
@@ -236,7 +232,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@Override
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(FACING, #if (MC_VERSION <= MC_1_19_2) context.getPlayerFacing() #else context.getHorizontalPlayerFacing() #endif);
+		return this.getDefaultState().with(FACING, context.getHorizontalPlayerFacing());
 	}
 
 	@Override
@@ -250,13 +246,4 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HAS_ROPE);
 	}
-
-	#if MC_VERSION < MC_1_20_0
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public PistonBehavior getPistonBehavior(BlockState state) {
-			return PistonBehavior.DESTROY;
-		}
-	#endif
 }

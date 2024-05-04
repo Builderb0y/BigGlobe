@@ -45,11 +45,7 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 	}
 
 	public float downfall() {
-		#if MC_VERSION <= MC_1_19_2
-			return this.entry.value().getDownfall();
-		#else
-			return ((BiomeDownfallAccessor)(Object)(this.entry.value())).bigglobe_getDownfall();
-		#endif
+		return ((BiomeDownfallAccessor)(Object)(this.entry.value())).bigglobe_getDownfall();
 	}
 
 	@Override
@@ -70,11 +66,9 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 		return "Biome: { " + UnregisteredObjectException.getID(this.entry) + " }";
 	}
 
-	#if MC_VERSION > MC_1_19_2
-		/** implemented by {@link Biome}, but only needed in 1.19.3 and later. */
-		public static interface BiomeDownfallAccessor {
+	/** implemented by {@link Biome}, but only needed in 1.19.3 and later. */
+	public static interface BiomeDownfallAccessor {
 
-			public abstract float bigglobe_getDownfall();
-		}
-	#endif
+		public abstract float bigglobe_getDownfall();
+	}
 }

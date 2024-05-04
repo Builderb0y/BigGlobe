@@ -16,7 +16,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.commands.LocateMinMaxCommand.Result;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 
@@ -129,7 +128,7 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 				this.source.sendError(Text.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".fail", this.script.getSource(), this.radius));
 			}
 			else {
-				ServerCommandSourceVersions.sendFeedback(this.source, () -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".success", this.script.getSource(), this.radius), false);
+				this.source.sendFeedback(() -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".success", this.script.getSource(), this.radius), false);
 				this.sendResults();
 			}
 		}

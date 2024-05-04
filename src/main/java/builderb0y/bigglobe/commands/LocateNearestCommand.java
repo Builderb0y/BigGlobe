@@ -10,7 +10,6 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
-import builderb0y.bigglobe.versions.ServerCommandSourceVersions;
 
 public class LocateNearestCommand extends AsyncCommand {
 
@@ -37,8 +36,7 @@ public class LocateNearestCommand extends AsyncCommand {
 			if (!this.isValid()) return;
 			column.setParamsUnchecked(column.params.at(iterator.floorX(), iterator.floorY()));
 			if (this.script.get(column)) {
-				ServerCommandSourceVersions.sendFeedback(
-					this.source,
+				this.source.sendFeedback(
 					() -> (
 						Text
 						.translatable(
@@ -66,10 +64,6 @@ public class LocateNearestCommand extends AsyncCommand {
 				return;
 			}
 		}
-		ServerCommandSourceVersions.sendFeedback(
-			this.source,
-			() -> Text.translatable("commands.bigglobe.locate.nearest.fail", this.script.getSource()),
-			false
-		);
+		this.source.sendFeedback(() -> Text.translatable("commands.bigglobe.locate.nearest.fail", this.script.getSource()), false);
 	}
 }

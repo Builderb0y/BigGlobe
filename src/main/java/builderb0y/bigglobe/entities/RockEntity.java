@@ -7,11 +7,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
@@ -34,9 +34,7 @@ import builderb0y.bigglobe.blocks.RockBlock;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.versions.BlockPosVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
-import builderb0y.bigglobe.versions.TagsVersions;
 
 public class RockEntity extends ThrownItemEntity {
 
@@ -61,11 +59,7 @@ public class RockEntity extends ThrownItemEntity {
 	public void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
 		entityHitResult.getEntity().damage(
-			#if MC_VERSION <= MC_1_19_2
-				DamageSource.thrownProjectile(this, this.getOwner()),
-			#else
-				this.getDamageSources().thrown(this, this.getOwner()),
-			#endif
+			this.getDamageSources().thrown(this, this.getOwner()),
 			(float)(this.getVelocity().length() * 6.0D)
 		);
 		this.discard();
@@ -87,7 +81,7 @@ public class RockEntity extends ThrownItemEntity {
 				position,
 				nextPosition = position.add(velocity),
 				ShapeType.COLLIDER,
-				world.getBlockState(BlockPosVersions.floor(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
+				world.getBlockState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
 				? FluidHandling.NONE
 				: FluidHandling.ANY,
 				this
@@ -107,7 +101,7 @@ public class RockEntity extends ThrownItemEntity {
 		super.onBlockHit(blockHitResult);
 		BlockState hitState = EntityVersions.getWorld(this).getBlockState(blockHitResult.getBlockPos());
 		if (!hitState.getFluidState().isEmpty()) {
-			if (hitState.getFluidState().isIn(TagsVersions.water())) {
+			if (hitState.getFluidState().isIn(FluidTags.WATER)) {
 				if (
 					blockHitResult.getSide() == Direction.UP &&
 					this.getVelocity().horizontalLengthSquared() >= BigGlobeMath.squareD(this.getVelocity().y) * 3.0D
@@ -116,7 +110,7 @@ public class RockEntity extends ThrownItemEntity {
 				}
 				//else go through surface
 			}
-			else if (hitState.getFluidState().isIn(TagsVersions.lava())) {
+			else if (hitState.getFluidState().isIn(FluidTags.LAVA)) {
 				if (EntityVersions.getWorld(this) instanceof ServerWorld world) {
 					world.spawnParticles(ParticleTypes.LAVA, this.getX(), this.getY(), this.getZ(), 16, 0.0D, 0.0D, 0.0D, 0.0D);
 					world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.NEUTRAL, 1.0F, 1.0F);
