@@ -28,7 +28,7 @@ where I left off:
 	make tree trunk thicknesses scriptable.
 
 changelog:
-	* Fixed errors while generating features in the nether.
+	* Fixed errors while generating features in the nether in MC 1.20.6.
 	* Fixed compatibility with lithium (hopefully).
 	* Fixed compatibility with biome-modifying mods (they still won't do anything in big globe worlds, but they shouldn't crash anymore).
 	* Added armadillos to deserts (MC 1.20.6 only).
