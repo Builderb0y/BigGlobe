@@ -9,13 +9,13 @@ public class SlantedTrunkConfig extends TrunkConfig {
 		int startY,
 		double startZ,
 		int height,
-		double startRadius,
 		double dx,
 		double dz,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
-		super(startX, startY, startZ, height, startRadius, requireValidGround, canGenerateInLiquid);
+		super(startX, startY, startZ, height, thicknessScript, requireValidGround, canGenerateInLiquid);
 		this.dx = dx;
 		this.dz = dz;
 	}
@@ -25,9 +25,9 @@ public class SlantedTrunkConfig extends TrunkConfig {
 		int originY,
 		double originZ,
 		int height,
-		double startRadius,
 		double slantAngle,
 		double slantAmount,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
@@ -36,9 +36,9 @@ public class SlantedTrunkConfig extends TrunkConfig {
 			originY,
 			originZ,
 			height,
-			startRadius,
 			Math.cos(slantAngle) * slantAmount,
 			Math.sin(slantAngle) * slantAmount,
+			thicknessScript,
 			requireValidGround,
 			canGenerateInLiquid
 		);

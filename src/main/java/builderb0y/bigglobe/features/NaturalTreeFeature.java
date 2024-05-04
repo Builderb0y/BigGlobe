@@ -30,7 +30,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.TrunkFactory;
+import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.*;
@@ -65,7 +65,6 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			startY,
 			startZ,
 			Math.max(Permuter.roundRandomlyI(permuter, height), 4),
-			Math.max(height * 0.125D, TrunkConfig.MIN_RADIUS),
 			permuter
 		);
 		double startFracY = config.branches.start_frac_y.get(permuter);
@@ -73,7 +72,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			startFracY,
 			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(permuter) * height * (1.0D - startFracY)),
 			permuter.nextDouble(BigGlobeMath.TAU),
-			trunkConfig.startRadius,
+			trunkConfig.baseRadius,
 			config.branches.length_function,
 			config.branches.height_function
 		);

@@ -16,6 +16,7 @@
 		"ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",
+		"ChunkRegion_UseCreateFlag",
 		"ChunkSection_CountsAccess",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
@@ -57,7 +58,6 @@
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
-		"World_UseCorrectSeaLevel",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
 		"SingularPalette_EntryAccess",
 		"SlimeEntity_AllowSpawningFromSpawner",
@@ -71,6 +71,7 @@
 		"ThrownEntity_CollisionHook",
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
+		"World_UseCorrectSeaLevel",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [

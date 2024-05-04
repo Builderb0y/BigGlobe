@@ -24,6 +24,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
@@ -38,10 +39,13 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public final TagKey<Biome> all_possible_biomes;
 	public transient BigGlobeScriptedChunkGenerator generator;
 	public transient ThreadLocal<@Nullable ScriptedColumn> columnThreadLocal;
+	public final BetterRegistry<Biome> biomeRegistry;
+	public transient Set<RegistryEntry<Biome>> allPossibleBiomes = Collections.emptySet();
 
-	public ScriptedColumnBiomeSource(ColumnYToBiomeScript.Holder script, TagKey<Biome> all_possible_biomes) {
+	public ScriptedColumnBiomeSource(ColumnYToBiomeScript.Holder script, TagKey<Biome> all_possible_biomes, BetterRegistry<Biome> biomeRegistry) {
 		this.script = script;
 		this.all_possible_biomes = all_possible_biomes;
+		this.biomeRegistry = biomeRegistry;
 		this.columnThreadLocal = ThreadLocal.withInitial(() -> {
 			if (this.generator != null) {
 				return this.generator.columnEntryRegistry.columnFactory.create(
@@ -67,8 +71,22 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	}
 
 	@Override
-	public Stream<RegistryEntry<Biome>> biomeStream() {
-		return BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.biome()).getEntryList(this.all_possible_biomes).map(RegistryEntryList::stream).orElseGet(Stream::empty);
+	public Set<RegistryEntry<Biome>> getBiomes() {
+		if (this.allPossibleBiomes.isEmpty()) {
+			RegistryEntryList<Biome> tag = this.biomeRegistry.getOrCreateTag(this.all_possible_biomes);
+			if (tag.size() != 0) {
+				this.allPossibleBiomes = tag.stream().collect(Collectors.toSet());
+			}
+			else {
+				BigGlobeMod.LOGGER.warn("", new IllegalStateException("Something tried to query ScriptedColumnBiomeSource.getBiomes() before tags are loaded OR the biome tag " + this.all_possible_biomes.id() + " is empty."));
+			}
+		}
+		return this.allPossibleBiomes;
+	}
+
+	@Override
+	protected Stream<RegistryEntry<Biome>> biomeStream() {
+		throw new UnsupportedOperationException("Call getBiomes().stream() instead of reflecting into this protected method.");
 	}
 
 	@Override

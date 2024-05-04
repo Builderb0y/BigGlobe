@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.trees;
+package builderb0y.bigglobe.trees.trunks;
 
 import java.util.random.RandomGenerator;
 
@@ -10,10 +10,6 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.trees.trunks.SlantedTrunkConfig;
-import builderb0y.bigglobe.trees.trunks.StraightTrunkConfig;
-import builderb0y.bigglobe.trees.trunks.TrunkConfig;
-import builderb0y.bigglobe.trees.trunks.TwistedTrunkConfig;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
@@ -30,19 +26,21 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		int startY,
 		double startZ,
 		int height,
-		double radius,
 		RandomGenerator random
 	);
 
 	public static abstract class AbstractTrunkFactory implements TrunkFactory {
 
+		public final TrunkThicknessScript.Holder thickness;
 		public final boolean require_natural_ground;
 		public final boolean can_generate_in_liquid;
 
 		public AbstractTrunkFactory(
+			TrunkThicknessScript.Holder thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {
+			this.thickness = thickness;
 			this.require_natural_ground = require_natural_ground;
 			this.can_generate_in_liquid = can_generate_in_liquid;
 		}
@@ -51,20 +49,21 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	public static class StraightTrunkFactory extends AbstractTrunkFactory {
 
 		public StraightTrunkFactory(
+			TrunkThicknessScript.Holder thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {
-			super(require_natural_ground, can_generate_in_liquid);
+			super(thickness, require_natural_ground, can_generate_in_liquid);
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, double radius, RandomGenerator random) {
+		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
 			return new StraightTrunkConfig(
 				startX,
 				startY,
 				startZ,
 				height,
-				radius,
+				this.thickness,
 				this.require_natural_ground,
 				this.can_generate_in_liquid
 			);
@@ -76,16 +75,17 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		public final RandomSource slant;
 
 		public SlantedTrunkFactory(
+			TrunkThicknessScript.Holder thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid,
 			RandomSource slant
 		) {
-			super(require_natural_ground, can_generate_in_liquid);
+			super(thickness, require_natural_ground, can_generate_in_liquid);
 			this.slant = slant;
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, double radius, RandomGenerator random) {
+		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
 			double slant = this.slant.get(random);
 			double angle = random.nextDouble(BigGlobeMath.TAU);
 			return new SlantedTrunkConfig(
@@ -93,9 +93,9 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 				startY,
 				startZ,
 				height,
-				radius,
 				Math.cos(angle) * slant,
 				Math.sin(angle) * slant,
+				this.thickness,
 				this.require_natural_ground,
 				this.can_generate_in_liquid
 			);
@@ -105,14 +105,15 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	public static class TwistedTrunkFactory extends AbstractTrunkFactory {
 
 		public TwistedTrunkFactory(
+			TrunkThicknessScript.Holder thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {
-			super(require_natural_ground, can_generate_in_liquid);
+			super(thickness, require_natural_ground, can_generate_in_liquid);
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, double radius, RandomGenerator random) {
+		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
 			double speed = Permuter.nextUniformDouble(random);
 			speed *= 12.0D - 4.0D * speed * speed;
 			return new TwistedTrunkConfig(
@@ -120,9 +121,9 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 				startY,
 				startZ,
 				height,
-				radius,
 				random.nextDouble(BigGlobeMath.TAU),
 				speed,
+				this.thickness,
 				this.require_natural_ground,
 				this.can_generate_in_liquid
 			);

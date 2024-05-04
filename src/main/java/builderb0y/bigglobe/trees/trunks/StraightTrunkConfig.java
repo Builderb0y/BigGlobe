@@ -8,11 +8,12 @@ public class StraightTrunkConfig extends TrunkConfig {
 
 	public StraightTrunkConfig(
 		double startX, int startY, double startZ,
-		int height, double startRadius,
+		int height,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
-		super(startX, startY, startZ, height, startRadius, requireValidGround, canGenerateInLiquid);
+		super(startX, startY, startZ, height, thicknessScript, requireValidGround, canGenerateInLiquid);
 		this.currentX = startX;
 		this.currentZ = startZ;
 	}
@@ -20,8 +21,8 @@ public class StraightTrunkConfig extends TrunkConfig {
 	public static StraightTrunkConfig create(
 		BlockPos origin,
 		int height,
-		double startRadius,
 		RandomGenerator random,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
@@ -30,7 +31,7 @@ public class StraightTrunkConfig extends TrunkConfig {
 			origin.getY(),
 			origin.getZ() + random.nextDouble() - 0.5D,
 			height,
-			startRadius,
+			thicknessScript,
 			requireValidGround,
 			canGenerateInLiquid
 		);

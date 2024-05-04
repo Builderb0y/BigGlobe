@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,11 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
@@ -27,14 +30,23 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.TrunkFactory;
+import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
 import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config> {
 
@@ -80,14 +92,14 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		centerZ /= saplingCount;
 		centerX += Permuter.nextUniformDouble(permuter) * 0.5D;
 		centerZ += Permuter.nextUniformDouble(permuter) * 0.5D;
-		double trunkRadius = Math.sqrt(saplingCount / Math.PI);
-		double trunkHeight = trunkRadius * 8.0D;
+		double baseRadius = Math.sqrt(saplingCount / Math.PI);
+		int trunkHeight = config.height.getHeight(baseRadius, permuter);
+		if (trunkHeight <= 0) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
 			centerX,
 			centerY,
 			centerZ,
-			Math.max(Permuter.roundRandomlyI(permuter, trunkHeight), 4),
-			Math.max(trunkRadius, TrunkConfig.MIN_RADIUS),
+			trunkHeight,
 			permuter
 		);
 		double startFracY = config.branches.start_frac_y.get(permuter);
@@ -95,7 +107,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			startFracY,
 			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(permuter) * trunkHeight * (1.0D - startFracY)),
 			permuter.nextDouble(BigGlobeMath.TAU),
-			trunkConfig.startRadius,
+			trunkConfig.baseRadius,
 			config.branches.length_function,
 			config.branches.height_function
 		);
@@ -120,6 +132,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	public static record Config(
 		RegistryEntry<WoodPalette> palette,
 		Map<BlockState, BlockState> ground_replacements,
+		TreeHeightScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,
 		@VerifyNullable Decorations decorations
@@ -156,6 +169,51 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			builder.trunkBlock  = addAll(this.trunk,    builder. trunkBlock);
 			builder.branchBlock = addAll(this.branches, builder.branchBlock);
 			builder.leafBlock   = addAll(this.leaves,   builder.  leafBlock);
+		}
+	}
+
+	public static interface TreeHeightScript extends Script {
+
+		public abstract int getHeight(double baseRadius, RandomGenerator random);
+
+		@Wrapper
+		public static class Holder extends ScriptHolder<TreeHeightScript> implements TreeHeightScript {
+
+			public Holder(ScriptUsage usage) {
+				super(usage);
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				this.script = (
+					new TemplateScriptParser<>(TreeHeightScript.class, this.usage)
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(RandomScriptEnvironment.create(
+						load("random", type(RandomGenerator.class))
+					))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						environment.addVariableLoad("baseRadius", TypeInfos.DOUBLE);
+					})
+					.parse(new ScriptClassLoader())
+				);
+			}
+
+			@Override
+			public boolean requiresColumns() {
+				return false;
+			}
+
+			@Override
+			public int getHeight(double baseRadius, RandomGenerator random) {
+				try {
+					return this.script.getHeight(baseRadius, random);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return 0;
+				}
+			}
 		}
 	}
 }

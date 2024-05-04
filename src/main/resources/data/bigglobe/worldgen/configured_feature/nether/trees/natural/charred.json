@@ -7,6 +7,7 @@
 		"trunk": {
 			"type": "bigglobe:slanted",
 			"slant": { "type": "gaussian", "samples": 8, "min": 0.0, "max": 0.5 },
+			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
 			"require_natural_ground": true,
 			"can_generate_in_liquid": false
 		},

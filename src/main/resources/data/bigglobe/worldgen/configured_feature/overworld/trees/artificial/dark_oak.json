@@ -2,8 +2,10 @@
 	"type": "bigglobe:artificial_tree",
 	"config": {
 		"palette": "minecraft:dark_oak",
+		"height": "max(random.roundInt(baseRadius * 8.0L), 4)",
 		"trunk": {
 			"type": "bigglobe:straight",
+			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
 			"require_natural_ground": false,
 			"can_generate_in_liquid": false
 		},

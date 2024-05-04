@@ -2,8 +2,10 @@
 	"type": "bigglobe:artificial_tree",
 	"config": {
 		"palette": "bigglobe:charred",
+		"height": "max(random.roundInt(baseRadius * 8.0L), 4)",
 		"trunk": {
 			"type": "bigglobe:slanted",
+			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
 			"slant": { "type": "gaussian", "samples": 8, "min": 0.0, "max": 0.25 },
 			"require_natural_ground": false,
 			"can_generate_in_liquid": false

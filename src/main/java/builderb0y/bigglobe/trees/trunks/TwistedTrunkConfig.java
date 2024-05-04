@@ -16,13 +16,13 @@ public class TwistedTrunkConfig extends TrunkConfig {
 		int startY,
 		double startZ,
 		int height,
-		double startRadius,
 		double waveAngleStart,
 		double waveAngleSpeed,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
-		super(startX, startY, startZ, height, startRadius, requireValidGround, canGenerateInLiquid);
+		super(startX, startY, startZ, height, thicknessScript, requireValidGround, canGenerateInLiquid);
 		this.waveAngleStart = waveAngleStart;
 		this.waveAngleSpeed = waveAngleSpeed;
 	}
@@ -30,8 +30,9 @@ public class TwistedTrunkConfig extends TrunkConfig {
 	public static TwistedTrunkConfig create(
 		BlockPos origin,
 		int height,
-		double startRadius,
+		double startSize,
 		RandomGenerator random,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
@@ -40,9 +41,9 @@ public class TwistedTrunkConfig extends TrunkConfig {
 			origin.getY(),
 			origin.getZ() + random.nextDouble() - 0.5D,
 			height,
-			startRadius,
 			random.nextDouble(BigGlobeMath.TAU),
 			randomTwistSpeed(random),
+			thicknessScript,
 			requireValidGround,
 			canGenerateInLiquid
 		);
@@ -58,7 +59,7 @@ public class TwistedTrunkConfig extends TrunkConfig {
 		super.setFrac(fracY);
 		double bulge = fracY * (1.0D - fracY);
 		double angle = fracY * this.waveAngleSpeed + this.waveAngleStart;
-		double amplitude = bulge * 3.0D * this.startRadius;
+		double amplitude = bulge * this.baseRadius * 3.0D;
 		this.currentX = this.startX + Math.cos(angle) * amplitude;
 		this.currentZ = this.startZ + Math.sin(angle) * amplitude;
 	}

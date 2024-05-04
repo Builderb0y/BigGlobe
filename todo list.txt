@@ -21,7 +21,6 @@ testing:
 		uses up a stupid amount of RAM, or has a memory leak.
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
-	in MC versions prior to the lighting engine rewrite of 1.20, ensure that molten rock emits light.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
 
 where I left off:
@@ -29,6 +28,12 @@ where I left off:
 	make tree trunk thicknesses scriptable.
 
 changelog:
+	* Fixed errors while generating features in the nether.
+	* Fixed compatibility with lithium (hopefully).
+	* Fixed compatibility with biome-modifying mods (they still won't do anything in big globe worlds, but they shouldn't crash anymore).
+	* Added armadillos to deserts (MC 1.20.6 only).
+	* Natural tree trunk thickness is now scriptable.
+	* Artificial tree trunk thickness and height are now scriptable.
 
 4.0 stuff:
 	things to eventually remove:

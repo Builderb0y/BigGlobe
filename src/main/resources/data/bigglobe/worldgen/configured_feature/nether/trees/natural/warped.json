@@ -6,6 +6,7 @@
 		"height": "exp2(random.nextDouble(3.0, 6.0))",
 		"trunk": {
 			"type": "bigglobe:twisted",
+			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
 			"require_natural_ground": true,
 			"can_generate_in_liquid": false
 		},

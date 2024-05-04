@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.trees.trunks;
 
-import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.trees.TreeGenerator;
 
 public abstract class TrunkConfig {
@@ -8,7 +7,8 @@ public abstract class TrunkConfig {
 	public static final double MIN_RADIUS = 0.7071067811865476D; //sqrt(0.5 ^ 2 + 0.5 ^ 2)
 
 	public final int startY, height;
-	public final double startX, startZ, startRadius;
+	public final double startX, startZ, baseRadius;
+	public final TrunkThicknessScript thicknessScript;
 	/**
 	if true, the tree will abort generation if it
 	attempts to place a trunk block above a block which
@@ -26,7 +26,7 @@ public abstract class TrunkConfig {
 		int startY,
 		double startZ,
 		int height,
-		double startRadius,
+		TrunkThicknessScript thicknessScript,
 		boolean requireValidGround,
 		boolean canGenerateInLiquid
 	) {
@@ -34,9 +34,10 @@ public abstract class TrunkConfig {
 		this.startY = startY;
 		this.startZ = startZ;
 		this.height = height;
-		this.startRadius = startRadius;
+		this.thicknessScript = thicknessScript;
 		this.requireValidGround = requireValidGround;
 		this.canGenerateInLiquid = canGenerateInLiquid;
+		this.baseRadius = thicknessScript.getThickness(height, 0.0D);
 	}
 
 	public void setOffset(int offsetY) {
@@ -46,6 +47,6 @@ public abstract class TrunkConfig {
 	public void setFrac(double fracY) {
 		this.currentFracY = fracY;
 		this.currentY = this.startY + this.height * fracY;
-		this.currentRadius = Interpolator.mixLinear(this.startRadius, MIN_RADIUS, fracY);
+		this.currentRadius = this.thicknessScript.getThickness(this.height, fracY);
 	}
 }
