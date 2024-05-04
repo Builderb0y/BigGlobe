@@ -205,8 +205,6 @@ tasks.register("Current version = $project.minecraft_version") {
 }
 
 for (Version version in [
-	new Version(19, 2),
-	new Version(19, 4),
 	new Version(20, 1),
 	new Version(20, 2),
 	new Version(20, 4),

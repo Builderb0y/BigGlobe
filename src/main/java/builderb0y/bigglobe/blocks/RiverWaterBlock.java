@@ -93,7 +93,9 @@ public class RiverWaterBlock extends FluidBlock {
 	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		super.randomDisplayTick(state, world, pos, random);
 		if (world.isClient && ClientState.dangerousRapids) {
-			world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
+			if (random.nextInt(16) == 0) {
+				world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
+			}
 			if (world.getBlockState(pos.up()).getBlock() != this) {
 				//world.addParticle() has an overload which takes particle velocity,
 				//but falling water particles in particular don't use the velocity parameter.

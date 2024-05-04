@@ -28,6 +28,8 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	make tree trunk thicknesses scriptable.
 
+changelog:
+
 4.0 stuff:
 	things to eventually remove:
 		"test" package (move to scripted dimension)
@@ -99,40 +101,6 @@ where I left off:
 	fix networking code to decode on network thread and process on main thread.
 	fix "group": "GROUP" in slingshot recipe.
 	add expanded_ecosphere to "breaks" section in fabric.mods.json.
-
-changelog:
-	4.0:
-		# Important stuff:
-		* This release is NOT backwards-compatible with 3.x.
-		* MC 1.19 is no longer supported.
-		* This is an alpha release. Expect bugs. And please report bugs on my discord server if you find them.
-
-		Changelog:
-		* Completely re-designed how chunk generation works: data packs now have full control over which blocks get placed where in the earliest step of raw generation.
-		* Added hyperspace dimension and waypoints.
-			* Hyperspace is a new fast travel mechanic.
-			* Waypoints can be used to travel to hyperspace.
-			* Inside hyperspace you will see every waypoint you've placed so far. Fly into one of them to exit hyperspace.
-			* The distance between waypoints in hyperspace is the square root of the distance in other dimensions.
-				* For example, if you placed 2 waypoints 100 blocks apart in the overworld, they would only be 10 blocks apart in hyperspace.
-			* Public waypoints can be seen by everyone on a server, and private waypoints can only be seen by the player who placed them.
-		* Replaced floatstone with clouds.
-			* Some clouds are aura-infused.
-				* Use an empty bottle on them to collect tha aura.
-				* Aura is used to craft waypoints.
-			* Void clouds can also be found in the end dimension.
-		* Some underground structures are now less secret.
-		* Deserts are now slightly more interesting.
-		* Added rivers.
-			* Be careful not to fall in, because they flow faster than you can swim!
-				* There is a gamerule to make them flow at the same rate as vanilla water.
-		* Added the core at the bottom of the world.
-			* Full of molten rock, glows, and will burn you if you touch it.
-			* Cooling molten rock down with water will turn it into a random ore.
-				* The ores are weighted based on how likely they would've been to spawn at that location.
-			* Molten rock can't be obtained, even with silk touch, but it can be moved by pistons.
-		* Added glow lichen to caves.
-		* You can now place 1-6 rocks per block, instead of the number of rocks per block just being random.
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
