@@ -22,6 +22,7 @@
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",
 		"EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",
+		"EnderPearlEntity_ReduceFallDamageWithVoidmetalArmor",
 		"EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",
 		"Entity_CurrentIdGetter",
 		"Entity_SpawnAtPreferredLocationInTheEnd",

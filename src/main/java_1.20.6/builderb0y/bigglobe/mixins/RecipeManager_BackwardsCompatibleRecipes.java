@@ -35,7 +35,14 @@ public class RecipeManager_BackwardsCompatibleRecipes {
 				type.isString()
 			) {
 				switch (type.getAsString()) {
-					case "crafting_shaped", "crafting_shapeless", "minecraft:crafting_shaped", "minecraft:crafting_shapeless" -> {
+					case
+						"crafting_shaped",
+						"crafting_shapeless",
+						"smithing_transform",
+						"minecraft:crafting_shaped",
+						"minecraft:crafting_shapeless",
+						"minecraft:smithing_transform"
+					-> {
 						if (
 							root.get("result") instanceof JsonObject result &&
 							result.get("item") instanceof JsonPrimitive item &&
@@ -45,10 +52,17 @@ public class RecipeManager_BackwardsCompatibleRecipes {
 							result.remove("item");
 						}
 						else {
-							BigGlobeMod.LOGGER.warn("Unexpected format in crafting recipe " + entry.getKey());
+							BigGlobeMod.LOGGER.warn("Unexpected format in crafting or smithing recipe " + entry.getKey());
 						}
 					}
-					case "stonecutting", "minecraft:stonecutting", "smelting", "minecraft:smelting", "blasting", "minecraft:blasting" -> {
+					case
+						"stonecutting",
+						"smelting",
+						"blasting",
+						"minecraft:stonecutting",
+						"minecraft:smelting",
+						"minecraft:blasting"
+					-> {
 						if (root.get("result") instanceof JsonPrimitive result && result.isString()) {
 							JsonObject newResult = new JsonObject();
 							newResult.add("id", result);

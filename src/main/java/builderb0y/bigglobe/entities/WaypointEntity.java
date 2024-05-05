@@ -132,9 +132,20 @@ public class WaypointEntity extends Entity {
 	@Override
 	public void onPlayerCollision(PlayerEntity player) {
 		super.onPlayerCollision(player);
-		if (this.isFake &&
+		if (player.hasPortalCooldown()) {
+			player.setPortalCooldown(20);
+			return;
+		}
+		if (
+			this.isFake &&
 			this.data != null &&
-			!player.hasPortalCooldown() && player.getEyePos().squaredDistanceTo(this.getX(), this.getY() + 1.0D, this.getZ()) <= 0.25D * this.health / MAX_HEALTH) {
+			player.getEyePos().squaredDistanceTo(
+				this.getX(),
+				this.getY() + 1.0D,
+				this.getZ()
+			)
+			<= 0.25D * this.health / MAX_HEALTH
+		) {
 			UseWaypointPacket.INSTANCE.send(this.data.id());
 		}
 	}

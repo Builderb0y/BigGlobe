@@ -4,5 +4,16 @@
 		"sounds": [
 			"minecraft:random/bow"
 		]
+	},
+	"item.armor.equip_voidmetal": {
+		"subtitle": "subtitles.bigglobe.item.armor.equip_voidmetal",
+		"sounds": [
+			"minecraft:item/armor/equip_iron1",
+			"minecraft:item/armor/equip_iron2",
+			"minecraft:item/armor/equip_iron3",
+			"minecraft:item/armor/equip_iron4",
+			"minecraft:item/armor/equip_iron5",
+			"minecraft:item/armor/equip_iron6"
+		]
 	}
 }

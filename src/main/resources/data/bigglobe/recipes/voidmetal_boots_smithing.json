@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:smithing_transform",
+	"base":     { "item": "minecraft:diamond_boots" },
+	"addition": { "item": "bigglobe:voidmetal_ingot"   },
+	"template": { "item": "bigglobe:voidmetal_upgrade" },
+	"result":   { "item": "bigglobe:voidmetal_boots", "count": 1 }
+}

@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.items;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 
 import net.fabricmc.api.EnvType;
@@ -21,11 +23,15 @@ import net.minecraft.item.*;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
+import net.minecraft.loot.condition.RandomChanceLootCondition;
+import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Formatting;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -163,6 +169,31 @@ public class BigGlobeItems {
 			}
 		}
 	}
+	public static final Item VOIDMETAL_INGOT = register("voidmetal_ingot", new Item(new Item.Settings()));
+	public static final SmithingTemplateItem VOIDMETAL_UPGRADE = register(
+		"voidmetal_upgrade",
+		new SmithingTemplateItem(
+			Text.translatable("item.bigglobe.voidmetal_upgrade.applies_to").formatted(Formatting.BLUE),
+			Text.translatable("item.bigglobe.voidmetal_upgrade.ingredients").formatted(Formatting.BLUE),
+			Text.translatable("upgrade.bigglobe.voidmetal_upgrade").formatted(Formatting.GRAY),
+			Text.translatable("item.bigglobe.voidmetal_upgrade.base_slot_description"),
+			Text.translatable("item.bigglobe.voidmetal_upgrade.additions_slot_description"),
+			Arrays.asList(
+				BigGlobeMod.mcID("item/empty_armor_slot_helmet"),
+				BigGlobeMod.mcID("item/empty_armor_slot_chestplate"),
+				BigGlobeMod.mcID("item/empty_armor_slot_leggings"),
+				BigGlobeMod.mcID("item/empty_armor_slot_boots")
+			),
+			Collections.singletonList(
+				BigGlobeMod.mcID("item/empty_slot_ingot")
+			)
+		)
+	);
+	public static final ArmorItem
+		VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     new Item.Settings().maxDamage(ArmorItem.Type.HELMET    .getMaxDamage(37)))),
+		VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Settings().maxDamage(ArmorItem.Type.CHESTPLATE.getMaxDamage(37)))),
+		VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   new Item.Settings().maxDamage(ArmorItem.Type.LEGGINGS  .getMaxDamage(37)))),
+		VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      new Item.Settings().maxDamage(ArmorItem.Type.BOOTS     .getMaxDamage(37))));
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
@@ -202,6 +233,16 @@ public class BigGlobeItems {
 							.expandBuilder(BigGlobeItemTags.AURA_BOTTLES)
 							.weight(100)
 							.quality(1)
+						)
+					)
+					.pool(
+						LootPool.builder().with(
+							ItemEntry
+							.builder(VOIDMETAL_UPGRADE)
+							.weight(100)
+							.conditionally(
+								RandomChanceLootCondition.builder(0.25F)
+							)
 						)
 					);
 				}
@@ -267,6 +308,7 @@ public class BigGlobeItems {
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
+			entries.addAfter(Items.NETHERITE_BOOTS, VOIDMETAL_HELMET, VOIDMETAL_CHESTPLATE, VOIDMETAL_LEGGINGS, VOIDMETAL_BOOTS);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
@@ -274,6 +316,8 @@ public class BigGlobeItems {
 			entries.addAfter(Items.FLINT, ROCK);
 			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
 			entries.addAfter(Items.EXPERIENCE_BOTTLE, AURA_BOTTLES.values().toArray(Item[]::new));
+			entries.addAfter(Items.NETHERITE_INGOT, VOIDMETAL_INGOT);
+			entries.addAfter(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, VOIDMETAL_UPGRADE);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CROSSBOW, SLINGSHOT);

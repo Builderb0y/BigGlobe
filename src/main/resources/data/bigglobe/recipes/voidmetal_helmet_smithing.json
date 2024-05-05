@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:smithing_transform",
+	"base":     { "item": "minecraft:diamond_helmet" },
+	"addition": { "item": "bigglobe:voidmetal_ingot"   },
+	"template": { "item": "bigglobe:voidmetal_upgrade" },
+	"result":   { "item": "bigglobe:voidmetal_helmet", "count": 1 }
+}

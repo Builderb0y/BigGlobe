@@ -25,15 +25,12 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	make tree trunk thicknesses scriptable.
+	voidmetal block.
 
 changelog:
-	* Fixed errors while generating features in the nether in MC 1.20.6.
-	* Fixed compatibility with lithium (hopefully).
-	* Fixed compatibility with biome-modifying mods (they still won't do anything in big globe worlds, but they shouldn't crash anymore).
-	* Added armadillos to deserts (MC 1.20.6 only).
-	* Natural tree trunk thickness is now scriptable.
-	* Artificial tree trunk thickness and height are now scriptable.
+	* Added voidmetal armor.
+		* As tough as netherite, protects you from ender pearl fall damage, but is not immune to fire, nor does it grant you knockback resistance.
+	* Fixed NPE when visiting hyperspace with satin installed.
 
 4.0 stuff:
 	things to eventually remove:
@@ -50,7 +47,6 @@ changelog:
 				include portal to the nether.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
-	boulder block.
 	cave-exposed trail ruins at -1324.62 105.88 1666.20
 		decide if I want to keep these, or make a cave exclusion rule for them.
 		surface-exposed one at 1255.57 212.21 -1583.85
@@ -168,24 +164,11 @@ features:
 		make charred hanging sign look a bit more programmer art-y?
 		look into a custom loader for scripted configured features that doesn't rely on json format.
 		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
-		fully programmable chunk generator:
-			still need to figure out:
-				how to link biome placement to block placement?
-				how to sync certain values to the client?
-					like height_adjusted_temperature/foliage, for biome colors.
-					perhaps all scripts could be synced,
-					and the seed in the generator could be strongly hashed for all values?
-				how to do flowers in parallel?
-					probably just make a Feature class for it.
-						config takes Y level script.
-				how to handle lava/water in caverns?
-					presumably as a layer, but how to choose a random block per-voronoi cell?
 		fast DH tree generation
 			skips a lot of the more expensive work for tree generation,
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
-		lakes and underground pockets still need automatic decorator locations.
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		dynamic registry for overriders?
 		desert fossils.
@@ -200,7 +183,6 @@ features:
 		cave biomes:
 			lush:
 				walls:
-					glow lichen.
 					vines.
 			mushroom:
 				glowing mushrooms?
@@ -219,17 +201,10 @@ features:
 		dungeons:
 			piles of gold?
 			occasional "big rooms".
-		underground pockets:
-			molten? (match molten caves)
-				maybe just put blackstone inside lava pockets?
-			frozen?
-			adjust cave exclusion policy to only exclude on the bottom half, and allow intersections on the top half?
-			add "center" noise?
 		make lilypads renewable?
 		sandstone house variants?
 			generify WoodPalette into BlockPalette?
 				with "type": "wood" or "type": "generic"?
-		more decorations for surface mineshafts?
 		sea shells on the sea shore?
 		clams?
 			pearls?
@@ -241,10 +216,7 @@ features:
 				don't cause block updates in the process, and also don't fall due to gravity.
 			obtainable? TBD.
 			craftable with sand and water buckets? TBD.
-	nether:
-		use portal temple-like exclusion rule for bastion remnants.
-			cause they don't place blocks downwards until a surface is found,
-			and the current exclusion rule can sometimes place the surface below the actual structure, causing it to float in mid-air.
+		boulder block.
 	end:
 		end ore feature.
 		block of void?

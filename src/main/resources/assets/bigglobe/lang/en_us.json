@@ -111,6 +111,17 @@
 	"item.bigglobe.torch_arrow": "Torch Arrow",
 	"item.bigglobe.public_waypoint": "Public Waypoint",
 	"item.bigglobe.private_waypoint": "Private Waypoint",
+	"item.bigglobe.voidmetal_ingot": "Voidmetal Ingot",
+	"item.bigglobe.voidmetal_upgrade": "Smithing Template",
+	"item.bigglobe.voidmetal_helmet": "Voidmetal Helmet",
+	"item.bigglobe.voidmetal_chestplate": "Voidmetal Chestplate",
+	"item.bigglobe.voidmetal_leggings": "Voidmetal Leggings",
+	"item.bigglobe.voidmetal_boots": "Voidmetal Boots",
+	"item.bigglobe.voidmetal_upgrade.additions_slot_description": "Add Voidmetal Ingot",
+	"item.bigglobe.voidmetal_upgrade.applies_to": "Diamond Equipment",
+	"item.bigglobe.voidmetal_upgrade.base_slot_description": "Add diamond armor",
+	"item.bigglobe.voidmetal_upgrade.ingredients": "Voidmetal Ingot",
+	"upgrade.bigglobe.voidmetal_upgrade": "Voidmetal Upgrade",
 
 	"item.minecraft.potion.effect.wither": "Potion of Withering",
 	"item.minecraft.potion.effect.long_wither": "Potion of Withering",
@@ -206,6 +217,7 @@
 	"entity.bigglobe.waypoint": "Waypoint",
 
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
+	"subtitles.bigglobe.item.armor.equip_voidmetal": "Voidmetal equips",
 
 	"tooltip.bigglobe.ball_of_string.remaining": "%d/%d block(s) remaining",
 
