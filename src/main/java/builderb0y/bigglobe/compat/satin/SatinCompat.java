@@ -144,7 +144,7 @@ public class SatinCompat {
 			});
 			DimensionRenderingRegistry.registerSkyRenderer(HyperspaceConstants.WORLD_KEY, (WorldRenderContext context) -> {
 				HyperspaceSkybox.PROJ_MAT_INVERSE.set(SCRATCH_MATRIX.set(context.projectionMatrix()).invert());
-				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(SCRATCH_MATRIX.set(context.positionMatrix()).transpose());
+				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(SCRATCH_MATRIX.set(#if MC_VERSION >= MC_1_20_5 context.positionMatrix() #else context.matrixStack().peek().getPositionMatrix() #endif).transpose());
 				Vec3d pos = context.camera().getPos();
 				HyperspaceSkybox.CAMERA_POSITION.set((float)(pos.x), (float)(pos.y), (float)(pos.z));
 				HyperspaceSkybox.TIME.set(

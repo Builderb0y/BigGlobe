@@ -40,9 +40,9 @@ public class RegistryVersions {
 	public static Registry         <StructurePieceType                > structurePieceType    () { return Registries.STRUCTURE_PIECE     ; }
 	public static Registry         <StructurePlacementType<?>         > structurePlacementType() { return Registries.STRUCTURE_PLACEMENT ; }
 	public static Registry         <SoundEvent                        > soundEvent            () { return Registries.SOUND_EVENT         ; }
-	public static Registry         <ArmorMaterial                     > armorMaterial         () { return Registries.ARMOR_MATERIAL      ; }
 
 	#if MC_VERSION >= MC_1_20_5
+		public static Registry     <ArmorMaterial                     > armorMaterial         () { return Registries.ARMOR_MATERIAL      ; }
 		public static Registry     <MapCodec<? extends ChunkGenerator>> chunkGenerator        () { return Registries.CHUNK_GENERATOR     ; }
 		public static Registry     <MapCodec<? extends BiomeSource   >> biomeSource           () { return Registries.BIOME_SOURCE        ; }
 		public static Registry     <LootFunctionType<?>               > lootFunctionType      () { return Registries.LOOT_FUNCTION_TYPE  ; }

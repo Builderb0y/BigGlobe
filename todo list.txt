@@ -13,6 +13,9 @@ bugs:
 		the MinecraftServer is stored in ServerConfigurationNetworkAddon,
 		which is stored in GlobalReceiverRegistry.trackedAddons,
 		which is stored in ServerNetworkingImpl.CONFIGURATIONS.
+	fabric fails to upgrade big globe worlds.
+		TaggedChoiceTypeMixin cancels a method with a Codec,
+		despite the fact that minecraft changed to using a MapCodec instead.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -28,9 +31,13 @@ where I left off:
 	voidmetal block.
 
 changelog:
-	* Added voidmetal armor.
-		* As tough as netherite, protects you from ender pearl fall damage, but is not immune to fire, nor does it grant you knockback resistance.
-	* Fixed NPE when visiting hyperspace with satin installed.
+	* Added voidmetal ingots, upgrades, and armor.
+		* As tough as netherite.
+			* Not immune to fire.
+			* Does not grant knockback resistance.
+		* Protects you from ender pearl fall damage.
+			* Does not protect you from any other kind of fall damage.
+	* Fixed NPE when visiting hyperspace with satin installed in 1.20.6.
 
 4.0 stuff:
 	things to eventually remove:

@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ByteMap;
 import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvironmentInterface;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -29,14 +30,17 @@ import builderb0y.bigglobe.networking.packets.*;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 #endif
 
-public class BigGlobeNetwork implements
-	#if MC_VERSION >= MC_1_20_5
+#if MC_VERSION >= MC_1_20_5
+	@EnvironmentInterface(value = EnvType.CLIENT, itf = ClientPlayNetworking.PlayPayloadHandler.class)
+	public class BigGlobeNetwork implements
 		ClientPlayNetworking.PlayPayloadHandler<BigGlobePayload>,
 		ServerPlayNetworking.PlayPayloadHandler<BigGlobePayload>
-	#else
+#else
+	@EnvironmentInterface(value = EnvType.CLIENT, itf = ClientPlayNetworking.PlayChannelHandler.class)
+	public class BigGlobeNetwork implements
 		ClientPlayNetworking.PlayChannelHandler,
 		ServerPlayNetworking.PlayChannelHandler
-	#endif
+#endif
 {
 
 	public static final Identifier NETWORK_ID = BigGlobeMod.modID("network");

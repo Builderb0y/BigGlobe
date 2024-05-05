@@ -190,10 +190,10 @@ public class BigGlobeItems {
 		)
 	);
 	public static final ArmorItem
-		VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     new Item.Settings().maxDamage(ArmorItem.Type.HELMET    .getMaxDamage(37)))),
-		VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Settings().maxDamage(ArmorItem.Type.CHESTPLATE.getMaxDamage(37)))),
-		VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   new Item.Settings().maxDamage(ArmorItem.Type.LEGGINGS  .getMaxDamage(37)))),
-		VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      new Item.Settings().maxDamage(ArmorItem.Type.BOOTS     .getMaxDamage(37))));
+		VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     new Item.Settings() #if MC_VERSION >= MC_1_20_5 .maxDamage(ArmorItem.Type.HELMET    .getMaxDamage(37)) #endif)),
+		VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Settings() #if MC_VERSION >= MC_1_20_5 .maxDamage(ArmorItem.Type.CHESTPLATE.getMaxDamage(37)) #endif)),
+		VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   new Item.Settings() #if MC_VERSION >= MC_1_20_5 .maxDamage(ArmorItem.Type.LEGGINGS  .getMaxDamage(37)) #endif)),
+		VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      new Item.Settings() #if MC_VERSION >= MC_1_20_5 .maxDamage(ArmorItem.Type.BOOTS     .getMaxDamage(37)) #endif));
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
