@@ -106,7 +106,8 @@ public class BigGlobeItems {
 		OVERGROWN_END_STONE      = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
 		TALL_CHORUS_SPORES       = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
 		MEDIUM_CHORUS_SPORES     = registerPlacer(BigGlobeBlocks.MEDIUM_CHORUS_SPORES),
-		SHORT_CHORUS_SPORES      = registerPlacer(BigGlobeBlocks.SHORT_CHORUS_SPORES);
+		SHORT_CHORUS_SPORES      = registerPlacer(BigGlobeBlocks.SHORT_CHORUS_SPORES),
+		VOIDMETAL_BLOCK          = registerPlacer(BigGlobeBlocks.VOIDMETAL_BLOCK);
 	public static final EnumMap<CloudColor, BlockItem>
 		CLOUDS      = new EnumMap<>(CloudColor.class),
 		VOID_CLOUDS = new EnumMap<>(CloudColor.class);
@@ -266,6 +267,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
 			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB);
 			entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
+			entries.addAfter(Items.NETHERITE_BLOCK, VOIDMETAL_BLOCK);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);

@@ -1,0 +1,21 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"all": "bigglobe:block/voidmetal_block",
+		"particle": "bigglobe:block/voidmetal_block"
+	},
+	"elements": [
+		{
+			"from": [  0,  0,  0 ],
+			"to":   [ 16, 16, 16 ],
+			"faces": {
+				"up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#all" },
+				"down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#all" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#all", "rotation": 90 },
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#all", "rotation": 90 },
+				"east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#all" },
+				"west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#all" }
+			}
+		}
+	]
+}

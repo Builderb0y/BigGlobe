@@ -805,6 +805,18 @@ public class BigGlobeBlocks {
 			));
 		}
 	}
+	public static final Block VOIDMETAL_BLOCK = register(
+		"voidmetal_block",
+		new Block(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.BLACK)
+			.strength(5.0F, 6.0F)
+			.requiresTool()
+			.sounds(BlockSoundGroup.METAL)
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 

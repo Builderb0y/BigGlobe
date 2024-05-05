@@ -31,7 +31,7 @@ where I left off:
 	voidmetal block.
 
 changelog:
-	* Added voidmetal ingots, upgrades, and armor.
+	* Added voidmetal ingots, blocks, upgrades, and armor.
 		* As tough as netherite.
 			* Not immune to fire.
 			* Does not grant knockback resistance.

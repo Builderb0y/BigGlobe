@@ -33,7 +33,6 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -805,6 +804,18 @@ public class BigGlobeBlocks {
 			));
 		}
 	}
+	public static final Block VOIDMETAL_BLOCK = register(
+		"voidmetal_block",
+		new Block(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.BLACK)
+			.strength(5.0F, 6.0F)
+			.requiresTool()
+			.sounds(BlockSoundGroup.METAL)
+		)
+	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering blocks."); }
 
