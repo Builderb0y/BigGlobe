@@ -60,9 +60,8 @@ public class BigGlobeEntityTypes {
 		4,
 		20
 	);
-	public static final @Nullable EntityType<WaypointEntity> WAYPOINT = (
-		BigGlobeConfig.INSTANCE.get().hyperspaceEnabled
-		? register(
+	public static final EntityType<WaypointEntity> WAYPOINT = (
+		register(
 			"waypoint",
 			WaypointEntity::new,
 			SpawnGroup.MISC,
@@ -75,7 +74,6 @@ public class BigGlobeEntityTypes {
 			8,
 			Integer.MAX_VALUE
 		)
-		: null
 	);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }

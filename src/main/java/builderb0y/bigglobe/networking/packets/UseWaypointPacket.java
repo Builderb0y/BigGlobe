@@ -8,10 +8,13 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
@@ -37,6 +40,10 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 	public void process(ServerPlayerEntity player, Integer data, PacketSender responseSender) {
 		if (player.hasPortalCooldown()) {
 			EntityVersions.setPortalCooldown(player, 20);
+			return;
+		}
+		if (!BigGlobeConfig.INSTANCE.get().hyperspaceEnabled && player.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
+			player.sendMessage(Text.translatable("bigglobe.hyperspace.disabled").formatted(Formatting.RED), true);
 			return;
 		}
 		PlayerWaypointManager manager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();

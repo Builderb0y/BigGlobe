@@ -38,6 +38,7 @@ changelog:
 			* Does not grant knockback resistance.
 	* Fixed NPE when visiting hyperspace with satin installed in 1.20.6.
 	* Fixed crash on launch on dedicated servers.
+	* Fixed loading loop when hyperspace is disabled.
 
 4.0 stuff:
 	things to eventually remove:

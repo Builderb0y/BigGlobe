@@ -151,6 +151,9 @@
 	"item.bigglobe.magenta_red_bottled_aura": "Magenta Red Bottled Aura",
 	"item.bigglobe.omni_bottled_aura": "Omni Bottled Aura",
 
+	"bigglobe.hyperspace.disabled": "Hyperspace is disabled",
+	"bigglobe.hyperspace.cant_place_waypoint_here": "Can't place waypoint here",
+
 	"biome.bigglobe.ashen_wastes": "Ashen Wastes",
 	"biome.bigglobe.beach": "Beach",
 	"biome.bigglobe.chorus_forest": "Chorus Forest",

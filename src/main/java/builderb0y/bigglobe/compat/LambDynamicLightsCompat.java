@@ -37,8 +37,6 @@ public class LambDynamicLightsCompat implements DynamicLightsInitializer {
 				return ((int)(waypoint.health * (15.0F / WaypointEntity.MAX_HEALTH)));
 			}
 		}
-		if (BigGlobeEntityTypes.WAYPOINT != null) {
-			DynamicLightHandlers.registerDynamicLightHandler(BigGlobeEntityTypes.WAYPOINT, new WaypointHandler());
-		}
+		DynamicLightHandlers.registerDynamicLightHandler(BigGlobeEntityTypes.WAYPOINT, new WaypointHandler());
 	}
 }

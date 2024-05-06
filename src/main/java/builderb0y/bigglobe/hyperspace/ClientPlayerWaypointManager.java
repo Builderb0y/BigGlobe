@@ -42,7 +42,7 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	@Override
 	public boolean addWaypoint(PlayerWaypointData waypoint, boolean sync) {
 		if (super.addWaypoint(waypoint, sync)) {
-			if (BigGlobeEntityTypes.WAYPOINT != null && sync) {
+			if (sync) {
 				ClientWorld world = this.clientPlayer().clientWorld;
 				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
 				if (entity != null) {
