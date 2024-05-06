@@ -28,16 +28,16 @@ testing:
 
 where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
-	voidmetal block.
 
 changelog:
 	* Added voidmetal ingots, blocks, upgrades, and armor.
-		* As tough as netherite.
+		* Voidmetal armor protects you from ender pearl fall damage.
+			* Does not protect you from any other kind of fall damage.
+		* Voidmetal armor is as tough as netherite.
 			* Not immune to fire.
 			* Does not grant knockback resistance.
-		* Protects you from ender pearl fall damage.
-			* Does not protect you from any other kind of fall damage.
 	* Fixed NPE when visiting hyperspace with satin installed in 1.20.6.
+	* Fixed crash on launch on dedicated servers.
 
 4.0 stuff:
 	things to eventually remove:
@@ -177,7 +177,6 @@ features:
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
-		dynamic registry for overriders?
 		desert fossils.
 		fallen logs.
 		column values for cliff frac and cliff bias.
@@ -225,15 +224,6 @@ features:
 			craftable with sand and water buckets? TBD.
 		boulder block.
 	end:
-		end ore feature.
-		block of void?
-			void ingots?
-				void tools?
-				void armor?
-					no damage from ender pearls.
-					maybe just no fall damage in general?
-					chorus fruit has bigger range while wearing void armor.
-					teleport randomly upon taking damage when health is below a certain threshold?
 		asteroids in the void biome.
 		ender clam?
 			source of ender pearls.

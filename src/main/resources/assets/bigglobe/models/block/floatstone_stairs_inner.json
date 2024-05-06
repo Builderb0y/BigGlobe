@@ -1,8 +1,0 @@
-{
-	"parent": "minecraft:block/inner_stairs",
-	"textures": {
-		"bottom": "bigglobe:block/floatstone",
-		"top": "bigglobe:block/floatstone",
-		"side": "bigglobe:block/floatstone"
-	}
-}

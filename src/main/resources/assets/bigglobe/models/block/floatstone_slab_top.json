@@ -1,8 +1,0 @@
-{
-	"parent": "minecraft:block/slab_top",
-	"textures": {
-		"bottom": "bigglobe:block/floatstone",
-		"top": "bigglobe:block/floatstone",
-		"side": "bigglobe:block/floatstone"
-	}
-}
