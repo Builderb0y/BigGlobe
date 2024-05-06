@@ -1,30 +1,31 @@
 package builderb0y.bigglobe.networking.packets;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
-import builderb0y.bigglobe.ClientState.TemplateRegistry;
+import builderb0y.bigglobe.ClientState.Syncing;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
 import builderb0y.bigglobe.versions.EntityVersions;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<ClientGeneratorParams> {
 
@@ -33,35 +34,20 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 	@Override
 	@Environment(EnvType.CLIENT)
 	public @Nullable ClientGeneratorParams decode(PacketByteBuf buffer) {
-		NbtElement nbt = NbtIo2.readCompressed(buffer);
-		if (nbt instanceof NbtEnd) {
-			return null;
-		}
-		NbtElement templates = Objects.requireNonNull(((NbtCompound)(nbt)).get("templates"), "Missing templates");
-		TemplateRegistry templateRegistry;
 		try {
-			templateRegistry = BigGlobeAutoCodec.AUTO_CODEC.decode(TemplateRegistry.CODER, templates, NbtOps.INSTANCE);
+			GZIPInputStream stream = new GZIPInputStream(new ByteBufInputStream(buffer));
+			NbtElement syncingNbt = NbtIo2.read(stream);
+			NbtElement paramsNbt = NbtIo2.read(stream);
+			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
+			syncing.parse();
+			ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
+			params.compile(syncing);
+			return params;
 		}
-		catch (DecodeException exception) {
-			BigGlobeNetwork.LOGGER.error("Exception decoding script templates: ", exception);
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("Exception decoding client generator params:", exception);
 			throw new RuntimeException(exception);
 		}
-		ClientGeneratorParams settings;
-		try {
-			settings = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, nbt, templateRegistry.createOps(NbtOps.INSTANCE));
-		}
-		catch (DecodeException exception) {
-			BigGlobeNetwork.LOGGER.error("Exception decoding client generator params: ", exception);
-			throw new RuntimeException(exception);
-		}
-		try {
-			settings.compile();
-		}
-		catch (ScriptParsingException exception) {
-			BigGlobeNetwork.LOGGER.error("Exception compiling client generator params: ", exception);
-			throw new RuntimeException(exception);
-		}
-		return settings;
 	}
 
 	@Override
@@ -71,16 +57,28 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 	}
 
 	public void send(ServerPlayerEntity player) {
+		ClientState.Syncing syncing;
 		ClientGeneratorParams params;
 		if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			syncing = new ClientState.Syncing(generator);
 			params = new ClientGeneratorParams(generator);
 		}
 		else {
+			syncing = null;
 			params = null;
 		}
-		NbtElement nbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientGeneratorParams.NULLABLE_CODER, params, NbtOps.INSTANCE);
+		NbtElement syncingNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientState.Syncing.CODER, syncing, NbtOps.INSTANCE);
+		NbtElement paramsNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientGeneratorParams.NULLABLE_CODER, params, NbtOps.INSTANCE);
 		PacketByteBuf buffer = this.buffer();
-		NbtIo2.writeCompressed(buffer, nbt);
-		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
+		try {
+			GZIPOutputStream stream = new GZIPOutputStream(new ByteBufOutputStream(buffer));
+			NbtIo2.write(stream, syncingNbt);
+			NbtIo2.write(stream, paramsNbt);
+			stream.finish();
+			BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
+		}
+		catch (IOException exception) {
+			throw new AssertionError("ByteBufOutputStream threw an IOException?", exception);
+		}
 	}
 }

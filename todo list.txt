@@ -44,7 +44,7 @@ changelog:
 	things to eventually remove:
 		"test" package (move to scripted dimension)
 	fully immutable NBT elements for scripts.
-	remove molten cave type?
+	add sandy and frozen cave types?
 	option to specify that a grid column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -68,6 +68,7 @@ changelog:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
+	script-type decision tree results.
 
 3.x stuff:
 	ender dragon flys around ring/bridge clouds when they're directly above the main end island.

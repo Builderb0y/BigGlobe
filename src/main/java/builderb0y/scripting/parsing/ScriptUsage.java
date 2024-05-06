@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.decoders.AutoDecoder;
 import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
@@ -25,6 +26,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate.RequiredInput;
@@ -116,6 +118,8 @@ public class ScriptUsage {
 
 	@UseVerifier(name = "verify", in = ScriptTemplate.class, usage = MemberUsage.METHOD_IS_HANDLER)
 	public static record ScriptTemplate(@MultiLine @UseName("script") String source, List<RequiredInput> inputs) implements DependencyView {
+
+		public static final AutoCoder<ScriptTemplate> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(ScriptTemplate.class);
 
 		public record RequiredInput(@IdentifierName String name, String type) {}
 

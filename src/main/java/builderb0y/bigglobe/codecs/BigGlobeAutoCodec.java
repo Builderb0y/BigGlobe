@@ -23,6 +23,8 @@ import net.minecraft.loot.entry.LootPoolEntry;
 import net.minecraft.loot.entry.LootPoolEntryTypes;
 import net.minecraft.loot.function.LootFunction;
 import net.minecraft.loot.function.LootFunctionTypes;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -223,6 +225,14 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
+							this.addRaw(NbtElement.class, new AutoEncoder<>() {
+
+								@Override
+								public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NbtElement> context) throws EncodeException {
+									if (context.input == null) return context.empty();
+									return NbtOps.INSTANCE.convertTo(context.ops, context.input);
+								}
+							});
 							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
@@ -267,6 +277,14 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
+							this.addRaw(NbtElement.class, new AutoDecoder<>() {
+
+								@Override
+								public <T_Encoded> @Nullable NbtElement decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+									if (context.isEmpty()) return null;
+									return context.ops.convertTo(NbtOps.INSTANCE, context.input);
+								}
+							});
 							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);

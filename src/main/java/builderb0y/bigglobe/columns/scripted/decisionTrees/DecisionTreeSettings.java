@@ -13,8 +13,10 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
@@ -27,6 +29,8 @@ import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 
 @UseVerifier(name = "verify", in = DecisionTreeSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public class DecisionTreeSettings implements DependencyView {
+
+	public static final AutoCoder<DecisionTreeSettings> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(DecisionTreeSettings.class);
 
 	public final @VerifyNullable DecisionTreeResult result;
 	public final @VerifyNullable DecisionTreeCondition condition;

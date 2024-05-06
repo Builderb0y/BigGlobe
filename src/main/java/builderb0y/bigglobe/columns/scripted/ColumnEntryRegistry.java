@@ -24,6 +24,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
@@ -41,6 +42,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.AsyncConsumer;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -195,7 +197,10 @@ public class ColumnEntryRegistry {
 
 	public static class Loading {
 
+		/** the Loading instance used on the server thread when loading the world. */
 		public static Loading LOADING;
+		/** the Loading instance used on the client thread during synchronization of {@link ClientGeneratorParams}. */
+		public static final ScopeLocal<Loading> OVERRIDE = new ScopeLocal<>();
 
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
@@ -210,24 +215,26 @@ public class ColumnEntryRegistry {
 		}
 
 		public static void reset() {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING);
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING + "; override: " + OVERRIDE.getCurrent());
 			LOADING = null;
 		}
 
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING);
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent());
 			if (LOADING == null) {
 				LOADING = new Loading(betterRegistryLookup);
 			}
 		}
 
 		public static Loading get() {
+			Loading loading = OVERRIDE.getCurrent();
+			if (loading != null) return loading;
 			if (LOADING != null) return LOADING;
 			else throw new IllegalStateException("No loading context available.");
 		}
 
 		public static void endLoad(boolean successful) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING);
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.getCurrent());
 			if (successful && LOADING != null) LOADING.compile();
 		}
 

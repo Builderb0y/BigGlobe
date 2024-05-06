@@ -9,12 +9,15 @@ import com.mojang.serialization.Lifecycle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryOps;
@@ -30,6 +33,7 @@ import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -82,6 +86,11 @@ public class ClientState {
 		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
+		//player
+		//.as(WaypointTracker)
+		//.bigglobe_getWaypointManager()
+		//.as(ServerPlayerWaypointManager)
+		//.updateOnWorldChange()
 		(
 			(ServerPlayerWaypointManager)(
 				(
@@ -125,50 +134,140 @@ public class ClientState {
 		}
 	}
 
-	public static <T> SimpleRegistry<T> convertToSimpleRegistry(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
-		SimpleRegistry<T> registry = new SimpleRegistry<>(key, Lifecycle.experimental());
-		for (Map.Entry<Identifier, T> entry : map.entrySet()) {
-			Registry.register(registry, entry.getKey(), entry.getValue());
+	public static class Syncing {
+
+		public static final AutoCoder<Syncing> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Syncing.class);
+
+		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees;
+		public transient SimpleRegistry<ScriptTemplate> templateRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
+		public transient SimpleRegistry<ColumnEntry> columnEntryRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, Lifecycle.experimental());
+		public transient SimpleRegistry<VoronoiSettings> voronoiSettingsRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
+		public transient SimpleRegistry<DecisionTreeSettings> decisionTreeRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
+
+		public Syncing(
+			Map<Identifier, NbtElement> templates,
+			Map<Identifier, NbtElement> columnEntries,
+			Map<Identifier, NbtElement> voronoiSettings,
+			Map<Identifier, NbtElement> decisionTrees
+		) {
+			this.templates = templates;
+			this.columnEntries = columnEntries;
+			this.voronoiSettings = voronoiSettings;
+			this.decisionTrees = decisionTrees;
 		}
-		return registry;
-	}
 
-	public static <T> BetterRegistry<T> convertToBetterRegistry(RegistryKey<Registry<T>> key, Map<Identifier, T> map) {
-		return new BetterHardCodedRegistry<>(convertToSimpleRegistry(key, map));
-	}
+		@Hidden
+		public Syncing(BigGlobeScriptedChunkGenerator generator) {
+			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+			if (generator.colors != null) {
+				IndirectDependencyCollector collector = new IndirectDependencyCollector();
+				if (generator.colors.grass  () != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
+				if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
+				if (generator.colors.water  () != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
+				for (RegistryEntry<? extends DependencyView> entry : collector) {
+					if (entry.value() instanceof ScriptTemplate template) {
+						Registry.register(this.templateRegistry, UnregisteredObjectException.getID(entry), template);
+					}
+					else if (entry.value() instanceof ColumnEntry columnEntry) {
+						Registry.register(this.columnEntryRegistry, UnregisteredObjectException.getID(entry), columnEntry);
+					}
+					else if (entry.value() instanceof VoronoiSettings voronoiSettings) {
+						Registry.register(this.voronoiSettingsRegistry, UnregisteredObjectException.getID(entry), voronoiSettings);
+					}
+					else if (entry.value() instanceof DecisionTreeSettings decisionTree) {
+						Registry.register(this.decisionTreeRegistry, UnregisteredObjectException.getID(entry), decisionTree);
+					}
+					else {
+						throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
+					}
+				}
+				RegistryOps<NbtElement> ops = this.createOps(NbtOps.INSTANCE, false);
+				for (Map.Entry<RegistryKey<ScriptTemplate>, ScriptTemplate> entry : this.templateRegistry.getEntrySet()) {
+					this.templates.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(ScriptTemplate.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<RegistryKey<ColumnEntry>, ColumnEntry> entry : this.columnEntryRegistry.getEntrySet()) {
+					this.columnEntries.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(ColumnEntry.REGISTRY, entry.getValue(), ops));
+				}
+				for (Map.Entry<RegistryKey<VoronoiSettings>, VoronoiSettings> entry : this.voronoiSettingsRegistry.getEntrySet()) {
+					this.voronoiSettings.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(VoronoiSettings.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<RegistryKey<DecisionTreeSettings>, DecisionTreeSettings> entry : this.decisionTreeRegistry.getEntrySet()) {
+					this.decisionTrees.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(DecisionTreeSettings.CODER, entry.getValue(), ops));
+				}
+			}
+		}
 
-	public static class TemplateRegistry extends HashMap<Identifier, ScriptTemplate> {
+		public void parse() throws DecodeException {
+			RegistryOps<NbtElement> ops = this.createOps(NbtOps.INSTANCE, true);
+			for (Map.Entry<Identifier, NbtElement> entry : this.templates.entrySet()) {
+				Registry.register(this.templateRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ScriptTemplate.CODER, entry.getValue(), ops));
+			}
+			for (Map.Entry<Identifier, NbtElement> entry : this.columnEntries.entrySet()) {
+				Registry.register(this.columnEntryRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ColumnEntry.REGISTRY, entry.getValue(), ops));
+			}
+			for (Map.Entry<Identifier, NbtElement> entry : this.voronoiSettings.entrySet()) {
+				Registry.register(this.voronoiSettingsRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(VoronoiSettings.CODER, entry.getValue(), ops));
+			}
+			for (Map.Entry<Identifier, NbtElement> entry : this.decisionTrees.entrySet()) {
+				Registry.register(this.decisionTreeRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(DecisionTreeSettings.CODER, entry.getValue(), ops));
+			}
+			this.templateRegistry.freeze();
+			this.columnEntryRegistry.freeze();
+			this.voronoiSettingsRegistry.freeze();
+			this.decisionTreeRegistry.freeze();
+		}
 
-		public static final AutoCoder<TemplateRegistry> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(TemplateRegistry.class);
+		@SuppressWarnings("unchecked")
+		public <T_Element> @Nullable SimpleRegistry<T_Element> getRegistry(RegistryKey<? extends Registry<? extends T_Element>> key) {
+			RegistryKey<?> wildcard = key;
+			SimpleRegistry<?> registry;
+			if      (wildcard == BigGlobeDynamicRegistries.       SCRIPT_TEMPLATE_REGISTRY_KEY) registry = this.            templateRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.          COLUMN_ENTRY_REGISTRY_KEY) registry = this.         columnEntryRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.      VORONOI_SETTINGS_REGISTRY_KEY) registry = this.     voronoiSettingsRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.decisionTreeRegistry;
+			else registry = null;
+			return (SimpleRegistry<T_Element>)(registry);
+		}
 
-		public <T> RegistryOps<T> createOps(DynamicOps<T> delegate) {
-			SimpleRegistry<ScriptTemplate> registry = convertToSimpleRegistry(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, this);
+		public <T_Encoded> RegistryOps<T_Encoded> createOps(DynamicOps<T_Encoded> delegate, boolean mutable) {
 			return RegistryOps.of(
 				delegate,
 				new RegistryInfoGetter() {
 
 					@Override
-					@SuppressWarnings({ "unchecked", "rawtypes" })
-					public <T> Optional<RegistryInfo<T>> getRegistryInfo(RegistryKey<? extends Registry<? extends T>> key) {
-						return (
-							((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))
-							? (Optional)(Optional.of(new RegistryInfo<>(registry.getEntryOwner(), registry.createMutableEntryLookup(), registry.getLifecycle())))
-							: Optional.empty()
+					public <T_Registry> Optional<RegistryInfo<T_Registry>> getRegistryInfo(RegistryKey<? extends Registry<? extends T_Registry>> key) {
+						SimpleRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
+						if (registry == null) return Optional.empty();
+						return Optional.of(
+							new RegistryInfo<>(
+								registry.getEntryOwner(),
+								mutable
+								? registry.createMutableEntryLookup()
+								: registry.getReadOnlyWrapper(),
+								Lifecycle.experimental()
+							)
 						);
 					}
 				}
 			);
+		}
+
+		public BetterRegistry.Lookup lookup() {
+			return new BetterRegistry.Lookup() {
+
+				@Override
+				public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
+					SimpleRegistry<T> registry = Syncing.this.getRegistry(key);
+					if (registry != null) return new BetterHardCodedRegistry<>(registry);
+					else throw new IllegalStateException("Missing registry: " + key);
+				}
+			};
 		}
 	}
 
 	public static class ClientGeneratorParams {
 
 		public static final AutoCoder<ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {});
-
-		public final TemplateRegistry templates;
-		public final Map<Identifier, ColumnEntry> columnEntries;
-		public final Map<Identifier, VoronoiSettings> voronoiSettings;
-		public final Map<Identifier, DecisionTreeSettings> decisionTrees;
 
 		public final int minY, maxY;
 		public final @VerifyNullable Integer seaLevel;
@@ -180,10 +279,6 @@ public class ClientState {
 		public final transient ThreadLocal<ScriptedColumn> columns;
 
 		public ClientGeneratorParams(
-			TemplateRegistry templates,
-			Map<Identifier, ColumnEntry> columnEntries,
-			Map<Identifier, VoronoiSettings> voronoiSettings,
-			Map<Identifier, DecisionTreeSettings> decisionTrees,
 			int minY,
 			int maxY,
 			@VerifyNullable Integer seaLevel,
@@ -192,10 +287,6 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor
 		) {
-			this.templates = templates;
-			this.columnEntries = columnEntries;
-			this.voronoiSettings = voronoiSettings;
-			this.decisionTrees = decisionTrees;
 			this.minY = minY;
 			this.maxY = maxY;
 			this.seaLevel = seaLevel;
@@ -208,10 +299,6 @@ public class ClientState {
 
 		@Hidden //we want AutoCodec to target the other constructor.
 		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator) {
-			this.templates       = new TemplateRegistry();
-			this.columnEntries   = new HashMap<>(16);
-			this.voronoiSettings = new HashMap<>(16);
-			this.decisionTrees   = new HashMap<>(32);
 			this.minY = generator.height.min_y();
 			this.maxY = generator.height.max_y();
 			this.seaLevel = generator.height.sea_level();
@@ -220,65 +307,16 @@ public class ClientState {
 			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
 			this.waterColor = generator.colors != null ? generator.colors.water() : null;
 			this.columns = null;
-
-			IndirectDependencyCollector collector = new IndirectDependencyCollector();
-			if (this.grassColor   != null) this.  grassColor.streamDirectDependencies().forEach(collector);
-			if (this.foliageColor != null) this.foliageColor.streamDirectDependencies().forEach(collector);
-			if (this.waterColor   != null) this.  waterColor.streamDirectDependencies().forEach(collector);
-			for (RegistryEntry<? extends DependencyView> entry : collector) {
-				if (entry.value() instanceof ColumnEntry column) {
-					this.columnEntries.put(UnregisteredObjectException.getID(entry), column);
-				}
-				else if (entry.value() instanceof VoronoiSettings voronoi) {
-					this.voronoiSettings.put(UnregisteredObjectException.getID(entry), voronoi);
-				}
-				else if (entry.value() instanceof DecisionTreeSettings decision) {
-					this.decisionTrees.put(UnregisteredObjectException.getID(entry), decision);
-				}
-				else if (entry.value() instanceof ScriptTemplate template) {
-					this.templates.put(UnregisteredObjectException.getID(entry), template);
-				}
-				else {
-					throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
-				}
-			}
 		}
 
-		public void compile() throws ScriptParsingException {
+		public void compile(Syncing syncing) throws Exception {
 			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
-			this.columnEntryRegistry = new ColumnEntryRegistry(this.createLookup(), "client");
-			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
-			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
-			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
-		}
-
-		public BetterRegistry.Lookup createLookup() {
-			BetterRegistry<DecisionTreeSettings> decisionTrees = convertToBetterRegistry(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, this.decisionTrees);
-			BetterRegistry<VoronoiSettings> voronoiSettings = convertToBetterRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, this.voronoiSettings);
-			BetterRegistry<ColumnEntry> columnEntries = convertToBetterRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, this.columnEntries);
-			BetterRegistry<ScriptTemplate> templates = convertToBetterRegistry(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, this.templates);
-			return new BetterRegistry.Lookup() {
-
-				@Override
-				@SuppressWarnings("unchecked")
-				public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
-					if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY))) {
-						return (BetterRegistry<T>)(columnEntries);
-					}
-					else if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY))) {
-						return (BetterRegistry<T>)(voronoiSettings);
-					}
-					else if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY))) {
-						return (BetterRegistry<T>)(decisionTrees);
-					}
-					else if (((RegistryKey<?>)(key)) == ((RegistryKey<?>)(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY))) {
-						return (BetterRegistry<T>)(templates);
-					}
-					else {
-						throw new IllegalArgumentException("Something has a dependency on a registry that isn't synced.");
-					}
-				}
-			};
+			ColumnEntryRegistry.Loading.OVERRIDE.accept(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
+				this.columnEntryRegistry = loading.getRegistry();
+				if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
+				if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
+				if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
+			});
 		}
 
 		public ScriptedColumn createColumn() {
