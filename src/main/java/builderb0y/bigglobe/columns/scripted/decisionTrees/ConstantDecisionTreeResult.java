@@ -11,6 +11,7 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class ConstantDecisionTreeResult implements DecisionTreeResult {
 
@@ -26,7 +27,7 @@ public class ConstantDecisionTreeResult implements DecisionTreeResult {
 	}
 
 	@Override
-	public InsnTree createResult(DataCompileContext context, AccessSchema schema, @Nullable InsnTree loadY) {
+	public InsnTree createResult(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema schema, @Nullable InsnTree loadY) throws ScriptParsingException {
 		return schema.createConstant(this.value, context.root());
 	}
 }

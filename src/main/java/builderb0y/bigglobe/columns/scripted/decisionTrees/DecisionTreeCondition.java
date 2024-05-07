@@ -41,7 +41,7 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 
 	public static abstract class Impl implements DecisionTreeCondition, MutableDependencyView {
 
-		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+		public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
 		@Override
 		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {

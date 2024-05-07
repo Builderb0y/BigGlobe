@@ -22,6 +22,7 @@ import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.ClientState.Syncing;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
@@ -39,10 +40,12 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 			NbtElement syncingNbt = NbtIo2.read(stream);
 			NbtElement paramsNbt = NbtIo2.read(stream);
 			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
-			syncing.parse();
-			ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
-			params.compile(syncing);
-			return params;
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
+				syncing.parse();
+				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
+				params.compile(loading);
+				return params;
+			});
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Exception decoding client generator params:", exception);

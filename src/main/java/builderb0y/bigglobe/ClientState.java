@@ -221,10 +221,10 @@ public class ClientState {
 		public <T_Element> @Nullable SimpleRegistry<T_Element> getRegistry(RegistryKey<? extends Registry<? extends T_Element>> key) {
 			RegistryKey<?> wildcard = key;
 			SimpleRegistry<?> registry;
-			if      (wildcard == BigGlobeDynamicRegistries.       SCRIPT_TEMPLATE_REGISTRY_KEY) registry = this.            templateRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.          COLUMN_ENTRY_REGISTRY_KEY) registry = this.         columnEntryRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.      VORONOI_SETTINGS_REGISTRY_KEY) registry = this.     voronoiSettingsRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.decisionTreeRegistry;
+			if      (wildcard == BigGlobeDynamicRegistries.       SCRIPT_TEMPLATE_REGISTRY_KEY) registry = this.       templateRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.          COLUMN_ENTRY_REGISTRY_KEY) registry = this.    columnEntryRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.      VORONOI_SETTINGS_REGISTRY_KEY) registry = this.voronoiSettingsRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.   decisionTreeRegistry;
 			else registry = null;
 			return (SimpleRegistry<T_Element>)(registry);
 		}
@@ -309,14 +309,12 @@ public class ClientState {
 			this.columns = null;
 		}
 
-		public void compile(Syncing syncing) throws Exception {
+		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
 			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
-			ColumnEntryRegistry.Loading.OVERRIDE.accept(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
-				this.columnEntryRegistry = loading.getRegistry();
-				if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
-				if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
-				if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
-			});
+			this.columnEntryRegistry = loading.getRegistry();
+			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
+			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
+			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
 		}
 
 		public ScriptedColumn createColumn() {

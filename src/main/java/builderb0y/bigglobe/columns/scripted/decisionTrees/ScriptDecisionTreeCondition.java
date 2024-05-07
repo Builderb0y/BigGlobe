@@ -29,7 +29,7 @@ public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
 	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		MethodCompileContext decisionTreeMethod = context.mainClass.newMethod(
 			ACC_PUBLIC,
-			"decision_tree_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),
+			"decision_tree_condition_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),
 			TypeInfos.BOOLEAN,
 			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
 		);

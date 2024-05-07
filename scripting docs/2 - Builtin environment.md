@@ -62,6 +62,10 @@ void notYetImplemented(int value:
 * String - stores text. You can specify String's directly as literals, and interpolate them. See Low level text format.md.
 * Class - represents a type itself. you can call `print(object.getClass())` on any object to see what it really is under the hood.
 	* For anyone who's used java before, no you cannot use reflection.
+* MinecraftVersion (4.0+) - represents the current version of Minecraft.
+	* Intended for anyone who wants to make a data pack which makes use of version-specific behavior, but also wants to make sure their data pack works in multiple versions.
+	* For example, scripted recipes. Since the ItemStack NBT format changed a lot in Minecraft 1.20.5, so scripted recipes need to do things differently before this version compared to after.
+	* This type implements Comparable, so you can use the > < >= <= operators on it.
 
 # Functions
 
@@ -87,6 +91,10 @@ void notYetImplemented(int value:
 * roundLong - casts a float or double to a long, rounding towards the nearest long, with ties broken by rounding towards positive infinity.
 * truncInt - casts a float or double to an int, rounding towards 0.
 * truncLong - casts a float or double to a long, rounding towards 0.
+
+# Methods
+
+* `MinecraftVersion.new(major, minor, bugfix)` creates a new MinecraftVersion. Intended for comparing to MinecraftVersion.CURRENT.
 
 # Keywords
 
@@ -246,3 +254,14 @@ void notYetImplemented(int value:
 * `object.isnt(Type)` returns true if object is null or can't be cast to Type, false otherwise. If you've used java before, this is a negated instanceof check.
 * `value.as(Type)` is alternate syntax for `Type(value)`. The value is explicitly cast to Type.
 * `number.isBetween[min, max]` returns true if number is between min and max. Just like enhanced for loops over ranges, square brackets specify an inclusive interval, and parentheses specify an exclusive interval. And yes, you can mix and match them. `x.isBetween[5, 10)` is basically syntax sugar for `x >= 5 && x < 10`. As usual, x is only ever evaluated once, not twice.
+
+# Fields
+
+* minecraftVersion.major - always 1, since Minecraft 2.0 was an april fools day joke, and no other version of Minecraft that Big Globe supports starts with anything except 1.
+* minecraftVersion.minor - the middle number in the version. For example, the minor version of Minecraft 1.20.4 is 20.
+* minecraftVersion.bugfix - the last number in the version. For example, the bugfix version of Minecraft 1.20.4 is 4.
+* MinecraftVersion.CURRENT - the version of Minecraft that your game is running.
+
+# Casting
+
+* MinecraftVersion(String) - creates a MinecraftVersion. Useful for comparing 2 versions, because you can do `MinecraftVersion.CURRENT > MinecraftVersion('1.20.4')`.

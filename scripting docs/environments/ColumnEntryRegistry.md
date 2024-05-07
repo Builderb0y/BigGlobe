@@ -1,4 +1,4 @@
-**This content is exclusive to Big Globe 4.0, and may change between now and when 4.0 is released!**
+**This content is exclusive to Big Globe 4.0!**
 
 This environment is data-driven, so all the variables and functions it provides to scripts are defined by you! This is done by adding json files to the `/data/(modid)/worldgen/bigglobe_column_value/` directory. All files in this directory are expected to be formatted as a ColumnEntry.
 

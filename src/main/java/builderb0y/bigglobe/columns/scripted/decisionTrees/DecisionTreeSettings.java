@@ -105,7 +105,7 @@ public class DecisionTreeSettings implements DependencyView {
 		}
 		try {
 			if (this.result != null) {
-				return this.result.createResult(context, accessSchema, loadY);
+				return this.result.createResult(selfEntry, context, accessSchema, loadY);
 			}
 			else {
 				ConditionTree condition = this.condition.createCondition(selfEntry, Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)), context, loadY);
