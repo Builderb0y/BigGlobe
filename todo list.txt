@@ -31,10 +31,17 @@ where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 
 changelog:
-	* Possibly fixed issues connecting to multiplayer servers.
+	* Fixed issues connecting to multiplayer servers.
 	* Fixed /locate'ing certain structures freezing the game.
 
 4.0 stuff:
+	/waypoint
+		add x y z <dimension> <owner>
+		remove <uuid>
+		query
+			owner <owner>
+			dimension <dimension>
+			position <x y z>
 	things to eventually remove:
 		"test" package (move to scripted dimension)
 	fully immutable NBT elements for scripts.

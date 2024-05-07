@@ -59,7 +59,9 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
+					.configureEnvironment((MutableScriptEnvironment environment) ->
+						environment.addVariableLoad("input", type(CraftingGrid.class))
+					)
 					.parse(new ScriptClassLoader())
 				);
 			}
@@ -101,7 +103,9 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("input", type(CraftingGrid.class)))
+					.configureEnvironment((MutableScriptEnvironment environment) ->
+						environment.addVariableLoad("input", type(CraftingGrid.class))
+					)
 					.parse(new ScriptClassLoader())
 				);
 			}
@@ -144,12 +148,11 @@ public class ScriptedRecipeClasses {
 					.addEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
+					.configureEnvironment((MutableScriptEnvironment environment) ->
 						environment
-						.addVariableLoad("input", type(CraftingGrid.class))
+						.addVariableLoad("input",  type(CraftingGrid.class))
 						.addVariableLoad("output", type(CraftingGrid.class))
-						;
-					})
+					)
 					.parse(new ScriptClassLoader())
 				);
 			}
