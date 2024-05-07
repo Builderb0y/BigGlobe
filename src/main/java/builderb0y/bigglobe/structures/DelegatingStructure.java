@@ -42,6 +42,13 @@ public class DelegatingStructure extends Structure {
 		this.delegate = delegate;
 	}
 
+	public static RegistryEntry<Structure> unwrap(RegistryEntry<Structure> structure) {
+		while (structure.value() instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
+			structure = delegating.delegate;
+		}
+		return structure;
+	}
+
 	@Override
 	public RegistryEntryList<Biome> getValidBiomes() {
 		return this.nullable_config.biomes != null ? this.nullable_config.biomes.toRegistryEntryList() : this.delegate.value().getValidBiomes();

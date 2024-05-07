@@ -1,6 +1,14 @@
 package builderb0y.bigglobe.compat.voxy;
 
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.math.MathHelper;
+
 public class DistanceGraph {
+
+	public static final int
+		WORLD_SIZE_IN_BLOCKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000),
+		WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
 
 	public Node root;
 	public Query query;
@@ -10,12 +18,20 @@ public class DistanceGraph {
 		this.query = new Query();
 	}
 
+	public static DistanceGraph worldOfBlocks() {
+		return new DistanceGraph(-WORLD_SIZE_IN_BLOCKS, -WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS);
+	}
+
+	public static DistanceGraph worldOfChunks() {
+		return new DistanceGraph(-WORLD_SIZE_IN_CHUNKS, -WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS);
+	}
+
 	public DistanceGraph(Node root) {
 		this.root = root;
 		this.query = new Query();
 	}
 
-	public Query query(int x, int z) {
+	public @Nullable Query query(int x, int z) {
 		if (this.root.isFull()) return null;
 		this.query.init(x, z);
 		this.root.getClosestEmpty(this.query);

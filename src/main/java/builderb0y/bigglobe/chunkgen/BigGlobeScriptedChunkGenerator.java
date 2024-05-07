@@ -4,10 +4,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -20,9 +17,11 @@ import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,18 +31,17 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.*;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.*;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.PalettedContainer;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
@@ -51,6 +49,8 @@ import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
@@ -83,10 +83,13 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
@@ -754,6 +757,98 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public @Nullable Pair<BlockPos, RegistryEntry<Structure>> locateStructure(
+		ServerWorld world,
+		RegistryEntryList<Structure> structures,
+		BlockPos center,
+		int radius,
+		boolean skipReferencedStructures
+	) {
+		record PlacedStructure(RegistryEntry<Structure> structure, StructurePlacement placement) {}
+
+		int centerChunkX = center.getX() >> 4;
+		int centerChunkZ = center.getZ() >> 4;
+		Pair<BlockPos, RegistryEntry<Structure>> nearestConcentric = null;
+		int nearestConcentricDistance = Integer.MAX_VALUE;
+		Set<PlacedStructure> nonConcentricPlacements = null;
+		for (RegistryEntry<Structure> structure : structures) {
+			RegistryEntry<Structure> actualStructure = DelegatingStructure.unwrap(structure);
+			List<StructurePlacement> placements = world.getChunkManager().getStructurePlacementCalculator().getPlacements(structure);
+			for (StructurePlacement placement : placements) {
+				if (placement instanceof ConcentricRingsStructurePlacement concentric) {
+					List<ChunkPos> positions = world.getChunkManager().getStructurePlacementCalculator().getPlacementPositions(concentric);
+					if (positions != null) for (ChunkPos position : positions) {
+						int newDistance = BigGlobeMath.squareI(position.x - centerChunkX, position.z - centerChunkZ);
+						if (newDistance < nearestConcentricDistance) {
+							Pair<BlockPos, RegistryEntry<Structure>> found = getStructure(world, skipReferencedStructures, actualStructure, null, position.x, position.z);
+							if (found != null) {
+								nearestConcentric = found;
+								nearestConcentricDistance = newDistance;
+							}
+						}
+					}
+				}
+				else {
+					if (nonConcentricPlacements == null) nonConcentricPlacements = new HashSet<>();
+					nonConcentricPlacements.add(new PlacedStructure(actualStructure, placement));
+				}
+			}
+		}
+
+		if (nonConcentricPlacements != null) {
+			nearestConcentricDistance = Math.min(nearestConcentricDistance, radius * radius);
+			PlacedStructure[] array = nonConcentricPlacements.toArray(new PlacedStructure[nonConcentricPlacements.size()]);
+			DistanceGraph graph = DistanceGraph.worldOfChunks();
+			while (true) {
+				Query query = graph.query(centerChunkX, centerChunkZ);
+				if (query == null || query.distanceSquared >= nearestConcentricDistance) break;
+				for (PlacedStructure placedStructure : array) {
+					Pair<BlockPos, RegistryEntry<Structure>> found = getStructure(world, skipReferencedStructures, placedStructure.structure, placedStructure.placement, query.closestX, query.closestZ);
+					if (found != null) {
+						return found;
+					}
+				}
+			}
+		}
+
+		return nearestConcentric;
+	}
+
+	public static @Nullable Pair<BlockPos, RegistryEntry<Structure>> getStructure(
+		ServerWorld world,
+		boolean skipReferencedStructures,
+		RegistryEntry<Structure> structure,
+		@Nullable StructurePlacement placement,
+		int chunkX,
+		int chunkZ
+	) {
+		if (placement == null || placement.shouldGenerate(world.getChunkManager().getStructurePlacementCalculator(), chunkX, chunkZ)) {
+			Chunk chunk = world.getChunk(chunkX, chunkZ, ChunkStatus.STRUCTURE_STARTS);
+			StructureStart start = chunk.getStructureStart(structure.value());
+			if (start != null && start.hasChildren() && (!skipReferencedStructures || checkNotReferenced(world.getStructureAccessor(), start))) {
+				return Pair.of(start.getBoundingBox().getCenter(), structure);
+			}
+		}
+		return null;
+	}
+
+	/**
+	copy-paste of {@link ChunkGenerator#checkNotReferenced(StructureAccessor, StructureStart)},
+	since it's a short enough method to copy-paste and I don't feel like making an AW or accessor for it.
+	*/
+	public static boolean checkNotReferenced(StructureAccessor structureAccessor, StructureStart start) {
+		//if this were my language, this could be represented more concisely as
+		//start.isNeverReferenced().if (structureAccessor.incrementReferences(start))
+		if (start.isNeverReferenced()) {
+			structureAccessor.incrementReferences(start);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override

@@ -30,15 +30,8 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 
 changelog:
-	* Added voidmetal ingots, blocks, upgrades, and armor.
-		* Voidmetal armor protects you from ender pearl fall damage.
-			* Does not protect you from any other kind of fall damage.
-		* Voidmetal armor is as tough as netherite.
-			* Not immune to fire.
-			* Does not grant knockback resistance.
-	* Fixed NPE when visiting hyperspace with satin installed in 1.20.6.
-	* Fixed crash on launch on dedicated servers.
-	* Fixed loading loop when hyperspace is disabled.
+	* Possibly fixed issues connecting to multiplayer servers.
+	* Fixed /locate'ing certain structures freezing the game.
 
 4.0 stuff:
 	things to eventually remove:
@@ -62,7 +55,6 @@ changelog:
 			third one at 1665.50 449.97 17.77
 			decide if I want a surface_y overrider for them,
 			or a structure overrider which prevents them from spawning in hilly or river-y areas.
-	use DistanceGraph for structure locating logic.
 	remove BoundInfo.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 		add setFluidState() to WorldWrapper which modifies waterlogged property.

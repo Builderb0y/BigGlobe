@@ -46,8 +46,6 @@ import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class VoxyWorldGenerator {
 
-	public static final int WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
-
 	public final WorldEngine engine;
 	public final ServerWorld world;
 	public final BigGlobeScriptedChunkGenerator generator;
@@ -101,24 +99,13 @@ public class VoxyWorldGenerator {
 					)
 				)
 			) {
-				return DistanceGraphIO.read(
-					-WORLD_SIZE_IN_CHUNKS,
-					-WORLD_SIZE_IN_CHUNKS,
-					+WORLD_SIZE_IN_CHUNKS,
-					+WORLD_SIZE_IN_CHUNKS,
-					bits
-				);
+				return DistanceGraphIO.readChunks(bits);
 			}
 			catch (IOException exception) {
 				BigGlobeMod.LOGGER.error("Exception loading voxy progress file. Restarting progress.");
 			}
 		}
-		return new DistanceGraph(
-			-WORLD_SIZE_IN_CHUNKS,
-			-WORLD_SIZE_IN_CHUNKS,
-			+WORLD_SIZE_IN_CHUNKS,
-			+WORLD_SIZE_IN_CHUNKS
-		);
+		return DistanceGraph.worldOfChunks();
 	}
 
 	public void start() {

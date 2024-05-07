@@ -31,6 +31,26 @@ public class DistanceGraphIO {
 		}
 	}
 
+	public static DistanceGraph readBlocks(BitInputStream stream) throws IOException {
+		return read(
+			-DistanceGraph.WORLD_SIZE_IN_BLOCKS,
+			-DistanceGraph.WORLD_SIZE_IN_BLOCKS,
+			+DistanceGraph.WORLD_SIZE_IN_BLOCKS,
+			+DistanceGraph.WORLD_SIZE_IN_BLOCKS,
+			stream
+		);
+	}
+
+	public static DistanceGraph readChunks(BitInputStream stream) throws IOException {
+		return read(
+			-DistanceGraph.WORLD_SIZE_IN_CHUNKS,
+			-DistanceGraph.WORLD_SIZE_IN_CHUNKS,
+			+DistanceGraph.WORLD_SIZE_IN_CHUNKS,
+			+DistanceGraph.WORLD_SIZE_IN_CHUNKS,
+			stream
+		);
+	}
+
 	public static DistanceGraph read(int minX, int minZ, int maxX, int maxZ, BitInputStream stream) throws IOException {
 		int version = stream.source.readUnsignedByte();
 		return new DistanceGraph(
