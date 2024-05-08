@@ -31,17 +31,15 @@ where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 
 changelog:
-	* Fixed issues connecting to multiplayer servers.
-	* Fixed /locate'ing certain structures freezing the game.
 
 4.0 stuff:
 	/waypoint
-		add x y z <dimension> <owner>
-		remove <uuid>
+		add <x y z> <dimension> <owner>
+		remove <id>
 		query
 			owner <owner>
-			dimension <dimension>
-			position <x y z>
+			in <dimension>
+			near <x y z>
 	things to eventually remove:
 		"test" package (move to scripted dimension)
 	fully immutable NBT elements for scripts.
@@ -163,6 +161,7 @@ scripting:
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
 	make it so that constant template inputs remain constants without being turned into variables.
+	higherInt(), higherLong(), lowerInt(), lowerLong().
 
 features:
 	general:

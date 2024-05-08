@@ -1,83 +1,28 @@
-**This content is exclusive to Big Globe 4.0!**
-
 This environment is data-driven, so all the variables and functions it provides to scripts are defined by you! This is done by adding json files to the `/data/(modid)/worldgen/bigglobe_column_value/` directory. All files in this directory are expected to be formatted as a ColumnEntry.
+* If a column entry is 3D, then it will be exposed to scripts as a function taking a parameter for the Y level.
+	* If an implicit Y level is available, then it will *also* be exposed to scripts as a variable.
+* If a column entry is 2D, then it will be exposed to scripts as a variable.
 
-# ColumnValueType
+If the column entry's type is `class`, then all fields declared on the class will be exposed as fields.
 
-A ColumnValueType may be a string or an object. If it's a string, then it may be one of the following:
-* `byte`
-* `short`
-* `int`
-* `long`
-* `float`
-* `double`
-* `boolean`
-* `block`
-* `block_state`
-* `biome`
-* `configured_feature`
-* `wood_palette`
+If the column entry's type is `voronoi`, then all exports declared on the voronoi cell will be exposed as fields or methods, depending on whether or not they are 3D and whether or not an implicit Y level is available.
+* If the export is 3D then it will be exposed as a method taking Y as a parameter.
+	* If an implicit Y level is available, then at will *also* be exposed as a field.
+* If the export is 2D then it will be exposed as a field.
 
-If it's an object, then `type` may be one of the following:
-* `class` has the following additional properties:
-	* `name` (string) - controls the name of the type associated with this class.
-	* `fields` (object) - the list of fields in the class.
-		* (key) - the name of the field.
-		* (value) - a ColumnValueType representing the type of this field.
-* `voronoi` has the following additional properties:
-	* `name` (string) - controls the name of the type associated with this voronoi cell. This is the name that will be exposed to scripts. For example, if the name was "ExampleCell", then a script would be able to do `ExampleCell cell = ...`
-	* `exports` (object) - controls the list of column values which will be present on all voronoi cells.
-		* (key) - the name of the exported value.
-		* (value) - an AccessSchema describing the type of the value and how it should be accessed.
+The following properties are also available on all voronoi cells:
+* `id` - the namespace and path of the voronoi settings which defines this cell.
+* `cell_x`, `cell_z`, `center_x`, and `center_z` - the voronoi diagram is setup so that the world is split up into square areas `distance` blocks wide. Every square has a single seed point somewhere inside it. The cell position is the index of the square itself, incrementing or decrementing by 1 across adjacent squares. The center position is the position of the seed point inside the square, measured in blocks. The center position is relative to the world origin, not the start of the square.
+* `hard_distance` and `hard_distance_squared` - how close the current position is to the nearest edge of the cell, from 0 to 1, where 0 is in the center, and 1 is on the edge. The "squared" version is the normal version raised to the power of 2.
+* `soft_distance` and `soft_distance_squared` - roughly how close the current position is to the edge of the cell, from 0 to 1, where 0 is in the center, and 1 is on the edge. The difference between soft distance and hard distance is made clear when you consider the set of points whose distance is a constant value. For example, 0.5. These points will form a smaller copy of the original voronoi cell shape with hard distance. With soft distance, this shape will have rounded corners. The corners are more rounded when soft distance is smaller, and less rounded when soft distance is larger. Internally, this value is actually calculated in terms of the squared variant, and the normal variant is the square root of that. As such, it is faster to use `soft_distance_squared` than it is to use `soft_distance ^ 2`.
+* `euclidean_distance` and `euclidean_distance_squared` - the number of blocks between the center position and the current position. Like soft distance, this is computed in terms of the square, so `euclidean_distance_squared` is faster to use than `euclidean_distance ^ 2`.
 
-# AccessSchema
+If the script is itself used to compute one of the values exported by a voronoi settings, then the above properties will be exposed as variables AND fields. Otherwise, they will be exposed as fields only.
 
-This is an object with the following properties:
-* `type` - a ColumnValueType describing the type accessed by this schema.
-* `is_3d` - a boolean controlling whether or not the value is allowed to be different at different Y levels.
+If the script is itself used to compute one of the values exported by a voronoi settings, then every column value enabled by the voronoi settings is also exposed to the script in the same way as any other column value. Additionally, the exports of the voronoi cell are made available as variables too, not just fields.
 
-# Valid
-
-This is a (usually optional) object containing the following properties:
-* `where` (script) - returns true/false if the column value is applicable to this x/z position.
-* `min_y` (script) - for 3D column values, returns the lowest Y level (inclusive) that this column value is applicable at.
-* `max_y` (script) - for 3D column values, returns the highest Y level (exclusive) that this column value is applicable at.
-* `fallback` - the value to return for this column value if it is not valid. Defaults to NaN for floats and doubles, 0 for all other numbers, false for booleans, and null for objects.
-
-The purpose of valid is to restrict where certain column values can be computed. For example, if you have expensive 3D noise which is only valid 512 blocks below the world surface (like cave noise), then it does not make sense to compute it outside that Y range.
-
-# ColumnEntry
-
-This is the structure for the actual json files in `/data/(modid)/worldgen/bigglobe_column_value/`. It has the following properties:
-
-* `type` - defines how the column value behaves, or how it's calculated, and may be one of the following:
-	* `constant` - the value is constant. Has the following additional properties:
-		* `value` - the value.
-		
-		Note: constant types is always valid, and never cached.
-	* `noise` - the value is computed from noise. Has the following additional properties:
-		* `grid` - if `params > is_3d` is set to true, then this must be a 3D grid. Otherwise, it must be a 2D grid.
-		* `cache` - if set to true, the value will be stored so that if it is queried again, it is not computed again. If this column value is 3D according to its params, then all valid Y levels are computed in bulk on first access. Computing values in bulk is faster than computing all valid Y levels individually, but slower than computing only a single Y level. It is recommended to use caching if you plan on accessing many different Y levels or, if the value is 2D, if you plan on accessing the value  more than once.
-		* `valid` - declares where this column value is valid.
-
-		A noise type has the following additional restrictions:
-		* `params > type` must be either `float` or `double`.
-	* `script` - the value is computed from a script. Has the following additional properties:
-		* `script` - the script which computes the value.
-		* `cache` - if set to true, the value will be stored so that if it is queried again, it is not computed again. If this column value is 3D according to its params, then all valid Y levels are computed in bulk on first access. Computing values in bulk is the same speed as computing them individually. It is recommended to use caching if you plan on accessing the value many times, and the script which computes those values is non-trivial. For example, you would probably NOT want to use caching if the script simply returns the sum of 2 other cached values.
-	* `decision_tree` - the value is calculated from a (possibly nested or very long) if-else chain, which itself is defined by more json files in the `/data/(modid)/worldgen/bigglobe_decision_tree/` directory. Has the following additional properties:
-		* `root` - the namespace and path of the first decision tree element which should be checked.
-		* `valid` - declares where this column value is valid.
-		* `cache` - if set to true, the value will be stored so that if it is queried again, it is not computed again. If this column value is 3D according to its params, then all valid Y levels are computed in bulk on first access. Computing values in bulk is the same speed as computing them individually. It is recommended to use caching if you plan on accessing the value more than once.
-	* `voronoi` - the world is split into voronoi cells, and each cell may calculate the value differently. Has the following additional properties:
-		* `diagram` - object containing the distance and variation between seed points.
-		* `valid` - declares where this column value is valid.
-
-		A voronoi type has the following additional restrictions:
-		* `params > type` must be `voronoi`.
-		* `params > is_3d` must be `false`.
-
-		Note: voronoi types are always cached.
-* `params` - an AccessSchema defining what type the value is, and how to access it.
-
-todo: document decision tree json files, voronoi json files, and the environments present on scripts.
+If the script does not have an implicit x or z coordinate (for example, feature dispatchers), then:
+* All column values exposed as variables are instead exposed as functions which take x and z as parameters.
+* All column values exposed as fields are instead exposed as methods which take x and z as parameters.
+* All column values exposed as functions taking y as a parameter are instead exposed as functions taking x, y, and z as parameters.
+* All column values exposed as methods taking y as a parameter are instead exposed as methods taking x, y, and z as parameters.

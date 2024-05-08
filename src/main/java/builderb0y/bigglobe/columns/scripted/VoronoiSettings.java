@@ -10,6 +10,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
@@ -22,7 +23,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 @UseVerifier(name = "verify", in = VoronoiSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public record VoronoiSettings(
 	RegistryEntry<ColumnEntry> owner,
-	double weight,
+	@VerifyFloatRange(min = 0.0D, minInclusive = false) double weight,
 	@DefaultEmpty Set<RegistryEntry<ColumnEntry>> enables,
 	@DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = VoronoiColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, RegistryEntry<ColumnEntry>> exports
 )

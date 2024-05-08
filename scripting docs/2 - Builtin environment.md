@@ -15,7 +15,7 @@ Script environments provide things for scripts to make use of. These things incl
 
 What follows below is the "builtin" script environment. This environment is always present on every script, though in rare cases some functionality may be limited or removed. I will try to ensure that such cases are also documented.
 
-Information about other environments can be found in the "environments" directory. Information about which environments are present on each script can be found in the "present" directory.
+Information about other environments can be found in the "environments" directory. Information about which environments are present on each script can be found in the "files" directory.
 
 # Variables
 
