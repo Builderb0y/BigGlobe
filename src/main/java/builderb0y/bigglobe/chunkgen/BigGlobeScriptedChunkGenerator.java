@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
@@ -34,9 +35,11 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.*;
 import net.minecraft.util.collection.PaletteStorage;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
@@ -83,6 +86,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -379,6 +383,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		StructureAccessor structureAccessor,
 		Chunk chunk
 	) {
+		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
+			return CompletableFuture.completedFuture(chunk);
+		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons));
@@ -545,6 +552,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
+			return;
+		}
 		this.generateStructures(world, chunk, structureAccessor);
 		WorldWrapper worldWrapper = new WorldWrapper(
 			new WorldDelegator(world),
@@ -679,6 +689,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		ChunkPos pos,
 		ChunkSectionPos sectionPos
 	) {
+		if (ValkyrienSkiesCompat.isInShipyard(pos)) {
+			return false;
+		}
 		Structure structure = weightedEntry.structure().value();
 		Predicate<RegistryEntry<Biome>> predicate = structure.getValidBiomes()::contains;
 		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
