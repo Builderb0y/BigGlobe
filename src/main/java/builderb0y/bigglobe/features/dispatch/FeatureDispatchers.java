@@ -76,7 +76,7 @@ public class FeatureDispatchers {
 		if (this.flattenedRockReplacers == null) {
 			this.flattenedRockReplacers = (
 				Arrays
-				.stream(rock_replacers)
+				.stream(this.rock_replacers)
 				.flatMap((TagOrObject<ConfiguredFeature<?, ?>> tagOrObject) -> {
 					return tagOrObject.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID));
 				})

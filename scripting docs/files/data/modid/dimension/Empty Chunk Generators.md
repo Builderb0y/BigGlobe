@@ -1,0 +1,5 @@
+Chunk generators of type `empty` do not place any blocks, structures, or features. This chunk generator is, by default, used for the hyperspace dimension. It has the following properties:
+* `biome_source` - controls what biome is at what position. See [the MC wiki](https://minecraft.wiki/w/Custom_dimension#Biome_sources) for a list of vanilla biome sources. Big Globe also provides a `bigglobe:scripted` biome source.
+* `height` - controls the Y range where the chunk generator *claims* it can place blocks, even though it doesn't actually place any blocks. This should match the Y range specified in the dimension type. I'm not sure why Minecraft has them separate.
+	* `min_y` - the minimum Y level (inclusive) where this chunk generator *claims* it can place blocks.
+	* `max_y` - the maximum Y level (exclusive) where this chunk generator *claims* it can place blocks.

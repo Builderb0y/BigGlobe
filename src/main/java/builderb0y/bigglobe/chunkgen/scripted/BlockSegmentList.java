@@ -27,7 +27,8 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 	}
 
 	public void setBlockStates(int minY, int maxY, BlockState state) {
-		this.addSegment(minY, maxY - 1 /* convert to inclusive */, state);
+		if (state != null) this.addSegment(minY, maxY - 1 /* convert to inclusive */, state);
+		else this.removeSegment(minY, maxY - 1);
 	}
 
 	public BlockSegmentList split(int minY, int maxY) {

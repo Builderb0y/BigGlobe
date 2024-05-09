@@ -123,7 +123,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	#endif
 
 	public final @VerifyNullable String reload_dimension;
-	public final @EncodeInline ColumnEntryRegistry columnEntryRegistry;
+	public final transient ColumnEntryRegistry columnEntryRegistry;
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
@@ -236,17 +236,18 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public static AutoCoder<BigGlobeScriptedChunkGenerator> createCoder(FactoryContext<BigGlobeScriptedChunkGenerator> context) {
 		AutoCoder<BigGlobeScriptedChunkGenerator> coder = (AutoCoder<BigGlobeScriptedChunkGenerator>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
-		if (!BigGlobeConfig.INSTANCE.get().reloadGenerators) return coder;
 		return new NamedCoder<BigGlobeScriptedChunkGenerator>("jar-reloading AutoCoder for BigGlobeScriptedChunkGenerator") {
 
 			@Override
 			public <T_Encoded> @Nullable BigGlobeScriptedChunkGenerator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				String dimension = context.getMember("reload_dimension").tryAsString();
-				if (dimension != null) {
-					JsonElement json = this.getDimension(dimension);
-					if (json != null) {
-						T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
-						return context.input(encoded, RootDecodePath.INSTANCE).decodeWith(coder);
+				if (BigGlobeConfig.INSTANCE.get().reloadGenerators) {
+					String dimension = context.getMember("reload_dimension").tryAsString();
+					if (dimension != null) {
+						JsonElement json = this.getDimension(dimension);
+						if (json != null) {
+							T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
+							return context.input(encoded, RootDecodePath.INSTANCE).decodeWith(coder);
+						}
 					}
 				}
 				return context.decodeWith(coder);

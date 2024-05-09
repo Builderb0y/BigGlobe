@@ -20,7 +20,7 @@ This is the structure for the actual json files in `/data/(modid)/worldgen/biggl
 			* MinecraftScriptEnvironment
 			* StatelessRandomScriptEnvironment
 			* BaseColumnScriptEnvironment
-			* ColumnEntryRegistry (x and z default to the position of the column, y has a default value if `params > is_3d` is true)
+			* ColumnEntryRegistry (x and z are hard-coded to the position of the column, y has a default value if `params > is_3d` is true)
 
 			If `params > is_3d` is set to true, then an implicit y level is also available, accessed via the variable `y`.
 		* `cache` - if set to true, the value will be stored so that if it is queried again, it is not computed again. If this column value is 3D according to its params, then all valid Y levels are computed in bulk on first access. Computing values in bulk is the same speed as computing them individually. It is recommended to use caching if you plan on accessing the value many times, and the script which computes those values is non-trivial. For example, you would probably NOT want to use caching if the script simply returns the sum of 2 other cached values.

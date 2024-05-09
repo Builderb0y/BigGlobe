@@ -26,3 +26,9 @@ If the script does not have an implicit x or z coordinate (for example, feature 
 * All column values exposed as fields are instead exposed as methods which take x and z as parameters.
 * All column values exposed as functions taking y as a parameter are instead exposed as functions taking x, y, and z as parameters.
 * All column values exposed as methods taking y as a parameter are instead exposed as methods taking x, y, and z as parameters.
+
+If the script DOES have an implicit X and Z coordinate, it may or may not be possible to access column values at other coordinates. If my documentation states that a coordinate is hard-coded, then it is not possible to access column values at other coordinates. If my documentation states that a coordinate "defaults to" something, then it is possible to access column values at other coordinates by providing them when accessing the column value. For example:
+```
+float value = `some_mod:some_column_value`(y) ;uses the default coordinates.
+value = `some_mod:some_column_value`(x, y, z) ;uses the provided coordinates.
+```
