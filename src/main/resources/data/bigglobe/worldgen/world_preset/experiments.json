@@ -1,0 +1,56 @@
+{
+	"dimensions": {
+		"minecraft:overworld": {
+			"type": "minecraft:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -64,
+					"max_y": 320,
+					"sea_level": 128
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"max_y": [
+									"double height = 0.0L",
+									"double deltaX = 0.0L",
+									"double deltaZ = 0.0L",
+									"long seed = worldSeed # 16x1CD6D7C5D97EB6E1UL",
+									"for (int iteration in range[0, 512):",
+										"double angle = (seed := seed.newSeed()).nextDouble(tau)",
+										"double phase = (seed := seed.newSeed()).nextDouble(tau)",
+										"double baseAmplitude = exp(iteration / -128.0L + 4.0L)",
+										"double unitX = cos(angle)",
+										"double unitZ = sin(angle)",
+										"double project = (x * unitX + z * unitZ) / baseAmplitude + phase",
+										"double adjustedAmplitude = 1.0L - (unitX * deltaX + unitZ * deltaZ) ^ 2 / (deltaX ^ 2 + deltaZ ^ 2 + 16.0L)",
+										"double deltaProject = -cos(project) * adjustedAmplitude",
+										"height += sin(project) * baseAmplitude * adjustedAmplitude",
+										"deltaX += unitX * deltaProject",
+										"deltaZ += unitZ * deltaProject",
+									")",
+									"int(height * 0.0625L + 128.0L)"
+								]
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		}
+	}
+}
