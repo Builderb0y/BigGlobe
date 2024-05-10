@@ -24,8 +24,8 @@ An identifier term is a term that starts with an identifier, and may match more 
 	* Extra member operations can be appended to the end. For example, `HashMap map = new().$put("a", 1).$put("b", 2)`.
 * `Type name := expression` same as with `=`, but also returns the newly initialized value.
 	* This makes it possible to do `int x = int y := int z := 0`.
-* `Type functionName(Type1 param1, Type2 param2, ...: body)` function declaration. It can be called with `functionName(param1, param2)`.
-* `ReturnType SelfType.methodName(Type1 param1, Type2 param2...: body)` extension method declaration. It can be called with `object.methodName(param1, param2)`.
+* `Type functionName(Type1 param1, Type2 param2, ...: body)` function declaration. It can be called with `functionName(param1, param2, ...)`.
+* `ReturnType SelfType.methodName(Type1 param1, Type2 param2...: body)` extension method declaration. It can be called with `object.methodName(param1, param2, ...)`.
 * `Type` constant for a Class object representing Type.
 	* This is intended primarily for calling `Type.staticMethod()` or `Type.new()`, but it can also be used for debugging. For example, `print(Type)` will show you exactly what the underlying class of Type is, as sometimes the exposed name does not match the actual name.
 * `functionName(arguments)` calls the function with the provided arguments.

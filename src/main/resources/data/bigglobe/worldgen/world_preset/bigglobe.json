@@ -159,8 +159,8 @@
 											"type": "simple_2d",
 											"state": "'minecraft:lava[level=0]'",
 											"valid": {
-												"min_y": "-1024",
-												"max_y": "-896"
+												"min_y": "`bigglobe:overworld/bedrock_y`",
+												"max_y": "`bigglobe:overworld/lava_level`"
 											}
 										}
 									],
@@ -175,7 +175,7 @@
 									"state": "'bigglobe:molten_rock_8'",
 									"valid": {
 										"where": "!surfaceOnly",
-										"max_y": "-896"
+										"max_y": "`bigglobe:overworld/lava_level`"
 									}
 								}
 							]

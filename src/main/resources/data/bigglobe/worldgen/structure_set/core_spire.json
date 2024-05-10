@@ -1,0 +1,11 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 1924272263,
+		"separation": 4,
+		"spacing": 8
+	},
+	"structures": [
+		{ "structure": "bigglobe:core_spire", "weight": 1 }
+	]
+}

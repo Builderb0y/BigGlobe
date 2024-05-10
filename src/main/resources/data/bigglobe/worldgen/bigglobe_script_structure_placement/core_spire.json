@@ -1,0 +1,19 @@
+{
+	"placement": [
+		"for (",
+			"int z in range[minZ, maxZ],",
+			"int x in range[minX, maxX]",
+		":",
+			"int height = switch (max(abs(x), abs(z)):",
+				"case (0: 48)",
+				"case (1: 44 - x - z)",
+				"case (2: 36 + x + z)",
+				"case (3: 24 - x - z)",
+				"case (4:  8 + x + z)",
+				"default (0)",
+			")",
+			"fillBlockState(x, minY, z, x, height >> 1 - 1, z, 'minecraft:nether_bricks')",
+			"if (height & 1 != 0: setBlockState(x, height >> 1, z, 'minecraft:nether_brick_slab[type=bottom,waterlogged=false]'))",
+		")"
+	]
+}

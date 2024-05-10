@@ -27,7 +27,7 @@ Say you want a template for a scripted configured feature which places a sphere 
 {
 	"script": [
 		"for (int offsetX, int offsetY, int offsetZ in range(floorInt(-RADIUS), ceilInt(RADIUS)):",
-			"if (offsetX ^ 2 + offsetY ^ 2 + offsetZ ^ 2 < RADIUS:",
+			"if (offsetX ^ 2 + offsetY ^ 2 + offsetZ ^ 2 < RADIUS ^ 2:",
 				"setBlockState(originX + offsetX, originY + offsetY, originZ + offsetZ, `$STATE`)",
 			")",
 		")",

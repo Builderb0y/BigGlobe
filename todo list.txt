@@ -32,6 +32,7 @@ where I left off:
 
 changelog:
 	* Added compatibility for Valkyrien Skies.
+	* Added core spires.
 	* Various minor bug fixes.
 
 4.0 stuff:
@@ -50,10 +51,6 @@ changelog:
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
 	need to redo scripted noise which uses column values.
-	missing stuff:
-		caverns.
-			some kind of nether-themed structure in the lava of the core.
-				include portal to the nether.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	cave-exposed trail ruins at -1324.62 105.88 1666.20

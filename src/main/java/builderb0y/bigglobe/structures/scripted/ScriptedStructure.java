@@ -3,6 +3,7 @@ package builderb0y.bigglobe.structures.scripted;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
@@ -67,16 +68,20 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons)));
+		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
+		this.layout.layout(lookup, x, z, permuter, pieces, distantHorizons);
+		StructurePiecesCollector collector = new StructurePiecesCollector();
+		int minY = Integer.MAX_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		for (StructurePiece piece : pieces) {
+			collector.addPiece(piece);
+			minY = Math.min(minY, piece.getBoundingBox().getMinY());
+			maxY = Math.max(maxY, piece.getBoundingBox().getMaxY());
+		}
 		return Optional.of(
 			new StructurePosition(
-				new BlockPos(x, 0, z),
-				(StructurePiecesCollector collector) -> {
-					CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-					this.layout.layout(lookup, x, z, permuter, pieces, distantHorizons);
-					for (StructurePiece piece : pieces) {
-						collector.addPiece(piece);
-					}
-				}
+				new BlockPos(x, (maxY + minY + 1) >> 1, z),
+				Either.right(collector)
 			)
 		);
 	}
@@ -97,6 +102,11 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		public SymmetricOffset transformation;
 		public final StructurePlacementScriptEntry placement;
 		public final NbtCompound data;
+
+		@Override
+		public String toString() {
+			return "ScriptedStructurePiece: { original bounding box: " + this.originalBoundingBox + ", current bounding box: " + this.boundingBox + ", transformation: " + this.transformation + ", placement: " + this.placement.id() + ", data: " + this.data + " }";
+		}
 
 		public Piece(StructurePieceType type, BlockBox boundingBox, StructurePlacementScriptEntry placement, NbtCompound data) {
 			super(type, 0, boundingBox);
