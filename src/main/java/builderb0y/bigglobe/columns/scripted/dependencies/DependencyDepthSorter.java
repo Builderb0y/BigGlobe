@@ -212,17 +212,17 @@ public class DependencyDepthSorter {
 		}
 
 		public void doAllTheThings(String suffix) {
-			BigGlobeMod.LOGGER.info("Linking dependency graph...");
+			BigGlobeMod.LOGGER.info("Linking " + suffix + " dependency graph...");
 			this.link();
-			BigGlobeMod.LOGGER.info("Filing cells in dependency graph...");
+			BigGlobeMod.LOGGER.info("Filing cells in " + suffix + " dependency graph...");
 			this.fillCells();
-			BigGlobeMod.LOGGER.info("Organizing dependency graph...");
+			BigGlobeMod.LOGGER.info("Organizing " + suffix + " dependency graph...");
 			this.organize();
-			BigGlobeMod.LOGGER.info("Creating image for dependency graph...");
+			BigGlobeMod.LOGGER.info("Creating image for " + suffix + " dependency graph...");
 			this.createImage();
-			BigGlobeMod.LOGGER.info("Saving image for dependency graph...");
+			BigGlobeMod.LOGGER.info("Saving image for " + suffix + " dependency graph...");
 			this.saveImage(suffix);
-			BigGlobeMod.LOGGER.info("Done outputting dependency graph results.");
+			BigGlobeMod.LOGGER.info("Done outputting " + suffix + " dependency graph results.");
 		}
 
 		public void link() {

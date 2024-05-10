@@ -267,7 +267,7 @@ public class ClientState {
 
 	public static class ClientGeneratorParams {
 
-		public static final AutoCoder<ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {});
+		public static final AutoCoder<@Nullable ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {});
 
 		public final int minY, maxY;
 		public final @VerifyNullable Integer seaLevel;

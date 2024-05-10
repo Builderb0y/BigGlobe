@@ -57,6 +57,12 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
 
+		public Data {
+			if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z) || Double.isNaN(radius)) {
+				throw new IllegalArgumentException("Attempt to create tree ball with NaN position or radius.");
+			}
+		}
+
 		public Data(RegistryEntry<Structure> structure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
 			this(structure, (MegaTreeStructure)(structure.value()), x, y, z, radius, step, totalSteps, wood);
 		}

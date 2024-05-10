@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -39,11 +40,15 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 			GZIPInputStream stream = new GZIPInputStream(new ByteBufInputStream(buffer));
 			NbtElement syncingNbt = NbtIo2.read(stream);
 			NbtElement paramsNbt = NbtIo2.read(stream);
+			if (syncingNbt == NbtEnd.INSTANCE) {
+				if (paramsNbt == NbtEnd.INSTANCE) return null;
+				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
+			}
 			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
-			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup(), "client"), (ColumnEntryRegistry.Loading loading) -> {
 				syncing.parse();
 				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
-				params.compile(loading);
+				if (params != null) params.compile(loading);
 				return params;
 			});
 		}

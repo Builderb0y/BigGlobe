@@ -202,16 +202,18 @@ public class ColumnEntryRegistry {
 		/** the Loading instance used on the client thread during synchronization of {@link ClientGeneratorParams}. */
 		public static final ScopeLocal<Loading> OVERRIDE = new ScopeLocal<>();
 
+		static {
+			ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> reset());
+		}
+
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
+		public String side;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup) {
+		public Loading(BetterRegistry.Lookup betterRegistryLookup, String side) {
 			this.betterRegistryLookup = betterRegistryLookup;
-		}
-
-		static {
-			ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> reset());
+			this.side = side;
 		}
 
 		public static void reset() {
@@ -222,7 +224,7 @@ public class ColumnEntryRegistry {
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
 			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent());
 			if (LOADING == null) {
-				LOADING = new Loading(betterRegistryLookup);
+				LOADING = new Loading(betterRegistryLookup, "server");
 			}
 		}
 
@@ -263,7 +265,7 @@ public class ColumnEntryRegistry {
 		public void compile() {
 			if (this.columnEntryRegistry != null) return;
 			try {
-				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup);
+				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.side);
 			}
 			catch (ScriptParsingException exception) {
 				LOADING = null;

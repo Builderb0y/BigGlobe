@@ -82,9 +82,11 @@ public class MegaTreeBranch {
 			}
 			if (column != null) column.setParams(column.params.at(floorI(position.x), floorI(position.z)));
 			double surfaceY = column != null && surfaceYGetter != null ? surfaceYGetter.get(column) : context.structureContext.chunkGenerator().getHeightOnGround(floorI(position.x), floorI(position.z), Heightmap.Type.OCEAN_FLOOR_WG, context.structureContext.world(), context.structureContext.noiseConfig());
-			Vectors.setInSphere(scratchPos, context.permuter, 0.25D)
-			.add(0.0D, scratchPos.y + exp2((surfaceY - position.y) * 0.125D + 2.0D), 0.0D)
-			.add(shyness)
+			Vectors.setInSphere(scratchPos, context.permuter, 0.25D);
+			if (!Double.isNaN(surfaceY)) {
+				scratchPos.y += exp2((surfaceY - position.y) * 0.125D + 2.0D);
+			}
+			scratchPos.add(shyness)
 			.add(this.acceleration)
 			.mul(0.125D / this.startRadius);
 			Vector3d prevVelocity = this.velocity;
