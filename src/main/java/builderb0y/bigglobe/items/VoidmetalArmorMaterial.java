@@ -79,7 +79,7 @@ public class VoidmetalArmorMaterial {
 
 			@Override
 			public String getName() {
-				return "voidmetal";
+				return "bigglobe_voidmetal";
 			}
 
 			@Override
