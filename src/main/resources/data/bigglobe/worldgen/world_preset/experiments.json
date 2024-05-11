@@ -52,20 +52,22 @@
 							"type": "simple_3d",
 							"state": "'minecraft:iron_block'",
 							"condition": [
-								"int iterX = x",
-								"int iterY = y",
-								"int iterZ = z",
+								"int iterX = abs(x)",
+								"int iterY = abs(y)",
+								"int iterZ = abs(z)",
 								"for (int step = 512, step != 0, step >>>= 1:",
-									"iterX = abs(iterX)",
-									"iterY = abs(iterY)",
-									"iterZ = abs(iterZ)",
-									"if      (iterX > iterY && iterX > iterZ: iterX -= step)",
-									"else if (iterY > iterX && iterY > iterZ: iterY -= step)",
-									"else if (iterZ > iterX && iterZ > iterY: iterZ -= step)",
+									"if      (iterX > iterY && iterX > iterZ: iterX = abs(iterX - step))",
+									"else if (iterY > iterX && iterY > iterZ: iterY = abs(iterY - step))",
+									"else if (iterZ > iterX && iterZ > iterY: iterZ = abs(iterZ - step))",
 									"else (break())",
 								")",
 								"return(iterX == 0 && iterY == 0 && iterZ == 0)"
-							]
+							],
+							"valid": {
+								"where": "abs(x) + abs(z) < 1024",
+								"min_y": "abs(x) + abs(z) - 1024",
+								"max_y": "1024 - abs(x) - abs(z)"
+							}
 						}
 					]
 				},

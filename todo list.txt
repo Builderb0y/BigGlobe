@@ -34,6 +34,7 @@ changelog:
 	* Added core spires.
 	* Added compatibility for Valkyrien Skies.
 	* Fixed voidmetal armor not having a texture in MC 1.20.4 and earlier.
+	* Fixed issues with entering non-scripted dimensions (including vanilla worlds and hyperspace).
 	* Various other minor bug fixes.
 
 4.0 stuff:
