@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 
-import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -52,8 +51,6 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 public class ColumnEntryRegistry {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
-	public static final Object IMAGE_SAVE_LOCK = new Object();
-	public static Thread imageSaveThread;
 
 	public final BetterRegistry.Lookup registries;
 	public final VoronoiManager voronoiManager;
@@ -64,12 +61,24 @@ public class ColumnEntryRegistry {
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
 
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries) throws ScriptParsingException {
-		this(registries, "server");
+	public static enum Side {
+		CLIENT,
+		SERVER;
+
+		public Thread saveThread;
+
+		public synchronized void save(DependencyDepthSorter sorter) {
+			if (this.saveThread != null) try {
+				this.saveThread.join();
+			}
+			catch (InterruptedException exception) {
+				throw new RuntimeException("interrupted?", exception);
+			}
+			(this.saveThread = new Thread(() -> sorter.outputResults(this.name().toLowerCase(Locale.ROOT)), "Big Globe graph image saver thread")).start();
+		}
 	}
 
-	@Hidden
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries, String suffix) throws ScriptParsingException {
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries, Side side) throws ScriptParsingException {
 		this.registries = registries;
 		this.columnContext = new ColumnCompileContext(this);
 		this.voronoiManager = new VoronoiManager(this);
@@ -112,15 +121,7 @@ public class ColumnEntryRegistry {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			DependencyDepthSorter sorter = new DependencyDepthSorter();
 			entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-			synchronized (IMAGE_SAVE_LOCK) {
-				if (imageSaveThread != null) try {
-					imageSaveThread.join();
-				}
-				catch (InterruptedException exception) {
-					throw new RuntimeException("interrupted?", exception);
-				}
-				(imageSaveThread = new Thread(() -> sorter.outputResults(suffix), "Big Globe graph image saver thread")).start();
-			}
+			side.save(sorter);
 		}
 		try {
 			this.loader = new ScriptClassLoader();
@@ -209,9 +210,9 @@ public class ColumnEntryRegistry {
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
-		public String side;
+		public Side side;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup, String side) {
+		public Loading(BetterRegistry.Lookup betterRegistryLookup, Side side) {
 			this.betterRegistryLookup = betterRegistryLookup;
 			this.side = side;
 		}
@@ -224,7 +225,7 @@ public class ColumnEntryRegistry {
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
 			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent());
 			if (LOADING == null) {
-				LOADING = new Loading(betterRegistryLookup, "server");
+				LOADING = new Loading(betterRegistryLookup, Side.SERVER);
 			}
 		}
 

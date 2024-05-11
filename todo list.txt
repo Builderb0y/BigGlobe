@@ -44,8 +44,6 @@ changelog:
 			owner <owner>
 			in <dimension>
 			near <x y z>
-	things to eventually remove:
-		"test" package (move to scripted dimension)
 	fully immutable NBT elements for scripts.
 	add sandy and frozen cave types?
 	option to specify that a grid column entry should use the hashed world seed,

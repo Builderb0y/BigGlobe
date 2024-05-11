@@ -45,7 +45,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
 			}
 			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
-			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup(), "client"), (ColumnEntryRegistry.Loading loading) -> {
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup(), ColumnEntryRegistry.Side.CLIENT), (ColumnEntryRegistry.Loading loading) -> {
 				syncing.parse();
 				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
 				if (params != null) params.compile(loading);

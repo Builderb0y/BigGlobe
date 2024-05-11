@@ -1,5 +1,126 @@
 {
 	"dimensions": {
+		"bigglobe:tetrahedron": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:iron_block'",
+							"valid": {
+								"min_y": "x # z",
+								"max_y": "(x # z) + 1"
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
+		"bigglobe:octahedron": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_3d",
+							"state": "'minecraft:iron_block'",
+							"condition": [
+								"int iterX = x",
+								"int iterY = y",
+								"int iterZ = z",
+								"for (int step = 512, step != 0, step >>>= 1:",
+									"iterX = abs(iterX)",
+									"iterY = abs(iterY)",
+									"iterZ = abs(iterZ)",
+									"if      (iterX > iterY && iterX > iterZ: iterX -= step)",
+									"else if (iterY > iterX && iterY > iterZ: iterY -= step)",
+									"else if (iterZ > iterX && iterZ > iterY: iterZ -= step)",
+									"else (break())",
+								")",
+								"return(iterX == 0 && iterY == 0 && iterZ == 0)"
+							]
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
+		"bigglobe:memger_sponge": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024
+				},
+				"layer": {
+					"state": "'minecraft:iron_block'",
+					"children": [
+						{
+							"type": "simple_3d",
+							"state": "'minecraft:air'",
+							"condition": [
+								"int iterX = abs(x)",
+								"int iterY = abs(y)",
+								"int iterZ = abs(z)",
+								"for (int scale in range[0, 20):",
+									"if (abs(iterX % 3 - 1) + abs(iterY % 3 - 1) + abs(iterZ % 3 - 1) <= 1:",
+										"return(true)",
+									")",
+									"iterX /= 3",
+									"iterY /= 3",
+									"iterZ /= 3",
+									"if (iterX == 0 && iterY == 0 && iterZ == 0: break())",
+								")",
+								"return(false)"
+							]
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
 		"minecraft:overworld": {
 			"type": "minecraft:overworld",
 			"generator": {
