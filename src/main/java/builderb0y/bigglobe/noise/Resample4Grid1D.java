@@ -2,19 +2,21 @@ package builderb0y.bigglobe.noise;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
-/** a ResampleGrid1D which internally interpolates between 2 sample points. */
-public abstract class Resample2Grid1D extends ResampleGrid1D {
+public abstract class Resample4Grid1D extends ResampleGrid1D {
 
-	public Resample2Grid1D(Grid1D source, int scaleX) {
+	public Resample4Grid1D(Grid1D source, int scaleX) {
 		super(source, scaleX);
 	}
 
 	@Override
 	public double getValue(long seed, int x) {
 		int fracX = BigGlobeMath.modulus_BP(x, this.scaleX);
+		int gridX = x - fracX;
 		return this.interpolate(
-			this.source.getValue(seed, x -= fracX),
-			this.source.getValue(seed, x + this.scaleX),
+			this.source.getValue(seed, gridX - fracX),
+			this.source.getValue(seed, x),
+			this.source.getValue(seed, x += fracX),
+			this.source.getValue(seed, x +  fracX),
 			fracX * this.rcpX
 		);
 	}
@@ -28,7 +30,9 @@ public abstract class Resample2Grid1D extends ResampleGrid1D {
 		int fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
 		int gridX     = startX - fracX;
 		Polynomial polynomial = this.polynomial(
+			source.getValue(seed, gridX - scaleX),
 			source.getValue(seed, gridX),
+			source.getValue(seed, gridX += scaleX),
 			source.getValue(seed, gridX += scaleX)
 		);
 		for (int index = 0; true /* break in the middle of the loop */;) {
@@ -41,7 +45,7 @@ public abstract class Resample2Grid1D extends ResampleGrid1D {
 		}
 	}
 
-	public abstract Polynomial polynomial(double value0, double value1);
+	public abstract Polynomial polynomial(double value0, double value1, double value2, double value3);
 
-	public abstract double interpolate(double value0, double value1, double fraction);
+	public abstract double interpolate(double value0, double value1, double value2, double value3, double fraction);
 }
