@@ -46,7 +46,7 @@ Nevertheless, the full list of overworld biomes is:
 	* Basically the basalt deltas, but with a cooler name.
 	* Blazes can spawn here.
 * Nether Wastes
-* Valley Of Souls
+* Valley of Souls
 	* AKA soul sand valley, but once again, I like cool names.
 	* Wither skeletons can spawn here.
 * Warped Forest
@@ -108,7 +108,7 @@ In addition to all the vanilla structures, the following structures also spawn i
 * Portal temple: A temple-like structure.
 	* Has 4 nether portals on top, but each one only has a 50% chance of being lit.
 	* Randomized contents inside, including:
-		* Well: contains a block of lava surrounded on all sides by other blocks.
+		* Well: Contains a block of lava surrounded on all sides by other blocks.
 		* Farm: Source of nether wart and either glowstone or shroomlights.
 		* Table: Can have some other useful blocks on top.
 		* Furnace: A fire surrounded by nether brick.

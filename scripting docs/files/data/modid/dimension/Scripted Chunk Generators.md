@@ -12,6 +12,9 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded to the position currently being generated)
 	* `children` - an array of layers. Defaults to an empty array if absent.
+	* `before_children` and `after_children` (optional) (added in V4.2.1 or V4.3.0, whichever one gets released first) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
+
+	Note: the root layer does not have a `valid` property. If you provide one anyway, it will be ignored.
 * `feature_dispatcher` - has the following properties:
 	* `rock_replacers` - array containing strings which represent either a configured feature, or a tag of configured features. All configured features in this array must have one of the following types:
 		* `bigglobe:chunk_sprinkle`
@@ -19,7 +22,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* `bigglobe:bedrock`
 		* `bigglobe:rock_layer`
 		* `bigglobe:ore`
-	
+
 		Any configured features in the array which do not have one of these types will be ignored. Rock replacers run after layers, and run in the order they are declared in this array. If an element in the array is a tag, then the replacers in that tag will run in alphabetical order. Sorted by path first, then by namespace.
 	* `raw` and `normal` - a string representing the namespace and path of a feature dispatcher. Raw runs first, and has access to only one chunk at a time. Normal runs later, after a 3x3 area of chunks is available.
 

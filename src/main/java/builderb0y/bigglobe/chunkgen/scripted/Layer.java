@@ -18,6 +18,8 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 	static {
 		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"), Simple2DLayer.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"), Simple3DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedLayer.class);
 	}
 
 	public final @VerifyNullable Valid valid;

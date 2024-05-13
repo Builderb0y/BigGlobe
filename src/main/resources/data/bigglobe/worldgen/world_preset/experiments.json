@@ -1,5 +1,68 @@
 {
 	"dimensions": {
+		"bigglobe:snowflake": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "multi_state_3d",
+							"state": [
+								"int iterX = x",
+								"int iterY = y",
+								"int iterZ = z",
+								"int moveX = 6",
+								"int moveY = 6",
+								"int moveZ = 6",
+								"for (int iteration in -range[0, 5]:",
+									"int scale = 3 ^ iteration",
+									"int half = (scale - 1) >> 1",
+									"if (abs(iterX) > half && abs(iterY) > half && abs(iterZ) > half:",
+										"return(null)",
+									")",
+									"if (abs(iterX) > half: iterX -= sign(iterX) * scale,, moveX = iteration)",
+									"if (abs(iterY) > half: iterY -= sign(iterY) * scale,, moveY = iteration)",
+									"if (abs(iterZ) > half: iterZ -= sign(iterZ) * scale,, moveZ = iteration)",
+								")",
+								"return(",
+									"switch (max(moveX, moveY, moveZ):",
+										"case (0: 'minecraft:purple_concrete')",
+										"case (1: 'minecraft:blue_concrete')",
+										"case (2: 'minecraft:cyan_concrete')",
+										"case (3: 'minecraft:lime_concrete')",
+										"case (4: 'minecraft:yellow_concrete')",
+										"case (5: 'minecraft:orange_concrete')",
+										"case (6: 'minecraft:red_concrete')",
+										"default ('minecraft:white_concrete')",
+									")",
+								")"
+							],
+							"valid": {
+								"where": "max(abs(x), abs(z)) <= (3 ^ 6 - 1) >> 1",
+								"min_y": "-((3 ^ 6 - 1) >> 1)",
+								"max_y": "(3 ^ 6 - 1) >> 1"
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
 		"bigglobe:tetrahedron": {
 			"type": "bigglobe:overworld",
 			"generator": {
@@ -49,19 +112,35 @@
 					"state": "'minecraft:air'",
 					"children": [
 						{
-							"type": "simple_3d",
-							"state": "'minecraft:iron_block'",
-							"condition": [
+							"type": "multi_state_3d",
+							"state": [
 								"int iterX = abs(x)",
 								"int iterY = abs(y)",
 								"int iterZ = abs(z)",
-								"for (int step = 512, step != 0, step >>>= 1:",
-									"if      (iterX > iterY && iterX > iterZ: iterX = abs(iterX - step))",
-									"else if (iterY > iterX && iterY > iterZ: iterY = abs(iterY - step))",
-									"else if (iterZ > iterX && iterZ > iterY: iterZ = abs(iterZ - step))",
+								"int moveX = 10",
+								"int moveY = 10",
+								"int moveZ = 10",
+								"for (int iteration in -range[0, 9]:",
+									"int step = 1 << iteration",
+									"if      (iterX > iterY && iterX > iterZ: iterX = abs(iterX - step),, moveX = iteration)",
+									"else if (iterY > iterX && iterY > iterZ: iterY = abs(iterY - step),, moveY = iteration)",
+									"else if (iterZ > iterX && iterZ > iterY: iterZ = abs(iterZ - step),, moveZ = iteration)",
 									"else (break())",
 								")",
-								"return(iterX == 0 && iterY == 0 && iterZ == 0)"
+								"unless(iterX == 0 && iterY == 0 && iterZ == 0: return(null))",
+								"return(",
+									"switch (max(moveX, moveY, moveZ):",
+										"case (2: 'minecraft:blue_concrete')",
+										"case (3: 'minecraft:cyan_concrete')",
+										"case (4: 'minecraft:green_concrete')",
+										"case (5: 'minecraft:lime_concrete')",
+										"case (6: 'minecraft:yellow_concrete')",
+										"case (7: 'minecraft:orange_concrete')",
+										"case (8: 'minecraft:red_concrete')",
+										"case (9: 'minecraft:pink_concrete')",
+										"default ('minecraft:white_concrete')",
+									")",
+								")"
 							],
 							"valid": {
 								"where": "abs(x) + abs(z) < 1024",

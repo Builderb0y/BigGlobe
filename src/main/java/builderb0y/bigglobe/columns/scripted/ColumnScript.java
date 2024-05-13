@@ -792,6 +792,35 @@ public interface ColumnScript extends Script {
 		}
 	}
 
+	public static interface ColumnYToBlockStateScript extends ColumnScript {
+
+		public abstract BlockState get(ScriptedColumn column, int y);
+
+		@Wrapper
+		public static class Holder extends BaseHolder<ColumnYToBlockStateScript> implements ColumnYToBlockStateScript {
+
+			public Holder(ScriptUsage usage) {
+				super(usage);
+			}
+
+			@Override
+			public Class<ColumnYToBlockStateScript> getScriptClass() {
+				return ColumnYToBlockStateScript.class;
+			}
+
+			@Override
+			public BlockState get(ScriptedColumn column, int y) {
+				try {
+					return this.script.get(column, y);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return BlockStates.AIR;
+				}
+			}
+		}
+	}
+
 	public static interface ColumnYToBiomeScript extends ColumnScript {
 
 		public abstract BiomeEntry get(ScriptedColumn column, int y);

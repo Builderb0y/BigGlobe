@@ -284,7 +284,7 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Configures special actions to take or skip when generating chunks for Voxy.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Voxy is not installed.",
 
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread": "USe Worldgen Thread",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread": "Use Worldgen Thread",
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[0]": "If true, Big Globe will generate terrain for Voxy constantly in a background thread.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "If false, Voxy will only process chunks you've visited.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Note that terrain generated this way may be a simplified representation of actual terrain, and finer details may be filled in only when you get closer to it.",
