@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.noise;
 
-import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Polynomial.DerivativeSmootherPolynomial;
 
 public class DxSmootherResampleGrid1D extends Resample2Grid1D {
@@ -21,6 +21,6 @@ public class DxSmootherResampleGrid1D extends Resample2Grid1D {
 
 	@Override
 	public double interpolate(double value0, double value1, double fraction) {
-		return BigGlobeMath.squareD(fraction - fraction * fraction) * 30.0D * (value1 - value0);
+		return Interpolator.smootherDerivative(fraction) * (value1 - value0);
 	}
 }

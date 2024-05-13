@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.Polynomial.DerivativeLinearPolynomial;
 import builderb0y.bigglobe.noise.Polynomial.LinearPolynomial;
 
-public class LinearResampleGrid2D extends Resample4Grid2D {
+public class DxLinearResampleGrid2D extends Resample4Grid2D {
 
-	public LinearResampleGrid2D(Grid2D source, int scaleX, int scaleY) {
+	public DxLinearResampleGrid2D(Grid2D source, int scaleX, int scaleY) {
 		super(source, scaleX, scaleY);
 	}
 
@@ -16,7 +17,7 @@ public class LinearResampleGrid2D extends Resample4Grid2D {
 
 	@Override
 	public Polynomial xPolynomial(double value0, double value1) {
-		return new LinearPolynomial(value0, value1);
+		return new DerivativeLinearPolynomial(value0, value1);
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class LinearResampleGrid2D extends Resample4Grid2D {
 
 	@Override
 	public double interpolateX(double value0, double value1, double fraction) {
-		return Interpolator.mixLinear(value0, value1, fraction);
+		return value1 - value0;
 	}
 
 	@Override

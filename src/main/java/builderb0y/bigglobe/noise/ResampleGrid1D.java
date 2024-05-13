@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.autocodec.annotations.VerifyIntRange;
-
-import static builderb0y.bigglobe.math.Interpolator.mixLinear;
+import builderb0y.bigglobe.math.Interpolator;
 
 public abstract class ResampleGrid1D implements Grid1D {
 
@@ -14,8 +13,8 @@ public abstract class ResampleGrid1D implements Grid1D {
 	public ResampleGrid1D(Grid1D source, int scaleX) {
 		this.source = source;
 		this.rcpX = 1.0D / (this.scaleX = scaleX);
-		this.minValue = mixLinear(source.minValue(), source.maxValue(), this.getMaxOvershoot());
-		this.maxValue = mixLinear(source.maxValue(), source.minValue(), this.getMaxOvershoot());
+		this.minValue = Interpolator.mixLinear(source.maxValue(), source.minValue(), this.getMaxOvershoot());
+		this.maxValue = Interpolator.mixLinear(source.minValue(), source.maxValue(), this.getMaxOvershoot());
 	}
 
 	public abstract double getMaxOvershoot();

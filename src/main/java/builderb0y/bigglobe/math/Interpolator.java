@@ -234,7 +234,7 @@ public class Interpolator {
 	}
 
 	public static double smoothDerivative(double value) {
-		return (-6.0D * value + 6.0D) * value;
+		return (value - value * value) * 6.0D;
 	}
 
 	/**
@@ -252,6 +252,6 @@ public class Interpolator {
 	}
 
 	public static double smootherDerivative(double value) {
-		return ((30.0D * value - 60.0D) * value + 30.0D) * value * value;
+		return BigGlobeMath.squareD(value - value * value) * 30.0D;
 	}
 }
