@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sine_sum",
+		"scale": 512.0,
+		"amplitude": 1.0,
+		"iterations": 16
+	}
+}

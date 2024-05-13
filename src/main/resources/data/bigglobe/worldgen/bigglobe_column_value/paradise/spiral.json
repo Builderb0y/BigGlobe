@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double wave = sin((`bigglobe:paradise/warp_angle` + log2(`bigglobe:paradise/warp_radius`)) * 8.0L)",
+		"double amplitude = `bigglobe:paradise/warp_radius` * exp2(-4.0L * `bigglobe:paradise/warp_radius`)",
+		"return(wave * amplitude)"
+	]
+}

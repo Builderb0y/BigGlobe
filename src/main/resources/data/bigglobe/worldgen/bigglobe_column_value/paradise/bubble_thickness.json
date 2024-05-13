@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "sqrt(`bigglobe:paradise/warp_radius` - 0.25L) * 256.0L"
+}

@@ -253,6 +253,59 @@
 				},
 				"overriders": "bigglobe:empty"
 			}
+		},
+		"bigglobe:paradise": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024,
+					"sea_level": 0
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"max_y": "int(`bigglobe:paradise/mountain_thickness`)"
+							},
+							"children": [
+								{
+									"type": "simple_2d",
+									"state": "'minecraft:air'",
+									"valid": {
+										"where": "isNotNaN(`bigglobe:paradise/bubble_thickness`)",
+										"min_y": "int(-180.0L - `bigglobe:paradise/bubble_thickness`)",
+										"max_y": "int(-180.0L + `bigglobe:paradise/bubble_thickness`) + 1"
+									},
+									"children": [
+										{
+											"type": "simple_2d",
+											"state": "'minecraft:water[level=0]'",
+											"valid": {
+												"max_y": "-256"
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
 		}
 	}
 }
