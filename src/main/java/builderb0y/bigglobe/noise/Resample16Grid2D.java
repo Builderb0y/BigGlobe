@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.polynomials.Polynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial4.PolyForm4;
 
 /** a ResampleGrid2D which internally interpolates between 16 sample points. */
 public abstract class Resample16Grid2D extends ResampleGrid2D {
@@ -19,29 +21,30 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		int gridY = y - fracY;
 		double scaledX = fracX * this.rcpX;
 		double scaledY = fracY * this.rcpY;
-		return this.interpolateX(
-			this.interpolateY(
+		PolyForm4 formY = this.polyFormY();
+		return this.polyFormX().interpolate(
+			formY.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX - scaleX, gridY),
 				this.source.getValue(seed, gridX - scaleX, gridY + scaleY),
 				this.source.getValue(seed, gridX - scaleX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX, gridY - scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX, gridY + scaleY),
 				this.source.getValue(seed, gridX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX + scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX + scaleX, gridY),
 				this.source.getValue(seed, gridX + scaleX, gridY + scaleY),
 				this.source.getValue(seed, gridX + scaleX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY - scaleY),
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY),
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY + scaleY),
@@ -63,29 +66,30 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		int gridX = startX - fracX;
 		int gridY = y      - fracY;
 		double scaledY = gridY * this.rcpY;
-		Polynomial polynomial = this.xPolynomial(
-			this.interpolateY(
+		PolyForm4 formY = this.polyFormY();
+		Polynomial polynomial = this.polyFormX().createPolynomial(
+			formY.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX - scaleX, gridY),
 				this.source.getValue(seed, gridX - scaleX, gridY + scaleY),
 				this.source.getValue(seed, gridX - scaleX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX, gridY - scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX, gridY + scaleY),
 				this.source.getValue(seed, gridX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX += scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX, gridY + scaleY),
 				this.source.getValue(seed, gridX, gridY + (scaleY << 1)),
 				scaledY
 			),
-			this.interpolateY(
+			formY.interpolate(
 				this.source.getValue(seed, gridX += scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX, gridY + scaleY),
@@ -99,7 +103,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			if (++fracX >= scaleX) {
 				fracX = 0;
 				polynomial.push(
-					this.interpolateY(
+					formY.interpolate(
 						this.source.getValue(seed, gridX += scaleX, gridY - scaleY),
 						this.source.getValue(seed, gridX, gridY),
 						this.source.getValue(seed, gridX, gridY + scaleY),
@@ -122,29 +126,30 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		int gridX = x      - fracX;
 		int gridY = startY - fracY;
 		double scaledX = fracX * this.rcpX;
-		Polynomial polynomial = this.yPolynomial(
-			this.interpolateX(
+		PolyForm4 formX = this.polyFormX();
+		Polynomial polynomial = this.polyFormY().createPolynomial(
+			formX.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX, gridY - scaleY),
 				this.source.getValue(seed, gridX + scaleX, gridY - scaleY),
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY - scaleY),
 				scaledX
 			),
-			this.interpolateX(
+			formX.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX + scaleX, gridY),
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY),
 				scaledX
 			),
-			this.interpolateX(
+			formX.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY += scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX + scaleX, gridY),
 				this.source.getValue(seed, gridX + (scaleX << 1), gridY),
 				scaledX
 			),
-			this.interpolateX(
+			formX.interpolate(
 				this.source.getValue(seed, gridX - scaleX, gridY += scaleY),
 				this.source.getValue(seed, gridX, gridY),
 				this.source.getValue(seed, gridX + scaleX, gridY),
@@ -158,7 +163,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			if (++fracY >= scaleY) {
 				fracY = 0;
 				polynomial.push(
-					this.interpolateX(
+					formX.interpolate(
 						this.source.getValue(seed, gridX - scaleX, gridY += scaleY),
 						this.source.getValue(seed, gridX, gridY),
 						this.source.getValue(seed, gridX + scaleX, gridY),
@@ -170,11 +175,9 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		}
 	}
 
-	public abstract Polynomial xPolynomial(double value0, double value1, double value2, double value3);
+	@Override
+	public abstract PolyForm4 polyFormX();
 
-	public abstract Polynomial yPolynomial(double value0, double value1, double value2, double value3);
-
-	public abstract double interpolateX(double value0, double value1, double value2, double value3, double fraction);
-
-	public abstract double interpolateY(double value0, double value1, double value2, double value3, double fraction);
+	@Override
+	public abstract PolyForm4 polyFormY();
 }

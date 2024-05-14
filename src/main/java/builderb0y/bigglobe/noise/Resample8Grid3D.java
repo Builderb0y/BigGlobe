@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
-
-import static builderb0y.bigglobe.math.Interpolator.mixLinear;
+import builderb0y.bigglobe.noise.polynomials.Polynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
 
 /** a ResampleGrid3D which internally interpolates between 8 sample points. */
 public abstract class Resample8Grid3D extends ResampleGrid3D {
@@ -12,65 +12,47 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 	}
 
 	@Override
-	public double doInterpolateX(long seed, int x, int y, int z, double fracX) {
-		return mixLinear(
-			this.source.getValue(seed, x, y, z),
-			this.source.getValue(seed, x + this.scaleX, y, z),
+	public double getValue(long seed, int x, int y, int z) {
+		int modX = BigGlobeMath.modulus_BP(x, this.scaleX);
+		int modY = BigGlobeMath.modulus_BP(y, this.scaleY);
+		int modZ = BigGlobeMath.modulus_BP(z, this.scaleZ);
+		int gridX = x - modX;
+		int gridY = y - modY;
+		int gridZ = z - modZ;
+		double fracX = modX * this.rcpX;
+		double fracY = modY * this.rcpY;
+		double fracZ = modZ * this.rcpZ;
+		PolyForm2 formX = this.polyFormX();
+		PolyForm2 formY = this.polyFormY();
+		PolyForm2 formZ = this.polyFormZ();
+		return formX.interpolate(
+			formY.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY, gridZ),
+					this.source.getValue(seed, gridX, gridY, gridZ + this.scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY + this.scaleY, gridZ),
+					this.source.getValue(seed, gridX, gridY + this.scaleY, gridZ + this.scaleZ),
+					fracZ
+				),
+				fracY
+			),
+			formY.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX + this.scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX + this.scaleX, gridY, gridZ + this.scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX + this.scaleX, gridY + this.scaleY, gridZ),
+					this.source.getValue(seed, gridX + this.scaleX, gridY + this.scaleY, gridZ + this.scaleZ),
+					fracZ
+				),
+				fracY
+			),
 			fracX
-		);
-	}
-
-	@Override
-	public double doInterpolateY(long seed, int x, int y, int z, double fracY) {
-		return mixLinear(
-			this.source.getValue(seed, x, y, z),
-			this.source.getValue(seed, x, y + this.scaleY, z),
-			fracY
-		);
-	}
-
-	@Override
-	public double doInterpolateZ(long seed, int x, int y, int z, double fracZ) {
-		return mixLinear(
-			this.source.getValue(seed, x, y, z),
-			this.source.getValue(seed, x, y, z + this.scaleZ),
-			fracZ
-		);
-	}
-
-	@Override
-	public double doInterpolateXY(long seed, int x, int y, int z, double fracX, double fracY) {
-		return mixLinear(
-			this.doInterpolateX(seed, x, y, z, fracX),
-			this.doInterpolateX(seed, x, y + this.scaleY, z, fracX),
-			fracY
-		);
-	}
-
-	@Override
-	public double doInterpolateYZ(long seed, int x, int y, int z, double fracY, double fracZ) {
-		return mixLinear(
-			this.doInterpolateY(seed, x, y, z, fracY),
-			this.doInterpolateY(seed, x, y, z + this.scaleZ, fracY),
-			fracZ
-		);
-	}
-
-	@Override
-	public double doInterpolateXZ(long seed, int x, int y, int z, double fracX, double fracZ) {
-		return mixLinear(
-			this.doInterpolateX(seed, x, y, z, fracX),
-			this.doInterpolateX(seed, x, y, z + this.scaleZ, fracX),
-			fracZ
-		);
-	}
-
-	@Override
-	public double doInterpolateXYZ(long seed, int x, int y, int z, double fracX, double fracY, double fracZ) {
-		return mixLinear(
-			this.doInterpolateXY(seed, x, y, z, fracX, fracY),
-			this.doInterpolateXY(seed, x, y, z + this.scaleZ, fracX, fracY),
-			fracZ
 		);
 	}
 
@@ -78,26 +60,67 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
 		int sampleCount = samples.length();
 		if (sampleCount <= 0) return;
-		int scaleX    = this.scaleX;
-		int fracX     = BigGlobeMath.modulus_BP(startX, scaleX);
-		int fracY     = BigGlobeMath.modulus_BP(y, this.scaleY);
-		int fracZ     = BigGlobeMath.modulus_BP(z, this.scaleZ);
-		int gridX     = startX - fracX;
-		int gridY     = y      - fracY;
-		int gridZ     = z      - fracZ;
-		double curveY = this.curveY(fracY);
-		double curveZ = this.curveZ(fracZ);
-		double value0 = this.checkInterpolateX(seed, gridX,           gridY, gridZ, curveY, curveZ);
-		double value1 = this.checkInterpolateX(seed, gridX += scaleX, gridY, gridZ, curveY, curveZ);
-		double diff   = value1 - value0;
+		int scaleX = this.scaleX;
+		int scaleY = this.scaleY;
+		int scaleZ = this.scaleZ;
+		int modX = BigGlobeMath.modulus_BP(startX, scaleX);
+		int modY = BigGlobeMath.modulus_BP(y,      scaleY);
+		int modZ = BigGlobeMath.modulus_BP(z,      scaleZ);
+		int gridX = startX - modX;
+		int gridY = y      - modY;
+		int gridZ = z      - modZ;
+		double fracY = modY * this.rcpY;
+		double fracZ = modZ * this.rcpZ;
+		PolyForm2 formY = this.polyFormY();
+		PolyForm2 formZ = this.polyFormZ();
+		Polynomial polynomial = this.polyFormX().createPolynomial(
+			formY.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY, gridZ),
+					this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ + scaleZ),
+					fracZ
+				),
+				fracY
+			),
+			formY.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX += scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ + scaleZ),
+					fracZ
+				),
+				fracY
+			)
+		);
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples.setD(index, fracX == 0 ? value0 : this.curveX(fracX) * diff + value0);
+			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
-			if (++fracX >= scaleX) {
-				fracX  = 0;
-				value0 = value1;
-				value1 = this.checkInterpolateX(seed, gridX += scaleX, gridY, gridZ, curveY, curveZ);
-				diff   = value1 - value0;
+			if (++modX >= scaleX) {
+				modX = 0;
+				polynomial.push(
+					formY.interpolate(
+						formZ.interpolate(
+							this.source.getValue(seed, gridX += scaleX, gridY, gridZ),
+							this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+							fracZ
+						),
+						formZ.interpolate(
+							this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+							this.source.getValue(seed, gridX, gridY + scaleY, gridZ + scaleZ),
+							fracZ
+						),
+						fracY
+					)
+				);
 			}
 		}
 	}
@@ -106,26 +129,67 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 	public void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
 		int sampleCount = samples.length();
 		if (sampleCount <= 0) return;
-		int scaleY    = this.scaleY;
-		int fracX     = BigGlobeMath.modulus_BP(x, this.scaleX);
-		int fracY     = BigGlobeMath.modulus_BP(startY, scaleY);
-		int fracZ     = BigGlobeMath.modulus_BP(z, this.scaleZ);
-		int gridX     = x      - fracX;
-		int gridY     = startY - fracY;
-		int gridZ     = z      - fracZ;
-		double curveX = this.curveX(fracX);
-		double curveZ = this.curveZ(fracZ);
-		double value0 = this.checkInterpolateY(seed, gridX, gridY, gridZ, curveX, curveZ);
-		double value1 = this.checkInterpolateY(seed, gridX, gridY += scaleY, gridZ, curveX, curveZ);
-		double diff   = value1 - value0;
+		int scaleX = this.scaleX;
+		int scaleY = this.scaleY;
+		int scaleZ = this.scaleZ;
+		int modX = BigGlobeMath.modulus_BP(x,      scaleX);
+		int modY = BigGlobeMath.modulus_BP(startY, scaleY);
+		int modZ = BigGlobeMath.modulus_BP(z,      scaleZ);
+		int gridX = x      - modX;
+		int gridY = startY - modY;
+		int gridZ = z      - modZ;
+		double fracX = modX * this.rcpX;
+		double fracZ = modZ * this.rcpZ;
+		PolyForm2 formX = this.polyFormX();
+		PolyForm2 formZ = this.polyFormZ();
+		Polynomial polynomial = this.polyFormY().createPolynomial(
+			formX.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY, gridZ),
+					this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				fracX
+			),
+			formX.interpolate(
+				formZ.interpolate(
+					this.source.getValue(seed, gridX, gridY += scaleY, gridZ),
+					this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				formZ.interpolate(
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ + scaleZ),
+					fracZ
+				),
+				fracX
+			)
+		);
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples.setD(index, fracY == 0 ? value0 : this.curveY(fracY) * diff + value0);
+			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
 			if (++index >= sampleCount) break;
-			if (++fracY >= scaleY) {
-				fracY  = 0;
-				value0 = value1;
-				value1 = this.checkInterpolateY(seed, gridX, gridY += scaleY, gridZ, curveX, curveZ);
-				diff   = value1 - value0;
+			if (++modY >= scaleY) {
+				modY = 0;
+				polynomial.push(
+					formX.interpolate(
+						formZ.interpolate(
+							this.source.getValue(seed, gridX, gridY += scaleY, gridZ),
+							this.source.getValue(seed, gridX, gridY, gridZ + scaleZ),
+							fracZ
+						),
+						formZ.interpolate(
+							this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+							this.source.getValue(seed, gridX + scaleX, gridY, gridZ + scaleZ),
+							fracZ
+						),
+						fracX
+					)
+				);
 			}
 		}
 	}
@@ -134,27 +198,77 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 	public void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
 		int sampleCount = samples.length();
 		if (sampleCount <= 0) return;
-		int scaleZ    = this.scaleZ;
-		int fracX     = BigGlobeMath.modulus_BP(x, this.scaleX);
-		int fracY     = BigGlobeMath.modulus_BP(y, this.scaleY);
-		int fracZ     = BigGlobeMath.modulus_BP(startZ, scaleZ);
-		int gridX     = x      - fracX;
-		int gridY     = y      - fracY;
-		int gridZ     = startZ - fracZ;
-		double curveX = this.curveX(fracX);
-		double curveY = this.curveY(fracY);
-		double value0 = this.checkInterpolateZ(seed, gridX, gridY, gridZ, curveX, curveY);
-		double value1 = this.checkInterpolateZ(seed, gridX, gridY, gridZ += scaleZ, curveX, curveY);
-		double diff   = value1 - value0;
+		int scaleX = this.scaleX;
+		int scaleY = this.scaleY;
+		int scaleZ = this.scaleZ;
+		int modX = BigGlobeMath.modulus_BP(x,      scaleX);
+		int modY = BigGlobeMath.modulus_BP(y,      scaleY);
+		int modZ = BigGlobeMath.modulus_BP(startZ, scaleZ);
+		int gridX = x      - modX;
+		int gridY = y      - modY;
+		int gridZ = startZ - modZ;
+		double fracX = modX * this.rcpX;
+		double fracY = modY * this.rcpY;
+		PolyForm2 formX = this.polyFormX();
+		PolyForm2 formY = this.polyFormY();
+		Polynomial polynomial = this.polyFormZ().createPolynomial(
+			formX.interpolate(
+				formY.interpolate(
+					this.source.getValue(seed, gridX, gridY, gridZ),
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+					fracY
+				),
+				formY.interpolate(
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX + scaleX, gridY + scaleY, gridZ),
+					fracY
+				),
+				fracX
+			),
+			formX.interpolate(
+				formY.interpolate(
+					this.source.getValue(seed, gridX, gridY, gridZ += scaleZ),
+					this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+					fracY
+				),
+				formY.interpolate(
+					this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+					this.source.getValue(seed, gridX + scaleX, gridY + scaleY, gridZ),
+					fracY
+				),
+				fracX
+			)
+		);
 		for (int index = 0; true /* break in the middle of the loop */;) {
-			samples.setD(index, fracZ == 0 ? value0 : this.curveZ(fracZ) * diff + value0);
+			samples.setD(index, polynomial.interpolate(modZ * this.rcpZ));
 			if (++index >= sampleCount) break;
-			if (++fracZ >= scaleZ) {
-				fracZ  = 0;
-				value0 = value1;
-				value1 = this.checkInterpolateZ(seed, gridX, gridY, gridZ += scaleZ, curveX, curveY);
-				diff   = value1 - value0;
+			if (++modZ >= scaleZ) {
+				modZ = 0;
+				polynomial.push(
+					formX.interpolate(
+						formY.interpolate(
+							this.source.getValue(seed, gridX, gridY, gridZ += scaleZ),
+							this.source.getValue(seed, gridX, gridY + scaleY, gridZ),
+							fracY
+						),
+						formY.interpolate(
+							this.source.getValue(seed, gridX + scaleX, gridY, gridZ),
+							this.source.getValue(seed, gridX + scaleX, gridY + scaleY, gridZ),
+							fracY
+						),
+						fracX
+					)
+				);
 			}
 		}
 	}
+
+	@Override
+	public abstract PolyForm2 polyFormX();
+
+	@Override
+	public abstract PolyForm2 polyFormY();
+
+	@Override
+	public abstract PolyForm2 polyFormZ();
 }

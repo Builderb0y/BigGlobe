@@ -1,7 +1,10 @@
 package builderb0y.bigglobe.noise;
 
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.noise.Polynomial.SmootherPolynomial;
+import builderb0y.bigglobe.noise.polynomials.OvershootConstants;
+import builderb0y.bigglobe.noise.polynomials.Polynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
+import builderb0y.bigglobe.noise.polynomials.SmootherPolynomial;
 
 public class SmootherResampleGrid2D extends Resample4Grid2D {
 
@@ -10,27 +13,12 @@ public class SmootherResampleGrid2D extends Resample4Grid2D {
 	}
 
 	@Override
-	public double getMaxOvershoot() {
-		return 1.0D;
+	public PolyForm2 polyFormX() {
+		return SmootherPolynomial.FORM;
 	}
 
 	@Override
-	public Polynomial xPolynomial(double value0, double value1) {
-		return new SmootherPolynomial(value0, value1);
-	}
-
-	@Override
-	public Polynomial yPolynomial(double value0, double value1) {
-		return new SmootherPolynomial(value0, value1);
-	}
-
-	@Override
-	public double interpolateX(double value0, double value1, double fraction) {
-		return Interpolator.mixSmoother(value0, value1, fraction);
-	}
-
-	@Override
-	public double interpolateY(double value0, double value1, double fraction) {
-		return Interpolator.mixSmoother(value0, value1, fraction);
+	public PolyForm2 polyFormY() {
+		return SmootherPolynomial.FORM;
 	}
 }

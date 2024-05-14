@@ -158,7 +158,7 @@
 				"overriders": "bigglobe:empty"
 			}
 		},
-		"bigglobe:memger_sponge": {
+		"bigglobe:menger_sponge": {
 			"type": "bigglobe:overworld",
 			"generator": {
 				"type": "bigglobe:scripted",

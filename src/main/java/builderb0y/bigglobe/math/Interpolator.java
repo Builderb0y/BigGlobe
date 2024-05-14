@@ -53,6 +53,22 @@ public class Interpolator {
 		return mixLinear(low, high, smoother(value));
 	}
 
+	public static float mixSmoothUnchecked(float low, float high, float value) {
+		return mixLinear(low, high, smooth(value));
+	}
+
+	public static double mixSmoothUnchecked(double low, double high, double value) {
+		return mixLinear(low, high, smooth(value));
+	}
+
+	public static float mixSmootherUnchecked(float low, float high, float value) {
+		return mixLinear(low, high, smoother(value));
+	}
+
+	public static double mixSmootherUnchecked(double low, double high, double value) {
+		return mixLinear(low, high, smoother(value));
+	}
+
 	/**
 	returns a value between 0 and 1 when value is between low and high
 	unmixLinear(a, b, a) returns 0.0

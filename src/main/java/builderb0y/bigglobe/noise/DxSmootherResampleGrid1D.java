@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.noise;
 
-import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.noise.Polynomial.DerivativeSmootherPolynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
+import builderb0y.bigglobe.noise.polynomials.SmootherPolynomial;
 
 public class DxSmootherResampleGrid1D extends Resample2Grid1D {
 
@@ -10,17 +10,7 @@ public class DxSmootherResampleGrid1D extends Resample2Grid1D {
 	}
 
 	@Override
-	public double getMaxOvershoot() {
-		return 1.875D;
-	}
-
-	@Override
-	public Polynomial polynomial(double value0, double value1) {
-		return new DerivativeSmootherPolynomial(value0, value1);
-	}
-
-	@Override
-	public double interpolate(double value0, double value1, double fraction) {
-		return Interpolator.smootherDerivative(fraction) * (value1 - value0);
+	public PolyForm2 polyForm() {
+		return SmootherPolynomial.FORM;
 	}
 }

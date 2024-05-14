@@ -4,19 +4,24 @@ import builderb0y.bigglobe.noise.polynomials.DerivativeSmoothPolynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
 import builderb0y.bigglobe.noise.polynomials.SmoothPolynomial;
 
-public class DySmoothResampleGrid2D extends Resample4Grid2D {
+public class DxSmoothResampleGrid3D extends Resample8Grid3D {
 
-	public DySmoothResampleGrid2D(Grid2D source, int scaleX, int scaleY) {
-		super(source, scaleX, scaleY);
+	public DxSmoothResampleGrid3D(Grid3D source, int scaleX, int scaleY, int scaleZ) {
+		super(source, scaleX, scaleY, scaleZ);
 	}
 
 	@Override
 	public PolyForm2 polyFormX() {
-		return SmoothPolynomial.FORM;
+		return DerivativeSmoothPolynomial.FORM;
 	}
 
 	@Override
 	public PolyForm2 polyFormY() {
-		return DerivativeSmoothPolynomial.FORM;
+		return SmoothPolynomial.FORM;
+	}
+
+	@Override
+	public PolyForm2 polyFormZ() {
+		return SmoothPolynomial.FORM;
 	}
 }

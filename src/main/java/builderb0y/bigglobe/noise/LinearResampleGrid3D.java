@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.noise;
 
+import builderb0y.bigglobe.noise.polynomials.LinearPolynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
+
 public class LinearResampleGrid3D extends Resample8Grid3D {
 
 	public LinearResampleGrid3D(Grid3D source, int scaleX, int scaleY, int scaleZ) {
@@ -7,17 +10,17 @@ public class LinearResampleGrid3D extends Resample8Grid3D {
 	}
 
 	@Override
-	public double curveX(int fracX) {
-		return fracX * this.rcpX;
+	public PolyForm2 polyFormX() {
+		return LinearPolynomial.FORM;
 	}
 
 	@Override
-	public double curveY(int fracY) {
-		return fracY * this.rcpY;
+	public PolyForm2 polyFormY() {
+		return LinearPolynomial.FORM;
 	}
 
 	@Override
-	public double curveZ(int fracZ) {
-		return fracZ * this.rcpZ;
+	public PolyForm2 polyFormZ() {
+		return LinearPolynomial.FORM;
 	}
 }

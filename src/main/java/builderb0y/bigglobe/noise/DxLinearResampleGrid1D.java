@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.noise;
 
-import builderb0y.bigglobe.noise.Polynomial.DerivativeLinearPolynomial;
+import builderb0y.bigglobe.noise.polynomials.DerivativeLinearPolynomial;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
 
 public class DxLinearResampleGrid1D extends Resample2Grid1D {
 
@@ -9,17 +10,7 @@ public class DxLinearResampleGrid1D extends Resample2Grid1D {
 	}
 
 	@Override
-	public double getMaxOvershoot() {
-		return 1.0D;
-	}
-
-	@Override
-	public Polynomial polynomial(double value0, double value1) {
-		return new DerivativeLinearPolynomial(value0, value1);
-	}
-
-	@Override
-	public double interpolate(double value0, double value1, double fraction) {
-		return value1 - value0;
+	public PolyForm2 polyForm() {
+		return DerivativeLinearPolynomial.FORM;
 	}
 }

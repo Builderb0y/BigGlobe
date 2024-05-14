@@ -1,0 +1,50 @@
+package builderb0y.bigglobe.noise.polynomials;
+
+import builderb0y.bigglobe.math.Interpolator;
+
+public class SmootherPolynomial extends Polynomial2 {
+
+	public static final Form FORM = new Form();
+
+	public double term0, term1, term2;
+
+	public SmootherPolynomial(double value0, double value1) {
+		super(value0, value1);
+	}
+
+	@Override
+	public void update(double value0, double value1) {
+		double diff = value1 - value0;
+		this.term0 = diff *   6.0D;
+		this.term1 = diff * -15.0D;
+		this.term2 = diff *  10.0D;
+	}
+
+	@Override
+	public double interpolate(double fraction) {
+		return ((fraction * this.term0 + this.term1) * fraction + this.term2) * fraction * fraction * fraction + this.value0;
+	}
+
+	@Override
+	public PolyForm form() {
+		return FORM;
+	}
+
+	public static class Form implements PolyForm2 {
+
+		@Override
+		public double getMaxOvershoot() {
+			return OvershootConstants.SMOOTHER;
+		}
+
+		@Override
+		public Polynomial createPolynomial(double value0, double value1) {
+			return new SmootherPolynomial(value0, value1);
+		}
+
+		@Override
+		public double interpolate(double value0, double value1, double fraction) {
+			return Interpolator.mixSmootherUnchecked(value0, value1, fraction);
+		}
+	}
+}

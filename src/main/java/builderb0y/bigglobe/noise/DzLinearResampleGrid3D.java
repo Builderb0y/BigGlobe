@@ -4,19 +4,24 @@ import builderb0y.bigglobe.noise.polynomials.DerivativeLinearPolynomial;
 import builderb0y.bigglobe.noise.polynomials.LinearPolynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
 
-public class DxLinearResampleGrid2D extends Resample4Grid2D {
+public class DzLinearResampleGrid3D extends Resample8Grid3D {
 
-	public DxLinearResampleGrid2D(Grid2D source, int scaleX, int scaleY) {
-		super(source, scaleX, scaleY);
+	public DzLinearResampleGrid3D(Grid3D source, int scaleX, int scaleY, int scaleZ) {
+		super(source, scaleX, scaleY, scaleZ);
 	}
 
 	@Override
 	public PolyForm2 polyFormX() {
-		return DerivativeLinearPolynomial.FORM;
+		return LinearPolynomial.FORM;
 	}
 
 	@Override
 	public PolyForm2 polyFormY() {
 		return LinearPolynomial.FORM;
+	}
+
+	@Override
+	public PolyForm2 polyFormZ() {
+		return DerivativeLinearPolynomial.FORM;
 	}
 }

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.noise;
 
-import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
+import builderb0y.bigglobe.noise.polynomials.SmoothPolynomial;
 
 public class SmoothResampleGrid3D extends Resample8Grid3D {
 
@@ -9,17 +10,17 @@ public class SmoothResampleGrid3D extends Resample8Grid3D {
 	}
 
 	@Override
-	public double curveX(int fracX) {
-		return Interpolator.smooth(fracX * this.rcpX);
+	public PolyForm2 polyFormX() {
+		return SmoothPolynomial.FORM;
 	}
 
 	@Override
-	public double curveY(int fracY) {
-		return Interpolator.smooth(fracY * this.rcpY);
+	public PolyForm2 polyFormY() {
+		return SmoothPolynomial.FORM;
 	}
 
 	@Override
-	public double curveZ(int fracZ) {
-		return Interpolator.smooth(fracZ * this.rcpZ);
+	public PolyForm2 polyFormZ() {
+		return SmoothPolynomial.FORM;
 	}
 }
