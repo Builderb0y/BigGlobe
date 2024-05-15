@@ -41,12 +41,12 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public abstract class AbstractColumnEntry implements ColumnEntry, MutableDependencyView {
 
 	public static final ColumnEntryMemory.Key<MethodCompileContext>
-		COMPUTE_ONE = new ColumnEntryMemory.Key<>("computeOne"),
-		COMPUTE_ALL_TEST = new ColumnEntryMemory.Key<>("computeAllTest"),
+		COMPUTE_ONE         = new ColumnEntryMemory.Key<>("computeOne"),
+		COMPUTE_ALL_TEST    = new ColumnEntryMemory.Key<>("computeAllTest"),
 		COMPUTE_ALL_NO_TEST = new ColumnEntryMemory.Key<>("computeAllNoTest"),
-		EXTRACT     = new ColumnEntryMemory.Key<>("extract"),
-		VALID_MIN_Y = new ColumnEntryMemory.Key<>("validMinY"),
-		VALID_MAX_Y = new ColumnEntryMemory.Key<>("validMaxY");
+		EXTRACT             = new ColumnEntryMemory.Key<>("extract"),
+		VALID_MIN_Y         = new ColumnEntryMemory.Key<>("validMinY"),
+		VALID_MAX_Y         = new ColumnEntryMemory.Key<>("validMaxY");
 
 	public final AccessSchema params;
 	public final @VerifyNullable Valid valid;

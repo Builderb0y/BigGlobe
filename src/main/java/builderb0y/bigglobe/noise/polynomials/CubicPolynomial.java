@@ -8,12 +8,12 @@ public class CubicPolynomial extends Polynomial4 {
 
 	public double term0, term1, term2;
 
-	public CubicPolynomial(double value0, double value1, double value2, double value3) {
-		super(value0, value1, value2, value3);
+	public CubicPolynomial(double value0, double value1, double value2, double value3, double rcp) {
+		super(value0, value1, value2, value3, rcp);
 	}
 
 	@Override
-	public void update(double value0, double value1, double value2, double value3) {
+	public void update(double value0, double value1, double value2, double value3, double rcp) {
 		this.term0 = 1.5D * (value1 - value2) + 0.5D * (value3 - value0);
 		this.term1 = value0 - (2.5D * value1) + (2.0D * value2) - (0.5D * value3);
 		this.term2 = 0.5D * (value2 - value0);
@@ -32,17 +32,22 @@ public class CubicPolynomial extends Polynomial4 {
 	public static class Form implements PolyForm4 {
 
 		@Override
-		public double getMaxOvershoot() {
-			return OvershootConstants.CUBIC;
+		public double calcMinValue(double min, double max, double rcp) {
+			return Interpolator.mixLinear(max, min, OvershootConstants.CUBIC);
 		}
 
 		@Override
-		public Polynomial createPolynomial(double value0, double value1, double value2, double value3) {
-			return new CubicPolynomial(value0, value1, value2, value3);
+		public double calcMaxValue(double min, double max, double rcp) {
+			return Interpolator.mixLinear(min, max, OvershootConstants.CUBIC);
 		}
 
 		@Override
-		public double interpolate(double value0, double value1, double value2, double value3, double fraction) {
+		public Polynomial createPolynomial(double value0, double value1, double value2, double value3, double rcp) {
+			return new CubicPolynomial(value0, value1, value2, value3, rcp);
+		}
+
+		@Override
+		public double interpolate(double value0, double value1, double value2, double value3, double rcp, double fraction) {
 			return Interpolator.mixCubic(value0, value1, value2, value3, fraction);
 		}
 	}

@@ -7,6 +7,10 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.processing.*;
+import builderb0y.bigglobe.noise.resample.*;
+import builderb0y.bigglobe.noise.resample.derivatives.*;
+import builderb0y.bigglobe.noise.source.*;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.util.InfoHolder;
 
@@ -24,49 +28,49 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 	public static final CoderRegistry<Grid2D> REGISTRY = Grid.TESTING.booleanValue() ? null : new CoderRegistry<>(BigGlobeMod.modID("grid_2d"));
 	public static final Object INITIALIZER = new Object() {{
 		if (REGISTRY != null) {
-			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),                       ConstantGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),                  WhiteNoiseGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("binary"),                           BinaryGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"),                       GaussianGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),                                ConstantGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"),                           WhiteNoiseGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("binary"),                                    BinaryGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"),                                GaussianGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("linear"),                           LinearGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),                           SmoothGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"),                       SmootherGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),                             CubicGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear"),                                    LinearGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),                                    SmoothGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"),                                SmootherGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),                                      CubicGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),                           WorleyGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),                                    WorleyGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("linear_resample"),          LinearResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smooth_resample"),          SmoothResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smoother_resample"),      SmootherResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("cubic_resample"),            CubicResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear_resample"),                   LinearResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth_resample"),                   SmoothResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smoother_resample"),               SmootherResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic_resample"),                     CubicResampleGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_linear_resample"),     DxLinearResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"),     DxSmoothResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), DxSmootherResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       DxCubicResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_linear_resample"),     LinearDerivativeXResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"),     SmoothDerivativeXResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       CubicDerivativeXResampleGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"),     DyLinearResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"),     DySmoothResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), DySmootherResampleGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"),       DyCubicResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"),     LinearDerivativeYResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"),     SmoothDerivativeYResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), SmootherDerivativeYResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"),       CubicDerivativeYResampleGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                           NegateGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                 AbsGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("square"),                           SquareGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"),                ChangeRangeGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("square"),                                    SquareGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"),                         ChangeRangeGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),                             SummingGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("product"),                         ProductGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sum"),                                      SummingGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("product"),                                  ProductGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_x"),                     ProjectGrid2D_X.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_y"),                     ProjectGrid2D_Y.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_x"),                              ProjectGrid2D_X.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_y"),                              ProjectGrid2D_Y.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),                  StalactiteGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("sine_sum"),                       SineWaveGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stalactites"),                           StalactiteGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sine_sum"),                                SineWaveGrid2D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("script"),                         ScriptedGrid2D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("template"),                       TemplateGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),                                  ScriptedGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("template"),                                TemplateGrid2D.class);
 		}
 	}};
 

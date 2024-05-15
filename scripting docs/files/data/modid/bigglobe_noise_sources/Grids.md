@@ -41,6 +41,11 @@ The following other fields are also available when `type` is...
 	* `amplitude` - a multiplier for the value. The value is always in the range 0 to amplitude.
 * "linear_resample", "smooth_resample", "smoother_resample", or "cubic_resample"
 	* `source` - another grid with the same number of dimensions as this one.
+
+		It is recommended (but not required) to use one of the following grid types for the source, because other grid types not on this list may be slower to sample.
+		* white_noise
+		* binary
+		* gaussian
 	* `scaleX/Y/Z` - distance between sample points.
 
 	These types will sample `source` every `scaleX/Y/Z` blocks, and interpolate between these numbers for all blocks that do not lie on a lattice point. The difference between them is the curve used for interpolation.
@@ -55,6 +60,13 @@ The following other fields are also available when `type` is...
 		* f is a degree 3 polynomial.
 
 		Note that the resulting curve can sometimes, in rare circumstances, result in values that are greater than source's max value, or less than source's min value.
+* (dx|dy|dz)_(linear|smooth|smoother|cubic)_resample (I didn't feel like typing out all the combinations here, but one example is dy_smoother_resample) interpolates values from another grid just like described above, but then computes the derivative of the curve they use for interpolation and returns that. Like the other resample grids above, the dx/y/z resample grids have the following additional properties:
+	* `source`
+	* `scaleX/Y/Z`
+
+	They control the same thing as the normal resample grids.
+
+	Note: The "linear" derivative grids will be discontinuous every scaleX/Y/Z blocks!
 * "negate" - negates another grid. The resulting value at every position will be the negative of the wrapped grid's value.
 	* `grid` - the grid to negate.
 * "abs" - takes the absolute value of another grid.

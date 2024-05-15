@@ -8,12 +8,12 @@ public class SmootherPolynomial extends Polynomial2 {
 
 	public double term0, term1, term2;
 
-	public SmootherPolynomial(double value0, double value1) {
-		super(value0, value1);
+	public SmootherPolynomial(double value0, double value1, double rcp) {
+		super(value0, value1, rcp);
 	}
 
 	@Override
-	public void update(double value0, double value1) {
+	public void update(double value0, double value1, double rcp) {
 		double diff = value1 - value0;
 		this.term0 = diff *   6.0D;
 		this.term1 = diff * -15.0D;
@@ -33,17 +33,22 @@ public class SmootherPolynomial extends Polynomial2 {
 	public static class Form implements PolyForm2 {
 
 		@Override
-		public double getMaxOvershoot() {
-			return OvershootConstants.SMOOTHER;
+		public double calcMinValue(double min, double max, double rcp) {
+			return min;
 		}
 
 		@Override
-		public Polynomial createPolynomial(double value0, double value1) {
-			return new SmootherPolynomial(value0, value1);
+		public double calcMaxValue(double min, double max, double rcp) {
+			return max;
 		}
 
 		@Override
-		public double interpolate(double value0, double value1, double fraction) {
+		public Polynomial createPolynomial(double value0, double value1, double rcp) {
+			return new SmootherPolynomial(value0, value1, rcp);
+		}
+
+		@Override
+		public double interpolate(double value0, double value1, double rcp, double fraction) {
 			return Interpolator.mixSmootherUnchecked(value0, value1, fraction);
 		}
 	}
