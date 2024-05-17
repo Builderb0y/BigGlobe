@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.compile;
 
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -90,8 +91,12 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public InsnTree loadSeed(InsnTree salt) {
-		return VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt);
+	public InsnTree loadSeed(@Nullable InsnTree salt) {
+		return (
+			salt != null
+			? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
+			: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
+		);
 	}
 
 	@Override

@@ -175,7 +175,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
-	public transient long columnSeed, worldSeed;
+	public transient long columnSeed;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
@@ -331,10 +331,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		);
 	}
 
-	public void setSeed(long columnSeed) {
-		this.worldSeed = columnSeed;
+	public void setSeed(long worldSeed) {
 		//make it impossible to reverse-engineer the seed from information sent to the client.
-		this.columnSeed = Hashing.sha256().hashLong(columnSeed).asLong();
+		this.columnSeed = Hashing.sha256().hashLong(worldSeed).asLong();
 	}
 
 	@Override
@@ -471,7 +470,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				Async.loop(BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
 					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
 					int baseY = coord << 4;
-					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY, this.columnSeed);
+					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
 					BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
 					if (centerState != null) context.setAllStates(centerState);
 					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
@@ -507,9 +506,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					}
 				}
 				WorldWrapper worldWrapper = new WorldWrapper(
-					new ChunkDelegator(chunk, this.worldSeed),
+					new ChunkDelegator(chunk, this.columnSeed),
 					this,
-					new Permuter(Permuter.permute(this.worldSeed, chunk.getPos())),
+					new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
 					new Coordination(
 						SymmetricOffset.IDENTITY,
 						WorldUtil.chunkBox(chunk),
@@ -559,7 +558,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		WorldWrapper worldWrapper = new WorldWrapper(
 			new WorldDelegator(world),
 			this,
-			new Permuter(Permuter.permute(this.worldSeed, chunk.getPos())),
+			new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
 			new Coordination(
 				SymmetricOffset.IDENTITY,
 				WorldUtil.chunkBox(chunk),
@@ -766,7 +765,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(this.columnEntryRegistry.columnFactory, new ScriptedColumn.Params(this, 0, 0, Purpose.generic(distantHorizons)));
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (StructureOverrider overrider : this.getOverriders().structures) {
-			if (!overrider.override(lookup, wrapper, permuter, distantHorizons)) {
+			if (!overrider.override(lookup, wrapper, permuter, this.columnSeed, distantHorizons)) {
 				return false;
 			}
 		}

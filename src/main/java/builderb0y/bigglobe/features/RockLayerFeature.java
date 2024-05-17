@@ -61,7 +61,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 				NumberArray columnMinYs      = NumberArray.allocateIntsDirect(256);
 				NumberArray columnMaxYs      = NumberArray.allocateIntsDirect(256);
 			) {
-				long configSeed   = config.seed.xor(generator.worldSeed);
+				long configSeed   = config.seed.xor(generator.columnSeed);
 				int  startX       = chunk.getPos().getStartX();
 				int  startZ       = chunk.getPos().getStartZ();
 				int  startSection =          sectionsPerThread *  thread      + minSection             ;
@@ -96,7 +96,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 						for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
 							ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(layerSectionY));
 							if (isEmpty(section)) continue;
-							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY, generator.worldSeed);
+							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY);
 							PaletteIdReplacer replacer = entry.getReplacer(context);
 							PaletteStorage storage = context.storage();
 							int sectionMinY = context.startY();

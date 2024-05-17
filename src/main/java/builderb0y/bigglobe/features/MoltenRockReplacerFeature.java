@@ -46,7 +46,7 @@ public class MoltenRockReplacerFeature extends DummyFeature<MoltenRockReplacerFe
 		int maxSection,
 		Config config
 	) {
-		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x4A53BB0CBE6FEB95L, chunk.getPos().x, chunk.getPos().z);
+		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x4A53BB0CBE6FEB95L, chunk.getPos().x, chunk.getPos().z);
 		int adjustedColdY = config.cold_y + Integer.signum(config.hot_y  - config.cold_y);
 		int adjustedHotY  = config.hot_y  + Integer.signum(config.cold_y - config.hot_y );
 		int minY = Math.min(adjustedColdY, adjustedHotY);

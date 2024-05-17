@@ -2,8 +2,6 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.ChunkPos;
@@ -11,7 +9,6 @@ import net.minecraft.world.chunk.*;
 
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Tripwire;
 
 public class SectionGenerationContext {
@@ -19,28 +16,26 @@ public class SectionGenerationContext {
 	public final Chunk chunk;
 	public final ChunkSection section;
 	public final int sectionStartY;
-	public final long worldSeed;
 
-	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY, long worldSeed) {
+	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY) {
 		if ((sectionStartY & 15) != 0) {
 			throw new IllegalArgumentException("sectionStartY should be divisible by 16");
 		}
 		this.chunk         = chunk;
 		this.section       = section;
 		this.sectionStartY = sectionStartY;
-		this.worldSeed     = worldSeed;
 	}
 
-	public static SectionGenerationContext forSectionIndex(Chunk chunk, ChunkSection section, int index, long worldSeed) {
-		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4, worldSeed);
+	public static SectionGenerationContext forSectionIndex(Chunk chunk, ChunkSection section, int index) {
+		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4);
 	}
 
-	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord, long worldSeed) {
-		return new SectionGenerationContext(chunk, section, sectionCoord << 4, worldSeed);
+	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord) {
+		return new SectionGenerationContext(chunk, section, sectionCoord << 4);
 	}
 
-	public static SectionGenerationContext forBlockCoord(Chunk chunk, ChunkSection section, int blockCoord, long worldSeed) {
-		return new SectionGenerationContext(chunk, section, blockCoord, worldSeed);
+	public static SectionGenerationContext forBlockCoord(Chunk chunk, ChunkSection section, int blockCoord) {
+		return new SectionGenerationContext(chunk, section, blockCoord);
 	}
 
 	public Chunk chunk() { return this.chunk; }
@@ -59,15 +54,6 @@ public class SectionGenerationContext {
 	public int endX() { return this.startX() | 15; }
 	public int endY() { return this.startY() | 15; }
 	public int endZ() { return this.startZ() | 15; }
-	public long worldSeed() { return this.worldSeed; }
-
-	public long chunkSeed(long salt) {
-		return Permuter.permute(this.worldSeed ^ salt, this.sectionX(), this.sectionZ());
-	}
-
-	public long sectionSeed(long salt) {
-		return Permuter.permute(this.worldSeed ^ salt, this.sectionX(), this.sectionY(), this.sectionZ());
-	}
 
 	public void setNonEmpty(int nonEmptyBlocks) {
 		SectionUtil.setNonEmptyBlocks(this.section(), nonEmptyBlocks);

@@ -92,7 +92,11 @@ public class VoronoiImplCompileContext extends DataCompileContext {
 
 	@Override
 	public InsnTree loadSeed(InsnTree salt) {
-		return VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt);
+		return (
+			salt != null
+			? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
+			: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
+		);
 	}
 
 	@Override

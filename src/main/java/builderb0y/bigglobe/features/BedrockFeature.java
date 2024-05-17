@@ -37,7 +37,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 		int maxSection,
 		Config config
 	) {
-		long chunkSeed = Permuter.permute(generator.worldSeed ^ 0x6AF67A31DF787629L, chunk.getPos().x, chunk.getPos().z);
+		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x6AF67A31DF787629L, chunk.getPos().x, chunk.getPos().z);
 		//the Y level at empty_y has a 0% chance of bedrock, so we can skip it.
 		int adjustedEmptyY = config.empty_y + Integer.signum(config.full_y - config.empty_y);
 		int minY = Math.min(config.full_y, adjustedEmptyY);

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import net.minecraft.block.BlockState;
@@ -17,7 +18,9 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -34,6 +37,70 @@ import builderb0y.scripting.util.TypeInfos;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface ColumnScript extends Script {
+
+	public static class ImplParameters {
+
+		public final ColumnEntryRegistry registry;
+		public final Class<?> implClass;
+		public final Method implMethod;
+		public final TypeInfo returnType;
+		public final int paramCount;
+		public final LazyVarInfo[] bridgeParams, actualParams;
+		public final LazyVarInfo bridgeColumn, actualColumn;
+		public final @Nullable LazyVarInfo random, y;
+
+		public ImplParameters(ColumnEntryRegistry registry, Class<?> implClass) {
+			this.registry = registry;
+			this.implClass = implClass;
+			this.implMethod = ScriptParser.findImplementingMethod(implClass);
+			this.returnType = type(this.implMethod.getReturnType());
+			this.paramCount = this.implMethod.getParameterCount();
+			this.bridgeParams = new LazyVarInfo[this.paramCount];
+			this.actualParams = new LazyVarInfo[this.paramCount];
+			Parameter[] parameters = this.implMethod.getParameters();
+			LazyVarInfo bridgeColumn = null, actualColumn = null, random = null, y = null;
+			for (int paramIndex = 0; paramIndex < this.paramCount; paramIndex++) {
+				Parameter parameter = parameters[paramIndex];
+				if (!parameter.isNamePresent()) throw new IllegalStateException(this.implMethod + " lacks parameter names!");
+				Class<?> paramType = parameter.getType();
+				if (paramType == ScriptedColumn.class) {
+					if (bridgeColumn == null) {
+						this.bridgeParams[paramIndex] = bridgeColumn = new LazyVarInfo(parameter.getName(), type(ScriptedColumn.class));
+						this.actualParams[paramIndex] = actualColumn = new LazyVarInfo(parameter.getName(), registry.columnContext.columnType());
+					}
+					else {
+						throw new IllegalStateException(this.implMethod + " takes more than one column!");
+					}
+				}
+				else if (paramType == RandomGenerator.class) {
+					if (random == null) {
+						this.bridgeParams[paramIndex] = this.actualParams[paramIndex] = random = new LazyVarInfo(parameter.getName(), type(RandomGenerator.class));
+					}
+					else {
+						throw new IllegalStateException(this.implMethod + " takes more than one RandomGenerator!");
+					}
+				}
+				else if (paramType == int.class) {
+					if (y == null) {
+						this.bridgeParams[paramIndex] = this.actualParams[paramIndex] = y = new LazyVarInfo(parameter.getName(), TypeInfos.INT);
+					}
+					else {
+						throw new IllegalStateException(this.implMethod + " takes more than one int (assuming Y level)!");
+					}
+				}
+				else {
+					this.bridgeParams[paramIndex] = this.actualParams[paramIndex] = new LazyVarInfo(parameter.getName(), type(paramType));
+				}
+			}
+			if (bridgeColumn == null) {
+				throw new IllegalStateException("Column script does not take a column parameter: " + this.implMethod);
+			}
+			this.bridgeColumn = bridgeColumn;
+			this.actualColumn = actualColumn;
+			this.random = random;
+			this.y = y;
+		}
+	}
 
 	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements MutableDependencyView {
 
@@ -56,7 +123,20 @@ public interface ColumnScript extends Script {
 
 		public abstract Class<S> getScriptClass();
 
-		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {}
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+			environment
+			.addAll(MathScriptEnvironment.INSTANCE)
+			.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+			.addAll(
+				parameters.random != null
+				? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
+				: MinecraftScriptEnvironment.create()
+			)
+			.addAll(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+			if (parameters.y != null) environment.addVariableLoad(parameters.y);
+			if (parameters.random != null) environment.addAll(RandomScriptEnvironment.create(load(parameters.random)));
+		}
 
 		public boolean isColumnMutable() {
 			return false;
@@ -64,6 +144,7 @@ public interface ColumnScript extends Script {
 
 		public S createScript(ScriptUsage usage, ColumnEntryRegistry registry) throws ScriptParsingException {
 			Class<S> type = this.getScriptClass();
+			ImplParameters parameters = new ImplParameters(registry, type);
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
@@ -72,60 +153,19 @@ public interface ColumnScript extends Script {
 				new TypeInfo[] { type(type) }
 			);
 			clazz.addNoArgConstructor(ACC_PUBLIC);
-			Method implementingMethod = ScriptParser.findImplementingMethod(type);
-			TypeInfo returnType = type(implementingMethod.getReturnType());
-			int paramCount = implementingMethod.getParameterCount();
-			LazyVarInfo[]
-				bridgeParams = new LazyVarInfo[paramCount],
-				actualParams = new LazyVarInfo[paramCount];
-			LazyVarInfo
-				bridgeColumn = new LazyVarInfo("column", type(ScriptedColumn.class)),
-				actualColumn = new LazyVarInfo("column", registry.columnContext.columnType()),
-				random       = new LazyVarInfo("random", type(RandomGenerator.class)),
-				y            = new LazyVarInfo("y",      TypeInfos.INT);
-			Parameter[] parameters = implementingMethod.getParameters();
-			boolean haveRandom = false, haveY = false;
-			for (int index = 0; index < paramCount; index++) {
-				Parameter parameter = parameters[index];
-				if (!parameter.isNamePresent()) throw new IllegalStateException(implementingMethod + " lacks parameter names!");
-				Class<?> paramType = parameter.getType();
-				String paramName = parameter.getName();
-				if (paramType == ScriptedColumn.class) {
-					if (!paramName.equals("column")) {
-						throw new IllegalStateException("ScriptedColumn parameter not named column");
-					}
-					bridgeParams[index] = bridgeColumn;
-					actualParams[index] = actualColumn;
-				}
-				else if (paramType == RandomGenerator.class) {
-					if (!paramName.equals("random")) {
-						throw new IllegalStateException("RandomGenerator parameter not named random");
-					}
-					haveRandom = true;
-					bridgeParams[index] = actualParams[index] = random;
-				}
-				else if (paramType == int.class && paramName.equals("y")) {
-					haveY = true;
-					bridgeParams[index] = actualParams[index] = y;
-				}
-				else {
-					bridgeParams[index] = actualParams[index] = new LazyVarInfo(paramName, type(paramType));
-				}
-			}
-
-			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, implementingMethod.getName(), returnType, actualParams);
-			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, implementingMethod.getName(), returnType, bridgeParams);
+			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, parameters.implMethod.getName(), parameters.returnType, parameters.bridgeParams);
+			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, parameters.implMethod.getName(), parameters.returnType, parameters.actualParams);
 
 			return_(
 				invokeInstance(
 					load("this", clazz.info),
 					actualMethod.info,
 					IntStream
-					.range(0, paramCount)
+					.range(0, parameters.paramCount)
 					.mapToObj((int index) -> {
 						LazyVarInfo
-							from = bridgeParams[index],
-							to   = actualParams[index];
+							from = parameters.bridgeParams[index],
+							to   = parameters.actualParams[index];
 						InsnTree loader = load(from);
 						if (!from.equals(to)) {
 							loader = new DirectCastInsnTree(loader, to.type);
@@ -138,26 +178,13 @@ public interface ColumnScript extends Script {
 			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
-			LoadInsnTree loadMainColumn = load("column", registry.columnContext.columnType());
-			MutableScriptEnvironment environment = (
-				new MutableScriptEnvironment()
-				.addAll(MathScriptEnvironment.INSTANCE)
-				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.addAll(
-					haveRandom
-					? MinecraftScriptEnvironment.createWithRandom(load(random))
-					: MinecraftScriptEnvironment.create()
-				)
-				.addAll(ScriptedColumn.baseEnvironment(loadMainColumn))
-			);
-			if (haveY) environment.addVariableLoad(y);
-			if (haveRandom) environment.addAll(RandomScriptEnvironment.create(load(random)));
-			this.addExtraFunctionsToEnvironment(registry, environment);
+			MutableScriptEnvironment environment = new MutableScriptEnvironment();
+			this.addExtraFunctionsToEnvironment(parameters, environment);
 			registry.setupExternalEnvironment(
 				environment,
 				new ExternalEnvironmentParams()
-				.withColumn(loadMainColumn)
-				.withY(haveY ? load(y) : null)
+				.withColumn(load(parameters.actualColumn))
+				.withY(parameters.y != null ? load(parameters.y) : null)
 				.mutable(this.isColumnMutable())
 				.trackDependencies(this)
 			);
@@ -201,12 +228,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -230,12 +262,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -259,12 +296,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0L;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -288,12 +330,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0L;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -317,12 +364,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0F;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -346,12 +398,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0F;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -375,12 +432,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0D;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -404,12 +466,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0D;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -433,12 +500,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -462,12 +534,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -491,12 +568,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, RandomGenerator random) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -520,12 +602,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, RandomGenerator random, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -549,12 +636,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, RandomGenerator random) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0L;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -578,12 +670,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, RandomGenerator random, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0L;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -607,12 +704,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, RandomGenerator random) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0F;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -636,12 +738,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, RandomGenerator random, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0F;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -665,12 +772,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, RandomGenerator random) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0D;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -694,12 +806,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, RandomGenerator random, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return 0.0D;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -723,12 +840,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, RandomGenerator random) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -752,12 +874,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, RandomGenerator random, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return false;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -781,12 +908,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BlockState get(ScriptedColumn column) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return BlockStates.AIR;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -810,12 +942,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BlockState get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return BlockStates.AIR;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}
@@ -839,12 +976,17 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BiomeEntry get(ScriptedColumn column, int y) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
 					return BiomeEntry.of("minecraft:plains");
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}

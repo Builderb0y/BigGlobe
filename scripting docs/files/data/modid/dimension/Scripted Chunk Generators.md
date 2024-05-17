@@ -8,6 +8,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* `state` - a script which returns a BlockState to fill the column with. This script has the following environments present:
 		* MathScriptEnvironment
 		* StatelessRandomScriptEnvironment
+		* GridScriptEnvironment (with implicit seed)
 		* MinecraftScriptEnvironment
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded to the position currently being generated)
@@ -31,6 +32,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 * `spawn_point` (optional) - a script which returns true if a player can spawn at some position. Big Globe will generate (potentially) many different random positions within (.minecraft/config/bigglobe/Big Globe.json5 > Player Spawning > Max Spawn Radius) blocks of (0, 0), and evaluate this script on them until it returns true, or the maximum number of attempts (currently 1024) is reached. If this script is absent or returns false more than 1024 times in a row, then vanilla spawning logic is used instead, which may place players at undesired locations. This script has the following environments available:
 	* MathScriptEnvironment
 	* StatelessRandomScriptEnvironment
+	* GridScriptEnvironment (with implicit seed)
 	* MinecraftScriptEnvironment (with random)
 	* BaseColumnScriptEnvironment
 	* ColumnEntryRegistry (x and z are hard-coded at the current position being tested to see if it's a good spawn position or not)
@@ -79,6 +81,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* `condition` - a script which returns true if an exit gateway can be placed at a given x/z position, false otherwise. This script has the following environments present:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the position being tested)

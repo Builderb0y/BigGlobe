@@ -7,6 +7,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		`where`, `min_y`, and `max_y` have the following environments present:
 		* MathScriptEnvironment
 		* StatelessRandomScriptEnvironment
+		* GridScriptEnvironment (with implicit seed)
 		* MinecraftScriptEnvironment
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded at the current position being generated)
@@ -17,6 +18,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 	`before_children` and `after_children` have the following environments present:
 	* MathScriptEnvironment
 	* StatelessRandomScriptEnvironment
+	* GridScriptEnvironment (with implicit seed)
 	* MinecraftScriptEnvironment
 	* BaseColumnScriptEnvironment
 	* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
@@ -46,6 +48,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* `state` - a script returning the BlockState that this layer will attempt to place. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry
@@ -53,6 +56,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* `state` - a script returning the BlockState that this layer will attempt to place. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry
@@ -60,6 +64,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* `condition` - a script returning true or false if the state should be placed at the current Y level. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
@@ -69,6 +74,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* `state` - a script returning the BlockState that this layer will attempt to place at the current Y level. If this script returns null, no block is placed at that Y level. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
@@ -78,7 +84,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* `script` - a script which places blocks. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* MinecraftScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
 		

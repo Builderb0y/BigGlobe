@@ -68,7 +68,7 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 		return switch (getter.info.returnType.getSort()) {
 			case FLOAT -> FloatCompareConditionTree.lessThan(
 				RandomScriptEnvironment.PERMUTER_INFO.toPositiveFloat(
-					ScriptedColumn.INFO.saltedSeed(
+					ScriptedColumn.INFO.saltedPositionedSeed(
 						context.loadColumn(),
 						ldc(selfSeed)
 					)
@@ -96,7 +96,7 @@ public class ThresholdDecisionTreeCondition extends DecisionTreeCondition.Impl {
 			);
 			case DOUBLE -> DoubleCompareConditionTree.lessThan(
 				RandomScriptEnvironment.PERMUTER_INFO.toPositiveDouble(
-					ScriptedColumn.INFO.saltedSeed(
+					ScriptedColumn.INFO.saltedPositionedSeed(
 						context.loadColumn(),
 						ldc(selfSeed)
 					)

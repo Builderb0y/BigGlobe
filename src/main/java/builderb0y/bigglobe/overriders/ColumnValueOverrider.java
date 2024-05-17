@@ -125,14 +125,13 @@ public interface ColumnValueOverrider extends ColumnScript {
 		}
 
 		@Override
-		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
-			super.addExtraFunctionsToEnvironment(registry, environment);
-			InsnTree loadColumn = load("column", registry.columnContext.columnType());
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+			super.addExtraFunctionsToEnvironment(parameters, environment);
+			InsnTree loadColumn = load(parameters.actualColumn);
 			environment
 			.addAll(StructureScriptEnvironment.INSTANCE)
 			.addAll(NbtScriptEnvironment.createImmutable())
 			.addFieldGet(ScriptedStructure.Piece.class, "data")
-			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.seed(loadColumn)))
 			.addVariableLoad("structures", type(ScriptStructures.class))
 			.addAll(JavaUtilScriptEnvironment.ALL);
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {

@@ -9,6 +9,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
@@ -30,6 +31,7 @@ public interface StructureLayoutScript extends Script {
 		ScriptedColumnLookup lookup,
 		int originX,
 		int originZ,
+		long seed,
 		RandomGenerator random,
 		CheckedList<StructurePiece> pieces,
 		boolean distantHorizons
@@ -52,6 +54,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
@@ -85,15 +88,21 @@ public interface StructureLayoutScript extends Script {
 			ScriptedColumnLookup lookup,
 			int originX,
 			int originZ,
+			long seed,
 			RandomGenerator random,
 			CheckedList<StructurePiece> pieces,
 			boolean distantHorizons
 		) {
+			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			int used = manager.used;
 			try {
-				this.script.layout(lookup, originX, originZ, random, pieces, distantHorizons);
+				this.script.layout(lookup, originX, originZ, seed, random, pieces, distantHorizons);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
+			}
+			finally {
+				manager.used = used;
 			}
 		}
 	}

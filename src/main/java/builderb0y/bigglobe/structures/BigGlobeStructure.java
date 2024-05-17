@@ -10,6 +10,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 
@@ -27,7 +28,7 @@ public abstract class BigGlobeStructure extends Structure {
 	}
 
 	public static long chunkSeed(Context context, long salt) {
-		return Permuter.permute(context.seed() ^ salt, context.chunkPos());
+		return Permuter.permute((context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.columnSeed : context.seed()) ^ salt, context.chunkPos());
 	}
 
 	@Override

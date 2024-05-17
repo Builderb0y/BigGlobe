@@ -19,7 +19,7 @@ The following properties are also available on all voronoi cells:
 
 If the script is itself used to compute one of the values exported by a voronoi settings, then the above properties will be exposed as variables AND fields. Otherwise, they will be exposed as fields only.
 
-If the script is itself used to compute one of the values exported by a voronoi settings, then every column value enabled by the voronoi settings is also exposed to the script in the same way as any other column value. Additionally, the exports of the voronoi cell are made available as variables too, not just fields.
+If the script is itself used to compute one of the values enabled by a voronoi settings, then every column value enabled by the voronoi settings is also exposed to the script in the same way as any other column value. Additionally, the exports of the voronoi cell are made available as variables too, not just fields.
 
 If the script does not have an implicit x or z coordinate (for example, feature dispatchers), then:
 * All column values exposed as variables are instead exposed as functions which take x and z as parameters.

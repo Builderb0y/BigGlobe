@@ -110,7 +110,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		InsnTree x = ScriptedColumn.INFO.x(context.loadColumn());
 		InsnTree z = ScriptedColumn.INFO.z(context.loadColumn());
 		long salt = Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
-		InsnTree originalSeed = ScriptedColumn.INFO.seed(context.loadColumn());
+		InsnTree originalSeed = ScriptedColumn.INFO.baseSeed(context.loadColumn());
 		InsnTree saltedSeed = new BitwiseXorInsnTree(originalSeed, ldc(salt), LXOR);
 		InsnTree getValueInvoker = invokeInstance(ldc(memory.getTyped(CONSTANT_GRID)), MethodInfo.getMethod(this.is3D() ? Grid3D.class : Grid2D.class, "getValue"), saltedSeed, x, z);
 		if (this.params.type() instanceof FloatColumnValueType) getValueInvoker = new OpcodeCastInsnTree(getValueInvoker, D2F, TypeInfos.FLOAT);
@@ -128,7 +128,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
 			.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")
 			.addVariable("column", context.loadColumn())
-			.addFieldInvoke(ScriptedColumn.INFO.seed)
+			.addFieldInvoke("seed", ScriptedColumn.INFO.baseSeed)
 			.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
 			.addFieldInvoke(ScriptedColumn.INFO.x)
 			.addVariableLoad("y", TypeInfos.INT)

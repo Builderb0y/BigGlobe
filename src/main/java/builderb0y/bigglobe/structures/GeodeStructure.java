@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
-import java.util.concurrent.RecursiveAction;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -26,6 +25,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
@@ -111,6 +111,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		double radius = this.radius.get(context.random().nextLong());
 		BlockPos centerBlock = randomBlockInChunk(context, radius, BigGlobeMath.ceilI(radius));
 		if (centerBlock == null) return Optional.empty();
@@ -120,7 +121,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			centerBlock.getZ() + context.random().nextDouble()
 		);
 
-		long worldSeed = context.seed();
+		long worldSeed = generator.columnSeed;
 		long chunkSeed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
 		return Optional.of(
 			new StructurePosition(
@@ -320,7 +321,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						pos.setX(x);
 						double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
 						this.data.noise.getBulkY(
-							context.worldSeed,
+							context.columnSeed,
 							x - this.data.offsetX,
 							minY - this.data.offsetY,
 							z - this.data.offsetZ,
@@ -335,7 +336,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							if (noise > 0.0D) {
 								for (BlocksConfig block : this.data.blocks) {
 									if (noise < block.threshold) {
-										context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
+										context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
 										break placed;
 									}
 								}
@@ -501,7 +502,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						double distanceSquared = relativePos.distanceSquared(nearest);
 						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
 						if (distanceSquared < thresholdSquared && context.chunk.getBlockState(mutablePos.set(x, y, z)).isAir()) {
-							context.chunk.setBlockState(mutablePos, data.states.getRandomElement(Permuter.permute(context.worldSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)), false);
+							context.chunk.setBlockState(mutablePos, data.states.getRandomElement(Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)), false);
 						}
 					}
 				}

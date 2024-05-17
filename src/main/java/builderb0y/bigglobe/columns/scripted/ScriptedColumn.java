@@ -34,9 +34,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			purpose,
 			distantHorizons,
 			surfaceOnly,
-			seed,
-			unsaltedSeed,
-			saltedSeed;
+			baseSeed,
+			saltedBaseSeed,
+			positionedSeed,
+			saltedPositionedSeed;
 
 		public InsnTree x(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.x);
@@ -66,16 +67,20 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			return invokeInstance(loadColumn, this.surfaceOnly);
 		}
 
-		public InsnTree seed(InsnTree loadColumn) {
-			return invokeInstance(loadColumn, this.seed);
-		}
-
-		public InsnTree unsaltedSeed(InsnTree loadColumn) {
-			return invokeInstance(loadColumn, this.unsaltedSeed);
+		public InsnTree baseSeed(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.baseSeed);
 		}
 
 		public InsnTree saltedSeed(InsnTree loadColumn, InsnTree salt) {
-			return invokeInstance(loadColumn, this.saltedSeed, salt);
+			return invokeInstance(loadColumn, this.saltedBaseSeed, salt);
+		}
+
+		public InsnTree positionedSeed(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.positionedSeed);
+		}
+
+		public InsnTree saltedPositionedSeed(InsnTree loadColumn, InsnTree salt) {
+			return invokeInstance(loadColumn, this.saltedPositionedSeed, salt);
 		}
 	}
 
@@ -89,9 +94,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			.addVariable("purpose", INFO.purpose(loadColumn))
 			.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
 			.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
-			.addVariable("worldSeed", INFO.seed(loadColumn))
-			.addVariable("columnSeed", INFO.unsaltedSeed(loadColumn))
-			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedSeed)
+			.addVariable("worldSeed", INFO.baseSeed(loadColumn))
+			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
+			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
+			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
 		);
 	}
 
@@ -264,7 +270,6 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		public abstract ScriptedColumn create(Params params);
 	}
 
-	public long    seed           () { return this.params.seed                 ; }
 	public int     x              () { return this.params.x                    ; }
 	public int     z              () { return this.params.z                    ; }
 	public int     minY           () { return this.params.minY                 ; }
@@ -273,12 +278,20 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public boolean distantHorizons() { return this.params.purpose.isForLODs  (); }
 	public boolean surfaceOnly    () { return this.params.purpose.surfaceOnly(); }
 
-	public long unsaltedSeed() {
-		return Permuter.permute(this.seed(), this.x(), this.z());
+	public long baseSeed() {
+		return this.params.seed;
 	}
 
-	public long saltedSeed(long salt) {
-		return Permuter.permute(this.seed() ^ salt, this.x(), this.z());
+	public long saltedBaseSeed(long salt) {
+		return this.params.seed ^ salt;
+	}
+
+	public long positionedSeed() {
+		return Permuter.permute(this.params.seed, this.x(), this.z());
+	}
+
+	public long saltedPositionedSeed(long salt) {
+		return Permuter.permute(this.params.seed ^ salt, this.x(), this.z());
 	}
 
 	public abstract ScriptedColumn blankCopy();

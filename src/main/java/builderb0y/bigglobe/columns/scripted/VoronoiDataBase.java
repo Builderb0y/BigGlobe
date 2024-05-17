@@ -141,12 +141,12 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 
 	public long unsalted_seed() {
 		SeedPoint seedPoint = this.cell.center;
-		return Permuter.permute(this.column().seed(), seedPoint.cellX, seedPoint.cellZ);
+		return Permuter.permute(this.column().baseSeed(), seedPoint.cellX, seedPoint.cellZ);
 	}
 
 	public long salted_seed(long salt) {
 		SeedPoint seedPoint = this.cell.center;
-		return Permuter.permute(this.column().seed() ^ salt, seedPoint.cellX, seedPoint.cellZ);
+		return Permuter.permute(this.column().baseSeed() ^ salt, seedPoint.cellX, seedPoint.cellZ);
 	}
 
 	public int get_cell_x() {

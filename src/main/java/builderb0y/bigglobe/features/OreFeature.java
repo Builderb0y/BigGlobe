@@ -47,8 +47,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
 				chunk,
 				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),
-				sectionCoord,
-				generator.worldSeed
+				sectionCoord
 			);
 			ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
 			generateAllIntersecting(
@@ -57,7 +56,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 				offsetColumn,
 				config,
 				config.getReplacer(context),
-				config.seed.xor(context.worldSeed())
+				config.seed.xor(generator.columnSeed)
 			);
 		});
 	}

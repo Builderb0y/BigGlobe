@@ -18,6 +18,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -113,8 +114,8 @@ public class EvaluateCommand {
 					.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 					.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
 						registry.setupExternalEnvironment(
 							environment,
@@ -131,6 +132,8 @@ public class EvaluateCommand {
 
 			@Override
 			public Object evaluate(WorldWrapper world, int originX, int originY, int originZ) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					return this.script.evaluate(world, originX, originY, originZ);
 				}
@@ -138,6 +141,9 @@ public class EvaluateCommand {
 					ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);
 					ScriptLogger.LOGGER.error("Script source was:\n" + ScriptLogger.addLineNumbers(this.getSource()));
 					return throwable;
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}

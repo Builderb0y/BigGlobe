@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -125,8 +126,12 @@ public class ColumnCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public InsnTree loadSeed(InsnTree salt) {
-		return ScriptedColumn.INFO.seed(this.loadColumn());
+	public InsnTree loadSeed(@Nullable InsnTree salt) {
+		return (
+			salt != null
+			? ScriptedColumn.INFO.saltedSeed(this.loadColumn(), salt)
+			: ScriptedColumn.INFO.baseSeed(this.loadColumn())
+		);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -28,7 +29,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface StructureOverrider extends ColumnScript {
 
-	public abstract boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, boolean distantHorizons);
+	public abstract boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, long seed, boolean distantHorizons);
 
 	@SuppressWarnings("deprecation")
 	public static void move(StructureStartWrapper start, int yOffset) {
@@ -75,6 +76,7 @@ public interface StructureOverrider extends ColumnScript {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.create(loadRandom))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
 				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(NbtScriptEnvironment.createImmutable())
@@ -102,13 +104,18 @@ public interface StructureOverrider extends ColumnScript {
 		}
 
 		@Override
-		public boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, boolean distantHorizons) {
+		public boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, long seed, boolean distantHorizons) {
+			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			int used = manager.used;
 			try {
-				return this.script.override(columns, start, random, distantHorizons);
+				return this.script.override(columns, start, random, seed, distantHorizons);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
 				return true;
+			}
+			finally {
+				manager.used = used;
 			}
 		}
 	}

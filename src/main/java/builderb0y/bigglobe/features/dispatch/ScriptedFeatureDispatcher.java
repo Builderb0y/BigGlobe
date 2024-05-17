@@ -10,6 +10,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -67,6 +68,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 				.addEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					for (String name : new String[] {
@@ -94,11 +96,16 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
 		@Override
 		public void generate(WorldWrapper world, RandomGenerator random) {
+			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			int used = manager.used;
 			try {
 				this.script.generate(world, random);
 			}
 			catch (Throwable throwable) {
 				BigGlobeMod.LOGGER.error("Exception generating features in area " + world.coordination.mutableArea(), throwable);
+			}
+			finally {
+				manager.used = used;
 			}
 		}
 	}

@@ -51,9 +51,9 @@ public interface StructurePlacementScript extends Script {
 				.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment

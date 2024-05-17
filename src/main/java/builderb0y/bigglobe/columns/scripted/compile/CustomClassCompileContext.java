@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -74,7 +75,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 	}
 
 	@Override
-	public InsnTree loadSeed(InsnTree salt) {
+	public InsnTree loadSeed(@Nullable InsnTree salt) {
 		throw new UnsupportedOperationException();
 	}
 

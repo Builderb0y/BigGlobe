@@ -69,7 +69,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons)));
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-		this.layout.layout(lookup, x, z, permuter, pieces, distantHorizons);
+		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces, distantHorizons);
 		StructurePiecesCollector collector = new StructurePiecesCollector();
 		int minY = Integer.MAX_VALUE;
 		int maxY = Integer.MIN_VALUE;
@@ -263,7 +263,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				new WorldWrapper(
 					new ChunkDelegator(
 						context.chunk,
-						context.worldSeed
+						context.columnSeed
 					),
 					context.generator,
 					new Permuter(context.pieceSeed),

@@ -58,14 +58,19 @@ import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
+import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 import builderb0y.scripting.util.InfoHolder;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ClientState {
 
@@ -455,8 +460,20 @@ public class ClientState {
 			}
 
 			@Override
-			public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
-				super.addExtraFunctionsToEnvironment(registry, environment);
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+				//don't call super, because I don't want to deal with syncing grids.
+				environment
+					.addAll(MathScriptEnvironment.INSTANCE)
+					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+					//.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+					.addAll(
+						parameters.random != null
+							? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
+							: MinecraftScriptEnvironment.create()
+					)
+					.addAll(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+				if (parameters.y != null) environment.addVariableLoad(parameters.y);
+				if (parameters.random != null) environment.addAll(RandomScriptEnvironment.create(load(parameters.random)));
 				INFO.addAllTo(environment);
 			}
 		}

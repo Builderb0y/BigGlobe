@@ -28,8 +28,8 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 		}
 
 		@Override
-		public void addExtraFunctionsToEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment) {
-			super.addExtraFunctionsToEnvironment(registry, environment);
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+			super.addExtraFunctionsToEnvironment(parameters, environment);
 			environment.addFunctionInvokeStatics(RangeColumnRestriction.class, "bandLinear", "bandSmooth");
 		}
 	}

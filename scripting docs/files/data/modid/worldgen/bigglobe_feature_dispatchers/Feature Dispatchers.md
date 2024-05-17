@@ -12,6 +12,7 @@ Feature Dispatchers are responsible for decorating chunks as they're being gener
 			* NbtScriptEnvironment
 			* RandomScriptEnvironment (with random)
 			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
 			* StructureTemplateScriptEnvironment
 			* ColumnEntryRegistry
 

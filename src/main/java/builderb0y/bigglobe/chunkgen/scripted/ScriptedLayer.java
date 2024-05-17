@@ -9,7 +9,9 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
@@ -93,6 +95,7 @@ public class ScriptedLayer extends Layer {
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 					.addAll(MinecraftScriptEnvironment.create())
+					.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
 					.addAll(ScriptedColumn.baseEnvironment(loadColumn))
 					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
@@ -121,11 +124,16 @@ public class ScriptedLayer extends Layer {
 
 			@Override
 			public void emitSegments(ScriptedColumn column, BlockSegmentList blocks) {
+				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				int used = manager.used;
 				try {
 					this.script.emitSegments(column, blocks);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
+				}
+				finally {
+					manager.used = used;
 				}
 			}
 		}

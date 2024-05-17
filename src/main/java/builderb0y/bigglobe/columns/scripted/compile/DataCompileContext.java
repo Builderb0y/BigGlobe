@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 
@@ -68,7 +69,7 @@ public abstract class DataCompileContext {
 
 	public abstract InsnTree loadColumn();
 
-	public abstract InsnTree loadSeed(InsnTree salt);
+	public abstract InsnTree loadSeed(@Nullable InsnTree salt);
 
 	public abstract FieldInfo flagsField(int index);
 
