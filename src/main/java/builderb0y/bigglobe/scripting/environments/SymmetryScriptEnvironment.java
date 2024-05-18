@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.environments;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.scripting.bytecode.FieldConstantFactory;
@@ -21,13 +22,14 @@ public class SymmetryScriptEnvironment {
 		.addQualifiedFunctionInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
 	);
 
-	public static MutableScriptEnvironment create(InsnTree loadRandom) {
-		return (
-			new MutableScriptEnvironment()
+	public static Consumer<MutableScriptEnvironment> create(InsnTree loadRandom) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
 			.addAll(INSTANCE)
 			.addQualifiedFunction(type(Symmetry.class), "randomRotation", Handlers.builder(Symmetry.class, "randomRotation").addImplicitArgument(loadRandom).buildFunction())
 			.addQualifiedFunction(type(Symmetry.class), "randomFlip", Handlers.builder(Symmetry.class, "randomFlip").addImplicitArgument(loadRandom).buildFunction())
 			.addQualifiedFunction(type(Symmetry.class), "randomRotationAndFlip", Handlers.builder(Symmetry.class, "randomRotationAndFlip").addImplicitArgument(loadRandom).buildFunction())
-		);
+			;
+		};
 	}
 }

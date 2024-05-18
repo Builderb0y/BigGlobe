@@ -87,21 +87,24 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 				valueField.array.prefix(valueField.maxCached - valueField.minCached)
 			)
 			""",
-			new MutableScriptEnvironment()
-			.addVariableConstant("grid", constantGrid)
-			.addMethodInvoke(Grid3D.class, "getBulkY")
-			.addVariable("column", context.loadColumn())
-			.addFunction("seed", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-				return new CastResult(context.loadSeed(arguments[0]), false);
-			})
-			.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
-			.addMethodInvoke(ScriptedColumn.INFO.x)
-			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-			.addFieldGet(MappedRangeNumberArray.MIN_CACHED)
-			.addMethodInvoke(ScriptedColumn.INFO.z)
-			.addFieldGet(MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke(NumberArray.class, "prefix")
-			.addFieldGet(MappedRangeNumberArray.MAX_CACHED)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableConstant("grid", constantGrid)
+				.addMethodInvoke(Grid3D.class, "getBulkY")
+				.addVariable("column", context.loadColumn())
+				.addFunction("seed", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					return new CastResult(context.loadSeed(arguments[0]), false);
+				})
+				.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
+				.addMethodInvoke(ScriptedColumn.INFO.x)
+				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+				.addFieldGet(MappedRangeNumberArray.MIN_CACHED)
+				.addMethodInvoke(ScriptedColumn.INFO.z)
+				.addFieldGet(MappedRangeNumberArray.ARRAY)
+				.addMethodInvoke(NumberArray.class, "prefix")
+				.addFieldGet(MappedRangeNumberArray.MAX_CACHED)
+				;
+			}
 		);
 	}
 
@@ -124,15 +127,18 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			this.params.type() instanceof FloatColumnValueType
 			? "return(float(grid.getValue(column.seed # salt, column.x, y, column.z)))"
 			: "return(grid.getValue(column.seed # salt, column.x, y, column.z))",
-			new MutableScriptEnvironment()
-			.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
-			.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")
-			.addVariable("column", context.loadColumn())
-			.addFieldInvoke("seed", ScriptedColumn.INFO.baseSeed)
-			.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
-			.addFieldInvoke(ScriptedColumn.INFO.x)
-			.addVariableLoad("y", TypeInfos.INT)
-			.addFieldInvoke(ScriptedColumn.INFO.z)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
+				.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")
+				.addVariable("column", context.loadColumn())
+				.addFieldInvoke("seed", ScriptedColumn.INFO.baseSeed)
+				.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
+				.addFieldInvoke(ScriptedColumn.INFO.x)
+				.addVariableLoad("y", TypeInfos.INT)
+				.addFieldInvoke(ScriptedColumn.INFO.z)
+				;
+			}
 		);
 	}
 

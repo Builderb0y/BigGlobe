@@ -110,9 +110,9 @@ public abstract class DataCompileContext {
 	throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method)
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(MinecraftScriptEnvironment.create())
+		.configureEnvironment(MinecraftScriptEnvironment.create())
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.addEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
+		.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) {
 				environment.addVariableLoad("y", TypeInfos.INT);

@@ -1,7 +1,11 @@
 package builderb0y.scripting.bytecode.tree.flow.compare;
 
+import it.unimi.dsi.fastutil.doubles.DoubleComparator;
+import it.unimi.dsi.fastutil.floats.FloatComparator;
+import it.unimi.dsi.fastutil.longs.LongComparator;
 import org.junit.jupiter.api.Test;
 
+import builderb0y.bigglobe.noise.ScriptedGrid.Environment;
 import builderb0y.scripting.ScriptInterfaces.IntBinaryOperator;
 import builderb0y.scripting.ScriptInterfaces.IntUnaryOperator;
 import builderb0y.scripting.ScriptInterfaces.LongToIntOperator;
@@ -35,11 +39,12 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addVariableLoad("x", TypeInfos.INT)
 				.addVariableLoad("y", TypeInfos.INT)
-			)
+				;
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (int left : INTS) {
@@ -62,10 +67,9 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableLoad("x", TypeInfos.INT)
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("x", TypeInfos.INT);
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (int left : INTS) {
@@ -86,11 +90,12 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addVariableLoad("x", TypeInfos.LONG)
 				.addVariableLoad("y", TypeInfos.LONG)
-			)
+				;
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (long left : LONGS) {
@@ -119,10 +124,9 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableLoad("x", TypeInfos.LONG)
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("x", TypeInfos.LONG);
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (long left : LONGS) {
@@ -144,11 +148,12 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addVariableLoad("x", TypeInfos.FLOAT)
 				.addVariableLoad("y", TypeInfos.FLOAT)
-			)
+				;
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (float left : FLOATS) {
@@ -178,10 +183,9 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableLoad("x", TypeInfos.FLOAT)
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("x", TypeInfos.FLOAT);
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (float left : FLOATS) {
@@ -209,11 +213,12 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addVariableLoad("x", TypeInfos.DOUBLE)
 				.addVariableLoad("y", TypeInfos.DOUBLE)
-			)
+				;
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (double left : DOUBLES) {
@@ -243,10 +248,9 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableLoad("x", TypeInfos.DOUBLE)
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("x", TypeInfos.DOUBLE);
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (double left : DOUBLES) {
@@ -274,11 +278,12 @@ public class CompareInsnTreeTest {
 				)
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addVariableLoad("x", type(Numbers.class))
 				.addVariableLoad("y", type(Numbers.class))
-			)
+				;
+			})
 			.parse(new ScriptClassLoader())
 		);
 		for (Numbers left : NUMBERS) {

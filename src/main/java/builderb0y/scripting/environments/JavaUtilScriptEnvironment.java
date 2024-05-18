@@ -1,6 +1,7 @@
 package builderb0y.scripting.environments;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
 import builderb0y.bigglobe.noise.Permuter;
@@ -26,6 +27,7 @@ public class JavaUtilScriptEnvironment {
 		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
 		LIST_SET      = MethodInfo.getMethod(List     .class, "set");
 
+	@Deprecated //use withRandom() or withoutRandom() instead.
 	public static final MutableScriptEnvironment ALL = (
 		new MutableScriptEnvironment()
 		.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
@@ -116,20 +118,24 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(RandomList.class)
 	);
 
-	public static MutableScriptEnvironment withRandom(InsnTree loadRandom) {
-		return new MutableScriptEnvironment().addAll(ALL).addAll(randomOnly(loadRandom));
+	public static Consumer<MutableScriptEnvironment> withoutRandom() {
+		return (MutableScriptEnvironment environment) -> environment.addAll(ALL);
 	}
 
-	public static MutableScriptEnvironment randomOnly(InsnTree loadRandom) {
-		return new MutableScriptEnvironment().addMethod(
-			type(List.class),
-			"shuffle",
-			Handlers
-			.builder(JavaUtilScriptEnvironment.class, "shuffle")
-			.addReceiverArgument(List.class)
-			.addImplicitArgument(loadRandom)
-			.buildMethod()
-		);
+	public static Consumer<MutableScriptEnvironment> withRandom(InsnTree loadRandom) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
+			.addAll(ALL)
+			.addMethod(
+				type(List.class),
+				"shuffle",
+				Handlers
+				.builder(JavaUtilScriptEnvironment.class, "shuffle")
+				.addReceiverArgument(List.class)
+				.addImplicitArgument(loadRandom)
+				.buildMethod()
+			);
+		};
 	}
 
 	public static void swap(Object[] array, int index1, int index2) {

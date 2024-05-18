@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
@@ -252,85 +253,85 @@ public class RandomScriptEnvironment {
 
 	public static final MethodInfo ASSERT_FAIL = MethodInfo.findConstructor(AssertionError.class, String.class);
 
+	public static final MutableScriptEnvironment BASE = (
+		new MutableScriptEnvironment()
+		.addType("Random", RandomGenerator.class)
+		.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+			if (arguments.length == 0) return null;
+			CastResult seed = createSeed(parser, arguments);
+			return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
+		}))
+		.addMethodInvoke("nextInt", RNG_INFO.nextInt)
+		.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
+		.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
+		.addMethodInvoke("nextLong", RNG_INFO.nextLong)
+		.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
+		.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
+		.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
+		.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
+		.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
+		.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
+		.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
+		.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
+		.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
+		.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
+		.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
+		.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
+		.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
+		.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
+		.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
+		.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
+		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
+		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
+		.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+			if (arguments.length < 2) {
+				throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
+			}
+			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
+			for (int index = 0, length = arguments.length; index < length; index++) {
+				cases.put(index, arguments[index]);
+			}
+			cases.defaultReturnValue(
+				throw_(
+					newInstance(
+						ASSERT_FAIL,
+						ldc("Random returned value out of range")
+					)
+				)
+			);
+			return new CastResult(
+				(
+					switch (mode) {
+						case NORMAL -> MemberKeywordMode.NORMAL;
+						case NULLABLE -> MemberKeywordMode.NULLABLE;
+						case RECEIVER -> MemberKeywordMode.RECEIVER;
+						case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+					}
+				)
+				.apply(receiver, (InsnTree actualReceiver) -> {
+					return switch_(
+						parser,
+						invokeInstance(
+							actualReceiver,
+							RNG_INFO.nextIntBound,
+							ldc(arguments.length)
+						),
+						cases
+					);
+				}),
+				false
+			);
+		}))
+		.addMemberKeyword(type(RandomGenerator.class), "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			return wrapRandomIf(parser, receiver, false, mode);
+		})
+		.addMemberKeyword(type(RandomGenerator.class), "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			return wrapRandomIf(parser, receiver, true, mode);
+		})
+	);
 
-	public static MutableScriptEnvironment create(InsnTree loader) {
-		return (
-			new MutableScriptEnvironment()
-			.addType("Random", RandomGenerator.class)
-			.addVariable("random", loader)
-			.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-				if (arguments.length == 0) return null;
-				CastResult seed = createSeed(parser, arguments);
-				return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
-			}))
-			.addMethodInvoke("nextInt", RNG_INFO.nextInt)
-			.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
-			.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLong)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
-			.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
-			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
-			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
-			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
-			.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-				if (arguments.length < 2) {
-					throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
-				}
-				Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
-				for (int index = 0, length = arguments.length; index < length; index++) {
-					cases.put(index, arguments[index]);
-				}
-				cases.defaultReturnValue(
-					throw_(
-						newInstance(
-							ASSERT_FAIL,
-							ldc("Random returned value out of range")
-						)
-					)
-				);
-				return new CastResult(
-					(
-						switch (mode) {
-							case NORMAL -> MemberKeywordMode.NORMAL;
-							case NULLABLE -> MemberKeywordMode.NULLABLE;
-							case RECEIVER -> MemberKeywordMode.RECEIVER;
-							case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
-						}
-					)
-					.apply(receiver, (InsnTree actualReceiver) -> {
-						return switch_(
-							parser,
-							invokeInstance(
-								actualReceiver,
-								RNG_INFO.nextIntBound,
-								ldc(arguments.length)
-							),
-							cases
-						);
-					}),
-					false
-				);
-			}))
-			.addMemberKeyword(type(RandomGenerator.class), "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-				return wrapRandomIf(parser, receiver, false, mode);
-			})
-			.addMemberKeyword(type(RandomGenerator.class), "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-				return wrapRandomIf(parser, receiver, true, mode);
-			})
-		);
+	public static Consumer<MutableScriptEnvironment> create(InsnTree loader) {
+		return (MutableScriptEnvironment environment) -> environment.addAll(BASE).addVariable("random", loader);
 	}
 
 	public static CastResult createSeed(ExpressionParser parser, InsnTree... arguments) {

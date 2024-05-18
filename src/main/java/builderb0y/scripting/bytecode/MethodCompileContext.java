@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.tree.MethodNode;
 
@@ -37,18 +38,18 @@ public class MethodCompileContext {
 		}
 	}
 
-	public void appendCode(String code, MutableScriptEnvironment environment) {
+	public void appendCode(String code, Consumer<MutableScriptEnvironment> environment) {
 		try {
-			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseRemainingInput(false, false).emitBytecode(this);
+			new ExpressionParser(code, this.clazz, this).configureEnvironment(environment).parseRemainingInput(false, false).emitBytecode(this);
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);
 		}
 	}
 
-	public void setCode(String code, MutableScriptEnvironment environment) {
+	public void setCode(String code, Consumer<MutableScriptEnvironment> environment) {
 		try {
-			new ExpressionParser(code, this.clazz, this).addEnvironment(environment).parseEntireInput().emitBytecode(this);
+			new ExpressionParser(code, this.clazz, this).configureEnvironment(environment).parseEntireInput().emitBytecode(this);
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);

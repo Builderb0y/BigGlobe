@@ -55,8 +55,8 @@ public class ScriptedRecipeClasses {
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage)
-					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.createMutable())
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) ->
@@ -99,8 +99,8 @@ public class ScriptedRecipeClasses {
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage)
-					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.createMutable())
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) ->
@@ -144,8 +144,8 @@ public class ScriptedRecipeClasses {
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage)
-					.addEnvironment(JavaUtilScriptEnvironment.ALL)
-					.addEnvironment(NbtScriptEnvironment.createMutable())
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 					.configureEnvironment((MutableScriptEnvironment environment) ->

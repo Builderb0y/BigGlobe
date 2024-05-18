@@ -50,16 +50,16 @@ public interface StructureLayoutScript extends Script {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(StructureLayoutScript.class, usage)
-				.addEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.addEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(NbtScriptEnvironment.createMutable())
-				.addEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
-				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
-				.addEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
+				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
+				.configureEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment

@@ -96,21 +96,20 @@ public interface SurfaceScript extends Script {
 			bridgeMethod.endCode();
 
 			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnContext.columnType());
-			MutableScriptEnvironment environment = (
-				new MutableScriptEnvironment()
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.addAll(MinecraftScriptEnvironment.create())
-				.addAll(GridScriptEnvironment.createWithSeed(registry.columnContext.loadSeed(null)))
-				.addAll(ScriptedColumn.baseEnvironment(loadMainColumn))
+				.configure(MinecraftScriptEnvironment.create())
+				.configure(GridScriptEnvironment.createWithSeed(registry.columnContext.loadSeed(null)))
+				.configure(ScriptedColumn.baseEnvironment(loadMainColumn))
 				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 				.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))
-			);
-			registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn));
-
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
+				;
+				registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn));
+			});
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();
 

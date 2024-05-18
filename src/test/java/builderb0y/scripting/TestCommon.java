@@ -50,7 +50,7 @@ public class TestCommon {
 		return (
 			new ScriptParser<>(ObjectSupplier.class, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(JavaUtilScriptEnvironment.ALL)
+			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 			.parse(new ScriptClassLoader())
 			.getAsObject()
 		);
@@ -60,7 +60,7 @@ public class TestCommon {
 		ScriptParser<?> parser = (
 			new ScriptParser<>(implementationClass, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(JavaUtilScriptEnvironment.ALL)
+			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 		);
 		parser.toBytecode();
 		int[] actualOpcodes = (

@@ -149,16 +149,19 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 			Class<?> arrayClass = primitive ? MappedRangeNumberArray.class : MappedRangeObjectArray.class;
 			context.constructor.appendCode(
 				"valueField = Array.new(empty)",
-				new MutableScriptEnvironment()
-				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addType("Array", arrayClass)
-				.addQualifiedConstructor(arrayClass)
-				.addVariable(
-					"empty",
-					primitive
-					? getStatic(FieldInfo.getField(NumberArray.class, "EMPTY_" + accessContext.exposedType().getSort().name()))
-					: new NewArrayWithLengthInsnTree(accessContext.exposedType(), ldc(0))
-				)
+				(MutableScriptEnvironment environment) -> {
+					environment
+					.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+					.addType("Array", arrayClass)
+					.addQualifiedConstructor(arrayClass)
+					.addVariable(
+						"empty",
+						primitive
+						? getStatic(FieldInfo.getField(NumberArray.class, "EMPTY_" + accessContext.exposedType().getSort().name()))
+						: new NewArrayWithLengthInsnTree(accessContext.exposedType(), ldc(0))
+					)
+					;
+				}
 			);
 		}
 	}
@@ -242,10 +245,13 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 
 			computeTest.setCode(
 				"return(test() ? compute() : fallback)",
-				new MutableScriptEnvironment()
-				.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
-				.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
-				.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+				(MutableScriptEnvironment environment) -> {
+					environment
+					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
+					.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
+					.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+					;
+				}
 			);
 		}
 	}
@@ -258,10 +264,13 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 
 			getterMethod.setCode(
 				"return(test() ? compute() : fallback)",
-				new MutableScriptEnvironment()
-				.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
-				.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
-				.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+				(MutableScriptEnvironment environment) -> {
+					environment
+					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
+					.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
+					.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+					;
+				}
 			);
 		}
 	}
@@ -291,11 +300,14 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				value = compute()
 			)
 			""",
-			new MutableScriptEnvironment()
-			.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
-			.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
-			.addFunctionInvoke("compute", context.loadSelf(), compute.info)
-			.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
+				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
+				.addFunctionInvoke("compute", context.loadSelf(), compute.info)
+				.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
+				;
+			}
 		);
 	}
 
@@ -312,26 +324,42 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				compute()
 			)
 			""",
-			new MutableScriptEnvironment()
-			.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
-			.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
-			.addFunctionInvoke("compute", context.loadSelf(), compute.info)
-			.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableRenamedGetField(context.loadSelf(), "flagsField", context.flagsField(flagsIndex))
+				.addVariableConstant("flagsBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
+				.addFunctionInvoke("compute", context.loadSelf(), compute.info)
+				.addVariableRenamedGetField(context.loadSelf(), "value", valueField.info)
+				;
+			}
 		);
 
 		MethodCompileContext computeAllTestMethod = memory.getTyped(COMPUTE_ALL_TEST);
 		MethodCompileContext computeAllNoTestMethod = memory.getTyped(COMPUTE_ALL_NO_TEST);
-		MutableScriptEnvironment computeEnvironment = (
-			new MutableScriptEnvironment()
+		String computeSource = this.getComputeSource();
+		computeAllTestMethod.setCode(computeSource, (MutableScriptEnvironment environment) -> {
+			environment
 			.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
 			.addMethodInvokes(MappedRangeArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
 			.addVariable("this", context.loadSelf())
 			.addVariable("column", context.loadColumn())
 			.addFunctionInvoke("actuallyCompute", context.loadSelf(), computeAllNoTestMethod.info)
-		);
-
-		String computeSource = this.getComputeSource(memory, context, computeEnvironment);
-		computeAllTestMethod.setCode(computeSource, computeEnvironment);
+			;
+			if (this.valid != null) {
+				if (this.valid.where() != null) {
+					MethodCompileContext test = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
+					environment.addFunctionInvoke("test", context.loadSelf(), test.info);
+				}
+				if (this.valid.min_y() != null) {
+					MethodCompileContext minY = memory.getTyped(VALID_MIN_Y);
+					environment.addFunctionInvoke("minY", context.loadSelf(), minY.info);
+				}
+				if (this.valid.max_y() != null) {
+					MethodCompileContext maxY = memory.getTyped(VALID_MAX_Y);
+					environment.addFunctionInvoke("maxY", context.loadSelf(), maxY.info);
+				}
+			}
+		});
 		this.populateComputeAll(memory, context, computeAllNoTestMethod);
 	}
 
@@ -339,27 +367,30 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		extractMethod.setCode(
 			this.extractSource(),
-			new MutableScriptEnvironment()
-			.addVariableLoad("y", TypeInfos.INT)
-			.addVariable("arrayField", getField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info))
-			.addFieldGet("valid", MappedRangeArray.VALID)
-			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
-			.addFieldGet("minAccessible", MappedRangeArray.MIN_ACCESSIBLE)
-			.addFieldGet("maxAccessible", MappedRangeArray.MAX_ACCESSIBLE)
-			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("get", switch (accessContext.exposedType().getSort()) {
-				case BYTE    -> MappedRangeNumberArray.GET_B;
-				case SHORT   -> MappedRangeNumberArray.GET_S;
-				case INT     -> MappedRangeNumberArray.GET_I;
-				case LONG    -> MappedRangeNumberArray.GET_L;
-				case FLOAT   -> MappedRangeNumberArray.GET_F;
-				case DOUBLE  -> MappedRangeNumberArray.GET_D;
-				case BOOLEAN -> MappedRangeNumberArray.GET_Z;
-				default -> throw new IllegalStateException("Unsupported type: " + accessContext);
-			})
-			.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(accessContext.exposedType()) : ConstantValue.of(0))
-			.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableLoad("y", TypeInfos.INT)
+				.addVariable("arrayField", getField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info))
+				.addFieldGet("valid", MappedRangeArray.VALID)
+				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+				.addFieldGet("minAccessible", MappedRangeArray.MIN_ACCESSIBLE)
+				.addFieldGet("maxAccessible", MappedRangeArray.MAX_ACCESSIBLE)
+				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
+				.addMethodInvoke("get", switch (accessContext.exposedType().getSort()) {
+					case BYTE    -> MappedRangeNumberArray.GET_B;
+					case SHORT   -> MappedRangeNumberArray.GET_S;
+					case INT     -> MappedRangeNumberArray.GET_I;
+					case LONG    -> MappedRangeNumberArray.GET_L;
+					case FLOAT   -> MappedRangeNumberArray.GET_F;
+					case DOUBLE  -> MappedRangeNumberArray.GET_D;
+					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
+					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
+				})
+				.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(accessContext.exposedType()) : ConstantValue.of(0))
+				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
+				;
+			}
 		);
 	}
 
@@ -483,20 +514,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 		}
 	}
 
-	public String getComputeSource(ColumnEntryMemory memory, DataCompileContext context, MutableScriptEnvironment computeEnvironment) {
+	public String getComputeSource() {
 		if (this.hasValid()) {
-			if (this.valid.where() != null) {
-				MethodCompileContext test = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
-				computeEnvironment.addFunctionInvoke("test", context.loadSelf(), test.info);
-			}
-			if (this.valid.min_y() != null) {
-				MethodCompileContext minY = memory.getTyped(VALID_MIN_Y);
-				computeEnvironment.addFunctionInvoke("minY", context.loadSelf(), minY.info);
-			}
-			if (this.valid.max_y() != null) {
-				MethodCompileContext maxY = memory.getTyped(VALID_MAX_Y);
-				computeEnvironment.addFunctionInvoke("maxY", context.loadSelf(), maxY.info);
-			}
 			if (this.valid.where() != null) {
 				if (this.valid.min_y() != null) {
 					if (this.valid.max_y() != null) {
@@ -598,23 +617,26 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				actualArray.set(y - minY, compute(y))
 			)
 			""",
-			new MutableScriptEnvironment()
-			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-			.addVariableLoad("y", TypeInfos.INT)
-			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
-			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
-				case BYTE    -> MappedRangeNumberArray.SET_B;
-				case SHORT   -> MappedRangeNumberArray.SET_S;
-				case INT     -> MappedRangeNumberArray.SET_I;
-				case LONG    -> MappedRangeNumberArray.SET_L;
-				case FLOAT   -> MappedRangeNumberArray.SET_F;
-				case DOUBLE  -> MappedRangeNumberArray.SET_D;
-				case BOOLEAN -> MappedRangeNumberArray.SET_Z;
-				default -> throw new IllegalStateException("Unsupported type: " + accessContext);
-			})
-			.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+				.addVariableLoad("y", TypeInfos.INT)
+				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
+				.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
+					case BYTE -> MappedRangeNumberArray.SET_B;
+					case SHORT -> MappedRangeNumberArray.SET_S;
+					case INT -> MappedRangeNumberArray.SET_I;
+					case LONG -> MappedRangeNumberArray.SET_L;
+					case FLOAT -> MappedRangeNumberArray.SET_F;
+					case DOUBLE -> MappedRangeNumberArray.SET_D;
+					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
+					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
+				})
+				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
+				;
+			}
 		);
 	}
 
@@ -655,25 +677,28 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				array.array.set(y - array.minCached, value)
 			)
 			""",
-			new MutableScriptEnvironment()
-			.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-			.addVariableRenamedGetField(context.loadSelf(), "flags", context.flagsField(flagsIndex))
-			.addVariableConstant("flagBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
-			.addVariableLoad("y", TypeInfos.INT)
-			.addVariableLoad("value", accessContext.exposedType())
-			.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-			.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
-			.addFieldGet("array", MappedRangeNumberArray.ARRAY)
-			.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
-				case BYTE    -> MappedRangeNumberArray.SET_B;
-				case SHORT   -> MappedRangeNumberArray.SET_S;
-				case INT     -> MappedRangeNumberArray.SET_I;
-				case LONG    -> MappedRangeNumberArray.SET_L;
-				case FLOAT   -> MappedRangeNumberArray.SET_F;
-				case DOUBLE  -> MappedRangeNumberArray.SET_D;
-				case BOOLEAN -> MappedRangeNumberArray.SET_Z;
-				default -> throw new IllegalStateException("Unsupported type: " + accessContext);
-			})
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+				.addVariableRenamedGetField(context.loadSelf(), "flags", context.flagsField(flagsIndex))
+				.addVariableConstant("flagBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
+				.addVariableLoad("y", TypeInfos.INT)
+				.addVariableLoad("value", accessContext.exposedType())
+				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
+				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
+				.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
+					case BYTE    -> MappedRangeNumberArray.SET_B;
+					case SHORT   -> MappedRangeNumberArray.SET_S;
+					case INT     -> MappedRangeNumberArray.SET_I;
+					case LONG    -> MappedRangeNumberArray.SET_L;
+					case FLOAT   -> MappedRangeNumberArray.SET_F;
+					case DOUBLE  -> MappedRangeNumberArray.SET_D;
+					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
+					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
+				})
+				;
+			}
 		);
 	}
 

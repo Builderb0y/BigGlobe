@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.item.Item;
@@ -34,11 +35,12 @@ public class ItemScriptEnvironment {
 		.addFieldInvokeStatic(ItemStackWrapper.class, "nbt")
 	);
 
-	public static MutableScriptEnvironment createWithRandom(InsnTree loadRandom) {
-		return (
-			new MutableScriptEnvironment()
+	public static Consumer<MutableScriptEnvironment> createWithRandom(InsnTree loadRandom) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
 			.addAll(INSTANCE)
 			.addMethod(ItemTagKey.TYPE, "random", MinecraftScriptEnvironment.tagRandom(loadRandom, ItemTagKey.class, Item.class))
-		);
+			;
+		};
 	}
 }

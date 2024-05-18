@@ -19,65 +19,65 @@ public class HandlerBuilderTest extends TestCommon {
 		assertEquals(
 			2,
 			new ScriptParser<>(IntSupplier.class, "addOne(1i)")
-			.addEnvironment(
-				new MutableScriptEnvironment().addFunction(
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addFunction(
 					"addOne",
 					Handlers.inCaller("add1").addRequiredArgument(int.class).buildFunction()
-				)
-			)
+				);
+			})
 			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
 			2,
 			new ScriptParser<>(IntSupplier.class, "1i .addOne()")
-			.addEnvironment(
-				new MutableScriptEnvironment().addMethod(
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addMethod(
 					type(int.class),
 					"addOne",
 					Handlers.inCaller("add1").addReceiverArgument(int.class).buildMethod()
-				)
-			)
+				);
+			})
 			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
 			2,
 			new ScriptParser<>(IntSupplier.class, "addOne(1i)")
-			.addEnvironment(
-				new MutableScriptEnvironment().addFunction(
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addFunction(
 					"addOne",
 					Handlers.inCaller("add1").addNestedArgument(
 						Handlers.inCaller("newBox").addRequiredArgument(int.class)
 					)
 					.buildFunction()
-				)
-			)
+				);
+			})
 			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
 			2,
 			new ScriptParser<>(IntSupplier.class, "1i .plusOne")
-			.addEnvironment(
-				new MutableScriptEnvironment().addField(
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addField(
 					TypeInfos.INT,
 					"plusOne",
 					Handlers.inCaller("add1").addReceiverArgument(TypeInfos.INT).buildField()
-				)
-			)
+				);
+			})
 			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);
 		assertEquals(
 			2,
 			new ScriptParser<>(IntSupplier.class, "two")
-			.addEnvironment(
-				new MutableScriptEnvironment().addVariable(
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariable(
 					"two",
 					Handlers.inCaller("add1").addImplicitArgument(ldc(1)).buildVariable()
-				)
-			)
+				);
+			})
 			.parse(new ScriptClassLoader())
 			.getAsInt()
 		);

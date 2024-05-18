@@ -186,16 +186,16 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage)
-					.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-					.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-					.addEnvironment(NbtScriptEnvironment.createMutable())
-					.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
+					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
 						registry.setupExternalEnvironment(
 							environment

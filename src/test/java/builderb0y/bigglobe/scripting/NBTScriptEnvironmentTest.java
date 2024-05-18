@@ -148,6 +148,6 @@ public class NBTScriptEnvironmentTest {
 	}
 
 	public static Object evaluate(String script) throws ScriptParsingException {
-		return new ScriptParser<>(ObjectSupplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).addEnvironment(NbtScriptEnvironment.createMutable()).parse(new ScriptClassLoader()).getAsObject();
+		return new ScriptParser<>(ObjectSupplier.class, script).addEnvironment(MathScriptEnvironment.INSTANCE).configureEnvironment(NbtScriptEnvironment.createMutable()).parse(new ScriptClassLoader()).getAsObject();
 	}
 }

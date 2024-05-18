@@ -188,7 +188,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 				this.script = (
 					new TemplateScriptParser<>(TreeHeightScript.class, this.usage)
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addEnvironment(RandomScriptEnvironment.create(
+					.configureEnvironment(RandomScriptEnvironment.create(
 						load("random", type(RandomGenerator.class))
 					))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)

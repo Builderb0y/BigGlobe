@@ -203,10 +203,9 @@ public class StaticFieldUpdateInsnTreeTest {
 	public static void test(String script) throws ScriptParsingException {
 		assertTrue(
 			new ScriptParser<>(BooleanSupplier.class, script)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableGetStatics(StaticFieldUpdateInsnTreeTest.class, "x", "y", "b")
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableGetStatics(StaticFieldUpdateInsnTreeTest.class, "x", "y", "b");
+			})
 			.parse(new ScriptClassLoader())
 			.getAsBoolean()
 		);

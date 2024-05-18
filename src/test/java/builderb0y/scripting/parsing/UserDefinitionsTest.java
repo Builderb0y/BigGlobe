@@ -460,10 +460,9 @@ public class UserDefinitionsTest extends TestCommon {
 				return ( a ( ) )
 				"""
 			)
-			.addEnvironment(
-				new MutableScriptEnvironment()
-				.addVariableLoad("x", TypeInfos.OBJECT)
-			)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("x", TypeInfos.OBJECT);
+			})
 			.parse(new ScriptClassLoader())
 			.applyAsObject(expected)
 		);

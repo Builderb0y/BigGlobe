@@ -61,15 +61,15 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(ScriptedFeatureDispatcherImpl.class, this.usage)
-				.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-				.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-				.addEnvironment(NbtScriptEnvironment.createMutable())
-				.addEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
+				.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					for (String name : new String[] {
 						"minModifiableX",

@@ -42,18 +42,18 @@ public interface StructurePlacementScript extends Script {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(StructurePlacementScript.class, usage)
-				.addEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-				.addEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
-				.addEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-				.addEnvironment(NbtScriptEnvironment.createImmutable())
-				.addEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-				.addEnvironment(RandomScriptEnvironment.create(WORLD.random))
+				.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+				.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(NbtScriptEnvironment.createImmutable())
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+				.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.addEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment

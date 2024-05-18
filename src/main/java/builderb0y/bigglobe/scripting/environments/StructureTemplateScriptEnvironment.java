@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.environments;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
@@ -44,9 +45,9 @@ public class StructureTemplateScriptEnvironment {
 		.addCastConstant(PROCESSOR_FACTORY, true)
 	);
 
-	public static MutableScriptEnvironment create(InsnTree loadWorld) {
-		return (
-			new MutableScriptEnvironment()
+	public static Consumer<MutableScriptEnvironment> create(InsnTree loadWorld) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
 			.addAll(INSTANCE)
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "placeStructureTemplate")
 			.addQualifiedFunction(
@@ -59,7 +60,8 @@ public class StructureTemplateScriptEnvironment {
 				.addImplicitArgument(loadWorld)
 				.buildFunction()
 			)
-		);
+			;
+		};
 	}
 
 	public static StructureTemplate getTemplate(MethodHandles.Lookup caller, String name, Class<?> type, String id) {

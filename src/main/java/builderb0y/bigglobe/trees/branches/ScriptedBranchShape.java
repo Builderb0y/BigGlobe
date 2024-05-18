@@ -33,7 +33,7 @@ public interface ScriptedBranchShape extends Script {
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					environment.addVariableLoad("fraction", TypeInfos.DOUBLE);
 				})
-				.addEnvironment(RandomScriptEnvironment.create(
+				.configureEnvironment(RandomScriptEnvironment.create(
 					load("random", type(RandomGenerator.class))
 				))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)

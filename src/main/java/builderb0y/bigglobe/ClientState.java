@@ -466,14 +466,14 @@ public class ClientState {
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 					//.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-					.addAll(
+					.configure(
 						parameters.random != null
-							? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
-							: MinecraftScriptEnvironment.create()
+						? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
+						: MinecraftScriptEnvironment.create()
 					)
-					.addAll(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+					.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
 				if (parameters.y != null) environment.addVariableLoad(parameters.y);
-				if (parameters.random != null) environment.addAll(RandomScriptEnvironment.create(load(parameters.random)));
+				if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
 				INFO.addAllTo(environment);
 			}
 		}

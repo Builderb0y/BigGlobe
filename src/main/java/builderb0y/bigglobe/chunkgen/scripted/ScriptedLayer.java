@@ -90,28 +90,27 @@ public class ScriptedLayer extends Layer {
 				bridgeMethod.endCode();
 
 				LoadInsnTree loadColumn = load("column", registry.columnContext.columnType());
-				MutableScriptEnvironment environment = (
-					new MutableScriptEnvironment()
+				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+					environment
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.addAll(MinecraftScriptEnvironment.create())
-					.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
-					.addAll(ScriptedColumn.baseEnvironment(loadColumn))
+					.configure(MinecraftScriptEnvironment.create())
+					.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
+					.configure(ScriptedColumn.baseEnvironment(loadColumn))
 					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
-				);
-				registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadColumn));
-
-				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod).addEnvironment(environment);
+					;
+					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadColumn));
+				});
 				parser.parseEntireInput().emitBytecode(actualMethod);
 				actualMethod.endCode();
 
 				MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-				return_(ldc(usage.findSource())).emitBytecode(getSource);
+				return_(ldc(this.usage.findSource())).emitBytecode(getSource);
 				getSource.endCode();
 
 				MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);
-				return_(ldc(usage.debug_name, TypeInfos.STRING)).emitBytecode(getDebugName);
+				return_(ldc(this.usage.debug_name, TypeInfos.STRING)).emitBytecode(getDebugName);
 				getDebugName.endCode();
 
 				try {

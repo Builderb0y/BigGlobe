@@ -130,10 +130,10 @@ public interface ColumnValueOverrider extends ColumnScript {
 			InsnTree loadColumn = load(parameters.actualColumn);
 			environment
 			.addAll(StructureScriptEnvironment.INSTANCE)
-			.addAll(NbtScriptEnvironment.createImmutable())
+			.configure(NbtScriptEnvironment.createImmutable())
 			.addFieldGet(ScriptedStructure.Piece.class, "data")
 			.addVariableLoad("structures", type(ScriptStructures.class))
-			.addAll(JavaUtilScriptEnvironment.ALL);
+			.configure(JavaUtilScriptEnvironment.withoutRandom());
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);

@@ -72,14 +72,14 @@ public interface StructureOverrider extends ColumnScript {
 			LoadInsnTree loadRandom = load("random", type(RandomGenerator.class));
 			this.script = (
 				new TemplateScriptParser<>(StructureOverrider.class, this.usage)
-				.addEnvironment(JavaUtilScriptEnvironment.withRandom(loadRandom))
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(loadRandom))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(RandomScriptEnvironment.create(loadRandom))
+				.configureEnvironment(RandomScriptEnvironment.create(loadRandom))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.addEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
-				.addEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
+				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.addEnvironment(NbtScriptEnvironment.createImmutable())
+				.configureEnvironment(NbtScriptEnvironment.createImmutable())
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment

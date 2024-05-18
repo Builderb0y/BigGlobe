@@ -127,15 +127,15 @@ public interface ColumnScript extends Script {
 			environment
 			.addAll(MathScriptEnvironment.INSTANCE)
 			.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-			.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-			.addAll(
+			.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+			.configure(
 				parameters.random != null
 				? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
 				: MinecraftScriptEnvironment.create()
 			)
-			.addAll(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+			.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
 			if (parameters.y != null) environment.addVariableLoad(parameters.y);
-			if (parameters.random != null) environment.addAll(RandomScriptEnvironment.create(load(parameters.random)));
+			if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
 		}
 
 		public boolean isColumnMutable() {
@@ -178,18 +178,17 @@ public interface ColumnScript extends Script {
 			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
-			MutableScriptEnvironment environment = new MutableScriptEnvironment();
-			this.addExtraFunctionsToEnvironment(parameters, environment);
-			registry.setupExternalEnvironment(
-				environment,
-				new ExternalEnvironmentParams()
-				.withColumn(load(parameters.actualColumn))
-				.withY(parameters.y != null ? load(parameters.y) : null)
-				.mutable(this.isColumnMutable())
-				.trackDependencies(this)
-			);
-
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).addEnvironment(environment);
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+				this.addExtraFunctionsToEnvironment(parameters, environment);
+				registry.setupExternalEnvironment(
+					environment,
+					new ExternalEnvironmentParams()
+					.withColumn(load(parameters.actualColumn))
+					.withY(parameters.y != null ? load(parameters.y) : null)
+					.mutable(this.isColumnMutable())
+					.trackDependencies(this)
+				);
+			});
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();
 

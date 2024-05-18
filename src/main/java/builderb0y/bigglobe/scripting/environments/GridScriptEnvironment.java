@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.scripting.environments;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 import net.minecraft.util.Identifier;
 
@@ -35,79 +36,82 @@ public class GridScriptEnvironment {
 	public static final ConstantFactory GRID_2D = new ConstantFactory(GridScriptEnvironment.class, "getGrid2D", String.class, Grid2D.class);
 	public static final ConstantFactory GRID_3D = new ConstantFactory(GridScriptEnvironment.class, "getGrid3D", String.class, Grid3D.class);
 
-	public static MutableScriptEnvironment create() {
-		return (
-			new MutableScriptEnvironment()
+	public static final MutableScriptEnvironment BASE = (
+		new MutableScriptEnvironment()
 
-			.addType("Grid",   Grid  .class)
-			.addType("Grid1D", Grid1D.class)
-			.addType("Grid2D", Grid2D.class)
-			.addType("Grid3D", Grid3D.class)
+		.addType("Grid",   Grid  .class)
+		.addType("Grid1D", Grid1D.class)
+		.addType("Grid2D", Grid2D.class)
+		.addType("Grid3D", Grid3D.class)
 
-			.addCastConstant(GRID,    true)
-			.addCastConstant(GRID_1D, true)
-			.addCastConstant(GRID_2D, true)
-			.addCastConstant(GRID_3D, true)
+		.addCastConstant(GRID,    true)
+		.addCastConstant(GRID_1D, true)
+		.addCastConstant(GRID_2D, true)
+		.addCastConstant(GRID_3D, true)
 
-			.addFieldInvoke("minValue",   Grid.INFO.minValue)
-			.addFieldInvoke("maxValue",   Grid.INFO.maxValue)
-			.addFieldInvoke("dimensions", Grid.INFO.getDimensions)
+		.addFieldInvoke("minValue",   Grid.INFO.minValue)
+		.addFieldInvoke("maxValue",   Grid.INFO.maxValue)
+		.addFieldInvoke("dimensions", Grid.INFO.getDimensions)
 
-			.addMethodInvoke("getValue",   Grid1D.INFO.getValue)
-			.addMethodInvoke("getValuesX", Grid1D.INFO.getBulkX)
+		.addMethodInvoke("getValue",   Grid1D.INFO.getValue)
+		.addMethodInvoke("getValuesX", Grid1D.INFO.getBulkX)
 
-			.addMethodInvoke("getValue",   Grid2D.INFO.getValue)
-			.addMethodInvoke("getValuesX", Grid2D.INFO.getBulkX)
-			.addMethodInvoke("getValuesY", Grid2D.INFO.getBulkY)
+		.addMethodInvoke("getValue",   Grid2D.INFO.getValue)
+		.addMethodInvoke("getValuesX", Grid2D.INFO.getBulkX)
+		.addMethodInvoke("getValuesY", Grid2D.INFO.getBulkY)
 
-			.addMethodInvoke("getValue",   Grid3D.INFO.getValue)
-			.addMethodInvoke("getValuesX", Grid3D.INFO.getBulkX)
-			.addMethodInvoke("getValuesY", Grid3D.INFO.getBulkY)
-			.addMethodInvoke("getValuesZ", Grid3D.INFO.getBulkZ)
+		.addMethodInvoke("getValue",   Grid3D.INFO.getValue)
+		.addMethodInvoke("getValuesX", Grid3D.INFO.getBulkX)
+		.addMethodInvoke("getValuesY", Grid3D.INFO.getBulkY)
+		.addMethodInvoke("getValuesZ", Grid3D.INFO.getBulkZ)
 
-			.addType("NumberArray", NumberArray.class)
+		.addType("NumberArray", NumberArray.class)
 
-			.addFunctionInvokeStatic("newBooleanArray", NumberArray.INFO.allocateBooleansDirect)
-			.addFunctionInvokeStatic("newByteArray",    NumberArray.INFO.allocateBytesDirect)
-			.addFunctionInvokeStatic("newShortArray",   NumberArray.INFO.allocateShortsDirect)
-			.addFunctionInvokeStatic("newIntArray",     NumberArray.INFO.allocateIntsDirect)
-			.addFunctionInvokeStatic("newLongArray",    NumberArray.INFO.allocateLongsDirect)
-			.addFunctionInvokeStatic("newFloatArray",   NumberArray.INFO.allocateFloatsDirect)
-			.addFunctionInvokeStatic("newDoubleArray",  NumberArray.INFO.allocateDoublesDirect)
+		.addFunctionInvokeStatic("newBooleanArray", NumberArray.INFO.allocateBooleansDirect)
+		.addFunctionInvokeStatic("newByteArray",    NumberArray.INFO.allocateBytesDirect)
+		.addFunctionInvokeStatic("newShortArray",   NumberArray.INFO.allocateShortsDirect)
+		.addFunctionInvokeStatic("newIntArray",     NumberArray.INFO.allocateIntsDirect)
+		.addFunctionInvokeStatic("newLongArray",    NumberArray.INFO.allocateLongsDirect)
+		.addFunctionInvokeStatic("newFloatArray",   NumberArray.INFO.allocateFloatsDirect)
+		.addFunctionInvokeStatic("newDoubleArray",  NumberArray.INFO.allocateDoublesDirect)
 
-			.addMethodInvoke("getBoolean", NumberArray.INFO.getZ)
-			.addMethodInvoke("getByte",    NumberArray.INFO.getB)
-			.addMethodInvoke("getShort",   NumberArray.INFO.getS)
-			.addMethodInvoke("getInt",     NumberArray.INFO.getI)
-			.addMethodInvoke("getLong",    NumberArray.INFO.getL)
-			.addMethodInvoke("getFloat",   NumberArray.INFO.getF)
-			.addMethodInvoke("getDouble",  NumberArray.INFO.getD)
+		.addMethodInvoke("getBoolean", NumberArray.INFO.getZ)
+		.addMethodInvoke("getByte",    NumberArray.INFO.getB)
+		.addMethodInvoke("getShort",   NumberArray.INFO.getS)
+		.addMethodInvoke("getInt",     NumberArray.INFO.getI)
+		.addMethodInvoke("getLong",    NumberArray.INFO.getL)
+		.addMethodInvoke("getFloat",   NumberArray.INFO.getF)
+		.addMethodInvoke("getDouble",  NumberArray.INFO.getD)
 
-			.addMethodInvoke("setBoolean", NumberArray.INFO.setZ)
-			.addMethodInvoke("setByte",    NumberArray.INFO.setB)
-			.addMethodInvoke("setShort",   NumberArray.INFO.setS)
-			.addMethodInvoke("setInt",     NumberArray.INFO.setI)
-			.addMethodInvoke("setLong",    NumberArray.INFO.setL)
-			.addMethodInvoke("setFloat",   NumberArray.INFO.setF)
-			.addMethodInvoke("setDouble",  NumberArray.INFO.setD)
+		.addMethodInvoke("setBoolean", NumberArray.INFO.setZ)
+		.addMethodInvoke("setByte",    NumberArray.INFO.setB)
+		.addMethodInvoke("setShort",   NumberArray.INFO.setS)
+		.addMethodInvoke("setInt",     NumberArray.INFO.setI)
+		.addMethodInvoke("setLong",    NumberArray.INFO.setL)
+		.addMethodInvoke("setFloat",   NumberArray.INFO.setF)
+		.addMethodInvoke("setDouble",  NumberArray.INFO.setD)
 
-			.addMethod(type(NumberArray.class), "", new MethodHandler.Named(
-				"Automatic-precision getter and setter for NumberArray",
-				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-					InsnTree castArgument = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
-					return new CastResult(new NumberArrayGetterInsnTree(receiver, castArgument, TypeInfos.DOUBLE), castArgument != arguments[0]);
-				}
-			))
+		.addMethod(type(NumberArray.class), "", new MethodHandler.Named(
+			"Automatic-precision getter and setter for NumberArray",
+			(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+				InsnTree castArgument = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
+				return new CastResult(new NumberArrayGetterInsnTree(receiver, castArgument, TypeInfos.DOUBLE), castArgument != arguments[0]);
+			}
+		))
 
-			.addMethodInvoke("prefix", NumberArray.INFO.prefix)
-			.addMethodInvoke("sliceFromTo", NumberArray.INFO.sliceFromTo)
-			.addMethodInvoke("sliceOffsetLength", NumberArray.INFO.sliceOffsetLength)
-		);
+		.addMethodInvoke("prefix", NumberArray.INFO.prefix)
+		.addMethodInvoke("sliceFromTo", NumberArray.INFO.sliceFromTo)
+		.addMethodInvoke("sliceOffsetLength", NumberArray.INFO.sliceOffsetLength)
+	);
+
+	public static Consumer<MutableScriptEnvironment> create() {
+		return (MutableScriptEnvironment environment) -> environment.addAll(BASE);
 	}
 
-	public static MutableScriptEnvironment createWithSeed(InsnTree loadSeed) {
-		return (
-			create()
+	public static Consumer<MutableScriptEnvironment> createWithSeed(InsnTree loadSeed) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
+			.configure(create())
 
 			.addMethod(type(Grid1D.class), "getValue",   Handlers.builder(Grid1D.class, "getValue").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I').buildMethod())
 			.addMethod(type(Grid1D.class), "getValuesX", Handlers.builder(Grid1D.class, "getBulkX").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I', NumberArray.class).buildMethod())
@@ -120,7 +124,8 @@ public class GridScriptEnvironment {
 			.addMethod(type(Grid3D.class), "getValuesX", Handlers.builder(Grid3D.class, "getBulkX").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
 			.addMethod(type(Grid3D.class), "getValuesY", Handlers.builder(Grid3D.class, "getBulkY").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
 			.addMethod(type(Grid3D.class), "getValuesZ", Handlers.builder(Grid3D.class, "getBulkZ").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
-		);
+			;
+		};
 	}
 
 	public static String precision(NumberArray array) {

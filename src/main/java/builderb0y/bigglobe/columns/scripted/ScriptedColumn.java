@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import net.minecraft.world.HeightLimitView;
 
@@ -84,9 +85,9 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		}
 	}
 
-	public static MutableScriptEnvironment baseEnvironment(InsnTree loadColumn) {
-		return (
-			new MutableScriptEnvironment()
+	public static Consumer<MutableScriptEnvironment> baseEnvironment(InsnTree loadColumn) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
 			.addVariable("x", INFO.x(loadColumn))
 			.addVariable("z", INFO.z(loadColumn))
 			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
@@ -98,7 +99,8 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
 			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
 			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
-		);
+			;
+		};
 	}
 
 	//I keep changing the parameters for the constructor,
