@@ -30,7 +30,6 @@ where I left off:
 	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
-	add column value overrider for void clouds avoiding end cities.
 
 changelog:
 	Changes for data pack makers:
@@ -51,6 +50,7 @@ changelog:
 	* Fixed bug where 3D noise would sometimes not use the world seed at all (either of them).
 		* This affects void clouds, the core, and the deep dark. These will have mismatches on the border of previously generated chunks.
 	* Possibly sped up script compilation somewhat.
+	* Void clouds now avoid generating too close to end cities.
 
 4.0 stuff:
 	/waypoint

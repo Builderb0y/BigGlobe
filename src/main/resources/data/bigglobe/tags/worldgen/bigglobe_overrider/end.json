@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:end/end_city_values"
+		"bigglobe:end/end_city_clouds",
+		"bigglobe:end/end_city_surface_y"
 	]
 }
