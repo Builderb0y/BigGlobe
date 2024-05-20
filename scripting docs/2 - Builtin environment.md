@@ -83,14 +83,54 @@ void notYetImplemented(int value:
 	Note that you can also use `list.contains(target)` for this.
 	Additionally, if you want to cease execution of a void-returning method, you can do so with `return()`.
 * print - In singleplayer, sends the player a chat message. In multiplayer, logs text to the server console. This function is intended for debugging. print() can take up to 256 arguments, and will convert them to String's and concatenate them as necessary.
-* floorInt - casts a float or double to an int, rounding towards negative infinity. Note that directly casting a float or double to an int with `int(myFloat)` will also round towards negative infinity.
-* floorLong - casts a float or double to a long, rounding towards negative infinity. Note that directly casting a float or double to a long with `long(myFloat)` will also round towards negative infinity.
-* ceilInt - casts a float or double to an int, rounding towards positive infinity.
-* ceilLong - casts a float or double to a long, rounding towards positive infinity.
-* roundInt - casts a float or double to an int, rounding towards the nearest int, with ties broken by rounding towards positive infinity.
-* roundLong - casts a float or double to a long, rounding towards the nearest long, with ties broken by rounding towards positive infinity.
-* truncInt - casts a float or double to an int, rounding towards 0.
-* truncLong - casts a float or double to a long, rounding towards 0.
+
+## Cast and round
+
+When casting a float or double to an int or long, several methods are provided to control the rounding mode. The rounding modes are:
+* floor - this mode returns the closest integer value to positive infinity which is strictly less than or equal to the provided float or double. Examples:
+	*  0.5 ->  0
+	*  0.0 ->  0
+	* -0.5 -> -1
+* ceil - this mode returns the closest integer value to negative infinity which is strictly greater than or equal to the provided float or double. Examples:
+	*  0.5 -> 1
+	*  0.0 -> 0
+	* -0.5 -> 0
+* lower (new in V4.2.1 or V4.3.0, whichever releases first) - this mode returns the closest integer value to positive infinity which is strictly less than the provided float or double. Examples:
+	*  0.5 ->  0
+	*  0.0 -> -1
+	* -0.5 -> -1
+* higher (new in V4.2.1 or V4.3.0, whichever releases first) - this mode returns the closest integer value to negative infinity which is strictly greater than the provided float or double. Examples:
+	*  0.5 -> 1
+	*  0.0 -> 1
+	* -0.5 -> 0
+* round - this mode returns the closest integer value to the provided float or double, with ties broken as if by using the "ceil" rounding mode. Examples:
+	*  1.0  ->  1
+	*  0.75 ->  1
+	*  0.5  ->  1
+	*  0.25 ->  0
+	*  0.0  ->  0
+	* -0.25 ->  0
+	* -0.5  ->  0
+	* -0.75 -> -1
+	* -1.0  -> -1
+* trunc - this mode returns the furthest integer value from 0 whose absolute value is strictly less than or equal to the absolute value of the provided float or double, and whose sign matches that of the provided float or double. In other words, when the provided float or double is positive, this rounding mode acts like floor. When it's negative, it acts like ceil. And when it's 0 or NaN, the result is 0. Examples:
+	*  1.5 ->  1
+	*  1.0 ->  1
+	*  0.5 ->  0
+	*  0.0 ->  0
+	* -0.5 ->  0
+	* -1.0 -> -1
+	* -1.5 -> -1
+
+In all of the above rounding modes, if the provided float or double is NaN, then the result is 0.
+
+Functions are provided to perform casting with all of these rounding modes. The name of the function is the name of the rounding mode, followed by "Int" or "Long", depending on what you want the return type to be. For example, to round a double to the nearest int, use `roundInt(myDouble)`.
+
+The default rounding mode when casting a float or double to an int or long directly via `int(myFloat)` or `myDouble.as(long)` is floor. Which also means that `int(myDouble)` and `floorInt(myDouble)` will always return the same value for the same input.
+
+New in V4.2.1 or V4.3.0, whichever releases first: Overloads are provided to cast ints and longs to ints or longs, in case you accidentally call them with a value which you forgot was already an int or long. The "higher" and "lower" cast modes also handle this case accordingly, since they are not identity casts.
+
+If the resulting integer value would be outside the range which can be represented by ints or longs, then the closest int or long to the actual value is returned. The functions provided above guarantee that the result will not overflow or underflow.
 
 # Methods
 

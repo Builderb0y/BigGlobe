@@ -126,7 +126,7 @@
 											"if (canGenerateCeiling:",
 												"for (int y = minIteration, (y := getTopOfSegment(y)) <= maxIteration, noop:",
 													"if (getBlockState(y - 1) == BlockState('minecraft:air'):",
-														"int limit = min(getTopOfSegment(y), y + floorInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)) + 1)",
+														"int limit = min(getTopOfSegment(y), y + higherInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)))",
 														"setBlockStates(y, limit, ceilingStates.above)",
 														"setBlockState(y, ceilingStates.bottom)",
 													")",
@@ -136,8 +136,8 @@
 									],
 									"valid": {
 										"where": "!surfaceOnly",
-										"min_y": "floorInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth) + 1",
-										"max_y": "floorInt(`bigglobe:overworld/processed_surface_y`) + 1"
+										"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth)",
+										"max_y": "higherInt(`bigglobe:overworld/processed_surface_y`)"
 									}
 								},
 								{
@@ -210,7 +210,7 @@
 							"state": "'bigglobe:cloud'",
 							"after_children": [
 								"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
-								"int maxY = floorInt(bounds.max_y) + 1",
+								"int maxY = higherInt(bounds.max_y)",
 								"int minY = max(floorInt(bounds.min_y), maxY - bounds.surface_depth)",
 								"if (maxY > minY:",
 									"setBlockStates(minY, maxY, 'minecraft:dirt')",
@@ -242,7 +242,7 @@
 									"bounds != null && bounds.max_y > bounds.min_y"
 								],
 								"min_y": "floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
-								"max_y": "floorInt(`bigglobe:overworld/skyland`.bounds.max_y) + 1"
+								"max_y": "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)"
 							}
 						}
 					]
@@ -433,7 +433,7 @@
 									"if (surface.surface_depth > 1:",
 										"setBlockStates(",
 											"max(",
-												"floorInt(`bigglobe:end/mountain_max_y`) + 1 - surface.surface_depth,",
+												"higherInt(`bigglobe:end/mountain_max_y`) - surface.surface_depth,",
 												"floorInt(`bigglobe:end/mountain_min_y`)",
 											"),",
 											"floorInt(`bigglobe:end/mountain_max_y`),",
@@ -446,7 +446,7 @@
 							"valid": {
 								"where": "`bigglobe:end/has_mountain`",
 								"min_y": "floorInt(`bigglobe:end/mountain_min_y`)",
-								"max_y": "floorInt(`bigglobe:end/mountain_max_y`) + 1"
+								"max_y": "higherInt(`bigglobe:end/mountain_max_y`)"
 							}
 						},
 						{

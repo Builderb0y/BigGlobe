@@ -109,44 +109,56 @@ public class CastingSupport {
 		return value == value;
 	}
 
+	public static int floorInt(long value) {
+		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : value <= Integer.MIN_VALUE ? Integer.MIN_VALUE : (int)(value);
+	}
+
 	public static int floorInt(float value) {
-		int i = (int)(value);
-		return i != Integer.MIN_VALUE && ((float)(i)) > value ? i - 1 : i;
+		int result = (int)(value);
+		return result != Integer.MIN_VALUE && ((float)(result)) > value ? result - 1 : result;
 	}
 
 	public static int floorInt(double value) {
-		int i = (int)(value);
-		return i != Integer.MIN_VALUE && ((double)(i)) > value ? i - 1 : i;
+		int result = (int)(value);
+		return result != Integer.MIN_VALUE && ((double)(result)) > value ? result - 1 : result;
 	}
 
 	public static long floorLong(float value) {
-		long i = (long)(value);
-		return i != Long.MIN_VALUE && ((float)(i)) > value ? i - 1 : i;
+		long result = (long)(value);
+		return result != Long.MIN_VALUE && ((float)(result)) > value ? result - 1 : result;
 	}
 
 	public static long floorLong(double value) {
-		long i = (long)(value);
-		return i != Long.MIN_VALUE && ((double)(i)) > value ? i - 1 : i;
+		long result = (long)(value);
+		return result != Long.MIN_VALUE && ((double)(result)) > value ? result - 1 : result;
+	}
+
+	public static int ceilInt(long value) {
+		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : value <= Integer.MIN_VALUE ? Integer.MIN_VALUE : (int)(value);
 	}
 
 	public static int ceilInt(float value) {
-		int i = (int)(value);
-		return i != Integer.MAX_VALUE && ((float)(i)) < value ? i + 1 : i;
+		int result = (int)(value);
+		return result != Integer.MAX_VALUE && ((float)(result)) < value ? result + 1 : result;
 	}
 
 	public static int ceilInt(double value) {
-		int i = (int)(value);
-		return i != Integer.MAX_VALUE && ((double)(i)) < value ? i + 1 : i;
+		int result = (int)(value);
+		return result != Integer.MAX_VALUE && ((double)(result)) < value ? result + 1 : result;
 	}
 
 	public static long ceilLong(float value) {
-		long i = (long)(value);
-		return i != Long.MAX_VALUE && ((float)(i)) < value ? i + 1 : i;
+		long result = (long)(value);
+		return result != Long.MAX_VALUE && ((float)(result)) < value ? result + 1 : result;
 	}
 
 	public static long ceilLong(double value) {
-		long i = (long)(value);
-		return i != Long.MAX_VALUE && ((double)(i)) < value ? i + 1 : i;
+		long result = (long)(value);
+		return result != Long.MAX_VALUE && ((double)(result)) < value ? result + 1 : result;
+	}
+
+	public static int roundInt(long value) {
+		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : value <= Integer.MIN_VALUE ? Integer.MIN_VALUE : (int)(value);
 	}
 
 	public static int roundInt(float value) {
@@ -163,6 +175,102 @@ public class CastingSupport {
 
 	public static long roundLong(double value) {
 		return floorLong(value + 0.5D);
+	}
+
+	public static int lowerInt(int value) {
+		return value == Integer.MIN_VALUE ? Integer.MIN_VALUE : value - 1;
+	}
+
+	public static int lowerInt(long value) {
+		return value <= Integer.MIN_VALUE ? Integer.MIN_VALUE : value > Integer.MAX_VALUE ? Integer.MAX_VALUE : ((int)(value)) - 1;
+	}
+
+	public static int lowerInt(float value) {
+		int result = (int)(value);
+		return result != Integer.MIN_VALUE && ((double)(result)) >= ((double)(value)) ? result - 1 : result;
+	}
+
+	public static int lowerInt(double value) {
+		int result = (int)(value);
+		return result != Integer.MIN_VALUE && ((double)(result)) >= value ? result - 1 : result;
+	}
+
+	public static long lowerLong(int value) {
+		return value - 1L;
+	}
+
+	public static long lowerLong(long value) {
+		return value == Long.MIN_VALUE ? Long.MIN_VALUE : value - 1L;
+	}
+
+	public static long lowerLong(float value) {
+		long result = (long)(value);
+		if (!(Math.abs(value) < -(float)(Long.MIN_VALUE))) return result;
+		return value <= 0.0F || !needsRounding(value) ? result - 1 : result;
+	}
+
+	public static long lowerLong(double value) {
+		long result = (long)(value);
+		if (!(Math.abs(value) < -(double)(Long.MIN_VALUE))) return result;
+		return value <= 0.0D || !needsRounding(value) ? result - 1 : result;
+	}
+
+	public static int higherInt(int value) {
+		return value == Integer.MAX_VALUE ? Integer.MAX_VALUE : value + 1;
+	}
+
+	public static int higherInt(long value) {
+		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : value < Integer.MIN_VALUE ? Integer.MIN_VALUE : ((int)(value)) + 1;
+	}
+
+	public static int higherInt(float value) {
+		int result = (int)(value);
+		return result != Integer.MAX_VALUE && ((double)(result)) <= ((double)(value)) ? result + 1 : result;
+	}
+
+	public static int higherInt(double value) {
+		int result = (int)(value);
+		return result != Integer.MAX_VALUE && ((double)(result)) <= value ? result + 1 : result;
+	}
+
+	public static long higherLong(int value) {
+		return value + 1L;
+	}
+
+	public static long higherLong(long value) {
+		return value == Long.MAX_VALUE ? Long.MAX_VALUE : value + 1L;
+	}
+
+	public static long higherLong(float value) {
+		long result = (long)(value);
+		if (!(Math.abs(value) < -(double)(Long.MIN_VALUE))) return value == ((float)(Long.MIN_VALUE)) ? result + 1 : result;
+		return value >= 0.0F || !needsRounding(value) ? result + 1 : result;
+	}
+
+	public static long higherLong(double value) {
+		long result = (long)(value);
+		if (!(Math.abs(value) < -(double)(Long.MIN_VALUE))) return value == ((double)(Long.MIN_VALUE)) ? result + 1 : result;
+		return value >= 0.0D || !needsRounding(value) ? result + 1 : result;
+	}
+
+	public static int truncInt(long value) {
+		return value >= Integer.MAX_VALUE ? Integer.MAX_VALUE : value <= Integer.MIN_VALUE ? Integer.MIN_VALUE : ((int)(value));
+	}
+
+	public static boolean needsRounding(float value) {
+		int exponent = Math.getExponent(value);
+		if (exponent < 0) return true;
+		//note: we consider NaN and inf to not need rounding.
+		if (exponent >= 23) return false;
+		return (Float.floatToRawIntBits(value) & (0x007FFFFF >>> exponent)) != 0;
+	}
+
+	public static boolean needsRounding(double value) {
+		int exponent = Math.getExponent(value);
+		if (exponent < 0) return true;
+		//note: we consider NaN and inf to not need rounding.
+		if (exponent >= 52) return false;
+		return (Double.doubleToRawLongBits(value) & (0x000FFFFFFFFFFFFFL >>> exponent)) != 0;
 	}
 
 	public static Byte makeByte(MethodHandles.Lookup caller, String name, Class<?> type, int value) {

@@ -326,7 +326,19 @@ public class BuiltinScriptEnvironment {
 
 		//////////////// casting with round mode ////////////////
 
-		.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong", "roundInt", "roundLong")
+		.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong", "roundInt", "roundLong", "higherInt", "higherLong", "lowerInt", "lowerLong", "truncInt", "truncLong")
+		.addFunction("floorInt", makeIdentity("floorInt(int value)", TypeInfos.INT))
+		.addFunction("floorLong", makeOpcode("floorLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction("floorLong", makeIdentity("floorLong(long value)", TypeInfos.LONG))
+		.addFunction("ceilInt", makeIdentity("ceilInt(int value)", TypeInfos.INT))
+		.addFunction("ceilLong", makeOpcode("ceilLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction("ceilLong", makeIdentity("ceilLong(long value)", TypeInfos.LONG))
+		.addFunction("roundInt", makeIdentity("roundInt(int value)", TypeInfos.INT))
+		.addFunction("roundLong", makeOpcode("roundLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction("roundLong", makeIdentity("roundLong(long value)", TypeInfos.LONG))
+		.addFunction("truncInt", makeIdentity("truncInt(int value)", TypeInfos.INT))
+		.addFunction("truncLong", makeOpcode("truncLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction("truncLong", makeIdentity("truncLong(long value)", TypeInfos.LONG))
 		.addFunction("truncInt", makeOpcode("truncInt(float value)", TypeInfos.FLOAT, TypeInfos.INT, F2I))
 		.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
 		.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
@@ -337,6 +349,15 @@ public class BuiltinScriptEnvironment {
 		return new FunctionHandler.Named(name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
 				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
+			}
+			return null;
+		});
+	}
+
+	public static FunctionHandler makeIdentity(String name, TypeInfo type) {
+		return new FunctionHandler.Named(name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
+			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(type)) {
+				return new CastResult(arguments[0], false);
 			}
 			return null;
 		});
