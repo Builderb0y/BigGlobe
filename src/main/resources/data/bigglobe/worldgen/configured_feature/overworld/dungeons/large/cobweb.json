@@ -2,9 +2,11 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"int x = originX + random.if (-3) else (3)",
-			"int y = originY + 5",
-			"int z = originZ + random.if (-3) else (3)",
+			"int*(",
+				"x = originX + random.if (-3) else (3)",
+				"y = originY + 5",
+				"z = originZ + random.if (-3) else (3)",
+			")",
 			"if (getBlockState(x, y, z).isAir():",
 				"setBlockState(x, y, z, 'minecraft:cobweb')",
 			")",

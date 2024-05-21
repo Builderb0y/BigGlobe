@@ -22,18 +22,68 @@ public class UserDefinitionsTest extends TestCommon {
 			c
 			"""
 		);
+		assertSuccess(2,
+			"""
+			var * ( a = 3 , b = 6 )
+			byte c = a & b
+			c
+			"""
+		);
 	}
 
 	@Test
 	public void testDuplicateVariables() {
 		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, int tmp = 2 ,, 3");
 		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
+		assertFail("Variable 'tmp' has already been declared in this scope.", "int * ( tmp = 1 , tmp = 2 ) ,, 3");
 	}
 
 	@Test
 	public void testSelfReferencingVariables() {
 		assertFail("Variable 'x' has not been assigned to yet.", "int x = x");
 		assertFail("Variable 'x' has not had its type inferred yet.", "var x = x");
+		assertFail("Variable 'x' has not been assigned to yet.", "int * ( x = x )");
+		assertFail("Variable 'x' has not had its type inferred yet.", "var * ( x = x )");
+	}
+
+	@Test
+	public void testMultipleVariables() throws ScriptParsingException {
+		assertSuccess(0,
+			"""
+			int * ( )
+			0
+			"""
+		);
+		assertSuccess(1,
+			"""
+			int * ( x = 1 )
+			x
+			"""
+		);
+		assertSuccess(3,
+			"""
+			int * ( x = 1 , y = 2 )
+			x + y
+			"""
+		);
+		assertSuccess(0,
+			"""
+			var * ( )
+			0
+			"""
+		);
+		assertSuccess(1,
+			"""
+			var * ( x = 1 )
+			x
+			"""
+		);
+		assertSuccess(3,
+			"""
+			var * ( x = 1 , y = 2 )
+			x + y
+			"""
+		);
 	}
 
 	public static String unknown(String varName) {
@@ -300,6 +350,20 @@ public class UserDefinitionsTest extends TestCommon {
 			)
 			"""
 		);
+		assertSuccess(5,
+			"""
+			int sum ( int * ( a , b ) :
+				a + b
+			)
+			sum ( 2 , 3 )
+			"""
+		);
+		assertSuccess(0,
+			"""
+			int zero ( int * ( ) : 0 )
+			zero ( )
+			"""
+		);
 	}
 
 	@Test
@@ -340,7 +404,69 @@ public class UserDefinitionsTest extends TestCommon {
 		);
 		assertSuccess("XYZ(x: 1, y: 2, z: 3)",
 			"""
-			class XYZ ( int x ,, int y ,, int z )
+			class XYZ ( int x , int y , int z )
+			XYZ . new ( 1 , 2 , 3 ) . toString ( )
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class XYZ ( int * ( x y z ) )
+			
+			XYZ xyz = XYZ . new ( 1 , 2 , 3 )
+			xyz . y
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class XYZ ( int * ( x , y , z ) )
+			
+			XYZ xyz = XYZ . new ( 1 , 2 , 3 )
+			xyz . y
+			"""
+		);
+		assertSuccess(42,
+			"""
+			class XYZ ( int * ( x y = 42 z ) )
+			XYZ xyz = XYZ . new ( )
+			xyz . y
+			"""
+		);
+		assertSuccess(42,
+			"""
+			class XYZ ( int * ( x , y = 42 , z ) )
+			XYZ xyz = XYZ . new ( )
+			xyz . y
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class XYZ ( int * ( x y = 42 z ) )
+			XYZ xyz = XYZ . new ( 1 , 2 )
+			xyz . z
+			"""
+		);
+		assertSuccess(2,
+			"""
+			class XYZ ( int * ( x , y = 42 , z ) )
+			XYZ xyz = XYZ . new ( 1 , 2 )
+			xyz . z
+			"""
+		);
+		assertSuccess("XYZ(x: 1, y: 2, z: 3)",
+			"""
+			class XYZ ( int x , int y , int z )
+			XYZ . new ( 1 , 2 , 3 ) . toString ( )
+			"""
+		);
+		assertSuccess("XYZ(x: 1, y: 2, z: 3)",
+			"""
+			class XYZ ( int * ( x y z ) )
+			XYZ . new ( 1 , 2 , 3 ) . toString ( )
+			"""
+		);
+		assertSuccess("XYZ(x: 1, y: 2, z: 3)",
+			"""
+			class XYZ ( int * ( x , y , z ) )
 			XYZ . new ( 1 , 2 , 3 ) . toString ( )
 			"""
 		);
@@ -350,10 +476,30 @@ public class UserDefinitionsTest extends TestCommon {
 			Empty . new ( ) . hashCode ( )
 			"""
 		);
+		assertSuccess(0,
+			"""
+			class Empty ( int * ( ) )
+			Empty . new ( ) . hashCode ( )
+			"""
+		);
 		assertSuccess(
 			HashCommon.mix(HashCommon.mix(3) + 4),
 			"""
-			class XY ( int x ,, int y )
+			class XY ( int x , int y )
+			XY . new ( 3 , 4 ) . hashCode ( )
+			"""
+		);
+		assertSuccess(
+			HashCommon.mix(HashCommon.mix(3) + 4),
+			"""
+			class XY ( int * ( x y ) )
+			XY . new ( 3 , 4 ) . hashCode ( )
+			"""
+		);
+		assertSuccess(
+			HashCommon.mix(HashCommon.mix(3) + 4),
+			"""
+			class XY ( int * ( x , y ) )
 			XY . new ( 3 , 4 ) . hashCode ( )
 			"""
 		);
@@ -369,21 +515,57 @@ public class UserDefinitionsTest extends TestCommon {
 			One . new ( 2 ) == One . new ( 2 )
 			"""
 		);
+		assertSuccess(true,
+			"""
+			class One ( int * ( x ) )
+			One . new ( 2 ) == One . new ( 2 )
+			"""
+		);
 		assertSuccess(false,
 			"""
 			class One ( int x )
 			One . new ( 2 ) == One . new ( 4 )
 			"""
 		);
+		assertSuccess(false,
+			"""
+			class One ( int * ( x ) )
+			One . new ( 2 ) == One . new ( 4 )
+			"""
+		);
 		assertSuccess(true,
 			"""
-			class Two ( int x ,, int y )
+			class Two ( int x , int y )
 			Two . new ( 2 , 4 ) == Two . new ( 2 , 4 )
 			"""
 		);
 		assertSuccess(false,
 			"""
-			class Two ( int x ,, int y )
+			class Two ( int x , int y )
+			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Two ( int * ( x y ) )
+			Two . new ( 2 , 4 ) == Two . new ( 2 , 4 )
+			"""
+		);
+		assertSuccess(false,
+			"""
+			class Two ( int * ( x y ) )
+			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Two ( int * ( x , y ) )
+			Two . new ( 2 , 4 ) == Two . new ( 2 , 4 )
+			"""
+		);
+		assertSuccess(false,
+			"""
+			class Two ( int * ( x , y ) )
 			Two . new ( 2 , 4 ) == Two . new ( 4 , 2 )
 			"""
 		);
@@ -422,11 +604,11 @@ public class UserDefinitionsTest extends TestCommon {
 	public void testExtensionMethods() throws ScriptParsingException {
 		assertSuccess(2,
 			"""
-			class IntBox(int x)
-			void IntBox.increment(: ++this.x)
-			IntBox box = new(1)
-			box.increment()
-			return(box.x)
+			class IntBox ( int x )
+			void IntBox . increment ( : ++ this . x )
+			IntBox box = new ( 1 )
+			box . increment ( )
+			return ( box . x )
 			"""
 		);
 	}
@@ -435,11 +617,11 @@ public class UserDefinitionsTest extends TestCommon {
 	public void testVariablesInFunctions() throws ScriptParsingException {
 		assertSuccess(1,
 			"""
-			int a(:
+			int a ( :
 				int x = 1
-				return(x)
+				return ( x )
 			)
-			return(a())
+			return ( a ( ) )
 			"""
 		);
 	}
@@ -494,10 +676,10 @@ public class UserDefinitionsTest extends TestCommon {
 				float x = 2
 			)
 			int x = 1
-			int get(:
-				return(x)
+			int get ( :
+				return ( x )
 			)
-			return(get())
+			return ( get ( ) )
 			"""
 		);
 	}
@@ -506,21 +688,21 @@ public class UserDefinitionsTest extends TestCommon {
 	public void testRecursion() throws ScriptParsingException {
 		assertSuccess(5 * 4 * 3 * 2 * 1,
 			"""
-			int factorial(int x:
-				return(x <= 0 ? 1 : x * factorial(x - 1))
+			int factorial ( int x :
+				return ( x <= 0 ? 1 : x * factorial ( x - 1 ) )
 			)
-			factorial(5)
+			factorial ( 5 )
 			"""
 		);
 		assertSuccess(5 + 4 + 3 + 2 + 1,
 			"""
-			int main(int counter:
-				int sub(:
-					return(main(counter - 1))
+			int main ( int counter :
+				int sub ( :
+					return ( main ( counter - 1 ) )
 				)
-				return(counter > 0 ? counter + sub() : 0)
+				return ( counter > 0 ? counter + sub ( ) : 0 )
 			)
-			main(5)
+			main ( 5 )
 			"""
 		);
 	}

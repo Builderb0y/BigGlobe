@@ -7,10 +7,12 @@
 				"else ('cobblestone')",
 			")",
 
-			"int floorY  = originY - 1",
-			"int radiusX = random.nextInt(4, 8)",
-			"int height  = random.nextInt(3, 6)",
-			"int radiusZ = random.nextInt(4, 8)",
+			"int*(",
+				"floorY  = originY - 1",
+				"radiusX = random.nextInt(4, 8)",
+				"height  = random.nextInt(3, 6)",
+				"radiusZ = random.nextInt(4, 8)",
+			")",
 
 			";check area.",
 			"for (",
@@ -52,8 +54,7 @@
 
 			";place chests.",
 			"repeat (random.nextInt(0, 4):",
-				"int x = 0",
-				"int z = 0",
+				"int*(x = 0, z = 0)",
 				"String direction = null",
 				"random.switch (",
 					"(direction = 'south',, z = 1 - radiusZ,, x = random.nextInt(1 - radiusX, radiusX)),",

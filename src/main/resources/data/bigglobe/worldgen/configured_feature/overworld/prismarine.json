@@ -4,11 +4,7 @@
 		"script": {
 			"debug_name": "ConfiguredFeatureOverworldPrismarine",
 			"source": [
-				"class Pos (",
-					"int x",
-					"int y",
-					"int z",
-				")",
+				"class Pos (int*(x, y, z))",
 				"Pos Pos.at(int x, int y, int z:",
 					"this.=$x(x).=$y(y).=$z(z)",
 				")",

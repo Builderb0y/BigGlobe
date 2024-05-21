@@ -423,21 +423,26 @@ public class BuiltinScriptEnvironment {
 
 	public static KeywordHandler makeVar() {
 		return (ExpressionParser parser, String name) -> {
-			String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
-			boolean reuse;
-			if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
-			else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
-			else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
-			parser.environment.user().reserveVariable(varName);
-			InsnTree initializer = parser.nextSingleExpression();
-			parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
-			parser.environment.user().assignVariable(varName);
-			LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
-			return (
-				reuse
-				? new VariableDeclarePostAssignInsnTree(variable, initializer)
-				: new VariableDeclareAssignInsnTree(variable, initializer)
-			);
+			if (parser.input.hasOperatorAfterWhitespace("*")) {
+				return MultiDeclaration.parse(parser, null).sequence();
+			}
+			else {
+				String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+				parser.environment.user().reserveVariable(varName);
+				boolean reuse;
+				if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
+				else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
+				else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+				InsnTree initializer = parser.nextSingleExpression();
+				parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
+				parser.environment.user().assignVariable(varName);
+				LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
+				return (
+					reuse
+					? new VariableDeclarePostAssignInsnTree(variable, initializer)
+					: new VariableDeclareAssignInsnTree(variable, initializer)
+				);
+			}
 		};
 	}
 

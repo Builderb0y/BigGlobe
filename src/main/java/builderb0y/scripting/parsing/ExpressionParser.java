@@ -44,6 +44,7 @@ import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.*;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
+import builderb0y.scripting.parsing.SpecialFunctionSyntax.MultiDeclaration;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserExtensionMethodDefiner;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserFunctionDefiner;
@@ -964,7 +965,10 @@ public class ExpressionParser {
 			//not keyword.
 			TypeInfo type = this.environment.getType(this, name);
 			if (type != null) {
-				if (this.input.peekAfterWhitespace() == '(') { //casting.
+				if (this.input.hasOperatorAfterWhitespace("*")) {
+					return MultiDeclaration.parse(this, type).sequence();
+				}
+				else if (this.input.peekAfterWhitespace() == '(') { //casting.
 					return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW);
 				}
 				else { //not casting. (variable or method declaration or ldc class)

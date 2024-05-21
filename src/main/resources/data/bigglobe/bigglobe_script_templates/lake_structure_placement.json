@@ -1,7 +1,6 @@
 {
 	"script": [
-		"double minSample = `bigglobe:overworld/basic_surface_y`",
-		"double maxSample = minSample",
+		"double*(minSample = `bigglobe:overworld/basic_surface_y`, maxSample = minSample)",
 		"for (int angleIndex in range[0, 8):",
 			"double angle = angleIndex * (tau / 8.0L)",
 			"int sampleX = floorInt(originX + cos(angle) * RADIUS)",

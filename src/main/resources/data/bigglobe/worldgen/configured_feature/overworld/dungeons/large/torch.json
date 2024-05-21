@@ -2,8 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"int x = 0",
-			"int z = 0",
+			"int*(x = 0, z = 0)",
 			"String facing = null",
 			"random.switch (",
 				"(x = originX + 3,, z = originZ + random.nextInt(-3, 4),, facing = 'west'),",

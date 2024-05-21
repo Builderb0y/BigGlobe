@@ -58,33 +58,17 @@ public class UserClassDefiner {
 			TypeInfo type = this.parser.environment.getType(this.parser, typeName);
 			if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, this.parser.input);
 
-			String fieldName = this.parser.verifyName(this.parser.input.expectIdentifierAfterWhitespace(), "field");
-			FieldCompileContext field = this.innerClass.newField(ACC_PUBLIC, fieldName, type);
-			fields.add(field);
-
-			if (this.parser.input.hasOperatorAfterWhitespace("=")) {
-				ConstantValue initializer = this.parser.nextSingleExpression().cast(this.parser, type, CastMode.IMPLICIT_THROW).getConstantValue();
-				if (initializer.isConstant()) {
-					field.initializer = initializer;
-				}
-				else {
-					throw new ScriptParsingException("Field initializer must be constant", this.parser.input);
+			if (this.parser.input.hasOperatorAfterWhitespace("*")) {
+				this.parser.input.expectAfterWhitespace('(');
+				while (!this.parser.input.hasAfterWhitespace(')')) {
+					String fieldName = this.parser.verifyName(this.parser.input.expectIdentifierAfterWhitespace(), "field");
+					this.processNextField(fields, fieldName, type);
+					this.parser.input.hasOperatorAfterWhitespace(",");
 				}
 			}
-			FieldInfo fieldInfo = field.info;
-			{
-				MethodCompileContext getter = this.innerClass.newMethod(ACC_PUBLIC, fieldName, type);
-				LazyVarInfo self = new LazyVarInfo("this", getter.clazz.info);
-				return_(getField(load(self), fieldInfo)).emitBytecode(getter);
-				getter.endCode();
-			}
-			{
-				MethodCompileContext setter = this.innerClass.newMethod(ACC_PUBLIC, fieldName, TypeInfos.VOID, new LazyVarInfo(fieldName, fieldInfo.type));
-				LazyVarInfo self = new LazyVarInfo("this", setter.clazz.info);
-				LazyVarInfo value = new LazyVarInfo(fieldInfo.name, fieldInfo.type);
-				putField(load(self), fieldInfo, load(value)).emitBytecode(setter);
-				return_(noop).emitBytecode(setter);
-				setter.endCode();
+			else {
+				String fieldName = this.parser.verifyName(this.parser.input.expectIdentifierAfterWhitespace(), "field");
+				this.processNextField(fields, fieldName, type);
 			}
 
 			if (!this.parser.input.hasOperatorAfterWhitespace(",")) {
@@ -92,6 +76,36 @@ public class UserClassDefiner {
 			}
 		}
 		return fields;
+	}
+
+	public void processNextField(List<FieldCompileContext> fields, String name, TypeInfo type) throws ScriptParsingException {
+		FieldCompileContext field = this.innerClass.newField(ACC_PUBLIC, name, type);
+		fields.add(field);
+
+		if (this.parser.input.hasOperatorAfterWhitespace("=")) {
+			ConstantValue initializer = this.parser.nextSingleExpression().cast(this.parser, type, CastMode.IMPLICIT_THROW).getConstantValue();
+			if (initializer.isConstant()) {
+				field.initializer = initializer;
+			}
+			else {
+				throw new ScriptParsingException("Field initializer must be constant", this.parser.input);
+			}
+		}
+		FieldInfo fieldInfo = field.info;
+		{
+			MethodCompileContext getter = this.innerClass.newMethod(ACC_PUBLIC, name, type);
+			LazyVarInfo self = new LazyVarInfo("this", getter.clazz.info);
+			return_(getField(load(self), fieldInfo)).emitBytecode(getter);
+			getter.endCode();
+		}
+		{
+			MethodCompileContext setter = this.innerClass.newMethod(ACC_PUBLIC, name, TypeInfos.VOID, new LazyVarInfo(name, fieldInfo.type));
+			LazyVarInfo self = new LazyVarInfo("this", setter.clazz.info);
+			LazyVarInfo value = new LazyVarInfo(fieldInfo.name, fieldInfo.type);
+			putField(load(self), fieldInfo, load(value)).emitBytecode(setter);
+			return_(noop).emitBytecode(setter);
+			setter.endCode();
+		}
 	}
 
 	public void addConstructors(List<FieldCompileContext> fields, List<FieldCompileContext> nonDefaulted) {

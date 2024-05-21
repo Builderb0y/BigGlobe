@@ -175,13 +175,12 @@ scripting:
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
 	make it so that constant template inputs remain constants without being turned into variables.
-	add operator for declaring multiple variables or parameters of the same type.
-		options:
-			int x = 1,,, y = 2,,, z = 3
-			void foo(int x,,, y,,, z: noop)
-
-			int[x = 1, y = 2, z = 3]
-			void foo(int[x, y, z]: noop)
+	cast-and-compare operators.
+		allow you to do state == 'minecraft:snow[layers=1]'
+			as opposed to state == BlockState('minecraft:snow[layers=1]')
+		I'm thinking < or > should be involved in the new operators, to specify which operand should be casted to the other's type.
+		this needs to work with <, >, <=, >=, ==, and !=.
+			as such, simply appending < or > to the end is not an option.
 
 features:
 	general:

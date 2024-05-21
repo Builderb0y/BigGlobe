@@ -3,8 +3,7 @@
 	"config": {
 		"script": [
 			"random.if (0.75:",
-				"int x = 0",
-				"int z = 0",
+				"int*(x = 0, z = 0)",
 				"String facing = null",
 				"random.switch (",
 					"(x = originX + 2,, z = originZ + random.nextInt(-2, 3),, facing = 'west'),",

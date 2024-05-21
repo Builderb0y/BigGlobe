@@ -1,7 +1,6 @@
 package builderb0y.scripting.parsing;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
@@ -11,10 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.loops.*;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
-import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.*;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.compare.*;
 import builderb0y.scripting.bytecode.tree.instructions.between.BetweenInsnTree;
@@ -355,8 +352,15 @@ public class SpecialFunctionSyntax {
 				String typeName = parser.input.expectIdentifierAfterWhitespace();
 				TypeInfo type = parser.environment.getType(parser, typeName);
 				if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
-				String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "parameter");
-				parameters.add(new UserParameter(type, name));
+				if (parser.input.hasOperatorAfterWhitespace("*")) {
+					for (String name : MultiParameter.parse(parser).names()) {
+						parameters.add(new UserParameter(type, name));
+					}
+				}
+				else {
+					String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "parameter");
+					parameters.add(new UserParameter(type, name));
+				}
 				if (parser.input.hasOperatorAfterWhitespace(",")) continue;
 				else if (parser.input.hasOperatorAfterWhitespace(":")) break;
 				else throw new ScriptParsingException("Expected ',' or ':'", parser.input);
@@ -531,6 +535,87 @@ public class SpecialFunctionSyntax {
 
 		public InsnTree toTree(ExpressionParser parser) {
 			return BetweenInsnTree.create(parser, this.value, this.min, this.minInclusive, this.max, this.maxInclusive);
+		}
+	}
+
+	public static record MultiDeclaration(@Nullable TypeInfo type, VariableInitializer[] variables, boolean returnLast) {
+
+		public static record VariableInitializer(String name, InsnTree initializer) {}
+
+		public static MultiDeclaration parse(ExpressionParser parser, @Nullable TypeInfo type) throws ScriptParsingException {
+			parser.input.expectAfterWhitespace('(');
+			if (parser.input.hasAfterWhitespace(')')) {
+				return new MultiDeclaration(type, new VariableInitializer[0], false);
+			}
+			List<VariableInitializer> variables = new ArrayList<>();
+			while (true) {
+				String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+				InsnTree initializer;
+				boolean returning;
+				if (type != null) {
+					parser.environment.user().reserveVariable(name, type);
+					if (parser.input.hasOperatorAfterWhitespace("=")) returning = false;
+					else if (parser.input.hasOperatorAfterWhitespace(":=")) returning = true;
+					else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+					initializer = parser.nextVariableInitializer(type, true);
+					parser.environment.user().assignVariable(name);
+				}
+				else {
+					parser.environment.user().reserveVariable(name);
+					if (parser.input.hasOperatorAfterWhitespace("=")) returning = false;
+					else if (parser.input.hasOperatorAfterWhitespace(":=")) returning = true;
+					else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+					initializer = parser.nextSingleExpression();
+					parser.environment.user().setVariableType(name, initializer.getTypeInfo());
+					parser.environment.user().assignVariable(name);
+				}
+				variables.add(new VariableInitializer(name, initializer));
+				if (parser.input.hasAfterWhitespace(')')) {
+					return new MultiDeclaration(type, variables.toArray(new VariableInitializer[variables.size()]), returning);
+				}
+				parser.input.hasOperatorAfterWhitespace(",");
+			}
+		}
+
+		public InsnTree[] trees() {
+			VariableInitializer[] initializers = this.variables;
+			int variableCount = initializers.length;
+			if (variableCount == 0) return InsnTree.ARRAY_FACTORY.empty();
+			InsnTree[] trees = new InsnTree[variableCount];
+			for (int index = 0; index < variableCount; index++) {
+				VariableInitializer initializer = initializers[index];
+				TypeInfo type = this.type != null ? this.type : initializer.initializer.getTypeInfo();
+				trees[index] = (
+					index == variableCount - 1 && this.returnLast
+					? new VariableDeclarePostAssignInsnTree(new LazyVarInfo(initializer.name, type), initializer.initializer)
+					: new VariableDeclareAssignInsnTree    (new LazyVarInfo(initializer.name, type), initializer.initializer)
+				);
+			}
+			return trees;
+		}
+
+		public InsnTree sequence() {
+			InsnTree[] trees = this.trees();
+			return trees.length == 0 ? noop : seq(trees);
+		}
+	}
+
+	public static record MultiParameter(String[] names) {
+
+		public static MultiParameter parse(ExpressionParser parser) throws ScriptParsingException {
+			parser.input.expectAfterWhitespace('(');
+			if (parser.input.hasAfterWhitespace(')')) {
+				return new MultiParameter(new String[0]);
+			}
+			List<String> parameters = new ArrayList<>();
+			while (true) {
+				String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "parameter");
+				parameters.add(name);
+				if (parser.input.hasAfterWhitespace(')')) {
+					return new MultiParameter(parameters.toArray(new String[parameters.size()]));
+				}
+				parser.input.hasOperatorAfterWhitespace(",");
+			}
 		}
 	}
 }

@@ -4,13 +4,13 @@
 		"script": {
 			"debug_name": "ConfiguredFeatureNetherObsidianSpire",
 			"source": [
-				"boolean canReplace(int x, int y, int z:",
+				"boolean canReplace(int*(x, y, z):",
 					"BlockState state = getBlockState(x, y, z)",
 					"return(state.isReplaceable() || (state.isIn('bigglobe:magma_blocks') && y == int(`bigglobe:nether/bubble`.lava_level) - 1))",
 				")",
 
-				"class Column (int x, int z)",
-				"Column Column.at(int x, int z:",
+				"class Column (int*(x, z))",
+				"Column Column.at(int*(x, z):",
 					"this.=$x(x).=$z(z)",
 				")",
 				"class Height (int y)",
@@ -35,8 +35,7 @@
 
 				";check area to make sure we have enough space to generate.",
 				"for (Column c, Height height in heights:",
-					"int x = c.x",
-					"int z = c.z",
+					"int*(x = c.x, z = c.z)",
 					"for (int y in range[originY - 1, height.y]:",
 						"unless (canReplace(x, y, z): return(false))",
 					")",
@@ -55,9 +54,9 @@
 				")",
 
 				";process each column.",
-				"void updateHeight(int x, int startY, int z:",
+				"void updateHeight(int*(x, startY, z):",
 					"unless (isPositionValid(x, startY, z): return())",
-					"if (heights.containsKey(column.x = x,, column.z = z,, column): return())",
+					"if (heights.containsKey(column.at(x, z)): return())",
 					"--startY",
 					"int endY = startY",
 					"while (isYLevelValid(endY) && canReplace(x, endY, z): --endY)",

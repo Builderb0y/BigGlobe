@@ -1,10 +1,12 @@
 {
 	"script": [
-		"float red   = COLOR.redI",
-		"float green = COLOR.greenI",
-		"float blue  = COLOR.blueI",
-		"float magicalness = `bigglobe:overworld/magicalness`",
-		"float adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
+		"float*(",
+			"red   = COLOR.redI",
+			"green = COLOR.greenI",
+			"blue  = COLOR.blueI",
+			"magicalness = `bigglobe:overworld/magicalness`",
+			"adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
+		")",
 		"if (magicalness > 0.0I:",
 			"red   = mixLinear(red,   255.0I, adjustedMagicalness * 0.5I)",
 			"green = mixLinear(green, 255.0I, adjustedMagicalness       )",

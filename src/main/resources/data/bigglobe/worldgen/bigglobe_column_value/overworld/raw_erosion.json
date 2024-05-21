@@ -6,7 +6,7 @@
 	},
 	"script": [
 		"double sharpness = `bigglobe:overworld/hilliness`",
-		"double curve(double value, double amplitude:",
+		"double curve(double*(value, amplitude):",
 			"value = abs(value)",
 			"value *= mixLinear(value, 2.0L - value, sharpness)",
 			"(1.0L - value) * amplitude",

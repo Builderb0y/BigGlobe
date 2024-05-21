@@ -3,9 +3,11 @@
 	"config": {
 		"script": [
 			"random.nextBoolean().if (",
-				"int x = originX + random.if (-1) else (1)",
-				"int y = originY + 3",
-				"int z = originZ + random.if (-1) else (1)",
+				"int*(",
+					"x = originX + random.if (-1) else (1)",
+					"y = originY + 3",
+					"z = originZ + random.if (-1) else (1)",
+				")",
 				"if (getBlockState(x, y, z).isAir():",
 					"setBlockState(x, y, z, 'minecraft:cobweb')",
 				")",

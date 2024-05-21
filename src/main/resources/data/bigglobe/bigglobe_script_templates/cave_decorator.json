@@ -1,9 +1,10 @@
 {
 	"script": [
-		"double step = STEP * 2.0L",
-		"double y = max(minValidYLevel, ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth)",
-		"y += random.nextDouble(step -: 1.0L)",
-		"double maxY = min(maxValidYLevel, `bigglobe:overworld/processed_surface_y`)",
+		"double*(",
+			"step = STEP * 2.0L",
+			"y = max(minValidYLevel, ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth) + random.nextDouble(step -: 1.0L)",
+			"maxY = min(maxValidYLevel, `bigglobe:overworld/processed_surface_y`)",
+		")",
 		"while ((y :+ random.nextDouble(1.0L, step)) < maxY:",
 			"int floorY = floorInt(y)",
 			"BlockState state = getBlockState(originX, floorY, originZ)",
