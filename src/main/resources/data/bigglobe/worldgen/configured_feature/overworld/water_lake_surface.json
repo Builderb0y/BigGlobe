@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:water[level=0]'):",
+			"if (getBlockState(originX, originY - 1, originZ) ==. 'minecraft:water[level=0]':",
 				"random.nextBoolean(0.25I).if (",
 					"setBlockState(originX, originY, originZ, 'minecraft:lily_pad')",
 				")",

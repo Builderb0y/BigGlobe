@@ -47,7 +47,7 @@
 				"if (!columnData.done && isPositionValid(x, columnData.y1, z):",
 					"BlockState lower = getBlockState(x, columnData.y1, z)",
 					"BlockState upper = getBlockState(x, columnData.y2, z)",
-					"if ((lower.isAir() || lower.getBlock() == Block('minecraft:rail')) && upper.hasFullCubeOutline():",
+					"if ((lower.isAir() || lower.getBlock() ==. 'minecraft:rail') && upper.hasFullCubeOutline():",
 						"setBlockState(x, columnData.y1, z, upper)",
 						"setBlockState(x, columnData.y2, z, 'minecraft:air')",
 					")",

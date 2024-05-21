@@ -1,11 +1,11 @@
 {
 	"type": "column_value",
 	"script": [
-		"float unmixSmoothD2F(int low, int high, int y:",
+		"float unmixSmoothD2F(int*(low, high, y):",
 			"unmixSmooth(double(low), double(high), double(y)).as(float)",
 		")",
 		"for (StructureStart start in structures:",
-			"if (start.structure.type == StructureType('bigglobe:portal_temple'):",
+			"if (start.structure.type ==. 'bigglobe:portal_temple':",
 				"float horizontalDistance = distanceToCircle(start).as(float)",
 				"if (horizontalDistance < 16.0I:",
 					"double bottomY = start.minY + 1.5L",

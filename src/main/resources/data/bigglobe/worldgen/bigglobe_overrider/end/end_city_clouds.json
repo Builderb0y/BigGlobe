@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('minecraft:end_city'):",
+			"if (start.structure ==. 'minecraft:end_city':",
 				"for (StructurePiece piece in start.pieces:",
 					"int clampedX = clamp(piece.minX, piece.maxX, x)",
 					"int clampedZ = clamp(piece.minZ, piece.maxZ, z)",

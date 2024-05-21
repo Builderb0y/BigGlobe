@@ -1,7 +1,7 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure.type == StructureType('bigglobe:geode'):",
+		"if (start.structure.type ==. 'bigglobe:geode':",
 			"int minY = `bigglobe:nether/min_y`(start.midX, start.midZ) + 16",
 			"int maxY = `bigglobe:nether/max_y`(start.midX, start.midZ) - 16 - start.sizeY",
 			"if (maxY > minY:",

@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('minecraft:ancient_city'):",
+			"if (start.structure ==. 'minecraft:ancient_city':",
 				"for (StructurePiece piece in start.pieces:",
 					"float horizontalFactor = smooth(1.0I - 0.0625I * distanceToSquare(piece).as(float))",
 					"if (horizontalFactor !> 0.0L: continue())",

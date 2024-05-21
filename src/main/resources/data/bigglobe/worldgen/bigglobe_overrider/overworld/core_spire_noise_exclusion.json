@@ -4,7 +4,7 @@
 	"script": [
 		"if (surfaceOnly: return())",
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('bigglobe:core_spire'):",
+			"if (start.structure ==. 'bigglobe:core_spire':",
 				"for (int y in range(start.minY - 12, start.maxY + 16):",
 					"int distanceSquared = (x - start.midX) ^ 2 + (z - start.midZ) ^ 2 + (y - clamp(start.minY + 4, start.maxY, y)) ^ 2",
 					"if (distanceSquared < 20 ^ 2:",

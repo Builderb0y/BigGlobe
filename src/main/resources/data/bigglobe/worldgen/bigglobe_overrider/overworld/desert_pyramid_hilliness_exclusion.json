@@ -1,10 +1,10 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure == Structure('bigglobe:desert_pyramid'):",
+		"if (start.structure ==. 'bigglobe:desert_pyramid':",
 			"return(`bigglobe:overworld/hilliness`(start.midX, start.midZ) < 0.75L)",
 		")",
-		"else if (start.structure == Structure('bigglobe:bigger_desert_pyramid'):",
+		"else if (start.structure ==. 'bigglobe:bigger_desert_pyramid':",
 			"return(`bigglobe:overworld/hilliness`(start.midX, start.midZ) < 0.5L)",
 		")",
 		"else (",

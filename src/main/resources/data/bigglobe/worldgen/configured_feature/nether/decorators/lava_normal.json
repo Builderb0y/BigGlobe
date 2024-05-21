@@ -4,7 +4,7 @@
 		"script": [
 			"if (",
 				"`bigglobe:nether/magma_cell`.hard_distance < 1.0L - `bigglobe:nether/bubble`.soft_distance &&",
-				"getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:lava[level=0]')",
+				"getBlockState(originX, originY - 1, originZ) ==. 'minecraft:lava[level=0]'",
 			":",
 				"setBlockState(originX, originY - 1, originZ, 'minecraft:magma_block')",
 			")",

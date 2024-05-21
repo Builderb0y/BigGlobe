@@ -4,7 +4,7 @@
 		"for (int baseY in range[ceilInt(MIN_Y) & ~31, floorInt(MAX_Y)] % 32:",
 			"long positionSeed = columnSeed.newSeed(baseY)",
 			"int y = baseY | (positionSeed.nextInt() & 31)",
-			"if (getBlockState(originX, y, originZ) == BlockState('bigglobe:cloud'):",
+			"if (getBlockState(originX, y, originZ) ==. 'bigglobe:cloud':",
 				"setBlockState(originX, y, originZ,",
 					"if ((positionSeed := positionSeed.newSeed()).nextInt() & 7 == 0:",
 						"'bigglobe:omni_aura_infused_cloud'",

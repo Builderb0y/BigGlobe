@@ -70,7 +70,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
 
 			The Y level itself can also be accessed via the `y` variable.
-	* `multi_state_3d` (added in V4.2.1 or V4.3.0, whichever one gets released first) - fills the Y range between `valid > min_y` and `valid > max_y` (or the chunk bounds) with a block state which depends on Y level. This type has the following additional properties:
+	* `multi_state_3d` (new in V4.3.0) - fills the Y range between `valid > min_y` and `valid > max_y` (or the chunk bounds) with a block state which depends on Y level. This type has the following additional properties:
 		* `state` - a script returning the BlockState that this layer will attempt to place at the current Y level. If this script returns null, no block is placed at that Y level. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
@@ -80,7 +80,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
 
 			The Y level itself can also be accessed via the `y` variable.
-	* `scripted` (added in V4.2.1 or V4.3.0, whichever one gets released first) - allows a script to place any block wherever it wants (as long as it's within the valid range and the chunk bounds). This type has the following additional properties:
+	* `scripted` (new in V4.3.0) - allows a script to place any block wherever it wants (as long as it's within the valid range and the chunk bounds). This type has the following additional properties:
 		* `script` - a script which places blocks. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment

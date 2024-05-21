@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"getBlockState(originX, originY + 1, originZ) == BlockState('minecraft:moss_block')",
+			"getBlockState(originX, originY + 1, originZ) ==. 'minecraft:moss_block'",
 			"&& random.if (1.0I / 64.0I:",
 				"setBlockState(originX, originY, originZ, 'minecraft:spore_blossom')",
 				"true",

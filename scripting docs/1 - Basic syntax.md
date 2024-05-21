@@ -24,8 +24,12 @@ An identifier term is a term that starts with an identifier, and may match more 
 	* Extra member operations can be appended to the end. For example, `HashMap map = new().$put("a", 1).$put("b", 2)`.
 * `Type name := expression` same as with `=`, but also returns the newly initialized value.
 	* This makes it possible to do `int x = int y := int z := 0`.
+* `Type*(name1 = value1, name2 = value2, ...)` (new in V4.3.0) declares multiple variables of the same type without needing to specify the type more than once.
+	* The comma separating the name/value pairs is optional.
 * `Type functionName(Type1 param1, Type2 param2, ...: body)` function declaration. It can be called with `functionName(param1, param2, ...)`.
+	* As of V4.3.0, this supports multi-declaration syntax, so you can also do `Type functionName(Type1*(param1, param2, ...), Type2 param3, ...: body)`.
 * `ReturnType SelfType.methodName(Type1 param1, Type2 param2...: body)` extension method declaration. It can be called with `object.methodName(param1, param2, ...)`.
+	* Like function declarations, these also support multi-declaration syntax in V4.3.0+, and it works exactly the same way.
 * `Type` constant for a Class object representing Type.
 	* This is intended primarily for calling `Type.staticMethod()` or `Type.new()`, but it can also be used for debugging. For example, `print(Type)` will show you exactly what the underlying class of Type is, as sometimes the exposed name does not match the actual name.
 * `functionName(arguments)` calls the function with the provided arguments.
@@ -117,14 +121,24 @@ A compare expression takes one of the following forms:
 * `sum != sum` for numbers, returns true if the two sums are NOT numerically equivalent, false otherwise. For objects, returns true if the two objects do not equal each other. Note that the same object always equals itself.
 * `sum === sum` for numbers, returns true if the two numbers have the same bit pattern, false otherwise. For objects, returns true if the two objects are the same object, false otherwise.
 * `sum !== sum` for numbers, returns true if the two numbers do NOT have the same bit pattern, false otherwise. For objects, returns true if the two objects are NOT the same object, false otherwise.
-* `sum !> sum` equivalent to `!(leftSum > rightSum)`
-* `sum !< sum` equivalent to `!(leftSum < rightSum)`
-* `sum !>= sum` equivalent to `!(leftSum >= rightSum)`
-* `sum !<= sum` equivalent to `!(leftSum <= rightSum)`
+* `sum !> sum` equivalent to `!(leftSum > rightSum)`. This is not necessarily equivalent to `leftSum <= rightSum` for floats and doubles when one (or both) of the operands are NaN. In this case, the former will return true, while the latter will return false.
+* `sum !< sum` equivalent to `!(leftSum < rightSum)`. This is not necessarily equivalent to `leftSum >= rightSum` for floats and doubles when one (or both) of the operands are NaN. In this case, the former will return true, while the latter will return false.
+* `sum !>= sum` equivalent to `!(leftSum >= rightSum)`. This is not necessarily equivalent to `leftSum < rightSum` for floats and doubles when one (or both) of the operands are NaN. In this case, the former will return true, while the latter will return false.
+* `sum !<= sum` equivalent to `!(leftSum <= rightSum)`. This is not necessarily equivalent to `leftSum > rightSum` for floats and doubles when one (or both) of the operands are NaN. In this case, the former will return true, while the latter will return false.
 
-Notes on comparing objects:
-* Comparing objects to see if they're greater than or less than each other requires that the two objects implement Comparable.
-* If either object is null, then the comparison will return false, and the negated comparison will return true. It's as if null is analogous to NaN.
+New in V4.3.0: prepending a `.` to the beginning of the operator will make it explicitly cast the left operand to the right operand's type before doing the comparison. Likewise, appending a `.` to the end of the operator will make it explicitly cast the right operand to the left operand's type before doing the comparison.
+
+Changed in V4.3.0: when used on floats and doubles, === and !== used to treat NaNs with different bit patterns as not equal. Now, they are collapsed into a single canonical NaN bit pattern before being compared, which ensures that all NaN values are considered equal to all other NaN values according to this operator.
+
+Notes on comparing objects with `<`, `<=`, `>`, `>=`, `!>`, `!<`, `!>=`, or `!<=`:
+* These operators require that both objects implement Comparable.
+* If one or both objects are null, then the comparison will return false, and the negated comparison will return true. It's as if null is analogous to NaN.
+
+Notes on comparing objects with `==`, `!=`, `===`, or `!==`:
+* These operators do NOT require that both objects implement Comparable.
+* If exactly one object is null, then `==` and `===` will return false, and `!=` and `!==` will return true.
+* If both objects are null, then `==` and `===` will return true, and `!=` and `!==` will return false.
+	* This behavior differs from that of `<=` and `>=`, as both of those return false when both operands are null.
 
 Examples:
 ```

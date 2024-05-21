@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure.type == StructureType('minecraft:woodland_mansion'):",
+			"if (start.structure.type ==. 'minecraft:woodland_mansion':",
 				"double distance = distanceToSquare(start)",
 				"double mixLevel = smooth(1.0 - distance * 0.0625)",
 				"`bigglobe:overworld/basic_surface_y` = mixLinear(`bigglobe:overworld/basic_surface_y`, start.minY - 0.5L, mixLevel)",

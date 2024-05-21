@@ -23,7 +23,7 @@
 				},
 				"restrictions": {
 					"type": "script",
-					"script": "`bigglobe:nether/bubble`.filler == BlockState('minecraft:netherrack') ? 1.0 : 0.0"
+					"script": "`bigglobe:nether/bubble`.filler ==. 'minecraft:netherrack' ? 1.0 : 0.0"
 				}
 			},
 			"variations": [

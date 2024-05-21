@@ -10,7 +10,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 
 public class BitwiseFloatEqualityConditionTree implements ConditionTree {
 
-	public static final MethodInfo FLOAT_BITS_TO_INT = MethodInfo.getMethod(Float.class, "floatToRawIntBits");
+	public static final MethodInfo FLOAT_BITS_TO_INT = MethodInfo.getMethod(Float.class, "floatToIntBits");
 
 	public InsnTree left, right;
 	public int intOpCode;

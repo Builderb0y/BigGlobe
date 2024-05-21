@@ -7,7 +7,7 @@
 			"unless (bottomState.canPlaceAt(originX, originY, originZ): return(false))",
 			"int maxHeight = random.roundInt(`bigglobe:overworld/height_adjusted_foliage` ^ 2 * 16.0)",
 			"int height = 0",
-			"while (height < maxHeight && getBlockState(originX, originY + height, originZ) == BlockState('minecraft:water[level=0]'):",
+			"while (height < maxHeight && getBlockState(originX, originY + height, originZ) ==. 'minecraft:water[level=0]':",
 				"++height",
 			")",
 			"if (height == 0: return(false))",

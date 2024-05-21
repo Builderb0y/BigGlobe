@@ -13,7 +13,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded to the position currently being generated)
 	* `children` - an array of layers. Defaults to an empty array if absent.
-	* `before_children` and `after_children` (optional) (added in V4.2.1 or V4.3.0, whichever one gets released first) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
+	* `before_children` and `after_children` (optional) (added in V4.3.0) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
 
 	Note: the root layer does not have a `valid` property. If you provide one anyway, it will be ignored.
 * `feature_dispatcher` - has the following properties:

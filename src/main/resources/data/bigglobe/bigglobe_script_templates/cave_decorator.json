@@ -8,7 +8,7 @@
 		"while ((y :+ random.nextDouble(1.0L, step)) < maxY:",
 			"int floorY = floorInt(y)",
 			"BlockState state = getBlockState(originX, floorY, originZ)",
-			"if (state.isAir() || (ALLOW_WATER && state.getBlock() == Block('minecraft:water')):",
+			"if (state.isAir() || (ALLOW_WATER && state.getBlock() ==. 'minecraft:water'):",
 				"placeFeature(originX, floorY, originZ, FEATURE)",
 			")",
 		")",

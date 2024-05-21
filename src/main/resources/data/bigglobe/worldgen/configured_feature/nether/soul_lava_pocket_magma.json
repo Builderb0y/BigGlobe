@@ -4,7 +4,7 @@
 		"script": [
 			"--originY",
 			"boolean lavaAt(int x, int z:",
-				"return(getBlockState(x, originY, z).getBlock() == Block('bigglobe:soul_lava'))",
+				"return(getBlockState(x, originY, z).getBlock() ==. 'bigglobe:soul_lava')",
 			")",
 
 			"(random.nextBoolean(1.0 / 64.0) && lavaAt(originX, originZ)).if (",

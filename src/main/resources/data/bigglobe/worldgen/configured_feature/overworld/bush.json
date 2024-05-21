@@ -49,7 +49,7 @@
 						")",
 					")",
 					"existingState = getBlockState(x, snowY, z)",
-					"if (existingState.canLeavesReplace() && !existingState.hasFluid() && existingState.getBlock() != Block('minecraft:snow') && random.nextBoolean(snowChance):",
+					"if (existingState.canLeavesReplace() && !existingState.hasFluid() && existingState.getBlock() !=. 'minecraft:snow' && random.nextBoolean(snowChance):",
 						"setBlockState(x, snowY, z, 'minecraft:snow[layers=1]')",
 					")",
 				")",

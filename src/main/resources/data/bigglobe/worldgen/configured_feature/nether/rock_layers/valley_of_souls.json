@@ -23,7 +23,7 @@
 				},
 				"restrictions": {
 					"type": "script",
-					"script": "`bigglobe:nether/bubble`.filler == BlockState('minecraft:soul_soil') ? 1.0 : 0.0"
+					"script": "`bigglobe:nether/bubble`.filler ==. 'minecraft:soul_soil' ? 1.0 : 0.0"
 				}
 			},
 			"variations": [

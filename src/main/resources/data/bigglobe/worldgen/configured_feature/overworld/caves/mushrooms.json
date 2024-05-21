@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"unless (getBlockState(originX, originY - 1, originZ) == BlockState('minecraft:mycelium[snowy=false]'): return(false))",
+			"unless (getBlockState(originX, originY - 1, originZ) ==. 'minecraft:mycelium[snowy=false]': return(false))",
 			"random.if (1.0 / 16.0:",
 				"return(placeFeature(originX, originY, originZ,",
 					"random.nextBoolean()",

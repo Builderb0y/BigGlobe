@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('minecraft:end_city'):",
+			"if (start.structure ==. 'minecraft:end_city':",
 				"StructurePiece first = start.pieces.(0)",
 				"`bigglobe:end/mountain_max_y` = mixSmooth(",
 					"`bigglobe:end/mountain_max_y`,",

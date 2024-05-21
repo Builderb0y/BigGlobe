@@ -95,11 +95,11 @@ When casting a float or double to an int or long, several methods are provided t
 	*  0.5 -> 1
 	*  0.0 -> 0
 	* -0.5 -> 0
-* lower (new in V4.2.1 or V4.3.0, whichever releases first) - this mode returns the closest integer value to positive infinity which is strictly less than the provided float or double. Examples:
+* lower (new in V4.3.0) - this mode returns the closest integer value to positive infinity which is strictly less than the provided float or double. Examples:
 	*  0.5 ->  0
 	*  0.0 -> -1
 	* -0.5 -> -1
-* higher (new in V4.2.1 or V4.3.0, whichever releases first) - this mode returns the closest integer value to negative infinity which is strictly greater than the provided float or double. Examples:
+* higher (new in V4.3.0) - this mode returns the closest integer value to negative infinity which is strictly greater than the provided float or double. Examples:
 	*  0.5 -> 1
 	*  0.0 -> 1
 	* -0.5 -> 0
@@ -128,7 +128,7 @@ Functions are provided to perform casting with all of these rounding modes. The 
 
 The default rounding mode when casting a float or double to an int or long directly via `int(myFloat)` or `myDouble.as(long)` is floor. Which also means that `int(myDouble)` and `floorInt(myDouble)` will always return the same value for the same input.
 
-New in V4.2.1 or V4.3.0, whichever releases first: Overloads are provided to cast ints and longs to ints or longs, in case you accidentally call them with a value which you forgot was already an int or long. The "higher" and "lower" cast modes also handle this case accordingly, since they are not identity casts.
+New in V4.3.0: Overloads are provided to cast ints and longs to ints or longs, in case you accidentally call them with a value which you forgot was already an int or long. The "higher" and "lower" cast modes also handle this case accordingly, since they are not identity casts.
 
 If the resulting integer value would be outside the range which can be represented by ints or longs, then the closest int or long to the actual value is returned. The functions provided above guarantee that the result will not overflow or underflow.
 
@@ -139,12 +139,14 @@ If the resulting integer value would be outside the range which can be represent
 # Keywords
 
 * `var name = expression` declares a new variable whose name is name, and whose type is inferred automatically from the type of expression. The expression is a *single* expression (see Basic syntax.md).
+* `var*(name1 = expression1, name2 = expression2, ...)` declares multiple new variables at once. Each variable's type is inferred from the type of the expression assigned to it.
 * `class Name(Type1 name1 Type2 name2)` declares a new class named Name containing 2 fields. The first named name1 of type Type1, and the second named name2 of type Type2. Instances of Name can be created with `Name.new(name1, name2)` from that point onward in the source code. You can also do `Name.new()` to initialize all fields to 0/null/false. Fields may be accessed with `name.name1` and `name.name2`, and modified with `name.name1 = someValue` and `name.name2 = someValue`.
 	* The fields in the class declaration may be separated by single or double commas, for clarity. For example, `class Name(int a int b, int c,, int d)` is a valid class declaration.
 	* Fields may be given default values with the following syntax: `class Name(int a = 2, int b)`. This now makes it so that `Name.new()` will initialize a to 2, but leave b at 0. It also unlocks a 3rd constructor: `Name.new(3)`, which sets a to 2 and b to 3. **The default field values must be compile-time constants!**
+	* As of V4.3.0, this supports multi-declaration blocks, so you can do `class Name(Type1*(name1, name2, ...), Type2 name3, ...)`.
 * `if (condition: body)` evaluates body if, and only if, condition evaluates to true. condition may be a script (see Basic syntax.md), as may body. condition must be of type boolean.
 	* An else branch may be appended to the end `if (condition: trueBody) else (falseBody)` and in this case, trueBody will be evaluated if, and only if, condition evaluates to true, and falseBody will be evaluated if, and only if, condition evaluates to false.
-	* Multiple if/else branches can be chained together:	
+	* Multiple if/else branches can be chained together:
 		```
 		if (condition1: body1)
 		else if (condition2: body2)
@@ -203,11 +205,11 @@ If the resulting integer value would be outside the range which can be represent
 		* You can set the step size by modulus'ing the range: `for (int value in range[0, 10] % 2: print(value))` this will print the *even* numbers between 0 and 10.
 		* All of this is hard-coded syntax btw. range isn't a keyword or a function on its own, there is no Range class which contains the min/max/step/ascending vs. descending state, and there are no operator overloads at play here.
 		* If the min, max, or step is not a compile-time constant, it will only ever be evaluated once.
-	* Multi-loops (at the time of writing this, these are not in a released version of Big Globe yet, but they will be in 4.0): `for (Type1 element1 in list1, Type2 element2 in list2: body)` this is almost syntactically equivalent to declaring an outer loop over list1 containing an inner loop over list2, with one exception: breaking the loop breaks the *outer* loop, where as continuing the loop continues the *inner* loop.
+	* Multi-loops (new in V4.0+): `for (Type1 element1 in list1, Type2 element2 in list2: body)` this is almost syntactically equivalent to declaring an outer loop over list1 containing an inner loop over list2, with one exception: breaking the loop breaks the *outer* loop, where as continuing the loop continues the *inner* loop.
 		* Multi-loops can be combined to create as many nested loops as you want.
 		* Multi-loops can use Iterable's, Map's, and ranges interchangeably, and even different iteration methods for different levels of the loop.
 		* Multi-loops do not work with traditional for loop syntax.
-	* Multi-variable range loops (also not until 4.0): `for (int x, int y, int z in range[-1, 1]: body)`
+	* Multi-variable range loops (also new in V4.0+): `for (int x, int y, int z in range[-1, 1]: body)`
 		* Like multi-loops, this works like declaring an outer loop for x, a middle loop for y, and an inner loop for z.
 		* Also like multi-loops, continuing will continue the inner loop, and breaking will break the outer loop.
 * `block (body)` can be thought of as a manual loop. If the body continues, then execution jumps back to the start of the block. And if the body breaks, then execution jumps to the end of the block. If the body does neither and reaches the end of the block, then the block is implicitly broken. You do not need to explicitly break at the end of each block.
@@ -268,7 +270,9 @@ If the resulting integer value would be outside the range which can be represent
 	)
 	```
 	* If a and b are floats or doubles, then they have the possibility of being NaN, and in this case, you also need to specify a `!` case, which gets executed when the two numbers can't be compared because one or both of them is NaN.
-	* compare() can also compare instances of Comparable, and it works just like the standard `< > ==` operators.
+	* compare() can also compare instances of Comparable, and it works just like the standard `< > ==` operators. Sort of. (See below)
+		* In this case, you also need to provide a `!` case, which will be executed if one or both of the objects are null.
+		* If both arguments are null, the `!` case is evaluated, NOT the `=` case. This behavior is consistent with the `<`, `>`, `<=`, and `>=` operators, but is inconsistent with `==` and `!=`.
 	* If you only provide one number, then the 2nd number is implicitly 0.
 		* Providing only one instance of Comparable is not allowed, because there is no standardized way to get a "zero" Comparable instance for arbitrary types.
 	* If you've studied these documents well, you might suspect that `>:` and the other cases are operators. But they're not! You are allowed to have a space between them. This is (at the time of writing this) the only place where the expression parser does not group them together.
@@ -297,11 +301,11 @@ If the resulting integer value would be outside the range which can be represent
 
 # Fields
 
-* minecraftVersion.major - always 1, since Minecraft 2.0 was an april fools day joke, and no other version of Minecraft that Big Globe supports starts with anything except 1.
+* minecraftVersion.major - the first number in the version. For MinecraftVersion.CURRENT, this is always 1, since Minecraft 2.0 was an april fools day joke, and no other version of Minecraft that Big Globe supports starts with anything except 1.
 * minecraftVersion.minor - the middle number in the version. For example, the minor version of Minecraft 1.20.4 is 20.
 * minecraftVersion.bugfix - the last number in the version. For example, the bugfix version of Minecraft 1.20.4 is 4.
 * MinecraftVersion.CURRENT - the version of Minecraft that your game is running.
 
 # Casting
 
-* MinecraftVersion(String) - creates a MinecraftVersion. Useful for comparing 2 versions, because you can do `MinecraftVersion.CURRENT > MinecraftVersion('1.20.4')`.
+* `String -> MinecraftVersion` - creates a MinecraftVersion. Useful for comparing 2 versions, because you can do `MinecraftVersion.CURRENT > MinecraftVersion('1.20.4')`. Or, in V4.3.0+, you can also do `MinecraftVersion.CURRENT >. '1.20.4'`.

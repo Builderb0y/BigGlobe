@@ -6,7 +6,7 @@
 				"unless (isYLevelValid(originY): return(false))",
 				"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
 			")",
-			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
+			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() ==. 'minecraft:snow' || state.hasLava():",
 				"return(placeBlockState(originX, originY, originZ, 'bigglobe:rock[rocks=1,waterlogged=false]'))",
 			")",
 			"return(false)"

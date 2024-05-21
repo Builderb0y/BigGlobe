@@ -7,7 +7,7 @@
 		":",
 			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
 			"Biome biome = `bigglobe:overworld/biome`(x, y, z)",
-			"if (biome == Biome('bigglobe:river'):",
+			"if (biome ==. 'bigglobe:river':",
 				"noop",
 			")",
 			"else if (biome.isIn('bigglobe:ocean'):",

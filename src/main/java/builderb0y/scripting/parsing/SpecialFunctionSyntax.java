@@ -132,7 +132,7 @@ public class SpecialFunctionSyntax {
 			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
 			IntArrayList builder = new IntArrayList(1);
 			while (!parser.input.hasAfterWhitespace(')')) {
-				if (parser.input.hasAfterWhitespace("case")) {
+				if (parser.input.hasIdentifierAfterWhitespace("case")) {
 					parser.input.expectAfterWhitespace('(');
 					parser.environment.user().push();
 					do builder.add(nextConstantInt(parser, enumClass));
@@ -154,7 +154,7 @@ public class SpecialFunctionSyntax {
 					}
 					builder.clear();
 				}
-				else if (parser.input.hasAfterWhitespace("default")) {
+				else if (parser.input.hasIdentifierAfterWhitespace("default")) {
 					if (cases.defaultReturnValue() != null) {
 						throw new ScriptParsingException("Duplicate default", parser.input);
 					}
@@ -165,7 +165,7 @@ public class SpecialFunctionSyntax {
 					if (parser.environment.user().hasNewVariables()) {
 						body = scoped(body);
 					}
-					parser.environment.user().pop();;
+					parser.environment.user().pop();
 					cases.defaultReturnValue(body);
 				}
 				else {

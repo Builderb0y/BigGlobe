@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure.type == StructureType('minecraft:jigsaw') && start.structure.generationStep == 'surface_structures':",
+			"if (start.structure.type ==. 'minecraft:jigsaw' && start.structure.generationStep == 'surface_structures':",
 				"for (StructurePiece piece in start.pieces:",
 					"if (piece.hasPreferredTerrainHeight:",
 						"int diameter = max(piece.sizeX, piece.sizeZ) + 1",

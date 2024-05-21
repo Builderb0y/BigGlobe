@@ -1,7 +1,7 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure.type == StructureType('minecraft:igloo'):",
+		"if (start.structure.type ==. 'minecraft:igloo':",
 			"StructurePiece last = start.pieces.(start.pieces.size - 1)",
 			"int centerX = last.midX",
 			"int centerZ = last.midZ",

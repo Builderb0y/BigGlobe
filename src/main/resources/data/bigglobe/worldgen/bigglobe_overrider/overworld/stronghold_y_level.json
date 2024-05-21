@@ -1,7 +1,7 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure.type == StructureType('minecraft:stronghold'):",
+		"if (start.structure.type ==. 'minecraft:stronghold':",
 			"int minSurface = min(",
 				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.minZ)),",
 				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.maxZ)),",

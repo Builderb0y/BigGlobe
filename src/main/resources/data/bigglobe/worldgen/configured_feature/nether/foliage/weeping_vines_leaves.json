@@ -7,7 +7,7 @@
 				"setBlockState(originX, originY, originZ, 'minecraft:weeping_vines_plant')",
 			")",
 			"++originY",
-			"if (getBlockState(originX, originY, originZ) == BlockState('minecraft:weeping_vines_plant'):",
+			"if (getBlockState(originX, originY, originZ) ==. 'minecraft:weeping_vines_plant':",
 				"setBlockState(originX, originY, originZ, 'minecraft:weeping_vines[age=25]')",
 			")",
 			"return(true)"

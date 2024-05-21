@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('bigglobe:campfire'):",
+			"if (start.structure ==. 'bigglobe:campfire':",
 				";don't include tent interior if present.",
 				"for (int index in range[0, min(2, start.pieces.size)):",
 					"StructurePiece piece = start.pieces.(index)",

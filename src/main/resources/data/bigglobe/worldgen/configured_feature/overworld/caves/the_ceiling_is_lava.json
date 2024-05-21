@@ -5,7 +5,7 @@
 			"boolean flatBlackstoneAt(int x, int z:",
 				"return(",
 					"getBlockState(x, originY, z).isAir() &&",
-					"getBlockState(x, originY + 1, z) == BlockState('minecraft:blackstone')",
+					"getBlockState(x, originY + 1, z) ==. 'minecraft:blackstone'",
 				")",
 			")",
 

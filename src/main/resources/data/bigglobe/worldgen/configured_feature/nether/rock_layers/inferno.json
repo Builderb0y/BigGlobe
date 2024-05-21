@@ -23,7 +23,7 @@
 				},
 				"restrictions": {
 					"type": "script",
-					"script": "`bigglobe:nether/bubble`.filler == BlockState('minecraft:basalt[axis=y]') ? 1.0 : 0.0"
+					"script": "`bigglobe:nether/bubble`.filler ==. 'minecraft:basalt[axis=y]' ? 1.0 : 0.0"
 				}
 			},
 			"variations": [

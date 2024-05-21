@@ -4,7 +4,7 @@
 		"script": [
 			"random.unless (unmixSmooth(2.0L, 6.0L, `bigglobe:overworld/processed_surface_y`): return(false))",
 			"while (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY)",
-			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() == Block('minecraft:snow') || state.hasLava():",
+			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() ==. 'minecraft:snow' || state.hasLava():",
 				"return(placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]'))",
 			")",
 			"return(false)"

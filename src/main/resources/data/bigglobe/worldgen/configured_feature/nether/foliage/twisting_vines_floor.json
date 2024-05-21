@@ -9,7 +9,7 @@
 				"unless (random.nextBoolean(): break())",
 			")",
 			"--originY",
-			"if (getBlockState(originX, originY, originZ) == BlockState('minecraft:twisting_vines_plant'):",
+			"if (getBlockState(originX, originY, originZ) ==. 'minecraft:twisting_vines_plant':",
 				"setBlockState(originX, originY, originZ, 'minecraft:twisting_vines[age=25]')",
 			")",
 			"return(true)"

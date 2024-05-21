@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure == Structure('bigglobe:well'):",
+			"if (start.structure ==. 'bigglobe:well':",
 				"StructurePiece piece = start.pieces.(0)",
 				"double distance = distanceToCircle(piece, 3.0L)",
 				"double mixLevel = smooth(1.0 - distance * 0.25)",

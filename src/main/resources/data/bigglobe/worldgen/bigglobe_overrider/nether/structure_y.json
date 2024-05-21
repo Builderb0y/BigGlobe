@@ -2,8 +2,8 @@
 	"type": "structure",
 	"script": [
 		"if (",
-			"start.structure.type == StructureType('minecraft:fortress') ||",
-			"start.structure == Structure('minecraft:bastion_remnant')",
+			"start.structure.type ==. 'minecraft:fortress' ||",
+			"start.structure ==. 'minecraft:bastion_remnant'",
 		":",
 			"int midX = start.midX",
 			"int midZ = start.midZ",

@@ -10,7 +10,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 
 public class BitwiseDoubleEqualityConditionTree implements ConditionTree {
 
-	public static final MethodInfo DOUBLE_BITS_TO_LONG = MethodInfo.getMethod(Double.class, "doubleToRawLongBits");
+	public static final MethodInfo DOUBLE_BITS_TO_LONG = MethodInfo.getMethod(Double.class, "doubleToLongBits");
 
 	public InsnTree left, right;
 	public int intOpCode;
