@@ -40,7 +40,7 @@
 		}
 	},
 	"valid": {
-		"where": "`bigglobe:end/distance_to_origin` < 148.0L",
+		"where": "distance_to_origin < 148.0L",
 		"min_y": "28",
 		"max_y": "152"
 	}

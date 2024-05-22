@@ -105,7 +105,8 @@ public abstract class DataCompileContext {
 		MethodCompileContext method,
 		ScriptUsage script,
 		boolean includeY,
-		MutableDependencyView dependencies
+		MutableDependencyView dependencies,
+		@Nullable Identifier caller
 	)
 	throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method)
@@ -116,10 +117,10 @@ public abstract class DataCompileContext {
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) {
 				environment.addVariableLoad("y", TypeInfos.INT);
-				this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies);
+				this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies, caller);
 			}
 			else {
-				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies);
+				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
 			}
 		})
 		.parseEntireInput()

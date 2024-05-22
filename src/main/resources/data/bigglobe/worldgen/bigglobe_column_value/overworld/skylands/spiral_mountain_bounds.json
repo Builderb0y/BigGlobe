@@ -13,11 +13,11 @@
 		"is_3d": false
 	},
 	"script": [
-		"double distance = soft_distance * 1.125L ;`bigglobe:overworld/skylands/spiral_mountain_distance_variation`",
-		"double center = `bigglobe:overworld/skylands/average_center_y` + `bigglobe:overworld/skylands/spiral_mountain_center`",
+		"double distance = soft_distance * 1.125L",
+		"double center = average_center_y + spiral_mountain_center",
 		"double direction = (worldSeed # 16xBF3601F0B09F727BUL).newSeed(cell_x, cell_z).nextBoolean() ? 8.0L : -8.0L",
 		"double spiral = distance == 0.0L ? 0.0L : sin(atan2(x - center_x, z - center_z) * 8.0L + log2(distance) * direction) * 0.5L * distance * exp(-4.0L * distance)",
-		"double bias = `bigglobe:overworld/skylands/exclusion`",
+		"double bias = exclusion",
 		"double rawUpperCurve = (1.0L - distance) / (4.0L * distance + 1.0L)",
 		"double rawLowerCurve = (1.0L - distance ^ 2) * 0.25L",
 		"double upperCurve = center + 128.0L * (rawUpperCurve - bias + spiral)",

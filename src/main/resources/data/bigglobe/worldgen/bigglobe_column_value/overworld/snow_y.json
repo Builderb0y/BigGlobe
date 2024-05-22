@@ -5,18 +5,18 @@
 		"is_3d": false
 	},
 	"script": [
-		"double snowHeight = `bigglobe:overworld/height_adjusted_snow_y`",
-		"double terrainHeight = `bigglobe:overworld/processed_surface_y`",
-		"if (terrainHeight - `bigglobe:overworld/river_water_y` < 32.0L:",
+		"double snowHeight = height_adjusted_snow_y",
+		"double terrainHeight = processed_surface_y",
+		"if (terrainHeight - river_water_y < 32.0L:",
 			"snowHeight = mixSmooth(",
 				"terrainHeight,",
 				"snowHeight,",
-				"(terrainHeight - `bigglobe:overworld/river_water_y`) / 32.0L",
+				"(terrainHeight - river_water_y) / 32.0L",
 			")",
 		")",
 		"snowHeight"
 	],
 	"valid": {
-		"where": "`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level`"
+		"where": "processed_surface_y > sea_level"
 	}
 }

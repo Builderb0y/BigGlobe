@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "`bigglobe:end/bridge_cloud_radial_bias` + `bigglobe:end/bridge_cloud_angular_bias`",
+	"script": "bridge_cloud_radial_bias + bridge_cloud_angular_bias",
 	"cache": false
 }

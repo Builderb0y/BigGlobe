@@ -21,7 +21,7 @@
 		}
 	},
 	"valid": {
-		"min_y": "`bigglobe:overworld/core_min_y`",
-		"max_y": "`bigglobe:overworld/core_max_y`"
+		"min_y": "core_min_y",
+		"max_y": "core_max_y"
 	}
 }

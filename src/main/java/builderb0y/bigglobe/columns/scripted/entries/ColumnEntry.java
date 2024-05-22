@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.UnknownNullability;
 import org.objectweb.asm.tree.AnnotationNode;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -46,13 +48,23 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 @UseCoder(name = "REGISTRY", in = ColumnEntry.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, DependencyView {
 
-	public static final CoderRegistry<ColumnEntry> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_value"));
+	@TestOnly
+	public static class Testing {
+
+		public static boolean TESTING = false; //enabled by junit, prevents the registry from being created on class initialization.
+	}
+
+	@UnknownNullability
+	@SuppressWarnings("TestOnlyProblems")
+	public static final CoderRegistry<ColumnEntry> REGISTRY = Testing.TESTING ? null : new CoderRegistry<>(BigGlobeMod.modID("column_value"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),          ConstantColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("noise"),                NoiseColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"),              ScriptColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"),            VoronoiColumnEntry.class);
+		if (REGISTRY != null) {
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),          ConstantColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("noise"),                NoiseColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),              ScriptColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"),            VoronoiColumnEntry.class);
+		}
 	}};
 
 	public abstract AccessSchema getAccessSchema();
@@ -161,10 +173,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 	public default InsnTree createGenericPreComputer(ColumnEntryMemory memory, DataCompileContext context) {
 		if (!this.hasField()) throw new UnsupportedOperationException("Can't pre-compute without field");
-		return invokeInstance(
-			context.loadSelf(),
-			memory.getTyped(ColumnEntryMemory.PRE_COMPUTER).info
-		);
+		return invokeInstance(context.loadSelf(), memory.getTyped(ColumnEntryMemory.PRE_COMPUTER).info);
 	}
 
 	public default void setupInternalEnvironment(
@@ -173,9 +182,57 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		DataCompileContext context,
 		boolean useColumn,
 		@Nullable InsnTree loadY,
-		MutableDependencyView dependencies
+		MutableDependencyView dependencies,
+		@Nullable Identifier callerPrefix
 	) {
-		String name = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
+		Identifier selfID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
+		this.implSetupInternalEnvironment(environment, memory, context, useColumn, loadY, dependencies, selfID.toString());
+		if (callerPrefix != null && callerPrefix.getNamespace().equals(selfID.getNamespace())) {
+			int start = relativize(selfID.getPath(), callerPrefix.getPath());
+			if (start >= 0) {
+				this.implSetupInternalEnvironment(environment, memory, context, useColumn, loadY, dependencies, selfID.getPath().substring(start));
+			}
+		}
+	}
+
+	public static int relativize(String selfPath, String callerPath) {
+		int start = 0;
+		while (true) {
+			int selfSlash = selfPath.indexOf('/', start);
+			int callerSlash = callerPath.indexOf('/', start);
+			if (selfSlash >= 0) {
+				if (callerSlash >= 0) {
+					if (selfSlash == callerSlash && selfPath.regionMatches(start, callerPath, start, selfSlash - start)) {
+						start = selfSlash + 1; //a:b/c/... trying to reference a:b/c/...
+					}
+					else {
+						return -1; //a:123/... trying to reference a:456/...
+					}
+				}
+				else {
+					return start; //a:b/123 trying to reference a:b/c/...
+				}
+			}
+			else {
+				if (callerSlash >= 0) {
+					return -1; //a:b/c/... trying to reference a:b/123
+				}
+				else {
+					return start; //a:b/123 trying to reference a:b/456
+				}
+			}
+		}
+	}
+
+	public default void implSetupInternalEnvironment(
+		MutableScriptEnvironment environment,
+		ColumnEntryMemory memory,
+		DataCompileContext context,
+		boolean useColumn,
+		@Nullable InsnTree loadY,
+		MutableDependencyView dependencies,
+		String name
+	) {
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
 		RegistryEntry<ColumnEntry> self = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
 		InsnTree loadHolder = useColumn ? context.loadColumn() : context.loadSelf();

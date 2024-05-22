@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"LargeSkylandPlatformCell cell = `bigglobe:overworld/skylands/platform_large`",
+		"LargeSkylandPlatformCell cell = platform_large",
 		"long seed = (worldSeed # 16xD001EF05F0E2DB23UL).newSeed(cell.cell_x, cell.cell_z)",
 		"seed.nextBoolean() ? null : ConfiguredFeatureTag('bigglobe:overworld/skylands/trees').random(seed.newSeed())"
 	]

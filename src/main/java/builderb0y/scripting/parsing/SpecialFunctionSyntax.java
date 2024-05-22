@@ -550,6 +550,7 @@ public class SpecialFunctionSyntax {
 			List<VariableInitializer> variables = new ArrayList<>();
 			while (true) {
 				String name = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+				parser.checkVariable(name);
 				InsnTree initializer;
 				boolean returning;
 				if (type != null) {

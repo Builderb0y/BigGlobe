@@ -10,7 +10,7 @@
 			"8.0I,",
 			"float(",
 				"unmixLinear(",
-					"`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/caves/medium_depth`,",
+					"`bigglobe:overworld/basic_surface_y` - medium_depth,",
 					"`bigglobe:overworld/basic_surface_y`,",
 					"y",
 				")",

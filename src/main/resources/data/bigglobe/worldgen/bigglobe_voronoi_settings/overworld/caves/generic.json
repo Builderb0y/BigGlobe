@@ -11,7 +11,7 @@
 		"bigglobe:overworld/caves/no_floor",
 		"bigglobe:overworld/caves/no_ceiling",
 		"bigglobe:overworld/caves/generic_decorator",
-		"bigglobe:overworld/caves/has_dungeons"
+		"bigglobe:overworld/caves/yes_dungeons"
 	],
 	"exports": {
 		"noise":          "bigglobe:overworld/caves/medium_noise",
@@ -20,6 +20,6 @@
 		"floor_states":   "bigglobe:overworld/caves/no_floor",
 		"ceiling_states": "bigglobe:overworld/caves/no_ceiling",
 		"decorator":      "bigglobe:overworld/caves/generic_decorator",
-		"has_dungeons":   "bigglobe:overworld/caves/has_dungeons"
+		"has_dungeons":   "bigglobe:overworld/caves/yes_dungeons"
 	}
 }

@@ -7,7 +7,7 @@
 	"script": {
 		"template": "bigglobe:apply_nether_bias",
 		"inputs": {
-			"CAVERN_NOISE": "`bigglobe:nether/bubble/cavern_noise_inferno`"
+			"CAVERN_NOISE": "cavern_noise_inferno"
 		}
 	},
 	"valid": {

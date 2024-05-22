@@ -12,6 +12,6 @@
 		"variation": 24
 	},
 	"valid": {
-		"where": "`bigglobe:overworld/glacier_crack_threshold` > 0.0L"
+		"where": "glacier_crack_threshold > 0.0L"
 	}
 }

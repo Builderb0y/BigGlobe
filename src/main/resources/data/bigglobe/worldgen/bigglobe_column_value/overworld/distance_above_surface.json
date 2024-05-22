@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": true
 	},
-	"script": "y - `bigglobe:overworld/basic_surface_y`",
+	"script": "y - basic_surface_y",
 	"cache": false
 }

@@ -1003,6 +1003,7 @@ public class ExpressionParser {
 					if (!varName.isEmpty()) { //variable or method declaration.
 						if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
 							this.verifyName(varName, "variable");
+							this.checkVariable(varName);
 							this.environment.user().reserveVariable(varName, type);
 							InsnTree initializer = this.nextVariableInitializer(type, true);
 							this.environment.user().assignVariable(varName);
@@ -1011,6 +1012,7 @@ public class ExpressionParser {
 						}
 						else if (this.input.hasOperatorAfterWhitespace(":=")) { //also variable declaration.
 							this.verifyName(varName, "variable");
+							this.checkVariable(varName);
 							this.environment.user().reserveVariable(varName, type);
 							InsnTree initializer = this.nextVariableInitializer(type, true);
 							this.environment.user().assignVariable(varName);

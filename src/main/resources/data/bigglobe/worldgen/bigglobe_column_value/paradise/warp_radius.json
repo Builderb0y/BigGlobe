@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "sqrt(`bigglobe:paradise/warp_x` ^ 2 + `bigglobe:paradise/warp_z` ^ 2)"
+	"script": "sqrt(warp_x ^ 2 + warp_z ^ 2)"
 }

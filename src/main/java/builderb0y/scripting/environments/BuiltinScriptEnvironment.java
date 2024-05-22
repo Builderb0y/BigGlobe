@@ -428,6 +428,7 @@ public class BuiltinScriptEnvironment {
 			}
 			else {
 				String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+				parser.checkVariable(varName);
 				parser.environment.user().reserveVariable(varName);
 				boolean reuse;
 				if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;

@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "`bigglobe:overworld/glacier_min_y` + `bigglobe:overworld/glacier_maze` + 8.0L"
+	"script": "glacier_min_y + glacier_maze + 8.0L"
 }

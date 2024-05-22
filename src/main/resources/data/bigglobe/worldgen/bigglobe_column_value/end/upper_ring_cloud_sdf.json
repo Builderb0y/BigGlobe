@@ -4,10 +4,10 @@
 		"type": "float",
 		"is_3d": true
 	},
-	"script": "`bigglobe:end/upper_ring_cloud_noise` + `bigglobe:end/ring_cloud_horizontal_bias` + `bigglobe:end/ring_cloud_vertical_bias`",
+	"script": "upper_ring_cloud_noise + ring_cloud_horizontal_bias + ring_cloud_vertical_bias",
 	"valid": {
-		"where": "`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)",
-		"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
-		"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
+		"where": "warp_radius.isBetween(ring_cloud_min_radius, ring_cloud_max_radius)",
+		"min_y": " ceilInt(mountain_center + ring_cloud_center_offset - ring_cloud_thickness)",
+		"max_y": "floorInt(mountain_center + ring_cloud_center_offset + ring_cloud_thickness)"
 	}
 }

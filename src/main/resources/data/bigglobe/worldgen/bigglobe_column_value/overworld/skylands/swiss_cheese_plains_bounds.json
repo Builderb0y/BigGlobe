@@ -13,9 +13,9 @@
 		"is_3d": false
 	},
 	"script": [
-		"double center = `bigglobe:overworld/skylands/average_center_y` + `bigglobe:overworld/skylands/plains_center`",
-		"double thickness = `bigglobe:overworld/skylands/swiss_cheese_plains_thickness`",
-		"double bias = `bigglobe:overworld/skylands/exclusion` + soft_distance_squared",
-		"SkylandBounds.new(center + thickness + bias * 44.0L, center, `bigglobe:overworld/skylands/plains_surface_depth`)"
+		"double center = average_center_y + plains_center",
+		"double thickness = swiss_cheese_plains_thickness",
+		"double bias = exclusion + soft_distance_squared",
+		"SkylandBounds.new(center + thickness + bias * 44.0L, center, plains_surface_depth)"
 	]
 }

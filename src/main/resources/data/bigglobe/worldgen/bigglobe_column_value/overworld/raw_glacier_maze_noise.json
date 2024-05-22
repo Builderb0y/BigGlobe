@@ -15,7 +15,7 @@
 		]
 	},
 	"valid": {
-		"where": "`bigglobe:overworld/glacier_crack_threshold` > 1.0L && `bigglobe:overworld/magicalness` > 0.0L",
+		"where": "glacier_crack_threshold > 1.0L && magicalness > 0.0L",
 		"fallback": 0.0
 	}
 }

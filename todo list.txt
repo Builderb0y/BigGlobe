@@ -42,6 +42,9 @@ changelog:
 	* Added higherInt(), higherLong(), lowerInt(), and lowerLong() functions for scripts.
 	* Added multi-declaration blocks for scripts.
 	* Added cast-and-compare operators for scripts.
+	* Column values can now reference other column values in the same folder or sub-folders more easily.
+	* The "Reload Big Globe chunk generators from mod jar" config option was removed, and now acts as if it's always enabled.
+		* If you are making a world preset, you must remove the "reload_dimension" property from your scripted chunk generators, or else they will be overridden by the default ones.
 	Changes for regular players:
 	* There is now only one seed per world. In older 4.x versions, there were actually two seeds; one derived from the other. This was a dumb decision in retrospect, and I'm fixing it now. Unfortunately, fixing this comes at a cost:
 		* The overall shape of terrain should be the same as in older versions.

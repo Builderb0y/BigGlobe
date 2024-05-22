@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "`bigglobe:end/mountain_center` + `bigglobe:end/mountain_thickness`"
+	"script": "mountain_center + mountain_thickness"
 }

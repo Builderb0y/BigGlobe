@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "`bigglobe:end/raw_warp_x` * `bigglobe:end/warp_bias`",
+	"script": "raw_warp_x * warp_bias",
 	"cache": false
 }

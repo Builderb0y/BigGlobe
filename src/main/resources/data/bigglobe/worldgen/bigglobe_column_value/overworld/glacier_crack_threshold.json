@@ -6,15 +6,15 @@
 	},
 	"script": [
 		"min(",
-			"unmixLinear(-0.25I, -0.5I, `bigglobe:overworld/raw_temperature`),",
+			"unmixLinear(-0.25I, -0.5I, raw_temperature),",
 			"float(unmixLinear(",
-				"`bigglobe:overworld/sea_level`,",
-				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 128.0L,",
-				"`bigglobe:overworld/raw_erosion`",
+				"sea_level,",
+				"sea_level - hilliness * 128.0L,",
+				"raw_erosion",
 			"))",
 		")"
 	],
 	"valid": {
-		"where": "`bigglobe:overworld/raw_erosion` < `bigglobe:overworld/sea_level`"
+		"where": "raw_erosion < sea_level"
 	}
 }

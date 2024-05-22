@@ -13,15 +13,15 @@
 		"is_3d": false
 	},
 	"script": [
-		"double exclusion = 1.0L - (`bigglobe:overworld/skylands/exclusion` + `bigglobe:overworld/skyland`.soft_distance_squared * 1.25L)",
-		"if (exclusion !> 0.0L: return(null))",
-		"SmallSkylandPlatformCell platformCell = `bigglobe:overworld/skylands/platform_small`",
+		"double actualExclusion = 1.0L - (exclusion + `bigglobe:overworld/skyland`.soft_distance_squared * 1.25L)",
+		"if (actualExclusion !> 0.0L: return(null))",
+		"SmallSkylandPlatformCell platformCell = platform_small",
 		"long seed = (worldSeed # 16x9E16B3F642DFC38FUL).newSeed(platformCell.cell_x, platformCell.cell_z)",
-		"double averageCenter = seed.nextDouble(-256.0L, +256.0L) * exclusion + 512.0L",
-		"double top = averageCenter + `bigglobe:overworld/skylands/plains_center`",
-		"double outness = platformCell.soft_distance / exclusion",
+		"double averageCenter = seed.nextDouble(-256.0L, +256.0L) * actualExclusion + 512.0L",
+		"double top = averageCenter + plains_center",
+		"double outness = platformCell.soft_distance / actualExclusion",
 		"if (outness !<= 1.0L: return(null))",
-		"double curve = exclusion * seed.newSeed().nextDouble(16.0L, 32.0L) * (outness - 1.0L) / (outness * 2.0L + 1.0L)",
-		"SkylandBounds.new(top + curve, top, `bigglobe:overworld/skylands/plains_surface_depth`)"
+		"double curve = actualExclusion * seed.newSeed().nextDouble(16.0L, 32.0L) * (outness - 1.0L) / (outness * 2.0L + 1.0L)",
+		"SkylandBounds.new(top + curve, top, plains_surface_depth)"
 	]
 }

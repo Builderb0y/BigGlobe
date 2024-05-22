@@ -5,9 +5,9 @@
 		"is_3d": false
 	},
 	"script": [
-		"double result = `bigglobe:end/raw_mountain_thickness` * 256.0 + `bigglobe:end/spiral` * 64.0L",
-		"result -= 256.0L * unmixClamp(1024.0L, 512.0L, `bigglobe:end/distance_to_origin`) ^ 2",
-		"result -= `bigglobe:end/holes` * (1.0L - `bigglobe:end/raw_mountain_thickness`) * 16.0L",
+		"double result = raw_mountain_thickness * 256.0 + spiral * 64.0L",
+		"result -= 256.0L * unmixClamp(1024.0L, 512.0L, distance_to_origin) ^ 2",
+		"result -= holes * (1.0L - raw_mountain_thickness) * 16.0L",
 		"result -= 24.0L",
 		"return(result)"
 	]

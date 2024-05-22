@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"float unmixed = unmixLinear(`bigglobe:end/bridge_cloud_max_radius`, `bigglobe:end/bridge_cloud_min_radius`, `bigglobe:end/warp_radius`.as(float))",
+		"float unmixed = unmixLinear(bridge_cloud_max_radius, bridge_cloud_min_radius, warp_radius.as(float))",
 		"return(-(max(unmixed, 0.0I) ^ 2))"
 	]
 }

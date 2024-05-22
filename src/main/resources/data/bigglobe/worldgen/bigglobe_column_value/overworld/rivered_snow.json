@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "`bigglobe:overworld/cliffy_snow` + `bigglobe:overworld/river_dip`"
+	"script": "cliffy_snow + river_dip"
 }

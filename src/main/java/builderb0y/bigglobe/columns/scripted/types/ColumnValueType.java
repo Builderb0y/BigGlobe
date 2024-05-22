@@ -40,7 +40,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 			}
 			else {
 				T_Encoded map = context.createStringMap(Collections.singletonMap(this.keyName, context.input));
-				return super.decode(context.input(map, context.path));
+				return super.decode(context.input(map));
 			}
 		}
 

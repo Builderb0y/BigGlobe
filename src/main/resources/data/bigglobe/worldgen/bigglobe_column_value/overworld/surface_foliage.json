@@ -4,5 +4,5 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "`bigglobe:overworld/height_adjusted_foliage`(ceilInt(`bigglobe:overworld/basic_surface_y`))"
+	"script": "height_adjusted_foliage(ceilInt(basic_surface_y))"
 }

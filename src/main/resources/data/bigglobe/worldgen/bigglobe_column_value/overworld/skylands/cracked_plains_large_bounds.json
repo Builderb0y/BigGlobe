@@ -13,14 +13,14 @@
 		"is_3d": false
 	},
 	"script": [
-		"double center = `bigglobe:overworld/skylands/average_center_y` + `bigglobe:overworld/skylands/plains_center`",
-		"double thickness = `bigglobe:overworld/skylands/cracked_plains_large_thickness`",
+		"double center = average_center_y + plains_center",
+		"double thickness = cracked_plains_large_thickness",
 		";make half of the terrain reversed in Y level from the other half, for variety.",
 		"if (thickness < 0.0:",
-			"center = `bigglobe:overworld/skylands/average_center_y` * 2.0L - center",
+			"center = average_center_y * 2.0L - center",
 		")",
 		"double dip = abs(thickness)",
-		"double bias = `bigglobe:overworld/skylands/exclusion` + soft_distance_squared",
-		"SkylandBounds.new(center + (bias * 1.5L - dip) * 64.0L, center, `bigglobe:overworld/skylands/plains_surface_depth`)"
+		"double bias = exclusion + soft_distance_squared",
+		"SkylandBounds.new(center + (bias * 1.5L - dip) * 64.0L, center, plains_surface_depth)"
 	]
 }

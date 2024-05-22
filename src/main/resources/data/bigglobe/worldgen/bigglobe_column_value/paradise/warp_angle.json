@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "atan2(`bigglobe:paradise/warp_x`, `bigglobe:paradise/warp_z`)"
+	"script": "atan2(warp_x, warp_z)"
 }

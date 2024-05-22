@@ -5,10 +5,10 @@
 		"is_3d": false
 	},
 	"script": [
-		"double threshold = max(`bigglobe:overworld/surface_temperature` - 0.75L, 0.0L)",
-		"threshold *= max(-`bigglobe:overworld/surface_foliage`, 0.0L)",
-		"threshold *= max(-`bigglobe:overworld/magicalness`, 0.0L)",
-		"threshold *= unmixSmooth(8.0L, 16.0L, `bigglobe:overworld/basic_surface_y`)",
+		"double threshold = max(surface_temperature - 0.75L, 0.0L)",
+		"threshold *= max(-surface_foliage, 0.0L)",
+		"threshold *= max(-magicalness, 0.0L)",
+		"threshold *= unmixSmooth(8.0L, 16.0L, basic_surface_y)",
 		"return(threshold / (threshold + 1.0L))"
 	]
 }

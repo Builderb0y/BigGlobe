@@ -33,7 +33,7 @@ public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
 			TypeInfos.BOOLEAN,
 			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
 		);
-		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this);
+		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this, null);
 		return new BooleanToConditionTree(invokeInstance(context.loadSelf(), decisionTreeMethod.info, loadY != null ? new InsnTree[] { loadY } : InsnTree.ARRAY_FACTORY.empty()));
 	}
 }

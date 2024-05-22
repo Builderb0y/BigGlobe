@@ -4,6 +4,6 @@
 		"type": "boolean",
 		"is_3d": false
 	},
-	"script": "`bigglobe:end/mountain_max_y` > `bigglobe:end/mountain_min_y`",
+	"script": "mountain_max_y > mountain_min_y",
 	"cache": false
 }

@@ -30,18 +30,12 @@
 			"return(curve)",
 		")",
 		"return(",
-			"curve(",
-				"`bigglobe:overworld/caves/unbiased_primary_noise`,",
-				"`bigglobe:overworld/caves/hard_width`",
-			")",
-			"* curve(",
-				"`bigglobe:overworld/caves/unbiased_secondary_noise`,",
-				"8.0I",
-			")",
+			"curve(unbiased_primary_noise, hard_width)",
+			"* curve(unbiased_secondary_noise, 8.0I)",
 		")"
 	],
 	"valid": {
-		"min_y": "floorInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/caves/hard_depth`) + 1",
-		"max_y": "floorInt(`bigglobe:overworld/processed_surface_y`) + 1"
+		"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - hard_depth)",
+		"max_y": "higherInt(`bigglobe:overworld/processed_surface_y`)"
 	}
 }

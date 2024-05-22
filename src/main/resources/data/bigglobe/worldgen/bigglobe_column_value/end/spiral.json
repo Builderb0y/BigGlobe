@@ -5,8 +5,8 @@
 		"is_3d": false
 	},
 	"script": [
-		"double wave = sin((`bigglobe:end/warp_angle` + log2(`bigglobe:end/warp_radius`)) * 8.0L)",
-		"double amplitude = `bigglobe:end/warp_radius` * exp2(-4.0L * `bigglobe:end/warp_radius`)",
+		"double wave = sin((warp_angle + log2(warp_radius)) * 8.0L)",
+		"double amplitude = warp_radius * exp2(-4.0L * warp_radius)",
 		"return(wave * amplitude)"
 	]
 }

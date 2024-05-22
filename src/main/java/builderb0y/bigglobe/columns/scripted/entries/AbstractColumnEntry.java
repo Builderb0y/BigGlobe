@@ -620,7 +620,6 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 			(MutableScriptEnvironment environment) -> {
 				environment
 				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addVariableLoad("y", TypeInfos.INT)
 				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
 				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
@@ -714,7 +713,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 
 	public void emitCompute2D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.valid != null && this.valid.where() != null) {
-			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this);
+			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 		}
 		this.populateCompute2D(memory, context, memory.getTyped(this.hasField() ? ColumnEntryMemory.COMPUTE_NO_TEST : ColumnEntryMemory.GETTER));
 	}
@@ -724,13 +723,13 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 	public void emitCompute3D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.hasValid()) {
 			if (this.valid.where() != null) {
-				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this);
+				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 			}
 			if (this.valid.min_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MIN_Y), this.valid.min_y(), false, this);
+				context.setMethodCode(memory.getTyped(VALID_MIN_Y), this.valid.min_y(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 			}
 			if (this.valid.max_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MAX_Y), this.valid.max_y(), false, this);
+				context.setMethodCode(memory.getTyped(VALID_MAX_Y), this.valid.max_y(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 			}
 		}
 		this.populateCompute3D(memory, context, memory.getTyped(this.hasField() || this.hasValid() ? COMPUTE_ONE : ColumnEntryMemory.GETTER));

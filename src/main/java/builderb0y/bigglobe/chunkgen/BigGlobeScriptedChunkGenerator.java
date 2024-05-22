@@ -244,15 +244,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 			@Override
 			public <T_Encoded> @Nullable BigGlobeScriptedChunkGenerator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				if (BigGlobeConfig.INSTANCE.get().reloadGenerators) {
-					String dimension = context.getMember("reload_dimension").tryAsString();
-					if (dimension != null) {
-						JsonElement json = this.getDimension(dimension);
-						if (json != null) {
-							T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
-							return context.input(encoded, RootDecodePath.INSTANCE).decodeWith(coder);
-						}
-					}
+				String dimension = context.getMember("reload_dimension").tryAsString();
+				if (dimension != null) {
+					JsonElement json = this.getDimension(dimension);
+					T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
+					return new DecodeContext<>(context.autoCodec, null, RootDecodePath.INSTANCE, encoded, context.ops).decodeWith(coder);
 				}
 				return context.decodeWith(coder);
 			}
@@ -262,17 +258,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				return context.encodeWith(coder);
 			}
 
-			public JsonElement getDimension(String dimension) {
+			public JsonElement getDimension(String dimension) throws DecodeException {
 				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
 				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/bigglobe.json");
-				for (String key : new String[] { "dimensions", dimension, "generator", "value" }) {
+				for (String key : new String[] { "dimensions", dimension, "generator" }) {
 					if (element instanceof JsonObject object) element = object.get(key);
-					else return null;
+					else throw new DecodeException(() -> "Could not find dimension " + dimension + " in mod jar!");
 				}
 				return element;
 			}
 
-			public JsonElement getJson(String path) {
+			public JsonElement getJson(String path) throws DecodeException {
 				try (
 					Reader reader = new InputStreamReader(
 						Objects.requireNonNull(
@@ -285,7 +281,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					return JsonParser.parseReader(reader);
 				}
 				catch (Exception exception) {
-					throw AutoCodecUtil.rethrow(exception);
+					throw new DecodeException(exception);
 				}
 			}
 

@@ -11,7 +11,7 @@
 				"class Height (int y)",
 				"void placeColumn(Column column, Height height:",
 					"int*(x = column.x, z = column.z)",
-					"void fill(int minY, int maxY:",
+					"void fill(int*(minY, maxY):",
 						"for (int y in range[minY, maxY]:",
 							"if (getBlockState(x, y, z).isReplaceable():",
 								"setBlockState(x, y, z, 'minecraft:obsidian')",

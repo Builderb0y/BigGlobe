@@ -5,17 +5,17 @@
 		"is_3d": true
 	},
 	"script": [
-		"`bigglobe:overworld/raw_core_noise` + (",
+		"raw_core_noise + (",
 			"unmixLinear(",
-				"`bigglobe:overworld/core_min_y`.as(double),",
-				"`bigglobe:overworld/core_max_y`.as(double),",
+				"core_min_y.as(double),",
+				"core_max_y.as(double),",
 				"y.as(double)",
 			")",
 			".as(float) * 2.0I - 1.0I",
 		") ^ 16 * 0.625I"
 	],
 	"valid": {
-		"min_y": "`bigglobe:overworld/core_min_y`",
-		"max_y": "`bigglobe:overworld/core_max_y`"
+		"min_y": "core_min_y",
+		"max_y": "core_max_y"
 	}
 }

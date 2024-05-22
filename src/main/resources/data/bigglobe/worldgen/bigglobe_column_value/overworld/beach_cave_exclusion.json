@@ -6,9 +6,9 @@
 	},
 	"script": [
 		"float(unmixSmooth(",
-			"`bigglobe:overworld/river_water_y` + 16.0L,",
-			"`bigglobe:overworld/river_water_y` + 8.0L,",
-			"`bigglobe:overworld/processed_surface_y`",
+			"river_water_y + 16.0L,",
+			"river_water_y + 8.0L,",
+			"processed_surface_y",
 		"))"
 	]
 }

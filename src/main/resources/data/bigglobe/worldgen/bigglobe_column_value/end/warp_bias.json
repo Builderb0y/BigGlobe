@@ -10,6 +10,6 @@
 		";this also prevents clouds from spawning directly above or below the nest,",
 		";which is important because the dragon *apparently* likes to hang out around such clouds.",
 
-		"max(1.0L - exp(`bigglobe:end/distance_to_origin` / -512.0L + 0.25L), 0.0L)"
+		"max(1.0L - exp(distance_to_origin / -512.0L + 0.25L), 0.0L)"
 	]
 }

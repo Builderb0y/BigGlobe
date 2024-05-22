@@ -26,7 +26,7 @@
 		]
 	},
 	"valid": {
-		"min_y": "`bigglobe:overworld/cavern_min_y`",
-		"max_y": "`bigglobe:overworld/cavern_max_y`"
+		"min_y": "cavern_min_y",
+		"max_y": "cavern_max_y"
 	}
 }

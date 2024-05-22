@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "exp2(-4.0L * `bigglobe:end/warp_radius`)"
+	"script": "exp2(-4.0L * warp_radius)"
 }

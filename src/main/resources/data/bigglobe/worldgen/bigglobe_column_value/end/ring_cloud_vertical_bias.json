@@ -5,9 +5,9 @@
 		"is_3d": true
 	},
 	"script": [
-		"double relativeToMountains = abs(y - `bigglobe:end/mountain_center`)",
-		"double relativeToCloudCenter = relativeToMountains - `bigglobe:end/ring_cloud_center_offset`",
-		"double scaled = relativeToCloudCenter / `bigglobe:end/ring_cloud_thickness`",
+		"double relativeToMountains = abs(y - mountain_center)",
+		"double relativeToCloudCenter = relativeToMountains - ring_cloud_center_offset",
+		"double scaled = relativeToCloudCenter / ring_cloud_thickness",
 		"return(-float(scaled ^ 2))"
 	],
 	"cache": false

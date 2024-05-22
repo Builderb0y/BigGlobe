@@ -5,17 +5,17 @@
 		"is_3d": true
 	},
 	"script": [
-		"`bigglobe:overworld/raw_cavern_noise` - (",
+		"raw_cavern_noise - (",
 			"unmixLinear(",
-				"`bigglobe:overworld/cavern_min_y`.as(double),",
-				"`bigglobe:overworld/cavern_max_y`.as(double),",
+				"cavern_min_y.as(double),",
+				"cavern_max_y.as(double),",
 				"y.as(double)",
 			")",
 			".as(float) * 2.0I - 1.0I",
 		") ^ 16"
 	],
 	"valid": {
-		"min_y": "`bigglobe:overworld/cavern_min_y`",
-		"max_y": "`bigglobe:overworld/cavern_max_y`"
+		"min_y": "cavern_min_y",
+		"max_y": "cavern_max_y"
 	}
 }

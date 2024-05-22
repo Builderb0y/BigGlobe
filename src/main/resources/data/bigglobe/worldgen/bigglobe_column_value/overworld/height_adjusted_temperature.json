@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": true
 	},
-	"script": "`bigglobe:overworld/raw_temperature` - float(y - `bigglobe:overworld/sea_level`) / 1024.0I",
+	"script": "raw_temperature - float(y - sea_level) / 1024.0I",
 	"cache": false
 }

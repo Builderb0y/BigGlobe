@@ -10,7 +10,7 @@ If the column entry's type is `voronoi`, then all exports declared on the vorono
 	* If an implicit Y level is available, then at will *also* be exposed as a field.
 * If the export is 2D then it will be exposed as a field.
 
-The following properties are also available on all voronoi cells:
+The following fields are also available on all voronoi cells:
 * `id` - the namespace and path of the voronoi settings which defines this cell.
 * `cell_x`, `cell_z`, `center_x`, and `center_z` - the voronoi diagram is setup so that the world is split up into square areas `distance` blocks wide. Every square has a single seed point somewhere inside it. The cell position is the index of the square itself, incrementing or decrementing by 1 across adjacent squares. The center position is the position of the seed point inside the square, measured in blocks. The center position is relative to the world origin, not the start of the square.
 * `hard_distance` and `hard_distance_squared` - how close the current position is to the nearest edge of the cell, from 0 to 1, where 0 is in the center, and 1 is on the edge. The "squared" version is the normal version raised to the power of 2.
@@ -32,3 +32,14 @@ If the script DOES have an implicit X and Z coordinate, it may or may not be pos
 float value = `some_mod:some_column_value`(y) ;uses the default coordinates.
 value = `some_mod:some_column_value`(x, y, z) ;uses the provided coordinates.
 ```
+
+New in V4.3.0: If the script which is making use of this column value is itself part of a column value, then this column value will have an alias which skips the parts of its name that are shared with the script which is using this column value. Examples might help:
+* `mod:a` can reference `mod:b` with the alias `b`. In this case the common part is just the namespace.
+* `mod:dim/a` can reference `mod:dim/b` with the alias `b`. In this case the common part includes the namespace and the "dim" folder.
+* `mod:a` can reference `mod:dim/a` with the alias `dim/a`. In this case the common part is just the namespace again.
+* `mod1:a` cannot reference `mod2:a` with an alias because there is nothing in common between these two names.
+* `mod:dim/a` cannot reference `mod:a` with an alias because it would require back-tracking out of the "dim" folder.
+	* To illustrate why this is a problem, consider the case where both `mod:a` and `mod:dim/a` both exist, and `mod:dim/b` tries to reference just `a`. In this case it is ambiguous which column value `a` should refer to.
+* `mod:dim1/a` cannot reference `mod:dim2/a` with an alias because it would also require back-tracking.
+
+If an alias is available, then it will be available *in addition to* the full name, not *instead of* the full name. If an alias is not available, then the column value can only be referred to by its full name.

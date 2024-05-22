@@ -12,19 +12,19 @@
 		")",
 
 		"double scale = 128.0L * `bigglobe:overworld/hilliness`",
-		"double cliffiness = `bigglobe:overworld/cliffiness`",
+		"double cliff = `bigglobe:overworld/cliffiness`",
 		"HEIGHT /= scale",
 
 		"int*(floor = floorInt(HEIGHT), ceil = floor + 1)",
 		"double*(",
 			"mod = HEIGHT - floor",
-			"curve = fullCliffCurve(mod, -cliffiness)",
+			"curve = fullCliffCurve(mod, -cliff)",
 			"cliffHeight = mixLinear(",
 				"`bigglobe:overworld/cliff_height`(floor) + floor,",
 				"`bigglobe:overworld/cliff_height`(ceil ) + ceil,",
 				"curve",
 			")",
-			"newHeight := mixLinear(HEIGHT, cliffHeight, cliffiness)",
+			"newHeight := mixLinear(HEIGHT, cliffHeight, cliff)",
 		")",
 		"* scale"
 	],
