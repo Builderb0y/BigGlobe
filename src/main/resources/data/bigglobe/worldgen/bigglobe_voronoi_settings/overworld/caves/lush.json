@@ -15,12 +15,12 @@
 		"bigglobe:overworld/caves/no_dungeons"
 	],
 	"exports": {
-		"noise":          "bigglobe:overworld/caves/easy_noise",
-		"depth":          "bigglobe:overworld/caves/easy_depth",
-		"surface_depth":  "bigglobe:overworld/caves/surface_depth_noise",
-		"floor_states":   "bigglobe:overworld/caves/lush_floor",
-		"ceiling_states": "bigglobe:overworld/caves/lush_ceiling",
-		"decorator":      "bigglobe:overworld/caves/lush_decorator",
-		"has_dungeons":   "bigglobe:overworld/caves/no_dungeons"
+		"noise":           "bigglobe:overworld/caves/easy_noise",
+		"depth":           "bigglobe:overworld/caves/easy_depth",
+		"surface_depth":   "bigglobe:overworld/caves/surface_depth_noise",
+		"floor_states":    "bigglobe:overworld/caves/lush_floor",
+		"ceiling_states":  "bigglobe:overworld/caves/lush_ceiling",
+		"decorator":       "bigglobe:overworld/caves/lush_decorator",
+		"dungeon_feature": "bigglobe:overworld/caves/no_dungeons"
 	}
 }

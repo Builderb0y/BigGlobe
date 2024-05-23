@@ -34,7 +34,7 @@
 					"type": "configured_feature",
 					"is_3d": false
 				},
-				"has_dungeons": { "type": "boolean", "is_3d": false }
+				"dungeon_feature": { "type": "configured_feature", "is_3d": false }
 			}
 		},
 		"is_3d": false

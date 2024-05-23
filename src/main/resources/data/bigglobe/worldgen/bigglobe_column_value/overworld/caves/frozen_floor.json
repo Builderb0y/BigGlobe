@@ -1,0 +1,18 @@
+{
+	"type": "constant",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "CaveFloorStates",
+			"fields": [
+				{ "name": "top",   "type": "block_state" },
+				{ "name": "under", "type": "block_state" }
+			]
+		},
+		"is_3d": false
+	},
+	"value": {
+		"top": "minecraft:snow_block",
+		"under": "minecraft:snow_block"
+	}
+}

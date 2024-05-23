@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:dungeon_feature",
+			"inputs": {
+				"STATE": "'minecraft:snow_block'",
+				"ENTITY_TYPE": "random.nextBoolean() ? 'minecraft:stray' : 'minecraft:zombie'"
+			}
+		}
+	}
+}

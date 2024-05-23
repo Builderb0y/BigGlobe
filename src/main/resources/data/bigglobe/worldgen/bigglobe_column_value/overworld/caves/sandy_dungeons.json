@@ -3,5 +3,6 @@
 	"params": {
 		"type": "configured_feature",
 		"is_3d": false
-	}
+	},
+	"value": "bigglobe:overworld/caves/sandy_dungeon"
 }

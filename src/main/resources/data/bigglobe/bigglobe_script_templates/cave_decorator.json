@@ -1,5 +1,6 @@
 {
 	"script": [
+		"if (FEATURE == null: return(false))",
 		"double*(",
 			"step = STEP * 2.0L",
 			"y = max(minValidYLevel, ceilInt(`bigglobe:overworld/basic_surface_y`) - `bigglobe:overworld/cave`.depth) + random.nextDouble(step -: 1.0L)",

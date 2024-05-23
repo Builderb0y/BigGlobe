@@ -1,25 +1,25 @@
 {
-	"weight": 2.0,
+	"weight": 1.5,
 	"owner": "bigglobe:overworld/cave",
 	"enables": [
 		"bigglobe:overworld/caves/medium_noise",
 		"bigglobe:overworld/caves/medium_depth",
 		"bigglobe:overworld/caves/medium_width",
-		"bigglobe:overworld/caves/no_surface_depth",
+		"bigglobe:overworld/caves/surface_depth_noise",
 		"bigglobe:overworld/caves/biased_primary_noise",
 		"bigglobe:overworld/caves/biased_secondary_noise",
-		"bigglobe:overworld/caves/no_floor",
+		"bigglobe:overworld/caves/frozen_floor",
 		"bigglobe:overworld/caves/no_ceiling",
-		"bigglobe:overworld/caves/generic_decorator",
-		"bigglobe:overworld/caves/generic_dungeons"
+		"bigglobe:overworld/caves/frozen_decorator",
+		"bigglobe:overworld/caves/frozen_dungeons"
 	],
 	"exports": {
 		"noise":           "bigglobe:overworld/caves/medium_noise",
 		"depth":           "bigglobe:overworld/caves/medium_depth",
-		"surface_depth":   "bigglobe:overworld/caves/no_surface_depth",
-		"floor_states":    "bigglobe:overworld/caves/no_floor",
+		"surface_depth":   "bigglobe:overworld/caves/surface_depth_noise",
+		"floor_states":    "bigglobe:overworld/caves/frozen_floor",
 		"ceiling_states":  "bigglobe:overworld/caves/no_ceiling",
-		"decorator":       "bigglobe:overworld/caves/generic_decorator",
-		"dungeon_feature": "bigglobe:overworld/caves/generic_dungeons"
+		"decorator":       "bigglobe:overworld/caves/frozen_decorator",
+		"dungeon_feature": "bigglobe:overworld/caves/frozen_dungeons"
 	}
 }

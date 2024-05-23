@@ -11,15 +11,15 @@
 		"bigglobe:overworld/caves/molten_floor",
 		"bigglobe:overworld/caves/molten_ceiling",
 		"bigglobe:overworld/caves/molten_decorator",
-		"bigglobe:overworld/caves/yes_dungeons"
+		"bigglobe:overworld/caves/generic_dungeons"
 	],
 	"exports": {
-		"noise":          "bigglobe:overworld/caves/hard_noise",
-		"depth":          "bigglobe:overworld/caves/hard_depth",
-		"surface_depth":  "bigglobe:overworld/caves/surface_depth_noise",
-		"floor_states":   "bigglobe:overworld/caves/molten_floor",
-		"ceiling_states": "bigglobe:overworld/caves/molten_ceiling",
-		"decorator":      "bigglobe:overworld/caves/molten_decorator",
-		"has_dungeons":   "bigglobe:overworld/caves/yes_dungeons"
+		"noise":           "bigglobe:overworld/caves/hard_noise",
+		"depth":           "bigglobe:overworld/caves/hard_depth",
+		"surface_depth":   "bigglobe:overworld/caves/surface_depth_noise",
+		"floor_states":    "bigglobe:overworld/caves/molten_floor",
+		"ceiling_states":  "bigglobe:overworld/caves/molten_ceiling",
+		"decorator":       "bigglobe:overworld/caves/molten_decorator",
+		"dungeon_feature": "bigglobe:overworld/caves/generic_dungeons"
 	}
 }
