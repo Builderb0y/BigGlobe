@@ -12,6 +12,7 @@ line number for the current cursor position.
 
 for higher-level parsing logic, see {@link ExpressionParser}.
 */
+@SuppressWarnings("deprecation")
 public class ExpressionReader {
 
 	public final String input;
@@ -44,10 +45,12 @@ public class ExpressionReader {
 		return builder.toString();
 	}
 
+	@Deprecated
 	public char getChar(int index) {
 		return index < this.input.length() ? this.input.charAt(index) : 0;
 	}
 
+	@Deprecated
 	public boolean canRead() {
 		return this.cursor < this.input.length();
 	}
@@ -89,6 +92,7 @@ public class ExpressionReader {
 	{@link #cursor}, {@link #line}, and {@link #column}
 	are updated based on the character which was read.
 	*/
+	@Deprecated
 	public char read() throws ScriptParsingException {
 		if (this.canRead()) {
 			char c = this.input.charAt(this.cursor);
@@ -111,6 +115,7 @@ public class ExpressionReader {
 	without actually reading it. {@link #cursor}, {@link #line}, and
 	{@link #column} are left unchanged as a result of calling this method.
 	*/
+	@Deprecated
 	public char peek() {
 		return this.canRead() ? this.input.charAt(this.cursor) : 0;
 	}
@@ -124,6 +129,7 @@ public class ExpressionReader {
 	attempts to read one character, returns true if successful,
 	and false if we reached the end of our input.
 	*/
+	@Deprecated
 	public boolean skip() throws ScriptParsingException {
 		return this.read() != 0;
 	}
@@ -136,6 +142,7 @@ public class ExpressionReader {
 	the returned number will be less than (count)
 	if the end of input was reached while skipping.
 	*/
+	@Deprecated
 	public int skip(int count) {
 		count = Math.min(count, this.input.length() - this.cursor);
 		for (int i = 0; i < count; i++) {
@@ -152,6 +159,7 @@ public class ExpressionReader {
 	the returned String's {@link String#length()} will be less
 	than (count) if the end of input was reached while reading.
 	*/
+	@Deprecated
 	public String read(int count) {
 		int startIndex = this.cursor;
 		int endIndex = Math.min(startIndex + count, this.input.length());
@@ -165,6 +173,7 @@ public class ExpressionReader {
 	reads that character, and returns true.
 	otherwise, does NOT read that character, and returns false.
 	*/
+	@Deprecated
 	public boolean has(char expected) {
 		if (!this.canRead()) return false;
 		char got = this.input.charAt(this.cursor);
@@ -183,6 +192,7 @@ public class ExpressionReader {
 	reads those characters and returns true.
 	otherwise, does NOT read those characters, and returns false.
 	*/
+	@Deprecated
 	public boolean has(String expected) {
 		if (this.input.regionMatches(this.cursor, expected, 0, expected.length())) {
 			this.onCharsRead(expected);
@@ -201,6 +211,7 @@ public class ExpressionReader {
 	provided predicate, reads that character and returns true.
 	otherwise, does NOT read that character, and returns false.
 	*/
+	@Deprecated
 	public boolean has(CharPredicate predicate) {
 		if (!this.canRead()) return false;
 		char got = this.input.charAt(this.cursor);
@@ -218,6 +229,7 @@ public class ExpressionReader {
 	while the next character to be read tests true
 	by th provided predicate, skips that character.
 	*/
+	@Deprecated
 	public void skipWhile(CharPredicate predicate) {
 		char c;
 		while (this.canRead() && predicate.test(c = this.input.charAt(this.cursor))) {
@@ -230,6 +242,7 @@ public class ExpressionReader {
 	by th provided predicate, reads that character.
 	returns the characters which were read.
 	*/
+	@Deprecated
 	public String readWhile(CharPredicate predicate) {
 		int start = this.cursor;
 		this.skipWhile(predicate);
@@ -280,6 +293,7 @@ public class ExpressionReader {
 	otherwise, does NOT read that character,
 	and throws a {@link ScriptParsingException}.
 	*/
+	@Deprecated
 	public void expect(char expected) throws ScriptParsingException {
 		if (!this.has(expected)) {
 			throw new ScriptParsingException("Expected '" + expected + '\'', this);
@@ -297,6 +311,7 @@ public class ExpressionReader {
 	otherwise, does NOT read those characters,
 	and throws a {@link ScriptParsingException}.
 	*/
+	@Deprecated
 	public void expect(String expected) throws ScriptParsingException {
 		if (!this.has(expected)) {
 			throw new ScriptParsingException("Expected '" + expected + '\'', this);
@@ -312,6 +327,7 @@ public class ExpressionReader {
 	reads an operator as if by {@link #readOperator()},
 	but does not modify {@link #cursor}, {@link #line}, or {@link #column}.
 	*/
+	@Deprecated
 	public String peekOperator() {
 		CursorPos old = this.getCursor();
 		String operator = this.readOperator();
@@ -330,6 +346,7 @@ public class ExpressionReader {
 	see {@link #isOperatorSymbol(char)} for the exact predicate used
 	to determine whether or not a character is an operator symbol.
 	*/
+	@Deprecated
 	public String readOperator() {
 		return this.readWhile(ExpressionReader::isOperatorSymbol);
 	}
@@ -351,6 +368,7 @@ public class ExpressionReader {
 		};
 	}
 
+	@Deprecated
 	public boolean hasOperator(String operator) {
 		CursorPos revert = this.getCursor();
 		if (this.has(operator) && !isOperatorSymbol(this.peek())) {
@@ -367,6 +385,7 @@ public class ExpressionReader {
 		return this.hasOperator(operator);
 	}
 
+	@Deprecated
 	public void expectOperator(String operator) throws ScriptParsingException {
 		if (!this.hasOperator(operator)) throw new ScriptParsingException("Expected '" + operator + '\'', this);
 	}
@@ -384,6 +403,7 @@ public class ExpressionReader {
 		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_');
 	}
 
+	@Deprecated
 	public @Nullable String readIdentifierOrNull() throws ScriptParsingException {
 		char c = this.peek();
 		if (isLetterOrUnderscore(c)) {
@@ -422,6 +442,7 @@ public class ExpressionReader {
 		return this.readIdentifierOrNull();
 	}
 
+	@Deprecated
 	public String readIdentifier() throws ScriptParsingException {
 		String identifier = this.readIdentifierOrNull();
 		return identifier != null ? identifier : "";
@@ -432,6 +453,7 @@ public class ExpressionReader {
 		return this.readIdentifier();
 	}
 
+	@Deprecated
 	public String peekIdentifier() throws ScriptParsingException {
 		CursorPos revert = this.getCursor();
 		String identifier = this.readIdentifier();
@@ -444,6 +466,7 @@ public class ExpressionReader {
 		return this.peekIdentifier();
 	}
 
+	@Deprecated
 	public boolean hasIdentifier(String identifier) throws ScriptParsingException {
 		char c = this.peek();
 		if (isLetterOrUnderscore(c)) {
@@ -474,6 +497,7 @@ public class ExpressionReader {
 		return this.hasIdentifier(identifier);
 	}
 
+	@Deprecated
 	public String expectIdentifier() throws ScriptParsingException {
 		String identifier = this.readIdentifier();
 		if (!identifier.isEmpty()) return identifier;
@@ -485,6 +509,7 @@ public class ExpressionReader {
 		return this.expectIdentifier();
 	}
 
+	@Deprecated
 	public void expectIdentifier(String identifier) throws ScriptParsingException {
 		if (!this.hasIdentifier(identifier)) {
 			throw new ScriptParsingException("Expected '" + identifier + '\'', this);

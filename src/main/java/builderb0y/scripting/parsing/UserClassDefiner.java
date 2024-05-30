@@ -54,7 +54,7 @@ public class UserClassDefiner {
 		this.parser.input.expectAfterWhitespace('(');
 		List<FieldCompileContext> fields = new ArrayList<>(8);
 		while (!this.parser.input.hasAfterWhitespace(')')) {
-			String typeName = this.parser.input.expectIdentifier();
+			String typeName = this.parser.input.expectIdentifierAfterWhitespace();
 			TypeInfo type = this.parser.environment.getType(this.parser, typeName);
 			if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, this.parser.input);
 

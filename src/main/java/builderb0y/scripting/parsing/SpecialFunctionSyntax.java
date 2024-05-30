@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.loops.*;
 import builderb0y.scripting.bytecode.tree.*;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -352,6 +353,9 @@ public class SpecialFunctionSyntax {
 				String typeName = parser.input.expectIdentifierAfterWhitespace();
 				TypeInfo type = parser.environment.getType(parser, typeName);
 				if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
+				if (type.getSort() == Sort.VOID) {
+					throw new ScriptParsingException("void-typed parameters are not allowed.", parser.input);
+				}
 				if (parser.input.hasOperatorAfterWhitespace("*")) {
 					for (String name : MultiParameter.parse(parser).names()) {
 						parameters.add(new UserParameter(type, name));
@@ -567,6 +571,9 @@ public class SpecialFunctionSyntax {
 					else if (parser.input.hasOperatorAfterWhitespace(":=")) returning = true;
 					else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
 					initializer = parser.nextSingleExpression();
+					if (initializer.getTypeInfo().getSort() == Sort.VOID) {
+						throw new ScriptParsingException("void-typed variables are not allowed.", parser.input);
+					}
 					parser.environment.user().setVariableType(name, initializer.getTypeInfo());
 					parser.environment.user().assignVariable(name);
 				}

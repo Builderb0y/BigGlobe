@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.scripting.environments.MinecraftVersion;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -435,6 +436,9 @@ public class BuiltinScriptEnvironment {
 				else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
 				else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
 				InsnTree initializer = parser.nextSingleExpression();
+				if (initializer.getTypeInfo().getSort() == Sort.VOID) {
+					throw new ScriptParsingException("void-typed variables are not allowed.", parser.input);
+				}
 				parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
 				parser.environment.user().assignVariable(varName);
 				LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());

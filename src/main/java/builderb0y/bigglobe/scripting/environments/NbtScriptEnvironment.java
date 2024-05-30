@@ -197,6 +197,7 @@ public class NbtScriptEnvironment {
 	}
 
 	public static NbtElement setMember(NbtElement element, String name, NbtElement value) {
+		Objects.requireNonNull(name, "key is null.");
 		if (element instanceof NbtCompound compound) {
 			if (value != null) return compound.put(name, value);
 			else return ((NbtCompoundRemoveAndReturnAccess)(compound)).bigglobe_remove(name);

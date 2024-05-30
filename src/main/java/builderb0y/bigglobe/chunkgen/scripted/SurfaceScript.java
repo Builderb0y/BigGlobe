@@ -20,7 +20,6 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ConditionalNegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -157,8 +156,8 @@ public interface SurfaceScript extends Script {
 				LazyVarInfo adjacentColumnXZ = new LazyVarInfo("adjacentColumnXZ", registry.columnContext.columnType());
 				LazyVarInfo segments         = new LazyVarInfo("segments",         type(BlockSegmentList.class));
 
-				MethodDeclarationInsnTree declaration = new MethodDeclarationInsnTree(
-					parser.method.info.access(),
+				MethodCompileContext derivativeMethod = parser.clazz.newMethod(
+					ACC_PUBLIC,
 					"derivative_" + parser.clazz.memberUniquifier++,
 					body.getTypeInfo(),
 					Stream.concat(
@@ -171,10 +170,11 @@ public interface SurfaceScript extends Script {
 						),
 						capturer.streamImplicitParameters()
 					)
-					.toArray(LazyVarInfo.ARRAY_FACTORY),
-					return_(body)
+					.toArray(LazyVarInfo.ARRAY_FACTORY)
 				);
-				MethodInfo derivativeMethod = declaration.createMethodInfo(parser.clazz.info);
+				return_(body).emitBytecode(derivativeMethod);
+				derivativeMethod.endCode();
+				MethodInfo derivativeInfo = derivativeMethod.info;
 
 				InsnTree[] normalArgs = ObjectArrays.concat(
 					new InsnTree[] {
@@ -200,25 +200,22 @@ public interface SurfaceScript extends Script {
 				);
 
 				InsnTree normalInvoker, adjacentInvoker;
-				if (derivativeMethod.isStatic()) {
-					normalInvoker = invokeStatic(derivativeMethod, normalArgs);
-					adjacentInvoker = invokeStatic(derivativeMethod, adjacentArgs);
+				if (derivativeInfo.isStatic()) {
+					normalInvoker   = invokeStatic(derivativeInfo, normalArgs);
+					adjacentInvoker = invokeStatic(derivativeInfo, adjacentArgs);
 				}
 				else {
-					normalInvoker = invokeInstance(load("this", parser.clazz.info), derivativeMethod, normalArgs);
-					adjacentInvoker = invokeInstance(load("this", parser.clazz.info), derivativeMethod, adjacentArgs);
+					normalInvoker   = invokeInstance(load("this", parser.clazz.info), derivativeInfo, normalArgs);
+					adjacentInvoker = invokeInstance(load("this", parser.clazz.info), derivativeInfo, adjacentArgs);
 				}
 
-				return seq(
-					declaration,
-					ConditionalNegateInsnTree.create(
-						newParser,
-						sub(newParser, adjacentInvoker, normalInvoker),
-						lt(
-							parser,
-							z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
-							z ? ScriptedColumn.INFO.z(load(mainColumn)) : ScriptedColumn.INFO.x(load(mainColumn))
-						)
+				return ConditionalNegateInsnTree.create(
+					newParser,
+					sub(newParser, adjacentInvoker, normalInvoker),
+					lt(
+						parser,
+						z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
+						z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
 					)
 				);
 			};

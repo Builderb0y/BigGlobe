@@ -32,10 +32,21 @@ public class UserDefinitionsTest extends TestCommon {
 	}
 
 	@Test
+	public void testVoidVariables() throws ScriptParsingException {
+		assertFail("void-typed variables are not allowed.", "void v = noop ,, v");
+		assertFail("void-typed variables are not allowed.", "void * ( v = noop ) ,, v");
+		assertFail("void-typed variables are not allowed.", "var v = noop ,, v");
+		assertFail("void-typed variables are not allowed.", "var * ( v = noop ) ,, v");
+		assertSuccess(0, "void nothing ( : noop ) nothing ( ) 0");
+		assertFail("void-typed parameters are not allowed.", "void nothing ( void v : noop )");
+		assertFail("void-typed parameters are not allowed.", "void nothing ( void * ( v ) : noop )");
+	}
+
+	@Test
 	public void testDuplicateVariables() {
-		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, int tmp = 2 ,, 3");
-		assertFail("Variable 'tmp' has already been declared in this scope.", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
-		assertFail("Variable 'tmp' has already been declared in this scope.", "int * ( tmp = 1 , tmp = 2 ) ,, 3");
+		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, int tmp = 2 ,, 3");
+		assertFail("Variable 'tmp' is already defined in this scope", "int tmp = 1 ,, ( int tmp = 2 ) ,, 3");
+		assertFail("Variable 'tmp' is already defined in this scope", "int * ( tmp = 1 , tmp = 2 ) ,, 3");
 	}
 
 	@Test
@@ -318,7 +329,7 @@ public class UserDefinitionsTest extends TestCommon {
 			"""
 		);
 		assertFail("Variable 'a' has already been declared in this scope.", "int a = 0 ,, int f ( int a : a ) ,, f ( 0 )");
-		assertFail("Variable 'a' has already been declared in this scope.", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
+		assertFail("Variable 'a' is already defined in this scope", "int a = 0 ,, int f ( : int a = 0 ,, a ) ,, f ( 0 )");
 		assertFail("Variable 'x' has not been assigned to yet.",
 			"""
 			int x = (

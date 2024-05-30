@@ -26,8 +26,13 @@ testing:
 		in other words, see if my mixin is still necessary or not.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
 
+1.21 stuff:
+	1.21 makes some changes to end gateways and obsidian platforms.
+		I have mixins to this behavior which will need to be re-evaluated to see if they need to change or not.
+	add teleport() to EntityVersions, since FabricDimensions is now removed.
+	add IdentifierVersions, since the constructor was replaced with a factory method.
+
 where I left off:
-	add basic info about ScriptedColumns when accessed via a ScriptedColumnLookup.
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 
@@ -57,7 +62,13 @@ changelog:
 	* Added frozen and sandy cave themes.
 		* Existing cave systems will have mismatches on the border between old chunks and new chunks.
 	* Void clouds now avoid generating too close to end cities.
+	* Made ancient cities less common.
+		* I don't actually know how this will affect any ancient cities that are near the border between old chunks and new chunks. You might get overlapping cities, cities that are cut-off, or cities that spawn normally.
 	* Possibly sped up script compilation somewhat.
+
+alternate world presets:
+	paradise.
+	islands.
 
 4.0 stuff:
 	/waypoint
@@ -68,7 +79,6 @@ changelog:
 			in <dimension>
 			near <x y z>
 	fully immutable NBT elements for scripts.
-	add sandy and frozen cave types?
 	option to specify that a noise column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -137,9 +147,6 @@ AutoCodec:
 	allow RecordDecoder to provide DecodeContext to constructors which need it.
 
 scripting:
-	it is possible for scripts to add null keys and values to NbtCompound's,
-		which would throw an exception much later after the script returns,
-		be difficult to debug, and would prevent chunks from saving properly.
 	if a script template input declares a function and the template uses $INPUT more than once, this will probably cause problems.
 	use script debug name in print().
 	SwitchInsnTree needs to manage its case scopes more manually.
@@ -186,6 +193,10 @@ scripting:
 	make user method declaration no longer an InsnTree?
 	make fields on InsnTree's final.
 	make it so that constant template inputs remain constants without being turned into variables.
+	Type?(expression)
+		attempts to cast the expression to Type, but returns null if this fails for any reason.
+		can be chained with ?:
+		might also need to make "as" into a keyword too so I can do .as?(Type)
 
 features:
 	general:
@@ -217,14 +228,6 @@ features:
 			mushroom:
 				glowing mushrooms?
 					that hang from the ceiling?
-			frozen?
-				floor:
-					snow.
-					maybe some ice sprinkled in with the snow.
-			sandy?
-				floor:
-					sand.
-					sandstone under that.
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		more types of geodes/more colors of pretty crystals?
 		make underground pocket placement faster by only computing noise in a circle instead of a square.

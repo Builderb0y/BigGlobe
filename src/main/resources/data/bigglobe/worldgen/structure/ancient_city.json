@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:ancient_city",
+	"biomes": "#bigglobe:has_structure/ancient_city"
+}

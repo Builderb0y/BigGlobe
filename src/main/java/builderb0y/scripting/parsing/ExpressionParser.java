@@ -225,7 +225,7 @@ public class ExpressionParser {
 				}
 				//another operator (except ++ and --) indicates that said
 				//operator didn't get processed sooner when it should have.
-				String operator = this.input.peekOperator();
+				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
@@ -993,6 +993,9 @@ public class ExpressionParser {
 			TypeInfo type = this.environment.getType(this, name);
 			if (type != null) {
 				if (this.input.hasOperatorAfterWhitespace("*")) {
+					if (type.getSort() == Sort.VOID) {
+						throw new ScriptParsingException("void-typed variables are not allowed.", this.input);
+					}
 					return MultiDeclaration.parse(this, type).sequence();
 				}
 				else if (this.input.peekAfterWhitespace() == '(') { //casting.
@@ -1002,6 +1005,9 @@ public class ExpressionParser {
 					String varName = this.input.readIdentifierAfterWhitespace();
 					if (!varName.isEmpty()) { //variable or method declaration.
 						if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
+							if (type.getSort() == Sort.VOID) {
+								throw new ScriptParsingException("void-typed variables are not allowed.", this.input);
+							}
 							this.verifyName(varName, "variable");
 							this.checkVariable(varName);
 							this.environment.user().reserveVariable(varName, type);
@@ -1011,6 +1017,9 @@ public class ExpressionParser {
 							return new VariableDeclareAssignInsnTree(variable, initializer);
 						}
 						else if (this.input.hasOperatorAfterWhitespace(":=")) { //also variable declaration.
+							if (type.getSort() == Sort.VOID) {
+								throw new ScriptParsingException("void-typed variables are not allowed.", this.input);
+							}
 							this.verifyName(varName, "variable");
 							this.checkVariable(varName);
 							this.environment.user().reserveVariable(varName, type);
@@ -1021,7 +1030,8 @@ public class ExpressionParser {
 						}
 						else if (this.input.hasAfterWhitespace('(')) { //function declaration.
 							this.verifyName(varName, "method");
-							return new UserFunctionDefiner(this, varName, type).parse();
+							new UserFunctionDefiner(this, varName, type).parse();
+							return noop;
 						}
 						else if (this.input.hasOperatorAfterWhitespace(".")) { //extension method declaration.
 							TypeInfo typeBeingExtended = this.environment.getType(this, varName);
@@ -1031,7 +1041,8 @@ public class ExpressionParser {
 							varName = this.input.readIdentifierAfterWhitespace();
 							this.verifyName(varName, "extension method");
 							this.input.expectAfterWhitespace('(');
-							return new UserExtensionMethodDefiner(this, varName, type, typeBeingExtended).parse();
+							new UserExtensionMethodDefiner(this, varName, type, typeBeingExtended).parse();
+							return noop;
 						}
 						else {
 							throw new ScriptParsingException("Expected '=', '(', or '.'", this.input);

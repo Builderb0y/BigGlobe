@@ -7,11 +7,11 @@ import java.util.stream.Stream;
 import com.google.common.collect.ObjectArrays;
 
 import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.MethodDeclarationInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -35,13 +35,13 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		this.returnType = returnType;
 	}
 
-	public InsnTree parse() throws ScriptParsingException {
+	public void parse() throws ScriptParsingException {
 		this.userParameters = UserParameterList.parse(this.parser);
 		this.addBuiltinParameters();
 		this.addCapturedParameters();
 		this.newMethod = this.createMethodInfo();
 		this.makeMethodCallable();
-		return this.parseMethodBody();
+		this.parseMethodBody();
 	}
 
 	public Stream<TypeInfo> streamUserParameterTypes() {
@@ -84,29 +84,25 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		return parser;
 	}
 
-	public InsnTree parseMethodBody() throws ScriptParsingException {
+	public void parseMethodBody() throws ScriptParsingException {
 		this.parser.environment.user().push();
 		ExpressionParser newParser = this.createChildParser();
 		InsnTree body = newParser.nextScript();
-		if (!newParser.input.has(')')) {
-			throw new ScriptParsingException("Unexpected trailing character: " + newParser.input.getChar(newParser.input.cursor - 1), newParser.input);
+		if (!newParser.input.hasAfterWhitespace(')')) {
+			throw new ScriptParsingException("Unexpected trailing character: " + newParser.input.peekAfterWhitespace(), newParser.input);
 		}
 		if (!body.jumpsUnconditionally()) body = newParser.createReturn(body);
 		this.parser.environment.user().pop();
 
-		return this.createMethodDeclaration(body);
+		this.emitMethodBytecode(body);
 	}
 
-	public abstract InsnTree createMethodDeclaration(InsnTree body);
+	public abstract void emitMethodBytecode(InsnTree body);
 
-	public InsnTree createMethodDeclaration(Stream<LazyVarInfo> parameters, InsnTree body) {
-		return new MethodDeclarationInsnTree(
-			this.newMethod.access(),
-			this.newMethod.name,
-			this.newMethod.returnType,
-			parameters.toArray(LazyVarInfo.ARRAY_FACTORY),
-			body
-		);
+	public void emitMethodBytecode(Stream<LazyVarInfo> parameters, InsnTree body) {
+		MethodCompileContext newMethod = this.parser.clazz.newMethod(this.newMethod.access(), this.newMethod.name, this.newMethod.returnType, parameters.toArray(LazyVarInfo.ARRAY_FACTORY));
+		body.emitBytecode(newMethod);
+		newMethod.endCode();
 	}
 
 	public static class UserFunctionDefiner extends UserMethodDefiner {
@@ -146,8 +142,8 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		}
 
 		@Override
-		public InsnTree createMethodDeclaration(InsnTree body) {
-			return this.createMethodDeclaration(
+		public void emitMethodBytecode(InsnTree body) {
+			this.emitMethodBytecode(
 				Stream.concat(
 					this.streamUserParameters(),
 					this.streamImplicitParameters()
@@ -207,8 +203,8 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		}
 
 		@Override
-		public InsnTree createMethodDeclaration(InsnTree body) {
-			return this.createMethodDeclaration(
+		public void emitMethodBytecode(InsnTree body) {
+			this.emitMethodBytecode(
 				Stream.of(
 					Stream.of(new LazyVarInfo("this", this.typeBeingExtended)),
 					this.streamUserParameters(),
