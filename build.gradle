@@ -128,6 +128,7 @@ java() {
 
 jar() {
 	exclude('assets/bigglobe/icon_1440x.png') //big file that isn't even used.
+	exclude('assets/bigglobe/icon_256x_pride.gif') //also not used except as my discord server icon.
 	exclude('wip/**')
 }
 
