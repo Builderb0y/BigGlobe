@@ -71,6 +71,7 @@ alternate world presets:
 	islands.
 
 4.0 stuff:
+	ore features that can place more than one block state randomly.
 	/waypoint
 		add <x y z> <dimension> <owner>
 		remove <id>

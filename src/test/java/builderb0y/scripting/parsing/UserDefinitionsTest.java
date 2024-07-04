@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import it.unimi.dsi.fastutil.HashCommon;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import builderb0y.scripting.ScriptInterfaces.ObjectUnaryOperator;
@@ -8,6 +9,7 @@ import builderb0y.scripting.TestCommon;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
 
+import static builderb0y.scripting.bytecode.ClassOptimizerTest.dumpBytecode;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserDefinitionsTest extends TestCommon {
@@ -375,6 +377,33 @@ public class UserDefinitionsTest extends TestCommon {
 			zero ( )
 			"""
 		);
+		assertSuccess(0,
+			"""
+			int result = 0
+			int first ( : result )
+			int second ( : first ( ) )
+			second ( )
+			"""
+		);
+		assertSuccess(0,
+			"""
+			int result = 0
+			class Test ( )
+			int Test . getResult ( : result )
+			int getResult ( : Test . new ( ) . getResult ( ) )
+			getResult ( )
+			"""
+		);
+		assertSuccess(0,
+			"""
+			int result = 0
+			class Test ( )
+			int Test . getResult ( : result )
+			Test test = new ( )
+			int getResult ( : test . getResult ( ) )
+			getResult ( )
+			"""
+		);
 	}
 
 	@Test
@@ -714,6 +743,26 @@ public class UserDefinitionsTest extends TestCommon {
 				return ( counter > 0 ? counter + sub ( ) : 0 )
 			)
 			main ( 5 )
+			"""
+		);
+	}
+
+	@Test
+	@Disabled
+	public void testCapturing() throws ScriptParsingException {
+		dumpBytecode(
+			"""
+			int * ( x = 1 , y = 2 , z = 3 )
+			int a ( :
+				int b ( :
+					int c ( :
+						y
+					)
+					c ( )
+				)
+				b ( )
+			)
+			a ( )
 			"""
 		);
 	}

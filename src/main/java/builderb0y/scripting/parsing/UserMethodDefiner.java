@@ -1,19 +1,22 @@
 package builderb0y.scripting.parsing;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
 
-import builderb0y.scripting.bytecode.LazyVarInfo;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.bigglobe.chunkgen.scripted.SurfaceScript.AnyNumericTypeExpressionParser;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.DelayedMethod.LazyInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ConditionalNegateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.ReturnInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
@@ -27,7 +30,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 	public final TypeInfo returnType;
 
 	public UserParameterList userParameters;
-	public MethodInfo newMethod;
+	public DelayedMethod newMethod;
 
 	public UserMethodDefiner(ExpressionParser parser, String methodName, TypeInfo returnType) {
 		super(parser);
@@ -36,20 +39,16 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 	}
 
 	public void parse() throws ScriptParsingException {
-		this.userParameters = UserParameterList.parse(this.parser);
+		this.parseUserParameters();
 		this.addBuiltinParameters();
 		this.addCapturedParameters();
-		this.newMethod = this.createMethodInfo();
+		this.parser.delayedMethods.add(this.newMethod = new DelayedMethod(this));
 		this.makeMethodCallable();
 		this.parseMethodBody();
 	}
 
-	public Stream<TypeInfo> streamUserParameterTypes() {
-		return (
-			Arrays
-			.stream(this.userParameters.parameters())
-			.map(UserParameter::type)
-		);
+	public void parseUserParameters() throws ScriptParsingException {
+		this.userParameters = UserParameterList.parse(this.parser);
 	}
 
 	public Stream<LazyVarInfo> streamUserParameters() {
@@ -62,31 +61,16 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		);
 	}
 
-	public MethodInfo createMethodInfo(Stream<TypeInfo> parameterTypes) {
-		return new MethodInfo(
-			this.parser.method.info.access(),
-			this.parser.clazz.info,
-			this.methodName + '_' + this.parser.clazz.memberUniquifier++,
-			this.returnType,
-			parameterTypes.toArray(TypeInfo.ARRAY_FACTORY)
-		);
-	}
-
-	public abstract MethodInfo createMethodInfo();
-
 	public abstract void makeMethodCallable();
 
 	public ExpressionParser createChildParser() {
-		ExpressionParser parser = new InnerMethodExpressionParser(this.parser, this.returnType);
-		for (UserParameter parameter : this.userParameters.parameters()) {
-			parser.environment.user().reserveAndAssignVariable(parameter.name(), parameter.type());
-		}
-		return parser;
+		return new InnerMethodExpressionParser(this.parser, this.returnType);
 	}
 
 	public void parseMethodBody() throws ScriptParsingException {
 		this.parser.environment.user().push();
 		ExpressionParser newParser = this.createChildParser();
+		this.newMethod.configureEnvironment(newParser);
 		InsnTree body = newParser.nextScript();
 		if (!newParser.input.hasAfterWhitespace(')')) {
 			throw new ScriptParsingException("Unexpected trailing character: " + newParser.input.peekAfterWhitespace(), newParser.input);
@@ -94,15 +78,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		if (!body.jumpsUnconditionally()) body = newParser.createReturn(body);
 		this.parser.environment.user().pop();
 
-		this.emitMethodBytecode(body);
-	}
-
-	public abstract void emitMethodBytecode(InsnTree body);
-
-	public void emitMethodBytecode(Stream<LazyVarInfo> parameters, InsnTree body) {
-		MethodCompileContext newMethod = this.parser.clazz.newMethod(this.newMethod.access(), this.newMethod.name, this.newMethod.returnType, parameters.toArray(LazyVarInfo.ARRAY_FACTORY));
-		body.emitBytecode(newMethod);
-		newMethod.endCode();
+		this.newMethod.body = body;
 	}
 
 	public static class UserFunctionDefiner extends UserMethodDefiner {
@@ -112,43 +88,40 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		}
 
 		@Override
-		public MethodInfo createMethodInfo() {
-			return this.createMethodInfo(
-				Stream.concat(
-					this.streamUserParameterTypes(),
-					this.streamImplicitParameterTypes()
-				)
-			);
-		}
-
-		@Override
 		public void makeMethodCallable() {
-			MethodInfo method = this.newMethod;
+			DelayedMethod method = this.newMethod;
 			TypeInfo callerInfo = this.parser.clazz.info;
 			this.parser.environment.user().addFunction(
 				this.methodName,
-				method.isStatic()
+				this.parser.method.info.isStatic()
 				? (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					InsnTree[] concatArguments = ObjectArrays.concat(castArguments, this.implicitParameters.toArray(LoadInsnTree[]::new), InsnTree.class);
-					return new CastResult(invokeStatic(method, concatArguments), castArguments != arguments);
+					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					return new CastResult(
+						new LazyInvokeInsnTree(
+							() -> {
+								InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
+								return invokeStatic(method.methodInfo, concatArguments);
+							},
+							method.returnType
+						),
+						castArguments != arguments
+					);
 				}
 				: (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					InsnTree[] concatArguments = ObjectArrays.concat(castArguments, this.implicitParameters.toArray(LoadInsnTree[]::new), InsnTree.class);
-					return new CastResult(invokeInstance(load("this", callerInfo), method, concatArguments), castArguments != arguments);
+					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					return new CastResult(
+						new LazyInvokeInsnTree(
+							() -> {
+								InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
+								return invokeInstance(load("this", callerInfo), method.methodInfo, concatArguments);
+							},
+							method.returnType
+						),
+						castArguments != arguments
+					);
 				}
-			);
-		}
-
-		@Override
-		public void emitMethodBytecode(InsnTree body) {
-			this.emitMethodBytecode(
-				Stream.concat(
-					this.streamUserParameters(),
-					this.streamImplicitParameters()
-				),
-				body
 			);
 		}
 	}
@@ -163,55 +136,53 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		}
 
 		@Override
-		public ExpressionParser createChildParser() {
-			ExpressionParser newParser = super.createChildParser();
-			newParser.environment.user().reserveAndAssignVariable("this", this.typeBeingExtended);
-			return newParser;
-		}
-
-		@Override
-		public MethodInfo createMethodInfo() {
-			return this.createMethodInfo(
-				Stream.of(
-					Stream.of(this.typeBeingExtended),
-					this.streamUserParameterTypes(),
-					this.streamImplicitParameterTypes()
-				)
-				.flatMap(Function.identity())
-			);
+		public Stream<LazyVarInfo> streamUserParameters() {
+			return Stream.concat(Stream.of(new LazyVarInfo("this", this.typeBeingExtended)), super.streamUserParameters());
 		}
 
 		@Override
 		public void makeMethodCallable() {
-			MethodInfo method = this.newMethod;
+			DelayedMethod method = this.newMethod;
 			TypeInfo callerInfo = this.parser.clazz.info;
+			TypeInfo typeBeingExtended = this.typeBeingExtended;
 			this.parser.environment.user().addMethod(
-				this.typeBeingExtended,
+				typeBeingExtended,
 				this.methodName,
-				method.isStatic()
+				this.parser.method.info.isStatic()
 				? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					InsnTree[] concatArguments = concat(receiver, castArguments, this.implicitParameters.toArray(LoadInsnTree[]::new));
-					return new CastResult(mode.makeInvoker(parser, method, concatArguments), castArguments != arguments);
+					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					return new CastResult(
+						new LazyInvokeInsnTree(
+							() -> {
+								InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
+								return mode.makeInvoker(parser, method.methodInfo, concatArguments);
+							},
+							switch (mode) {
+								case NORMAL, NULLABLE -> method.returnType;
+								case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
+							}
+						),
+						castArguments != arguments
+					);
 				}
 				: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					InsnTree[] concatArguments = concat(receiver, castArguments, this.implicitParameters.toArray(LoadInsnTree[]::new));
-					return new CastResult(mode.makeInvoker(parser, load("this", callerInfo), method, concatArguments), castArguments != arguments);
+					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					return new CastResult(
+						new LazyInvokeInsnTree(
+							() -> {
+								InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
+								return mode.makeInvoker(parser, load("this", callerInfo), method.methodInfo, concatArguments);
+							},
+							switch (mode) {
+								case NORMAL, NULLABLE -> method.returnType;
+								case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
+							}
+						),
+						castArguments != arguments
+					);
 				}
-			);
-		}
-
-		@Override
-		public void emitMethodBytecode(InsnTree body) {
-			this.emitMethodBytecode(
-				Stream.of(
-					Stream.of(new LazyVarInfo("this", this.typeBeingExtended)),
-					this.streamUserParameters(),
-					this.streamImplicitParameters()
-				)
-				.flatMap(Function.identity()),
-				body
 			);
 		}
 
@@ -221,6 +192,85 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			System.arraycopy(userParameters, 0, result, 1, userParameters.length);
 			System.arraycopy(implicitParameters, 0, result, userParameters.length + 1, implicitParameters.length);
 			return result;
+		}
+	}
+
+	public static class DerivativeMethodDefiner extends UserMethodDefiner {
+
+		public DerivativeMethodDefiner(ExpressionParser parser, String methodName) {
+			super(parser, methodName, null);
+		}
+
+		public InsnTree createDerivative(TypeInfo columnType, boolean z) throws ScriptParsingException {
+			boolean wasEmpty = this.parser.delayedMethods.isEmpty();
+			this.parse();
+			if (wasEmpty) this.parser.finishDelayedMethods();
+			LazyVarInfo
+				mainColumn       = new LazyVarInfo("mainColumn",       columnType),
+				adjacentColumnX  = new LazyVarInfo("adjacentColumnX",  columnType),
+				adjacentColumnZ  = new LazyVarInfo("adjacentColumnZ",  columnType),
+				adjacentColumnXZ = new LazyVarInfo("adjacentColumnXZ", columnType);
+
+			InsnTree normalInvoker, adjacentInvoker;
+			InsnTree[] normalArgs = this.newMethod.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY);
+			InsnTree[] adjacentArgs = this.newMethod.streamCapturedArgs().map((LazyVarInfo variable) -> {
+				return switch (variable.name) {
+					case "mainColumn"       -> z ? adjacentColumnZ  : adjacentColumnX ;
+					case "adjacentColumnX"  -> z ? adjacentColumnXZ : mainColumn      ;
+					case "adjacentColumnZ"  -> z ? mainColumn       : adjacentColumnXZ;
+					case "adjacentColumnXZ" -> z ? adjacentColumnX  : adjacentColumnZ ;
+					default -> variable;
+				};
+			})
+			.map(InsnTrees::load)
+			.toArray(InsnTree.ARRAY_FACTORY);
+			if (this.newMethod.methodInfo.isStatic()) {
+				normalInvoker   = invokeStatic(this.newMethod.methodInfo, normalArgs);
+				adjacentInvoker = invokeStatic(this.newMethod.methodInfo, adjacentArgs);
+			}
+			else {
+				normalInvoker   = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, normalArgs);
+				adjacentInvoker = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, adjacentArgs);
+			}
+			return ConditionalNegateInsnTree.create(
+				this.parser,
+				sub(this.parser, adjacentInvoker, normalInvoker),
+				lt(
+					this.parser,
+					z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
+					z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
+				)
+			);
+		}
+
+		@Override
+		public void parseUserParameters() throws ScriptParsingException {
+			this.userParameters = new UserParameterList();
+		}
+
+		@Override
+		public void makeMethodCallable() {
+			//no-op.
+		}
+
+		@Override
+		public ExpressionParser createChildParser() {
+			AnyNumericTypeExpressionParser newParser = new AnyNumericTypeExpressionParser(this.parser);
+			newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
+				throw new ScriptParsingException("For technical reasons, you cannot return from inside a derivative block", parser1.input);
+			}));
+			List<FunctionHandler> higherOrderDerivatives = Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
+				throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
+			});
+			newParser.environment.mutable().functions.put("dx", higherOrderDerivatives);
+			newParser.environment.mutable().functions.put("dz", higherOrderDerivatives);
+			return newParser;
+		}
+
+		@Override
+		public void parseMethodBody() throws ScriptParsingException {
+			super.parseMethodBody();
+			this.newMethod.returnType = ((ReturnInsnTree)(this.newMethod.body)).value.getTypeInfo();
 		}
 	}
 }

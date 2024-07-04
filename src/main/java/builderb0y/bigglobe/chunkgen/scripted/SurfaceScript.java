@@ -1,10 +1,5 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
-
-import com.google.common.collect.ObjectArrays;
 import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.annotations.Wrapper;
@@ -20,14 +15,13 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.ConditionalNegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.UserMethodDefiner.DerivativeMethodDefiner;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -132,6 +126,10 @@ public interface SurfaceScript extends Script {
 			return (ExpressionParser parser, String name) -> {
 				parser.input.expectAfterWhitespace('(');
 				parser.environment.user().push();
+
+				InsnTree result = new DerivativeMethodDefiner(parser, "derivative_" + parser.clazz.memberUniquifier++).createDerivative(registry.columnContext.columnType(), z);
+
+				/*
 				ExpressionParser newParser = new AnyNumericTypeExpressionParser(parser);
 				newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
 					throw new ScriptParsingException("For technical reasons, you cannot return from inside a " + (z ? "dz" : "dx") + " block", parser1.input);
@@ -146,10 +144,14 @@ public interface SurfaceScript extends Script {
 
 				InsnTree body = newParser.nextScript();
 				body = body.cast(newParser, TypeInfos.widenToInt(body.getTypeInfo()), CastMode.IMPLICIT_THROW);
-
 				parser.input.expectAfterWhitespace(')');
+				*/
+
 				parser.environment.user().pop();
 
+				return result;
+
+				/*
 				LazyVarInfo mainColumn       = new LazyVarInfo("mainColumn",       registry.columnContext.columnType());
 				LazyVarInfo adjacentColumnX  = new LazyVarInfo("adjacentColumnX",  registry.columnContext.columnType());
 				LazyVarInfo adjacentColumnZ  = new LazyVarInfo("adjacentColumnZ",  registry.columnContext.columnType());
@@ -218,6 +220,7 @@ public interface SurfaceScript extends Script {
 						z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
 					)
 				);
+				*/
 			};
 		}
 

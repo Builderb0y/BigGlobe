@@ -303,14 +303,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			this.registry = registry;
 			this.sortedStructures = (
 				registry
-					.streamEntries()
-					.sorted(
-						Comparator.comparing(
-								(RegistryEntry<Structure> entry) -> entry.value().getFeatureGenerationStep()
-							)
-							.thenComparing(UnregisteredObjectException::getID)
+				.streamEntries()
+				.sorted(
+					Comparator.comparing(
+						(RegistryEntry<Structure> entry) -> entry.value().getFeatureGenerationStep()
 					)
-					.toArray(RegistryEntry[]::new)
+					.thenComparing(UnregisteredObjectException::getID)
+				)
+				.toArray(RegistryEntry[]::new)
 			);
 		}
 	}

@@ -14,7 +14,6 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.StackList;
 import builderb0y.scripting.util.StackMap;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -28,6 +27,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	public StackMap<String,    List<FunctionHandler>> functions;
 	public StackMap<NamedType, List<MethodHandler  >> methods;
 	public StackMap<String,         TypeInfo        > types;
+	public Set<DelayedMethod> delayedMethods;
 
 	public UserScriptEnvironment() {
 		this.variables = new StackMap<>(8);
@@ -35,6 +35,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		this.functions = new StackMap<>(4);
 		this.methods   = new StackMap<>(4);
 		this.types     = new StackMap<>(4);
+		this.delayedMethods = Collections.emptySet();
 	}
 
 	public UserScriptEnvironment(UserScriptEnvironment from) {
@@ -43,6 +44,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		this.functions = new StackMap<>(from.functions);
 		this.methods   = new StackMap<>(from.methods);
 		this.types     = new StackMap<>(from.types);
+		this.delayedMethods = new HashSet<>(from.delayedMethods);
 	}
 
 	@Override
@@ -170,7 +172,22 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
 		PendingLocal local = this.variables.get(name);
-		return local != null ? local.loader() : null;
+		if (local != null) {
+			LazyVarInfo variable = local.variable();
+			this.markVariableUsed(variable);
+			return load(variable);
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void markVariableUsed(LazyVarInfo variable) {
+		if (!this.delayedMethods.isEmpty()) {
+			for (DelayedMethod method : this.delayedMethods) {
+				method.onVariableUsed(variable);
+			}
+		}
 	}
 
 	@Override

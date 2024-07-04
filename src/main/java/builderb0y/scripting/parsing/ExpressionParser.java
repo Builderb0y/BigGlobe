@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -71,6 +69,7 @@ public class ExpressionParser {
 	public final ClassCompileContext clazz;
 	public final MethodCompileContext method;
 	public final RootScriptEnvironment environment;
+	public final List<DelayedMethod> delayedMethods;
 
 	public ExpressionParser(String input, ClassCompileContext clazz, MethodCompileContext method) {
 		this.input = new ExpressionReader(input);
@@ -78,6 +77,7 @@ public class ExpressionParser {
 		this.method = method;
 		this.environment = new RootScriptEnvironment();
 		this.environment.user().parser = this;
+		this.delayedMethods = new ArrayList<>(4);
 	}
 
 	/**
@@ -90,6 +90,7 @@ public class ExpressionParser {
 		this.method = from.method;
 		this.currentLine = from.currentLine;
 		this.environment = new RootScriptEnvironment(from.environment);
+		this.delayedMethods = from.delayedMethods;
 	}
 
 	/**
@@ -102,6 +103,7 @@ public class ExpressionParser {
 		this.method = from.method;
 		this.environment = new RootScriptEnvironment(from.environment);
 		this.environment.user().parser = this;
+		this.delayedMethods = from.delayedMethods;
 	}
 
 	public ExpressionParser addEnvironment(ScriptEnvironment environment) {
@@ -1030,7 +1032,9 @@ public class ExpressionParser {
 						}
 						else if (this.input.hasAfterWhitespace('(')) { //function declaration.
 							this.verifyName(varName, "method");
+							boolean empty = this.delayedMethods.isEmpty();
 							new UserFunctionDefiner(this, varName, type).parse();
+							if (empty) this.finishDelayedMethods();
 							return noop;
 						}
 						else if (this.input.hasOperatorAfterWhitespace(".")) { //extension method declaration.
@@ -1041,7 +1045,9 @@ public class ExpressionParser {
 							varName = this.input.readIdentifierAfterWhitespace();
 							this.verifyName(varName, "extension method");
 							this.input.expectAfterWhitespace('(');
+							boolean empty = this.delayedMethods.isEmpty();
 							new UserExtensionMethodDefiner(this, varName, type, typeBeingExtended).parse();
+							if (empty) this.finishDelayedMethods();
 							return noop;
 						}
 						else {
@@ -1073,6 +1079,14 @@ public class ExpressionParser {
 		catch (StackOverflowError error) {
 			throw new ScriptParsingException("Script too long or too complex", error, this.input);
 		}
+	}
+
+	public void finishDelayedMethods() {
+		MethodCompileContext[] methodCompileContexts = this.delayedMethods.stream().map((DelayedMethod method) -> method.createMethod(this)).toArray(MethodCompileContext[]::new);
+		for (int index = 0, length = methodCompileContexts.length; index < length; index++) {
+			this.delayedMethods.get(index).emitMethod(methodCompileContexts[index]);
+		}
+		this.delayedMethods.clear();
 	}
 
 	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {

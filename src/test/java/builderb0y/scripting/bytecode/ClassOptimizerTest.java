@@ -130,6 +130,12 @@ public class ClassOptimizerTest extends TestCommon {
 		dumpBytecode("return(Integer(switch(1: case(1, 2, 3: 1i) default(0i))))");
 	}
 
+	@Test
+	@Disabled
+	public void testNonCapturedVariables() throws ScriptParsingException {
+		dumpBytecode("int*(x = 1, y = 2, z = 3) int a(: y) a()");
+	}
+
 	public static void dumpBytecode(String script) throws ScriptParsingException {
 		ScriptParser<ObjectSupplier> parser = new ScriptParser<>(ObjectSupplier.class, script);
 		parser.toBytecode();

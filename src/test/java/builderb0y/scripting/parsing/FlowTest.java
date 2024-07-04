@@ -490,7 +490,7 @@ public class FlowTest extends TestCommon {
 			list
 			"""
 		);
-		assertFail("Variable 'x' has already been declared in this scope.", "for (int x in range[int x := 5, x + 5]: noop)");
+		assertFail("Variable 'x' has not been assigned to yet.", "for (int x in range[int x := 5, x + 5]: noop)");
 		assertFail(
 			"""
 			Unknown variable: x
