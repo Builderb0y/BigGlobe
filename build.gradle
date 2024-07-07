@@ -9,10 +9,12 @@ group   = project.maven_group
 sourceSets() {
 	main() {
 		java() {
-			srcDir(file("src/main/java_${project.minecraft_version}"))
+			srcDirs = Arrays.asList(file("src/main/versions/${project.minecraft_version}/java").listFiles())
+			//srcDir(file("src/main/java_${project.minecraft_version}"))
 		}
 		resources() {
-			srcDir(file("src/main/resources_${project.minecraft_version}"))
+			srcDirs = Arrays.asList(file("src/main/versions/${project.minecraft_version}/resources").listFiles())
+			//srcDir(file("src/main/resources_${project.minecraft_version}"))
 		}
 	}
 }
@@ -86,7 +88,7 @@ processResources() {
 }
 
 loom() {
-	accessWidenerPath = file("src/main/resources_${project.minecraft_version}/bigglobe.accesswidener")
+	accessWidenerPath = file("src/main/versions/${project.minecraft_version}/resources/core/bigglobe.accesswidener")
 }
 
 static int compareVersions(String versionA, String versionB) {

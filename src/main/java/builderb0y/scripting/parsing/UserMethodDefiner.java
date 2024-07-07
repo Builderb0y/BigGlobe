@@ -96,7 +96,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				this.parser.method.info.isStatic()
 				? (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
 					return new CastResult(
 						new LazyInvokeInsnTree(
 							() -> {
@@ -110,7 +110,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				}
 				: (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
 					return new CastResult(
 						new LazyInvokeInsnTree(
 							() -> {
@@ -151,7 +151,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				this.parser.method.info.isStatic()
 				? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
 					return new CastResult(
 						new LazyInvokeInsnTree(
 							() -> {
@@ -168,7 +168,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				}
 				: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
 					return new CastResult(
 						new LazyInvokeInsnTree(
 							() -> {
