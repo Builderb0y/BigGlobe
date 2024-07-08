@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -60,5 +62,38 @@ public class EntityVersions {
 
 	public static Box getBoundingBox(EntityType<?> type, double x, double y, double z) {
 		return type. #if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif (x, y, z);
+	}
+
+	public static ServerPlayerEntity teleport(ServerPlayerEntity player, ServerWorld destinationWorld, Vec3d position, Vec3d velocity, float yaw, float pitch) {
+		#if MC_VERSION >= MC_1_21_0
+			return (ServerPlayerEntity)(
+				player.teleportTo(
+					new TeleportTarget(
+						destinationWorld,
+						position,
+						velocity,
+						yaw,
+						pitch,
+						false,
+						TeleportTarget.NO_OP
+					)
+				)
+			);
+		#else
+			return FabricDimensions.teleport(
+				player,
+				destinationWorld,
+				new TeleportTarget(
+					new Vec3d(
+						destinationPosition.x(),
+						destinationPosition.y() - 1.0D,
+						destinationPosition.z()
+					),
+					player.getVelocity(),
+					player.getYaw(),
+					player.getPitch()
+				)
+			);
+		#endif
 	}
 }

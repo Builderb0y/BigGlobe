@@ -97,6 +97,14 @@ public class MojangPermuter implements Random {
 			this.seed = seed;
 		}
 
+		#if MC_VERSION >= MC_1_21_0
+
+			@Override
+			public Random split(long seed) {
+				return new MojangPermuter(Permuter.permute(this.seed, seed));
+			}
+		#endif
+
 		@Override
 		public Random split(String seed) {
 			return new MojangPermuter(Permuter.permute(this.seed, seed));

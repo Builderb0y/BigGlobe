@@ -74,7 +74,8 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 						)
 					)
 					.normal(matrix #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
-					.next();
+					#if MC_VERSION < MC_1_21_0 .next() #endif
+					;
 					return this;
 				}
 
@@ -98,15 +99,15 @@ public class StringEntityRenderer extends EntityRenderer<StringEntity> {
 				float u1 = ((float)(segment + 1)) / ((float)(segmentCount));
 
 				helper
-				.add(scratch.set(from.position).sub(from.right).add(from.up), u0, 0.0F,   from.up,     8.0D)
-				.add(scratch.set(from.position).add(from.right).add(from.up), u0, 0.125F, from.up,     8.0D)
-				.add(scratch.set(  to.position).add(  to.right).add(  to.up), u1, 0.125F,   to.up,     8.0D)
-				.add(scratch.set(  to.position).sub(  to.right).add(  to.up), u1, 0.0F,     to.up,     8.0D)
+				.add(scratch.set(from.position).sub(from.right).add(from.up), u0, 0.0F,   from.up,      8.0D)
+				.add(scratch.set(from.position).add(from.right).add(from.up), u0, 0.125F, from.up,      8.0D)
+				.add(scratch.set(  to.position).add(  to.right).add(  to.up), u1, 0.125F,   to.up,      8.0D)
+				.add(scratch.set(  to.position).sub(  to.right).add(  to.up), u1, 0.0F,     to.up,      8.0D)
 
-				.add(scratch.set(from.position).add(from.right).add(from.up), u0, 0.125F, from.right, 16.0D)
-				.add(scratch.set(from.position).add(from.right),              u0, 0.25F,  from.right, 16.0D)
-				.add(scratch.set(  to.position).add(  to.right),              u1, 0.25F,    to.right, 16.0D)
-				.add(scratch.set(  to.position).add(  to.right).add(  to.up), u1, 0.125F,   to.right, 16.0D)
+				.add(scratch.set(from.position).add(from.right).add(from.up), u0, 0.125F, from.right,  16.0D)
+				.add(scratch.set(from.position).add(from.right),              u0, 0.25F,  from.right,  16.0D)
+				.add(scratch.set(  to.position).add(  to.right),              u1, 0.25F,    to.right,  16.0D)
+				.add(scratch.set(  to.position).add(  to.right).add(  to.up), u1, 0.125F,   to.right,  16.0D)
 
 				.add(scratch.set(  to.position).sub(  to.right).add(  to.up), u1, 0.25F,    to.right, -16.0D)
 				.add(scratch.set(  to.position).sub(  to.right),              u1, 0.375F,   to.right, -16.0D)

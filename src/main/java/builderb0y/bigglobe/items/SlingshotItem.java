@@ -60,7 +60,7 @@ public class SlingshotItem extends RangedWeaponItem
 		if (ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) {
 			ammunitionStack = new ItemStack(BigGlobeItems.ROCK);
 		}
-		if ((progress = BowItem.getPullProgress(this.getMaxUseTime(stack) - remainingUseTicks)) < 0.1F) {
+		if ((progress = BowItem.getPullProgress(this.getMaxUseTime(stack #if MC_VERSION >= MC_1_21_0 , user #endif) - remainingUseTicks)) < 0.1F) {
 			return;
 		}
 		boolean creativeRock = creative && ammunitionStack.isOf(BigGlobeItems.ROCK);
@@ -90,7 +90,7 @@ public class SlingshotItem extends RangedWeaponItem
 	#endif
 
 	@Override
-	public int getMaxUseTime(ItemStack stack) {
+	public int getMaxUseTime(ItemStack stack #if MC_VERSION >= MC_1_21_0 , LivingEntity user #endif) {
 		return 72000;
 	}
 

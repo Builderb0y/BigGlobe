@@ -7,6 +7,7 @@ import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -24,7 +25,7 @@ public record StructurePieceTypeEntry(RegistryEntry<StructurePieceType> entry) i
 
 	public static StructurePieceType of(String id) {
 		if (id == null) return null;
-		StructurePieceType type = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structurePieceType()).get(new Identifier(id));
+		StructurePieceType type = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structurePieceType()).get(IdentifierVersions.create(id));
 		if (type != null) return type;
 		else throw new IllegalArgumentException("Unknown structure piece type: " + id);
 	}

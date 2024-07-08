@@ -8,6 +8,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -25,7 +26,7 @@ public record StructurePieceTypeTagKey(TagKey<StructurePieceType> key) implement
 
 	public static StructurePieceTypeTagKey of(String id) {
 		if (id == null) return null;
-		return new StructurePieceTypeTagKey(TagKey.of(RegistryKeyVersions.structurePieceType(), new Identifier(id)));
+		return new StructurePieceTypeTagKey(TagKey.of(RegistryKeyVersions.structurePieceType(), IdentifierVersions.create(id)));
 	}
 
 	@Override

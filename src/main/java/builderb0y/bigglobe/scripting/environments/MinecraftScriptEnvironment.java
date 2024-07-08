@@ -16,6 +16,7 @@ import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.scripting.wrappers.*;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -120,7 +121,7 @@ public class MinecraftScriptEnvironment {
 				if (constantBlock.isConstant() && constantBlock.getTypeInfo().equals(TypeInfos.STRING)) {
 					//BlockState('a', b: ?)
 					String blockName = (String)(constantBlock.asJavaObject());
-					Identifier identifier = new Identifier(blockName);
+					Identifier identifier = IdentifierVersions.create(blockName);
 					if (RegistryVersions.block().containsId(identifier)) {
 						Block block = RegistryVersions.block().get(identifier);
 						Set<String> properties = block.getStateManager().getProperties().stream().map(Property::getName).collect(Collectors.toSet());

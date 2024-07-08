@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -19,12 +20,17 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.BlockLocating;
 import net.minecraft.world.BlockLocating.Rectangle;
-import net.minecraft.world.PortalForcer;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.util.NetherPortalUtil;
+
+#if MC_VERSION >= MC_1_21_0
+	import net.minecraft.world.dimension.PortalForcer;
+#else
+	import net.minecraft.world.PortalForcer;
+#endif
 
 /**
 vanilla logic likes to place you on the surface of the lava ocean,
@@ -53,6 +59,7 @@ public class PortalForcer_PlaceInNetherCaverns {
 				BlockBox box = NetherPortalUtil.toBoundingBox(bestPos, size);
 				BigGlobeMod.LOGGER.info("Found good portal location: " + box);
 				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+				BlockState portalState = Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, axis);
 				for (int z = box.getMinZ(); z <= box.getMaxZ(); z++) {
 					for (int x = box.getMinX(); x <= box.getMaxX(); x++) {
 						for (int y = box.getMinY(); y <= box.getMaxY(); y++) {
@@ -62,7 +69,7 @@ public class PortalForcer_PlaceInNetherCaverns {
 									(x != box.getMinX() && x != box.getMaxX()) ||
 									(z != box.getMinZ() && z != box.getMaxZ())
 								)
-								? Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, axis)
+								? portalState
 								: BlockStates.OBSIDIAN,
 								Block.NOTIFY_LISTENERS | Block.FORCE_STATE
 							);

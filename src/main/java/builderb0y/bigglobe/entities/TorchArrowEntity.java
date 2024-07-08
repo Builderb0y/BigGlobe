@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.entities;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.TntBlock;
@@ -25,16 +27,28 @@ import builderb0y.bigglobe.versions.EntityVersions;
 public class TorchArrowEntity extends PersistentProjectileEntity {
 
 	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
-		super(entityType, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
+		super(entityType, world #if MC_VERSION >= MC_1_20_3 && MC_VERSION < MC_1_21_0 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
 	}
 
-	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner) {
-		super(entityType, owner, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
-	}
+	#if MC_VERSION >= MC_1_21_0
 
-	public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world) {
-		super(type, x, y, z, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
-	}
+		public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, ItemStack stack, @Nullable ItemStack weapon) {
+			super(type, x, y, z, world, stack, weapon);
+		}
+
+		public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, LivingEntity owner, World world, ItemStack stack, @Nullable ItemStack shotFrom) {
+			super(type, owner, world, stack, shotFrom);
+		}
+	#else
+
+		public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner) {
+			super(entityType, owner, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
+		}
+
+		public TorchArrowEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world) {
+			super(type, x, y, z, world #if MC_VERSION >= MC_1_20_3 , BigGlobeItems.TORCH_ARROW.getDefaultStack() #endif);
+		}
+	#endif
 
 	@Override
 	public void onHit(LivingEntity target) {
@@ -132,7 +146,7 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 	#if MC_VERSION >= MC_1_20_5
 
 		@Override
-		protected ItemStack getDefaultItemStack() {
+		public ItemStack getDefaultItemStack() {
 			return new ItemStack(BigGlobeItems.TORCH_ARROW);
 		}
 	#endif

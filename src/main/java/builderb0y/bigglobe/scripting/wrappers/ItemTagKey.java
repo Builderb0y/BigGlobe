@@ -8,6 +8,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -25,7 +26,7 @@ public record ItemTagKey(TagKey<Item> key) implements TagWrapper<Item, Item> {
 
 	public static ItemTagKey of(String id) {
 		if (id == null) return null;
-		return new ItemTagKey(TagKey.of(RegistryKeyVersions.item(), new Identifier(id)));
+		return new ItemTagKey(TagKey.of(RegistryKeyVersions.item(), IdentifierVersions.create(id)));
 	}
 
 	@Override

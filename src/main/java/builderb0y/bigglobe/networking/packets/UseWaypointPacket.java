@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.networking.packets;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.network.PacketByteBuf;
@@ -20,6 +19,10 @@ import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+
+#if MC_VERSION < MC_1_21_0
+	import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+#endif
 
 public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 
@@ -72,19 +75,17 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			if (destinationWorld != null) {
 				manager.entrance = null;
 				PackedWorldPos destinationPosition = waypoint.destination().position();
-				ServerPlayerEntity newPlayer = FabricDimensions.teleport(
+				ServerPlayerEntity newPlayer = EntityVersions.teleport(
 					player,
 					destinationWorld,
-					new TeleportTarget(
-						new Vec3d(
-							destinationPosition.x(),
-							destinationPosition.y() - 1.0D,
-							destinationPosition.z()
-						),
-						player.getVelocity(),
-						player.getYaw(),
-						player.getPitch()
-					)
+					new Vec3d(
+						destinationPosition.x(),
+						destinationPosition.y() - 1.0D,
+						destinationPosition.z()
+					),
+					player.getVelocity(),
+					player.getYaw(),
+					player.getPitch()
 				);
 				if (newPlayer != null) {
 					EntityVersions.setPortalCooldown(newPlayer, 20);
@@ -100,15 +101,13 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			ServerWorld hyperspace = player.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
 			if (hyperspace != null) {
 				manager.entrance = waypoint.destination().position();
-				ServerPlayerEntity newPlayer = FabricDimensions.teleport(
+				ServerPlayerEntity newPlayer = EntityVersions.teleport(
 					player,
 					hyperspace,
-					new TeleportTarget(
-						Vec3d.ZERO,
-						player.getVelocity(),
-						player.getYaw(),
-						player.getPitch()
-					)
+					Vec3d.ZERO,
+					player.getVelocity(),
+					player.getYaw(),
+					player.getPitch()
 				);
 				if (newPlayer != null) {
 					EntityVersions.setPortalCooldown(newPlayer, 20);

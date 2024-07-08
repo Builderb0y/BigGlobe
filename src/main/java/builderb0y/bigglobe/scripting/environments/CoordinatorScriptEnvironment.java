@@ -17,6 +17,7 @@ import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateConsumer;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -162,7 +163,7 @@ public class CoordinatorScriptEnvironment {
 	}
 
 	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName) {
-		Identifier identifier = new Identifier(entityTypeName);
+		Identifier identifier = IdentifierVersions.create(entityTypeName);
 		if (RegistryVersions.entityType().containsId(identifier)) {
 			EntityType<?> entityType = RegistryVersions.entityType().get(identifier);
 			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
@@ -188,7 +189,7 @@ public class CoordinatorScriptEnvironment {
 	}
 
 	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName, NbtCompound data) {
-		Identifier identifier = new Identifier(entityTypeName);
+		Identifier identifier = IdentifierVersions.create(entityTypeName);
 		if (RegistryVersions.entityType().containsId(identifier)) {
 			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
 			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);

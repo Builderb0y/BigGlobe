@@ -34,6 +34,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.*;
+import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.*;
@@ -372,7 +373,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public CompletableFuture<Chunk> populateNoise(
-		Executor executor,
+		#if MC_VERSION < MC_1_21_0
+			Executor executor,
+		#endif
 		Blender blender,
 		NoiseConfig noiseConfig,
 		StructureAccessor structureAccessor,
@@ -535,7 +538,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					this.feature_dispatcher.generateRaw(worldWrapper);
 				});
 			},
-			executor
+			#if MC_VERSION >= MC_1_21_0
+				Util.getMainWorkerExecutor()
+			#else
+				executor
+			#endif
 		)
 		.handle((Void result, Throwable throwable) -> {
 			if (throwable != null) {
@@ -862,7 +869,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public CompletableFuture<Chunk> populateBiomes(
-		Executor executor,
+		#if MC_VERSION < MC_1_21_0
+			Executor executor,
+		#endif
 		NoiseConfig noiseConfig,
 		Blender blender,
 		StructureAccessor structureAccessor,
@@ -870,7 +879,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	) {
 		if (!(this.biomeSource instanceof ScriptedColumnBiomeSource source)) {
 			return super.populateBiomes(
-				executor,
+				#if MC_VERSION < MC_1_21_0
+					executor,
+				#endif
 				noiseConfig,
 				blender,
 				structureAccessor,
@@ -895,7 +906,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					}
 				}
 			},
-			executor
+			#if MC_VERSION >= MC_1_20_1
+				Util.getMainWorkerExecutor()
+			#else
+				executor
+			#endif
 		)
 		.handle((Void result, Throwable throwable) -> {
 			if (throwable != null) {

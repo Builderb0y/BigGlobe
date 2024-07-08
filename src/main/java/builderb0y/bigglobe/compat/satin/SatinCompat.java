@@ -5,10 +5,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import ladysnake.satin.api.event.PostWorldRenderCallback;
-import ladysnake.satin.api.managed.ManagedShaderEffect;
-import ladysnake.satin.api.managed.ShaderEffectManager;
-import ladysnake.satin.api.managed.uniform.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
@@ -25,6 +21,18 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.math.BigGlobeMath;
+
+#if MC_VERSION >= MC_1_21_0
+	import org.ladysnake.satin.api.event.PostWorldRenderCallback;
+	import org.ladysnake.satin.api.managed.ManagedShaderEffect;
+	import org.ladysnake.satin.api.managed.ShaderEffectManager;
+	import org.ladysnake.satin.api.managed.uniform.*;
+#else
+	import ladysnake.satin.api.event.PostWorldRenderCallback;
+	import ladysnake.satin.api.managed.ManagedShaderEffect;
+	import ladysnake.satin.api.managed.ShaderEffectManager;
+	import ladysnake.satin.api.managed.uniform.*;
+#endif
 
 @Environment(EnvType.CLIENT)
 public class SatinCompat {
@@ -120,7 +128,7 @@ public class SatinCompat {
 			WorldRenderEvents.BEFORE_ENTITIES.register((WorldRenderContext context) -> {
 				cameraPosition = context.camera().getPos();
 			});
-			PostWorldRenderCallback.EVENT.register((Camera camera, float tickDelta, long nanoTime) -> {
+			PostWorldRenderCallback.EVENT.register((Camera camera, float tickDelta #if MC_VERSION < MC_1_21_0 , long nanoTime #endif) -> {
 				if (!visibleWaypoints.isEmpty()) {
 					Vector4f position = new Vector4f();
 					int count = 0;
@@ -147,6 +155,13 @@ public class SatinCompat {
 				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(SCRATCH_MATRIX.set(#if MC_VERSION >= MC_1_20_5 context.positionMatrix() #else context.matrixStack().peek().getPositionMatrix() #endif).transpose());
 				Vec3d pos = context.camera().getPos();
 				HyperspaceSkybox.CAMERA_POSITION.set((float)(pos.x), (float)(pos.y), (float)(pos.z));
+				float tickDelta = (
+					#if MC_VERSION >= MC_1_21_0
+						context.tickCounter().getTickDelta(false)
+					#else
+						context.tickDelta()
+					#endif
+				);
 				HyperspaceSkybox.TIME.set(
 					(
 						(
@@ -157,11 +172,11 @@ public class SatinCompat {
 								)
 							)
 						)
-						+ context.tickDelta()
+						+ tickDelta
 					)
 					/ 20.0F
 				);
-				HyperspaceSkybox.SHADER.render(context.tickDelta());
+				HyperspaceSkybox.SHADER.render(tickDelta);
 			});
 		}
 	}

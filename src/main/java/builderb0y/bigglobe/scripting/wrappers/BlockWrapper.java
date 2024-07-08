@@ -11,6 +11,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -36,7 +37,7 @@ public class BlockWrapper {
 				return Blocks.SHORT_GRASS;
 			}
 		#endif
-		Identifier identifier = new Identifier(id);
+		Identifier identifier = IdentifierVersions.create(id);
 		if (RegistryVersions.block().containsId(identifier)) {
 			return RegistryVersions.block().get(identifier);
 		}

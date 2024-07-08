@@ -15,6 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 import builderb0y.bigglobe.util.TextCoding;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
@@ -91,7 +92,7 @@ implements WaypointData {
 			}
 			Identifier worldIdentifier;
 			try {
-				worldIdentifier = new Identifier(worldName);
+				worldIdentifier = IdentifierVersions.create(worldName);
 			}
 			catch (InvalidIdentifierException exception) {
 				BigGlobeMod.LOGGER.warn("Attempt to load waypoint with invalid world: " + nbt, exception);

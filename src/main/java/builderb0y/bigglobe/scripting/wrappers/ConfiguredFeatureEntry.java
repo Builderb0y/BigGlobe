@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -30,7 +31,7 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(RegistryKeyVersions.configuredFeature())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id)))
+			.entryOf(RegistryKey.of(RegistryKeyVersions.configuredFeature(), IdentifierVersions.create(id)))
 		);
 	}
 

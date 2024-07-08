@@ -191,15 +191,26 @@ public class RespawnCommand {
 
 			float yaw = player.getSpawnAngle();
 			Vec3d actualPosition = (
-				PlayerEntity
-				.findRespawnPosition(
-					world,
-					position,
-					yaw,
-					false,
-					true
-				)
-				.orElse(null)
+				#if MC_VERSION >= MC_1_21_0
+					ServerPlayerEntity.findRespawnPosition(
+						world,
+						position,
+						yaw,
+						false,
+						true
+					)
+					.map(ServerPlayerEntity.RespawnPos::pos)
+					.orElse(null)
+				#else
+					PlayerEntity.findRespawnPosition(
+						world,
+						position,
+						yaw,
+						false,
+						true
+					)
+					.orElse(null)
+				#endif
 			);
 			if (actualPosition == null) {
 				if (force) {

@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -25,7 +26,7 @@ public record StructurePlacementScriptTagKey(TagKey<CombinedStructureScripts> ke
 
 	public static StructurePlacementScriptTagKey of(String id) {
 		if (id == null) return null;
-		return new StructurePlacementScriptTagKey(TagKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, new Identifier(id)));
+		return new StructurePlacementScriptTagKey(TagKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, IdentifierVersions.create(id)));
 	}
 
 	@Override

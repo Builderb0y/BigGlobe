@@ -29,8 +29,7 @@ testing:
 1.21 stuff:
 	1.21 makes some changes to end gateways and obsidian platforms.
 		I have mixins to this behavior which will need to be re-evaluated to see if they need to change or not.
-	add teleport() to EntityVersions, since FabricDimensions is now removed.
-	add IdentifierVersions, since the constructor was replaced with a factory method.
+	add trial chambers.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.

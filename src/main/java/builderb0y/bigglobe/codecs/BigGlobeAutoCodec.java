@@ -84,6 +84,7 @@ import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.TagOrObjectKey;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
@@ -95,8 +96,8 @@ public class BigGlobeAutoCodec {
 
 	public static final AutoCoder<Identifier> IDENTIFIER_CODER = PrimitiveCoders.STRING.mapCoder(
 		ReifiedType.from(Identifier.class),
-		"Identifier::toString", HandlerMapper.nullSafe(Identifier::toString),
-		"Identifier::new",      HandlerMapper.nullSafe(Identifier::new)
+		"Identifier::toString",       HandlerMapper.nullSafe(Identifier::toString),
+		"IdentifierVersions::create", HandlerMapper.nullSafe(IdentifierVersions::create)
 	);
 
 	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
@@ -118,7 +119,7 @@ public class BigGlobeAutoCodec {
 			namespace = defaultNamespace;
 			path = string;
 		}
-		return new Identifier(namespace, path);
+		return IdentifierVersions.create(namespace, path);
 	}
 
 	public static String toString(Identifier identifier, String defaultNamespace) {
@@ -245,7 +246,7 @@ public class BigGlobeAutoCodec {
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
 								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
-								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
+								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif, false));
 							#endif
 							#if MC_VERSION >= MC_1_20_5
 								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC, false));
@@ -297,7 +298,7 @@ public class BigGlobeAutoCodec {
 							#if MC_VERSION >= MC_1_20_2
 								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
 								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
-								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(LootConditionTypes.CODEC, false));
+								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif, false));
 							#endif
 
 							#if MC_VERSION >= MC_1_20_3

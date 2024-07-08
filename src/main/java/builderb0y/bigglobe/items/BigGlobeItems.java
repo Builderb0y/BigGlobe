@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
@@ -42,9 +41,11 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION < MC_1_20_5
+#if MC_VERSION >= MC_1_21_0
+	import net.minecraft.world.biome.GrassColors;
+#elif MC_VERSION < MC_1_20_5
 	import net.minecraft.loot.LootManager;
-import net.minecraft.util.Identifier;
+	import net.minecraft.util.Identifier;
 #endif
 
 public class BigGlobeItems {
@@ -261,7 +262,7 @@ public class BigGlobeItems {
 		);
 		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (ItemStack stack, ClientWorld world, LivingEntity entity, int seed) -> {
 			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
-			return ((float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft())) / 20.0F;
+			return ((float)(stack.getMaxUseTime(#if MC_VERSION >= MC_1_21_0 entity #endif) - entity.getItemUseTimeLeft())) / 20.0F;
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);

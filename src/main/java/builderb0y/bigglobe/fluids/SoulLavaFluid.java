@@ -43,7 +43,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	}
 
 	@Override
-	public int getFlowSpeed(WorldView world) {
+	public int #if MC_VERSION >= MC_1_21_0 getMaxFlowDistance #else getFlowSpeed #endif (WorldView world) {
 		return world.getDimension().ultrawarm() ? 4 : 2;
 	}
 

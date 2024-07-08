@@ -7,6 +7,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -25,7 +26,7 @@ public record StructureTypeEntry(RegistryEntry<StructureType<?>> entry) implemen
 
 	public static StructureTypeEntry of(String id) {
 		if (id == null) return null;
-		return new StructureTypeEntry(RegistryVersions.structureType().entryOf(RegistryKey.of(RegistryKeyVersions.structureType(), new Identifier(id))));
+		return new StructureTypeEntry(RegistryVersions.structureType().entryOf(RegistryKey.of(RegistryKeyVersions.structureType(), IdentifierVersions.create(id))));
 	}
 
 	@Override

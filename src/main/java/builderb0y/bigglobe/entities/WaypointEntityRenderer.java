@@ -56,7 +56,8 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
 				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
-				.next();
+				#if MC_VERSION < MC_1_21_0 .next() #endif
+				;
 
 				buffer
 				.vertex(
@@ -70,7 +71,8 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
 				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
-				.next();
+				#if MC_VERSION < MC_1_21_0 .next() #endif
+				;
 
 				buffer
 				.vertex(
@@ -84,7 +86,8 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
 				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
-				.next();
+				#if MC_VERSION < MC_1_21_0 .next() #endif
+				;
 
 				buffer
 				.vertex(
@@ -98,7 +101,8 @@ public class WaypointEntityRenderer extends EntityRenderer<WaypointEntity> {
 				.overlay(OverlayTexture.DEFAULT_UV)
 				.light(fullbright)
 				.normal(matrices.peek() #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, 0.0F, 1.0F, 0.0F)
-				.next();
+				#if MC_VERSION < MC_1_21_0 .next() #endif
+				;
 			}
 		}
 		SatinCompat.markWaypointRendered(entity);

@@ -30,6 +30,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.registries.BetterHardCodedRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -87,7 +88,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
 		int openBracket = input.indexOf('[');
-		Identifier blockID = new Identifier(openBracket >= 0 ? input.substring(0, openBracket) : input);
+		Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
 		Block block = blockRegistry.getOrCreateEntry(RegistryKey.of(RegistryKeyVersions.block(), blockID)).value();
 		BlockState state = block.getDefaultState();
 		if (openBracket >= 0) {

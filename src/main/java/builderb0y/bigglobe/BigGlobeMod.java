@@ -49,6 +49,7 @@ import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.parsing.ExpressionParser;
 
@@ -116,11 +117,11 @@ public class BigGlobeMod implements ModInitializer {
 	}
 
 	public static @NotNull Identifier modID(@NotNull String path) {
-		return new Identifier(MODID, path);
+		return IdentifierVersions.create(MODID, path);
 	}
 
 	public static @NotNull Identifier mcID(@NotNull String path) {
-		return new Identifier("minecraft", path);
+		return IdentifierVersions.vanilla(path);
 	}
 
 	public static <T> SimpleRegistry<T> newRegistry(RegistryKey<Registry<T>> key) {

@@ -15,6 +15,7 @@ import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public record PackedWorldPos(RegistryKey<World> world, PackedPos pos) {
@@ -83,7 +84,7 @@ public record PackedWorldPos(RegistryKey<World> world, PackedPos pos) {
 		RegistryKey<World> world;
 		gotWorld: {
 			if (!worldString.isEmpty()) try {
-				world = RegistryKey.of(RegistryKeyVersions.world(), new Identifier(worldString));
+				world = RegistryKey.of(RegistryKeyVersions.world(), IdentifierVersions.create(worldString));
 				break gotWorld;
 			}
 			catch (InvalidIdentifierException exception) {}

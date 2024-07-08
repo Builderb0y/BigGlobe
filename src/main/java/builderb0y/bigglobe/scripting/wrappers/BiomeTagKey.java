@@ -8,6 +8,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -25,7 +26,7 @@ public record BiomeTagKey(TagKey<Biome> key) implements TagWrapper<Biome, BiomeE
 
 	public static BiomeTagKey of(String id) {
 		if (id == null) return null;
-		return new BiomeTagKey(TagKey.of(RegistryKeyVersions.biome(), new Identifier(id)));
+		return new BiomeTagKey(TagKey.of(RegistryKeyVersions.biome(), IdentifierVersions.create(id)));
 	}
 
 	@Override

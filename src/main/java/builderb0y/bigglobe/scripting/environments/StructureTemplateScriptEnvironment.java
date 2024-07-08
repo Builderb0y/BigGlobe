@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.environments;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
+import net.minecraft.structure.StructureLiquidSettings;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.StructureProcessorList;
@@ -12,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -70,7 +72,7 @@ public class StructureTemplateScriptEnvironment {
 
 	public static StructureTemplate getTemplate(String id) {
 		if (id == null) return null;
-		Identifier identifier = new Identifier(id);
+		Identifier identifier = IdentifierVersions.create(id);
 		StructureTemplate template = BigGlobeMod.getCurrentServer().getStructureTemplateManager().getTemplate(identifier).orElse(null);
 		if (template != null) return template;
 		else throw new IllegalArgumentException("Template not found: " + identifier);
@@ -82,7 +84,7 @@ public class StructureTemplateScriptEnvironment {
 
 	public static StructureProcessorList getProcessorList(String id) {
 		if (id == null) return null;
-		Identifier identifier = new Identifier(id);
+		Identifier identifier = IdentifierVersions.create(id);
 		StructureProcessorList template = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.processorList()).get(identifier);
 		if (template != null) return template;
 		else throw new IllegalArgumentException("Template not found: " + identifier);
@@ -141,11 +143,19 @@ public class StructureTemplateScriptEnvironment {
 	}
 
 	public static boolean placeFluids(StructurePlacementData data) {
-		return data.shouldPlaceFluids();
+		#if MC_VERSION >= MC_1_21_0
+			return data.shouldApplyWaterlogging();
+		#else
+			return data.shouldPlaceFluids();
+		#endif
 	}
 
 	public static void placeFluids(StructurePlacementData data, boolean placeFluids) {
-		data.setPlaceFluids(placeFluids);
+		#if MC_VERSION >= MC_1_21_0
+			data.setLiquidSettings(placeFluids ? StructureLiquidSettings.APPLY_WATERLOGGING : StructureLiquidSettings.IGNORE_WATERLOGGING);
+		#else
+			data.setPlaceFluids(placeFluids);
+		#endif
 	}
 
 	public static void addProcessors(StructurePlacementData data, StructureProcessorList processor) {

@@ -5,6 +5,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeBlockTags {
@@ -53,6 +54,6 @@ public class BigGlobeBlockTags {
 	}
 
 	public static TagKey<Block> common(String name) {
-		return TagKey.of(RegistryKeyVersions.block(), new Identifier("c", name));
+		return TagKey.of(RegistryKeyVersions.block(), IdentifierVersions.create("c", name));
 	}
 }

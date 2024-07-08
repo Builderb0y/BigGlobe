@@ -68,6 +68,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -237,7 +238,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public RoomDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
 			String id = nbt.getString("decorators");
-			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), new Identifier(id));
+			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), IdentifierVersions.create(id));
 			this.support = nbt.getBoolean("support");
 		}
 
@@ -474,7 +475,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, context, nbt);
 			String id = nbt.getString("entityType");
 			if (id.isEmpty()) id = "minecraft:zombie";
-			this.spawnerType = RegistryVersions.entityType().get(new Identifier(id));
+			this.spawnerType = RegistryVersions.entityType().get(IdentifierVersions.create(id));
 		}
 
 		@Override

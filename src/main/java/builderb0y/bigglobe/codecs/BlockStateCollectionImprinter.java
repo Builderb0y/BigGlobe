@@ -32,6 +32,7 @@ import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -90,13 +91,13 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 		try {
 			DecodeContext<T_Encoded> name = context.getMember(State.NAME);
 			if (!name.isEmpty()) {
-				Identifier id = new Identifier(name.forceAsString());
+				Identifier id = IdentifierVersions.create(name.forceAsString());
 				this.imprintAsObjectName(context, id);
 			}
 			else {
 				DecodeContext<T_Encoded> tag = context.getMember("Tag");
 				if (!tag.isEmpty()) {
-					Identifier id = new Identifier(tag.forceAsString());
+					Identifier id = IdentifierVersions.create(tag.forceAsString());
 					this.imprintAsObjectTag(context, id);
 				}
 				else {

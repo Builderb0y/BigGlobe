@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
 
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.Directions;
@@ -76,7 +77,7 @@ public class BlockStateWrapper {
 
 	public static BlockState getDefaultState(String id) {
 		if (id == null) return null;
-		Identifier identifier = new Identifier(id);
+		Identifier identifier = IdentifierVersions.create(id);
 		if (RegistryVersions.block().containsId(identifier)) {
 			return RegistryVersions.block().get(identifier).getDefaultState();
 		}

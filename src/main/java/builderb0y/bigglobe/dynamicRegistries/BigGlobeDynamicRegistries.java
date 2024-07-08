@@ -43,12 +43,12 @@ public class BigGlobeDynamicRegistries {
 		RegistryLoader.DYNAMIC_REGISTRIES.addAll(
 			0,
 			Arrays.asList(
-				new RegistryLoader.Entry<>(       SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate      .class)),
-				new RegistryLoader.Entry<>(         GRID_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Grid                .class)),
-				new RegistryLoader.Entry<>(          COLUMN_ENTRY_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ColumnEntry         .class)),
-				new RegistryLoader.Entry<>(      VORONOI_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(VoronoiSettings     .class)),
-				new RegistryLoader.Entry<>(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class)),
-				new RegistryLoader.Entry<>(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class))
+				entry(       SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate      .class)),
+				entry(         GRID_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Grid                .class)),
+				entry(          COLUMN_ENTRY_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ColumnEntry         .class)),
+				entry(      VORONOI_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(VoronoiSettings     .class)),
+				entry(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class)),
+				entry(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class))
 			)
 		);
 		addBefore(RegistryKeyVersions.structure(), SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
@@ -56,10 +56,14 @@ public class BigGlobeDynamicRegistries {
 		addAfter (RegistryKeyVersions.placedFeature(),     FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
 	}
 
+	public static <T> RegistryLoader.Entry<T> entry(RegistryKey<Registry<T>> key, Codec<T> codec) {
+		return new RegistryLoader.Entry<>(key, codec #if MC_VERSION >= MC_1_21_0 , false #endif);
+	}
+
 	public static <T> void addBefore(RegistryKey<? extends Registry<?>> after, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {
 		for (int index = 0, size = RegistryLoader.DYNAMIC_REGISTRIES.size(); index < size; index++) {
 			if (RegistryLoader.DYNAMIC_REGISTRIES.get(index).key() == after) {
-				RegistryLoader.DYNAMIC_REGISTRIES.add(index, new RegistryLoader.Entry<>(registryKey, codec));
+				RegistryLoader.DYNAMIC_REGISTRIES.add(index, entry(registryKey, codec));
 				return;
 			}
 		}
@@ -69,13 +73,12 @@ public class BigGlobeDynamicRegistries {
 	public static <T> void addAfter(RegistryKey<? extends Registry<?>> before, RegistryKey<Registry<T>> registryKey, Codec<T> codec) {
 		for (int index = 0, size = RegistryLoader.DYNAMIC_REGISTRIES.size(); index < size; index++) {
 			if (RegistryLoader.DYNAMIC_REGISTRIES.get(index).key() == before) {
-				RegistryLoader.DYNAMIC_REGISTRIES.add(index + 1, new RegistryLoader.Entry<>(registryKey, codec));
+				RegistryLoader.DYNAMIC_REGISTRIES.add(index + 1, entry(registryKey, codec));
 				return;
 			}
 		}
 		throw new IllegalStateException(before + " not in DYNAMIC_REGISTRIES");
 	}
-
 
 	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(BetterRegistry<T> registry) {
 		ConstantComputedRandomList<RegistryEntry<T>> list = new ConstantComputedRandomList<>() {

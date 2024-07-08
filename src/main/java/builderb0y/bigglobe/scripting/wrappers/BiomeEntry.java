@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
@@ -31,7 +32,7 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(RegistryKeyVersions.biome())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.biome(), new Identifier(id)))
+			.entryOf(RegistryKey.of(RegistryKeyVersions.biome(), IdentifierVersions.create(id)))
 		);
 	}
 

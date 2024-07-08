@@ -20,6 +20,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
 import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -42,7 +43,7 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
-			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, new Identifier(id)))
+			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, IdentifierVersions.create(id)))
 		);
 	}
 

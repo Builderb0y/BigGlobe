@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -30,7 +31,7 @@ public record StructurePlacementScriptEntry(RegistryEntry<CombinedStructureScrip
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY)
-			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, new Identifier(id)))
+			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, IdentifierVersions.create(id)))
 		);
 	}
 

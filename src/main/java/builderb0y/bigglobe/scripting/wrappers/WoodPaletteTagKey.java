@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -25,7 +26,7 @@ public record WoodPaletteTagKey(TagKey<WoodPalette> key) implements TagWrapper<W
 
 	public static WoodPaletteTagKey of(String id) {
 		if (id == null) return null;
-		return new WoodPaletteTagKey(TagKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, new Identifier(id)));
+		return new WoodPaletteTagKey(TagKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, IdentifierVersions.create(id)));
 	}
 
 	@Override

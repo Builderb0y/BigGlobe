@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.noise.*;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -167,7 +168,7 @@ public class GridScriptEnvironment {
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY)
-			.get(new Identifier(id))
+			.get(IdentifierVersions.create(id))
 		);
 	}
 

@@ -106,7 +106,15 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+	public CompletableFuture<Chunk> populateNoise(
+		#if MC_VERSION < MC_1_21_0
+			Executor executor,
+		#endif
+		Blender blender,
+		NoiseConfig noiseConfig,
+		StructureAccessor structureAccessor,
+		Chunk chunk
+	) {
 		return CompletableFuture.completedFuture(chunk);
 	}
 

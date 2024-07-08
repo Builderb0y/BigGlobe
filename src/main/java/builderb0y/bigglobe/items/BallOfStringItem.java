@@ -22,7 +22,9 @@ import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.StringEntity;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
-#if MC_VERSION >= MC_1_20_5
+#if MC_VERSION >= MC_1_21_0
+	import net.minecraft.item.tooltip.TooltipType;
+#elif MC_VERSION >= MC_1_20_5
 	import net.minecraft.client.item.TooltipType;
 #else
 	import net.minecraft.client.item.TooltipContext;
@@ -60,11 +62,6 @@ public class BallOfStringItem extends Item
 		}
 	}
 
-	@Override
-	public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-		return super.useOnEntity(stack, user, entity, hand);
-	}
-
 	#if MC_VERSION < MC_1_20_5
 
 		@Override
@@ -96,8 +93,6 @@ public class BallOfStringItem extends Item
 			return MathHelper.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
 		}
 	#endif
-
-
 
 	@Override
 	public boolean isItemBarVisible(ItemStack stack) {

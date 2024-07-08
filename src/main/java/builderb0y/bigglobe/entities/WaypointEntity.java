@@ -109,7 +109,7 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean canUsePortals() {
+	public boolean canUsePortals(#if MC_VERSION >= MC_1_21_0 boolean allowVehicles #endif) {
 		return false;
 	}
 

@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -38,7 +39,7 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 			.getCurrentServer()
 			.getRegistryManager()
 			.get(RegistryKeyVersions.structure())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.structure(), new Identifier(id)))
+			.entryOf(RegistryKey.of(RegistryKeyVersions.structure(), IdentifierVersions.create(id)))
 		);
 	}
 

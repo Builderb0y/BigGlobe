@@ -1,5 +1,5 @@
 plugins() {
-	id('fabric-loom') version('1.6-SNAPSHOT')
+	id('fabric-loom') version('1.7-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -131,7 +131,6 @@ java() {
 jar() {
 	exclude('assets/bigglobe/icon_1440x.png') //big file that isn't even used.
 	exclude('assets/bigglobe/icon_256x_pride.gif') //also not used except as my discord server icon.
-	exclude('wip/**')
 }
 
 task copyToReleases(type: Copy) {
@@ -211,7 +210,8 @@ for (Version version in [
 	new Version(20, 1),
 	new Version(20, 2),
 	new Version(20, 4),
-	new Version(20, 6)
+	new Version(20, 6),
+	new Version(21, 0)
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -229,6 +229,7 @@ MC_1_20_3=12003
 MC_1_20_4=12004
 MC_1_20_5=12005
 MC_1_20_6=12006
+MC_1_21_0=12100
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

@@ -39,6 +39,7 @@ import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -361,7 +362,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newX = newPos.x;
 		double newY = newPos.y;
 		double newZ = newPos.z;
-		Identifier identifier = new Identifier(entityType);
+		Identifier identifier = IdentifierVersions.create(entityType);
 		if (RegistryVersions.entityType().containsId(identifier)) {
 			this.world.spawnEntity((ServerWorld serverWorld) -> {
 				Entity entity = RegistryVersions.entityType().get(identifier).create(serverWorld);

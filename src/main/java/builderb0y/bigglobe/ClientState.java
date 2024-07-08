@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.client.color.world.FoliageColors;
-import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
@@ -71,6 +69,14 @@ import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
 import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+#if MC_VERSION >= MC_1_21_0
+	import net.minecraft.world.biome.FoliageColors;
+	import net.minecraft.world.biome.GrassColors;
+#else
+	import net.minecraft.client.color.world.FoliageColors;
+	import net.minecraft.client.color.world.GrassColors;
+#endif
 
 public class ClientState {
 
