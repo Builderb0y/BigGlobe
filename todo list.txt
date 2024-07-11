@@ -27,8 +27,6 @@ testing:
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
 
 1.21 stuff:
-	1.21 makes some changes to end gateways and obsidian platforms.
-		I have mixins to this behavior which will need to be re-evaluated to see if they need to change or not.
 	add trial chambers.
 
 where I left off:

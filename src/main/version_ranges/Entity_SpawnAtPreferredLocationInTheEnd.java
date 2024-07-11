@@ -12,6 +12,7 @@ import net.minecraft.world.chunk.Chunk;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
+//used in [1.20.1, 1.21).
 @Mixin(Entity.class)
 public class Entity_SpawnAtPreferredLocationInTheEnd {
 

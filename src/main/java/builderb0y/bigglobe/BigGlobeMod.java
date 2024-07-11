@@ -13,6 +13,7 @@ import org.apache.commons.io.file.PathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registry;
@@ -34,7 +35,6 @@ import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
-import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
@@ -61,6 +61,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean REGEN_WORLDS = Boolean.getBoolean(MODID + ".regenWorlds");
+	public static final boolean MIXIN_AUDIT = Boolean.getBoolean(MODID + ".mixinAudit");
 	public static final RegistryKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = RegistryKey.of(RegistryKeyVersions.worldPreset(), modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
@@ -109,6 +110,11 @@ public class BigGlobeMod implements ModInitializer {
 			ServerLifecycleEvents.SERVER_STARTING.register(BigGlobeMod::regenWorlds);
 		}
 		LOGGER.info("Done initializing.");
+
+		if (MIXIN_AUDIT) {
+			MixinEnvironment.getCurrentEnvironment().audit();
+			LOGGER.info("Audit complete.");
+		}
 	}
 
 	public static MinecraftServer getCurrentServer() {
