@@ -38,6 +38,9 @@ import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.random.CheckedRandom;
+import net.minecraft.util.math.random.ChunkRandom;
+import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
@@ -363,7 +366,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void populateEntities(ChunkRegion region) {
-
+		//copy-pasted from NoiseChunkGenerator.
+		ChunkPos chunkPos = region.getCenterPos();
+		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(region.getTopY() - 1));
+		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
+		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
 	}
 
 	@Override

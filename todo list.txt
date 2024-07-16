@@ -25,9 +25,13 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
+	see if DH world generator can cache columns or not.
+		maybe even re-use the cache of the non-DH chunk generator.
+	make sure animals spawn correctly.
 
 1.21 stuff:
-	add trial chambers.
+	fix legacy tags.
+	add tag localizations.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
@@ -43,6 +47,7 @@ changelog:
 		* Structures like mineshafts or geodes might spawn differently or in different places, and *might* be cut off at the border between old chunks and new chunks, depending on the structure in question.
 	* Fixed bug where 3D noise would sometimes not use the world seed at all (either of them).
 		* This affects void clouds, the core, and the deep dark. These will have mismatches on the border of previously generated chunks.
+	* Fixed animals not spawning during worldgen.
 	* Added frozen and sandy cave themes.
 		* Existing cave systems will have mismatches on the border between old chunks and new chunks.
 	* Void clouds now avoid generating too close to end cities.
