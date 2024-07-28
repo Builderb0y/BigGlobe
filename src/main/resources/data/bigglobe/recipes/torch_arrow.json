@@ -6,11 +6,8 @@
 		"f"
 	],
 	"key": {
-		"c": [
-			{ "tag": "c:coal" },
-			{ "tag": "c:charcoal" }
-		],
-		"s": { "tag": "c:wood_sticks" },
+		"c": { "tag": "minecraft:coals" },
+		"s": { "tag": "c:rods/wooden" },
 		"f": { "tag": "c:feathers" }
 	},
 	"result": { "item": "bigglobe:torch_arrow", "count": 4 }

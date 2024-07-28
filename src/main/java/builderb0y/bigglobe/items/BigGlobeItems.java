@@ -43,7 +43,11 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION >= MC_1_21_0
 	import net.minecraft.world.biome.GrassColors;
-#elif MC_VERSION < MC_1_20_5
+#else
+	import net.minecraft.client.color.world.GrassColors;
+#endif
+
+#if MC_VERSION < MC_1_20_5
 	import net.minecraft.loot.LootManager;
 	import net.minecraft.util.Identifier;
 #endif

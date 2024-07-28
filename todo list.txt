@@ -1,14 +1,7 @@
 bugs:
 	geode spikes can still spawn outside of geodes.
-	creating a world with the custom time speed gamerule either doesn't get setup properly, or doesn't sync to clients properly.
-		this is a fabric bug.
-	after teleporting to a new world, /bigglobe:locateVoronoi shows suggestions from the old world.
+	after teleporting to a new world, some world-specific commands show suggestions from the old world.
 		this is probably a minecraft bug, but I haven't looked at it in a huge amount of detail yet.
-	Tripwire is triggered for some chunks not containing a ChunkOfColumns when they should.
-		this is caused by distant horizons constructing a new chunk every time you request one.
-	immersive portals places the end portal inside the end nest.
-		no, it doesn't. it just doesn't load blocks due to assuming the dimension height matches vanilla.
-		this is fixed in a later version of immersive portals.
 	fabric has a memory leak.
 		the MinecraftServer is stored in ServerConfigurationNetworkAddon,
 		which is stored in GlobalReceiverRegistry.trackedAddons,
@@ -27,11 +20,9 @@ testing:
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
 	see if DH world generator can cache columns or not.
 		maybe even re-use the cache of the non-DH chunk generator.
-	make sure animals spawn correctly.
 
 1.21 stuff:
-	fix legacy tags.
-	add tag localizations.
+	verify that all crafting recipes that use tags in any way still work in old MC versions.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
@@ -53,6 +44,7 @@ changelog:
 	* Void clouds now avoid generating too close to end cities.
 	* Made ancient cities less common.
 		* I don't actually know how this will affect any ancient cities that are near the border between old chunks and new chunks. You might get overlapping cities, cities that are cut-off, or cities that spawn normally.
+	* Fixed some surface structures sometimes spawning where they shouldn't.
 	* Possibly sped up script compilation somewhat.
 	Changes for data pack makers:
 	* Added `multi_state_3d` and `scripted` layer types.

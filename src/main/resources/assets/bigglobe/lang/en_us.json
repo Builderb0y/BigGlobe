@@ -152,6 +152,15 @@
 	"item.bigglobe.magenta_red_bottled_aura": "Magenta Red Bottled Aura",
 	"item.bigglobe.omni_bottled_aura": "Omni Bottled Aura",
 
+	"tag.item.bigglobe.aura_bottles": "Bottles of Aura",
+	"tag.item.bigglobe.charred_logs": "Charred Logs",
+	"tag.item.bigglobe.molten_rocks": "Molten Rocks",
+	"tag.item.bigglobe.slingshot_ammunition": "Slingshot Ammunition",
+	"tag.item.bigglobe.solid_aura_bottles": "Bottles of Aura (Excluding Omni-Colored Aura)",
+	"tag.item.c.feathers": "Feathers",
+	"tag.item.c.ores.sulfur": "Sulfur Ores",
+	"tag.item.c.sulfurs": "Sulfur-y Things",
+
 	"bigglobe.hyperspace.disabled": "Hyperspace is disabled",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Can't place waypoint here",
 

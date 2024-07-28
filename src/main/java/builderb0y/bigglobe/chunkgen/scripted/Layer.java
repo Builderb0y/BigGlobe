@@ -10,6 +10,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.Valid;
 
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer> {
@@ -66,20 +67,24 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public void emitSegments(ScriptedColumn column, BlockSegmentList segments) {
 		if (this.validWhere(column)) {
-			BlockSegmentList bounded = segments.split(this.validMinY(column), this.validMaxY(column));
-			this.emitSelfSegments(column, bounded);
+			int minY = this.validMinY(column);
+			int maxY = this.validMaxY(column);
+			if (maxY > minY) {
+				BlockSegmentList bounded = segments.split(minY, maxY);
+				this.emitSelfSegments(column, bounded);
 
-			if (this.children.length != 0) {
-				BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
-				BlockSegmentList split2 = split.split(split.minY(), split.maxY());
-				for (Layer child : this.children) {
-					child.emitSegments(column, split2);
-					split.mergeAndKeepWhereThereArentBlocks(split2);
-					split2.reset();
+				if (this.children.length != 0) {
+					BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
+					BlockSegmentList split2 = split.split(split.minY(), split.maxY());
+					for (Layer child : this.children) {
+						child.emitSegments(column, split2);
+						split.mergeAndKeepWhereThereArentBlocks(split2);
+						split2.reset();
+					}
+					bounded.mergeAndKeepWhereThereAreBlocks(split);
 				}
-				bounded.mergeAndKeepWhereThereAreBlocks(split);
+				segments.mergeAndKeepEverywhere(bounded);
 			}
-			segments.mergeAndKeepEverywhere(bounded);
 		}
 	}
 

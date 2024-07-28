@@ -6,8 +6,8 @@
 		" s "
 	],
 	"key": {
-		"s": { "tag": "c:wood_sticks" },
-		"t": { "tag": "c:string" }
+		"s": { "tag": "c:rods/wooden" },
+		"t": { "tag": "c:strings" }
 	},
 	"result": {
 		"item": "bigglobe:slingshot"

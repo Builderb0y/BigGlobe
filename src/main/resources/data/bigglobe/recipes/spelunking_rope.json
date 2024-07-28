@@ -6,8 +6,8 @@
 		"sws"
 	],
 	"key": {
-		"s": { "tag": "c:string" },
-		"w": { "tag": "c:wood_sticks" }
+		"s": { "tag": "c:strings" },
+		"w": { "tag": "c:rods/wooden" }
 	},
 	"result": {
 		"item": "bigglobe:spelunking_rope",

@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{ "item": "minecraft:prismarine_bricks" },
-		{ "tag": "c:black_dyes" }
+		{ "tag": "c:dyes/black" }
 	],
 	"result": {
 		"item": "bigglobe:slated_prismarine"

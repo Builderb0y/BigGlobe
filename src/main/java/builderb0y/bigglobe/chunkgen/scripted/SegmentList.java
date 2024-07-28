@@ -16,12 +16,20 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 	public int minY, maxY;
 
 	public SegmentList(int minY, int maxY) {
+		if (maxY < minY) throw new IllegalArgumentException("maxY (" + maxY + ") must be greater than or equal to minY (" + minY + ')');
 		this.minY = minY;
 		this.maxY = maxY;
 	}
 
 	public T[] flatten(IntFunction<T[]> arrayConstructor) {
-		T[] array = arrayConstructor.apply(this.maxY - this.minY + 1);
+		int arraySize = this.maxY - this.minY;
+		//worst case scenario: Integer.MAX_VALUE - Integer.MIN_VALUE = -1.
+		//adding 1 would make this 0 again, and the overflow would become undetectable.
+		//that's why we have to split this into 2 conditions.
+		if (arraySize < 0 || ++arraySize < 0) {
+			throw new OutOfMemoryError("SegmentList covers too big of a Y range for flattening.");
+		}
+		T[] array = arrayConstructor.apply(arraySize);
 		for (int segmentIndex = 0, size = this.size(); segmentIndex < size; segmentIndex++) {
 			Segment<T> segment = this.get(segmentIndex);
 			int minIndex = segment.minY - this.minY;
@@ -99,9 +107,24 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 			//nothing to do.
 		}
 		else {
-			for (int index = 0, size = that.size(); index < size; index++) {
-				Segment<?> segment = that.get(index);
-				this.removeSegment(segment.minY, segment.maxY);
+			Segment<?> segment = that.get(0);
+			int start = segment.minY;
+			int end = segment.maxY;
+			boolean mergedLast = false;
+			for (int index = 1, size = that.size(); index < size; index++) {
+				segment = that.get(index);
+				//noinspection AssignmentUsedAsCondition
+				if (mergedLast = (segment.minY == end + 1)) {
+					end = segment.maxY;
+				}
+				else {
+					this.removeSegment(start, end);
+					start = segment.minY;
+					end = segment.maxY;
+				}
+			}
+			if (mergedLast) {
+				this.removeSegment(start, end);
 			}
 		}
 	}
@@ -438,11 +461,11 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 		return null;
 	}
 
-	public int getTopOrBottomOfSegment(int y, boolean top, int dflt) {
-		if (this.isEmpty()) return dflt;
+	public int getTopOrBottomOfSegment(int y, boolean top, int default_) {
+		if (this.isEmpty()) return default_;
 		Segment<T> end;
-		if (y < (end = this.get(0)).minY) return top ? end.minY - 1 : dflt;
-		if (y > (end = this.get(this.size() - 1)).maxY) return top ? dflt : end.maxY + 1;
+		if (y < (end = this.get(0)).minY) return top ? end.minY - 1 : default_;
+		if (y > (end = this.get(this.size() - 1)).maxY) return top ? default_ : end.maxY + 1;
 
 		int minIndex = 0, maxIndex = this.size() - 1;
 		while (maxIndex >= minIndex) {

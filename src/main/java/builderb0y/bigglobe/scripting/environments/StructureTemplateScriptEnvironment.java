@@ -3,7 +3,6 @@ package builderb0y.bigglobe.scripting.environments;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
-import net.minecraft.structure.StructureLiquidSettings;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.StructureProcessorList;
@@ -21,6 +20,10 @@ import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+#if MC_VERSION >= MC_1_21_0
+import net.minecraft.structure.StructureLiquidSettings;
+#endif
 
 public class StructureTemplateScriptEnvironment {
 

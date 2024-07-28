@@ -10,11 +10,15 @@ import java.util.function.Consumer;
 
 import com.seibel.distanthorizons.api.DhApi;
 import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiDistantGeneratorMode;
+import com.seibel.distanthorizons.api.interfaces.block.IDhApiBiomeWrapper;
+import com.seibel.distanthorizons.api.interfaces.block.IDhApiBlockStateWrapper;
 import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiWorldGenerator;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiLevelLoadEvent;
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam;
+import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
+import com.seibel.distanthorizons.api.objects.data.DhApiTerrainDataPoint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -84,6 +88,39 @@ public class DistantHorizonsCompat {
 	}
 
 	public static class DHCode {
+
+		public static final boolean chunkBottomFirst, dataPointBottomFirst;
+		static {
+			DhApiChunk chunk = new DhApiChunk(0, 0, 0, 128);
+			chunkBottomFirst = chunk.bottomYBlockPos < chunk.topYBlockPos;
+
+			DhApiTerrainDataPoint dataPoint = new DhApiTerrainDataPoint((byte)(0), 0, 0, 0, 128, null, null);
+			dataPointBottomFirst = dataPoint.bottomYBlockPos < dataPoint.topYBlockPos;
+		}
+
+		public static DhApiChunk newChunk(int chunkX, int chunkZ, int minY, int maxY) {
+			return (
+				chunkBottomFirst
+				? new DhApiChunk(chunkX, chunkZ, minY, maxY)
+				: new DhApiChunk(chunkX, chunkZ, maxY, minY)
+			);
+		}
+
+		public static DhApiTerrainDataPoint newDataPoint(
+			byte detailLevel,
+			int blockLight,
+			int skyLight,
+			int minY,
+			int maxY,
+			IDhApiBlockStateWrapper state,
+			IDhApiBiomeWrapper biome
+		) {
+			return (
+				dataPointBottomFirst
+				? new DhApiTerrainDataPoint(detailLevel, blockLight, skyLight, minY, maxY, state, biome)
+				: new DhApiTerrainDataPoint(detailLevel, blockLight, skyLight, maxY, minY, state, biome)
+			);
+		}
 
 		public static void init() {
 			try {

@@ -6,8 +6,8 @@
 		" s "
 	],
 	"key": {
-		"i": { "tag": "c:iron_ingots" },
-		"s": { "tag": "c:wood_sticks" }
+		"i": { "tag": "c:ingots/iron" },
+		"s": { "tag": "c:rods/wooden" }
 	},
 	"result": {
 		"item": "bigglobe:percussive_hammer"

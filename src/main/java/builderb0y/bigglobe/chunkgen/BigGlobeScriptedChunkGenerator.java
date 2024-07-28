@@ -414,9 +414,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								int quadZ = startZ | offsetZ_;
 								ScriptedColumn
 									column00 = columns[baseIndex     ],
-									column01 = columns[baseIndex ^  1],
-									column10 = columns[baseIndex ^ 16],
-									column11 = columns[baseIndex ^ 17];
+									column01 = columns[baseIndex |  1],
+									column10 = columns[baseIndex | 16],
+									column11 = columns[baseIndex | 17];
 								column00.setParamsUnchecked(params.at(quadX,     quadZ    ));
 								column01.setParamsUnchecked(params.at(quadX | 1, quadZ    ));
 								column10.setParamsUnchecked(params.at(quadX,     quadZ | 1));
@@ -445,10 +445,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 								this.layer.emitSegments(column01, column00, column11, column10, list01);
 								this.layer.emitSegments(column10, column11, column00, column01, list10);
 								this.layer.emitSegments(column11, column10, column01, column00, list11);
-								lists  [baseIndex     ] = list00;
-								lists  [baseIndex ^  1] = list01;
-								lists  [baseIndex ^ 16] = list10;
-								lists  [baseIndex ^ 17] = list11;
+								lists[baseIndex     ] = list00;
+								lists[baseIndex |  1] = list01;
+								lists[baseIndex | 16] = list10;
+								lists[baseIndex | 17] = list11;
 							});
 						}
 					}

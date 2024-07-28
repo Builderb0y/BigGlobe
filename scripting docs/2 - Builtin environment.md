@@ -179,7 +179,7 @@ If the resulting integer value would be outside the range which can be represent
 		* If false, advance to step 3.
 	3. Done.
 * `repeat (numberOfTimes: body)` evaluates body numberOfTimes times. The evaluation of numberOfTimes only happens once, just for anyone concerned with side effects. If numberOfTimes is negative, the body is run backwards. Ok not really. It actually doesn't run at all in this case.
-* for - there are actually many different structures all wrapped up in one keyword here.
+* `for` - there are actually many different structures all wrapped up in one keyword here.
 	* Traditional for loop: `for (initializer, condition, step: body)` is syntax sugar for:
 		```
 		(

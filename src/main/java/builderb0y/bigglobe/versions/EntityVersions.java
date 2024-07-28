@@ -14,6 +14,10 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
+#if MC_VERSION < MC_1_21_0
+	import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+#endif
+
 public class EntityVersions {
 
 	public static World getWorld(Entity entity) {
@@ -84,11 +88,7 @@ public class EntityVersions {
 				player,
 				destinationWorld,
 				new TeleportTarget(
-					new Vec3d(
-						destinationPosition.x(),
-						destinationPosition.y() - 1.0D,
-						destinationPosition.z()
-					),
+					position,
 					player.getVelocity(),
 					player.getYaw(),
 					player.getPitch()

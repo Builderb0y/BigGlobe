@@ -7,7 +7,7 @@
 				"unless (`bigglobe:overworld/biome`(x, start.minY, start.minZ).isIn(validBiomes): return(false))",
 				"unless (`bigglobe:overworld/biome`(x, start.minY, start.maxZ).isIn(validBiomes): return(false))",
 			")",
-			"for (int z in range(start.minY, start.maxY) % 4:",
+			"for (int z in range[start.minZ, start.maxZ] % 4:",
 				"unless (`bigglobe:overworld/biome`(start.minX, start.minY, z).isIn(validBiomes): return(false))",
 				"unless (`bigglobe:overworld/biome`(start.maxX, start.minY, z).isIn(validBiomes): return(false))",
 			")",

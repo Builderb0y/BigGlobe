@@ -233,9 +233,9 @@ public class VoxyWorldGenerator {
 						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						ScriptedColumn
 							column00 = columns[baseIndex     ],
-							column01 = columns[baseIndex ^  1],
-							column10 = columns[baseIndex ^ 16],
-							column11 = columns[baseIndex ^ 17];
+							column01 = columns[baseIndex |  1],
+							column10 = columns[baseIndex | 16],
+							column11 = columns[baseIndex | 17];
 						column00.setParamsUnchecked(column00.params.at(quadX,     quadZ    ));
 						column01.setParamsUnchecked(column01.params.at(quadX | 1, quadZ    ));
 						column10.setParamsUnchecked(column10.params.at(quadX,     quadZ | 1));
@@ -254,9 +254,9 @@ public class VoxyWorldGenerator {
 						list10.computeLightLevels();
 						list11.computeLightLevels();
 						lists[baseIndex     ] = list00;
-						lists[baseIndex ^  1] = list01;
-						lists[baseIndex ^ 16] = list10;
-						lists[baseIndex ^ 17] = list11;
+						lists[baseIndex |  1] = list01;
+						lists[baseIndex | 16] = list10;
+						lists[baseIndex | 17] = list11;
 					});
 				}
 			}

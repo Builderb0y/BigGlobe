@@ -7,11 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
-import net.minecraft.util.math.MathHelper;
 
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.LinkedArrayList;
@@ -383,11 +381,11 @@ public class VoronoiDiagram2D {
 			int centerZ,
 			long seed
 		) {
-			this.cellX = cellX;
-			this.cellZ = cellZ;
+			this.cellX   = cellX;
+			this.cellZ   = cellZ;
 			this.centerX = centerX;
 			this.centerZ = centerZ;
-			this.seed = seed;
+			this.seed    = seed;
 		}
 
 		/** permutes the seed based on this point's location. */
