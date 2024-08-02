@@ -89,21 +89,16 @@ public class DistantHorizonsCompat {
 
 	public static class DHCode {
 
-		public static final boolean chunkBottomFirst, dataPointBottomFirst;
 		static {
-			DhApiChunk chunk = new DhApiChunk(0, 0, 0, 128);
-			chunkBottomFirst = chunk.bottomYBlockPos < chunk.topYBlockPos;
-
-			DhApiTerrainDataPoint dataPoint = new DhApiTerrainDataPoint((byte)(0), 0, 0, 0, 128, null, null);
-			dataPointBottomFirst = dataPoint.bottomYBlockPos < dataPoint.topYBlockPos;
+			//this will throw a NoSuchMethodError if the DH version is too old,
+			//which will then be wrapped in an ExceptionInInitializerError,
+			//which extends LinkageError, and therefore will be caught by init().
+			DhApiChunk.create(0, 0, 0, 128);
+			DhApiTerrainDataPoint.create((byte)(0), 0, 0, 0, 128, null, null);
 		}
 
 		public static DhApiChunk newChunk(int chunkX, int chunkZ, int minY, int maxY) {
-			return (
-				chunkBottomFirst
-				? new DhApiChunk(chunkX, chunkZ, minY, maxY)
-				: new DhApiChunk(chunkX, chunkZ, maxY, minY)
-			);
+			return DhApiChunk.create(chunkX, chunkZ, minY, maxY);
 		}
 
 		public static DhApiTerrainDataPoint newDataPoint(
@@ -115,24 +110,10 @@ public class DistantHorizonsCompat {
 			IDhApiBlockStateWrapper state,
 			IDhApiBiomeWrapper biome
 		) {
-			return (
-				dataPointBottomFirst
-				? new DhApiTerrainDataPoint(detailLevel, blockLight, skyLight, minY, maxY, state, biome)
-				: new DhApiTerrainDataPoint(detailLevel, blockLight, skyLight, maxY, minY, state, biome)
-			);
+			return DhApiTerrainDataPoint.create(detailLevel, blockLight, skyLight, minY, maxY, state, biome);
 		}
 
 		public static void init() {
-			try {
-				//make sure method we intend to override is present in the version of distant horizons the user has installed.
-				//if the user is on an old version, then we don't want to register anything.
-				IDhApiWorldGenerator.class.getDeclaredMethod("generateApiChunks", int.class, int.class, byte.class, byte.class, EDhApiDistantGeneratorMode.class, ExecutorService.class, Consumer.class);
-				BigGlobeMod.LOGGER.info("Distant Horizons hyperspeed generators available.");
-			}
-			catch (NoSuchMethodException exception) {
-				BigGlobeMod.LOGGER.info("Distant Horizons hyperspeed generators unavailable. Consider updating Distant Horizons.");
-				return;
-			}
 			DhApiEventRegister.on(DhApiLevelLoadEvent.class, new DhApiLevelLoadEvent() {
 
 				@Override

@@ -24,6 +24,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("Big Globe/Mixins");
+	public static BigGlobeMixinPlugin INSTANCE;
 
 	public Map<String, Boolean> defaults, settings;
 
@@ -32,6 +33,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		this.defaults = this.initDefaults(mixinPackage);
 		this.settings = this.convertProperties(this.loadProperties());
 		this.checkChanged();
+		INSTANCE = this;
 	}
 
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
@@ -78,7 +80,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                             Boolean.TRUE);
-		defaults.put(mixinPackage + ".Voxy_WorldEngine_UseBigGlobeGenerator",                                  Boolean.TRUE);
+		defaults.put(mixinPackage + ".VoxyIntegration",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                          Boolean.TRUE);
 		return defaults;
@@ -223,27 +225,33 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		}
 	}
 
+	public boolean isEnabledInConfig(String mixinClassName) {
+		Boolean enabled = this.settings.get(mixinClassName);
+		return enabled != null ? enabled.booleanValue() : true;
+	}
+
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		Boolean enabled = this.settings.get(mixinClassName);
-		boolean defaultEnabled = enabled != null ? enabled.booleanValue() : true;
 		return switch (mixinClassName) {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
 			}
 			#if MC_VERSION >= MC_1_20_1
 			case "builderb0y.bigglobe.mixins.Sodium_WorldSlice_UseNoiseInBigGlobeWorlds" -> {
-				yield defaultEnabled && checkMod(mixinClassName, "sodium", "0.5.0");
+				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "sodium", "0.5.0");
 			}
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
-				yield defaultEnabled && checkMod(mixinClassName, "imm_ptl_core");
+				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
 			}
 			#endif
-			case "builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator" -> {
-				yield checkMod(mixinClassName, "voxy");
+			case
+				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
+				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging"
+			-> {
+				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
 			}
 			default -> {
-				yield defaultEnabled;
+				yield this.isEnabledInConfig(mixinClassName);
 			}
 		};
 	}

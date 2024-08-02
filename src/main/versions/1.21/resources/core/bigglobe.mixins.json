@@ -69,6 +69,7 @@
 		"StructureStart_ChildrenGetter",
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
+		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"World_UseCorrectSeaLevel",

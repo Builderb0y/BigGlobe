@@ -9,12 +9,14 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.mixins.BigGlobeMixinPlugin;
 
 public class BigGlobeCommands {
 
@@ -70,6 +72,19 @@ public class BigGlobeCommands {
 		BigGlobeMod.LOGGER.debug("Registering client commands to dispatcher...");
 		DisplayColumnsClientCommand.register(dispatcher);
 		SearchF3ClientCommand.register(dispatcher);
+		if (
+			FabricLoader.getInstance().isModLoaded("voxy") &&
+			BigGlobeMixinPlugin.INSTANCE.isEnabledInConfig(
+				"builderb0y.bigglobe.mixins.VoxyIntegration"
+			)
+		) {
+			try {
+				VoxyDebugCommand.register(dispatcher, registryAccess);
+			}
+			catch (LinkageError error) {
+				BigGlobeMod.LOGGER.warn("/bigglobe:voxyDebug unavailable: ", error);
+			}
+		}
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
 	}
 }

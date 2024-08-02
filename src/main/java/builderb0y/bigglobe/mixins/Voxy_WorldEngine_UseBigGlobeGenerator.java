@@ -9,12 +9,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.MinecraftClient;
 
-import builderb0y.bigglobe.compat.voxy.VoxyWorldGenerator;
+import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
+import builderb0y.bigglobe.mixinInterfaces.VoxyGeneratorHolder;
 
 @Mixin(WorldEngine.class)
-public class Voxy_WorldEngine_UseBigGlobeGenerator {
+public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolder {
 
-	public VoxyWorldGenerator bigglobe_generator;
+	public AbstractVoxyWorldGenerator bigglobe_generator;
 
 	@Inject(method = "<init>", at = @At("RETURN"), remap = false)
 	private void bigglobe_startGenerator(
@@ -24,7 +25,7 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 		int maxMipLayers,
 		CallbackInfo callback
 	) {
-		VoxyWorldGenerator generator = VoxyWorldGenerator.createGenerator(MinecraftClient.getInstance().world, ((WorldEngine)(Object)(this)));
+		AbstractVoxyWorldGenerator generator = AbstractVoxyWorldGenerator.createGenerator(MinecraftClient.getInstance().world, ((WorldEngine)(Object)(this)));
 		if (generator != null) {
 			(this.bigglobe_generator = generator).start();
 		}
@@ -32,10 +33,14 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 
 	@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
 	private void bigglobe_stopGenerator(CallbackInfo callback) {
-		VoxyWorldGenerator generator = this.bigglobe_generator;
+		AbstractVoxyWorldGenerator generator = this.bigglobe_generator;
 		if (generator != null) {
 			generator.stop();
-			generator.save();
 		}
+	}
+
+	@Override
+	public AbstractVoxyWorldGenerator bigglobe_getVoxyGenerator() {
+		return this.bigglobe_generator;
 	}
 }

@@ -18,8 +18,6 @@ testing:
 	check if biome tint hook is being called from an expected caller with sodium.
 		in other words, see if my mixin is still necessary or not.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
-	see if DH world generator can cache columns or not.
-		maybe even re-use the cache of the non-DH chunk generator.
 
 1.21 stuff:
 	verify that all crafting recipes that use tags in any way still work in old MC versions.
@@ -59,6 +57,7 @@ changelog:
 	* The "Reload Big Globe chunk generators from mod jar" config option was removed, and now acts as if it's always enabled.
 		* If you are making a world preset, you must remove the "reload_dimension" property from your scripted chunk generators, or else they will be overridden by the default ones.
 	* All types of scripts which have a "seed" variable exposed will now always get the same value from it for the same world. This is very much related to the fact that worlds only have one seed now.
+	* Added debug command which turns voxy into a 3D graphing calculator.
 
 alternate world presets:
 	paradise.
@@ -204,6 +203,7 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
+		big canyons?
 		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		desert fossils.
 		fallen logs.
