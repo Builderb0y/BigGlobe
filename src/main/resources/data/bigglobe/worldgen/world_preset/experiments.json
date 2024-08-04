@@ -255,7 +255,7 @@
 				"height": {
 					"min_y": -1024,
 					"max_y":  1024,
-					"sea_level": 0
+					"sea_level": -256
 				},
 				"layer": {
 					"state": "'minecraft:air'",
@@ -264,16 +264,29 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"max_y": "int(`bigglobe:paradise/mountain_thickness`)"
+								"max_y": "int(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/mountain_thickness`) + 1"
 							},
+							"after_children": [
+								"int maxStone = int(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/mountain_thickness`)",
+								"unless (getBlockState(maxStone).isAir():",
+									"int depth = int(`bigglobe:paradise/warp_radius` * 8.0L - `bigglobe:paradise/spiral` * 0.125L + columnSeed(16x0FAC920156B86F94UL).nextDouble(-2.0L, 2.0L) - 4.0L)",
+									"if (depth > 0:",
+										"int minStone = getBottomOfSegment(maxStone)",
+										"setBlockState(maxStone, 'minecraft:grass_block[snowy=false]')",
+										"if (depth > 1:",
+											"setBlockStates(max(maxStone - depth, minStone), maxStone, 'minecraft:dirt')",
+										")",
+									")",
+								")"
+							],
 							"children": [
 								{
 									"type": "simple_2d",
 									"state": "'minecraft:air'",
 									"valid": {
 										"where": "isNotNaN(`bigglobe:paradise/bubble_thickness`)",
-										"min_y": "int(-180.0L - `bigglobe:paradise/bubble_thickness`)",
-										"max_y": "int(-180.0L + `bigglobe:paradise/bubble_thickness`) + 1"
+										"min_y": "int(`bigglobe:paradise/mountain_center` - 256.0L - `bigglobe:paradise/bubble_thickness`)",
+										"max_y": "int(`bigglobe:paradise/mountain_center` - 256.0L + `bigglobe:paradise/bubble_thickness`) + 1"
 									},
 									"children": [
 										{
@@ -286,12 +299,42 @@
 									]
 								}
 							]
+						},
+						{
+							"type": "simple_3d",
+							"state": "'bigglobe:cloud'",
+							"condition": "`bigglobe:paradise/upper_ring_cloud_sdf` > 0.0I",
+							"valid": {
+								"where": [
+									"if (purpose == 'heightmap': return(false))",
+									"`bigglobe:paradise/warp_radius`.isBetween(`bigglobe:paradise/ring_cloud_min_radius`, `bigglobe:paradise/ring_cloud_max_radius`)"
+								],
+								"min_y": " ceilInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/ring_cloud_center_offset` - `bigglobe:paradise/ring_cloud_thickness`)",
+								"max_y": "floorInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/ring_cloud_center_offset` + `bigglobe:paradise/ring_cloud_thickness`)"
+							}
+						},
+						{
+							"type": "simple_3d",
+							"state": "'bigglobe:cloud'",
+							"condition": "`bigglobe:paradise/upper_bridge_cloud_sdf` > 0.0I",
+							"valid": {
+								"where": [
+									"if (purpose == 'heightmap': return(false))",
+									"`bigglobe:paradise/warp_radius` > `bigglobe:paradise/bridge_cloud_min_radius`"
+								],
+								"min_y": " ceilInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/bridge_cloud_center_offset` - `bigglobe:paradise/bridge_cloud_thickness`)",
+								"max_y": "floorInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/bridge_cloud_center_offset` + `bigglobe:paradise/bridge_cloud_thickness`)"
+							}
 						}
 					]
 				},
 				"feature_dispatcher": {
-					"rock_replacers": [],
-					"raw": "bigglobe:noop",
+					"rock_replacers": [
+						"bigglobe:overworld/cobblestone_sprinkle",
+						"bigglobe:overworld/rock_layers/rocks",
+						"bigglobe:overworld/rock_layers/dirt"
+					],
+					"raw": "bigglobe:paradise/raw_root",
 					"normal": "bigglobe:noop"
 				},
 				"overriders": "bigglobe:empty"

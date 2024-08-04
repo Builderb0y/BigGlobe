@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "upper_ring_cloud_noise + ring_cloud_horizontal_bias + ring_cloud_vertical_bias",
+	"valid": {
+		"where": "warp_radius.isBetween(ring_cloud_min_radius, ring_cloud_max_radius)",
+		"min_y": " ceilInt(mountain_center + ring_cloud_center_offset - ring_cloud_thickness)",
+		"max_y": "floorInt(mountain_center + ring_cloud_center_offset + ring_cloud_thickness)"
+	}
+}

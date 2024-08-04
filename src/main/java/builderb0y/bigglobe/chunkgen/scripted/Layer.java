@@ -44,33 +44,33 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 	public void emitSegments(ScriptedColumn column, ScriptedColumn altX, ScriptedColumn altZ, ScriptedColumn altXZ, BlockSegmentList segments) {
 		if (this.validWhere(column)) {
 			BlockSegmentList bounded = segments.split(segments.minY(), segments.maxY());
-			this.emitSelfSegments(column, bounded);
-			if (this.before_children != null) {
-				this.before_children.generateSurface(column, altX, altZ, altXZ, bounded);
-			}
-			if (this.children.length != 0) {
-				BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
-				BlockSegmentList split2 = split.split(split.minY(), split.maxY());
-				for (Layer child : this.children) {
-					child.emitSegments(column, altX, altZ, altXZ, split2);
-					split.mergeAndKeepWhereThereArentBlocks(split2);
-					split2.reset();
+			if (bounded != null) {
+				this.emitSelfSegments(column, bounded);
+				if (this.before_children != null) {
+					this.before_children.generateSurface(column, altX, altZ, altXZ, bounded);
 				}
-				bounded.mergeAndKeepWhereThereAreBlocks(split);
+				if (this.children.length != 0) {
+					BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
+					BlockSegmentList split2 = split.split(split.minY(), split.maxY());
+					for (Layer child : this.children) {
+						child.emitSegments(column, altX, altZ, altXZ, split2);
+						split.mergeAndKeepWhereThereArentBlocks(split2);
+						split2.reset();
+					}
+					bounded.mergeAndKeepWhereThereAreBlocks(split);
+				}
+				if (this.after_children != null) {
+					this.after_children.generateSurface(column, altX, altZ, altXZ, bounded);
+				}
+				segments.mergeAndKeepEverywhere(bounded);
 			}
-			if (this.after_children != null) {
-				this.after_children.generateSurface(column, altX, altZ, altXZ, bounded);
-			}
-			segments.mergeAndKeepEverywhere(bounded);
 		}
 	}
 
 	public void emitSegments(ScriptedColumn column, BlockSegmentList segments) {
 		if (this.validWhere(column)) {
-			int minY = this.validMinY(column);
-			int maxY = this.validMaxY(column);
-			if (maxY > minY) {
-				BlockSegmentList bounded = segments.split(minY, maxY);
+			BlockSegmentList bounded = segments.split(this.validMinY(column), this.validMaxY(column));
+			if (bounded != null) {
 				this.emitSelfSegments(column, bounded);
 
 				if (this.children.length != 0) {

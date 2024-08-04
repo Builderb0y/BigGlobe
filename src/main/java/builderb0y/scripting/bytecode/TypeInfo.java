@@ -276,7 +276,7 @@ public class TypeInfo {
 					yield Class.forName(this.getClassName(), false, classLoader);
 				}
 				catch (ClassNotFoundException exception) {
-					throw new IllegalArgumentException(this + " does not correspond to a currently defined class.", exception);
+					throw new IllegalArgumentException(this + " does not correspond to a currently defined class in " + classLoader, exception);
 				}
 			}
 		};

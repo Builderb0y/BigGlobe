@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo.Mutability;
+import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
@@ -20,6 +24,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.IntCompareZeroConditionTree;
@@ -207,6 +212,31 @@ public abstract class DataCompileContext {
 				}
 			}
 			this.emitSwitchCases(cases, streamBuilder.build(), preComputeColumnValue);
+		}
+
+		{
+			MethodCompileContext getColumnValues = this.mainClass.newMethod(ACC_PUBLIC, "getColumnValues", type(List.class));
+			UnresolvedColumnValueInfo[] bootstrapConstant = (
+				memoryMap
+				.entrySet()
+				.stream()
+				.map((Map.Entry<ColumnEntry, ColumnEntryMemory> entry) -> new UnresolvedColumnValueInfo(
+					entry.getValue().getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(),
+					entry.getValue().getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
+					entry.getKey().getAccessSchema().is_3d(),
+					entry.getKey().hasField() ? entry.getKey().isSettable() ? Mutability.CACHED : Mutability.VORONOI : Mutability.COMPUTED
+				))
+				.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
+				.toArray(UnresolvedColumnValueInfo[]::new)
+			);
+			return_(
+				ldc(
+					UnresolvedColumnValueInfo.RESOLVE,
+					getColumnValues.clazz.newConstant(bootstrapConstant, type(UnresolvedColumnValueInfo[].class))
+				)
+			)
+			.emitBytecode(getColumnValues);
+			getColumnValues.endCode();
 		}
 	}
 

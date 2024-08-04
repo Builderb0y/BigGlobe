@@ -508,7 +508,8 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 					bootstrapMethod.getDescriptor(),
 					bootstrapMethod.isInterface()
 				),
-				Arrays.stream(bootstrapArgs)
+				Arrays
+				.stream(bootstrapArgs)
 				.map(ConstantValue::asAsmObject)
 				.toArray()
 			);

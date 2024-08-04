@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "raw_mountain_thickness + spiral"
+	"script": "(1.0L - exp(-0.5L * warp_radius)) * 256.0L + 256.0L"
 }

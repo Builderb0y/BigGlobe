@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
@@ -31,8 +33,10 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		else this.removeSegment(minY, maxY - 1);
 	}
 
-	public BlockSegmentList split(int minY, int maxY) {
-		return new BlockSegmentList(Math.max(this.minY, minY), Math.min(this.maxY, maxY - 1 /* convert to inclusive */) + 1 /* back to exclusive */);
+	public @Nullable BlockSegmentList split(int minY, int maxY) {
+		minY = Math.max(this.minY, minY);
+		maxY = Math.min(this.maxY, maxY - 1 /* convert to inclusive */) + 1 /* back to exclusive */;
+		return maxY > minY ? new BlockSegmentList(minY, maxY) : null;
 	}
 
 	public void mergeAndKeepEverywhere(BlockSegmentList that) {

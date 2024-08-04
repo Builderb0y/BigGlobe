@@ -87,6 +87,7 @@ import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -977,7 +978,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public void setDisplay(String regex) {
 		this.displayPattern = Pattern.compile(regex);
-		this.rootDebugDisplay.recomputeChildren();
+		this.rootDebugDisplay.recomputeChildren(this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, 0, 0, Purpose.GENERIC)));
 	}
 
 	public static class DisplayEntry {
@@ -994,9 +995,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			this.id = "";
 		}
 
-		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, Method method) {
+		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, String id) {
 			this.generator = generator;
-			this.id = method.getDeclaredAnnotation(ColumnValueGetter.class).value();
+			this.id = id;
 		}
 
 		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
@@ -1012,7 +1013,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				if (value != null) {
 					if (this.expectedValueType != value.getClass()) {
 						this.expectedValueType = value.getClass();
-						this.recomputeChildren();
+						this.recomputeChildren(value);
 					}
 					if (value instanceof ColumnValueHolder nextHolder) {
 						for (DisplayEntry child : this.children) {
@@ -1026,17 +1027,18 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			}
 		}
 
-		public void recomputeChildren() {
+		public void recomputeChildren(Object value) {
 			if (
 				this.generator.displayPattern != null &&
-				ColumnValueHolder.class.isAssignableFrom(this.expectedValueType)
+				value instanceof ColumnValueHolder holder
 			) {
 				this.children = (
-					Arrays
-					.stream(this.expectedValueType.getDeclaredMethods())
-					.filter((Method method) -> method.isAnnotationPresent(ColumnValueGetter.class))
-					.filter((Method method) -> this.generator.displayPattern.matcher(method.getDeclaredAnnotation(ColumnValueGetter.class).value()).find())
-					.map((Method method) -> new DisplayEntry(this.generator, method))
+					holder
+					.getColumnValues()
+					.stream()
+					.map(ColumnValueInfo::name)
+					.filter((String name) -> this.generator.displayPattern.matcher(name).find())
+					.map((String name) -> new DisplayEntry(this.generator, name))
 					.toArray(ARRAY_FACTORY)
 				);
 			}

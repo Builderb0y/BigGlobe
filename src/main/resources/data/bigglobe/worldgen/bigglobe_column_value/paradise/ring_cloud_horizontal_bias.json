@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"float unmixed = unmixLinear(ring_cloud_min_radius, ring_cloud_max_radius, warp_radius.as(float))",
+		"return(unmixed * (1.0I - unmixed) * 4.0I - 1.0I)"
+	]
+}

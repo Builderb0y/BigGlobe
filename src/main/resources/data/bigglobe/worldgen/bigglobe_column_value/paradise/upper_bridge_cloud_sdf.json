@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "upper_bridge_cloud_noise + bridge_cloud_horizontal_bias + bridge_cloud_vertical_bias",
+	"valid": {
+		"where": "warp_radius > bridge_cloud_min_radius",
+		"min_y": " ceilInt(mountain_center + bridge_cloud_center_offset - bridge_cloud_thickness)",
+		"max_y": "floorInt(mountain_center + bridge_cloud_center_offset + bridge_cloud_thickness)"
+	}
+}

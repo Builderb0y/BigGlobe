@@ -1,0 +1,21 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:aura_infused_clouds",
+			"inputs": {
+				"MIN_Y": [
+					"+ `bigglobe:paradise/mountain_center`",
+					"+ `bigglobe:paradise/ring_cloud_center_offset`",
+					"- `bigglobe:paradise/ring_cloud_thickness`"
+				],
+				"MAX_Y": [
+					"+ `bigglobe:paradise/mountain_center`",
+					"+ `bigglobe:paradise/ring_cloud_center_offset`",
+					"+ `bigglobe:paradise/ring_cloud_thickness`"
+				],
+				"HUE": "`bigglobe:paradise/warp_angle` * (8.0L * 12.0L / tau)"
+			}
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"double relativeToMountains = abs(y - mountain_center)",
+		"double relativeToCloudCenter = relativeToMountains - bridge_cloud_center_offset",
+		"double scaled = relativeToCloudCenter / bridge_cloud_thickness",
+		"return(-float(scaled ^ 2))"
+	],
+	"cache": false
+}

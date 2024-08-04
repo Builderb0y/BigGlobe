@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": "bridge_cloud_radial_bias + bridge_cloud_angular_bias",
+	"cache": false
+}

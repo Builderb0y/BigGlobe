@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:constant",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"value": 0.25
+}

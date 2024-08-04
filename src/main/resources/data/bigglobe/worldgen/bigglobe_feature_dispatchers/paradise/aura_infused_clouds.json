@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"if (",
+				"`bigglobe:paradise/warp_radius`(x, z).isBetween(",
+					"`bigglobe:paradise/ring_cloud_min_radius`(x, z),",
+					"`bigglobe:paradise/ring_cloud_max_radius`(x, z)",
+				")",
+			":",
+				"placeFeature(x, 0, z, 'bigglobe:paradise/ring_aura_infused_clouds')",
+			")",
+			"else if (`bigglobe:paradise/warp_radius`(x, z) > `bigglobe:paradise/bridge_cloud_min_radius`(x, z):",
+				"placeFeature(x, 0, z, 'bigglobe:paradise/bridge_aura_infused_clouds')",
+			")",
+		")"
+	]
+}

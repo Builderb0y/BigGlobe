@@ -1,0 +1,6 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:paradise/aura_infused_clouds"
+	]
+}

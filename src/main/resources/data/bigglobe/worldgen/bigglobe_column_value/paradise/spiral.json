@@ -6,7 +6,7 @@
 	},
 	"script": [
 		"double wave = sin((warp_angle + log2(warp_radius)) * 8.0L)",
-		"double amplitude = warp_radius * exp2(-4.0L * warp_radius)",
+		"double amplitude = warp_radius * raw_mountain_thickness * 0.25L",
 		"return(wave * amplitude)"
 	]
 }
