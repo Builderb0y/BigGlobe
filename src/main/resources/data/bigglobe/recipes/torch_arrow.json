@@ -6,7 +6,10 @@
 		"f"
 	],
 	"key": {
-		"c": { "tag": "minecraft:coals" },
+		"c": [
+			{ "tag": "minecraft:coals" },
+			{ "tag": "c:sulfurs" }
+		],
 		"s": { "tag": "c:rods/wooden" },
 		"f": { "tag": "c:feathers" }
 	},

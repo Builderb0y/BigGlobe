@@ -92,9 +92,6 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	}
 
 	public DhApiChunk generateChunkOfDataPoints(int chunkX, int chunkZ) {
-		int chunkBottomY = this.chunkGenerator.height.min_y();
-		int chunkTopY    = this.chunkGenerator.height.max_y();
-		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
 		IDhApiBiomeWrapper biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(
 			new Object[] {
 				this
@@ -105,15 +102,14 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			},
 			this.level
 		);
+		DataPointListBuilder[] dataPointBuilders = new DataPointListBuilder[256];
 		for (int index = 0; index < 256; index++) {
-			//populate early to make sanity checking happen earlier.
-			//we will mutate this list later.
-			results.setDataPoints(index & 15, index >>> 4, new DataPointListBuilder(this.level, (byte)(0), biome));
+			dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome);
 		}
-		int startX = chunkX << 4;
-		int startZ = chunkZ << 4;
 		ScriptedColumn[] columns = this.chunkGenerator.chunkReuseColumns.get();
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
+		int startX = chunkX << 4;
+		int startZ = chunkZ << 4;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				final int offsetZ_ = offsetZ;
@@ -144,13 +140,19 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 						layer.emitSegments(column01, column00, column11, column10, list01);
 						layer.emitSegments(column10, column11, column00, column01, list10);
 						layer.emitSegments(column11, column10, column01, column00, list11);
-						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_,     offsetZ_    )), list00);
-						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_ | 1, offsetZ_    )), list01);
-						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_,     offsetZ_ | 1)), list10);
-						this.convertToDataPoints((DataPointListBuilder)(results.getDataPoints(offsetX_ | 1, offsetZ_ | 1)), list11);
+						this.convertToDataPoints(dataPointBuilders[baseIndex     ], list00);
+						this.convertToDataPoints(dataPointBuilders[baseIndex |  1], list01);
+						this.convertToDataPoints(dataPointBuilders[baseIndex | 16], list10);
+						this.convertToDataPoints(dataPointBuilders[baseIndex | 17], list11);
 					});
 				}
 			}
+		}
+		int chunkBottomY = this.chunkGenerator.height.min_y();
+		int chunkTopY    = this.chunkGenerator.height.max_y();
+		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
+		for (int index = 0; index < 256; index++) {
+			results.setDataPoints(index & 15, index >>> 4, dataPointBuilders[index]);
 		}
 		return results;
 	}

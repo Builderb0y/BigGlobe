@@ -13,7 +13,7 @@ import builderb0y.bigglobe.compat.voxy.ForgetfulMemoryStorageBackend;
 @Mixin(ContextSelectionSystem.Selection.class)
 public class Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging {
 
-	@Inject(method = "createStorageBackend", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "createStorageBackend", at = @At("HEAD"), cancellable = true, remap = false)
 	private void bigglobe_useMemoryStorageBackendForDebugging(CallbackInfoReturnable<StorageBackend> callback) {
 		if (AbstractVoxyWorldGenerator.override != null) {
 			callback.setReturnValue(new ForgetfulMemoryStorageBackend());

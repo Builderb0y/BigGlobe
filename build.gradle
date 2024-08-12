@@ -211,7 +211,7 @@ for (Version version in [
 	new Version(20, 2),
 	new Version(20, 4),
 	new Version(20, 6),
-	new Version(21, 0)
+	new Version(21, 1)
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -230,6 +230,7 @@ MC_1_20_4=12004
 MC_1_20_5=12005
 MC_1_20_6=12006
 MC_1_21_0=12100
+MC_1_21_1=12101
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}
