@@ -1,6 +1,7 @@
 package builderb0y.scripting.bytecode.tree.instructions.elvis;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -24,7 +25,7 @@ public class ElvisGetInsnTree implements InsnTree {
 		this.emitters.object.emitBytecode(method); //object
 		method.node.visitInsn(DUP); //object object
 		method.node.visitJumpInsn(IFNONNULL, get); //object
-		method.node.visitInsn(POP); //
+		this.emitters.popNull.emitBytecode(method); //
 		method.node.visitJumpInsn(GOTO, alternative); //
 
 		method.node.visitLabel(get); //object
@@ -45,11 +46,15 @@ public class ElvisGetInsnTree implements InsnTree {
 
 	public static record ElvisEmitters(
 		BytecodeEmitter object,
+		BytecodeEmitter popNull,
 		BytecodeEmitter getter,
 		BytecodeEmitter alternative,
 		TypeInfo getterType,
 		TypeInfo commonType
 	) {
+
+		public static final BytecodeEmitter
+			POP  = (MethodCompileContext method) -> method.node.visitInsn(Opcodes.POP);
 
 		public static ElvisEmitters forField(
 			InsnTree object,
@@ -66,6 +71,7 @@ public class ElvisGetInsnTree implements InsnTree {
 			);
 			return new ElvisEmitters(
 				object,
+				POP,
 				field::emitGet,
 				alternative,
 				field.type,
@@ -88,6 +94,7 @@ public class ElvisGetInsnTree implements InsnTree {
 			);
 			return new ElvisEmitters(
 				object,
+				POP,
 				getter,
 				alternative,
 				getter.returnType,
@@ -109,6 +116,7 @@ public class ElvisGetInsnTree implements InsnTree {
 			);
 			return new ElvisEmitters(
 				method::emitFirstArg,
+				POP,
 				(MethodCompileContext context) -> {
 					method.emitAllArgsExceptFirst(context);
 					method.emitMethod(context);

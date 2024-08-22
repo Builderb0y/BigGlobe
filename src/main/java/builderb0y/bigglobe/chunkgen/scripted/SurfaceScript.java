@@ -107,7 +107,7 @@ public interface SurfaceScript extends Script {
 			actualMethod.endCode();
 
 			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-			return_(ldc(usage.findSource())).emitBytecode(getSource);
+			return_(ldc(clazz.newConstant(usage.findSource(), TypeInfos.STRING))).emitBytecode(getSource);
 			getSource.endCode();
 
 			MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);

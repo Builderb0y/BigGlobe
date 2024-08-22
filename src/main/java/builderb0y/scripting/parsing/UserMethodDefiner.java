@@ -3,6 +3,7 @@ package builderb0y.scripting.parsing;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
@@ -15,8 +16,14 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.ConditionalNegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReturnInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterNullableInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterNullableReceiverInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterReceiverInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NormalInvokeInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler.Named;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
@@ -93,35 +100,40 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			TypeInfo callerInfo = this.parser.clazz.info;
 			this.parser.environment.user().addFunction(
 				this.methodName,
-				this.parser.method.info.isStatic()
-				? (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
-					return new CastResult(
-						new LazyInvokeInsnTree(
-							() -> {
-								InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
-								return invokeStatic(method.methodInfo, concatArguments);
-							},
-							method.returnType
-						),
-						castArguments != arguments
-					);
-				}
-				: (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
-					return new CastResult(
-						new LazyInvokeInsnTree(
-							() -> {
-								InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
-								return invokeInstance(load("this", callerInfo), method.methodInfo, concatArguments);
-							},
-							method.returnType
-						),
-						castArguments != arguments
-					);
-				}
+				new Named(
+					"User function: " + this.returnType.getClassName() + ' ' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
+					this.parser.method.info.isStatic()
+					? (ExpressionParser parser, String name, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+						return new CastResult(
+							new LazyInvokeInsnTree(
+								() -> {
+									InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
+									return invokeStatic(method.methodInfo, concatArguments);
+								},
+								method.returnType
+							),
+							castArguments != arguments
+						);
+					}
+					: (ExpressionParser parser, String name, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+						return new CastResult(
+							new LazyInvokeInsnTree(
+								() -> {
+									InsnTree[] concatArguments = ObjectArrays.concat(castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY), InsnTree.class);
+									return invokeInstance(load("this", callerInfo), method.methodInfo, concatArguments);
+								},
+								method.returnType
+							),
+							castArguments != arguments
+						);
+					}
+				)
 			);
 		}
 	}
@@ -148,41 +160,51 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			this.parser.environment.user().addMethod(
 				typeBeingExtended,
 				this.methodName,
-				this.parser.method.info.isStatic()
-				? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
-					return new CastResult(
-						new LazyInvokeInsnTree(
-							() -> {
-								InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
-								return mode.makeInvoker(parser, method.methodInfo, concatArguments);
-							},
-							switch (mode) {
-								case NORMAL, NULLABLE -> method.returnType;
-								case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
-							}
-						),
-						castArguments != arguments
-					);
-				}
-				: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_THROW, arguments);
-					if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
-					return new CastResult(
-						new LazyInvokeInsnTree(
-							() -> {
-								InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
-								return mode.makeInvoker(parser, load("this", callerInfo), method.methodInfo, concatArguments);
-							},
-							switch (mode) {
-								case NORMAL, NULLABLE -> method.returnType;
-								case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
-							}
-						),
-						castArguments != arguments
-					);
-				}
+				new MethodHandler.Named(
+					"User extension method: " + this.returnType.getClassName() + ' ' + this.typeBeingExtended.getClassName() + '.' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
+					this.parser.method.info.isStatic()
+					? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+						return new CastResult(
+							new LazyInvokeInsnTree(
+								() -> {
+									InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
+									return mode.makeInvoker(parser, method.methodInfo, concatArguments);
+								},
+								switch (mode) {
+									case NORMAL, NULLABLE -> method.returnType;
+									case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
+								}
+							),
+							castArguments != arguments
+						);
+					}
+					: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
+						if (castArguments == null) return null;
+						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
+						return new CastResult(
+							new LazyInvokeInsnTree(
+								() -> {
+									InsnTree[] concatArguments = concat(receiver, castArguments, method.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY));
+									return switch (mode) {
+										case NORMAL -> new NormalInvokeInsnTree(load("this", callerInfo), method.methodInfo, concatArguments);
+										case NULLABLE -> new AfterNullableInvokeInsnTree(method.methodInfo, new LazyVarInfo("this", callerInfo), concatArguments);
+										case RECEIVER -> new AfterReceiverInvokeInsnTree(load("this", callerInfo), method.methodInfo, concatArguments);
+										case NULLABLE_RECEIVER -> new AfterNullableReceiverInvokeInsnTree(method.methodInfo, new LazyVarInfo("this", callerInfo), concatArguments);
+									};
+								},
+								switch (mode) {
+									case NORMAL, NULLABLE -> method.returnType;
+									case RECEIVER, NULLABLE_RECEIVER -> typeBeingExtended;
+								}
+							),
+							castArguments != arguments
+						);
+					}
+				)
 			);
 		}
 

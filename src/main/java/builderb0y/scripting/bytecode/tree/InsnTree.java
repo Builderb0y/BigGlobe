@@ -165,7 +165,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		POST;
 	}
 
-	public default InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+	public default InsnTree elvis(ExpressionParser parser, InsnTree alternative) {
 		return ElvisInsnTree.create(parser, this, alternative);
 	}
 

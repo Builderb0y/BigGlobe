@@ -404,6 +404,70 @@ public class UserDefinitionsTest extends TestCommon {
 			getResult ( )
 			"""
 		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test . new ( ) . zero ( ) == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test . new ( ) .? zero ( ) == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test . new ( ) .? zero ( ) ?: 1 == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . one ( : 1 )
+			Test test = null
+			test .? one ( ) == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test test = null
+			test .? zero ( ) ?: 1 == 1
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test test = new ( )
+			test = test .$ zero ( )
+			test . zero ( ) == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . zero ( : 0 )
+			Test test = new ( )
+			test = test .$? zero ( )
+			test . zero ( ) == 0
+			"""
+		);
+		assertSuccess(true,
+			"""
+			class Test ( )
+			int Test . one ( : 1 )
+			Test test = null
+			test = test .$? one ( )
+			test == null
+			"""
+		);
 	}
 
 	@Test

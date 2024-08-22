@@ -360,7 +360,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 
 		public void addSource() {
 			MethodCompileContext getSource = this.clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-			return_(ldc(this.input.getSource())).emitBytecode(getSource);
+			return_(ldc(this.clazz.newConstant(this.input.getSource(), TypeInfos.STRING))).emitBytecode(getSource);
 			getSource.endCode();
 		}
 

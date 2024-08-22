@@ -342,7 +342,13 @@ public class SpecialFunctionSyntax {
 
 	public static record UserParameterList(UserParameter... parameters) {
 
-		public static record UserParameter(TypeInfo type, String name) {}
+		public static record UserParameter(TypeInfo type, String name) {
+
+			@Override
+			public String toString() {
+				return this.type.getClassName() + ' ' + this.name;
+			}
+		}
 
 		public static UserParameterList parse(ExpressionParser parser) throws ScriptParsingException {
 			if (parser.input.hasOperatorAfterWhitespace(":")) {

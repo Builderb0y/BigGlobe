@@ -8,7 +8,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -43,7 +42,7 @@ public class NullableInvokeInsnTree extends BaseInvokeInsnTree {
 	}
 
 	@Override
-	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) {
 		return new ElvisGetInsnTree(ElvisEmitters.forMethod(this, alternative));
 	}
 }

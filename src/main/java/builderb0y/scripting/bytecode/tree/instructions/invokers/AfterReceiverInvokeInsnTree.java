@@ -5,23 +5,23 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
-public class ReceiverInvokeInsnTree extends BaseInvokeInsnTree {
+public class AfterReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 
-	public ReceiverInvokeInsnTree(MethodInfo method, InsnTree... args) {
+	public AfterReceiverInvokeInsnTree(MethodInfo method, InsnTree... args) {
 		super(method, args);
 		checkArguments(method.getInvokeTypes(), this.args);
 	}
 
-	public ReceiverInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
+	public AfterReceiverInvokeInsnTree(InsnTree receiver, MethodInfo method, InsnTree... args) {
 		super(receiver, method, args);
 		checkArguments(method.getInvokeTypes(), this.args);
 	}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		this.emitFirstArg(method);
-		method.node.visitInsn(this.args[0].getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
-		this.emitAllArgsExceptFirst(method);
+		this.emitSpecificArgs(method, 0, 2);
+		method.node.visitInsn(this.args[1].getTypeInfo().isDoubleWidth() ? DUP2_X1 : DUP_X1);
+		this.emitSpecificArgs(method, 2, this.args.length);
 		this.emitMethod(method);
 		switch (this.method.returnType.getSize()) {
 			case 0 -> {}
@@ -32,7 +32,7 @@ public class ReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 
 	@Override
 	public TypeInfo getTypeInfo() {
-		return this.args[0].getTypeInfo();
+		return this.args[1].getTypeInfo();
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public class LineNumberInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) {
 		return new LineNumberInsnTree(this.content.elvis(parser, alternative), this.lineNumber);
 	}
 }

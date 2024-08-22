@@ -88,10 +88,17 @@ public class BaseInvokeInsnTree implements InsnTree {
 		this.args[0].emitBytecode(method);
 	}
 
+	public void emitSpecificArg(MethodCompileContext method, int index) {
+		this.args[index].emitBytecode(method);
+	}
+
 	public void emitAllArgsExceptFirst(MethodCompileContext method) {
+		this.emitSpecificArgs(method, 1, this.args.length);
+	}
+
+	public void emitSpecificArgs(MethodCompileContext method, int start, int end) {
 		InsnTree[] args = this.args;
-		int length = args.length;
-		for (int index = 1; index < length; index++) {
+		for (int index = start; index < end; index++) {
 			args[index].emitBytecode(method);
 		}
 	}

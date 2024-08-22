@@ -49,7 +49,7 @@ public class NullableInstanceGetFieldInsnTree extends AbstractInstanceGetFieldIn
 	}
 
 	@Override
-	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) throws ScriptParsingException {
+	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) {
 		return new ElvisGetInsnTree(ElvisEmitters.forField(this.object, this.field, alternative));
 	}
 }

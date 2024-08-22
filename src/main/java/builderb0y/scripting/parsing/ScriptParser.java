@@ -42,7 +42,7 @@ public class ScriptParser<I> extends ExpressionParser {
 		clazz.addNoArgConstructor(ACC_PUBLIC);
 
 		MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-		return_(ldc(input)).emitBytecode(getSource);
+		return_(ldc(clazz.newConstant(input, TypeInfos.STRING))).emitBytecode(getSource);
 		getSource.endCode();
 
 		MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);

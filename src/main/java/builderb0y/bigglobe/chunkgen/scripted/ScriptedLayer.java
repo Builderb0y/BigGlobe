@@ -106,7 +106,7 @@ public class ScriptedLayer extends Layer {
 				actualMethod.endCode();
 
 				MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-				return_(ldc(this.usage.findSource())).emitBytecode(getSource);
+				return_(ldc(clazz.newConstant(this.usage.findSource(), TypeInfos.STRING))).emitBytecode(getSource);
 				getSource.endCode();
 
 				MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);
