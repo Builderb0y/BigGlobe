@@ -25,11 +25,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandle
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
-import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.*;
-import builderb0y.scripting.parsing.UserClassDefiner;
+import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.special.*;
 import builderb0y.scripting.util.PrintSink;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -134,37 +131,37 @@ public class BuiltinScriptEnvironment {
 		})
 		.addKeyword("while", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-			ConditionBody whileStatement = ConditionBody.parse(parser);
+			ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 			return while_(loopName, whileStatement.condition(), whileStatement.body());
 		})
 		.addKeyword("until", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-			ConditionBody whileStatement = ConditionBody.parse(parser);
+			ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 			return while_(loopName, not(whileStatement.condition()), whileStatement.body());
 		})
 		.addKeyword("do", (ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 			case "while" -> {
 				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-				ConditionBody whileStatement = ConditionBody.parse(parser);
+				ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 				yield doWhile(parser, loopName, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
 				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-				ConditionBody whileStatement = ConditionBody.parse(parser);
+				ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 				yield doWhile(parser, loopName, not(whileStatement.condition()), whileStatement.body());
 			}
 			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 		})
 		.addKeyword("repeat", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-			ScriptBody repeatStatement = ScriptBody.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+			ScriptBodySyntax repeatStatement = ScriptBodySyntax.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
 			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 		})
 		.addKeyword("for", (ExpressionParser parser, String name) -> {
-			return ForLoop.parse(parser);
+			return ForLoopSyntax.parse(parser);
 		})
 		.addKeyword("switch", (ExpressionParser parser, String name) -> {
-			SwitchBody switchBody = SwitchBody.parse(parser);
+			SwitchBodySyntax switchBody = SwitchBodySyntax.parse(parser);
 			return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
 		})
 		.addKeyword("block", (ExpressionParser parser, String name) -> {
@@ -184,7 +181,7 @@ public class BuiltinScriptEnvironment {
 			return new ContinueInsnTree(loopName);
 		})
 		.addKeyword("compare", (ExpressionParser parser, String name) -> {
-			return Compare.parse(parser).buildInsnTree();
+			return CompareSyntax.parse(parser).buildInsnTree();
 		})
 		.addKeyword("noscope", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
@@ -425,7 +422,7 @@ public class BuiltinScriptEnvironment {
 	public static KeywordHandler makeVar() {
 		return (ExpressionParser parser, String name) -> {
 			if (parser.input.hasOperatorAfterWhitespace("*")) {
-				return MultiDeclaration.parse(parser, null).sequence();
+				return MultiDeclarationSyntax.parse(parser, null).sequence();
 			}
 			else {
 				String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
@@ -464,7 +461,7 @@ public class BuiltinScriptEnvironment {
 		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return switch (mode) {
 				case NORMAL, NULLABLE -> {
-					yield SpecialFunctionSyntax.IsBetween.parse(parser, receiver).toTree(parser);
+					yield IsBetweenSyntax.parse(parser, receiver).toTree(parser);
 				}
 				case RECEIVER, NULLABLE_RECEIVER -> {
 					throw new ScriptParsingException("Can't use isBetween() with nullable syntax.", parser.input);
@@ -474,7 +471,7 @@ public class BuiltinScriptEnvironment {
 	}
 
 	public static InsnTree nextIfElse(ExpressionParser parser, boolean negate) throws ScriptParsingException {
-		ConditionBody ifStatement = ConditionBody.parse(parser);
+		ConditionBodySyntax ifStatement = ConditionBodySyntax.parse(parser);
 		InsnTree elseStatement = nextElse(parser);
 		ConditionTree condition = ifStatement.condition();
 		if (negate) condition = not(condition);

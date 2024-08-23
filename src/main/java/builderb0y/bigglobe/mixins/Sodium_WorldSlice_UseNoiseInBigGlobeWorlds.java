@@ -13,7 +13,7 @@ import builderb0y.bigglobe.ClientState;
 
 /**
 I change the way vanilla color providers work, see {@link BiomeColors_UseNoiseInBigGlobeWorlds}.
-unfortunately, sodium overrides this logic for unknown reasons, and doesn't call my modified code at all.
+unfortunately, sodium overrides this logic, and doesn't call my modified code at all.
 so, I need a 2nd mixin to handle sodium's code path too.
 */
 @Mixin(WorldSlice.class)

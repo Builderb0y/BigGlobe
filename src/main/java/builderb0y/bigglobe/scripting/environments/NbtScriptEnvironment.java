@@ -16,13 +16,12 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment.CommonMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
+import builderb0y.scripting.parsing.special.NamedValues;
+import builderb0y.scripting.parsing.special.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

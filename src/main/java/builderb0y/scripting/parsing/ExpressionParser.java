@@ -41,11 +41,11 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.RootScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.*;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.CommaSeparatedExpressions;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.MultiDeclaration;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.ParenthesizedScript;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserExtensionMethodDefiner;
 import builderb0y.scripting.parsing.UserMethodDefiner.UserFunctionDefiner;
+import builderb0y.scripting.parsing.special.CommaSeparatedExpressions;
+import builderb0y.scripting.parsing.special.MultiDeclarationSyntax;
+import builderb0y.scripting.parsing.special.ParenthesizedScript;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.StringSimilarity;
 
@@ -998,7 +998,7 @@ public class ExpressionParser {
 					if (type.getSort() == Sort.VOID) {
 						throw new ScriptParsingException("void-typed variables are not allowed.", this.input);
 					}
-					return MultiDeclaration.parse(this, type).sequence();
+					return MultiDeclarationSyntax.parse(this, type).sequence();
 				}
 				else if (this.input.peekAfterWhitespace() == '(') { //casting.
 					return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW);

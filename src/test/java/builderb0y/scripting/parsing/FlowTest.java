@@ -218,6 +218,15 @@ public class FlowTest extends TestCommon {
 			sum == 3 && concat == 'abc'
 			"""
 		);
+		assertSuccess(125,
+			"""
+			int sum = 0
+			for ( int * ( x , y , z ) in range [ -2 , 2 ] :
+				++ sum
+			)
+			sum
+			"""
+		);
 	}
 
 	@Test

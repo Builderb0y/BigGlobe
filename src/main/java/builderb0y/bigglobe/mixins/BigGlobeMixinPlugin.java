@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.function.Predicate;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -201,26 +202,28 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		}
 	}
 
-	public static boolean checkMod(String mixinName, String modName, String version) {
+	public static Version version(String version) {
+		try {
+			return Version.parse(version);
+		}
+		catch (VersionParsingException exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
+	}
+
+	public static boolean checkMod(String mixinName, String modName, Predicate<Version> versionPredicate) {
 		if (
 			FabricLoader
 			.getInstance()
 			.getModContainer(modName)
-			.filter((ModContainer container) -> {
-				try {
-					return container.getMetadata().getVersion().compareTo(Version.parse(version)) >= 0;
-				}
-				catch (VersionParsingException exception) {
-					throw AutoCodecUtil.rethrow(exception);
-				}
-			})
+			.filter((ModContainer container) -> versionPredicate.test(container.getMetadata().getVersion()))
 			.isPresent()
 		) {
-			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is present.");
+			LOGGER.info("Applying mixin " + mixinName + " because a known version of required mod " + modName + " is present.");
 			return true;
 		}
 		else {
-			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + ' ' + version + " is absent.");
+			LOGGER.info("Not applying mixin " + mixinName + " because a known version of required mod " + modName + " is absent.");
 			return false;
 		}
 	}
@@ -236,14 +239,12 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
 			}
-			#if MC_VERSION >= MC_1_20_1
 			case "builderb0y.bigglobe.mixins.Sodium_WorldSlice_UseNoiseInBigGlobeWorlds" -> {
-				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "sodium", "0.5.0");
+				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "sodium", (Version version) -> version.compareTo(version("0.5.0")) >= 0 && version.compareTo(version("0.6.0")) < 0);
 			}
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
 				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
 			}
-			#endif
 			case
 				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
 				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging"

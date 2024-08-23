@@ -12,8 +12,8 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.NamedValues.NamedValue;
+import builderb0y.scripting.parsing.special.NamedValues;
+import builderb0y.scripting.parsing.special.NamedValues.NamedValue;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

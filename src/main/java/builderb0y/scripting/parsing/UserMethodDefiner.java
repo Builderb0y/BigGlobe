@@ -26,8 +26,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandle
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList;
-import builderb0y.scripting.parsing.SpecialFunctionSyntax.UserParameterList.UserParameter;
+import builderb0y.scripting.parsing.special.UserParameterList;
+import builderb0y.scripting.parsing.special.UserParameterList.UserParameter;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
