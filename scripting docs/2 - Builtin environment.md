@@ -212,6 +212,7 @@ If the resulting integer value would be outside the range which can be represent
 	* Multi-variable range loops (also new in V4.0+): `for (int x, int y, int z in range[-1, 1]: body)`
 		* Like multi-loops, this works like declaring an outer loop for x, a middle loop for y, and an inner loop for z.
 		* Also like multi-loops, continuing will continue the inner loop, and breaking will break the outer loop.
+		* New in V4.3.1: You can now use multi-declaration syntax for this: `for (int*(x, y, z) in range[-1, 1]: body)`
 * `block (body)` can be thought of as a manual loop. If the body continues, then execution jumps back to the start of the block. And if the body breaks, then execution jumps to the end of the block. If the body does neither and reaches the end of the block, then the block is implicitly broken. You do not need to explicitly break at the end of each block.
 * `break()` exits the inner-most loop that is currently executing, skipping any code that may be between the current execution point and the end of the loop. Example usage:
 	```

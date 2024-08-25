@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"(1.0L - island.soft_distance_squared) ^ 2 * 1024.0L - 512.0L + height_offset"
+	]
+}

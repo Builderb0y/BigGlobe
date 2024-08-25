@@ -1,0 +1,15 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "Island",
+			"exports": {}
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 2048,
+		"variation": 1024
+	}
+}

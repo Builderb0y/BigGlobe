@@ -339,6 +339,50 @@
 				},
 				"overriders": "bigglobe:empty"
 			}
+		},
+		"bigglobe:islands": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024,
+					"sea_level": 0
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"max_y": "higherInt(`bigglobe:islands/base_height`)"
+							}
+						},
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:water[level=0]'",
+							"valid": {
+								"max_y": "0"
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [
+						"bigglobe:overworld/cobblestone_sprinkle",
+						"bigglobe:overworld/rock_layers/rocks",
+						"bigglobe:overworld/rock_layers/dirt"
+					],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
 		}
 	}
 }
