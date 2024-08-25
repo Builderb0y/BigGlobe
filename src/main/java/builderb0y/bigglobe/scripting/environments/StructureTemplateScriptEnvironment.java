@@ -88,7 +88,7 @@ public class StructureTemplateScriptEnvironment {
 	public static StructureProcessorList getProcessorList(String id) {
 		if (id == null) return null;
 		Identifier identifier = IdentifierVersions.create(id);
-		StructureProcessorList template = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.processorList()).get(identifier);
+		StructureProcessorList template = BigGlobeMod.getRegistry(RegistryKeyVersions.processorList()).getById(identifier).value();
 		if (template != null) return template;
 		else throw new IllegalArgumentException("Template not found: " + identifier);
 	}

@@ -29,10 +29,8 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 		if (id == null) return null;
 		return new BiomeEntry(
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(RegistryKeyVersions.biome())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.biome(), IdentifierVersions.create(id)))
+			.getRegistry(RegistryKeyVersions.biome())
+			.getByName(id)
 		);
 	}
 

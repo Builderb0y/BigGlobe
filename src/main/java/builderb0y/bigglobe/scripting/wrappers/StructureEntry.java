@@ -36,10 +36,8 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 		if (id == null) return null;
 		return new StructureEntry(
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(RegistryKeyVersions.structure())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.structure(), IdentifierVersions.create(id)))
+			.getRegistry(RegistryKeyVersions.structure())
+			.getByName(id)
 		);
 	}
 

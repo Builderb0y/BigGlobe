@@ -35,6 +35,8 @@ import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
@@ -65,6 +67,7 @@ public class BigGlobeMod implements ModInitializer {
 	public static final RegistryKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = RegistryKey.of(RegistryKeyVersions.worldPreset(), modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
+	public static BetterRegistry.Lookup currentRegistries;
 
 	@Override
 	public void onInitialize() {
@@ -99,8 +102,20 @@ public class BigGlobeMod implements ModInitializer {
 
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
-		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> currentServer = server);
-		ServerLifecycleEvents.SERVER_STOPPED .register((MinecraftServer server) -> currentServer = null  );
+		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> {
+			currentServer = server;
+			currentRegistries = new BetterRegistry.Lookup() {
+
+				@Override
+				public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
+					return new BetterHardCodedRegistry<>(server.getRegistryManager().get(key));
+				}
+			};
+		});
+		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
+			currentServer = null;
+			currentRegistries = null;
+		});
 		if (REGEN_WORLDS) {
 			LOGGER.error("################################################################");
 			LOGGER.error("Warning! -D" + MODID + ".regenWorlds is set to true in your java arguments!");
@@ -120,6 +135,17 @@ public class BigGlobeMod implements ModInitializer {
 	public static MinecraftServer getCurrentServer() {
 		if (currentServer != null) return currentServer;
 		else throw new IllegalStateException("No server is running.");
+	}
+
+	public static BetterRegistry.Lookup getCurrentRegistries() {
+		BetterRegistry.Lookup registries = currentRegistries;
+		if (registries != null) return registries;
+		else throw new IllegalStateException("Registries not available at this time.");
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> BetterRegistry<T> getRegistry(RegistryKey<? extends Registry<T>> key) {
+		return getCurrentRegistries().getRegistry((RegistryKey<Registry<T>>)(key));
 	}
 
 	public static @NotNull Identifier modID(@NotNull String path) {

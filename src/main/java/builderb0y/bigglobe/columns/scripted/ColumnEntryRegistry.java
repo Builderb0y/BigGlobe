@@ -225,6 +225,9 @@ public class ColumnEntryRegistry {
 
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
 			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent());
+			if (BigGlobeMod.currentRegistries == null) {
+				BigGlobeMod.currentRegistries = betterRegistryLookup;
+			}
 			if (LOADING == null) {
 				LOADING = new Loading(betterRegistryLookup, Side.SERVER);
 			}

@@ -35,7 +35,7 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 
 	public default T_Entry randomImpl(RandomGenerator random) {
 		TagKey<T_Raw> key = this.key();
-		RegistryEntryList.Named<T_Raw> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(key.registry()).getEntryList(key).orElse(null);
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(key.registry()).getOrCreateTag(key);
 		if (list == null) throw new RuntimeException("#" + key.registry().getValue() + " / " + key.id() + " does not exist.");
 		if (list.size() == 0) throw new RuntimeException("#" + key.registry().getValue() + " / " + key.id() + " is empty.");
 		RegistryEntry<T_Raw> element = list.get(random.nextInt(list.size()));
@@ -46,7 +46,7 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 
 	public default T_Entry randomImpl(long seed) {
 		TagKey<T_Raw> key = this.key();
-		RegistryEntryList.Named<T_Raw> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(key.registry()).getEntryList(key).orElse(null);
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(key.registry()).getOrCreateTag(key);
 		if (list == null) throw new RuntimeException("#" + key.registry().getValue() + " / " + key.id() + " does not exist.");
 		if (list.size() == 0) throw new RuntimeException("#" + key.registry().getValue() + " / " + key.id() + " is empty.");
 		RegistryEntry<T_Raw> element = list.get(Permuter.nextBoundedInt(seed, list.size()));
@@ -55,8 +55,8 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 
 	@Override
 	public default Iterator<T_Entry> iterator() {
-		Optional<RegistryEntryList.Named<T_Raw>> list = BigGlobeMod.getCurrentServer().getRegistryManager().get(this.key().registry()).getEntryList(this.key());
-		if (list.isEmpty()) throw new RuntimeException("#" + this.key().registry().getValue() + " / " + this.key().id() + " does not exist");
-		return list.get().stream().map(this::wrap).iterator();
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(this.key().registry()).getOrCreateTag(this.key());
+		if (list == null || list.size() == 0) throw new RuntimeException("#" + this.key().registry().getValue() + " / " + this.key().id() + " does not exist");
+		return list.stream().map(this::wrap).iterator();
 	}
 }

@@ -28,10 +28,8 @@ public record ConfiguredFeatureEntry(RegistryEntry<ConfiguredFeature<?, ?>> entr
 		if (id == null) return null;
 		return new ConfiguredFeatureEntry(
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(RegistryKeyVersions.configuredFeature())
-			.entryOf(RegistryKey.of(RegistryKeyVersions.configuredFeature(), IdentifierVersions.create(id)))
+			.getRegistry(RegistryKeyVersions.configuredFeature())
+			.getByName(id)
 		);
 	}
 

@@ -34,6 +34,8 @@ public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 		if (starts.isEmpty()) {
 			return EMPTY_SCRIPT_STRUCTURES;
 		}
+		//note: need an actual Registry instance here due to its
+		//ability to lookup the key associated with a given object.
 		Registry<Structure> structureRegistry = BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure());
 		return new ScriptStructures(
 			starts

@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.environments;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -165,10 +166,9 @@ public class GridScriptEnvironment {
 		if (id == null) return null;
 		return (
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY)
-			.get(IdentifierVersions.create(id))
+			.getRegistry(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY)
+			.getByName(id)
+			.value()
 		);
 	}
 

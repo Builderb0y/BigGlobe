@@ -10,10 +10,13 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 
+import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 /**
 in 1.19.2, all of this functionality was implemented by {@link Registry}.
@@ -34,6 +37,26 @@ public interface BetterRegistry<T> {
 	public abstract Stream<RegistryEntry<T>> streamEntries();
 
 	public abstract Stream<RegistryEntryList<T>> streamTags();
+
+	public default RegistryEntry<T> getById(Identifier id) {
+		return this.getOrCreateEntry(RegistryKey.of(this.getKey(), id));
+	}
+
+	public default RegistryEntry<T> getByName(String name) {
+		return this.getById(IdentifierVersions.create(name));
+	}
+
+	public default Iterable<RegistryEntry<T>> entries() {
+		return this.streamEntries()::iterator;
+	}
+
+	public default Iterable<RegistryKey<T>> keys() {
+		return this.streamEntries().map(UnregisteredObjectException::getKey)::iterator;
+	}
+
+	public default Iterable<T> values() {
+		return this.streamEntries().map(RegistryEntry::value)::iterator;
+	}
 
 	public static class BetterHardCodedRegistry<T> implements BetterRegistry<T> {
 

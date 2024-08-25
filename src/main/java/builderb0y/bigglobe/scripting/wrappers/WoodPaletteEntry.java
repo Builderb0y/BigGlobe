@@ -40,10 +40,8 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 		if (id == null) return null;
 		return new WoodPaletteEntry(
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
-			.entryOf(RegistryKey.of(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, IdentifierVersions.create(id)))
+			.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+			.getByName(id)
 		);
 	}
 

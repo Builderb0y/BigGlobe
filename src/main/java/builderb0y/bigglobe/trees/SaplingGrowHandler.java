@@ -51,9 +51,8 @@ public class SaplingGrowHandler {
 			WoodPalette palette
 		:
 			BigGlobeMod
-			.getCurrentServer()
-			.getRegistryManager()
-			.get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+			.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+			.values()
 		) {
 			RegistryEntry<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
 			if (saplingGrowFeature != null) {
