@@ -3,9 +3,9 @@ package builderb0y.bigglobe.compat.voxy;
 import java.util.Arrays;
 
 import me.cortex.voxy.client.core.IGetVoxelCore;
-import me.cortex.voxy.common.voxelization.VoxelizedSection;
-import me.cortex.voxy.common.voxelization.WorldConversionFactory;
+import me.cortex.voxy.common.storage.StorageBackend;
 import me.cortex.voxy.common.world.WorldEngine;
+import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,15 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -32,8 +29,9 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
+import builderb0y.bigglobe.compat.voxy.QueueingStorageBackend.GenerationQueue;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @Environment(EnvType.CLIENT)
@@ -45,33 +43,30 @@ public abstract class AbstractVoxyWorldGenerator {
 	public static @Nullable Factory override;
 
 	public final WorldEngine engine;
-	public final ServerWorld world;
 	public final BigGlobeScriptedChunkGenerator generator;
-	public final DistanceGraph distanceGraph;
+	public final GenerationQueue queue;
 	public final Thread thread;
 	public final ScriptedColumn[] columns;
-	public final long[] sectionInstance;
 	public volatile boolean running;
+	public final int plainsBiomeId;
 
-	public AbstractVoxyWorldGenerator(
-		WorldEngine engine,
-		ServerWorld world,
-		BigGlobeScriptedChunkGenerator generator,
-		DistanceGraph graph
-	) {
+	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
 		this.engine = engine;
-		this.world = world;
-		this.distanceGraph = graph;
 		this.generator = generator;
+		this.queue = new GenerationQueue();
+		for (StorageBackend backend : engine.storage.collectAllBackends()) {
+			if (backend instanceof QueueingStorageBackend queueing) {
+				queueing.setQueue(this.queue);
+			}
+		}
 		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
-
-		this.columns = new ScriptedColumn[256];
+		this.columns = new ScriptedColumn[1024];
 		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
 		Params params = new Params(generator, 0, 0, Purpose.RAW_VOXY);
-		for (int index = 0; index < 256; index++) {
+		for (int index = 0; index < 1024; index++) {
 			this.columns[index] = factory.create(params);
 		}
-		this.sectionInstance = new long[16 * 16 * 16 + 8 * 8 * 8 + 4 * 4 * 4 + 2 * 2 * 2 + 1];
+		this.plainsBiomeId = engine.getMapper().getIdForBiome(world.getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS));
 	}
 
 	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
@@ -88,7 +83,7 @@ public abstract class AbstractVoxyWorldGenerator {
 
 		public abstract AbstractVoxyWorldGenerator create(
 			WorldEngine engine,
-			ServerWorld world,
+			ServerWorld serverWorld,
 			BigGlobeScriptedChunkGenerator generator
 		);
 	}
@@ -118,12 +113,11 @@ public abstract class AbstractVoxyWorldGenerator {
 
 	public void stop() {
 		this.running = false;
-		this.thread.interrupt(); //just in case the thread is waiting on error.
 		try {
 			this.thread.join();
 		}
 		catch (InterruptedException exception) {
-			BigGlobeMod.LOGGER.error("Exception stopping " + this.thread.getName() + ": ", exception);
+			BigGlobeMod.LOGGER.error("Unexpected interrupt while stopping " + this.thread.getName() + ": ", exception);
 		}
 	}
 
@@ -135,10 +129,10 @@ public abstract class AbstractVoxyWorldGenerator {
 				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to world closing.");
 				break;
 			}
-			if (!this.generateNextChunk()) {
-				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down because it has finished generating every chunk in the world. How long did that take you?");
-				break;
+			if (!this.generateNextChunk()) try {
+				Thread.sleep(500L);
 			}
+			catch (InterruptedException ignored) {}
 			failures = 0;
 		}
 		catch (Exception exception) {
@@ -152,77 +146,66 @@ public abstract class AbstractVoxyWorldGenerator {
 			}
 			catch (InterruptedException ignored) {}
 		}
-		this.save();
 	}
 
-	public abstract void save();
-
 	public boolean generateNextChunk() {
-		if (BigGlobeThreadPool.isBusy()) {
-			try {
-				Thread.sleep(100L);
-			}
-			catch (InterruptedException ignored) {}
-			return true;
-		}
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player == null) return true;
-		RegistryEntry<Biome> biome = player.getWorld().getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS);
-
-		int chunkX = player.getBlockX() >> 4;
-		int chunkZ = player.getBlockZ() >> 4;
-		DistanceGraph.Query query = this.distanceGraph.query(chunkX, chunkZ);
-		if (query == null) return false;
-		this.createChunk(query.closestX, query.closestZ, biome);
+		long next = this.queue.poll();
+		if (next == -1L) return false;
+		this.createChunk(WorldEngine.getX(next), WorldEngine.getZ(next), WorldEngine.getLevel(next));
 		return true;
 	}
 
-	public abstract void createChunk(int chunkX, int chunkZ, RegistryEntry<Biome> biome);
+	public abstract void createChunk(int levelX, int levelZ, int level);
 
-	public @Nullable VoxelizedSection convertSection(int chunkX, int chunkY, int chunkZ, BlockSegmentList[] lists, RegistryEntry<Biome> biome) {
-		int biomeID = this.engine.getMapper().getIdForBiome(biome);
-		long[] section = null;
-		BlockState previousColumnState = null;
-		int previousColumnStateID = -1;
-		for (int relativeZ = 0; relativeZ < 16; relativeZ++) {
-			for (int relativeX = 0; relativeX < 16; relativeX++) {
-				int packedXZ = (relativeZ << 4) | relativeX;
-				BlockSegmentList list = lists[packedXZ];
-				int segmentIndex = list.getSegmentIndex(chunkY << 4, false);
-				while (segmentIndex < list.size()) {
-					LitSegment segment = list.getLit(segmentIndex++);
-					if (segment.minY > ((chunkY << 4) | 15)) break;
-					if (!segment.value.isAir()) {
-						if (section == null) {
-							section = this.sectionInstance;
-							Arrays.fill(section, 0L);
-						}
-						int minY = Math.max(segment.minY - (chunkY << 4), 0);
-						int maxY = Math.min(segment.maxY - (chunkY << 4), 15);
-						if (segment.value != previousColumnState) {
-							previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
-						}
-						byte startLightLevel = segment.lightLevel;
-						int diminishment = segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
-						if (startLightLevel == 0 || diminishment == 0) {
-							long id = Mapper.composeMappingId((byte)(15 - startLightLevel), previousColumnStateID, biomeID);
-							for (int relativeY = minY; relativeY <= maxY; relativeY++) {
-								section[packedXZ | (relativeY << 8)] = id;
-							}
-						}
-						else {
-							for (int relativeY = minY; relativeY <= maxY; relativeY++) {
-								int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - (relativeY + (chunkY << 4))), 0);
-								section[packedXZ | (relativeY << 8)] = Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, biomeID);
+	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
+		int minY = this.generator.height.min_y();
+		int maxY = this.generator.height.max_y();
+		for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
+			WorldSection section = null;
+			BlockState previousColumnState = null;
+			int previousColumnStateID = -1;
+			try {
+				for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
+					for (int relativeX = 0; relativeX < 32; relativeX++) {
+						int packedXZ = (relativeZ << 5) | relativeX;
+						BlockSegmentList list = lists[packedXZ];
+						int segmentIndex = list.getSegmentIndex(sectionBottomY, false);
+						while (segmentIndex < list.size()) {
+							LitSegment segment = list.getLit(segmentIndex++);
+							if (segment.minY > (sectionBottomY | ((1 << (level + 5)) - 1))) break;
+							if (!segment.value.isAir()) {
+								if (section == null) {
+									section = this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ);
+									Arrays.fill(((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData(), 0L);
+								}
+								int minRelativeY = Math.max((segment.minY - sectionBottomY) >> level, 0);
+								int maxRelativeY = Math.min((segment.maxY - sectionBottomY) >> level, 31);
+								if (segment.value != previousColumnState) {
+									previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
+								}
+								byte startLightLevel = segment.lightLevel;
+								int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+								if (startLightLevel == 0 || diminishment == 0) {
+									long id = Mapper.composeMappingId((byte)(15 - startLightLevel), previousColumnStateID, this.plainsBiomeId);
+									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+										section.set(relativeX, relativeY, relativeZ, id);
+									}
+								}
+								else {
+									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+										int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - (relativeY + sectionBottomY)), 0);
+										section.set(relativeX, relativeY, relativeZ, Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, this.plainsBiomeId));
+									}
+								}
 							}
 						}
 					}
 				}
+				if (section != null) this.engine.markDirty(section);
+			}
+			finally {
+				if (section != null) section.release();
 			}
 		}
-		if (section == null) return null;
-		VoxelizedSection result = new VoxelizedSection(section, chunkX, chunkY, chunkZ);
-		WorldConversionFactory.mipSection(result, this.engine.getMapper());
-		return result;
 	}
 }

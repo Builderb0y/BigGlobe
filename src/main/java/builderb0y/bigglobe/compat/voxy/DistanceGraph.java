@@ -4,6 +4,25 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.math.MathHelper;
 
+/**
+this class used to be used for generating chunks for voxy
+while making the closest ones to the player generate first.
+this task comes with the obvious problem
+that you can't just maintain a sorted queue,
+because the player can move, and that would invalidate the queue.
+you also can't re-sort the queue or pick the min
+element each time, because that would be slow.
+my solution uses a quadtree which tries to keep itself
+in the most "simple" state possible at all times.
+this mostly just means that there are no nodes with 4 identical children.
+if a node is completely "full" or completely "empty", it becomes a leaf node.
+the tree is traversed in a clever way to find the closest
+"empty" leaf to any given target position quickly.
+once an empty leaf is found, it gets marked as "full" so
+that the chunk it represents won't be generated again.
+
+this class has been unused ever since I added {@link GeneratingStorageBackend}.
+*/
 public class DistanceGraph {
 
 	public static final int

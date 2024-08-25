@@ -13,6 +13,7 @@ import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.AsyncRunner;
@@ -28,27 +29,30 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		BigGlobeScriptedChunkGenerator generator,
 		Object2ObjectArrayMap<BlockState, ColumnToIntScript.Holder> states
 	) {
-		super(engine, world, generator, DistanceGraph.worldOfChunks());
+		super(engine, world, generator);
 		this.states = states;
 	}
 
 	@Override
-	public void createChunk(int chunkX, int chunkZ, RegistryEntry<Biome> biome) {
-		int startX = chunkX << 4;
-		int startZ = chunkZ << 4;
+	public void createChunk(int levelX, int levelZ, int level) {
+		int startX = levelX << (level + 5);
+		int startZ = levelZ << (level + 5);
+
 		ScriptedColumn[] columns = this.columns;
-		BlockSegmentList[] lists = new BlockSegmentList[256];
+		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
-			for (int offsetZ = 0; offsetZ < 16; offsetZ++) {
+			for (int offsetZ = 0; offsetZ < 32; offsetZ ++) {
 				int offsetZ_ = offsetZ;
-				for (int offsetX = 0; offsetX < 16; offsetX++) {
+				for (int offsetX = 0; offsetX < 32; offsetX ++) {
 					int offsetX_ = offsetX;
 					async.submit(() -> {
-						int baseIndex = (offsetZ_ << 4) | offsetX_;
+						int x = startX | (offsetX_ << level);
+						int z = startZ | (offsetZ_ << level);
+						int baseIndex = (offsetZ_ << 5) | offsetX_;
 						ScriptedColumn column = columns[baseIndex];
-						column.setParamsUnchecked(column.params.at(startX | offsetX_, startZ | offsetZ_));
+						column.setParamsUnchecked(column.params.at(x, z));
 						BlockSegmentList list = new BlockSegmentList(minY, maxY);
 						for (
 							ObjectIterator<Object2ObjectMap.Entry<BlockState, ColumnToIntScript.Holder>> iterator = this.states.object2ObjectEntrySet().fastIterator();
@@ -62,14 +66,6 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		for (int y = minY; y < maxY; y += 16) {
-			VoxelizedSection section = this.convertSection(chunkX, y >> 4, chunkZ, lists, biome);
-			if (section != null) this.engine.insertUpdate(section);
-		}
-	}
-
-	@Override
-	public void save() {
-		//no-op.
+		this.convertSection(levelX, levelZ, level, lists);
 	}
 }
