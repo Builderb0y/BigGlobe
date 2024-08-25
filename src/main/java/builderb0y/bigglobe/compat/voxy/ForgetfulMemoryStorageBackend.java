@@ -2,7 +2,6 @@ package builderb0y.bigglobe.compat.voxy;
 
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;

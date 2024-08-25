@@ -30,6 +30,7 @@ import builderb0y.scripting.parsing.ScriptUsage;
 public class VoxyDebugCommand {
 
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+		/*
 		dispatcher.register(
 			ClientCommandManager
 			.literal(BigGlobeMod.MODID + ":voxyDebug")
@@ -85,6 +86,7 @@ public class VoxyDebugCommand {
 				)
 			)
 		);
+		*/
 	}
 
 	public static boolean compile(ScriptHolder<?> script, FabricClientCommandSource source) {

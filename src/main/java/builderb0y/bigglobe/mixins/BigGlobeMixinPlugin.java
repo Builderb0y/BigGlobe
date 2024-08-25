@@ -251,6 +251,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			-> {
 				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
 			}
+			case "builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter" -> {
+				yield checkMod(mixinClassName, "voxy");
+			}
 			default -> {
 				yield this.isEnabledInConfig(mixinClassName);
 			}

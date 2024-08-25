@@ -14,8 +14,8 @@ import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.DelayedMethod.LazyInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.bytecode.tree.instructions.ConditionalNegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReturnInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.binary.DivideInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterNullableInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterNullableReceiverInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterReceiverInvokeInsnTree;
@@ -254,14 +254,15 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				normalInvoker   = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, normalArgs);
 				adjacentInvoker = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, adjacentArgs);
 			}
-			return ConditionalNegateInsnTree.create(
+			return DivideInsnTree.create(
 				this.parser,
 				sub(this.parser, adjacentInvoker, normalInvoker),
-				lt(
+				sub(
 					this.parser,
 					z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
 					z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
 				)
+				.cast(this.parser, this.newMethod.returnType, CastMode.IMPLICIT_THROW)
 			);
 		}
 

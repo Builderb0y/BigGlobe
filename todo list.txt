@@ -24,6 +24,7 @@ where I left off:
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	try to reduce usage of BigGlobeMod.getCurrentServer() when only registries are needed.
 		this will help with that world map mod thingy that can show you what a world looks like before you create it.
+	re-implement /bigglobe:voxyDebug command and re-merge VoxyWorldGenerator2 back into existing systems.
 
 changelog:
 	* Fixed bug that could cause some custom worlds to generate incorrectly in some cases.

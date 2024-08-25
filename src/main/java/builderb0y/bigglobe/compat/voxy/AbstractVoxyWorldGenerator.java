@@ -187,7 +187,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		for (int relativeZ = 0; relativeZ < 16; relativeZ++) {
 			for (int relativeX = 0; relativeX < 16; relativeX++) {
 				int packedXZ = (relativeZ << 4) | relativeX;
-				BlockSegmentList list = lists[(relativeZ << 4) | relativeX];
+				BlockSegmentList list = lists[packedXZ];
 				int segmentIndex = list.getSegmentIndex(chunkY << 4, false);
 				while (segmentIndex < list.size()) {
 					LitSegment segment = list.getLit(segmentIndex++);
@@ -199,17 +199,13 @@ public abstract class AbstractVoxyWorldGenerator {
 						}
 						int minY = Math.max(segment.minY - (chunkY << 4), 0);
 						int maxY = Math.min(segment.maxY - (chunkY << 4), 15);
-						int stateID;
-						if (segment.value == previousColumnState) {
-							stateID = previousColumnStateID;
-						}
-						else {
-							stateID = previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
+						if (segment.value != previousColumnState) {
+							previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
 						}
 						byte startLightLevel = segment.lightLevel;
 						int diminishment = segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 						if (startLightLevel == 0 || diminishment == 0) {
-							long id = Mapper.composeMappingId((byte)(15 - startLightLevel), stateID, biomeID);
+							long id = Mapper.composeMappingId((byte)(15 - startLightLevel), previousColumnStateID, biomeID);
 							for (int relativeY = minY; relativeY <= maxY; relativeY++) {
 								section[packedXZ | (relativeY << 8)] = id;
 							}
@@ -217,7 +213,7 @@ public abstract class AbstractVoxyWorldGenerator {
 						else {
 							for (int relativeY = minY; relativeY <= maxY; relativeY++) {
 								int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - (relativeY + (chunkY << 4))), 0);
-								section[packedXZ | (relativeY << 8)] = Mapper.composeMappingId((byte)(15 - lightLevel), stateID, biomeID);
+								section[packedXZ | (relativeY << 8)] = Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, biomeID);
 							}
 						}
 					}
