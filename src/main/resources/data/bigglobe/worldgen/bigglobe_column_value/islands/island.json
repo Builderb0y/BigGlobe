@@ -9,7 +9,7 @@
 		"is_3d": false
 	},
 	"diagram": {
-		"distance": 2048,
-		"variation": 1024
+		"distance": 4096,
+		"variation": 3072
 	}
 }

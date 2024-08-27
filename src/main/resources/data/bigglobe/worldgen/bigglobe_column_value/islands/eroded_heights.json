@@ -1,0 +1,45 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "TerrainSnowHeight",
+			"fields": [
+				{ "name": "terrain", "type": "double" },
+				{ "name": "snow",    "type": "double" }
+			]
+		},
+		"is_3d": false
+	},
+	"script": [
+		"if (beachy_height <= 0.0L: return(TerrainSnowHeight.new(beachy_height, beachy_height)))",
+		"double height = 0.0L",
+		"double snowHeight = 0.0L",
+		"double dx = dx_combined_height",
+		"double dz = dz_combined_height",
+		"",
+		"for (int loop in range[0, 768):",
+			"long seed = (worldSeed # 16x974EF90428FF872EUL).newSeed(loop)",
+			"double*(",
+				"theta = (seed := seed.newSeed()).nextDouble(tau)",
+				"phase = (seed := seed.newSeed()).nextDouble(tau)",
+				"unitX = cos(theta)",
+				"unitZ = sin(theta)",
+				"baseAmplitude = 2.0L ^ (loop / -128.0L + 6.0L)",
+				"projection = (unitX * x + unitZ * z) + phase",
+				"adjustedAmplitude = ((unitX * -dz + unitZ * dx) / (sqrt(dx ^ 2 + dz ^ 2) + 4.0)) ^ 2",
+				"tmpSin = sin(projection / baseAmplitude) * baseAmplitude * adjustedAmplitude",
+				"tmpCos = cos(projection / baseAmplitude) * adjustedAmplitude",
+			")",
+			"dx += tmpCos * unitX",
+			"dz += tmpCos * unitZ",
+			"height += tmpSin",
+			"if (loop < 384: snowHeight += tmpSin)",
+		")",
+		"double multiplier = 1.0L - 4096.0L / (beachy_height ^ 2 + 4096.0L)",
+		"TerrainSnowHeight.new(",
+			"beachy_height - height * multiplier,",
+			"(beachy_height - snowHeight * multiplier) * (1.0L + 1.0L / 32.0L) - 12.0L",
+		")"
+	]
+}

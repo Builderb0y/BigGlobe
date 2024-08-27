@@ -6,13 +6,15 @@
 	},
 	"grid": {
 		"type": "sum",
+		"salt": "island_height_offset",
 		"layers": [
-			{ "type": "cubic", "scaleX": 512, "scaleY": 512, "amplitude": 128.0 },
-			{ "type": "cubic", "scaleX": 256, "scaleY": 256, "amplitude":  64.0 },
-			{ "type": "cubic", "scaleX": 128, "scaleY": 128, "amplitude":  32.0 },
-			{ "type": "cubic", "scaleX":  64, "scaleY":  64, "amplitude":  16.0 },
-			{ "type": "cubic", "scaleX":  32, "scaleY":  32, "amplitude":   8.0 },
-			{ "type": "cubic", "scaleX":  16, "scaleY":  16, "amplitude":   4.0 }
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 97.65625 }, "scaleX": 512, "scaleY": 512 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scaleX": 256, "scaleY": 256 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scaleX": 128, "scaleY": 128 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  2.5     }, "scaleX":  32, "scaleY":  32 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  1.0     }, "scaleX":  16, "scaleY":  16 },
+			{ "type": "constant", "value": -64.0 }
 		]
 	}
 }

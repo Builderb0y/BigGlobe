@@ -5,6 +5,12 @@
 		"is_3d": false
 	},
 	"script": [
-		"(1.0L - island.soft_distance_squared) ^ 2 * 1024.0L - 256.0L + height_offset"
+		"double term0 =  1.0L",
+		"double term1 = -2.0L * mountainness",
+		"double term2 =  4.0L * mountainness - 3.0L",
+		"double term3 = term1 + 2.0L",
+		"double fract = island.soft_distance",
+		"double curve = ((term3 * fract + term2) * fract + term1) * fract + term0",
+		"curve * island_height + height_offset"
 	]
 }

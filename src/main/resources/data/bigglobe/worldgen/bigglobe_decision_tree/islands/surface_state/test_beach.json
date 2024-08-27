@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": 8.0,
+		"max": 4.0,
+		"column_value": "bigglobe:islands/beachy_height"
+	},
+	"if_true": "bigglobe:islands/surface_state/beach_test_overgrown",
+	"if_false": "bigglobe:islands/surface_state/land"
+}

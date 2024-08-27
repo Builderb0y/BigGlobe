@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "mixLinear(256.0L, 1024.0L - 192.0L, mountainness)",
+	"cache": false
+}

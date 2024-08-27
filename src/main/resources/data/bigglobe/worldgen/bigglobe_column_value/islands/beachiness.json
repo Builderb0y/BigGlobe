@@ -1,0 +1,25 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "script",
+		"script": "16.0L / (exp(base) + 1.0L)",
+		"min": 0.0,
+		"max": 8.0,
+		"inputs": {
+			"base": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scaleX": 512, "scaleY": 512, "amplitude": 8.0 },
+					{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 4.0 },
+					{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 2.0 },
+					{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 1.0 },
+					{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.5 }
+				]
+			}
+		}
+	}
+}

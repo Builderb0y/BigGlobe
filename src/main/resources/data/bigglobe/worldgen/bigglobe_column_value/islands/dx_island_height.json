@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"island.euclidean_distance == 0.0L ? 0.0L : (x - island.center_x) / (island.euclidean_distance + 4.0L)"
+	]
+}

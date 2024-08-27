@@ -990,14 +990,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		public Class<?> expectedValueType;
 		public DisplayEntry[] children;
 
-		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
-			this.generator = generator;
-			this.id = "";
-		}
-
 		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, String id) {
 			this.generator = generator;
 			this.id = id;
+			this.children = ARRAY_FACTORY.empty();
+		}
+
+		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
+			this(generator, "");
 		}
 
 		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {

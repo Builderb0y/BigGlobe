@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:grass_block[snowy=false]",
+			"subsurfaceState": "minecraft:dirt"
+		}
+	}
+}

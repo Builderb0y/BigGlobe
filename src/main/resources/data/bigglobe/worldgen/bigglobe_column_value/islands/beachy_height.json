@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "base_height - base_height / sqrt((base_height / beachiness) ^ 2 + 1)"
+}

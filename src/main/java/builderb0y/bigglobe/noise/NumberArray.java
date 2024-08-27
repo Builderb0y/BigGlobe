@@ -1282,12 +1282,12 @@ public interface NumberArray extends AutoCloseable {
 
 		@Override public void close() {}
 
-		@Override public byte getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public short getS(int index) { return this.delegate.getS(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public int getI(int index) { return this.delegate.getI(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public long getL(int index) { return this.delegate.getL(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public float getF(int index) { return this.delegate.getF(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public double getD(int index) { return this.delegate.getD(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public byte    getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public short   getS(int index) { return this.delegate.getS(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public int     getI(int index) { return this.delegate.getI(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public long    getL(int index) { return this.delegate.getL(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public float   getF(int index) { return this.delegate.getF(Objects.checkIndex(index, this.length) + this.offset); }
+		@Override public double  getD(int index) { return this.delegate.getD(Objects.checkIndex(index, this.length) + this.offset); }
 		@Override public boolean getZ(int index) { return this.delegate.getZ(Objects.checkIndex(index, this.length) + this.offset); }
 
 		@Override public void setB(int index, byte value) { this.delegate.setB(Objects.checkIndex(index, this.length) + this.offset, value); }
