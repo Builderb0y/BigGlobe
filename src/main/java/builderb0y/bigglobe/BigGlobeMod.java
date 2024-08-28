@@ -20,6 +20,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.resource.ResourceFactory;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionOptions;
@@ -68,6 +69,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static MinecraftServer currentServer;
 	public static BetterRegistry.Lookup currentRegistries;
+	public static ResourceFactory currentResourceFactory;
 
 	@Override
 	public void onInitialize() {
@@ -111,10 +113,12 @@ public class BigGlobeMod implements ModInitializer {
 					return new BetterHardCodedRegistry<>(server.getRegistryManager().get(key));
 				}
 			};
+			currentResourceFactory = (Identifier identifier) -> server.getResourceManager().getResource(identifier);
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
 			currentServer = null;
 			currentRegistries = null;
+			currentResourceFactory = null;
 		});
 		if (REGEN_WORLDS) {
 			LOGGER.error("################################################################");
@@ -146,6 +150,11 @@ public class BigGlobeMod implements ModInitializer {
 	@SuppressWarnings("unchecked")
 	public static <T> BetterRegistry<T> getRegistry(RegistryKey<? extends Registry<T>> key) {
 		return getCurrentRegistries().getRegistry((RegistryKey<Registry<T>>)(key));
+	}
+
+	public static ResourceFactory getResourceFactory() {
+		if (currentResourceFactory != null) return currentResourceFactory;
+		else throw new IllegalStateException("Resources not available at this time.");
 	}
 
 	public static @NotNull Identifier modID(@NotNull String path) {

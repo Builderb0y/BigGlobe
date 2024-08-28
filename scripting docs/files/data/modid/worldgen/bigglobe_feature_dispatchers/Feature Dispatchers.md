@@ -15,6 +15,9 @@ Feature Dispatchers are responsible for decorating chunks as they're being gener
 			* GridScriptEnvironment (with implicit seed)
 			* StructureTemplateScriptEnvironment
 			* ColumnEntryRegistry
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 
 			And the following variables:
 			* `minModifiableX/Y/Z`, `maxModifiableX/Y/Z` - the bounds of the chunk being generated. Note that these coords are inclusive, not exclusive.

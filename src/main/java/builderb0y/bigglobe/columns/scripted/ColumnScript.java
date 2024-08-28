@@ -25,6 +25,9 @@ import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.BiomeEntry;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
@@ -133,7 +136,10 @@ public interface ColumnScript extends Script {
 				? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
 				: MinecraftScriptEnvironment.create()
 			)
-			.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+			.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)))
+			.addAll(ColorScriptEnvironment.ENVIRONMENT)
+			.addAll(ExternalImage.ENVIRONMENT)
+			.addAll(ExternalData.ENVIRONMENT);
 			if (parameters.y != null) environment.addVariableLoad(parameters.y);
 			if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
 		}

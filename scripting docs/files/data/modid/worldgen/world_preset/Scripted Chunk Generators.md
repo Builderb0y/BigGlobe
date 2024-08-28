@@ -14,6 +14,9 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* MinecraftScriptEnvironment
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded to the position currently being generated)
+		* ColorScriptEnvironment
+		* ExternalImageScriptEnvironment
+		* ExternalDataScriptEnvironment
 	* `children` - an array of layers. Defaults to an empty array if absent.
 	* `before_children` and `after_children` (optional) (added in V4.3.0) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
 
@@ -39,6 +42,9 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* BaseColumnScriptEnvironment
 	* ColumnEntryRegistry (x and z are hard-coded at the current position being tested to see if it's a good spawn position or not)
 	* RandomScriptEnvironment (with random)
+	* ColorScriptEnvironment
+	* ExternalImageScriptEnvironment
+	* ExternalDataScriptEnvironment
 * `colors` (optional) - controls the colors of some blocks.
 	* `grass` (optional) - controls the color of grass, tallgrass, and related blocks.
 	* `foliage` (optional) - controls the colors of leaves (I think).
@@ -49,6 +55,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* StatelessRandomScriptEnvironment
 	* MinecraftScriptEnvironment
 	* BaseColumnScriptEnvironment
+	* ColorScriptEnvironment
 	* ColumnEntryRegistry (x and z are hard-coded at the position of the block being colored, y defaults to the Y level of the block being colored)
 
 	They also have the following variables:
@@ -57,16 +64,7 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	And the following functions:
 	* `getDefaultGrassColor(double temperature, double foliage)` - returns the color that minecraft would normally use for grass if this script were absent and the block were in a biome with the provided temperature and foliage. temperature foliage should be in the range 0 to 1.
 	* `getDefaultFoliageColor(double temperature, double foliage)` - same as getDefaultGrassColor(), but for foliage.
-	* `packI(int red, int green, int blue)` - packs the 3 values into a single color. red, green, and blue are expected to be between 0 and 255 (inclusive).
-	* `packF(float red, float green, float blue)` - packs the 3 values into a single color. red, green, and blue are expected to be between 0 and 1.
-	* `packD(double red, double green, double blue)` packs the 3 values into a single color. red, green, and blue are expected to be between 0 and 1.
 
-	And the following fields:
-	* `color.redI`, `color.greenI`, and `color.blueI` - the red, green, or blue channel of the color, as an int, in the range 0 to 255 (inclusive).
-	* `color.redF`, `color.greenF`, and `color.blueF` - the red, green, or blue channel of the color, as a float, in the range 0 to 1.
-	* `color.redD`, `color.greenD`, and `color.blueD` - the red, green, or blue channel of the color, as a double, in the range 0 to 1.
-
-	Internally, colors are represented as ints, with 8 bits used for each channel, and 8 bits leftover which are unused. But the order of the channels is un-specified. The above packing functions should be used to create colors, and the above unpacking fields should be used to retrieve a specific channel.
 * `nether_overrides` (optional) - has the following properties:
 	* `place_portal_at_high_y_level` - if true, Big Globe will override nether portal placement logic to place the portal as high as possible. If Big Globe fails to find a suitable nether portal location, vanilla logic will be used as a fallback.
 * `end_overrides` (optional) - has the following properties:
@@ -87,3 +85,6 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the position being tested)
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment

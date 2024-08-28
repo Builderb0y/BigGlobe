@@ -27,6 +27,9 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -212,6 +215,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 							.withZ(load("originZ", TypeInfos.INT))
 						);
 					})
+					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.addEnvironment(ExternalImage.ENVIRONMENT)
+					.addEnvironment(ExternalData.ENVIRONMENT)
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

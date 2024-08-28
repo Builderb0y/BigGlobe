@@ -8,6 +8,9 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -79,6 +82,9 @@ public interface StructurePlacementScript extends Script {
 						.withLookup(WORLD.loadSelf)
 					);
 				})
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.addEnvironment(ExternalImage.ENVIRONMENT)
+				.addEnvironment(ExternalData.ENVIRONMENT)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

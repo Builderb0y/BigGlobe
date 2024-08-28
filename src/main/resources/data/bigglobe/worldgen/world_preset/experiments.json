@@ -427,6 +427,45 @@
 				},
 				"overriders": "bigglobe:empty"
 			}
+		},
+		"bigglobe:external": {
+			"type": "minecraft:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -64,
+					"max_y": 320
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"max_y": [
+									"ExternalImage image = 'bigglobe:hi'",
+									"ExternalData data = 'bigglobe:spire'",
+									"max(",
+										"image.(x % image.width, z % image.height).redI,",
+										"data.getByte((z & 15) << 4 | (x & 15)) & 255",
+									")"
+								]
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
 		}
 	}
 }

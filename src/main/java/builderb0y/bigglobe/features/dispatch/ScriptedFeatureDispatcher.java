@@ -14,6 +14,9 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.Handlers;
@@ -90,6 +93,9 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 					environment.addVariable("distantHorizons", WORLD.distantHorizons);
 					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
 				})
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.addEnvironment(ExternalImage.ENVIRONMENT)
+				.addEnvironment(ExternalData.ENVIRONMENT)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

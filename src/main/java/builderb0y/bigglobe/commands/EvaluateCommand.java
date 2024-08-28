@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
@@ -23,6 +24,9 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -126,6 +130,9 @@ public class EvaluateCommand {
 							.withZ(load("originZ", TypeInfos.INT))
 						);
 					})
+					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.addEnvironment(ExternalImage.ENVIRONMENT)
+					.addEnvironment(ExternalData.ENVIRONMENT)
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

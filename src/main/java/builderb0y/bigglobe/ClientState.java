@@ -59,6 +59,7 @@ import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -349,28 +350,12 @@ public class ClientState {
 
 			public MethodInfo
 				getDefaultGrassColor,
-				getDefaultFoliageColor,
-				redI, greenI, blueI,
-				redF, greenF, blueF,
-				redD, greenD, blueD,
-				packI, packF, packD;
+				getDefaultFoliageColor;
 
 			public void addAllTo(MutableScriptEnvironment environment) {
 				environment
 				.addFunctionInvokeStatic(this.getDefaultGrassColor)
 				.addFunctionInvokeStatic(this.getDefaultFoliageColor)
-				.addFieldInvokeStatic(this.redI)
-				.addFieldInvokeStatic(this.greenI)
-				.addFieldInvokeStatic(this.blueI)
-				.addFieldInvokeStatic(this.redF)
-				.addFieldInvokeStatic(this.greenF)
-				.addFieldInvokeStatic(this.blueF)
-				.addFieldInvokeStatic(this.redD)
-				.addFieldInvokeStatic(this.greenD)
-				.addFieldInvokeStatic(this.blueD)
-				.addFunctionInvokeStatic(this.packI)
-				.addFunctionInvokeStatic(this.packF)
-				.addFunctionInvokeStatic(this.packD)
 				;
 			}
 		}
@@ -389,57 +374,6 @@ public class ClientState {
 				Interpolator.clamp(0.0D, 1.0D, temperature),
 				Interpolator.clamp(0.0D, 1.0D, foliage)
 			);
-		}
-
-		public static int redI(int packed) {
-			return (packed >>> 16) & 255;
-		}
-
-		public static int greenI(int packed) {
-			return (packed >>> 8) & 255;
-		}
-
-		public static int blueI(int packed) {
-			return packed & 255;
-		}
-
-		public static float redF(int packed) {
-			return redI(packed) / 255.0F;
-		}
-
-		public static float greenF(int packed) {
-			return greenI(packed) / 255.0F;
-		}
-
-		public static float blueF(int packed) {
-			return blueI(packed) / 255.0F;
-		}
-
-		public static double redD(int packed) {
-			return redI(packed) / 255.0D;
-		}
-
-		public static double greenD(int packed) {
-			return greenI(packed) / 255.0D;
-		}
-
-		public static double blueD(int packed) {
-			return blueI(packed) / 255.0D;
-		}
-
-		public static int packI(int red, int green, int blue) {
-			red   = Interpolator.clamp(0, 255, red);
-			green = Interpolator.clamp(0, 255, green);
-			blue  = Interpolator.clamp(0, 255, blue);
-			return (red << 16) | (green << 8) | blue;
-		}
-
-		public static int packF(float red, float green, float blue) {
-			return packI((int)(red * 255.0F + 0.5F), (int)(green * 255.0F + 0.5F), (int)(blue * 255.0F + 0.5F));
-		}
-
-		public static int packD(double red, double green, double blue) {
-			return packI((int)(red * 255.0D + 0.5D), (int)(green * 255.0D + 0.5D), (int)(blue * 255.0D + 0.5D));
 		}
 
 		@Wrapper
@@ -480,6 +414,7 @@ public class ClientState {
 					.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
 				if (parameters.y != null) environment.addVariableLoad(parameters.y);
 				if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
+				environment.addAll(ColorScriptEnvironment.ENVIRONMENT);
 				INFO.addAllTo(environment);
 			}
 		}

@@ -11,6 +11,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* MinecraftScriptEnvironment
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded at the current position being generated)
+		* ColorScriptEnvironment
+		* ExternalImageScriptEnvironment
+		* ExternalDataScriptEnvironment
 * `children` - an array of other layers to generate. Every child in the array will only be able to replace blocks that this layer placed. Additionally, each child will only be able to place blocks where the previous child didn't.
 * `before_children` - a script which can place blocks in this column before our children do.
 * `after_children` - a script which can place blocks in this column after our children do.
@@ -22,6 +25,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 	* MinecraftScriptEnvironment
 	* BaseColumnScriptEnvironment
 	* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
+	* ColorScriptEnvironment
+	* ExternalImageScriptEnvironment
+	* ExternalDataScriptEnvironment
 
 	And the following extra variables:
 	* `minY` - the minimum Y level (inclusive) of the chunk being generated.
@@ -52,6 +58,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 	* `simple_3d` - fills only some blocks between `valid > min_y` and `valid > max_y` (or the chunk bounds) with a single block state. This type has the following additional properties:
 		* `state` - a script returning the BlockState that this layer will attempt to place. This script has the following environments available:
 			* MathScriptEnvironment
@@ -60,6 +69,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 
 		* `condition` - a script returning true or false if the state should be placed at the current Y level. This script has the following environments available:
 			* MathScriptEnvironment
@@ -68,6 +80,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 
 			The Y level itself can also be accessed via the `y` variable.
 	* `multi_state_3d` (new in V4.3.0) - fills the Y range between `valid > min_y` and `valid > max_y` (or the chunk bounds) with a block state which depends on Y level. This type has the following additional properties:
@@ -78,6 +93,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* MinecraftScriptEnvironment
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 
 			The Y level itself can also be accessed via the `y` variable.
 	* `scripted` (new in V4.3.0) - allows a script to place any block wherever it wants (as long as it's within the valid range and the chunk bounds). This type has the following additional properties:
@@ -89,6 +107,9 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* GridScriptEnvironment (with implicit seed)
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the current position being generated, unless you're in a dx or dz block (see below), in which case they're hard-coded at the position of an adjacent column)
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 		
 			And the following extra variables:
 			* `minY` - the minimum Y level (inclusive) of the chunk being generated.

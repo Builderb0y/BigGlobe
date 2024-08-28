@@ -14,6 +14,9 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -99,6 +102,9 @@ public class ScriptedLayer extends Layer {
 					.configure(ScriptedColumn.baseEnvironment(loadColumn))
 					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+					.addAll(ColorScriptEnvironment.ENVIRONMENT)
+					.addAll(ExternalImage.ENVIRONMENT)
+					.addAll(ExternalData.ENVIRONMENT)
 					;
 					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadColumn));
 				});

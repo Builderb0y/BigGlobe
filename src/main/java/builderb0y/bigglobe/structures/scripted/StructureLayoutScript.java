@@ -12,6 +12,9 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.bigglobe.util.CheckedList;
@@ -79,6 +82,9 @@ public interface StructureLayoutScript extends Script {
 						.withZ(load("originZ", TypeInfos.INT))
 					);
 				})
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.addEnvironment(ExternalImage.ENVIRONMENT)
+				.addEnvironment(ExternalData.ENVIRONMENT)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

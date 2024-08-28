@@ -23,6 +23,9 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.wrappers.ExternalData;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
+import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -128,6 +131,9 @@ public abstract class DataCompileContext {
 				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
 			}
 		})
+		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+		.addEnvironment(ExternalImage.ENVIRONMENT)
+		.addEnvironment(ExternalData.ENVIRONMENT)
 		.parseEntireInput()
 		.emitBytecode(method);
 		method.endCode();
