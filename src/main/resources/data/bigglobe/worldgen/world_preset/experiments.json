@@ -360,17 +360,17 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"max_y": "lowerInt(`bigglobe:islands/eroded_height`)",
-								"min_y": "distantHorizons ? lowerInt(`bigglobe:islands/eroded_height`) - 32 : 16x80000000U"
+								"max_y": "lowerInt(`bigglobe:islands/surface_height`)",
+								"min_y": "distantHorizons ? lowerInt(`bigglobe:islands/surface_height`) - 32 : 16x80000000U"
 							},
 							"after_children": [
-								"int surfaceY = lowerInt(`bigglobe:islands/eroded_height`)",
+								"int surfaceY = lowerInt(`bigglobe:islands/surface_height`)",
 								"long seed = columnSeed(16x47B481311B32724DUL)",
 								"double slopeSquared = (",
-									"+ dx(`bigglobe:islands/eroded_height`) ^ 2",
-									"+ dz(`bigglobe:islands/eroded_height`) ^ 2",
+									"+ dx(`bigglobe:islands/surface_height`) ^ 2",
+									"+ dz(`bigglobe:islands/surface_height`) ^ 2",
 								")",
-								"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:islands/eroded_height`):",
+								"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:islands/surface_height`):",
 									"int depth = (seed := seed.newSeed()).nextInt(3, 7)",
 									"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')",
 								")",
@@ -410,9 +410,38 @@
 							"type": "simple_2d",
 							"state": "'minecraft:water[level=0]'",
 							"valid": {
-								"min_y": "lowerInt(`bigglobe:islands/eroded_height`)",
+								"min_y": "lowerInt(`bigglobe:islands/surface_height`)",
 								"max_y": "0"
 							}
+						},
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"where": "`bigglobe:islands/is_floating`",
+								"min_y": "int(`bigglobe:islands/eroded_height`)",
+								"max_y": "int(768.0L + `bigglobe:islands/height_offset`)"
+							},
+							"after_children": [
+								"int surfaceY = int(768.0L + `bigglobe:islands/height_offset`)",
+								"long seed = columnSeed(16x6C744C12C6BC713CUL)",
+								"double slopeSquared = (",
+									"+ `bigglobe:islands/dx_height_offset` ^ 2",
+									"+ `bigglobe:islands/dz_height_offset` ^ 2",
+								")",
+								"int depth = floorInt(",
+									"(seed := seed.newSeed()).nextDouble(3.0L, 7.0L)",
+									"- (slopeSquared * 3.0L)",
+								")",
+								"boolean hadBlock = false",
+								"for (int y in -range[surfaceY - depth, surfaceY):",
+									"BlockState state = getBlockState(y)",
+									"if (state == null: break())",
+									"hadBlock = (state !=. 'minecraft:air').if (",
+										"setBlockState(y, hadBlock ? 'minecraft:dirt' : 'minecraft:grass_block[snowy=false]')",
+									")",
+								")"
+							]
 						}
 					]
 				},

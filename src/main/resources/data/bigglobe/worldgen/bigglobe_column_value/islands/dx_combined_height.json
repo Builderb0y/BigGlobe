@@ -4,5 +4,9 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "(dx_island_height + dx_height_offset) * mountainness"
+	"script": [
+		"is_floating",
+		"? dx_island_height * mountainness",
+		": (dx_island_height + dx_height_offset) * mountainness"
+	]
 }

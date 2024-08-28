@@ -6,7 +6,7 @@
 				"type": "threshold",
 				"min": 2.0,
 				"max": 6.0,
-				"column_value": "bigglobe:islands/eroded_height"
+				"column_value": "bigglobe:islands/surface_height"
 			},
 			{
 				"type": "threshold",

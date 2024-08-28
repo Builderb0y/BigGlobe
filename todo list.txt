@@ -30,6 +30,7 @@ changelog:
 alternate world presets:
 	paradise.
 	islands.
+		volcanoes.
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.

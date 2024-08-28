@@ -12,7 +12,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"if (beachy_height <= 0.0L: return(TerrainSnowHeight.new(beachy_height, beachy_height)))",
+		"if (!is_floating && beachy_height <= 0.0L: return(TerrainSnowHeight.new(beachy_height, beachy_height)))",
 		"double height = 0.0L",
 		"double snowHeight = 0.0L",
 		"double dx = dx_combined_height",
@@ -36,10 +36,18 @@
 			"height += tmpSin",
 			"if (loop < 384: snowHeight += tmpSin)",
 		")",
-		"double multiplier = 1.0L - 4096.0L / (beachy_height ^ 2 + 4096.0L)",
-		"TerrainSnowHeight.new(",
-			"beachy_height - height * multiplier,",
-			"(beachy_height - snowHeight * multiplier) * (1.0L + 1.0L / 32.0L) - 12.0L - surface_temperature * 16.0L",
+		"if (is_floating:",
+			"TerrainSnowHeight.new(",
+				"768.0L + (island.soft_distance * 2.0L - 1.0L) * 512.0L + height * 4.0L,",
+				"0.0L",
+			")",
+		")",
+		"else (",
+			"double multiplier = 2.0L - 8192.0L / (beachy_height ^ 2 + 4096.0L)",
+			"TerrainSnowHeight.new(",
+				"beachy_height - height * multiplier,",
+				"(beachy_height - snowHeight * multiplier) * (1.0L + 1.0L / 32.0L) - 12.0L - surface_temperature * 16.0L",
+			")",
 		")"
 	]
 }

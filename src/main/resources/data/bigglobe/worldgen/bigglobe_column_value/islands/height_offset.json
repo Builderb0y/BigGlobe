@@ -14,7 +14,7 @@
 			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 },
 			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  2.5     }, "scaleX":  32, "scaleY":  32 },
 			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  1.0     }, "scaleX":  16, "scaleY":  16 },
-			{ "type": "constant", "value": -64.0 }
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  0.4     }, "scaleX":   8, "scaleY":   8 }
 		]
 	}
 }

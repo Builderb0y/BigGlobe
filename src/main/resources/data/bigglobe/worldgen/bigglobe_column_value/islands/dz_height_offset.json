@@ -11,9 +11,7 @@
 			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 97.65625 }, "scaleX": 512, "scaleY": 512 },
 			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scaleX": 256, "scaleY": 256 },
 			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scaleX": 128, "scaleY": 128 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  2.5     }, "scaleX":  32, "scaleY":  32 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  1.0     }, "scaleX":  16, "scaleY":  16 }
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 }
 		]
 	}
 }
