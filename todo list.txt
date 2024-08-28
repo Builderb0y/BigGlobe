@@ -20,7 +20,7 @@ testing:
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
-	test scripts accessing images/raw data with world preview.
+	document which version external data was added in.
 
 changelog:
 	* Hyperspeed generation for Voxy has evolved into... ludicrous speed!

@@ -4,6 +4,17 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "eroded_heights.snow",
+	"script": [
+		"double snowHeight = eroded_heights.snow",
+		"double terrainHeight = eroded_heights.terrain",
+		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",
+			"snowHeight = mixSmooth(",
+				"terrainHeight,",
+				"snowHeight,",
+				"(terrainHeight - `bigglobe:overworld/sea_level`) / 32.0L",
+			")",
+		")",
+		"snowHeight"
+	],
 	"cache": false
 }

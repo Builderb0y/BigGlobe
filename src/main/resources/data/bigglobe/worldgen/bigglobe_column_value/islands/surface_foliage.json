@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": "`bigglobe:overworld/height_adjusted_foliage`(int(beachy_height))"
+}

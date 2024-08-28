@@ -1,0 +1,11 @@
+{
+	"condition": {
+		"type": "threshold",
+		"min": -0.375,
+		"max": -0.625,
+		"smooth_max": false,
+		"column_value": "bigglobe:islands/surface_foliage"
+	},
+	"if_true": "bigglobe:islands/surface_state/temperate_wasteland",
+	"if_false": "bigglobe:islands/surface_state/temperate"
+}

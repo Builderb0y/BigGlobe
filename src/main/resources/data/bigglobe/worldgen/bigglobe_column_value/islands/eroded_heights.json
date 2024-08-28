@@ -39,7 +39,7 @@
 		"double multiplier = 1.0L - 4096.0L / (beachy_height ^ 2 + 4096.0L)",
 		"TerrainSnowHeight.new(",
 			"beachy_height - height * multiplier,",
-			"(beachy_height - snowHeight * multiplier) * (1.0L + 1.0L / 32.0L) - 12.0L",
+			"(beachy_height - snowHeight * multiplier) * (1.0L + 1.0L / 32.0L) - 12.0L - surface_temperature * 16.0L",
 		")"
 	]
 }

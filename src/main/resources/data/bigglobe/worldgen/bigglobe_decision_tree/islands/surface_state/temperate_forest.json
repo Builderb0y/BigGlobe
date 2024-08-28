@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:podzol[snowy=false]",
+			"subsurfaceState": "minecraft:dirt"
+		}
+	}
+}

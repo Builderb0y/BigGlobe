@@ -1,10 +1,28 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 2.0,
-		"max": 6.0,
-		"column_value": "bigglobe:islands/beachy_height"
+		"type": "and",
+		"conditions": [
+			{
+				"type": "threshold",
+				"min": 2.0,
+				"max": 6.0,
+				"column_value": "bigglobe:islands/eroded_height"
+			},
+			{
+				"type": "threshold",
+				"min": -0.625,
+				"max": -0.375,
+				"smooth_min": false,
+				"column_value": "bigglobe:islands/surface_foliage"
+			},
+			{
+				"type": "threshold",
+				"min": 0.75,
+				"max": 0.25,
+				"column_value": "bigglobe:islands/surface_temperature"
+			}
+		]
 	},
-	"if_true": "bigglobe:overworld/surface_state/overgrown_beach",
-	"if_false": "bigglobe:overworld/surface_state/beach"
+	"if_true": "bigglobe:islands/surface_state/overgrown_beach",
+	"if_false": "bigglobe:islands/surface_state/beach"
 }
