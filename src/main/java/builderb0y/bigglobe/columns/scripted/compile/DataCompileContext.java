@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo.Mutability;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
@@ -27,7 +26,6 @@ import builderb0y.bigglobe.scripting.wrappers.ExternalData;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.IntCompareZeroConditionTree;
@@ -168,7 +166,7 @@ public abstract class DataCompileContext {
 					streamBuilder.accept(entry.getValue());
 				}
 			}
-			this.emitSwitchCases(cases, streamBuilder.build(), isColumnValuePresent);
+			this.emitSwitchCases(cases, streamBuilder.build(), isColumnValuePresent, PreprocessMethod.IS_COLUMN_VALUE_PRESENT);
 		}
 
 		{
@@ -181,7 +179,7 @@ public abstract class DataCompileContext {
 				getter = guard(getter, id);
 				cases.merge(id.hashCode(), getter, InsnTrees::seq);
 			}
-			this.emitSwitchCases(cases, memoryMap.values().stream(), getColumnValue);
+			this.emitSwitchCases(cases, memoryMap.values().stream(), getColumnValue, PreprocessMethod.GET_COLUMN_VALUE);
 		}
 
 		{
@@ -198,7 +196,7 @@ public abstract class DataCompileContext {
 					streamBuilder.accept(entry.getValue());
 				}
 			}
-			this.emitSwitchCases(cases, streamBuilder.build(), setColumnValue);
+			this.emitSwitchCases(cases, streamBuilder.build(), setColumnValue, PreprocessMethod.SET_COLUMN_VALUE);
 		}
 
 		{
@@ -217,21 +215,23 @@ public abstract class DataCompileContext {
 					streamBuilder.accept(entry.getValue());
 				}
 			}
-			this.emitSwitchCases(cases, streamBuilder.build(), preComputeColumnValue);
+			this.emitSwitchCases(cases, streamBuilder.build(), preComputeColumnValue, PreprocessMethod.PRE_COMPUTE_COLUMN_VALUE);
 		}
 
 		{
 			MethodCompileContext getColumnValues = this.mainClass.newMethod(ACC_PUBLIC, "getColumnValues", type(List.class));
 			UnresolvedColumnValueInfo[] bootstrapConstant = (
-				memoryMap
-				.entrySet()
-				.stream()
-				.map((Map.Entry<ColumnEntry, ColumnEntryMemory> entry) -> new UnresolvedColumnValueInfo(
-					entry.getValue().getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(),
-					entry.getValue().getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
-					entry.getKey().getAccessSchema().is_3d(),
-					entry.getKey().hasField() ? entry.getKey().isSettable() ? Mutability.CACHED : Mutability.VORONOI : Mutability.COMPUTED
-				))
+				this.preprocessColumnValueInfos(
+					memoryMap
+					.entrySet()
+					.stream()
+					.map((Map.Entry<ColumnEntry, ColumnEntryMemory> entry) -> new UnresolvedColumnValueInfo(
+						entry.getValue().getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(),
+						entry.getValue().getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
+						entry.getKey().getAccessSchema().is_3d(),
+						entry.getKey().hasField() ? entry.getKey().isSettable() ? Mutability.CACHED : Mutability.VORONOI : Mutability.COMPUTED
+					))
+				)
 				.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
 				.toArray(UnresolvedColumnValueInfo[]::new)
 			);
@@ -246,7 +246,21 @@ public abstract class DataCompileContext {
 		}
 	}
 
-	public void emitSwitchCases(Int2ObjectSortedMap<InsnTree> cases, Stream<ColumnEntryMemory> memoryMap, MethodCompileContext method) {
+	public Stream<UnresolvedColumnValueInfo> preprocessColumnValueInfos(Stream<UnresolvedColumnValueInfo> infos) { return infos; }
+
+	public static enum PreprocessMethod {
+		IS_COLUMN_VALUE_PRESENT,
+		GET_COLUMN_VALUE,
+		SET_COLUMN_VALUE,
+		PRE_COMPUTE_COLUMN_VALUE;
+	}
+
+	public void preprocessColumnValueCases(Int2ObjectSortedMap<InsnTree> cases, PreprocessMethod method) {}
+
+	public Stream<String> preprocessValidColumnValues(Stream<String> valid) { return valid; }
+
+	public void emitSwitchCases(Int2ObjectSortedMap<InsnTree> cases, Stream<ColumnEntryMemory> memoryMap, MethodCompileContext method, PreprocessMethod preprocessMethod) {
+		this.preprocessColumnValueCases(cases, preprocessMethod);
 		if (!cases.isEmpty()) {
 			new SwitchInsnTree(
 				invokeInstance(
@@ -258,7 +272,7 @@ public abstract class DataCompileContext {
 			)
 			.emitBytecode(method);
 		}
-		this.errorOnInvalidColumnValue(memoryMap).emitBytecode(method);
+		this.errorOnInvalidColumnValue(memoryMap.map((ColumnEntryMemory memory) -> memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString())).emitBytecode(method);
 		method.endCode();
 	}
 
@@ -275,15 +289,12 @@ public abstract class DataCompileContext {
 		);
 	}
 
-	public InsnTree errorOnInvalidColumnValue(Stream<ColumnEntryMemory> memories) {
+	public InsnTree errorOnInvalidColumnValue(Stream<String> memories) {
 		return throw_(
 			newInstance(
 				MethodInfo.findConstructor(IllegalArgumentException.class, String.class),
 				concat(
-					memories
-					.map((ColumnEntryMemory memory) -> memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString())
-					.sorted()
-					.collect(Collectors.joining(", ", "Invalid column value \u0001 on \u0001. Valid column values are: ", "")),
+					this.preprocessValidColumnValues(memories).sorted().collect(Collectors.joining(", ", "Invalid column value \u0001 on \u0001. Valid column values are: ", "")),
 					load("name", TypeInfos.STRING),
 					invokeInstance(
 						this.loadSelf(),

@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": [
+		"!is_floating && mountainness >= 0.9L"
+	]
+}

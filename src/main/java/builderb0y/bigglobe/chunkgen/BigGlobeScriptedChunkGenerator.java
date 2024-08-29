@@ -131,6 +131,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		public static final Codec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class).codec();
 	#endif
 
+	public final @VerifyNullable String reload_preset;
 	public final @VerifyNullable String reload_dimension;
 	public final transient ColumnEntryRegistry columnEntryRegistry;
 	public static record Height(
@@ -186,6 +187,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 
 	public BigGlobeScriptedChunkGenerator(
+		@VerifyNullable String reload_preset,
 		@VerifyNullable String reload_dimension,
 		Height height,
 		RootLayer layer,
@@ -203,6 +205,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			source.generator = this;
 		}
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
+		this.reload_preset = reload_preset;
 		this.reload_dimension = reload_dimension;
 		this.height = height;
 		this.layer = layer;
@@ -251,7 +254,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			public <T_Encoded> @Nullable BigGlobeScriptedChunkGenerator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 				String dimension = context.getMember("reload_dimension").tryAsString();
 				if (dimension != null) {
-					JsonElement json = this.getDimension(dimension);
+					String preset = context.getMember("reload_preset").tryAsString();
+					if (preset == null) preset = "bigglobe";
+					JsonElement json = this.getDimension(preset, dimension);
 					T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
 					return new DecodeContext<>(context.autoCodec, null, RootDecodePath.INSTANCE, encoded, context.ops).decodeWith(coder);
 				}
@@ -263,9 +268,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				return context.encodeWith(coder);
 			}
 
-			public JsonElement getDimension(String dimension) throws DecodeException {
+			public JsonElement getDimension(String preset, String dimension) throws DecodeException {
 				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
-				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/bigglobe.json");
+				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/" + preset + ".json");
 				for (String key : new String[] { "dimensions", dimension, "generator" }) {
 					if (element instanceof JsonObject object) element = object.get(key);
 					else throw new DecodeException(() -> "Could not find dimension " + dimension + " in mod jar!");
@@ -977,7 +982,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	}
 
 	public void setDisplay(String regex) {
-		this.displayPattern = Pattern.compile(regex);
+		this.displayPattern = regex != null ? Pattern.compile(regex) : null;
 		this.rootDebugDisplay.recomputeChildren(this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, 0, 0, Purpose.GENERIC)));
 	}
 
@@ -986,18 +991,19 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		public static final ObjectArrayFactory<DisplayEntry> ARRAY_FACTORY = new ObjectArrayFactory<>(DisplayEntry.class);
 
 		public BigGlobeScriptedChunkGenerator generator;
-		public String id;
+		public String name, id;
 		public Class<?> expectedValueType;
 		public DisplayEntry[] children;
 
-		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, String id) {
+		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, String name, String id) {
 			this.generator = generator;
+			this.name = name;
 			this.id = id;
 			this.children = ARRAY_FACTORY.empty();
 		}
 
 		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
-			this(generator, "");
+			this(generator, "", "");
 		}
 
 		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
@@ -1008,7 +1014,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				}
 				else {
 					value = holder.getColumnValue(this.id, y);
-					results.accept(this.id, value);
+					results.accept(this.name, value);
 				}
 				if (value != null) {
 					if (this.expectedValueType != value.getClass()) {
@@ -1032,13 +1038,15 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				this.generator.displayPattern != null &&
 				value instanceof ColumnValueHolder holder
 			) {
+				record NameId(String name, String id) {}
 				this.children = (
 					holder
 					.getColumnValues()
 					.stream()
 					.map(ColumnValueInfo::name)
-					.filter((String name) -> this.generator.displayPattern.matcher(name).find())
-					.map((String name) -> new DisplayEntry(this.generator, name))
+					.map((String id) -> new NameId(this.name.isEmpty() ? id : this.name + '.' + id, id))
+					.filter((NameId nameId) -> this.generator.displayPattern.matcher(nameId.name).find())
+					.map((NameId nameId) -> new DisplayEntry(this.generator, nameId.name, nameId.id))
 					.toArray(ARRAY_FACTORY)
 				);
 			}

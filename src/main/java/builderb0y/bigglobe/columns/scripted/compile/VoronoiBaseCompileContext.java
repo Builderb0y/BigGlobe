@@ -1,10 +1,17 @@
 package builderb0y.bigglobe.columns.scripted.compile;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
@@ -12,12 +19,15 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.conditions.IntCompareZeroConditionTree;
+import builderb0y.scripting.bytecode.tree.instructions.ConditionToBooleanInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseAndInsnTree;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class VoronoiBaseCompileContext extends DataCompileContext {
+public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext {
 
 	public VoronoiBaseCompileContext(ColumnCompileContext parent, String name, boolean exportsAnything) {
 		super(parent);
@@ -25,7 +35,7 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
 			exportsAnything
-			? ACC_PUBLIC | ACC_ABSTRACT | ACC_SYNTHETIC
+			? ACC_PUBLIC | ACC_SYNTHETIC | ACC_ABSTRACT
 			: ACC_PUBLIC | ACC_SYNTHETIC,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(VoronoiDataBase.class),
@@ -102,5 +112,58 @@ public class VoronoiBaseCompileContext extends DataCompileContext {
 	@Override
 	public FieldInfo flagsField(int index) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void prepareForCompile() {
+		if ((this.mainClass.node.access & Opcodes.ACC_ABSTRACT) == 0) {
+			this.addHolderMethods();
+		}
+		super.prepareForCompile();
+	}
+
+	public void addHolderMethods() {
+		{
+			MethodCompileContext id = this.mainClass.newMethod(ACC_PUBLIC, "id", TypeInfos.STRING);
+			return_(ldc("")).emitBytecode(id);
+			id.endCode();
+		}
+
+		{
+			MethodCompileContext isColumnValuePresent = this.mainClass.newMethod(ACC_PUBLIC, "isColumnValuePresent", TypeInfos.BOOLEAN, new LazyVarInfo("name", TypeInfos.STRING));
+			this.emitSwitchCases(new Int2ObjectAVLTreeMap<>(), Stream.empty(), isColumnValuePresent, PreprocessMethod.IS_COLUMN_VALUE_PRESENT);
+		}
+
+		{
+			MethodCompileContext getColumnValue = this.mainClass.newMethod(ACC_PUBLIC, "getColumnValue", TypeInfos.OBJECT, new LazyVarInfo("name", TypeInfos.STRING), new LazyVarInfo("y", TypeInfos.INT));
+			this.emitSwitchCases(new Int2ObjectAVLTreeMap<>(), Stream.empty(), getColumnValue, PreprocessMethod.GET_COLUMN_VALUE);
+		}
+
+		{
+			MethodCompileContext setColumnValue = this.mainClass.newMethod(ACC_PUBLIC, "setColumnValue", TypeInfos.VOID, new LazyVarInfo("name", TypeInfos.STRING), new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", TypeInfos.OBJECT));
+			this.emitSwitchCases(new Int2ObjectAVLTreeMap<>(), Stream.empty(), setColumnValue, PreprocessMethod.SET_COLUMN_VALUE);
+		}
+
+		{
+			MethodCompileContext preComputeColumnValue = this.mainClass.newMethod(ACC_PUBLIC, "preComputeColumnValue", TypeInfos.VOID, new LazyVarInfo("name", TypeInfos.STRING));
+			this.emitSwitchCases(new Int2ObjectAVLTreeMap<>(), Stream.empty(), preComputeColumnValue, PreprocessMethod.PRE_COMPUTE_COLUMN_VALUE);
+		}
+
+		{
+			MethodCompileContext getColumnValues = this.mainClass.newMethod(ACC_PUBLIC, "getColumnValues", type(List.class));
+			return_(
+				ldc(
+					UnresolvedColumnValueInfo.RESOLVE,
+					getColumnValues.clazz.newConstant(
+						this.preprocessColumnValueInfos(Stream.empty())
+						.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
+						.toArray(UnresolvedColumnValueInfo[]::new),
+						type(UnresolvedColumnValueInfo[].class)
+					)
+				)
+			)
+			.emitBytecode(getColumnValues);
+			getColumnValues.endCode();
+		}
 	}
 }

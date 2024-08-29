@@ -98,10 +98,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		if (this.is3D()) {
 			if (this.hasField()) {
-				if (this.hasValid()) {
-					MethodCompileContext computeAllTest = context.mainClass.newMethod(ACC_PUBLIC, "computeAllTest_" + internalName, TypeInfos.VOID);
-					memory.putTyped(COMPUTE_ALL_TEST, computeAllTest);
-				}
+				MethodCompileContext computeAllTest = context.mainClass.newMethod(ACC_PUBLIC, "computeAllTest_" + internalName, TypeInfos.VOID);
+				memory.putTyped(COMPUTE_ALL_TEST, computeAllTest);
 				MethodCompileContext computeAllNoTest = context.mainClass.newMethod(ACC_PUBLIC, "computeAllNoTest_" + internalName, TypeInfos.VOID);
 				memory.putTyped(COMPUTE_ALL_NO_TEST, computeAllNoTest);
 				MethodCompileContext extractMethod = context.mainClass.newMethod(ACC_PUBLIC, "extract_" + internalName, accessContext.exposedType(), new LazyVarInfo("y", TypeInfos.INT));

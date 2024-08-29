@@ -192,62 +192,12 @@
 				"overriders": "bigglobe:empty"
 			}
 		},
-		"minecraft:overworld": {
-			"type": "minecraft:overworld",
-			"generator": {
-				"type": "bigglobe:scripted",
-				"biome_source": {
-					"type": "minecraft:fixed",
-					"biome": "minecraft:plains"
-				},
-				"height": {
-					"min_y": -64,
-					"max_y": 320,
-					"sea_level": 128
-				},
-				"layer": {
-					"state": "'minecraft:air'",
-					"children": [
-						{
-							"type": "simple_2d",
-							"state": "'minecraft:stone'",
-							"valid": {
-								"max_y": [
-									"double*(height = 0.0L, deltaX = 0.0L, deltaZ = 0.0L)",
-									"long seed = worldSeed # 16x1CD6D7C5D97EB6E1UL",
-									"for (int iteration in range[0, 512):",
-										"double*(",
-											"angle = (seed := seed.newSeed()).nextDouble(tau)",
-											"phase = (seed := seed.newSeed()).nextDouble(tau)",
-											"baseAmplitude = exp(iteration / -128.0L + 4.0L)",
-											"unitX = cos(angle)",
-											"unitZ = sin(angle)",
-											"project = (x * unitX + z * unitZ) / baseAmplitude + phase",
-											"adjustedAmplitude = 1.0L - (unitX * deltaX + unitZ * deltaZ) ^ 2 / (deltaX ^ 2 + deltaZ ^ 2 + 16.0L)",
-											"deltaProject = -cos(project) * adjustedAmplitude",
-										")",
-										"height += sin(project) * baseAmplitude * adjustedAmplitude",
-										"deltaX += unitX * deltaProject",
-										"deltaZ += unitZ * deltaProject",
-									")",
-									"int(height * 0.0625L + 128.0L)"
-								]
-							}
-						}
-					]
-				},
-				"feature_dispatcher": {
-					"rock_replacers": [],
-					"raw": "bigglobe:noop",
-					"normal": "bigglobe:noop"
-				},
-				"overriders": "bigglobe:empty"
-			}
-		},
 		"bigglobe:paradise": {
 			"type": "bigglobe:overworld",
 			"generator": {
 				"type": "bigglobe:scripted",
+				"reload_preset": "experiments",
+				"reload_dimension": "bigglobe:paradise",
 				"biome_source": {
 					"type": "minecraft:fixed",
 					"biome": "minecraft:plains"
@@ -340,10 +290,12 @@
 				"overriders": "bigglobe:empty"
 			}
 		},
-		"bigglobe:islands": {
+		"minecraft:overworld": {
 			"type": "bigglobe:overworld",
 			"generator": {
 				"type": "bigglobe:scripted",
+				"reload_preset": "experiments",
+				"reload_dimension": "minecraft:overworld",
 				"biome_source": {
 					"type": "minecraft:fixed",
 					"biome": "minecraft:plains"
@@ -383,7 +335,7 @@
 									"IslandSurfaceStates states = `bigglobe:islands/surface_states`",
 									"boolean hadBlock = false",
 									"for (int y in -range[surfaceY - depth, surfaceY):",
-										"hadBlock = (getBlockState(y) !=. 'minecraft:air').if (",
+										"hadBlock = (getBlockState(y).?hasFullCubeCollision()).if (",
 											"setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)",
 										")",
 									")",
@@ -404,6 +356,31 @@
 										"setBlockState(snowStart, 'minecraft:snow[layers=1]')",
 									")",
 								")"
+							],
+							"children": [
+								{
+									"type": "multi_state_3d",
+									"state": [
+										"switch (float sdf = `bigglobe:islands/volcano_magma_sdf` * 16.0I,, int(sdf):",
+											"case (0: 'bigglobe:molten_rock_8')",
+											"case (1: 'bigglobe:molten_rock_7')",
+											"case (2: 'bigglobe:molten_rock_6')",
+											"case (3: 'bigglobe:molten_rock_5')",
+											"case (4: 'bigglobe:molten_rock_4')",
+											"case (5: 'bigglobe:molten_rock_3')",
+											"case (6: 'bigglobe:molten_rock_2')",
+											"case (7: 'bigglobe:molten_rock_1')",
+											"default (",
+												"if (sdf !< 0.0I: return(null))",
+												"else if (y >= `bigglobe:islands/island_height` - 192: return('minecraft:air'))",
+												"else (return('minecraft:lava[level=8]'))",
+											")",
+										")"
+									],
+									"valid": {
+										"where": "!distantHorizons && `bigglobe:islands/is_volcano`"
+									}
+								}
 							]
 						},
 						{
@@ -454,7 +431,11 @@
 					"raw": "bigglobe:noop",
 					"normal": "bigglobe:noop"
 				},
-				"overriders": "bigglobe:empty"
+				"overriders": "bigglobe:empty",
+				"spawn_point": [
+					"!`bigglobe:islands/is_floating` &&",
+					"`bigglobe:islands/eroded_height` > 8.0L"
+				]
 			}
 		},
 		"bigglobe:external": {

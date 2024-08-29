@@ -20,7 +20,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class VoronoiImplCompileContext extends DataCompileContext {
+public class VoronoiImplCompileContext extends AbstractVoronoiDataCompileContext {
 
 	public final RegistryEntry<VoronoiSettings> voronoiSettings;
 	public final Map<ColumnEntry, ColumnEntryMemory> memories;

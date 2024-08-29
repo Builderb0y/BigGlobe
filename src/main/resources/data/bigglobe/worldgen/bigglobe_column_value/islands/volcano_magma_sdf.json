@@ -1,0 +1,51 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"double arg = y / -512.0L + 4.0L",
+		"double absArg = abs(arg)",
+		"double exponential = (((absArg * (1.0L / 24.0L) + (1.0L / 6.0L)) * absArg + 0.5L) * absArg + 1.0L) * absArg + 1.0L",
+		"if (arg < 0.0L: exponential = 1.0L / exponential)",
+		"double sdf = min(",
+			"unmixSmooth(-16.0L, 16.0L, island.euclidean_distance - exponential - 32.0L),",
+			"(island.euclidean_distance - y + island_height - 224.0L) / 32.0L",
+		")",
+		"int layer = int((y - island.euclidean_distance) / 64.0L)",
+		"if (layer >= 0:",
+			"double*(",
+				"centerY = layer * 64.0L + 32.0L",
+				"angle = (",
+					"(worldSeed # 16x09A492E5BDE4EC62UL)",
+					".newSeed(island.cell_x, island.cell_z)",
+					".nextDouble(tau)",
+					"+ layer * 2.4L",
+				")",
+				"normX = cos(angle) * (1.0L / sqrt(2.0L))",
+				"normY = 1.0L / sqrt(2.0L)",
+				"normZ = sin(angle) * (1.0L / sqrt(2.0L))",
+				"magnitude = (",
+					"+ (x - island.center_x) * normX",
+					"+ (y -        centerY ) * normY",
+					"+ (z - island.center_z) * normZ",
+				")",
+				"closestX = normX * magnitude + island.center_x",
+				"closestY = normY * magnitude + centerY",
+				"closestZ = normZ * magnitude + island.center_z",
+			")",
+			"sdf *= smooth(sqrt((x - closestX) ^ 2 + (y - closestY) ^ 2 + (z - closestZ) ^ 2) * (sqrt(2) / 32.0L))",
+		")",
+		"float result = float(sdf) * 2.0I - 1.0I + volcano_magma_noise",
+		"if (y >= island_height - 192.0L && result >= 0.0I:",
+			"result = 1.0I",
+		")",
+		"result"
+	],
+	"valid": {
+		"where": "!distantHorizons && is_volcano",
+		"min_y": "-1024",
+		"max_y": "lowerInt(eroded_height)"
+	}
+}

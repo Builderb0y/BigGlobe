@@ -82,6 +82,7 @@
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
+		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"DebugHud_MakeSearchable",
 		"InGameHud_DebugHudGetter",

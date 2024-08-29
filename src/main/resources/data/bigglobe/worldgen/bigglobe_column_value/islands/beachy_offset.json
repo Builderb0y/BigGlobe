@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double height = height_offset + sea_depth",
+		"height - height / sqrt((height / beachiness) ^ 2 + 1)"
+	]
+}
