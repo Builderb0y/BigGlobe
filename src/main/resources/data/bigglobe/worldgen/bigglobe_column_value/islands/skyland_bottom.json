@@ -5,7 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"is_floating ? beachy_height : eroded_height"
-	],
-	"cache": false
+		"island.soft_distance * 1024.0L + 256.0L + skyland_erosion.highFrequency * 2.0L"
+	]
 }

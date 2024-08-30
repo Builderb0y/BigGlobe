@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"beachy_surface_height - surface_erosion.highFrequency * erosion_multiplier"
+	]
+}

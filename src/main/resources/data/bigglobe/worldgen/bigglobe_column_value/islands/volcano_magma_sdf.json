@@ -46,6 +46,6 @@
 	"valid": {
 		"where": "!distantHorizons && is_volcano",
 		"min_y": "-1024",
-		"max_y": "lowerInt(eroded_height)"
+		"max_y": "lowerInt(eroded_surface_height)"
 	}
 }

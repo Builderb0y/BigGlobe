@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"if (is_floating:",
+			"height_offset + sea_depth",
+		")",
+		"else (",
+			"height_offset + sea_depth + curved_island_height * island_height",
+		")"
+	]
+}

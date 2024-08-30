@@ -312,17 +312,17 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"max_y": "lowerInt(`bigglobe:islands/surface_height`)",
-								"min_y": "distantHorizons ? lowerInt(`bigglobe:islands/surface_height`) - 32 : 16x80000000U"
+								"max_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
+								"min_y": "distantHorizons ? lowerInt(`bigglobe:islands/eroded_surface_height`) - 32 : 16x80000000U"
 							},
 							"after_children": [
-								"int surfaceY = lowerInt(`bigglobe:islands/surface_height`)",
+								"int surfaceY = lowerInt(`bigglobe:islands/eroded_surface_height`)",
 								"long seed = columnSeed(16x47B481311B32724DUL)",
 								"double slopeSquared = (",
-									"+ dx(`bigglobe:islands/surface_height`) ^ 2",
-									"+ dz(`bigglobe:islands/surface_height`) ^ 2",
+									"+ dx(`bigglobe:islands/eroded_surface_height`) ^ 2",
+									"+ dz(`bigglobe:islands/eroded_surface_height`) ^ 2",
 								")",
-								"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:islands/surface_height`):",
+								"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:islands/eroded_surface_height`):",
 									"int depth = (seed := seed.newSeed()).nextInt(3, 7)",
 									"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')",
 								")",
@@ -340,7 +340,7 @@
 										")",
 									")",
 								")",
-								"if (surfaceY > 0 && (seed := seed.newSeed()).nextFloat() < `bigglobe:islands/snow_chance`:",
+								"if (surfaceY > 0 && !`bigglobe:islands/is_volcano` && (seed := seed.newSeed()).nextFloat() < `bigglobe:islands/snow_chance`:",
 									"int snowStart = surfaceY",
 									"while (snowStart > minY && getBlockState(snowStart - 1).isAir(): --snowStart)",
 									"int snowEnd = lowerInt(`bigglobe:islands/snow_height`)",
@@ -387,7 +387,7 @@
 							"type": "simple_2d",
 							"state": "'minecraft:water[level=0]'",
 							"valid": {
-								"min_y": "lowerInt(`bigglobe:islands/surface_height`)",
+								"min_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
 								"max_y": "0"
 							}
 						},
@@ -396,11 +396,11 @@
 							"state": "'minecraft:stone'",
 							"valid": {
 								"where": "`bigglobe:islands/is_floating`",
-								"min_y": "int(`bigglobe:islands/eroded_height`)",
-								"max_y": "int(768.0L + `bigglobe:islands/height_offset`)"
+								"min_y": "int(`bigglobe:islands/skyland_bottom`)",
+								"max_y": "int(`bigglobe:islands/skyland_top`)"
 							},
 							"after_children": [
-								"int surfaceY = int(768.0L + `bigglobe:islands/height_offset`)",
+								"int surfaceY = int(`bigglobe:islands/skyland_top`)",
 								"long seed = columnSeed(16x6C744C12C6BC713CUL)",
 								"double slopeSquared = (",
 									"+ `bigglobe:islands/dx_height_offset` ^ 2",
@@ -434,7 +434,7 @@
 				"overriders": "bigglobe:empty",
 				"spawn_point": [
 					"!`bigglobe:islands/is_floating` &&",
-					"`bigglobe:islands/eroded_height` > 8.0L"
+					"`bigglobe:islands/eroded_surface_height` > 8.0L"
 				]
 			}
 		},

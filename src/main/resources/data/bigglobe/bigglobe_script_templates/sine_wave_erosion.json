@@ -1,0 +1,30 @@
+{
+	"script": [
+		"double highFrequencyErosion = 0.0L",
+		"double  lowFrequencyErosion = 0.0L",
+		"",
+		"for (int loop in range[0, 768):",
+			"long seed = (worldSeed # 16x974EF90428FF872EUL).newSeed(loop)",
+			"double*(",
+				"theta = (seed := seed.newSeed()).nextDouble(tau)",
+				"phase = (seed := seed.newSeed()).nextDouble(tau)",
+				"unitX = cos(theta)",
+				"unitZ = sin(theta)",
+				"baseAmplitude = 2.0L ^ (loop / -128.0L + 6.0L)",
+				"projection = (unitX * x + unitZ * z) + phase",
+				"adjustedAmplitude = ((unitX * -DZ + unitZ * DX) / (sqrt(DX ^ 2 + DZ ^ 2) + 4.0)) ^ 2",
+				"tmpSin = sin(projection / baseAmplitude) * baseAmplitude * adjustedAmplitude",
+				"tmpCos = cos(projection / baseAmplitude) * adjustedAmplitude",
+			")",
+			"DX += tmpCos * unitX",
+			"DZ += tmpCos * unitZ",
+			"highFrequencyErosion += tmpSin",
+			"if (loop < 384: lowFrequencyErosion += tmpSin)",
+		")",
+		"return(ErosionNoise.new(highFrequencyErosion, lowFrequencyErosion))"
+	],
+	"inputs": [
+		{ "name": "DX", "type": "double" },
+		{ "name": "DZ", "type": "double" }
+	]
+}

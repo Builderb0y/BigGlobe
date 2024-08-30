@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "eroded_heights.terrain",
+	"script": "height_offset + 768.0L",
 	"cache": false
 }

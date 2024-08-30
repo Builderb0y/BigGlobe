@@ -45,13 +45,14 @@ public class VoronoiColumnValueType implements ColumnValueType {
 
 	@Override
 	public TypeContext createType(ColumnCompileContext context) {
-		VoronoiBaseCompileContext baseContext = context.root().registry.voronoiManager.getBaseContextFor(this);
+		VoronoiBaseCompileContext baseContext = context.registry.voronoiManager.getBaseContextFor(this);
 		return new TypeContext(baseContext.mainClass.info, baseContext);
 	}
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		throw new UnsupportedOperationException("Cannot create constant voronoi cell.");
+		if (object == null) return ldc(null, context.getTypeContext(this).type());
+		else throw new UnsupportedOperationException("Cannot create constant voronoi cell.");
 	}
 
 	@Override

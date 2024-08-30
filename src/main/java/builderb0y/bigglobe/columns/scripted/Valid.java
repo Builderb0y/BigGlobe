@@ -4,8 +4,9 @@ import com.mojang.datafixers.util.Unit;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.codecs.Any;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptUsage;
 
 public record Valid(
@@ -23,7 +24,7 @@ public record Valid(
 		);
 	}
 
-	public ConstantValue getFallback(TypeInfo type) {
-		return ConstantValue.of(this.fallback == Unit.INSTANCE ? null : this.fallback, type);
+	public InsnTree getFallback(ColumnValueType type, ColumnCompileContext context) {
+		return type.createConstant(this.fallback == Unit.INSTANCE ? null : this.fallback, context);
 	}
 }

@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double height = height_offset + sea_depth",
+		"double height = basic_surface_height",
 		"height - height / sqrt((height / beachiness) ^ 2 + 1)"
 	]
 }

@@ -197,7 +197,6 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 	}
 
 	public void populateGetterWithoutField3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		if (this.hasValid()) {
 			ConditionTree condition = ConstantConditionTree.TRUE;
 			InsnTree y = load("y", TypeInfos.INT);
@@ -219,7 +218,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 			new IfElseInsnTree(
 				condition,
 				return_(invokeInstance(load(self), computeOneMethod.info, y)),
-				return_(ldc(this.valid.getFallback(accessContext.exposedType()))),
+				return_(this.valid.getFallback(this.params.type(), context.root())),
 				TypeInfos.VOID
 			)
 			.emitBytecode(getterMethod);
@@ -228,8 +227,6 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 	}
 
 	public void populateGetterWithField2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
-
 		MethodCompileContext preComputeMethod = memory.getTyped(ColumnEntryMemory.PRE_COMPUTER);
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		invokeInstance(context.loadSelf(), preComputeMethod.info).emitBytecode(getterMethod);
@@ -247,7 +244,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 					environment
 					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
 					.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
-					.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+					.addVariable("fallback", this.valid.getFallback(this.params.type(), context.root()))
 					;
 				}
 			);
@@ -255,7 +252,6 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 	}
 
 	public void populateGetterWithoutField2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
-		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		if (this.hasValid()) {
 			MethodCompileContext computeNoTest = memory.getTyped(ColumnEntryMemory.COMPUTE_NO_TEST);
 			MethodCompileContext testMethod = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
@@ -266,7 +262,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 					environment
 					.addFunctionInvoke("test", context.loadSelf(), testMethod.info)
 					.addFunctionInvoke("compute", context.loadSelf(), computeNoTest.info)
-					.addVariableConstant("fallback", this.valid.getFallback(accessContext.exposedType()))
+					.addVariable("fallback", this.valid.getFallback(this.params.type(), context.root()))
 					;
 				}
 			);
@@ -385,7 +381,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
 					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
-				.addVariableConstant("fallback", this.valid != null ? this.valid.getFallback(accessContext.exposedType()) : ConstantValue.of(0))
+				.addVariable("fallback", this.valid != null ? this.valid.getFallback(this.params.type(), context.root()) : ldc(0))
 				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
 				;
 			}

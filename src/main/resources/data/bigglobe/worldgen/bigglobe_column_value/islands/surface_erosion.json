@@ -1,0 +1,28 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "ErosionNoise",
+			"fields": [
+				{ "name": "highFrequency", "type": "double" },
+				{ "name":  "lowFrequency", "type": "double" }
+			]
+		},
+		"is_3d": false
+	},
+	"script": {
+		"template": "bigglobe:sine_wave_erosion",
+		"inputs": {
+			"DX": "(dx_island_height + dx_height_offset) * mountainness",
+			"DZ": "(dz_island_height + dz_height_offset) * mountainness"
+		}
+	},
+	"valid": {
+		"where": "!is_floating",
+		"fallback": {
+			"highFrequency": 0.0,
+			"lowFrequency": 0.0
+		}
+	}
+}

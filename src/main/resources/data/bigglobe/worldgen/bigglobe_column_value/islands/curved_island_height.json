@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double*(",
+			"term0 =  1.0L",
+			"term1 = -2.0L * mountainness",
+			"term2 =  4.0L * mountainness - 3.0L",
+			"term3 = term1 + 2.0L",
+			"fract = island.soft_distance",
+		")",
+		"((term3 * fract + term2) * fract + term1) * fract + term0"
+	]
+}
