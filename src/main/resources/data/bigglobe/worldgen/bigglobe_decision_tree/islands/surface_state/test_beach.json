@@ -6,5 +6,5 @@
 		"column_value": "bigglobe:islands/eroded_surface_height"
 	},
 	"if_true": "bigglobe:islands/surface_state/beach_test_overgrown",
-	"if_false": "bigglobe:islands/surface_state/test_hot"
+	"if_false": "bigglobe:islands/surface_state/test_volcano"
 }

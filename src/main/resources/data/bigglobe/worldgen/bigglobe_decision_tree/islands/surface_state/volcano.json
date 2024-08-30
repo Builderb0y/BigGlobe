@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:blackstone",
+			"subsurfaceState": "minecraft:basalt[axis=y]"
+		}
+	}
+}

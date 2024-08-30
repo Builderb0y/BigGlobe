@@ -30,8 +30,11 @@ changelog:
 
 alternate world presets:
 	paradise.
-	islands.
-		volcanoes.
+	islands:
+		volcanoes:
+			lavafalls.
+			need some way to schedule fluid ticks for lava that comes up through side channels.
+			more side channels?
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.
