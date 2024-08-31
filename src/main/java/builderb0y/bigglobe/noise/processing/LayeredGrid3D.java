@@ -12,8 +12,15 @@ public interface LayeredGrid3D extends LayeredGrid, Grid3D {
 	public default double getValue(long seed, int x, int y, int z) {
 		Grid3D[] layers = this.getLayers();
 		double value = layers[0].getValue(seed, x, y, z);
-		for (int index = 1, length = layers.length; index < length; index++) {
-			value = this.accumulate(value, layers[index].getValue(seed, x, y, z));
+		if (this.isProduct()) {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value *= layers[index].getValue(seed, x, y, z);
+			}
+		}
+		else {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value += layers[index].getValue(seed, x, y, z);
+			}
 		}
 		return value;
 	}

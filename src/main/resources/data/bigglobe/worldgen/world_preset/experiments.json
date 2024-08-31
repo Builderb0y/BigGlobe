@@ -377,7 +377,11 @@
 								{
 									"type": "multi_state_3d",
 									"state": [
-										"switch (float sdf = `bigglobe:islands/volcano_magma_sdf` * 16.0I,, int(sdf):",
+										"switch (clamp(-1, 8, int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)):",
+											"case (-1:",
+												"if (y >= `bigglobe:islands/island_height` - 192: return('minecraft:air'))",
+												"else (return('minecraft:lava[level=0]'))",
+											")",
 											"case (0: 'bigglobe:molten_rock_8')",
 											"case (1: 'bigglobe:molten_rock_7')",
 											"case (2: 'bigglobe:molten_rock_6')",
@@ -386,11 +390,7 @@
 											"case (5: 'bigglobe:molten_rock_3')",
 											"case (6: 'bigglobe:molten_rock_2')",
 											"case (7: 'bigglobe:molten_rock_1')",
-											"default (",
-												"if (sdf !< 0.0I: return(null))",
-												"else if (y >= `bigglobe:islands/island_height` - 192: return('minecraft:air'))",
-												"else (return('minecraft:lava[level=8]'))",
-											")",
+											"default (null)",
 										")"
 									],
 									"valid": {

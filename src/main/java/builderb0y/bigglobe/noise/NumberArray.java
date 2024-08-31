@@ -94,20 +94,20 @@ public interface NumberArray extends AutoCloseable {
 		EMPTY_DOUBLE  = allocateDoublesHeap(0),
 		EMPTY_BOOLEAN = allocateBooleansHeap(0);
 
-	public static NumberArray allocateBytesHeap(int bytes) { return new Heap.OfByte(new byte[bytes]); }
-	public static NumberArray allocateShortsHeap(int shorts) { return new Heap.OfShort(new short[shorts]); }
-	public static NumberArray allocateIntsHeap(int ints) { return new Heap.OfInt(new int[ints]); }
-	public static NumberArray allocateLongsHeap(int longs) { return new Heap.OfLong(new long[longs]); }
-	public static NumberArray allocateFloatsHeap(int floats) { return new Heap.OfFloat(new float[floats]); }
-	public static NumberArray allocateDoublesHeap(int doubles) { return new Heap.OfDouble(new double[doubles]); }
-	public static NumberArray allocateBooleansHeap(int booleans) { return new Heap.OfBoolean(new byte[(booleans + 7) >> 3], booleans); }
+	public static NumberArray allocateBytesHeap     (int bytes   ) { return new Heap.OfByte   (new byte  [bytes  ], 0, bytes  ); }
+	public static NumberArray allocateShortsHeap    (int shorts  ) { return new Heap.OfShort  (new short [shorts ], 0, shorts ); }
+	public static NumberArray allocateIntsHeap      (int ints    ) { return new Heap.OfInt    (new int   [ints   ], 0, ints   ); }
+	public static NumberArray allocateLongsHeap     (int longs   ) { return new Heap.OfLong   (new long  [longs  ], 0, longs  ); }
+	public static NumberArray allocateFloatsHeap    (int floats  ) { return new Heap.OfFloat  (new float [floats ], 0, floats ); }
+	public static NumberArray allocateDoublesHeap   (int doubles ) { return new Heap.OfDouble (new double[doubles], 0, doubles); }
+	public static NumberArray allocateBooleansHeap  (int booleans) { return new Heap.OfBoolean(new byte  [(booleans + 7) >> 3], 0, booleans); }
 
-	public static NumberArray allocateBytesDirect(int bytes) { return Direct.Manager.INSTANCES.get().allocateBytes(bytes); }
-	public static NumberArray allocateShortsDirect(int shorts) { return Direct.Manager.INSTANCES.get().allocateShorts(shorts); }
-	public static NumberArray allocateIntsDirect(int ints) { return Direct.Manager.INSTANCES.get().allocateInts(ints); }
-	public static NumberArray allocateLongsDirect(int longs) { return Direct.Manager.INSTANCES.get().allocateLongs(longs); }
-	public static NumberArray allocateFloatsDirect(int floats) { return Direct.Manager.INSTANCES.get().allocateFloats(floats); }
-	public static NumberArray allocateDoublesDirect(int doubles) { return Direct.Manager.INSTANCES.get().allocateDoubles(doubles); }
+	public static NumberArray allocateBytesDirect   (int bytes   ) { return Direct.Manager.INSTANCES.get().allocateBytes   (bytes   ); }
+	public static NumberArray allocateShortsDirect  (int shorts  ) { return Direct.Manager.INSTANCES.get().allocateShorts  (shorts  ); }
+	public static NumberArray allocateIntsDirect    (int ints    ) { return Direct.Manager.INSTANCES.get().allocateInts    (ints    ); }
+	public static NumberArray allocateLongsDirect   (int longs   ) { return Direct.Manager.INSTANCES.get().allocateLongs   (longs   ); }
+	public static NumberArray allocateFloatsDirect  (int floats  ) { return Direct.Manager.INSTANCES.get().allocateFloats  (floats  ); }
+	public static NumberArray allocateDoublesDirect (int doubles ) { return Direct.Manager.INSTANCES.get().allocateDoubles (doubles ); }
 	public static NumberArray allocateBooleansDirect(int booleans) { return Direct.Manager.INSTANCES.get().allocateBooleans(booleans); }
 
 	public abstract Precision getPrecision();
@@ -230,16 +230,7 @@ public interface NumberArray extends AutoCloseable {
 		return this.sliceOffsetLength(from, to - from);
 	}
 
-	public default NumberArray sliceOffsetLength(int offset, int length) {
-		Objects.checkFromIndexSize(offset, length, this.length());
-		if (offset == 0) {
-			if (length == this.length()) return this;
-			else return new Prefix(this, length);
-		}
-		else {
-			return new Slice(this, offset, length);
-		}
-	}
+	public abstract NumberArray sliceOffsetLength(int offset, int length);
 
 	public static interface OfByte extends NumberArray {
 
@@ -433,6 +424,22 @@ public interface NumberArray extends AutoCloseable {
 
 	public static abstract class Heap implements NumberArray {
 
+		public final int offset, length;
+
+		public Heap(int offset, int length) {
+			this.offset = offset;
+			this.length = length;
+		}
+
+		@Override
+		public int length() {
+			return this.length;
+		}
+
+		public int index(int index) {
+			return Objects.checkIndex(index, this.length) + this.offset;
+		}
+
 		@Override
 		public void close() {}
 
@@ -445,28 +452,30 @@ public interface NumberArray extends AutoCloseable {
 
 			public final byte[] array;
 
-			public OfByte(byte[] array) {
+			public OfByte(byte[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public byte getB(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setB(int index, byte value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, byte value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfByte(this.array, this.offset + offset, length);
 			}
 		}
 
@@ -474,28 +483,30 @@ public interface NumberArray extends AutoCloseable {
 
 			public final short[] array;
 
-			public OfShort(short[] array) {
+			public OfShort(short[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public short getS(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setS(int index, short value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, short value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfShort(this.array, this.offset + offset, length);
 			}
 		}
 
@@ -503,28 +514,30 @@ public interface NumberArray extends AutoCloseable {
 
 			public final int[] array;
 
-			public OfInt(int[] array) {
+			public OfInt(int[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public int getI(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setI(int index, int value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, int value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfInt(this.array, this.offset + offset, length);
 			}
 		}
 
@@ -532,28 +545,30 @@ public interface NumberArray extends AutoCloseable {
 
 			public final long[] array;
 
-			public OfLong(long[] array) {
+			public OfLong(long[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public long getL(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setL(int index, long value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, long value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfLong(this.array, this.offset + offset, length);
 			}
 		}
 
@@ -561,28 +576,30 @@ public interface NumberArray extends AutoCloseable {
 
 			public final float[] array;
 
-			public OfFloat(float[] array) {
+			public OfFloat(float[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public float getF(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setF(int index, float value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, float value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfFloat(this.array, this.offset + offset, length);
 			}
 		}
 
@@ -590,61 +607,69 @@ public interface NumberArray extends AutoCloseable {
 
 			public final double[] array;
 
-			public OfDouble(double[] array) {
+			public OfDouble(double[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
 			}
 
 			@Override
 			public double getD(int index) {
-				return this.array[index];
+				return this.array[this.index(index)];
 			}
 
 			@Override
 			public void setD(int index, double value) {
-				this.array[index] = value;
+				this.array[this.index(index)] = value;
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, double value) {
-				Arrays.fill(this.array, from, to, value);
+				Arrays.fill(this.array, Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value);
 			}
 
 			@Override
-			public int length() {
-				return this.array.length;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfDouble(this.array, this.offset + offset, length);
 			}
 		}
 
 		public static class OfBoolean extends Heap implements NumberArray.OfBoolean {
 
 			public final byte[] array;
-			public final int bitLength;
 
-			public OfBoolean(byte[] array, int length) {
+			public OfBoolean(byte[] array, int offset, int length) {
+				super(offset, length);
 				this.array = array;
-				this.bitLength = length;
 			}
 
 			@Override
 			public boolean getZ(int index) {
-				return ((this.array[Objects.checkIndex(index, this.bitLength) >>> 3] >>> (index & 7)) & 1) != 0;
+				Objects.checkIndex(index, this.length);
+				index += this.offset;
+				return ((this.array[index >>> 3] >>> (index & 7)) & 1) != 0;
 			}
 
 			@Override
 			public void setZ(int index, boolean value) {
+				Objects.checkIndex(index, this.length);
+				index += this.offset;
 				if (value) {
-					this.array[Objects.checkIndex(index, this.bitLength) >> 3] |= (byte)(1 << (index & 7));
+					this.array[index >> 3] |= (byte)(1 << (index & 7));
 				}
 				else {
-					this.array[Objects.checkIndex(index, this.bitLength) >> 3] &= (byte)(~(1 << (index & 7)));
+					this.array[index >> 3] &= (byte)(~(1 << (index & 7)));
 				}
 			}
 
 			@Override
 			public void fillFromTo(int from, int to, boolean value) {
+				Objects.checkFromToIndex(from, to, this.length);
 				if (from == to) return;
+				from += this.offset;
+				to   += this.offset;
 				//similar logic as BitSet, but working with a byte[] instead of a long[].
-				int firstByteIndex = Objects.checkFromToIndex(from, to, this.bitLength) >> 3;
+				int firstByteIndex = from >> 3;
 				int lastByteIndex = (to - 1) >> 3;
 				byte firstByteMask = (byte)(255 << (from & 7));
 				byte lastByteMask  = (byte)(255 >>> ((-to) & 7));
@@ -676,8 +701,9 @@ public interface NumberArray extends AutoCloseable {
 			}
 
 			@Override
-			public int length() {
-				return this.bitLength;
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.length);
+				return new Heap.OfBoolean(this.array, this.offset + offset, length);
 			}
 		}
 	}
@@ -1025,27 +1051,33 @@ public interface NumberArray extends AutoCloseable {
 
 		public static class OfBoolean extends Direct implements NumberArray.OfBoolean {
 
-			public final int bitLength;
+			public final int bitOffset, bitLength;
 
-			public OfBoolean(Manager manager, int byteLength, int bitLength) {
+			public OfBoolean(Manager manager, int byteLength, int bitOffset, int bitLength) {
 				super(manager, byteLength, Byte.BYTES);
+				this.bitOffset = bitOffset;
 				this.bitLength = bitLength;
 			}
 
-			public OfBoolean(Manager manager, int byteOffset, int byteLength, int bitLength) {
+			public OfBoolean(Manager manager, int byteOffset, int byteLength, int bitOffset, int bitLength) {
 				super(manager, byteOffset, byteLength, Byte.BYTES);
+				this.bitOffset = bitOffset;
 				this.bitLength = bitLength;
 			}
 
 			@Override
 			public boolean getZ(int index) {
-				int byteIndex = (Objects.checkIndex(index, this.bitLength) >> 3) + this.byteOffset;
+				Objects.checkIndex(index, this.bitLength);
+				index += this.bitOffset;
+				int byteIndex = (index >> 3) + this.byteOffset;
 				return ((this.manager.base[byteIndex] >>> (index & 7)) & 1) != 0;
 			}
 
 			@Override
 			public void setZ(int index, boolean value) {
-				int byteIndex = (Objects.checkIndex(index, this.bitLength) >> 3) + this.byteOffset;
+				Objects.checkIndex(index, this.bitLength);
+				index += this.bitOffset;
+				int byteIndex = (index >> 3) + this.byteOffset;
 				if (value) {
 					this.manager.base[byteIndex] |= (byte)(1 << (index & 7));
 				}
@@ -1056,9 +1088,12 @@ public interface NumberArray extends AutoCloseable {
 
 			@Override
 			public void fillFromTo(int from, int to, boolean value) {
+				Objects.checkFromToIndex(from, to, this.bitLength);
 				if (from == to) return;
+				from += this.bitOffset;
+				to   += this.bitOffset;
 				//similar logic as BitSet, but working with a byte[] instead of a long[].
-				int firstByteIndex = (Objects.checkFromToIndex(from, to, this.bitLength) >> 3) + this.byteOffset;
+				int firstByteIndex = (from >> 3) + this.byteOffset;
 				int lastByteIndex  = ((to - 1) >> 3) + this.byteOffset;
 				byte firstByteMask = (byte)(255 << (from & 7));
 				byte lastByteMask  = (byte)(255 >>> ((-to) & 7));
@@ -1092,6 +1127,12 @@ public interface NumberArray extends AutoCloseable {
 			@Override
 			public int length() {
 				return this.bitLength;
+			}
+
+			@Override
+			public NumberArray sliceOffsetLength(int offset, int length) {
+				Objects.checkFromIndexSize(offset, length, this.bitLength);
+				return new Direct.OfBoolean(this.manager, this.byteOffset, this.byteLength, this.bitOffset + offset, length);
 			}
 		}
 
@@ -1185,7 +1226,7 @@ public interface NumberArray extends AutoCloseable {
 			}
 
 			public Direct.OfBoolean allocateBooleans(int booleans) {
-				return new Direct.OfBoolean(this, this.beforeAllocate((booleans + 7) >> 3), booleans);
+				return new Direct.OfBoolean(this, this.beforeAllocate((booleans + 7) >> 3), 0, booleans);
 			}
 
 			public char hex(int shift) {
@@ -1207,111 +1248,6 @@ public interface NumberArray extends AutoCloseable {
 			public String toString() {
 				return this.getClass().getName() + ": { base: " + this.formatPointer() + ", used: " + this.used + ", capacity: " + this.base.length + " }";
 			}
-		}
-	}
-
-	public static class Prefix implements NumberArray {
-
-		public final NumberArray delegate;
-		public final int length;
-
-		public Prefix(NumberArray delegate, int length) {
-			this.delegate = delegate;
-			this.length   = length;
-		}
-
-		@Override
-		public String toString() {
-			return this.toStringImpl();
-		}
-
-		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }
-
-		@Override public void close() {}
-
-		@Override public byte getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length)); }
-		@Override public short getS(int index) { return this.delegate.getS(Objects.checkIndex(index, this.length)); }
-		@Override public int getI(int index) { return this.delegate.getI(Objects.checkIndex(index, this.length)); }
-		@Override public long getL(int index) { return this.delegate.getL(Objects.checkIndex(index, this.length)); }
-		@Override public float getF(int index) { return this.delegate.getF(Objects.checkIndex(index, this.length)); }
-		@Override public double getD(int index) { return this.delegate.getD(Objects.checkIndex(index, this.length)); }
-		@Override public boolean getZ(int index) { return this.delegate.getZ(Objects.checkIndex(index, this.length)); }
-
-		@Override public void setB(int index, byte value) { this.delegate.setB(Objects.checkIndex(index, this.length), value); }
-		@Override public void setS(int index, short value) { this.delegate.setS(Objects.checkIndex(index, this.length), value); }
-		@Override public void setI(int index, int value) { this.delegate.setI(Objects.checkIndex(index, this.length), value); }
-		@Override public void setL(int index, long value) { this.delegate.setL(Objects.checkIndex(index, this.length), value); }
-		@Override public void setF(int index, float value) { this.delegate.setF(Objects.checkIndex(index, this.length), value); }
-		@Override public void setD(int index, double value) { this.delegate.setD(Objects.checkIndex(index, this.length), value); }
-		@Override public void setZ(int index, boolean value) { this.delegate.setZ(Objects.checkIndex(index, this.length), value); }
-
-		@Override public void fillFromTo(int from, int to, byte value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, short value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, int value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, long value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, float value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, double value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length), to, value); }
-		@Override public void fillFromTo(int from, int to, boolean value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from, to, this.length), to, value); }
-
-		@Override public int length() { return this.length; }
-
-		@Override
-		public NumberArray sliceOffsetLength(int offset, int length) {
-			Objects.checkFromIndexSize(offset, length, this.length);
-			return this.delegate.sliceOffsetLength(offset, length);
-		}
-	}
-
-	public static class Slice implements NumberArray {
-
-		public final NumberArray delegate;
-		public final int offset, length;
-
-		public Slice(NumberArray delegate, int offset, int length) {
-			this.delegate = delegate;
-			this.offset   = offset;
-			this.length   = length;
-		}
-
-		@Override
-		public String toString() {
-			return this.toStringImpl();
-		}
-
-		@Override public Precision getPrecision() { return this.delegate.getPrecision(); }
-
-		@Override public void close() {}
-
-		@Override public byte    getB(int index) { return this.delegate.getB(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public short   getS(int index) { return this.delegate.getS(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public int     getI(int index) { return this.delegate.getI(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public long    getL(int index) { return this.delegate.getL(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public float   getF(int index) { return this.delegate.getF(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public double  getD(int index) { return this.delegate.getD(Objects.checkIndex(index, this.length) + this.offset); }
-		@Override public boolean getZ(int index) { return this.delegate.getZ(Objects.checkIndex(index, this.length) + this.offset); }
-
-		@Override public void setB(int index, byte value) { this.delegate.setB(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setS(int index, short value) { this.delegate.setS(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setI(int index, int value) { this.delegate.setI(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setL(int index, long value) { this.delegate.setL(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setF(int index, float value) { this.delegate.setF(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setD(int index, double value) { this.delegate.setD(Objects.checkIndex(index, this.length) + this.offset, value); }
-		@Override public void setZ(int index, boolean value) { this.delegate.setZ(Objects.checkIndex(index, this.length) + this.offset, value); }
-
-		@Override public void fillFromTo(int from, int to, byte value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, short value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, int value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, long value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, float value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, double value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from,to, this.length) + this.offset, to + this.offset, value); }
-		@Override public void fillFromTo(int from, int to, boolean value) { this.delegate.fillFromTo(Objects.checkFromToIndex(from, to, this.length) + this.offset, to + this.offset, value); }
-
-		@Override public int length() { return this.length; }
-
-		@Override
-		public NumberArray sliceOffsetLength(int offset, int length) {
-			Objects.checkFromIndexSize(offset, length, this.length);
-			return this.delegate.sliceOffsetLength(offset + this.offset, length);
 		}
 	}
 

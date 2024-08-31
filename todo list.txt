@@ -32,9 +32,14 @@ alternate world presets:
 	paradise.
 	islands:
 		volcanoes:
-			lavafalls.
 			need some way to schedule fluid ticks for lava that comes up through side channels.
-			more side channels?
+		features.
+			lavafalls.
+		structures.
+		biomes.
+		the core.
+		the deep dark.
+		caves.
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.
@@ -45,7 +50,6 @@ alternate world presets:
 			owner <owner>
 			in <dimension>
 			near <x y z>
-	fully immutable NBT elements for scripts.
 	option to specify that a noise column entry should use the hashed world seed,
 		not the seed that's been xor'd with the permutation of the entry's ID.
 		or better yet, a "salt" field.
@@ -115,6 +119,9 @@ AutoCodec:
 
 scripting:
 	if a script template input declares a function and the template uses $INPUT more than once, this will probably cause problems.
+	fully immutable NBT elements for scripts.
+	immutable user-defined classes for column values.
+		basically I don't want one column value to be able to mutate a different column value.
 	use script debug name in print().
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.

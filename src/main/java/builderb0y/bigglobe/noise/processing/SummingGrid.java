@@ -29,7 +29,7 @@ public abstract class SummingGrid implements LayeredGrid {
 	}
 
 	@Override
-	public double accumulate(double a, double b) {
-		return a + b;
+	public boolean isProduct() {
+		return false;
 	}
 }

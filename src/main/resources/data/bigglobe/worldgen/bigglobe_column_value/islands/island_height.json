@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "mixLinear(128.0L, 1024.0L - 192.0L, mountainness)",
+	"script": "mixLinear(128.0L, 1024.0L - 128.0L, mountainness)",
 	"cache": false
 }

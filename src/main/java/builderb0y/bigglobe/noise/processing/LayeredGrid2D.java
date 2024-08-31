@@ -12,8 +12,15 @@ public interface LayeredGrid2D extends LayeredGrid, Grid2D {
 	public default double getValue(long seed, int x, int y) {
 		Grid2D[] layers = this.getLayers();
 		double value = layers[0].getValue(seed, x, y);
-		for (int index = 1, length = layers.length; index < length; index++) {
-			value = this.accumulate(value, layers[index].getValue(seed, x, y));
+		if (this.isProduct()) {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value *= layers[index].getValue(seed, x, y);
+			}
+		}
+		else {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value += layers[index].getValue(seed, x, y);
+			}
 		}
 		return value;
 	}

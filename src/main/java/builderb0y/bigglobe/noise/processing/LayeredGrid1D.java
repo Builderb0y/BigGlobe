@@ -12,8 +12,15 @@ public interface LayeredGrid1D extends LayeredGrid, Grid1D {
 	public default double getValue(long seed, int x) {
 		Grid1D[] layers = this.getLayers();
 		double value = layers[0].getValue(seed, x);
-		for (int index = 1, length = layers.length; index < length; index++) {
-			value = this.accumulate(value, layers[index].getValue(seed, x));
+		if (this.isProduct()) {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value *= layers[index].getValue(seed, x);
+			}
+		}
+		else {
+			for (int index = 1, length = layers.length; index < length; index++) {
+				value += layers[index].getValue(seed, x);
+			}
 		}
 		return value;
 	}

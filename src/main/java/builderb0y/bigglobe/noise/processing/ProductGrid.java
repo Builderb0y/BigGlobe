@@ -35,7 +35,7 @@ public abstract class ProductGrid implements LayeredGrid {
 	}
 
 	@Override
-	public double accumulate(double a, double b) {
-		return a * b;
+	public boolean isProduct() {
+		return true;
 	}
 }
