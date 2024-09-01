@@ -5,7 +5,7 @@
 		"is_3d": true
 	},
 	"script": [
-		"double arg = y / -512.0L + 4.0L",
+		"double arg = y / -256.0L + 4.0L",
 		"double absArg = abs(arg)",
 		"double exponential = (((absArg * (1.0L / 24.0L) + (1.0L / 6.0L)) * absArg + 0.5L) * absArg + 1.0L) * absArg + 1.0L",
 		"if (arg < 0.0L: exponential = 1.0L / exponential)",

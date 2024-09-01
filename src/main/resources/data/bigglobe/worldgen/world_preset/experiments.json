@@ -375,9 +375,38 @@
 							],
 							"children": [
 								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
+									"valid": {
+										"min_y": "`bigglobe:overworld/core_min_y`",
+										"max_y": "`bigglobe:overworld/core_max_y`"
+									}
+								},
+								{
 									"type": "multi_state_3d",
 									"state": [
-										"switch (clamp(-1, 8, int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)):",
+										"switch (",
+											"min(",
+												"clamp(",
+													"-1I,",
+													" 8I,",
+													"int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)",
+												"),",
+												"clamp(",
+													"0I,",
+													"8I,",
+													"int(",
+														"unmixLinear(",
+															"-896.0L,",
+															"-768.0L,",
+															"double(y)",
+														")",
+														"* 7.0L",
+													")",
+												")",
+											")",
+										":",
 											"case (-1:",
 												"if (y >= `bigglobe:islands/island_height` - 192: return('minecraft:air'))",
 												"else (return('minecraft:lava[level=0]'))",

@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "raw_temperature - float(y - `bigglobe:overworld/sea_level`) / 1024.0I",
+	"cache": false
+}

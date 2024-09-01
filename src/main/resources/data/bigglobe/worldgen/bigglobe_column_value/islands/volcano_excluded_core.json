@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float value = `bigglobe:overworld/biased_core_noise`",
+		"if (is_volcano:",
+			"value += 1.0I - volcano_magma_sdf",
+		")",
+		"value"
+	],
+	"valid": {
+		"min_y": "`bigglobe:overworld/core_min_y`",
+		"max_y": "`bigglobe:overworld/core_max_y`"
+	},
+	"cache": false
+}

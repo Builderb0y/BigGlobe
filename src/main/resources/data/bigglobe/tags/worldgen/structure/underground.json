@@ -1,6 +1,8 @@
 {
 	"replace": false,
 	"values": [
+		"#bigglobe:underground_pockets",
+		"bigglobe:core_spire",
 		"minecraft:ancient_city"
 	]
 }

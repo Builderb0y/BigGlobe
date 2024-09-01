@@ -4,5 +4,5 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "`bigglobe:overworld/height_adjusted_temperature`(int(basic_surface_height))"
+	"script": "height_adjusted_temperature(int(basic_surface_height))"
 }

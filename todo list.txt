@@ -24,9 +24,11 @@ where I left off:
 	document reload_preset field on scripted chunk generators.
 
 changelog:
+	* Fixed another bug causing some worlds to generate incorrectly... again. This bug was in the same place as the bug I fixed in the previous version. Hopefully that logic is actually correct this time.
 	* Hyperspeed generation for Voxy has evolved into... ludicrous speed!
 	* Fixed compatibility with the world preview mod.
 	* Many scripts now have access to images and other raw data provided by data packs.
+	* Sped up world generation somewhat.
 
 alternate world presets:
 	paradise.

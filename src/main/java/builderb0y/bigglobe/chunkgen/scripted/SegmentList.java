@@ -110,11 +110,9 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 			Segment<?> segment = that.get(0);
 			int start = segment.minY;
 			int end = segment.maxY;
-			boolean mergedLast = true;
-			for (int index = 1, size = that.size(); index < size; index++) {
+			for (int index = 0, size = that.size(); index < size; index++) {
 				segment = that.get(index);
-				//noinspection AssignmentUsedAsCondition
-				if (mergedLast = (segment.minY == end + 1)) {
+				if (segment.minY == end + 1) {
 					end = segment.maxY;
 				}
 				else {
@@ -123,9 +121,7 @@ public class SegmentList<T> extends ObjectArrayList<Segment<T>> {
 					end = segment.maxY;
 				}
 			}
-			if (mergedLast) {
-				this.removeSegment(start, end);
-			}
+			this.removeSegment(start, end);
 		}
 	}
 

@@ -56,9 +56,6 @@ public class StatelessRandomScriptEnvironment {
 		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLF)
 		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLD)
 
-		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF)
-		.addMethodInvokeStatic("nextBoolean", RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD)
-
 		.addMemberKeyword(TypeInfos.LONG, "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapSeedIf(parser, receiver, false, mode);
 		})

@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
@@ -1023,6 +1024,31 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// getters ////////////////////////////////
 
+	public static record InsnTreeSource(InsnTree tree, Object source) {
+
+		public static InsnTree get(ExpressionParser parser, InsnTree[] arguments, List<InsnTreeSource> sources) throws ScriptParsingException {
+			return switch (sources.size()) {
+				case 0 -> null;
+				case 1 -> sources.get(0).tree;
+				default -> throw new ScriptParsingException(
+					"Ambiguous call matches the following:\n\t" +
+					sources
+					.stream()
+					.map(InsnTreeSource::source)
+					.map(Object::toString)
+					.collect(Collectors.joining("\n\t")) +
+					"\nActual form: " +
+					Arrays
+					.stream(arguments)
+					.map(InsnTree::describe)
+					.collect(Collectors.joining(", ", "(", ")")),
+
+					parser.input
+				);
+			};
+		}
+	}
+
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
 		VariableHandler handler;
@@ -1060,31 +1086,37 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		class Accumulator {
 
-			public InsnTree result;
+			public final List<InsnTreeSource> results = new ArrayList<>(8);
+			public boolean exact;
 
 			public boolean update(String n) throws ScriptParsingException {
 				List<FunctionHandler> handlers = MutableScriptEnvironment.this.functions.get(n);
 				if (handlers != null) {
+					boolean exact = false;
 					for (int index = 0, size = handlers.size(); index < size; index++) {
 						CastResult casted = handlers.get(index).create(parser, name, arguments);
 						if (casted != null) {
-							if (!casted.requiredCasting) {
-								this.result = casted.tree;
-								return true;
+							if (!this.exact && !casted.requiredCasting) {
+								this.results.clear();
+								this.exact = true;
 							}
-							else if (this.result == null) {
-								this.result = casted.tree;
+							if (this.exact ? !casted.requiredCasting : true) {
+								this.results.add(new InsnTreeSource(casted.tree, handlers.get(index)));
 							}
 						}
 					}
 				}
-				return false;
+				return !this.results.isEmpty();
+			}
+
+			public InsnTree result() throws ScriptParsingException {
+				return InsnTreeSource.get(parser, arguments, this.results);
 			}
 		}
 		Accumulator accumulator = new Accumulator();
-		if (accumulator.update(name)) return accumulator.result;
-		if (accumulator.update(null)) return accumulator.result;
-		return accumulator.result;
+		if (accumulator.update(name)) return accumulator.result();
+		if (accumulator.update(null)) return accumulator.result();
+		return accumulator.result();
 	}
 
 	@Override
@@ -1092,7 +1124,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		class Accumulator {
 
 			public final NamedType query = new NamedType();
-			public InsnTree result;
+			public final List<InsnTreeSource> results = new ArrayList<>(8);
+			public boolean exact;
 
 			public boolean update(String n, TypeInfo type) throws ScriptParsingException {
 				this.query.name = n;
@@ -1102,27 +1135,31 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 					for (int index = 0, size = handlers.size(); index < size; index++) {
 						CastResult casted = handlers.get(index).create(parser, receiver, name, mode, arguments);
 						if (casted != null) {
-							if (!casted.requiredCasting) {
-								this.result = casted.tree;
-								return true;
+							if (!this.exact && !casted.requiredCasting) {
+								this.results.clear();
+								this.exact = true;
 							}
-							else if (this.result == null) {
-								this.result = casted.tree;
+							if (this.exact ? !casted.requiredCasting : true) {
+								this.results.add(new InsnTreeSource(casted.tree, handlers.get(index)));
 							}
 						}
 					}
 				}
-				return false;
+				return !this.results.isEmpty();
+			}
+
+			public InsnTree result() throws ScriptParsingException {
+				return InsnTreeSource.get(parser, arguments, this.results);
 			}
 		}
 		Accumulator accumulator = new Accumulator();
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
-			if (accumulator.update(name, owner)) return accumulator.result;
-			if (accumulator.update(null, owner)) return accumulator.result;
+			if (accumulator.update(name, owner)) return accumulator.result();
+			if (accumulator.update(null, owner)) return accumulator.result();
 		}
-		if (accumulator.update(name, null)) return accumulator.result;
-		if (accumulator.update(null, null)) return accumulator.result;
-		return accumulator.result;
+		if (accumulator.update(name, null)) return accumulator.result();
+		if (accumulator.update(null, null)) return accumulator.result();
+		return accumulator.result();
 	}
 
 	@Override
