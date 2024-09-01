@@ -32,7 +32,7 @@ public record SwitchBodySyntax(InsnTree value, Int2ObjectSortedMap<InsnTree> cas
 			enumClass = null;
 		}
 		else {
-			throw new ScriptParsingException("Switch value must be enum or single-width int", parser.input);
+			throw new ScriptParsingException("Switch value must be enum or single-width int, but it was " + value.getTypeInfo(), parser.input);
 		}
 		parser.input.expectAfterWhitespace(':');
 		Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();

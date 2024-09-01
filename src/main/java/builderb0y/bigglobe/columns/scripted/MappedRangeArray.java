@@ -2,22 +2,26 @@ package builderb0y.bigglobe.columns.scripted;
 
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.util.InfoHolder;
 
 public abstract class MappedRangeArray {
 
-	public static final FieldInfo
-		VALID           =  FieldInfo.inCaller("valid"),
-		MIN_CACHED      =  FieldInfo.inCaller("minCached"),
-		MAX_CACHED      =  FieldInfo.inCaller("maxCached"),
-		MIN_ACCESSIBLE  =  FieldInfo.inCaller("minAccessible"),
-		MAX_ACCESSIBLE  =  FieldInfo.inCaller("maxAccessible");
+	public static final Info INFO = new Info();
+	public static class Info extends InfoHolder {
 
-	public static final MethodInfo
-		INVALIDATE      = MethodInfo.inCaller("invalidate"),
-		REALLOCATE_NONE = MethodInfo.inCaller("reallocateNone"),
-		REALLOCATE_MIN  = MethodInfo.inCaller("reallocateMin"),
-		REALLOCATE_MAX  = MethodInfo.inCaller("reallocateMax"),
-		REALLOCATE_BOTH = MethodInfo.inCaller("reallocateBoth");
+		public FieldInfo
+			valid,
+			minCached,
+			maxCached,
+			minAccessible,
+			maxAccessible;
+		public MethodInfo
+			invalidate,
+			reallocateNone,
+			reallocateMin,
+			reallocateMax,
+			reallocateBoth;
+	}
 
 	public int minCached, maxCached, minAccessible, maxAccessible;
 	public boolean valid = true;

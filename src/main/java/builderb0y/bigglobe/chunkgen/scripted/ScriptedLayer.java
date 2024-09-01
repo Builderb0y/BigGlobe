@@ -129,7 +129,7 @@ public class ScriptedLayer extends Layer {
 
 			@Override
 			public void emitSegments(ScriptedColumn column, BlockSegmentList blocks) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					this.script.emitSegments(column, blocks);

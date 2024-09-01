@@ -139,7 +139,7 @@ public class EvaluateCommand {
 
 			@Override
 			public Object evaluate(WorldWrapper world, int originX, int originY, int originZ) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.evaluate(world, originX, originY, originZ);

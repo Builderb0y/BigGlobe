@@ -365,20 +365,20 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				environment
 				.addVariableLoad("y", TypeInfos.INT)
 				.addVariable("arrayField", getField(context.loadSelf(), memory.getTyped(ColumnEntryMemory.FIELD).info))
-				.addFieldGet("valid", MappedRangeArray.VALID)
-				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
-				.addFieldGet("minAccessible", MappedRangeArray.MIN_ACCESSIBLE)
-				.addFieldGet("maxAccessible", MappedRangeArray.MAX_ACCESSIBLE)
+				.addFieldGet("valid", MappedRangeArray.INFO.valid)
+				.addFieldGet("minCached", MappedRangeArray.INFO.minCached)
+				.addFieldGet("maxCached", MappedRangeArray.INFO.maxCached)
+				.addFieldGet("minAccessible", MappedRangeArray.INFO.minAccessible)
+				.addFieldGet("maxAccessible", MappedRangeArray.INFO.maxAccessible)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 				.addMethodInvoke("get", switch (accessContext.exposedType().getSort()) {
-					case BYTE    -> MappedRangeNumberArray.GET_B;
-					case SHORT   -> MappedRangeNumberArray.GET_S;
-					case INT     -> MappedRangeNumberArray.GET_I;
-					case LONG    -> MappedRangeNumberArray.GET_L;
-					case FLOAT   -> MappedRangeNumberArray.GET_F;
-					case DOUBLE  -> MappedRangeNumberArray.GET_D;
-					case BOOLEAN -> MappedRangeNumberArray.GET_Z;
+					case BYTE    -> NumberArray.INFO.getB;
+					case SHORT   -> NumberArray.INFO.getS;
+					case INT     -> NumberArray.INFO.getI;
+					case LONG    -> NumberArray.INFO.getL;
+					case FLOAT   -> NumberArray.INFO.getF;
+					case DOUBLE  -> NumberArray.INFO.getD;
+					case BOOLEAN -> NumberArray.INFO.getZ;
 					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
 				.addVariable("fallback", this.valid != null ? this.valid.getFallback(this.params.type(), context.root()) : ldc(0))
@@ -614,17 +614,17 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 			(MutableScriptEnvironment environment) -> {
 				environment
 				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+				.addFieldGet("minCached", MappedRangeArray.INFO.minCached)
+				.addFieldGet("maxCached", MappedRangeArray.INFO.maxCached)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 				.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
-					case BYTE -> MappedRangeNumberArray.SET_B;
-					case SHORT -> MappedRangeNumberArray.SET_S;
-					case INT -> MappedRangeNumberArray.SET_I;
-					case LONG -> MappedRangeNumberArray.SET_L;
-					case FLOAT -> MappedRangeNumberArray.SET_F;
-					case DOUBLE -> MappedRangeNumberArray.SET_D;
-					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
+					case BYTE    -> NumberArray.INFO.setB;
+					case SHORT   -> NumberArray.INFO.setS;
+					case INT     -> NumberArray.INFO.setI;
+					case LONG    -> NumberArray.INFO.setL;
+					case FLOAT   -> NumberArray.INFO.setF;
+					case DOUBLE  -> NumberArray.INFO.setD;
+					case BOOLEAN -> NumberArray.INFO.setZ;
 					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
 				.addFunctionInvoke("compute", context.loadSelf(), memory.getTyped(COMPUTE_ONE).info)
@@ -677,17 +677,17 @@ public abstract class AbstractColumnEntry implements ColumnEntry, MutableDepende
 				.addVariableConstant("flagBitmask", DataCompileContext.flagsFieldBitmask(flagsIndex))
 				.addVariableLoad("y", TypeInfos.INT)
 				.addVariableLoad("value", accessContext.exposedType())
-				.addFieldGet("minCached", MappedRangeArray.MIN_CACHED)
-				.addFieldGet("maxCached", MappedRangeArray.MAX_CACHED)
+				.addFieldGet("minCached", MappedRangeArray.INFO.minCached)
+				.addFieldGet("maxCached", MappedRangeArray.INFO.maxCached)
 				.addFieldGet("array", MappedRangeNumberArray.ARRAY)
 				.addMethodInvoke("set", switch (accessContext.exposedType().getSort()) {
-					case BYTE    -> MappedRangeNumberArray.SET_B;
-					case SHORT   -> MappedRangeNumberArray.SET_S;
-					case INT     -> MappedRangeNumberArray.SET_I;
-					case LONG    -> MappedRangeNumberArray.SET_L;
-					case FLOAT   -> MappedRangeNumberArray.SET_F;
-					case DOUBLE  -> MappedRangeNumberArray.SET_D;
-					case BOOLEAN -> MappedRangeNumberArray.SET_Z;
+					case BYTE    -> NumberArray.INFO.setB;
+					case SHORT   -> NumberArray.INFO.setS;
+					case INT     -> NumberArray.INFO.setI;
+					case LONG    -> NumberArray.INFO.setL;
+					case FLOAT   -> NumberArray.INFO.setF;
+					case DOUBLE  -> NumberArray.INFO.setD;
+					case BOOLEAN -> NumberArray.INFO.setZ;
 					default -> throw new IllegalStateException("Unsupported type: " + accessContext);
 				})
 				;

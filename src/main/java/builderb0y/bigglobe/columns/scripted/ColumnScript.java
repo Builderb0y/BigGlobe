@@ -233,7 +233,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -267,7 +267,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -301,7 +301,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -335,7 +335,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -369,7 +369,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -403,7 +403,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -437,7 +437,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -471,7 +471,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -505,7 +505,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -539,7 +539,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -573,7 +573,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, RandomGenerator random) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random);
@@ -607,7 +607,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public int get(ScriptedColumn column, RandomGenerator random, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
@@ -641,7 +641,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, RandomGenerator random) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random);
@@ -675,7 +675,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public long get(ScriptedColumn column, RandomGenerator random, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
@@ -709,7 +709,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, RandomGenerator random) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random);
@@ -743,7 +743,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public float get(ScriptedColumn column, RandomGenerator random, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
@@ -777,7 +777,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, RandomGenerator random) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random);
@@ -811,7 +811,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public double get(ScriptedColumn column, RandomGenerator random, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
@@ -845,7 +845,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, RandomGenerator random) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random);
@@ -879,7 +879,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public boolean get(ScriptedColumn column, RandomGenerator random, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, random, y);
@@ -913,7 +913,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BlockState get(ScriptedColumn column) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column);
@@ -947,7 +947,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BlockState get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);
@@ -981,7 +981,7 @@ public interface ColumnScript extends Script {
 
 			@Override
 			public BiomeEntry get(ScriptedColumn column, int y) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.get(column, y);

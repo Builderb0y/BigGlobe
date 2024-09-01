@@ -18,11 +18,8 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.Valid;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.types.DoubleColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.FloatColumnValueType;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -97,12 +94,12 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 				})
 				.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
 				.addMethodInvoke(ScriptedColumn.INFO.x)
-				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addFieldGet(MappedRangeNumberArray.MIN_CACHED)
 				.addMethodInvoke(ScriptedColumn.INFO.z)
+				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+				.addFieldGet(MappedRangeArray.INFO.minCached)
+				.addFieldGet(MappedRangeArray.INFO.maxCached)
 				.addFieldGet(MappedRangeNumberArray.ARRAY)
 				.addMethodInvoke(NumberArray.class, "prefix")
-				.addFieldGet(MappedRangeNumberArray.MAX_CACHED)
 				;
 			}
 		);

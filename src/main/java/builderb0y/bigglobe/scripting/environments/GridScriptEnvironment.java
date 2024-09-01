@@ -131,7 +131,16 @@ public class GridScriptEnvironment {
 	}
 
 	public static String precision(NumberArray array) {
-		return array.getPrecision().lowerCaseName;
+		return switch (array.type) {
+			case NumberArray.   BYTE_TYPE -> "byte";
+			case NumberArray.  SHORT_TYPE -> "short";
+			case NumberArray.    INT_TYPE -> "int";
+			case NumberArray.   LONG_TYPE -> "long";
+			case NumberArray.  FLOAT_TYPE -> "float";
+			case NumberArray. DOUBLE_TYPE -> "double";
+			case NumberArray.BOOLEAN_TYPE -> "boolean";
+			default -> throw new IllegalStateException("Invalid type: " + array.type);
+		};
 	}
 
 	public static Grid1D getGrid1D(MethodHandles.Lookup caller, String name, Class<?> type, String id) {

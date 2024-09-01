@@ -224,7 +224,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 			@Override
 			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
-				NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
 					return this.script.generate(world, originX, originY, originZ);

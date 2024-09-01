@@ -14,7 +14,7 @@ public class NumberArrayTest {
 	@Test
 	public void testBooleans() {
 		RandomGenerator random = new SplittableRandom(12345L);
-		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 		int used = manager.used;
 		try {
 			testBooleans(random, NumberArray::allocateBooleansHeap);

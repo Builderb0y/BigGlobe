@@ -99,7 +99,7 @@ public interface StructurePlacementScript extends Script {
 			int chunkMaxX, int chunkMaxY, int chunkMaxZ,
 			ScriptedStructure.Piece piece
 		) {
-			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
 				this.script.place(

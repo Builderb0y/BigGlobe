@@ -48,7 +48,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
 		//workaround for the fact that I *really* don't want to deal
 		//with generating bytecode for try-with-resources at runtime.
-		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 		int used = manager.used;
 		try {
 			this.delegate.getBulkX(seed, startX, y, samples);
@@ -65,7 +65,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
 		//workaround for the fact that I *really* don't want to deal
 		//with generating bytecode for try-with-resources at runtime.
-		NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+		NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 		int used = manager.used;
 		try {
 			this.delegate.getBulkY(seed, x, startY, samples);

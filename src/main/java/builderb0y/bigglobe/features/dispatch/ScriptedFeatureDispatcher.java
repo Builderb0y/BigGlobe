@@ -102,7 +102,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
 		@Override
 		public void generate(WorldWrapper world, RandomGenerator random) {
-			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
 				this.script.generate(world, random);

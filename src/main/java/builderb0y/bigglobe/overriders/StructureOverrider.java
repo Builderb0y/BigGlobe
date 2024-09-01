@@ -105,7 +105,7 @@ public interface StructureOverrider extends ColumnScript {
 
 		@Override
 		public boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, long seed, boolean distantHorizons) {
-			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
 				return this.script.override(columns, start, random, seed, distantHorizons);

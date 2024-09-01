@@ -238,7 +238,7 @@ public interface SurfaceScript extends Script {
 			ScriptedColumn adjacentColumnXZ,
 			BlockSegmentList segments
 		) {
-			NumberArray.Direct.Manager manager = NumberArray.Direct.Manager.INSTANCES.get();
+			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
 				this.script.generateSurface(mainColumn, adjacentColumnX, adjacentColumnZ, adjacentColumnXZ, segments);
