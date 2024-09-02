@@ -41,9 +41,10 @@ alternate world presets:
 			lavafalls.
 		structures.
 		biomes.
-		the core.
-		the deep dark.
+		the deep dark:
+			decorations.
 		caves.
+		more rock layers.
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.

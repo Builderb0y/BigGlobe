@@ -377,11 +377,31 @@
 								{
 									"type": "simple_3d",
 									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "`bigglobe:overworld/cavern_min_y`",
+										"max_y": "`bigglobe:overworld/cavern_max_y`"
+									}
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
 									"valid": {
+										"where": "!surfaceOnly",
 										"min_y": "`bigglobe:overworld/core_min_y`",
 										"max_y": "`bigglobe:overworld/core_max_y`"
-									}
+									},
+									"children": [
+										{
+											"type": "simple_2d",
+											"state": "'minecraft:lava[level=0]'",
+											"valid": {
+												"max_y": "`bigglobe:overworld/lava_level`"
+											}
+										}
+									]
 								},
 								{
 									"type": "multi_state_3d",
@@ -408,7 +428,7 @@
 										")"
 									],
 									"valid": {
-										"where": "!distantHorizons && `bigglobe:islands/is_volcano`"
+										"where": "!surfaceOnly"
 									}
 								}
 							]
