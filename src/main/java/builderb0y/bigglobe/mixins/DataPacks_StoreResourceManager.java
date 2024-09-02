@@ -16,7 +16,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 @Mixin(DataPacks.class)
 public class DataPacks_StoreResourceManager {
 
-	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lcom/mojang/datafixers/util/Pair;of(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/datafixers/util/Pair;"))
+	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lcom/mojang/datafixers/util/Pair;of(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/datafixers/util/Pair;", remap = false))
 	private void bigglobe_storeResourceManager(CallbackInfoReturnable<Pair<DataConfiguration, LifecycledResourceManager>> callback, @Local LifecycledResourceManager manager) {
 		if (BigGlobeMod.currentResourceFactory == null) {
 			BigGlobeMod.currentResourceFactory = manager;

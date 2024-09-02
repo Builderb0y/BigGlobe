@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(WorldSection.class)
 public interface Voxy_WorldSection_DataGetter {
 
-	@Accessor("data")
+	@Accessor(value = "data", remap = false)
 	public abstract long[] bigglobe_getData();
 }

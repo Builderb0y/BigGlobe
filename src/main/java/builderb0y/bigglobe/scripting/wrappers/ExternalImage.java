@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -104,8 +105,8 @@ public class ExternalImage {
 
 	public static ExternalImage of(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws IOException {
 		if (id.contains("..")) throw new IOException("No, you may not access parent directories this way.");
-		Identifier identifier = Identifier.of(id);
-		identifier = Identifier.of(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".png");
+		Identifier identifier = IdentifierVersions.create(id);
+		identifier = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".png");
 		try (InputStream stream = BigGlobeMod.getResourceFactory().open(identifier)) {
 			BufferedImage image = ImageIO.read(stream);
 			int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());

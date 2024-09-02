@@ -191,7 +191,7 @@ public class NumberArray implements AutoCloseable {
 	public static NumberArray allocateLongsHeap     (int longs   ) { return new Manager(longs    << LONG_SHIFT  ).allocateLongsHeap   (        ); }
 	public static NumberArray allocateFloatsHeap    (int floats  ) { return new Manager(floats   << FLOAT_SHIFT ).allocateFloatsHeap  (        ); }
 	public static NumberArray allocateDoublesHeap   (int doubles ) { return new Manager(doubles  << DOUBLE_SHIFT).allocateDoublesHeap (        ); }
-	public static NumberArray allocateBooleansHeap  (int booleans) { return new Manager(booleans >> 3           ).allocateBooleansHeap(booleans); }
+	public static NumberArray allocateBooleansHeap  (int booleans) { return new Manager(((booleans - 1) >> 3) + 1).allocateBooleansHeap(booleans); }
 
 	public static NumberArray allocateBytesDirect   (int bytes   ) { return Manager.INSTANCES.get().allocateBytesDirect   (bytes   ); }
 	public static NumberArray allocateShortsDirect  (int shorts  ) { return Manager.INSTANCES.get().allocateShortsDirect  (shorts  ); }

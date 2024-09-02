@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ByteOpenHashMap;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -156,8 +157,8 @@ public class ExternalData {
 
 	public static ExternalData of(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws IOException {
 		if (id.contains("..")) throw new IOException("No, you may not access parent directories this way.");
-		Identifier identifier = Identifier.of(id);
-		identifier = Identifier.of(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".dat");
+		Identifier identifier = IdentifierVersions.create(id);
+		identifier = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".dat");
 		try (InputStream stream = BigGlobeMod.getResourceFactory().open(identifier)) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 			stream.transferTo(baos);
