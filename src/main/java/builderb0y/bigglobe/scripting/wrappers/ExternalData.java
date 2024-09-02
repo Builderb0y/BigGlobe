@@ -155,6 +155,7 @@ public class ExternalData {
 	}
 
 	public static ExternalData of(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws IOException {
+		if (id.contains("..")) throw new IOException("No, you may not access parent directories this way.");
 		Identifier identifier = Identifier.of(id);
 		identifier = Identifier.of(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".dat");
 		try (InputStream stream = BigGlobeMod.getResourceFactory().open(identifier)) {

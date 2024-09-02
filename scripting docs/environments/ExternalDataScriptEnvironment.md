@@ -1,4 +1,4 @@
-This environment allows scripts to read raw data from the `/data/modid/bigglobe_external/` folder. Files in this folder must be .dat files. In a sense, this is similar to ExternalImageScriptEnvironment, but more flexible to allow other types of data to reprsented besides just images.
+Added in V4.3.2, this environment allows scripts to read raw data from the `/data/modid/bigglobe_external/` folder. Files in this folder must be .dat files. In a sense, this is similar to ExternalImageScriptEnvironment, but more flexible to allow other types of data to reprsented besides just images.
 
 # Fields
 

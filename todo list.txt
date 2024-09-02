@@ -20,8 +20,6 @@ testing:
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
-	document which version external data was added in.
-	document reload_preset field on scripted chunk generators.
 
 changelog:
 	* Fixed another bug causing some worlds to generate incorrectly... again. This bug was in the same place as the bug I fixed in the previous version. Hopefully that logic is actually correct this time.

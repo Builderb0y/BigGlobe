@@ -1,4 +1,4 @@
-This environment allows scripts to read images from the `/data/modid/bigglobe_external/` folder. Images in this folder must be .png files.
+Added in V4.3.2, this environment allows scripts to read images from the `/data/modid/bigglobe_external/` folder. Images in this folder must be .png files.
 
 # Fields
 

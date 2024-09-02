@@ -472,6 +472,8 @@
 			"type": "minecraft:overworld",
 			"generator": {
 				"type": "bigglobe:scripted",
+				"reload_preset": "experiments",
+				"reload_dimension": "bigglobe:external",
 				"biome_source": {
 					"type": "minecraft:fixed",
 					"biome": "minecraft:plains"
