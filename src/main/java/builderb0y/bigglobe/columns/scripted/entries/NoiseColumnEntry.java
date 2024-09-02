@@ -34,6 +34,7 @@ import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseXorInsnTree
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -89,9 +90,9 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 				.addVariableConstant("grid", constantGrid)
 				.addMethodInvoke(Grid3D.class, "getBulkY")
 				.addVariable("column", context.loadColumn())
-				.addFunction("seed", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				.addFunction("seed", new FunctionHandler.Named("seed(long salt)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 					return new CastResult(context.loadSeed(arguments[0]), false);
-				})
+				}))
 				.addVariableConstant("salt", Permuter.permute(0L, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID)))
 				.addMethodInvoke(ScriptedColumn.INFO.x)
 				.addMethodInvoke(ScriptedColumn.INFO.z)

@@ -27,8 +27,12 @@ changelog:
 	* Fixed another bug causing some worlds to generate incorrectly... again. This bug was in the same place as the bug I fixed in the previous version. Hopefully that logic is actually correct this time.
 	* Hyperspeed generation for Voxy has evolved into... ludicrous speed!
 	* Fixed compatibility with the world preview mod.
-	* Many scripts now have access to images and other raw data provided by data packs.
 	* Sped up world generation somewhat.
+	* Scripting changes:
+		* Many scripts now have access to images and other raw data provided by data packs.
+		* The parser is now more pedantic about ambiguous overload function and method calls.
+			* If a call is ambiguous, you will now get a compile error which lists all the things you might've meant to call.
+			* Cast your arguments to exactly match the thing you want to call in order to clarify to the compiler what you want to call.
 
 alternate world presets:
 	paradise.

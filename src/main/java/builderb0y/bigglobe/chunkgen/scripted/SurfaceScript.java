@@ -128,106 +128,19 @@ public interface SurfaceScript extends Script {
 			}
 		}
 
-		public static KeywordHandler createDxDz(ColumnEntryRegistry registry, boolean z) {
-			return (ExpressionParser parser, String name) -> {
-				parser.input.expectAfterWhitespace('(');
-				parser.environment.user().push();
+		public static KeywordHandler.Named createDxDz(ColumnEntryRegistry registry, boolean z) {
+			return new KeywordHandler.Named(
+				"d" + (z ? 'z' : 'x') + "(value)",
+				(ExpressionParser parser, String name) -> {
+					parser.input.expectAfterWhitespace('(');
+					parser.environment.user().push();
 
-				InsnTree result = new DerivativeMethodDefiner(parser, "derivative_" + parser.clazz.memberUniquifier++).createDerivative(registry.columnContext.columnType(), z);
+					InsnTree result = new DerivativeMethodDefiner(parser, "derivative_" + parser.clazz.memberUniquifier++).createDerivative(registry.columnContext.columnType(), z);
+					parser.environment.user().pop();
 
-				/*
-				ExpressionParser newParser = new AnyNumericTypeExpressionParser(parser);
-				newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
-					throw new ScriptParsingException("For technical reasons, you cannot return from inside a " + (z ? "dz" : "dx") + " block", parser1.input);
-				}));
-				List<FunctionHandler> higherOrderDerivatives = Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
-					throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
-				});
-				newParser.environment.mutable().functions.put("dx", higherOrderDerivatives);
-				newParser.environment.mutable().functions.put("dz", higherOrderDerivatives);
-				VariableCapturer capturer = new VariableCapturer(newParser);
-				capturer.addCapturedParameters();
-
-				InsnTree body = newParser.nextScript();
-				body = body.cast(newParser, TypeInfos.widenToInt(body.getTypeInfo()), CastMode.IMPLICIT_THROW);
-				parser.input.expectAfterWhitespace(')');
-				*/
-
-				parser.environment.user().pop();
-
-				return result;
-
-				/*
-				LazyVarInfo mainColumn       = new LazyVarInfo("mainColumn",       registry.columnContext.columnType());
-				LazyVarInfo adjacentColumnX  = new LazyVarInfo("adjacentColumnX",  registry.columnContext.columnType());
-				LazyVarInfo adjacentColumnZ  = new LazyVarInfo("adjacentColumnZ",  registry.columnContext.columnType());
-				LazyVarInfo adjacentColumnXZ = new LazyVarInfo("adjacentColumnXZ", registry.columnContext.columnType());
-				LazyVarInfo segments         = new LazyVarInfo("segments",         type(BlockSegmentList.class));
-
-				MethodCompileContext derivativeMethod = parser.clazz.newMethod(
-					ACC_PUBLIC,
-					"derivative_" + parser.clazz.memberUniquifier++,
-					body.getTypeInfo(),
-					Stream.concat(
-						Stream.of(
-							mainColumn,
-							adjacentColumnX,
-							adjacentColumnZ,
-							adjacentColumnXZ,
-							segments
-						),
-						capturer.streamImplicitParameters()
-					)
-					.toArray(LazyVarInfo.ARRAY_FACTORY)
-				);
-				return_(body).emitBytecode(derivativeMethod);
-				derivativeMethod.endCode();
-				MethodInfo derivativeInfo = derivativeMethod.info;
-
-				InsnTree[] normalArgs = ObjectArrays.concat(
-					new InsnTree[] {
-						load(mainColumn),
-						load(adjacentColumnX),
-						load(adjacentColumnZ),
-						load(adjacentColumnXZ),
-						load(segments)
-					},
-					capturer.implicitParameters.toArray(new LoadInsnTree[capturer.implicitParameters.size()]),
-					InsnTree.class
-				);
-				InsnTree[] adjacentArgs = ObjectArrays.concat(
-					new InsnTree[] {
-						load(z ? adjacentColumnZ  : adjacentColumnX ),
-						load(z ? adjacentColumnXZ : mainColumn      ),
-						load(z ? mainColumn       : adjacentColumnXZ),
-						load(z ? adjacentColumnX  : adjacentColumnZ ),
-						load(segments)
-					},
-					capturer.implicitParameters.toArray(new LoadInsnTree[capturer.implicitParameters.size()]),
-					InsnTree.class
-				);
-
-				InsnTree normalInvoker, adjacentInvoker;
-				if (derivativeInfo.isStatic()) {
-					normalInvoker   = invokeStatic(derivativeInfo, normalArgs);
-					adjacentInvoker = invokeStatic(derivativeInfo, adjacentArgs);
+					return result;
 				}
-				else {
-					normalInvoker   = invokeInstance(load("this", parser.clazz.info), derivativeInfo, normalArgs);
-					adjacentInvoker = invokeInstance(load("this", parser.clazz.info), derivativeInfo, adjacentArgs);
-				}
-
-				return ConditionalNegateInsnTree.create(
-					newParser,
-					sub(newParser, adjacentInvoker, normalInvoker),
-					lt(
-						parser,
-						z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
-						z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
-					)
-				);
-				*/
-			};
+			);
 		}
 
 		@Override

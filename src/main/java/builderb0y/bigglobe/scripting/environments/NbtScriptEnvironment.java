@@ -13,8 +13,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
@@ -97,14 +96,14 @@ public class NbtScriptEnvironment {
 		.addFunction("nbtByteArray", array(NBT_BYTE_ARRAY_CONSTRUCTOR))
 		.addFunction("nbtIntArray",  array(NBT_INT_ARRAY_CONSTRUCTOR))
 		.addFunction("nbtLongArray", array(NBT_LONG_ARRAY_CONSTRUCTOR))
-		.addFunction("nbtList", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+		.addFunction("nbtList", new FunctionHandler.Named("nbtList(element1, element2, ...)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
-		})
-		.addKeyword("nbtCompound", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("nbtCompound", new KeywordHandler.Named("nbtCompound(key1: value1, key2: value2, ...)", (ExpressionParser parser, String name) -> {
 			NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE, null);
 			return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
-		})
+		}))
 
 		.addMethodInvokeStatics(NbtScriptEnvironment.class, "asBoolean", "asByte", "asShort", "asInt", "asLong", "asFloat", "asDouble", "asString")
 	);
@@ -117,7 +116,7 @@ public class NbtScriptEnvironment {
 		return (MutableScriptEnvironment environment) -> {
 			environment
 			.configure(createCommon())
-			.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+			.addMethod(NBT_ELEMENT_TYPE, "", new MethodHandler.Named("element.(key or index)", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 				if (arguments.length != 1) {
 					throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 				}
@@ -131,10 +130,10 @@ public class NbtScriptEnvironment {
 				else {
 					throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
 				}
-			})
-			.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+			}))
+			.addField(NBT_ELEMENT_TYPE, null, new FieldHandler.Named("compound.key", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 				return invokeStatic(GET_MEMBER, receiver, ldc(name));
-			})
+			}))
 			;
 		};
 	}
@@ -143,7 +142,7 @@ public class NbtScriptEnvironment {
 		return (MutableScriptEnvironment environment) -> {
 			environment
 			.configure(createCommon())
-			.addMethod(NBT_ELEMENT_TYPE, "", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+			.addMethod(NBT_ELEMENT_TYPE, "", new MethodHandler.Named("element.(key or index)", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 				if (arguments.length != 1) {
 					throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
 				}
@@ -157,15 +156,15 @@ public class NbtScriptEnvironment {
 				else {
 					throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
 				}
-			})
-			.addField(NBT_ELEMENT_TYPE, null, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+			}))
+			.addField(NBT_ELEMENT_TYPE, null, new FieldHandler.Named("compound.key", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 				return NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
 					case NORMAL -> GetMethodMode.NORMAL;
 					case NULLABLE -> GetMethodMode.NULLABLE;
 					case RECEIVER -> GetMethodMode.RECEIVER;
 					case NULLABLE_RECEIVER -> GetMethodMode.NULLABLE_RECEIVER;
 				});
-			})
+			}))
 			;
 		};
 	}
@@ -228,8 +227,8 @@ public class NbtScriptEnvironment {
 		}
 	}
 
-	public static FunctionHandler array(MethodInfo method) {
-		return (ExpressionParser parser, String name, InsnTree... arguments) -> {
+	public static FunctionHandler.Named array(MethodInfo method) {
+		return new FunctionHandler.Named("NBT array constructor: " + method, (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			return new CastResult(
 				invokeStatic(
 					method,
@@ -239,7 +238,7 @@ public class NbtScriptEnvironment {
 				),
 				false
 			);
-		};
+		});
 	}
 
 	public static class ListBuilderInsnTree implements InsnTree {

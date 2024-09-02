@@ -14,6 +14,8 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReduceInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -37,10 +39,10 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
-		.addFunction("mod", (parser, name, arguments) -> {
+		.addFunction("mod", new FunctionHandler.Named("mod(a, b)", (parser, name, arguments) -> {
 			if (arguments.length != 2) return null;
 			return new CastResult(mod(parser, arguments[0], arguments[1]), false);
-		})
+		}))
 		.addFunction("isNaN", createNaN(true))
 		.addFunction("isNotNaN", createNaN(false))
 		.addFunctionInvokeStatics(Float.class, "isInfinite", "isFinite")
@@ -64,8 +66,8 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		return super.addFunctionInvokeStatic(name, method.pure());
 	}
 
-	public static FunctionHandler createNaN(boolean nan) {
-		return (parser, name, arguments) -> {
+	public static FunctionHandler.Named createNaN(boolean nan) {
+		return new FunctionHandler.Named(nan ? "isNaN(value)" : "isNotNan(value)", (parser, name, arguments) -> {
 			if (arguments.length != 1) return null;
 			if (arguments[0].getTypeInfo().isFloat()) {
 				return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
@@ -73,11 +75,11 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			else {
 				return null;
 			}
-		};
+		});
 	}
 
-	public static FunctionHandler createReducer() {
-		return (parser, name, arguments) -> {
+	public static FunctionHandler.Named createReducer() {
+		return new FunctionHandler.Named("min/max(value1, value2, ...)", (parser, name, arguments) -> {
 			if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
 			return new CastResult(
@@ -90,7 +92,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 				),
 				false
 			);
-		};
+		});
 	}
 
 	public static final double LN2 = Math.log(2.0D);

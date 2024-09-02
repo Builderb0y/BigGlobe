@@ -13,6 +13,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -38,13 +39,13 @@ public class JavaUtilScriptEnvironment {
 		.addType("Map", Map.class)
 		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addMethod(TypeInfo.of(Map.class), "", (parser, receiver, name, mode, arguments) -> {
+		.addMethod(TypeInfo.of(Map.class), "", new MethodHandler.Named("Map.(key)", (parser, receiver, name, mode, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
 				NormalListMapGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
 				key != arguments[0]
 			);
-		})
+		}))
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
 		.addFieldRenamedInvoke("key", Map.Entry.class, "getKey")
@@ -91,13 +92,13 @@ public class JavaUtilScriptEnvironment {
 		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
 		.addMethodInvokeStatic(Collections.class, "reverse")
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
-		.addMethod(TypeInfo.of(List.class), "", (parser, receiver, name, mode, arguments) -> {
+		.addMethod(TypeInfo.of(List.class), "", new MethodHandler.Named("List.(index)", (parser, receiver, name, mode, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
 				NormalListMapGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
 				index != arguments[0]
 			);
-		})
+		}))
 		.addType("LinkedList", LinkedList.class)
 		.addQualifiedMultiConstructor(LinkedList.class)
 		.addType("ArrayList", ArrayList.class)

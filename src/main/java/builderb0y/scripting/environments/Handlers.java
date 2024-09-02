@@ -192,7 +192,7 @@ public class Handlers {
 			return this;
 		}
 
-		public VariableHandler buildVariable() {
+		public VariableHandler.Named buildVariable() {
 			if (this.usesReceiver() || this.usesArguments()) {
 				throw new IllegalStateException("Can't build variable when builder requires receiver or arguments.");
 			}
@@ -206,7 +206,7 @@ public class Handlers {
 			);
 		}
 
-		public FieldHandler buildField() {
+		public FieldHandler.Named buildField() {
 			if (this.usesArguments()) {
 				throw new IllegalStateException("Can't build field when builder requires arguments.");
 			}
@@ -222,7 +222,7 @@ public class Handlers {
 			);
 		}
 
-		public FunctionHandler buildFunction() {
+		public FunctionHandler.Named buildFunction() {
 			if (this.usesReceiver()) {
 				throw new IllegalStateException("Can't build function when builder requires receiver.");
 			}
@@ -235,7 +235,7 @@ public class Handlers {
 			);
 		}
 
-		public MethodHandler buildMethod() {
+		public MethodHandler.Named buildMethod() {
 			this.resolve();
 			return new MethodHandler.Named(
 				this.toString(),

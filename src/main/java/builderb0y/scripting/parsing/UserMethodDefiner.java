@@ -279,12 +279,25 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 		@Override
 		public ExpressionParser createChildParser() {
 			AnyNumericTypeExpressionParser newParser = new AnyNumericTypeExpressionParser(this.parser);
-			newParser.environment.mutable().functions.put("return", Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
-				throw new ScriptParsingException("For technical reasons, you cannot return from inside a derivative block", parser1.input);
-			}));
-			List<FunctionHandler> higherOrderDerivatives = Collections.singletonList((ExpressionParser parser1, String name1, InsnTree... arguments) -> {
-				throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
-			});
+			newParser.environment.mutable().functions.put(
+				"return",
+				Collections.singletonList(
+					new FunctionHandler.Named(
+						"invalid (return not supported inside derivative block)",
+						(ExpressionParser parser1, String name1, InsnTree... arguments) -> {
+							throw new ScriptParsingException("For technical reasons, you cannot return from inside a derivative block", parser1.input);
+						}
+					)
+				)
+			);
+			List<FunctionHandler.Named> higherOrderDerivatives = Collections.singletonList(
+				new FunctionHandler.Named(
+					"invalid (higher order derivatives not supported)",
+					(ExpressionParser parser1, String name1, InsnTree... arguments) -> {
+						throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
+					}
+				)
+			);
 			newParser.environment.mutable().functions.put("dx", higherOrderDerivatives);
 			newParser.environment.mutable().functions.put("dz", higherOrderDerivatives);
 			return newParser;

@@ -17,6 +17,7 @@ import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
@@ -322,12 +323,12 @@ public class RandomScriptEnvironment {
 				false
 			);
 		}))
-		.addMemberKeyword(type(RandomGenerator.class), "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addMemberKeyword(type(RandomGenerator.class), "if", new MemberKeywordHandler.Named("random.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapRandomIf(parser, receiver, false, mode);
-		})
-		.addMemberKeyword(type(RandomGenerator.class), "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		}))
+		.addMemberKeyword(type(RandomGenerator.class), "unless", new MemberKeywordHandler.Named("random.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapRandomIf(parser, receiver, true, mode);
-		})
+		}))
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loader) {

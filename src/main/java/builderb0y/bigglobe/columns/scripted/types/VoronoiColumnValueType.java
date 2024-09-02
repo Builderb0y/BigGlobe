@@ -169,12 +169,12 @@ public class VoronoiColumnValueType implements ColumnValueType {
 			MethodInfo setter = export.getValue().setterDescriptor(ACC_PUBLIC | ACC_ABSTRACT, "set_" + export.getKey(), selfContext);
 			if (export.getValue().is_3d()) {
 				if (params.mutable) {
-					environment.addMethod(getter.owner, export.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					environment.addMethod(getter.owner, export.getKey(), new MethodHandler.Named("methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (dependencyTrigger != null) dependencyTrigger.run();
 						return new CastResult(new ArgumentedGetterSetterInsnTree(receiver, getter, setter, castArguments[0]), castArguments != arguments);
-					});
+					}));
 				}
 				else {
 					environment.addMethod(getter.owner, export.getKey(), new MethodHandler.Named("methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
@@ -187,10 +187,10 @@ public class VoronoiColumnValueType implements ColumnValueType {
 			}
 			else {
 				if (params.mutable) {
-					environment.addField(getter.owner, export.getKey(), (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+					environment.addField(getter.owner, export.getKey(), new FieldHandler.Named("fieldInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 						if (dependencyTrigger != null) dependencyTrigger.run();
 						return mode.makeGetterSetter(parser, receiver, getter, setter);
-					});
+					}));
 				}
 				else {
 					environment.addField(getter.owner, export.getKey(), new FieldHandler.Named("fieldInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {

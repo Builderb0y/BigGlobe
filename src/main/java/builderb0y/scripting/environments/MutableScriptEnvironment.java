@@ -34,15 +34,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		IS_INSTANCE = (Method method) -> !Modifier.isStatic(method.getModifiers()),
 		NO_ARGS     = (Method method) -> method.getParameterCount() == 0;
 
-	public Map<String,                   VariableHandler > variables      = new HashMap<>(16);
-	public Map<NamedType,                   FieldHandler > fields         = new HashMap<>(16);
-	public Map<String,              List<FunctionHandler>> functions      = new HashMap<>(16);
-	public Map<NamedType,           List<  MethodHandler>> methods        = new HashMap<>(16);
-	public Map<String,                          TypeInfo > types          = new HashMap<>( 8);
-	public Map<String,                    KeywordHandler > keywords       = new HashMap<>( 8);
-	public Map<NamedType,      List<MemberKeywordHandler>> memberKeywords = new HashMap<>( 8);
+	public Map<String,              VariableHandler.Named > variables      = new HashMap<>(16);
+	public Map<NamedType,              FieldHandler.Named > fields         = new HashMap<>(16);
+	public Map<String,         List<FunctionHandler.Named>> functions      = new HashMap<>(16);
+	public Map<NamedType,      List<  MethodHandler.Named>> methods        = new HashMap<>(16);
+	public Map<String,                     TypeInfo       > types          = new HashMap<>( 8);
+	public Map<String,               KeywordHandler.Named > keywords       = new HashMap<>( 8);
+	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>( 8);
 	//         from          to
-	public Map<TypeInfo, Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
+	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
 
 	public static IdentifierDescriptor prefix(String type, String name, String descriptor, Object value) {
 		return new IdentifierDescriptor(
@@ -60,22 +60,22 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-			this.variables.entrySet().stream().map((Map.Entry<String, VariableHandler> entry) -> {
+			this.variables.entrySet().stream().map((Map.Entry<String, VariableHandler.Named> entry) -> {
 				return prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
 
-			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldHandler> entry) -> {
+			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldHandler.Named> entry) -> {
 				return prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
 			}),
 
-			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
-				return entry.getValue().stream().map((FunctionHandler handler) -> {
+			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler.Named>> entry) -> {
+				return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
 					return prefix("Function", entry.getKey(), entry.getKey(), handler);
 				});
 			}),
 
-			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
-				return entry.getValue().stream().map((MethodHandler handler) -> {
+			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler.Named>> entry) -> {
+				return entry.getValue().stream().map((MethodHandler.Named handler) -> {
 					return prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
 				});
 			}),
@@ -84,12 +84,12 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				return prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
 
-			this.keywords.entrySet().stream().map((Map.Entry<String, KeywordHandler> entry) -> {
+			this.keywords.entrySet().stream().map((Map.Entry<String, KeywordHandler.Named> entry) -> {
 				return prefix("Keyword", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
 
-			this.memberKeywords.entrySet().stream().flatMap((Map.Entry<NamedType, List<MemberKeywordHandler>> entry) -> {
-				return entry.getValue().stream().map((MemberKeywordHandler handler) -> {
+			this.memberKeywords.entrySet().stream().flatMap((Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry) -> {
+				return entry.getValue().stream().map((MemberKeywordHandler.Named handler) -> {
 					return prefix("Member keyword", entry.getKey().name, entry.getKey().toString(), handler);
 				});
 			})
@@ -99,7 +99,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
 		if (!that.variables.isEmpty()) {
-			for (Map.Entry<String, VariableHandler> entry : that.variables.entrySet()) {
+			for (Map.Entry<String, VariableHandler.Named> entry : that.variables.entrySet()) {
 				if (this.variables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 					throw new IllegalArgumentException("Variable '" + entry.getKey() + "' is already defined in this scope");
 				}
@@ -110,7 +110,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllFields(MutableScriptEnvironment that) {
 		if (!that.fields.isEmpty()) {
-			for (Map.Entry<NamedType, FieldHandler> entry : that.fields.entrySet()) {
+			for (Map.Entry<NamedType, FieldHandler.Named> entry : that.fields.entrySet()) {
 				if (this.fields.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 					throw new IllegalArgumentException("Field '" + entry.getKey() + "' is already defined in this scope");
 				}
@@ -121,8 +121,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllFunctions(MutableScriptEnvironment that) {
 		if (!that.functions.isEmpty()) {
-			for (Map.Entry<String, List<FunctionHandler>> entry : that.functions.entrySet()) {
-				List<FunctionHandler> handlers = this.functions.get(entry.getKey());
+			for (Map.Entry<String, List<FunctionHandler.Named>> entry : that.functions.entrySet()) {
+				List<FunctionHandler.Named> handlers = this.functions.get(entry.getKey());
 				if (handlers != null) handlers.addAll(entry.getValue());
 				else this.functions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 			}
@@ -132,8 +132,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllMethods(MutableScriptEnvironment that) {
 		if (!that.methods.isEmpty()) {
-			for (Map.Entry<NamedType, List<MethodHandler>> entry : that.methods.entrySet()) {
-				List<MethodHandler> handlers = this.methods.get(entry.getKey());
+			for (Map.Entry<NamedType, List<MethodHandler.Named>> entry : that.methods.entrySet()) {
+				List<MethodHandler.Named> handlers = this.methods.get(entry.getKey());
 				if (handlers != null) handlers.addAll(entry.getValue());
 				else this.methods.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 			}
@@ -154,7 +154,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllKeywords(MutableScriptEnvironment that) {
 		if (!that.keywords.isEmpty()) {
-			for (Map.Entry<String, KeywordHandler> entry : that.keywords.entrySet()) {
+			for (Map.Entry<String, KeywordHandler.Named> entry : that.keywords.entrySet()) {
 				if (this.keywords.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 					throw new IllegalArgumentException("Keyword '" + entry.getKey() + "' is already defined in this scope");
 				}
@@ -165,8 +165,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
 		if (!that.memberKeywords.isEmpty()) {
-			for (Map.Entry<NamedType, List<MemberKeywordHandler>> entry : that.memberKeywords.entrySet()) {
-				List<MemberKeywordHandler> handlers = this.memberKeywords.get(entry.getKey());
+			for (Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry : that.memberKeywords.entrySet()) {
+				List<MemberKeywordHandler.Named> handlers = this.memberKeywords.get(entry.getKey());
 				if (handlers != null) handlers.addAll(entry.getValue());
 				else this.memberKeywords.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 			}
@@ -222,7 +222,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// variables ////////////////////////////////
 
-	public MutableScriptEnvironment addVariable(String name, VariableHandler variableHandler) {
+	public MutableScriptEnvironment addVariable(String name, VariableHandler.Named variableHandler) {
 		if (this.variables.putIfAbsent(name, variableHandler) != null) {
 			throw new IllegalArgumentException("Variable '" + name + "' is already defined in this scope");
 		}
@@ -388,7 +388,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// fields ////////////////////////////////
 
-	public MutableScriptEnvironment addField(TypeInfo owner, String name, FieldHandler fieldHandler) {
+	public MutableScriptEnvironment addField(TypeInfo owner, String name, FieldHandler.Named fieldHandler) {
 		if (this.fields.putIfAbsent(new NamedType(owner, name), fieldHandler) != null) {
 			throw new IllegalArgumentException("Field '" + owner + '.' + name + "' is already defined in this scope");
 		}
@@ -497,7 +497,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// functions ////////////////////////////////
 
-	public MutableScriptEnvironment addFunction(String name, FunctionHandler functionHandler) {
+	public MutableScriptEnvironment addFunction(String name, FunctionHandler.Named functionHandler) {
 		this.functions.computeIfAbsent(name, (String $) -> new ArrayList<>(8)).add(functionHandler);
 		return this;
 	}
@@ -605,7 +605,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// methods ////////////////////////////////
 
-	public MutableScriptEnvironment addMethod(TypeInfo owner, String name, MethodHandler methodHandler) {
+	public MutableScriptEnvironment addMethod(TypeInfo owner, String name, MethodHandler.Named methodHandler) {
 		this.methods.computeIfAbsent(new NamedType(owner, name), (NamedType $) -> new ArrayList<>(8)).add(methodHandler);
 		return this;
 	}
@@ -957,14 +957,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// keywords ////////////////////////////////
 
-	public MutableScriptEnvironment addKeyword(String name, KeywordHandler keywordHandler) {
+	public MutableScriptEnvironment addKeyword(String name, KeywordHandler.Named keywordHandler) {
 		if (this.keywords.putIfAbsent(name, keywordHandler) != null) {
 			throw new IllegalArgumentException("Keyword " + name + " is already defined in this scope");
 		}
 		return this;
 	}
 
-	public MutableScriptEnvironment addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler memberKeywordHandler) {
+	public MutableScriptEnvironment addMemberKeyword(TypeInfo type, String name, MemberKeywordHandler.Named memberKeywordHandler) {
 		this.memberKeywords.computeIfAbsent(new NamedType(type, name), (NamedType namedType) -> new ArrayList<>(1)).add(memberKeywordHandler);
 		return this;
 	}
@@ -1090,7 +1090,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			public boolean exact;
 
 			public boolean update(String n) throws ScriptParsingException {
-				List<FunctionHandler> handlers = MutableScriptEnvironment.this.functions.get(n);
+				List<FunctionHandler.Named> handlers = MutableScriptEnvironment.this.functions.get(n);
 				if (handlers != null) {
 					boolean exact = false;
 					for (int index = 0, size = handlers.size(); index < size; index++) {
@@ -1130,7 +1130,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			public boolean update(String n, TypeInfo type) throws ScriptParsingException {
 				this.query.name = n;
 				this.query.owner = type;
-				List<MethodHandler> handlers = MutableScriptEnvironment.this.methods.get(this.query);
+				List<MethodHandler.Named> handlers = MutableScriptEnvironment.this.methods.get(this.query);
 				if (handlers != null) {
 					for (int index = 0, size = handlers.size(); index < size; index++) {
 						CastResult casted = handlers.get(index).create(parser, receiver, name, mode, arguments);
@@ -1179,18 +1179,18 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		query.name = name;
 		for (TypeInfo owner : receiver.getTypeInfo().getAllAssignableTypes()) {
 			query.owner = owner;
-			List<MemberKeywordHandler> handlers = this.memberKeywords.get(query);
+			List<MemberKeywordHandler.Named> handlers = this.memberKeywords.get(query);
 			if (handlers != null) {
-				for (MemberKeywordHandler handler : handlers) {
+				for (MemberKeywordHandler.Named handler : handlers) {
 					InsnTree result = handler.create(parser, receiver, name, mode);
 					if (result != null) return result;
 				}
 			}
 		}
 		query.owner = null;
-		List<MemberKeywordHandler> handlers = this.memberKeywords.get(query);
+		List<MemberKeywordHandler.Named> handlers = this.memberKeywords.get(query);
 		if (handlers != null) {
-			for (MemberKeywordHandler handler : handlers) {
+			for (MemberKeywordHandler.Named handler : handlers) {
 				InsnTree result = handler.create(parser, receiver, name, mode);
 				if (result != null) return result;
 			}

@@ -97,7 +97,7 @@ public class BuiltinScriptEnvironment {
 
 		//////////////// functions ////////////////
 
-		.addFunction("return", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+		.addFunction("return", new FunctionHandler.Named("return(optional value)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			return new CastResult(
 				parser.createReturn(
 					switch (arguments.length) {
@@ -108,7 +108,7 @@ public class BuiltinScriptEnvironment {
 				),
 				false
 			);
-		})
+		}))
 		/*
 		.addFunction("throw", (parser, name, arguments) -> {
 			InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
@@ -121,25 +121,25 @@ public class BuiltinScriptEnvironment {
 
 		.addKeyword("var", makeVar())
 		.addKeyword("class", makeClass())
-		.addKeyword("if", (ExpressionParser parser, String name) -> nextIfElse(parser, false))
-		.addKeyword("unless", (ExpressionParser parser, String name) -> nextIfElse(parser, true))
-		.addMemberKeyword(TypeInfos.BOOLEAN, "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addKeyword("if", new KeywordHandler.Named("if (condition: body)", (ExpressionParser parser, String name) -> nextIfElse(parser, false)))
+		.addKeyword("unless", new KeywordHandler.Named("unless (condition: body)", (ExpressionParser parser, String name) -> nextIfElse(parser, true)))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "if", new MemberKeywordHandler.Named("condition.if (body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return nextIfElse(receiver, parser, false);
-		})
-		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		}))
+		.addMemberKeyword(TypeInfos.BOOLEAN, "unless", new MemberKeywordHandler.Named("condition.unless (body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return nextIfElse(receiver, parser, true);
-		})
-		.addKeyword("while", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("while", new KeywordHandler.Named("while (condition: body)", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 			return while_(loopName, whileStatement.condition(), whileStatement.body());
-		})
-		.addKeyword("until", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("until", new KeywordHandler.Named("until (condition: body)", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 			return while_(loopName, not(whileStatement.condition()), whileStatement.body());
-		})
-		.addKeyword("do", (ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
+		}))
+		.addKeyword("do", new KeywordHandler.Named("do while|until (condition: body)", (ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 			case "while" -> {
 				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 				ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
@@ -151,64 +151,64 @@ public class BuiltinScriptEnvironment {
 				yield doWhile(parser, loopName, not(whileStatement.condition()), whileStatement.body());
 			}
 			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
-		})
-		.addKeyword("repeat", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("repeat", new KeywordHandler.Named("repeat (times: body)", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			ScriptBodySyntax repeatStatement = ScriptBodySyntax.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
 			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
-		})
-		.addKeyword("for", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("for", new KeywordHandler.Named("for (loop: body)", (ExpressionParser parser, String name) -> {
 			return ForLoopSyntax.parse(parser);
-		})
-		.addKeyword("switch", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("switch", new KeywordHandler.Named("switch (value: cases)", (ExpressionParser parser, String name) -> {
 			SwitchBodySyntax switchBody = SwitchBodySyntax.parse(parser);
 			return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
-		})
-		.addKeyword("block", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("block", new KeywordHandler.Named("block (body)", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 			return block(loopName, ParenthesizedScript.parse(parser).contents());
-		})
-		.addKeyword("break", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("break", new KeywordHandler.Named("break(optional label)", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
 			return new BreakInsnTree(loopName);
-		})
-		.addKeyword("continue", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("continue", new KeywordHandler.Named("continue(optional label)", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
 			String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 			parser.input.expectAfterWhitespace(')');
 			return new ContinueInsnTree(loopName);
-		})
-		.addKeyword("compare", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("compare", new KeywordHandler.Named("compare (value1, value2: cases)", (ExpressionParser parser, String name) -> {
 			return CompareSyntax.parse(parser).buildInsnTree();
-		})
-		.addKeyword("noscope", (ExpressionParser parser, String name) -> {
+		}))
+		.addKeyword("noscope", new KeywordHandler.Named("noscope(declarations)", (ExpressionParser parser, String name) -> {
 			parser.input.expectAfterWhitespace('(');
 			InsnTree tree = parser.nextScript();
 			parser.input.expectAfterWhitespace(')');
 			return tree;
-		})
+		}))
 
 		//////////////// member keywords ////////////////
 
-		.addMemberKeyword(TypeInfos.OBJECT, "is", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addMemberKeyword(TypeInfos.OBJECT, "is", new MemberKeywordHandler.Named("value.is(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 			}
 			return instanceOf(receiver, type);
-		})
-		.addMemberKeyword(TypeInfos.OBJECT, "isnt", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		}))
+		.addMemberKeyword(TypeInfos.OBJECT, "isnt", new MemberKeywordHandler.Named("value.isnt(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			TypeInfo type = nextParenthesizedType(parser);
 			if (type.isPrimitive()) {
 				throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 			}
 			return not(parser, instanceOf(receiver, type));
-		})
-		.addMemberKeyword(null, "as", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		}))
+		.addMemberKeyword(null, "as", new MemberKeywordHandler.Named("value.as(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
-		})
+		}))
 		.addMemberKeyword(TypeInfos.BYTE,   "isBetween", makeBetween())
 		.addMemberKeyword(TypeInfos.SHORT,  "isBetween", makeBetween())
 		.addMemberKeyword(TypeInfos.INT,    "isBetween", makeBetween())
@@ -343,7 +343,7 @@ public class BuiltinScriptEnvironment {
 		.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
 	);
 
-	public static FunctionHandler makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
+	public static FunctionHandler.Named makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
 		return new FunctionHandler.Named(name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
 				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
@@ -352,7 +352,7 @@ public class BuiltinScriptEnvironment {
 		});
 	}
 
-	public static FunctionHandler makeIdentity(String name, TypeInfo type) {
+	public static FunctionHandler.Named makeIdentity(String name, TypeInfo type) {
 		return new FunctionHandler.Named(name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
 			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(type)) {
 				return new CastResult(arguments[0], false);
@@ -370,7 +370,7 @@ public class BuiltinScriptEnvironment {
 		return type;
 	}
 
-	public static FunctionHandler makePrint() {
+	public static FunctionHandler.Named makePrint() {
 		return new FunctionHandler.Named("builtin function print(anything)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			if (arguments.length == 0) {
 				throw new ScriptParsingException("Not allowed to print nothing", parser.input);
@@ -419,55 +419,64 @@ public class BuiltinScriptEnvironment {
 		});
 	}
 
-	public static KeywordHandler makeVar() {
-		return (ExpressionParser parser, String name) -> {
-			if (parser.input.hasOperatorAfterWhitespace("*")) {
-				return MultiDeclarationSyntax.parse(parser, null).sequence();
-			}
-			else {
-				String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
-				parser.checkVariable(varName);
-				parser.environment.user().reserveVariable(varName);
-				boolean reuse;
-				if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
-				else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
-				else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
-				InsnTree initializer = parser.nextSingleExpression();
-				if (initializer.getTypeInfo().getSort() == Sort.VOID) {
-					throw new ScriptParsingException("void-typed variables are not allowed.", parser.input);
+	public static KeywordHandler.Named makeVar() {
+		return new KeywordHandler.Named(
+			"var name = value",
+			(ExpressionParser parser, String name) -> {
+				if (parser.input.hasOperatorAfterWhitespace("*")) {
+					return MultiDeclarationSyntax.parse(parser, null).sequence();
 				}
-				parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
-				parser.environment.user().assignVariable(varName);
-				LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
-				return (
-					reuse
-					? new VariableDeclarePostAssignInsnTree(variable, initializer)
-					: new VariableDeclareAssignInsnTree(variable, initializer)
-				);
+				else {
+					String varName = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "variable");
+					parser.checkVariable(varName);
+					parser.environment.user().reserveVariable(varName);
+					boolean reuse;
+					if (parser.input.hasOperatorAfterWhitespace("=")) reuse = false;
+					else if (parser.input.hasOperatorAfterWhitespace(":=")) reuse = true;
+					else throw new ScriptParsingException("Expected '=' or ':='", parser.input);
+					InsnTree initializer = parser.nextSingleExpression();
+					if (initializer.getTypeInfo().getSort() == Sort.VOID) {
+						throw new ScriptParsingException("void-typed variables are not allowed.", parser.input);
+					}
+					parser.environment.user().setVariableType(varName, initializer.getTypeInfo());
+					parser.environment.user().assignVariable(varName);
+					LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
+					return (
+						reuse
+						? new VariableDeclarePostAssignInsnTree(variable, initializer)
+						: new VariableDeclareAssignInsnTree(variable, initializer)
+					);
+				}
 			}
-		};
+		);
 	}
 
-	public static KeywordHandler makeClass() {
-		return (ExpressionParser parser, String name) -> {
-			String className = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "class");
-			parser.checkType(className);
-			new UserClassDefiner(parser, className).parse();
-			return noop;
-		};
+	public static KeywordHandler.Named makeClass() {
+		return new KeywordHandler.Named(
+			"class Name(fields)",
+			(ExpressionParser parser, String name) -> {
+				String className = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "class");
+				parser.checkType(className);
+				new UserClassDefiner(parser, className).parse();
+				return noop;
+			}
+		);
 	}
 
-	public static MemberKeywordHandler makeBetween() {
-		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-			return switch (mode) {
-				case NORMAL, NULLABLE -> {
-					yield IsBetweenSyntax.parse(parser, receiver).toTree(parser);
-				}
-				case RECEIVER, NULLABLE_RECEIVER -> {
-					throw new ScriptParsingException("Can't use isBetween() with nullable syntax.", parser.input);
-				}
-			};
-		};
+	public static MemberKeywordHandler.Named makeBetween() {
+		return new MemberKeywordHandler.Named(
+			"value.isBetween[lowerBound, upperBound)",
+			(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+				return switch (mode) {
+					case NORMAL, NULLABLE -> {
+						yield IsBetweenSyntax.parse(parser, receiver).toTree(parser);
+					}
+					case RECEIVER, NULLABLE_RECEIVER -> {
+						throw new ScriptParsingException("Can't use isBetween() with nullable syntax.", parser.input);
+					}
+				};
+			}
+		);
 	}
 
 	public static InsnTree nextIfElse(ExpressionParser parser, boolean negate) throws ScriptParsingException {

@@ -110,8 +110,8 @@ public class MinecraftScriptEnvironment {
 		};
 	}
 
-	public static KeywordHandler blockStateKeyword() {
-		return (ExpressionParser parser, String name) -> {
+	public static KeywordHandler.Named blockStateKeyword() {
+		return new KeywordHandler.Named("BlockState(block, property1: value1, property2: value2, ...)", (ExpressionParser parser, String name) -> {
 			if (parser.input.peekAfterWhitespace() != '(') return null;
 			parser.beginCodeBlock();
 			InsnTree state = parser.nextScript();
@@ -188,10 +188,10 @@ public class MinecraftScriptEnvironment {
 			}
 			parser.endCodeBlock();
 			return state;
-		};
+		});
 	}
 
-	public static MethodHandler tagRandom(InsnTree loadRandom, Class<?> owner, Class<?> returnType) {
+	public static MethodHandler.Named tagRandom(InsnTree loadRandom, Class<?> owner, Class<?> returnType) {
 		return Handlers.builder(owner, "random").returnClass(returnType).addReceiverArgument(owner).addImplicitArgument(loadRandom).buildMethod();
 	}
 

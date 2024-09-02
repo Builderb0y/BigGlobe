@@ -11,6 +11,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
@@ -56,13 +57,13 @@ public class StatelessRandomScriptEnvironment {
 		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLF)
 		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLD)
 
-		.addMemberKeyword(TypeInfos.LONG, "if", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addMemberKeyword(TypeInfos.LONG, "if", new MemberKeywordHandler.Named("seed.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapSeedIf(parser, receiver, false, mode);
-		})
-		.addMemberKeyword(TypeInfos.LONG, "unless", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		}))
+		.addMemberKeyword(TypeInfos.LONG, "unless", new MemberKeywordHandler.Named("seed.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapSeedIf(parser, receiver, true, mode);
-		})
-		.addMethod(TypeInfos.LONG, "switch", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+		}))
+		.addMethod(TypeInfos.LONG, "switch", new MethodHandler.Named("seed.switch (choices...)", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 			if (arguments.length < 2) {
 				throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
 			}
@@ -101,7 +102,7 @@ public class StatelessRandomScriptEnvironment {
 				false
 			);
 		})
-	);
+	));
 
 	public static InsnTree wrapSeedIf(ExpressionParser parser, InsnTree seed, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {
 		return mode.apply(seed, (InsnTree actualSeed) -> seedIf(parser, actualSeed, negate));
