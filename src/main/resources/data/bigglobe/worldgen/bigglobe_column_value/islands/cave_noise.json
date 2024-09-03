@@ -1,0 +1,42 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float curve(float*(valueSquared, width):",
+			"float curve = valueSquared / (valueSquared + width ^ 2)",
+			"float bottomExclusion = float(unmixLinear(",
+				"double(cave_min_y) + width,",
+				"double(cave_min_y),",
+				"double(y)",
+			"))",
+			"if (bottomExclusion > 0.0I: curve += bottomExclusion ^ 2)",
+			"return(curve)",
+		")",
+		"float result = (",
+			"curve(",
+				"cave_primary_noise,",
+				"mixLinear(",
+					"8.0I,",
+					"64.0I,",
+					"unmixLinear(",
+						"eroded_surface_height,",
+						"cave_min_y,",
+						"y",
+					")",
+					".as(float)",
+				")",
+			")",
+			"* curve(cave_secondary_noise, 8.0I)",
+		")",
+		"if (is_volcano: result += 1.0I - volcano_magma_sdf)",
+		"result"
+	],
+	"valid": {
+		"where": "!surfaceOnly",
+		"min_y": "cave_min_y",
+		"max_y": "lowerInt(eroded_surface_height)"
+	}
+}

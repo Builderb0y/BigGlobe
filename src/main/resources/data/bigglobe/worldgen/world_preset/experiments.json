@@ -385,25 +385,6 @@
 									}
 								},
 								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
-									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
-									"valid": {
-										"where": "!surfaceOnly",
-										"min_y": "`bigglobe:overworld/core_min_y`",
-										"max_y": "`bigglobe:overworld/core_max_y`"
-									},
-									"children": [
-										{
-											"type": "simple_2d",
-											"state": "'minecraft:lava[level=0]'",
-											"valid": {
-												"max_y": "`bigglobe:overworld/lava_level`"
-											}
-										}
-									]
-								},
-								{
 									"type": "multi_state_3d",
 									"state": [
 										"switch (",
@@ -429,6 +410,35 @@
 									],
 									"valid": {
 										"where": "!surfaceOnly"
+									}
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "`bigglobe:overworld/core_min_y`",
+										"max_y": "`bigglobe:overworld/core_max_y`"
+									},
+									"children": [
+										{
+											"type": "simple_2d",
+											"state": "'minecraft:lava[level=0]'",
+											"valid": {
+												"max_y": "`bigglobe:overworld/lava_level`"
+											}
+										}
+									]
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "-384",
+										"max_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)"
 									}
 								}
 							]
@@ -474,6 +484,7 @@
 				},
 				"feature_dispatcher": {
 					"rock_replacers": [
+						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
 						"bigglobe:overworld/rock_layers/rocks",
 						"bigglobe:overworld/rock_layers/dirt"

@@ -32,6 +32,7 @@ import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.compat.voxy.QueueingStorageBackend.GenerationQueue;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 @Environment(EnvType.CLIENT)
@@ -129,7 +130,7 @@ public abstract class AbstractVoxyWorldGenerator {
 				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to world closing.");
 				break;
 			}
-			if (!this.generateNextChunk()) try {
+			if (BigGlobeThreadPool.isBusy() || !this.generateNextChunk()) try {
 				Thread.sleep(500L);
 			}
 			catch (InterruptedException ignored) {}
