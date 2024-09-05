@@ -71,7 +71,7 @@ dependencies() {
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
 	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
-	annotationProcessor('systems.manifold:manifold-preprocessor:2024.1.30')
+	annotationProcessor('systems.manifold:manifold-preprocessor:2024.1.32')
 }
 
 compileJava() {

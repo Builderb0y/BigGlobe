@@ -1091,12 +1091,18 @@ public class ExpressionParser {
 
 	public InsnTree nextVariableInitializer(TypeInfo variableType, boolean cast) throws ScriptParsingException {
 		if (this.input.hasIdentifierAfterWhitespace("new")) {
-			CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
-			InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", GetMethodMode.NORMAL, arguments.arguments());
-			if (expression == null) {
-				throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
+			InsnTree tree = this.environment.parseMemberKeyword(this, ldc(variableType), "new", MemberKeywordMode.NORMAL);
+			if (tree != null) {
+				return this.finishNextMember(tree);
 			}
-			return this.finishNextMember(arguments.maybeWrap(expression));
+			else {
+				CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
+				InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", GetMethodMode.NORMAL, arguments.arguments());
+				if (expression == null) {
+					throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
+				}
+				return this.finishNextMember(arguments.maybeWrap(expression));
+			}
 		}
 		else {
 			InsnTree tree = this.nextSingleExpression();

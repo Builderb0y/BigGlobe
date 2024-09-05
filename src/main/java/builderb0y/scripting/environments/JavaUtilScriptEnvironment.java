@@ -1,19 +1,31 @@
 package builderb0y.scripting.environments;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
+import builderb0y.bigglobe.scripting.wrappers.ConstantMap;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler.Named;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
+import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.special.ConstantMapSyntax;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,9 +36,11 @@ public class JavaUtilScriptEnvironment {
 		MAP_GET       = MethodInfo.getMethod(Map      .class, "get"),
 		MAP_PUT       = MethodInfo.getMethod(Map      .class, "put"),
 		MAP_ENTRY_GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
-		MAP_ENTRY_SET = MethodInfo.getMethod(JavaUtilScriptEnvironment.class, "setEntryValue"),
+		MAP_ENTRY_SET = MethodInfo.inCaller("setEntryValue"),
 		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
-		LIST_SET      = MethodInfo.getMethod(List     .class, "set");
+		LIST_SET      = MethodInfo.getMethod(List     .class, "set"),
+		CONSTANT_LIST = MethodInfo.inCaller("constantList"),
+		CONSTANT_MAP  = MethodInfo.inCaller("constantMap");
 
 	@Deprecated //use withRandom() or withoutRandom() instead.
 	public static final MutableScriptEnvironment ALL = (
@@ -39,7 +53,7 @@ public class JavaUtilScriptEnvironment {
 		.addType("Map", Map.class)
 		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addMethod(TypeInfo.of(Map.class), "", new MethodHandler.Named("Map.(key)", (parser, receiver, name, mode, arguments) -> {
+		.addMethod(TypeInfo.of(Map.class), "", new Named("Map.(key)", (parser, receiver, name, mode, arguments) -> {
 			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
 				NormalListMapGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
@@ -62,6 +76,13 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(HashMap.class)
 		.addType("LinkedHashMap", LinkedHashMap.class)
 		.addQualifiedMultiConstructor(LinkedHashMap.class)
+		.addType("ConstantMap", ConstantMap.class)
+		.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("ConstantMap.new(key1: value1, key2: value2, ...)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(type(ConstantMap.class))) {
+				return ldc(CONSTANT_MAP, ConstantMapSyntax.parse(parser).keysAndValues());
+			}
+			return null;
+		}))
 		.addType("Iterable", Iterable.class)
 		.addMethodInvoke(Iterable.class, "iterator")
 		.addType("Collection", Collection.class)
@@ -92,7 +113,7 @@ public class JavaUtilScriptEnvironment {
 		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
 		.addMethodInvokeStatic(Collections.class, "reverse")
 		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
-		.addMethod(TypeInfo.of(List.class), "", new MethodHandler.Named("List.(index)", (parser, receiver, name, mode, arguments) -> {
+		.addMethod(TypeInfo.of(List.class), "", new Named("List.(index)", (parser, receiver, name, mode, arguments) -> {
 			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
 			return new CastResult(
 				NormalListMapGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
@@ -103,6 +124,17 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedMultiConstructor(LinkedList.class)
 		.addType("ArrayList", ArrayList.class)
 		.addQualifiedMultiConstructor(ArrayList.class)
+		.addType("ConstantList", ArrayWrapper.class)
+		.addQualifiedFunction(type(ArrayWrapper.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+			int argumentCount = arguments.length;
+			ConstantValue[] constants = new ConstantValue[argumentCount];
+			for (int index = 0; index < argumentCount; index++) {
+				if ((constants[index] = arguments[index].getConstantValue()) == null) {
+					throw new ScriptParsingException("Argument " + index + " is not a constant value: " + arguments[index].describe(), parser.input);
+				}
+			}
+			return new CastResult(ldc(CONSTANT_LIST, constants), false);
+		})
 		.addMethodInvokes(ArrayList.class, "trimToSize", "ensureCapacity")
 		.addType("Queue", Queue.class)
 		.addMethodInvokes(Queue.class, "offer", "remove", "poll", "element", "peek")
@@ -193,5 +225,13 @@ public class JavaUtilScriptEnvironment {
 
 	public static <K, V> void setEntryValue(Map.Entry<K, V> entry, V value) {
 		entry.setValue(value);
+	}
+
+	public static ArrayWrapper<Object> constantList(MethodHandles.Lookup caller, String name, Class<?> type, Object... contents) {
+		return new ArrayWrapper<>(contents);
+	}
+
+	public static ConstantMap<Object, Object> constantMap(MethodHandles.Lookup caller, String name, Class<?> type, Object... arguments) {
+		return new ConstantMap<>(arguments);
 	}
 }
