@@ -1,0 +1,25 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"if (`bigglobe:islands/is_volcano`(minModifiableX | 8, minModifiableZ | 8):",
+			"for outer (",
+				"int z in range[minModifiableZ, maxModifiableZ],",
+				"int x in range[minModifiableX, maxModifiableX]",
+			":",
+				"int y = lowerInt(`bigglobe:islands/eroded_surface_height`(x, z))",
+				"BlockState state = null",
+				"while ((state := getBlockState(x, y, z)).isAir():",
+					"--y",
+					"if (y < minModifiableY: continue(outer))",
+				")",
+				"if (state.getBlock() ==. 'minecraft:lava':",
+					";setting a fluid will schedule a tick for that fluid,",
+					";even if that fluid was already there to begin with.",
+					";basically this whole file is a hack to work around",
+					";the fact that fluids don't flow when placed by layers.",
+					"setBlockState(x, y, z, state)",
+				")",
+			")",
+		")"
+	]
+}

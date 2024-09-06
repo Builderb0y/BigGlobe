@@ -1,0 +1,7 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:islands/lavafalls",
+		"bigglobe:islands/trees"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"repeat (random.roundInt(`bigglobe:islands/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = lowerInt(`bigglobe:islands/eroded_surface_height`(x, z))",
+			"if (`bigglobe:islands/surface_foliage`(x, z) > 0.0L:",
+				"ConfiguredFeature feature = `bigglobe:islands/foliage_feature`(x, z)",
+				"if (feature != null: placeFeature(x, y, z, feature))",
+			")",
+		")"
+	]
+}

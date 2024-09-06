@@ -1,0 +1,59 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"debug_name": "ConfiguredFeatureIslandsSurfaceSmallFoliage",
+			"source": [
+				";handle cave intersecting surface.",
+				"block (",
+					"unless (isYLevelValid(originY): return(false))",
+					"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
+				")",
+
+				";sigmoid curve",
+				"double adjustedFoliage = 0.5 / (exp(-4.0 * `bigglobe:islands/height_adjusted_foliage`) + 1.0)",
+				"random.unless(adjustedFoliage: return(false))",
+
+				"BlockState existingState = getBlockState(originX, originY, originZ)",
+				"BlockState newState = null",
+				"if (existingState ==. 'minecraft:air':",
+					"if (getBlockState(originX, originY - 1, originZ) ==. 'minecraft:mud': return(false))",
+					"double fromTemperate = `bigglobe:islands/height_adjusted_temperature` ^ 2 + `bigglobe:islands/height_adjusted_foliage` ^ 2",
+					"double deadBushChance = fromTemperate / (fromTemperate * 8.0 + 4.0)",
+					"random.if (deadBushChance:",
+						"random.unless (unmixSmooth(2.0L, 6.0L, `bigglobe:islands/eroded_surface_height`): return(false))",
+						"newState = 'minecraft:dead_bush'",
+					")",
+					"else random.if (adjustedFoliage:",
+						"random.if (adjustedFoliage:",
+							"newState = random.nextBoolean(0.125) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]'",
+						")",
+						"else (",
+							"newState = random.nextBoolean(0.125) ? 'minecraft:fern' : 'minecraft:grass'",
+						")",
+					")",
+					"else (",
+						"newState = 'bigglobe:short_grass'",
+					")",
+				")",
+				"else if (existingState ==. 'minecraft:water[level=0]':",
+					"random.if (adjustedFoliage:",
+						"random.if (adjustedFoliage:",
+							"newState = 'minecraft:tall_seagrass[half=lower]'",
+						")",
+						"else (",
+							"newState = 'minecraft:seagrass'",
+						")",
+					")",
+					"else (",
+						"return(false) ;no short seagrass.",
+					")",
+				")",
+				"else (",
+					"return(false)",
+				")",
+				"return(placeBlockState(originX, originY, originZ, newState))"
+			]
+		}
+	}
+}

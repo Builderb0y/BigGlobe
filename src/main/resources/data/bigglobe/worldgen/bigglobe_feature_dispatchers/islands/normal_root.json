@@ -1,0 +1,8 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:islands/lava_tick_scheduler",
+		"bigglobe:islands/large_surface",
+		"bigglobe:islands/small_foliage"
+	]
+}

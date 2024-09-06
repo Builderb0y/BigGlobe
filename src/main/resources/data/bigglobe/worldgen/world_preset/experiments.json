@@ -332,7 +332,7 @@
 									"- slopeSquared * 3.0L",
 								")",
 								"if (`bigglobe:islands/is_volcano`:",
-									"for (int y in range[surfaceY - (seed := seed.newSeed()).nextInt(16, 32), surfaceY):",
+									"for (int y in range[surfaceY - (surfaceOnly ? 32 : (seed := seed.newSeed()).nextInt(16, 32)), surfaceY):",
 										"if (getBlockState(y) ==. 'minecraft:stone':",
 											"setBlockState(y, 'minecraft:basalt[axis=y]')",
 										")",
@@ -489,14 +489,51 @@
 						"bigglobe:overworld/rock_layers/rocks",
 						"bigglobe:overworld/rock_layers/dirt"
 					],
-					"raw": "bigglobe:noop",
-					"normal": "bigglobe:noop"
+					"raw": "bigglobe:islands/raw_root",
+					"normal": "bigglobe:islands/normal_root"
 				},
 				"overriders": "bigglobe:empty",
 				"spawn_point": [
 					"!`bigglobe:islands/is_floating` &&",
-					"`bigglobe:islands/eroded_surface_height` > 8.0L"
-				]
+					"`bigglobe:islands/eroded_surface_height` > 8.0L &&",
+					"`bigglobe:islands/surface_foliage` > 0.0I"
+				],
+				"colors": {
+					"grass": {
+						"template": "bigglobe:block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"getDefaultGrassColor(",
+									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
+									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
+								")"
+							],
+							"MAGIC": "`bigglobe:islands/magicalness`"
+						}
+					},
+					"foliage": {
+						"template": "bigglobe:block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"getDefaultFoliageColor(",
+									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
+									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
+								")"
+							],
+							"MAGIC": "`bigglobe:islands/magicalness`"
+						}
+					},
+					"water": {
+						"template": "bigglobe:block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L)",
+								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+							],
+							"MAGIC": "`bigglobe:islands/magicalness`"
+						}
+					}
+				}
 			}
 		},
 		"bigglobe:external": {

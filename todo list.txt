@@ -21,8 +21,40 @@ where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	document what version constant lists and maps were added in.
+	surface materials for islands.
+	trait system.
+		basically I want to be able to do "generator.primary_surface_y" and have that delegate to either `bigglobe:overworld/processed_surface_y` or `bigglobe:islands/eroded_surface_height` depending on the world type.
+		I'm thinking:
+			for each column value type, auto-generate the following:
+				public interface GeneratorTrait_123 {
+
+					<type> get(ScriptedColumn column);
+				}
+			then, generate a class like:
+				class TraitHolder_0 {
+
+					public final GeneratorTrait_123 bigglobe_exact_primary_surface_y;
+					public final GeneratorTrait_456 bigglobe_approximate_primary_surface_y;
+				}
+			to access a trait, the script would call
+				column.params.traits.bigglobe_exact_primary_surface_y.get(column)
+			and then the generator itself would just have a TraitHolder on it.
+		important to remember:
+			TraitHolder can't just have a parameter for each trait in its constructor,
+			because that would limit the number of traits that could exist to 256.
+			instead, TraitHolder should take a single object in its constructor which acts like a lookup for traits.
+
+			also, any traits the generator does not implement should be auto-created with dummies which throw exceptions.
+		json schema should be pretty simple:
+			{
+				"type": "double"
+			}
+			the name of the trait is just the identifier of the file.
 
 changelog:
+	# For data pack makers:
+	* The `block_color_adjustment` script template now takes a MAGIC input.
+		* This might affect anyone with a custom world preset.
 	* Scripts can now create constant literal List's and Map's.
 		* The List or Map will only ever be created once, not once every time the script runs.
 		* Iteration order is the same as the creation argument order.
@@ -39,6 +71,8 @@ alternate world presets:
 		the deep dark:
 			decorations.
 		caves.
+			decorations.
+			types.
 		more rock layers.
 
 4.0 stuff:

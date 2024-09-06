@@ -281,7 +281,8 @@
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							]
+							],
+							"MAGIC": "`bigglobe:overworld/magicalness`"
 						}
 					},
 					"foliage": {
@@ -292,7 +293,8 @@
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							]
+							],
+							"MAGIC": "`bigglobe:overworld/magicalness`"
 						}
 					},
 					"water": {
@@ -301,7 +303,8 @@
 							"COLOR": [
 								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
 								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-							]
+							],
+							"MAGIC": "`bigglobe:overworld/magicalness`"
 						}
 					}
 				}
