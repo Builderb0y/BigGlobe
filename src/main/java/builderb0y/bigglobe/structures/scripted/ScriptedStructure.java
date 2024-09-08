@@ -67,7 +67,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons)));
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons), generator.compiledWorldTraits));
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
 		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces, distantHorizons);
 		StructurePiecesCollector collector = new StructurePiecesCollector();

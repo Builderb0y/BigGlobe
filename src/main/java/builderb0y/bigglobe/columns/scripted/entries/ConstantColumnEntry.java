@@ -8,12 +8,13 @@ import builderb0y.bigglobe.codecs.Any;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ConstantColumnEntry implements ColumnEntry {
+public class ConstantColumnEntry implements ColumnEntry, SimpleDependencyView {
 
 	public final AccessSchema params;
 	public final @Any Object value;

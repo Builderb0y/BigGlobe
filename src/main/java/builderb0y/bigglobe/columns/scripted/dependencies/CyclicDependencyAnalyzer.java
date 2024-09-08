@@ -10,13 +10,19 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class CyclicDependencyAnalyzer implements Consumer<RegistryEntry<? extends DependencyView>> {
 
+	public final WorldTraits traits;
 	public final Set<RegistryEntry<? extends DependencyView>>
 		seen  = new ObjectOpenCustomHashSet<>(256, DependencyDepthSorter.REGISTRY_ENTRY_STRATEGY),
 		stack = new ObjectLinkedOpenCustomHashSet<>(16, DependencyDepthSorter.REGISTRY_ENTRY_STRATEGY);
+
+	public CyclicDependencyAnalyzer(WorldTraits traits) {
+		this.traits = traits;
+	}
 
 	@Override
 	public void accept(RegistryEntry<? extends DependencyView> entry) {
@@ -37,7 +43,7 @@ public class CyclicDependencyAnalyzer implements Consumer<RegistryEntry<? extend
 		}
 		try {
 			if (this.seen.add(entry)) {
-				entry.value().streamDirectDependencies().forEach(this);
+				entry.value().streamDirectDependencies(entry, this.traits).forEach(this);
 			}
 		}
 		finally {

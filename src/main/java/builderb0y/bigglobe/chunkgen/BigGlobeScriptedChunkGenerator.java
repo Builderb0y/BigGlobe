@@ -5,8 +5,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -21,6 +20,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +32,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.*;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.collection.Pool;
@@ -75,6 +77,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -90,12 +93,18 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -120,6 +129,7 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.parsing.ScriptUsage;
 
 @AddPseudoField("biome_source")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -130,6 +140,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	#else
 		public static final Codec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class).codec();
 	#endif
+
+	static {
+		ServerLifecycleEvents.SERVER_STARTED.register((MinecraftServer server) -> {
+			for (ServerWorld world : server.getWorlds()) {
+				if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+					Identifier worldID = world.getRegistryKey().getValue();
+					DependencyDepthSorter.start(generator.compiledWorldTraits, generator.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY), "server " + worldID.getNamespace() + ' ' + worldID.getPath());
+				}
+			}
+		});
+	}
 
 	public final @VerifyNullable String reload_preset;
 	public final @VerifyNullable String reload_dimension;
@@ -178,6 +199,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		) {}
 	}
 	public final @VerifyNullable EndOverrides end_overrides;
+	public final @VerifyNullable Map<RegistryEntry<WorldTrait>, ScriptUsage> world_traits;
+	public final transient WorldTraits compiledWorldTraits;
 
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
@@ -198,8 +221,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
+		@VerifyNullable Map<RegistryEntry<WorldTrait>, ScriptUsage> world_traits,
 		SortedStructures sortedStructures
-	) {
+	)
+	throws VerifyException {
 		super(biome_source);
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
@@ -215,18 +240,30 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.colors = colors;
 		this.nether_overrides = nether_overrides;
 		this.end_overrides = end_overrides;
+		this.world_traits = world_traits;
 		this.sortedStructures = sortedStructures;
 
+		this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(world_traits);
 		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
+		WorldTraits traits = this.compiledWorldTraits;
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
 			ScriptedColumn[] columns = new ScriptedColumn[256];
 			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC));
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC, traits));
 			}
 			return columns;
 		});
-
 		this.rootDebugDisplay = new DisplayEntry(this);
+
+		this
+		.columnEntryRegistry
+		.registries
+		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
+		.streamEntries()
+		.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
+
+		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.normal);
+		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.raw);
 	}
 
 	public BiomeSource biome_source() {
@@ -332,7 +369,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				x,
 				z,
 				world,
-				purpose
+				purpose,
+				this.compiledWorldTraits
 			)
 		);
 	}
@@ -355,7 +393,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public SortedOverriders getOverriders() {
 		if (this.actualOverriders == null) {
-			this.actualOverriders = new SortedOverriders(this.overriders, this.columnEntryRegistry);
+			this.actualOverriders = new SortedOverriders(this);
 		}
 		return this.actualOverriders;
 	}
@@ -400,7 +438,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons));
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons), this.compiledWorldTraits);
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();

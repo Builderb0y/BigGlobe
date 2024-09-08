@@ -14,13 +14,13 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 @UseCoder(name = "REGISTRY", in = DecisionTreeCondition.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCondition>, DependencyView {
+public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCondition>, SimpleDependencyView {
 
 	public static final CoderRegistry<DecisionTreeCondition> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("decision_tree_condition"));
 	public static final Object INITIALIZER = new Object() {{
@@ -39,7 +39,7 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 	)
 	throws ScriptParsingException;
 
-	public static abstract class Impl implements DecisionTreeCondition, MutableDependencyView {
+	public static abstract class Impl implements DecisionTreeCondition, SetBasedMutableDependencyView {
 
 		public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 

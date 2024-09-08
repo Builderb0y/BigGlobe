@@ -8,7 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -27,16 +30,14 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.TraitManager;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
-import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -54,7 +55,8 @@ public class ColumnEntryRegistry {
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
 
 	public final BetterRegistry.Lookup registries;
-	public final VoronoiManager voronoiManager;
+	public final transient VoronoiManager voronoiManager;
+	public final transient TraitManager traitManager;
 
 	public final transient Class<? extends ScriptedColumn> columnClass;
 	public final transient MethodHandles.Lookup columnLookup;
@@ -62,27 +64,11 @@ public class ColumnEntryRegistry {
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
 
-	public static enum Side {
-		CLIENT,
-		SERVER;
-
-		public Thread saveThread;
-
-		public synchronized void save(DependencyDepthSorter sorter) {
-			if (this.saveThread != null) try {
-				this.saveThread.join();
-			}
-			catch (InterruptedException exception) {
-				throw new RuntimeException("interrupted?", exception);
-			}
-			(this.saveThread = new Thread(() -> sorter.outputResults(this.name().toLowerCase(Locale.ROOT)), "Big Globe graph image saver thread")).start();
-		}
-	}
-
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries, Side side) throws ScriptParsingException {
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries) throws ScriptParsingException {
 		this.registries = registries;
-		this.columnContext = new ColumnCompileContext(this);
+		this.columnContext  = new ColumnCompileContext(this);
 		this.voronoiManager = new VoronoiManager(this);
+		this.traitManager   = new TraitManager(this);
 
 		BetterRegistry<ColumnEntry> entries = registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
 
@@ -118,12 +104,6 @@ public class ColumnEntryRegistry {
 			});
 		});
 		this.columnContext.prepareForCompile();
-		entries.streamEntries().forEach(new CyclicDependencyAnalyzer());
-		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
-			DependencyDepthSorter sorter = new DependencyDepthSorter();
-			entries.streamEntries().forEach(sorter::recursiveComputeDepth);
-			side.save(sorter);
-		}
 		try {
 			this.loader = new ScriptClassLoader();
 			if (CLASS_DUMP_DIRECTORY != null) try {
@@ -153,6 +133,7 @@ public class ColumnEntryRegistry {
 		catch (Throwable throwable) {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
+		this.traitManager.compile();
 	}
 
 	public ColumnEntryMemory createColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
@@ -174,6 +155,7 @@ public class ColumnEntryRegistry {
 
 	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, @Nullable InsnTree loadY, MutableDependencyView dependencies, @Nullable Identifier caller) {
 		VoronoiDataBase.INFO.addAll(environment, null);
+		this.traitManager.setupInternalEnvironment(environment, context.loadColumn(), loadY, dependencies);
 		for (ColumnEntryMemory memory : context.getMemories().values()) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupInternalEnvironment(environment, memory, context, false, loadY, dependencies, caller);
 		}
@@ -189,6 +171,7 @@ public class ColumnEntryRegistry {
 
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		VoronoiDataBase.INFO.addAll(environment, null);
+		this.traitManager.setupExternalEnvironment(environment, params);
 		for (ColumnEntryMemory memory : this.columnContext.getMemories().values()) {
 			memory.getTyped(ColumnEntryMemory.ENTRY).setupExternalEnvironment(environment, memory, this.columnContext, params);
 		}
@@ -211,11 +194,9 @@ public class ColumnEntryRegistry {
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
-		public Side side;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup, Side side) {
+		public Loading(BetterRegistry.Lookup betterRegistryLookup) {
 			this.betterRegistryLookup = betterRegistryLookup;
-			this.side = side;
 		}
 
 		public static void reset() {
@@ -229,7 +210,7 @@ public class ColumnEntryRegistry {
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
 			}
 			if (LOADING == null) {
-				LOADING = new Loading(betterRegistryLookup, Side.SERVER);
+				LOADING = new Loading(betterRegistryLookup);
 			}
 		}
 
@@ -270,7 +251,7 @@ public class ColumnEntryRegistry {
 		public void compile() {
 			if (this.columnEntryRegistry != null) return;
 			try {
-				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.side);
+				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup);
 			}
 			catch (ScriptParsingException exception) {
 				LOADING = null;

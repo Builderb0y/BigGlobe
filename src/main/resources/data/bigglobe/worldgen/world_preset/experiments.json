@@ -305,6 +305,13 @@
 					"max_y":  1024,
 					"sea_level": 0
 				},
+				"world_traits": {
+					"bigglobe:exact_surface_y": "`bigglobe:islands/eroded_surface_height`",
+					"bigglobe:approximate_surface_y": "`bigglobe:islands/basic_surface_height`",
+					"bigglobe:magicalness": "`bigglobe:islands/magicalness`",
+					"bigglobe:y_level_on_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
+					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1"
+				},
 				"layer": {
 					"state": "'minecraft:air'",
 					"children": [
@@ -507,8 +514,7 @@
 									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							],
-							"MAGIC": "`bigglobe:islands/magicalness`"
+							]
 						}
 					},
 					"foliage": {
@@ -519,8 +525,7 @@
 									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							],
-							"MAGIC": "`bigglobe:islands/magicalness`"
+							]
 						}
 					},
 					"water": {
@@ -529,8 +534,7 @@
 							"COLOR": [
 								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L)",
 								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-							],
-							"MAGIC": "`bigglobe:islands/magicalness`"
+							]
 						}
 					}
 				}

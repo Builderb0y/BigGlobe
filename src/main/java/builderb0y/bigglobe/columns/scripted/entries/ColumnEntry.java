@@ -23,7 +23,7 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.tree.*;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
@@ -398,12 +398,122 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
 		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
-		public ExternalEnvironmentParams withX     (InsnTree loadX     ) { this.loadX      = loadX     ; return this; }
+		public ExternalEnvironmentParams withXZ    (InsnTree loadX, InsnTree loadZ) { this.loadX = loadX; this.loadZ = loadZ; return this; }
 		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
-		public ExternalEnvironmentParams withZ     (InsnTree loadZ     ) { this.loadZ      = loadZ     ; return this; }
 		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
 		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
 		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) { this.dependencies = dependencies; return this; }
+
+		public boolean requiresNoArguments(boolean is3D) {
+			return (!is3D || this.loadY != null) && (this.loadColumn != null || (this.loadX != null && this.loadZ != null));
+		}
+
+		public String getPossibleArguments(boolean is3D) {
+			return (
+				'(' +
+				(this.loadColumn != null ? "forbidden" : this.loadX != null ? "optional" : "required") + " int x, " +
+				(!is3D                   ? "forbidden" : this.loadY != null ? "optional" : "required") + " int y, " +
+				(this.loadColumn != null ? "forbidden" : this.loadX != null ? "optional" : "required") + " int z" +
+				')'
+			);
+		}
+
+		public static StringBuilder appendIfMissing(StringBuilder builder, String columnValueName, InsnTree tree, String componentName) {
+			return tree == null ? (builder == null ? new StringBuilder(columnValueName).append(" requires ") : builder.append(", ")).append(componentName) : builder;
+		}
+
+		//todo: make use of this in more places.
+		public CastResult resolveColumn(
+			ExpressionParser parser,
+			String name,
+			boolean is3D,
+			boolean hasTraits,
+			MethodInfo valueGetter,
+			InsnTree... arguments
+		)
+		throws ScriptParsingException {
+			if (!is3D && (arguments.length & 1) != 0) {
+				throw new ScriptParsingException("Invalid number of arguments for 2D column value " + name, parser.input);
+			}
+			if (this.loadColumn != null && arguments.length >= 2) {
+				throw new ScriptParsingException("x and z are hard-coded in this context and cannot be manually specified.", parser.input);
+			}
+			InsnTree x, y, z;
+			switch (arguments.length) {
+				case 0 -> {
+					x = this.loadX;
+					y = this.loadY;
+					z = this.loadZ;
+				}
+				case 1 -> {
+					x = this.loadX;
+					y = arguments[0];
+					z = this.loadZ;
+				}
+				case 2 -> {
+					x = arguments[0];
+					y = this.loadY;
+					z = arguments[1];
+				}
+				case 3 -> {
+					x = arguments[0];
+					y = arguments[1];
+					z = arguments[2];
+				}
+				default -> {
+					throw new ScriptParsingException("Too many arguments for column value " + name, parser.input);
+				}
+			}
+			boolean requiredCasting = false;
+			if (x != null && x != (x = x.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
+			if (y != null && x != (y = y.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
+			if (z != null && x != (z = z.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
+
+			StringBuilder error = null;
+			if (this.loadColumn == null) error = appendIfMissing(error, name, x, "x");
+			if (is3D                   ) error = appendIfMissing(error, name, y, "y");
+			if (this.loadColumn == null) error = appendIfMissing(error, name, z, "z");
+			if (error != null) throw new ScriptParsingException(error.toString(), parser.input);
+
+			InsnTree result;
+			if (is3D) {
+				if (this.loadColumn != null) {
+					if (hasTraits) {
+						result = new ColumnGet3DValueWithTraitsInsnTree(this.loadColumn, y, valueGetter);
+					}
+					else {
+						result = invokeInstance(this.loadColumn.cast(parser, valueGetter.owner, CastMode.EXPLICIT_THROW), valueGetter, y);
+					}
+				}
+				else {
+					if (hasTraits) {
+						result = new ColumnLookupGet3DValueFromTraitsInsnTree(this.loadLookup, x, y, z, valueGetter);
+					}
+					else {
+						result = new ColumnLookupGet3DValueInsnTree(this.loadLookup, x, y, z, valueGetter);
+					}
+				}
+			}
+			else {
+				if (this.loadColumn != null) {
+					if (hasTraits) {
+						result = new ColumnGet2DValueWithTraitsInsnTree(this.loadColumn, x, z, valueGetter);
+					}
+					else {
+						result = invokeInstance(this.loadColumn.cast(parser, valueGetter.owner, CastMode.EXPLICIT_THROW), valueGetter);
+					}
+				}
+				else {
+					if (hasTraits) {
+						result = new ColumnLookupGet2DValueFromTraitsInsnTree(this.loadLookup, x, z, valueGetter);
+					}
+					else {
+						result = new ColumnLookupGet2DValueInsnTree(this.loadLookup, x, z, valueGetter);
+					}
+				}
+			}
+			return new CastResult(result, requiredCasting);
+		}
 	}
 
 	public abstract void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException;
@@ -411,7 +521,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, InsnTree, MutableDependencyView)},
+	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, InsnTree, MutableDependencyView, Identifier)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {

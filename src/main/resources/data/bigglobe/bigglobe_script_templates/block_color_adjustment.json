@@ -4,9 +4,10 @@
 			"red   = COLOR.redI",
 			"green = COLOR.greenI",
 			"blue  = COLOR.blueI",
-			"adjustedMagicalness = 0.5I - 0.5I / (MAGIC ^ 2 + 1.0I)",
+			"magicalness = world_traits.`bigglobe:magicalness`",
+			"adjustedMagicalness = 0.5I - 0.5I / (magicalness ^ 2 + 1.0I)",
 		")",
-		"if (MAGIC > 0.0I:",
+		"if (magicalness > 0.0I:",
 			"red   = mixLinear(red,   255.0I, adjustedMagicalness * 0.5I)",
 			"green = mixLinear(green, 255.0I, adjustedMagicalness       )",
 			"blue  = mixLinear(blue,  255.0I, adjustedMagicalness * 1.5I)",
@@ -19,7 +20,6 @@
 		"return(packI(roundInt(red), roundInt(green), roundInt(blue)))"
 	],
 	"inputs": [
-		{ "name": "COLOR", "type": "int" },
-		{ "name": "MAGIC", "type": "float" }
+		{ "name": "COLOR", "type": "int" }
 	]
 }

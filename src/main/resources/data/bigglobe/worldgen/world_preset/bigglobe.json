@@ -10,6 +10,13 @@
 					"max_y":  1024,
 					"sea_level": 0
 				},
+				"world_traits": {
+					"bigglobe:exact_surface_y": "`bigglobe:overworld/processed_surface_y`",
+					"bigglobe:approximate_surface_y": "`bigglobe:overworld/basic_surface_y`",
+					"bigglobe:magicalness": "`bigglobe:overworld/magicalness`",
+					"bigglobe:y_level_on_surface": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
+					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:overworld/processed_surface_y`)"
+				},
 				"layer": {
 					"state": "'minecraft:air'",
 					"children": [
@@ -281,8 +288,7 @@
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							],
-							"MAGIC": "`bigglobe:overworld/magicalness`"
+							]
 						}
 					},
 					"foliage": {
@@ -293,8 +299,7 @@
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
 									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
-							],
-							"MAGIC": "`bigglobe:overworld/magicalness`"
+							]
 						}
 					},
 					"water": {
@@ -303,8 +308,7 @@
 							"COLOR": [
 								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
 								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-							],
-							"MAGIC": "`bigglobe:overworld/magicalness`"
+							]
 						}
 					}
 				}

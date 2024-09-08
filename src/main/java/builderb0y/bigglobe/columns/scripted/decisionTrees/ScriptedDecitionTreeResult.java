@@ -10,7 +10,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -21,7 +21,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptedDecitionTreeResult implements DecisionTreeResult, MutableDependencyView {
+public class ScriptedDecitionTreeResult implements DecisionTreeResult, SetBasedMutableDependencyView {
 
 	public final ScriptUsage script;
 	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();

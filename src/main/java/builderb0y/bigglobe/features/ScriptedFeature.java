@@ -210,9 +210,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 							.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" )))),
 							new ExternalEnvironmentParams()
 							.withLookup(WORLD.loadSelf)
-							.withX(load("originX", TypeInfos.INT))
+							.withXZ(
+								load("originX", TypeInfos.INT),
+								load("originZ", TypeInfos.INT)
+							)
 							.withY(load("originY", TypeInfos.INT))
-							.withZ(load("originZ", TypeInfos.INT))
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

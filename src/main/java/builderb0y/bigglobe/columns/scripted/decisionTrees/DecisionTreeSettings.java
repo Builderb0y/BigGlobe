@@ -21,6 +21,7 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -28,7 +29,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 
 @UseVerifier(name = "verify", in = DecisionTreeSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
-public class DecisionTreeSettings implements DependencyView {
+public class DecisionTreeSettings implements SimpleDependencyView {
 
 	public static final AutoCoder<DecisionTreeSettings> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(DecisionTreeSettings.class);
 

@@ -16,6 +16,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.features.RockReplacerFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.noise.Permuter;
@@ -23,7 +24,6 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
-@UseVerifier(name = "verify", in = FeatureDispatchers.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public class FeatureDispatchers {
 
 	public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
@@ -38,18 +38,6 @@ public class FeatureDispatchers {
 		this.rock_replacers = rock_replacers;
 		this.raw = raw;
 		this.normal = normal;
-	}
-
-	public static <T_Encoded> void verify(VerifyContext<T_Encoded, FeatureDispatchers> context) throws VerifyException {
-		FeatureDispatchers dispatchers = context.object;
-		if (dispatchers == null) return;
-		try {
-			new CyclicDependencyAnalyzer().accept(dispatchers.raw);
-			new CyclicDependencyAnalyzer().accept(dispatchers.normal);
-		}
-		catch (CyclicDependencyException exception) {
-			throw new VerifyException(() -> "Cyclic feature dispatcher dependency cycle: " + exception.getMessage(), exception);
-		}
 	}
 
 	public void generateRaw(WorldWrapper world) {

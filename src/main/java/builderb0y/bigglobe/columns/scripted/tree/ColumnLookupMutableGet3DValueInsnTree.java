@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted;
+package builderb0y.bigglobe.columns.scripted.tree;
 
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

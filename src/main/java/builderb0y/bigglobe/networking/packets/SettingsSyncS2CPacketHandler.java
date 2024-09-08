@@ -24,6 +24,8 @@ import builderb0y.bigglobe.ClientState.Syncing;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
@@ -45,7 +47,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
 			}
 			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
-			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup(), ColumnEntryRegistry.Side.CLIENT), (ColumnEntryRegistry.Loading loading) -> {
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
 				syncing.parse();
 				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
 				if (params != null) params.compile(loading);
@@ -62,6 +64,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 	@Environment(EnvType.CLIENT)
 	public void process(ClientGeneratorParams data, PacketSender responseSender) {
 		ClientState.generatorParams = data;
+		DependencyDepthSorter.start(data.compiledWorldTraits, data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY), "client");
 	}
 
 	public void send(ServerPlayerEntity player) {
@@ -69,7 +72,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 		ClientGeneratorParams params;
 		if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			syncing = new ClientState.Syncing(generator);
-			params = new ClientGeneratorParams(generator);
+			params = new ClientGeneratorParams(generator, syncing);
 		}
 		else {
 			syncing = null;

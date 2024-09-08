@@ -1,5 +1,6 @@
-package builderb0y.bigglobe.columns.scripted;
+package builderb0y.bigglobe.columns.scripted.tree;
 
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -22,16 +23,16 @@ public class ColumnLookupGet3DValueInsnTree implements InsnTree {
 
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
-		this.lookup.emitBytecode(method);
-		this.x.emitBytecode(method);
-		this.y.emitBytecode(method);
-		method.node.visitInsn(DUP_X2);
-		method.node.visitInsn(POP);
-		this.z.emitBytecode(method);
-		LOOKUP_COLUMN.emitBytecode(method);
+		this.lookup.emitBytecode(method); //lookup
+		this.x.emitBytecode(method); //lookup x
+		this.y.emitBytecode(method); //lookup x y
+		method.node.visitInsn(DUP_X2); //y lookup x y
+		method.node.visitInsn(POP); //y lookup x
+		this.z.emitBytecode(method); //y lookup x z
+		LOOKUP_COLUMN.emitBytecode(method); //y column
 		method.node.visitTypeInsn(CHECKCAST, this.getter.owner.getInternalName());
-		method.node.visitInsn(SWAP);
-		this.getter.emitBytecode(method);
+		method.node.visitInsn(SWAP); //column y
+		this.getter.emitBytecode(method); //value
 	}
 
 	@Override

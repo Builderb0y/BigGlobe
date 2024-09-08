@@ -125,9 +125,11 @@ public class EvaluateCommand {
 							environment,
 							new ExternalEnvironmentParams()
 							.withLookup(WORLD.loadSelf)
-							.withX(load("originX", TypeInfos.INT))
+							.withXZ(
+								load("originX", TypeInfos.INT),
+								load("originZ", TypeInfos.INT)
+							)
 							.withY(load("originY", TypeInfos.INT))
-							.withZ(load("originZ", TypeInfos.INT))
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

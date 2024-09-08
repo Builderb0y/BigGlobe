@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import net.minecraft.world.HeightLimitView;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
@@ -35,6 +36,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			purpose,
 			distantHorizons,
 			surfaceOnly,
+			worldTraits,
 			baseSeed,
 			saltedBaseSeed,
 			positionedSeed,
@@ -66,6 +68,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 		public InsnTree surfaceOnly(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.surfaceOnly);
+		}
+
+		public InsnTree worldTraits(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.worldTraits);
 		}
 
 		public InsnTree baseSeed(InsnTree loadColumn) {
@@ -123,27 +129,28 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		int z,
 		int minY,
 		int maxY,
-		Purpose purpose
+		Purpose purpose,
+		WorldTraits worldTraits
 	) {
 
-		public Params(long seed, int x, int z, HeightLimitView world, Purpose purpose) {
-			this(seed, x, z, world.getBottomY(), world.getTopY(), purpose);
+		public Params(long seed, int x, int z, HeightLimitView world, Purpose purpose, WorldTraits traits) {
+			this(seed, x, z, world.getBottomY(), world.getTopY(), purpose, traits);
 		}
 
 		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Purpose purpose) {
-			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), purpose);
+			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), purpose, generator.compiledWorldTraits);
 		}
 
 		public Params withSeed(long seed) {
-			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.purpose);
+			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.purpose, this.worldTraits);
 		}
 
 		public Params at(int x, int z) {
-			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.purpose);
+			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.purpose, this.worldTraits);
 		}
 
 		public Params heightRange(int minY, int maxY) {
-			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.purpose);
+			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.purpose, this.worldTraits);
 		}
 
 		public Params heightRange(HeightLimitView world) {
@@ -151,7 +158,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		}
 
 		public Params purpose(Purpose purpose) {
-			return this.purpose == purpose ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, purpose);
+			return this.purpose == purpose ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, purpose, this.worldTraits);
 		}
 	}
 
@@ -272,13 +279,14 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		public abstract ScriptedColumn create(Params params);
 	}
 
-	public int     x              () { return this.params.x                    ; }
-	public int     z              () { return this.params.z                    ; }
-	public int     minY           () { return this.params.minY                 ; }
-	public int     maxY           () { return this.params.maxY                 ; }
-	public String  purpose        () { return this.params.purpose.name       (); }
-	public boolean distantHorizons() { return this.params.purpose.isForLODs  (); }
-	public boolean surfaceOnly    () { return this.params.purpose.surfaceOnly(); }
+	public int         x              () { return this.params.x                    ; }
+	public int         z              () { return this.params.z                    ; }
+	public int         minY           () { return this.params.minY                 ; }
+	public int         maxY           () { return this.params.maxY                 ; }
+	public String      purpose        () { return this.params.purpose.name       (); }
+	public boolean     distantHorizons() { return this.params.purpose.isForLODs  (); }
+	public boolean     surfaceOnly    () { return this.params.purpose.surfaceOnly(); }
+	public WorldTraits worldTraits    () { return this.params.worldTraits          ; }
 
 	public long baseSeed() {
 		return this.params.seed;

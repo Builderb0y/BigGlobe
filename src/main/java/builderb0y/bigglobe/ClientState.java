@@ -3,6 +3,7 @@ package builderb0y.bigglobe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
@@ -45,6 +46,8 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -150,29 +153,32 @@ public class ClientState {
 
 		public static final AutoCoder<Syncing> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Syncing.class);
 
-		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees;
+		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees, worldTraits;
 		public transient SimpleRegistry<ScriptTemplate> templateRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<ColumnEntry> columnEntryRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<VoronoiSettings> voronoiSettingsRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<DecisionTreeSettings> decisionTreeRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
+		public transient SimpleRegistry<WorldTrait> worldTraitRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
 			Map<Identifier, NbtElement> templates,
 			Map<Identifier, NbtElement> columnEntries,
 			Map<Identifier, NbtElement> voronoiSettings,
-			Map<Identifier, NbtElement> decisionTrees
+			Map<Identifier, NbtElement> decisionTrees,
+			Map<Identifier, NbtElement> worldTraits
 		) {
 			this.templates = templates;
 			this.columnEntries = columnEntries;
 			this.voronoiSettings = voronoiSettings;
 			this.decisionTrees = decisionTrees;
+			this.worldTraits = worldTraits;
 		}
 
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
-			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			if (generator.colors != null) {
-				IndirectDependencyCollector collector = new IndirectDependencyCollector();
+				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 				if (generator.colors.grass  () != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
 				if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
 				if (generator.colors.water  () != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
@@ -188,6 +194,9 @@ public class ClientState {
 					}
 					else if (entry.value() instanceof DecisionTreeSettings decisionTree) {
 						Registry.register(this.decisionTreeRegistry, UnregisteredObjectException.getID(entry), decisionTree);
+					}
+					else if (entry.value() instanceof WorldTrait trait) {
+						Registry.register(this.worldTraitRegistry, UnregisteredObjectException.getID(entry), trait);
 					}
 					else {
 						throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
@@ -206,6 +215,9 @@ public class ClientState {
 				for (Map.Entry<RegistryKey<DecisionTreeSettings>, DecisionTreeSettings> entry : this.decisionTreeRegistry.getEntrySet()) {
 					this.decisionTrees.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(DecisionTreeSettings.CODER, entry.getValue(), ops));
 				}
+				for (Map.Entry<RegistryKey<WorldTrait>, WorldTrait> entry : this.worldTraitRegistry.getEntrySet()) {
+					this.worldTraits.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(WorldTrait.CODER, entry.getValue(), ops));
+				}
 			}
 		}
 
@@ -223,10 +235,14 @@ public class ClientState {
 			for (Map.Entry<Identifier, NbtElement> entry : this.decisionTrees.entrySet()) {
 				Registry.register(this.decisionTreeRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(DecisionTreeSettings.CODER, entry.getValue(), ops));
 			}
+			for (Map.Entry<Identifier, NbtElement> entry : this.worldTraits.entrySet()) {
+				Registry.register(this.worldTraitRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(WorldTrait.CODER, entry.getValue(), ops));
+			}
 			this.templateRegistry.freeze();
 			this.columnEntryRegistry.freeze();
 			this.voronoiSettingsRegistry.freeze();
 			this.decisionTreeRegistry.freeze();
+			this.worldTraitRegistry.freeze();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -237,6 +253,7 @@ public class ClientState {
 			else if (wildcard == BigGlobeDynamicRegistries.          COLUMN_ENTRY_REGISTRY_KEY) registry = this.    columnEntryRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.      VORONOI_SETTINGS_REGISTRY_KEY) registry = this.voronoiSettingsRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.   decisionTreeRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.           WORLD_TRAIT_REGISTRY_KEY) registry = this.     worldTraitRegistry;
 			else registry = null;
 			return (SimpleRegistry<T_Element>)(registry);
 		}
@@ -287,7 +304,9 @@ public class ClientState {
 		public final ColorScript.@VerifyNullable Holder grassColor;
 		public final ColorScript.@VerifyNullable Holder foliageColor;
 		public final ColorScript.@VerifyNullable Holder waterColor;
+		public final Map<RegistryEntry<WorldTrait>, ScriptUsage> worldTraits;
 		public transient ColumnEntryRegistry columnEntryRegistry;
+		public transient WorldTraits compiledWorldTraits;
 		public final transient ThreadLocal<ScriptedColumn> columns;
 
 		public ClientGeneratorParams(
@@ -297,7 +316,8 @@ public class ClientState {
 			long columnSeed,
 			ColorScript.@VerifyNullable Holder grassColor,
 			ColorScript.@VerifyNullable Holder foliageColor,
-			ColorScript.@VerifyNullable Holder waterColor
+			ColorScript.@VerifyNullable Holder waterColor,
+			Map<RegistryEntry<WorldTrait>, ScriptUsage> worldTraits
 		) {
 			this.minY = minY;
 			this.maxY = maxY;
@@ -306,11 +326,12 @@ public class ClientState {
 			this.grassColor = grassColor;
 			this.foliageColor = foliageColor;
 			this.waterColor = waterColor;
+			this.worldTraits = worldTraits;
 			this.columns = ThreadLocal.withInitial(this::createColumn);
 		}
 
 		@Hidden //we want AutoCodec to target the other constructor.
-		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator) {
+		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator, Syncing syncing) {
 			this.minY = generator.height.min_y();
 			this.maxY = generator.height.max_y();
 			this.seaLevel = generator.height.sea_level();
@@ -318,12 +339,21 @@ public class ClientState {
 			this.grassColor = generator.colors != null ? generator.colors.grass() : null;
 			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
 			this.waterColor = generator.colors != null ? generator.colors.water() : null;
+			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.world_traits.size() : 0);
+			if (generator.world_traits != null) {
+				for (Map.Entry<RegistryEntry<WorldTrait>, ScriptUsage> entry : generator.world_traits.entrySet()) {
+					if (syncing.worldTraits.containsKey(UnregisteredObjectException.getID(entry.getKey()))) {
+						this.worldTraits.put(entry.getKey(), entry.getValue());
+					}
+				}
+			}
 			this.columns = null;
 		}
 
 		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
 			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
 			this.columnEntryRegistry = loading.getRegistry();
+			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.worldTraits);
 			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
 			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
 			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
@@ -333,7 +363,7 @@ public class ClientState {
 			if (this.columnEntryRegistry == null) {
 				throw new IllegalStateException("Not compiled");
 			}
-			return this.columnEntryRegistry.columnFactory.create(new Params(this.columnSeed, 0, 0, this.minY, this.maxY, Purpose.GENERIC));
+			return this.columnEntryRegistry.columnFactory.create(new Params(this.columnSeed, 0, 0, this.minY, this.maxY, Purpose.GENERIC, this.compiledWorldTraits));
 		}
 
 		public ScriptedColumn getColumn(int x, int z) {
@@ -403,18 +433,18 @@ public class ClientState {
 			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
 				//don't call super, because I don't want to deal with syncing grids.
 				environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					//.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-					.configure(
-						parameters.random != null
-						? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
-						: MinecraftScriptEnvironment.create()
-					)
-					.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)));
+				.addAll(MathScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+				//.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+				.configure(
+					parameters.random != null
+					? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
+					: MinecraftScriptEnvironment.create()
+				)
+				.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)))
+				.addAll(ColorScriptEnvironment.ENVIRONMENT);
 				if (parameters.y != null) environment.addVariableLoad(parameters.y);
 				if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
-				environment.addAll(ColorScriptEnvironment.ENVIRONMENT);
 				INFO.addAllTo(environment);
 			}
 		}

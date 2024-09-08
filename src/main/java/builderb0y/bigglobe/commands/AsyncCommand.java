@@ -70,14 +70,12 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 
 	@Override
 	public void uncaughtException(Thread thread, Throwable throwable) {
-		if (!(throwable instanceof ThreadDeath)) {
-			BigGlobeMod.LOGGER.error("Error running command: " + thread.getName(), throwable);
-			this.source.getServer().execute(() -> {
-				if (this.isValid()) {
-					this.source.sendError(Text.literal(throwable.toString()));
-				}
-			});
-		}
+		BigGlobeMod.LOGGER.error("Error running command: " + thread.getName(), throwable);
+		this.source.getServer().execute(() -> {
+			if (this.isValid()) {
+				this.source.sendError(Text.literal(throwable.toString()));
+			}
+		});
 	}
 
 	@Override

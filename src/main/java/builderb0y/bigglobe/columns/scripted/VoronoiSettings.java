@@ -16,6 +16,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -27,7 +28,7 @@ public record VoronoiSettings(
 	@DefaultEmpty Set<RegistryEntry<ColumnEntry>> enables,
 	@DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = VoronoiColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, RegistryEntry<ColumnEntry>> exports
 )
-implements DependencyView {
+implements SimpleDependencyView {
 
 	public static final AutoCoder<VoronoiSettings> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(VoronoiSettings.class);
 

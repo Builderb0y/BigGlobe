@@ -119,7 +119,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			0,
 			coordination.mutableArea.getMinY(),
 			coordination.mutableArea.getMaxY(),
-			purpose
+			purpose,
+			chunkGenerator.compiledWorldTraits
 		);
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;

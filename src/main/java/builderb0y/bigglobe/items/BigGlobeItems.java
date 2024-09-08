@@ -9,8 +9,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
-import net.fabricmc.fabric.api.loot.v2.LootTableSource;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +27,7 @@ import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
@@ -230,6 +231,9 @@ public class BigGlobeItems {
 				#endif
 				LootTable.Builder tableBuilder,
 				LootTableSource source
+				#if MC_VERSION >= MC_1_21_0
+				, RegistryWrapper.WrapperLookup registries
+				#endif
 			)
 			-> {
 				if (source.isBuiltin() && LootTables.END_CITY_TREASURE_CHEST.equals(id)) {

@@ -16,7 +16,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
@@ -30,7 +30,6 @@ import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -105,7 +104,7 @@ public interface ColumnScript extends Script {
 		}
 	}
 
-	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements MutableDependencyView {
+	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements SetBasedMutableDependencyView {
 
 		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>(64);
 

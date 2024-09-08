@@ -28,6 +28,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate.RequiredInput;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageDecoder;
@@ -117,7 +118,7 @@ public class ScriptUsage {
 	}
 
 	@UseVerifier(name = "verify", in = ScriptTemplate.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	public static record ScriptTemplate(@MultiLine @UseName("script") String source, List<RequiredInput> inputs) implements DependencyView {
+	public static record ScriptTemplate(@MultiLine @UseName("script") String source, List<RequiredInput> inputs) implements SimpleDependencyView {
 
 		public static final AutoCoder<ScriptTemplate> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(ScriptTemplate.class);
 

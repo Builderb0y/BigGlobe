@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.overriders;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
@@ -21,6 +18,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -75,24 +73,21 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 
 	public static class SortedOverriders {
 
-		public final ColumnEntryRegistry registry;
 		public final StructureOverrider.Holder[] structures;
 		public final ColumnValueOverrider.Holder[] rawColumnValues, featureColumnValues;
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
-		public SortedOverriders(RegistryEntryList<Overrider> tag, ColumnEntryRegistry registry) {
-			this.registry = registry;
-
-			Map<Type, List<Overrider>> map = tag.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID)).map(RegistryEntry::value).collect(Collectors.groupingBy(Overrider::getOverriderType));
+		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
+			Map<Type, List<Overrider>> map = generator.overriders.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID)).map(RegistryEntry::value).collect(Collectors.groupingBy(Overrider::getOverriderType));
 			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(StructureOverrider.Entry.class::cast).map(StructureOverrider.Entry::script).toArray(StructureOverrider.Holder[]::new);
 			this.rawColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::raw_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
 			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::feature_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
-			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues);
-			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues);
+			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues, generator);
+			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues, generator);
 		}
 
-		public String[] extractDependencies(ColumnValueOverrider.Holder[] holders) {
-			IndirectDependencyCollector collector = new IndirectDependencyCollector();
+		public String[] extractDependencies(ColumnValueOverrider.Holder[] holders, BigGlobeScriptedChunkGenerator generator) {
+			IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 			for (ColumnValueOverrider.Holder holder : holders) {
 				holder.streamDirectDependencies().forEach(collector);
 			}
@@ -102,7 +97,7 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 				.filter((RegistryEntry<? extends DependencyView> registryEntry) -> {
 					return (
 						registryEntry.value() instanceof ColumnEntry columnEntry &&
-						this.registry.voronoiManager.getEnablingSettings(columnEntry).isEmpty() &&
+						generator.columnEntryRegistry.voronoiManager.getEnablingSettings(columnEntry).isEmpty() &&
 						columnEntry.hasField()
 					);
 				})

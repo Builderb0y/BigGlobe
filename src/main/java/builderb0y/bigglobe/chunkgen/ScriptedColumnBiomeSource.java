@@ -55,7 +55,8 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 						0,
 						this.generator.height.min_y(),
 						this.generator.height.max_y(),
-						Purpose.generic()
+						Purpose.generic(),
+						this.generator.compiledWorldTraits
 					)
 				);
 			}

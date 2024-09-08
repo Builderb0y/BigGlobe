@@ -78,8 +78,10 @@ public interface StructureLayoutScript extends Script {
 						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN),
 						new ExternalEnvironmentParams()
 						.withLookup(load("lookup", type(ScriptedColumnLookup.class)))
-						.withX(load("originX", TypeInfos.INT))
-						.withZ(load("originZ", TypeInfos.INT))
+						.withXZ(
+							load("originX", TypeInfos.INT),
+							load("originZ", TypeInfos.INT)
+						)
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
