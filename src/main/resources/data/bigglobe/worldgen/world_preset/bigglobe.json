@@ -11,16 +11,19 @@
 					"sea_level": 0
 				},
 				"world_traits": {
-					"bigglobe:approximate_surface_y": "`bigglobe:overworld/basic_surface_y`",
-					"bigglobe:biome": "`bigglobe:overworld/biome`",
-					"bigglobe:exact_surface_y": "`bigglobe:overworld/processed_surface_y`",
-					"bigglobe:foliage_at_sea_level": "`bigglobe:overworld/raw_foliage`",
-					"bigglobe:magicalness": "`bigglobe:overworld/magicalness`",
-					"bigglobe:sea_level": "0I",
-					"bigglobe:snow_y": "`bigglobe:overworld/snow_y`",
+					"bigglobe:approximate_surface_y":    "`bigglobe:overworld/basic_surface_y`",
+					"bigglobe:biome":                    "`bigglobe:overworld/biome`",
+					"bigglobe:exact_surface_y":          "`bigglobe:overworld/processed_surface_y`",
+					"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw_foliage`",
+					"bigglobe:hilliness":                "`bigglobe:overworld/hilliness`",
+					"bigglobe:magicalness":              "`bigglobe:overworld/magicalness`",
+					"bigglobe:max_y":                    " 1024I",
+					"bigglobe:min_y":                    "-1024I",
+					"bigglobe:sea_level":                "0I",
+					"bigglobe:snow_y":                   "`bigglobe:overworld/snow_y`",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
-					"bigglobe:y_level_on_surface": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
-					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:overworld/processed_surface_y`)"
+					"bigglobe:y_level_on_surface":       "ceilInt(`bigglobe:overworld/processed_surface_y`)",
+					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:overworld/processed_surface_y`)"
 				},
 				"layer": {
 					"state": "'minecraft:air'",
@@ -335,7 +338,9 @@
 					"place_portal_at_high_y_level": true
 				},
 				"world_traits": {
-					"bigglobe:biome": "`bigglobe:nether/bubble`.biome"
+					"bigglobe:biome": "`bigglobe:nether/bubble`.biome",
+					"bigglobe:max_y": "1024I",
+					"bigglobe:min_y": "0I"
 				},
 				"layer": {
 					"state": "`bigglobe:nether/bubble`.filler",
@@ -413,7 +418,9 @@
 					"max_y":  512
 				},
 				"world_traits": {
-					"bigglobe:biome": "`bigglobe:end/surface`.biome"
+					"bigglobe:biome": "`bigglobe:end/surface`.biome",
+					"bigglobe:max_y": " 512I",
+					"bigglobe:min_y": "-512I"
 				},
 				"layer": {
 					"state": "'minecraft:air'",

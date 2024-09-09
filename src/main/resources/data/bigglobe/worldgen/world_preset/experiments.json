@@ -306,16 +306,19 @@
 					"sea_level": 0
 				},
 				"world_traits": {
-					"bigglobe:approximate_surface_y": "`bigglobe:islands/basic_surface_height`",
-					"bigglobe:biome": "`bigglobe:islands/biome`",
-					"bigglobe:exact_surface_y": "`bigglobe:islands/eroded_surface_height`",
-					"bigglobe:foliage_at_sea_level": "`bigglobe:islands/raw_foliage`",
-					"bigglobe:magicalness": "`bigglobe:islands/magicalness`",
-					"bigglobe:sea_level": "0I",
-					"bigglobe:snow_y": "`bigglobe:islands/snow_height`",
+					"bigglobe:approximate_surface_y":    "`bigglobe:islands/basic_surface_height`",
+					"bigglobe:biome":                    "`bigglobe:islands/biome`",
+					"bigglobe:exact_surface_y":          "`bigglobe:islands/eroded_surface_height`",
+					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
+					"bigglobe:hilliness":                "`bigglobe:islands/mountainness`",
+					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
+					"bigglobe:max_y":                    " 1024I",
+					"bigglobe:min_y":                    "-1024I",
+					"bigglobe:sea_level":                "0I",
+					"bigglobe:snow_y":                   "`bigglobe:islands/snow_height`",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
-					"bigglobe:y_level_on_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
-					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1"
+					"bigglobe:y_level_on_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`)",
+					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1"
 				},
 				"layer": {
 					"state": "'minecraft:air'",
@@ -389,44 +392,6 @@
 								{
 									"type": "simple_3d",
 									"state": "'minecraft:air'",
-									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
-									"valid": {
-										"where": "!surfaceOnly",
-										"min_y": "`bigglobe:overworld/cavern_min_y`",
-										"max_y": "`bigglobe:overworld/cavern_max_y`"
-									}
-								},
-								{
-									"type": "multi_state_3d",
-									"state": [
-										"switch (",
-											"min(",
-												"clamp(-1I, 8I, int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)),",
-												"clamp( 0I, 8I, int(unmixLinear(-896.0L, -768.0L, double(y)) * 8.0L))",
-											")",
-										":",
-											"case (-1:",
-												"if (y >= `bigglobe:islands/island_height` - 192: 'minecraft:air')",
-												"else ('minecraft:lava[level=0]')",
-											")",
-											"case (0: 'bigglobe:molten_rock_8')",
-											"case (1: 'bigglobe:molten_rock_7')",
-											"case (2: 'bigglobe:molten_rock_6')",
-											"case (3: 'bigglobe:molten_rock_5')",
-											"case (4: 'bigglobe:molten_rock_4')",
-											"case (5: 'bigglobe:molten_rock_3')",
-											"case (6: 'bigglobe:molten_rock_2')",
-											"case (7: 'bigglobe:molten_rock_1')",
-											"default (null)",
-										")"
-									],
-									"valid": {
-										"where": "!surfaceOnly"
-									}
-								},
-								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
 									"valid": {
 										"where": "!surfaceOnly",
@@ -446,11 +411,50 @@
 								{
 									"type": "simple_3d",
 									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "`bigglobe:overworld/cavern_min_y`",
+										"max_y": "`bigglobe:overworld/cavern_max_y`"
+									}
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
 									"valid": {
 										"where": "!surfaceOnly",
 										"min_y": "-384",
 										"max_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)"
+									}
+								},
+								{
+									"type": "multi_state_3d",
+									"state": [
+										"switch (",
+											"min(",
+												"clamp(-1I, 8I, int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)),",
+												"clamp( 0I, 8I, int(unmixLinear(-896.0L, -768.0L, y + `bigglobe:islands/core_gradient_offset`) * 8.0L))",
+											")",
+										":",
+											"case (-1:",
+												"if (y >= `bigglobe:islands/island_height` - 192: 'minecraft:air')",
+												"else ('minecraft:lava[level=0]')",
+											")",
+											"case (0: 'bigglobe:molten_rock_8')",
+											"case (1: 'bigglobe:molten_rock_7')",
+											"case (2: 'bigglobe:molten_rock_6')",
+											"case (3: 'bigglobe:molten_rock_5')",
+											"case (4: 'bigglobe:molten_rock_4')",
+											"case (5: 'bigglobe:molten_rock_3')",
+											"case (6: 'bigglobe:molten_rock_2')",
+											"case (7: 'bigglobe:molten_rock_1')",
+											"default (null)",
+										")"
+									],
+									"valid": {
+										"where": "!surfaceOnly",
+										"max_y": "`bigglobe:islands/is_volcano` ? 16x7FFF_FFFF ;(use the bounds of the parent) : `bigglobe:overworld/core_max_y`"
 									}
 								}
 							]
@@ -499,7 +503,8 @@
 						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
 						"bigglobe:overworld/rock_layers/rocks",
-						"bigglobe:overworld/rock_layers/dirt"
+						"bigglobe:overworld/rock_layers/dirt",
+						"#bigglobe:overworld/ores"
 					],
 					"raw": "bigglobe:islands/raw_root",
 					"normal": "bigglobe:islands/normal_root"

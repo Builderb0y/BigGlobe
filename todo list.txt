@@ -35,10 +35,7 @@ changelog:
 alternate world presets:
 	paradise.
 	islands:
-		volcanoes:
-			need some way to schedule fluid ticks for lava that comes up through side channels.
 		features.
-			lavafalls.
 		structures.
 		biomes.
 		the deep dark:
