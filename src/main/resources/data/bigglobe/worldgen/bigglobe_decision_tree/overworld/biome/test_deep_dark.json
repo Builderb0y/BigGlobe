@@ -1,7 +1,7 @@
 {
 	"condition": {
 		"type": "script",
-		"script": "y <= `bigglobe:overworld/cavern_max_y`"
+		"script": "y <= world_traits.`bigglobe:deep_dark_max_y`"
 	},
 	"if_true": "bigglobe:overworld/biome/deep_dark",
 	"if_false": "bigglobe:overworld/biome/test_river"

@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (noscope(int y := `bigglobe:nether/bubble`.lava_level).isBetween[minValidYLevel, maxValidYLevel):",
+			"if (noscope(int y := world_traits.`bigglobe:lava_y`).isBetween[minValidYLevel, maxValidYLevel):",
 				"placeFeature(originX, y, originZ, 'bigglobe:nether/decorators/lava_soul')",
 			")",
 			"for (int baseY in range[minValidYLevel, maxValidYLevel) % 32:",

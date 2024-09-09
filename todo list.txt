@@ -23,6 +23,7 @@ where I left off:
 	document what version constant lists and maps were added in.
 	surface materials for islands.
 	blanket replace surface Y level with trait.
+	remove column values which have been replaced by traits.
 
 changelog:
 	# For data pack makers:

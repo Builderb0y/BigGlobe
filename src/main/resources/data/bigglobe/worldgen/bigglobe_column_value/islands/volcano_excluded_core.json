@@ -12,8 +12,8 @@
 		"value"
 	],
 	"valid": {
-		"min_y": "`bigglobe:overworld/core_min_y`",
-		"max_y": "`bigglobe:overworld/core_max_y`"
+		"min_y": "world_traits.`bigglobe:core_min_y`",
+		"max_y": "world_traits.`bigglobe:core_max_y`"
 	},
 	"cache": false
 }

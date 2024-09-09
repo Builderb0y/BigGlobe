@@ -2,8 +2,8 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure ==. 'minecraft:ancient_city':",
-			"int minY = `bigglobe:overworld/cavern_min_y`(start.midX, start.midZ) + 16",
-			"int maxY = `bigglobe:overworld/cavern_max_y`(start.midX, start.midZ) - 16",
+			"int minY = world_traits.`bigglobe:deep_dark_min_y`(start.midX, start.midZ) + 16",
+			"int maxY = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ) - 16",
 			"return(start.moveToRange(minY, maxY))",
 		")",
 		"return(true)"

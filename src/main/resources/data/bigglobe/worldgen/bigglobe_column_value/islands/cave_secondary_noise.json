@@ -38,7 +38,7 @@
 	},
 	"valid": {
 		"where": "!surfaceOnly",
-		"min_y": "-384",
-		"max_y": "lowerInt(eroded_surface_height)"
+		"min_y": "world_traits.`bigglobe:cave_min_y`",
+		"max_y": "world_traits.`bigglobe:cave_max_y`"
 	}
 }

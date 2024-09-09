@@ -4,7 +4,7 @@
 	"spawn_overrides": {},
 	"step": "underground_structures",
 	"layout": [
-		"int originY = `bigglobe:overworld/lava_level`(originX, originZ)",
+		"int originY = world_traits.`bigglobe:lava_y`(originX, originZ)",
 		"pieces.add(",
 			"ScriptStructurePiece.new(",
 				"-4, -4, -4, 4, 24, 4,",

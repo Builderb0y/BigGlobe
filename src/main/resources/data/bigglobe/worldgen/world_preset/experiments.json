@@ -308,9 +308,16 @@
 				"world_traits": {
 					"bigglobe:approximate_surface_y":    "`bigglobe:islands/basic_surface_height`",
 					"bigglobe:biome":                    "`bigglobe:islands/biome`",
+					"bigglobe:cave_min_y":               "-384I",
+					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
+					"bigglobe:core_min_y":               "-912I",
+					"bigglobe:core_max_y":               "-784I",
+					"bigglobe:deep_dark_min_y":          "-752I",
+					"bigglobe:deep_dark_max_y":          "-624I",
 					"bigglobe:exact_surface_y":          "`bigglobe:islands/eroded_surface_height`",
 					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
 					"bigglobe:hilliness":                "`bigglobe:islands/mountainness`",
+					"bigglobe:lava_y":                   "-896I",
 					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
 					"bigglobe:max_y":                    " 1024I",
 					"bigglobe:min_y":                    "-1024I",
@@ -395,15 +402,15 @@
 									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
 									"valid": {
 										"where": "!surfaceOnly",
-										"min_y": "`bigglobe:overworld/core_min_y`",
-										"max_y": "`bigglobe:overworld/core_max_y`"
+										"min_y": "world_traits.`bigglobe:core_min_y`",
+										"max_y": "world_traits.`bigglobe:core_max_y`"
 									},
 									"children": [
 										{
 											"type": "simple_2d",
 											"state": "'minecraft:lava[level=0]'",
 											"valid": {
-												"max_y": "`bigglobe:overworld/lava_level`"
+												"max_y": "world_traits.`bigglobe:lava_y`"
 											}
 										}
 									]
@@ -414,8 +421,8 @@
 									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
 									"valid": {
 										"where": "!surfaceOnly",
-										"min_y": "`bigglobe:overworld/cavern_min_y`",
-										"max_y": "`bigglobe:overworld/cavern_max_y`"
+										"min_y": "world_traits.`bigglobe:deep_dark_min_y`",
+										"max_y": "world_traits.`bigglobe:deep_dark_max_y`"
 									}
 								},
 								{
@@ -454,7 +461,7 @@
 									],
 									"valid": {
 										"where": "!surfaceOnly",
-										"max_y": "`bigglobe:islands/is_volcano` ? 16x7FFF_FFFF ;(use the bounds of the parent) : `bigglobe:overworld/core_max_y`"
+										"max_y": "`bigglobe:islands/is_volcano` ? 16x7FFF_FFFF ;(use the bounds of the parent) : world_traits.`bigglobe:core_max_y`"
 									}
 								}
 							]
