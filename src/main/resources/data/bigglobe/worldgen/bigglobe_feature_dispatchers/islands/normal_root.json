@@ -2,7 +2,9 @@
 	"type": "group",
 	"dispatchers": [
 		"bigglobe:islands/lava_tick_scheduler",
+		"bigglobe:overworld/swamp_surface",
 		"bigglobe:islands/large_surface",
+		"bigglobe:overworld/medium_foliage",
 		"bigglobe:islands/small_foliage"
 	]
 }

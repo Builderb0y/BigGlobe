@@ -1,7 +1,7 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"double magicalness = `bigglobe:overworld/magicalness`(minModifiableX | 8, minModifiableZ | 8)",
+		"double magicalness = world_traits.`bigglobe:magicalness`(minModifiableX | 8, minModifiableZ | 8)",
 		"double innerness = `bigglobe:overworld/glacier_crack_threshold`(minModifiableX | 8, minModifiableZ | 8) - 1.0L",
 		"if (magicalness < 0.0L && innerness > 0.0L:",
 			"innerness = 1.0L - 0.25L / (innerness ^ 2 + 0.25L)",

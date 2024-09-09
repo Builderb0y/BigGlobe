@@ -1,11 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 0.0,
-		"max": 1.0,
-		"smooth_min": false,
-		"smooth_max": false,
-		"column_value": "bigglobe:overworld/snow_chance"
+		"type": "script_chance",
+		"script": "world_traits.`bigglobe:snow_chance`"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/cold_test_forest",
 	"if_false": "bigglobe:overworld/wood_palette/temperate_test_magical"

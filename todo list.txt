@@ -22,6 +22,7 @@ where I left off:
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	document what version constant lists and maps were added in.
 	surface materials for islands.
+	blanket replace surface Y level with trait.
 
 changelog:
 	# For data pack makers:

@@ -7,8 +7,8 @@
 		":",
 			"int x = baseX | random.nextInt(8)",
 			"int z = baseZ | random.nextInt(8)",
-			"random.if (sqrt(`bigglobe:overworld/sea_level`(x, z) - `bigglobe:overworld/processed_surface_y`(x, z)) * 0.03125L:",
-				"int y = floorInt(`bigglobe:overworld/processed_surface_y`(x, z) - min(random.nextDouble(), random.nextDouble()) * 64.0L)",
+			"random.if (sqrt(world_traits.`bigglobe:sea_level`(x, z) - world_traits.`bigglobe:exact_surface_y`(x, z)) * 0.03125L:",
+				"int y = floorInt(world_traits.`bigglobe:exact_surface_y`(x, z) - min(random.nextDouble(), random.nextDouble()) * 64.0L)",
 				"placeFeature(x, y, z, 'bigglobe:overworld/prismarine')",
 			")",
 		")"

@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 0.25,
-		"max": 0.75,
-		"column_value": "bigglobe:overworld/surface_foliage"
+		"type": "script_chance",
+		"script": "unmixSmooth(0.25I, 0.75I, world_traits.`bigglobe:surface_foliage`)"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/oak",
 	"if_false": "bigglobe:overworld/wood_palette/birch"
