@@ -1,0 +1,7 @@
+{
+	"type": "float",
+	"is_3d": true,
+	"default": [
+		"world_traits.`bigglobe:foliage_at_sea_level` - abs(float(y - world_traits.`bigglobe:sea_level`)) / 1024.0I"
+	]
+}

@@ -24,11 +24,12 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 
 	public static final CoderRegistry<DecisionTreeCondition> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("decision_tree_condition"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"), ThresholdDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"   ),    ScriptDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("and"      ),       AndDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("or"       ),        OrDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("not"      ),       NotDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"    ),    ThresholdDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("script"       ),       ScriptDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("script_chance"), ScriptChanceDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("and"          ),          AndDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("or"           ),           OrDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("not"          ),          NotDecisionTreeCondition.class);
 	}};
 
 	public abstract ConditionTree createCondition(

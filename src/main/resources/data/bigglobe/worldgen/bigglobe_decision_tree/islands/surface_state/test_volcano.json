@@ -8,5 +8,5 @@
 		]
 	},
 	"if_true": "bigglobe:islands/surface_state/volcano",
-	"if_false": "bigglobe:islands/surface_state/test_hot"
+	"if_false": "bigglobe:overworld/surface_state/test_hot"
 }

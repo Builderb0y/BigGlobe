@@ -22,12 +22,12 @@ where I left off:
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	document what version constant lists and maps were added in.
 	surface materials for islands.
-	small foliage and trees seem to disagree about the foliage column value in island worlds.
 
 changelog:
 	# For data pack makers:
-	* The `block_color_adjustment` script template now takes a MAGIC input.
-		* This might affect anyone with a custom world preset.
+	* Added a new trait system for chunk generators to share information with other scripts.
+		* Data packs with custom world types may need to implement the same traits that built-in world types provide.
+	* Added script_chance decision tree type.
 	* Scripts can now create constant literal List's and Map's.
 		* The List or Map will only ever be created once, not once every time the script runs.
 		* Iteration order is the same as the creation argument order.

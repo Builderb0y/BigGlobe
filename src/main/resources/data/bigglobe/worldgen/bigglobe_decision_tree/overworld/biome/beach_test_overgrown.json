@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 2.0,
-		"max": 6.0,
-		"column_value": "bigglobe:overworld/processed_surface_y"
+		"type": "script_chance",
+		"script": "unmixSmooth(2.0L, 8.0L, world_traits.`bigglobe:exact_surface_y`)"
 	},
 	"if_true": "bigglobe:overworld/biome/overgrown_beach",
 	"if_false": "bigglobe:overworld/biome/beach"

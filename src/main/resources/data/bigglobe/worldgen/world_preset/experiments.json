@@ -306,9 +306,14 @@
 					"sea_level": 0
 				},
 				"world_traits": {
-					"bigglobe:exact_surface_y": "`bigglobe:islands/eroded_surface_height`",
 					"bigglobe:approximate_surface_y": "`bigglobe:islands/basic_surface_height`",
+					"bigglobe:biome": "`bigglobe:islands/biome`",
+					"bigglobe:exact_surface_y": "`bigglobe:islands/eroded_surface_height`",
+					"bigglobe:foliage_at_sea_level": "`bigglobe:islands/raw_foliage`",
 					"bigglobe:magicalness": "`bigglobe:islands/magicalness`",
+					"bigglobe:sea_level": "0I",
+					"bigglobe:snow_y": "`bigglobe:islands/snow_height`",
+					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 					"bigglobe:y_level_on_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
 					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1"
 				},

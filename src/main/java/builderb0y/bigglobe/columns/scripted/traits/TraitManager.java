@@ -25,13 +25,10 @@ import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironme
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -82,6 +79,13 @@ public class TraitManager {
 			TraitInfo info = this.infos.get(entry);
 			if (entry.value().fallback() != null) {
 				info.method.setCode(entry.value().fallback().findSource(), (MutableScriptEnvironment environment) -> {
+					environment
+					.addAll(MathScriptEnvironment.INSTANCE)
+					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+					.configure(MinecraftScriptEnvironment.create())
+					.configure(ScriptedColumn.baseEnvironment(load("column", this.columnEntryRegistry.columnContext.selfType())))
+					.addAll(ColorScriptEnvironment.ENVIRONMENT);
+					if (entry.value().schema().is_3d()) environment.addVariableLoad("y", TypeInfos.INT);
 					this.columnEntryRegistry.setupExternalEnvironment(
 						environment,
 						new ExternalEnvironmentParams()
@@ -179,54 +183,13 @@ public class TraitManager {
 	}
 
 	public void setupInternalEnvironment(MutableScriptEnvironment environment, InsnTree loadColumn, @Nullable InsnTree loadY, MutableDependencyView dependencies) {
-		environment
-		.addVariableConstant("world_traits", this.baseTraitsClass.info)
-		.addFieldInvoke(ScriptedColumn.INFO.worldTraits);
-		this.traitRegistry.streamEntries().forEach((RegistryEntry<? extends WorldTrait> entry) -> {
-			String name = UnregisteredObjectException.getID(entry).toString();
-			TraitInfo info = this.infos.get(entry);
-			if (entry.value().schema().is_3d()) {
-				environment.addMethod(
-					this.baseTraitsClass.info,
-					name,
-					new MethodHandler.Named(
-						"world_traits.`" + name + "`(y)",
-						(ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
-							InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name1, types("I"), CastMode.IMPLICIT_NULL, arguments);
-							if (castArguments == null) return null;
-							dependencies.addDependency(entry);
-							return new CastResult(mode.makeInvoker(parser, ScriptedColumn.INFO.worldTraits(loadColumn), info.method.info, loadColumn, castArguments[0]), castArguments != arguments);
-						}
-					)
-				);
-				if (loadY != null) {
-					environment.addField(
-						this.baseTraitsClass.info,
-						name,
-						new FieldHandler.Named(
-							"world_traits.`" + name + '`',
-							(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-								dependencies.addDependency(entry);
-								return mode.makeInvoker(parser, ScriptedColumn.INFO.worldTraits(loadColumn), info.method.info, loadColumn, loadY);
-							}
-						)
-					);
-				}
-			}
-			else {
-				environment.addField(
-					this.baseTraitsClass.info,
-					name,
-					new FieldHandler.Named(
-						"world_traits.`" + name + '`',
-						(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-							dependencies.addDependency(entry);
-							return mode.makeInvoker(parser, ScriptedColumn.INFO.worldTraits(loadColumn), info.method.info, loadColumn);
-						}
-					)
-				);
-			}
-		});
+		this.setupExternalEnvironment(
+			environment,
+			new ExternalEnvironmentParams()
+			.withColumn(loadColumn)
+			.withY(loadY)
+			.trackDependencies(dependencies)
+		);
 	}
 
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {

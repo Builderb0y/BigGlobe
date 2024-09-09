@@ -1,9 +1,13 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": -32.0,
-		"max": -64.0,
-		"column_value": "bigglobe:overworld/basic_surface_y"
+		"type": "script_chance",
+		"script": [
+			"unmixSmooth(",
+				"-32.0L,",
+				"-64.0L,",
+				"world_traits.`bigglobe:approximate_surface_y` - world_traits.`bigglobe:sea_level`",
+			")"
+		]
 	},
 	"if_true": "bigglobe:overworld/biome/deep_ocean",
 	"if_false": "bigglobe:overworld/biome/ocean"

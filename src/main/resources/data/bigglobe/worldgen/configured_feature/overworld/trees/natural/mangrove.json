@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:mangrove",
-		"height": "random.nextDouble(`bigglobe:overworld/surface_foliage`) * 32.0 + 4.0",
+		"height": "random.nextDouble() * max(world_traits.`bigglobe:surface_foliage`, 0.0I) * 32.0 + 4.0",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",

@@ -3,23 +3,19 @@
 		"type": "and",
 		"conditions": [
 			{
-				"type": "threshold",
-				"min": 2.0,
-				"max": 6.0,
-				"column_value": "bigglobe:overworld/processed_surface_y"
+				"type": "script_chance",
+				"script": "unmixSmooth(2.0L, 6.0L, world_traits.`bigglobe:exact_surface_y`)"
 			},
 			{
-				"type": "threshold",
-				"min": -0.625,
-				"max": -0.375,
-				"smooth_min": false,
-				"column_value": "bigglobe:overworld/surface_foliage"
+				"type": "script_chance",
+				"script": [
+					"float result = unmixClamp(-0.625I, -0.375I, world_traits.`bigglobe:surface_foliage`)",
+					"result * (2.0I - result)"
+				]
 			},
 			{
-				"type": "threshold",
-				"min": 0.75,
-				"max": 0.25,
-				"column_value": "bigglobe:overworld/surface_temperature"
+				"type": "script_chance",
+				"script": "unmixSmooth(0.75I, 0.25I, world_traits.`bigglobe:surface_temperature`)"
 			}
 		]
 	},

@@ -1,0 +1,5 @@
+{
+	"type": "float",
+	"is_3d": false,
+	"default": "float(world_traits.`bigglobe:snow_y` - world_traits.`bigglobe:exact_surface_y`)"
+}

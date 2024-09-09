@@ -1,10 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": 0.25,
-		"max": 0.75,
-		"smooth_max": false,
-		"column_value": "bigglobe:overworld/surface_foliage"
+		"type": "script_chance",
+		"script": "unmixClamp(0.25I, 0.75I, world_traits.`bigglobe:surface_foliage`) ^ 2"
 	},
 	"if_true": "bigglobe:overworld/surface_state/overgrown_test_forest",
 	"if_false": "bigglobe:overworld/surface_state/temperate_test_wasteland"

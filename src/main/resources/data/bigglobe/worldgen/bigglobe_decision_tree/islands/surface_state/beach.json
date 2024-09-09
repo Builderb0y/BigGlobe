@@ -1,9 +1,0 @@
-{
-	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "minecraft:sand",
-			"subsurfaceState": "minecraft:sand"
-		}
-	}
-}

@@ -11,9 +11,14 @@
 					"sea_level": 0
 				},
 				"world_traits": {
-					"bigglobe:exact_surface_y": "`bigglobe:overworld/processed_surface_y`",
 					"bigglobe:approximate_surface_y": "`bigglobe:overworld/basic_surface_y`",
+					"bigglobe:biome": "`bigglobe:overworld/biome`",
+					"bigglobe:exact_surface_y": "`bigglobe:overworld/processed_surface_y`",
+					"bigglobe:foliage_at_sea_level": "`bigglobe:overworld/raw_foliage`",
 					"bigglobe:magicalness": "`bigglobe:overworld/magicalness`",
+					"bigglobe:sea_level": "0I",
+					"bigglobe:snow_y": "`bigglobe:overworld/snow_y`",
+					"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
 					"bigglobe:y_level_on_surface": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
 					"bigglobe:y_level_in_surface": "lowerInt(`bigglobe:overworld/processed_surface_y`)"
 				},
@@ -329,6 +334,9 @@
 				"nether_overrides": {
 					"place_portal_at_high_y_level": true
 				},
+				"world_traits": {
+					"bigglobe:biome": "`bigglobe:nether/bubble`.biome"
+				},
 				"layer": {
 					"state": "`bigglobe:nether/bubble`.filler",
 					"children": [
@@ -403,6 +411,9 @@
 				"height": {
 					"min_y": -512,
 					"max_y":  512
+				},
+				"world_traits": {
+					"bigglobe:biome": "`bigglobe:end/surface`.biome"
 				},
 				"layer": {
 					"state": "'minecraft:air'",

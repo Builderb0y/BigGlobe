@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": -0.5,
-		"max": -1.0,
-		"column_value": "bigglobe:overworld/magicalness"
+		"type": "script_chance",
+		"script": "unmixSmooth(-0.5I, -1.0I, world_traits.`bigglobe:magicalness`)"
 	},
 	"if_true": "bigglobe:overworld/biome/ominous_test_forest",
 	"if_false": "bigglobe:overworld/biome/temperate_test_light_forest"

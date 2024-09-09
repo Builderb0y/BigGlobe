@@ -1,0 +1,9 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "biome",
+		"is_3d": true
+	},
+	"root": "bigglobe:islands/biome/test_core",
+	"cache": false
+}
