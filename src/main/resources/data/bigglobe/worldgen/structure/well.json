@@ -4,7 +4,7 @@
 	"spawn_overrides": {},
 	"step": "surface_structures",
 	"layout": [
-		"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+		"int originY = world_traits.`bigglobe:y_level_on_surface`",
 		"WoodPalette palette = `bigglobe:overworld/wood_palette`",
 		"Biome biome = `bigglobe:overworld/biome`(originY)",
 

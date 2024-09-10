@@ -13,7 +13,7 @@
 			")",
 		")",
 
-		"int originY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+		"int originY = world_traits.`bigglobe:y_level_on_surface`",
 		"String paletteID = `bigglobe:overworld/wood_palette`.?id ?: return()",
 
 		";campfire",

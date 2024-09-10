@@ -1,9 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"params": {
-		"type": "float",
-		"is_3d": false
-	},
-	"script": "float(snow_y - processed_surface_y)",
-	"cache": false
-}

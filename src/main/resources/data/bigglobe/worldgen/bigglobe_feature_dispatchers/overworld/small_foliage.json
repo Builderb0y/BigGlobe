@@ -5,11 +5,10 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"placeFeature(x, ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), z, 'bigglobe:overworld/surface_small_foliage')",
-			"placeFeature(x, ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), z, 'bigglobe:overworld/cherry_blossoms')",
-			"SkylandBounds bounds = `bigglobe:overworld/skyland`(x, z).bounds",
-			"if (bounds != null && bounds.max_y > bounds.min_y:",
-				"placeFeature(x, floorInt(bounds.max_y) + 1, z, 'bigglobe:overworld/skylands/small_foliage')",
+			"placeFeature(x, world_traits.`bigglobe:y_level_on_surface`(x, z), z, 'bigglobe:overworld/surface_small_foliage')",
+			"placeFeature(x, world_traits.`bigglobe:y_level_on_surface`(x, z), z, 'bigglobe:overworld/cherry_blossoms')",
+			"if (world_traits.`bigglobe:has_skylands`(x, z):",
+				"placeFeature(x, world_traits.`bigglobe:skyland_max_y`(x, z), z, 'bigglobe:overworld/skylands/small_foliage')",
 			")",
 		")"
 	]

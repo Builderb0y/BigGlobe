@@ -16,14 +16,22 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
+	make sure glow lichen and small dungeons spawn in island caves.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	document what version constant lists and maps were added in.
-	surface materials for islands.
+	document traits.
 	blanket replace surface Y level with trait.
 	remove column values which have been replaced by traits.
+	add trait for tree feature, specifically so I can get rid of the "islands/trees" feature dispatcher.
+	biome for volcanoes.
+		prevent some structures and features from generating on volcanoes.
+		charred grass on volcanoes.
+	deal with structures on akylands.
+	possibly add trait for small dungeon type so I can merge that feature dispatcher.
+	overriders for island worlds.
 
 changelog:
 	# For data pack makers:
@@ -46,6 +54,22 @@ alternate world presets:
 			decorations.
 			types.
 		more rock layers.
+
+braking changes I want to make:
+	better Purpose system.
+		rename to "Hints"
+		bitflags:
+			fill
+			carve
+		lod (byte)
+		purpose (enum with auto-casting)
+	rename cavern-related overworld column values to "deep dark".
+	expose IntAABB and DoubleAABB to scripts, with min, mid, and max properties.
+		remove min/max Accessible/Modifiable X/Y/Z
+			replace with accessibleArea and modifiableArea.
+		migrate equivalent getters from Structure/StructurePiece.
+	remove noscope.
+		replace with Type*(name := value)
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.

@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": true
+	},
+	"script": "world_traits.`bigglobe:approximate_surface_y` - y",
+	"cache": false
+}

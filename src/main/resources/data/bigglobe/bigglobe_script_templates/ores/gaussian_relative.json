@@ -1,6 +1,6 @@
 {
 	"script": [
-		"double offset = (`bigglobe:distance_below_surface` - depth) / deviation",
+		"double offset = (`bigglobe:approximate_distance_below_surface` - depth) / deviation",
 		"mixLinear(limit, peak, exp2(-(offset ^ 2)))"
 	],
 	"inputs": [

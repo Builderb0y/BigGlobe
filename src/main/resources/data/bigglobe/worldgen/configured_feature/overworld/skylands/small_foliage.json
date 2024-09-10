@@ -2,23 +2,19 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.unless (0.25: return(false))",
-
-			"BlockState existingState = getBlockState(originX, originY, originZ)",
-			"BlockState newState = null",
-			"random.if (0.25:",
+			"random.nextBoolean(0.25I) && placeBlockState(originX, originY, originZ,",
 				"random.if (0.25:",
-					"newState = random.nextBoolean(0.125) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]'",
+					"random.if (0.25:",
+						"random.nextBoolean(0.125) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]'",
+					")",
+					"else (",
+						"random.nextBoolean(0.125) ? 'minecraft:fern' : 'minecraft:grass'",
+					")",
 				")",
 				"else (",
-					"newState = random.nextBoolean(0.125) ? 'minecraft:fern' : 'minecraft:grass'",
+					"'bigglobe:short_grass'",
 				")",
-			")",
-			"else (",
-				"newState = 'bigglobe:short_grass'",
-			")",
-
-			"return(placeBlockState(originX, originY, originZ, newState))"
+			")"
 		]
 	}
 }

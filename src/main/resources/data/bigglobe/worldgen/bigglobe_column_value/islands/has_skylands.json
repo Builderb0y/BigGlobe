@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": [
+		"is_floating && skyland_top > skyland_bottom"
+	],
+	"cache": false
+}

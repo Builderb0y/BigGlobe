@@ -1,0 +1,35 @@
+{
+	"type": "script",
+	"dispatcher": [
+		";rocks",
+		"repeat (",
+			"random.roundInt(",
+				"world_traits.`bigglobe:hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L",
+			")",
+		":",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
+			"placeFeature(x, y, z, 'bigglobe:overworld/rock')",
+		")",
+
+		";flint",
+		"random.if (",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
+			"placeFeature(x, y, z, 'bigglobe:overworld/flint')",
+		")",
+
+		";sticks",
+		"repeat (random.roundInt(world_traits.`bigglobe:surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"double exactY = world_traits.`bigglobe:exact_surface_y`(x, z)",
+			"random.if (unmixSmooth(4.0L, 8.0L, exactY):",
+				"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
+				"placeFeature(x, y, z, 'bigglobe:overworld/stick')",
+			")",
+		")"
+	]
+}

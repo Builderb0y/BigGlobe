@@ -1,6 +1,6 @@
 {
 	"script": [
-		"double depth = `bigglobe:distance_below_surface` / delay",
+		"double depth = `bigglobe:approximate_distance_below_surface` / delay",
 		"double scale = (2.0L * peak) / (2.0L * peak - limit)",
 		"double rampUp = 1.0L - exp2(-depth)",
 		"double taperOut = mixLinear(limit / peak, 2.0L, exp2(scale * (1.0L - depth)))",

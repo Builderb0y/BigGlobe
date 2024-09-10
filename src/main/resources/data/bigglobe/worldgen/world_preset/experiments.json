@@ -297,8 +297,9 @@
 				"reload_preset": "experiments",
 				"reload_dimension": "minecraft:overworld",
 				"biome_source": {
-					"type": "minecraft:fixed",
-					"biome": "minecraft:plains"
+					"type": "bigglobe:scripted",
+					"script": "`bigglobe:islands/biome`",
+					"all_possible_biomes": "bigglobe:overworld"
 				},
 				"height": {
 					"min_y": -1024,
@@ -316,12 +317,15 @@
 					"bigglobe:deep_dark_max_y":          "-624I",
 					"bigglobe:exact_surface_y":          "`bigglobe:islands/eroded_surface_height`",
 					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
+					"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
 					"bigglobe:hilliness":                "`bigglobe:islands/mountainness`",
 					"bigglobe:lava_y":                   "-896I",
 					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
 					"bigglobe:max_y":                    " 1024I",
 					"bigglobe:min_y":                    "-1024I",
 					"bigglobe:sea_level":                "0I",
+					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:islands/skyland_bottom`)",
+					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:islands/skyland_top`)",
 					"bigglobe:snow_y":                   "`bigglobe:islands/snow_height`",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 					"bigglobe:y_level_on_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`)",
@@ -479,11 +483,11 @@
 							"state": "'minecraft:stone'",
 							"valid": {
 								"where": "`bigglobe:islands/is_floating`",
-								"min_y": "int(`bigglobe:islands/skyland_bottom`)",
-								"max_y": "int(`bigglobe:islands/skyland_top`)"
+								"min_y": "world_traits.`bigglobe:skyland_min_y`",
+								"max_y": "world_traits.`bigglobe:skyland_max_y`"
 							},
 							"after_children": [
-								"int surfaceY = int(`bigglobe:islands/skyland_top`)",
+								"int surfaceY = world_traits.`bigglobe:skyland_max_y`",
 								"long seed = columnSeed(16x6C744C12C6BC713CUL)",
 								"double slopeSquared = (",
 									"+ `bigglobe:islands/dx_height_offset` ^ 2",

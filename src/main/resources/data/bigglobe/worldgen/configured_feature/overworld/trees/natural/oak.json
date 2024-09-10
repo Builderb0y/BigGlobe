@@ -28,14 +28,14 @@
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:stubby_branch", "chance": 0.125 },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/vines_half_chance" },
-				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" }
 			],
 			"branches": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" }
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" }
 			],
 			"leaves": [
-				{ "type": "bigglobe:snow", "chance": "`bigglobe:overworld/snow_chance`" },
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/bee_nest" }
 			]
 		},

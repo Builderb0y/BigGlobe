@@ -13,7 +13,7 @@
 			"minecraft:polished_granite":  "minecraft:emerald_ore",
 			"minecraft:deepslate":         "minecraft:deepslate_emerald_ore"
 		},
-		"chance": "exp(`bigglobe:distance_below_surface` / -192.0L) * world_traits.`bigglobe:hilliness`",
+		"chance": "exp(`bigglobe:approximate_distance_below_surface` / -192.0L) * world_traits.`bigglobe:hilliness`",
 		"radius": {
 			"type": "average",
 			"min": 1.5,
