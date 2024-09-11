@@ -520,7 +520,7 @@
 					"raw": "bigglobe:islands/raw_root",
 					"normal": "bigglobe:islands/normal_root"
 				},
-				"overriders": "bigglobe:empty",
+				"overriders": "bigglobe:islands",
 				"spawn_point": [
 					"!`bigglobe:islands/is_floating` &&",
 					"`bigglobe:islands/eroded_surface_height` > 8.0L &&",

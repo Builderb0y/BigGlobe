@@ -1,0 +1,23 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure ==. 'bigglobe:small_house':",
+				"StructurePiece piece = start.pieces.(0)",
+				"double distance = distanceToCircle(piece, 4.0L)",
+				"double mixLevel = smooth(distance * 0.0625L)",
+				"`bigglobe:islands/eroded_surface_height` = mixLinear(piece.minY + 0.5L, `bigglobe:islands/eroded_surface_height`, mixLevel)",
+				"`bigglobe:islands/snow_height`           = mixLinear(piece.minY - 0.5L, `bigglobe:islands/snow_height`,              mixLevel)",
+				"`bigglobe:islands/surface_foliage`      *= float(mixLevel)",
+				"if (start.pieces.size > 1:",
+					"piece = start.pieces.(1)",
+					"distance = distanceToSquare(piece)",
+					"mixLevel = smooth(distance * 0.0625L)",
+					"`bigglobe:islands/eroded_surface_height` = mixLinear(piece.minY + 1.5L, `bigglobe:islands/eroded_surface_height`, mixLevel)",
+					"`bigglobe:islands/snow_height`           = mixLinear(piece.minY + 0.5L, `bigglobe:islands/snow_height`,              mixLevel)",
+					"`bigglobe:islands/surface_foliage`      *= float(mixLevel)",
+				")",
+			")",
+		")"
+	]
+}

@@ -1,0 +1,28 @@
+{
+	"type": "column_value",
+	"script": [
+		"double peek2 = 0.8382 ^ 2",
+		"for (StructureStart start in structures:",
+			"if (start.structure.isIn('bigglobe:underground_pockets'):",
+				"double scaledX = unmixLinear(double(start.midX), double(start.maxX), double(x))",
+				"double scaledZ = unmixLinear(double(start.midZ), double(start.maxZ), double(z))",
+				"double radius2 = scaledX ^ 2 + scaledZ ^ 2",
+				"if (radius2 < 1.0L:",
+					"float noise = Grid2D('bigglobe:underground_pocket_noise').getValue(x, z).as(float)",
+					"for (int absY in range[start.minY, start.maxY]:",
+						"double scaledY = unmixLinear(double(start.midY), double(start.maxY), double(absY))",
+						"double radius3 = radius2 + scaledY ^ 2",
+						"if (radius3 < 1.0L:",
+							"float curve = float((2.0L * radius3 ^ 2 - 0.5L) * (1.0L - radius3 ^ 8) ^ 8 * (1.0L - scaledY) ^ 2)",
+							"if (radius3 < peek2:",
+								"float limit = ((1.0I - float(scaledY)) / -1.83I ;(almost perfectly tangent according to desmos)) ^ 2",
+								"curve = mixLinear(curve, limit, noise)",
+							")",
+							"`bigglobe:islands/cave_noise`(absY) += curve",
+						")",
+					")",
+				")",
+			")",
+		")"
+	]
+}

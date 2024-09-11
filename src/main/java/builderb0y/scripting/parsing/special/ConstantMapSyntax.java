@@ -23,7 +23,7 @@ public record ConstantMapSyntax(ConstantValue... keysAndValues) {
 			parser.input.expectOperatorAfterWhitespace(":");
 			InsnTree value = parser.nextScript();
 			ConstantValue constantValue = value.getConstantValue();
-			if (constantValue == null) throw new ScriptParsingException("Not a constant value: " + value.describe(), parser.input);
+			if (!constantValue.isConstantOrDynamic()) throw new ScriptParsingException("Not a constant value: " + value.describe(), parser.input);
 			keysAndValues.add(constantKey);
 			keysAndValues.add(constantValue);
 			if (parser.input.hasOperatorAfterWhitespace(",")) {

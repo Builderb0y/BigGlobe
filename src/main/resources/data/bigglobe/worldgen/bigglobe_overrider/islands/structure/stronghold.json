@@ -1,0 +1,22 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type ==. 'minecraft:stronghold':",
+			"int maxDeepDark = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ)",
+			"int minCave = world_traits.`bigglobe:cave_min_y`(start.midX, start.midZ)",
+			"if (start.moveToRange(maxDeepDark, minCave):",
+				"return(true)",
+			")",
+			"else (",
+				"int minSurface = min(",
+					"int(world_traits.`bigglobe:approximate_surface_y`(start.minX, start.minZ)),",
+					"int(world_traits.`bigglobe:approximate_surface_y`(start.minX, start.maxZ)),",
+					"int(world_traits.`bigglobe:approximate_surface_y`(start.maxX, start.minZ)),",
+					"int(world_traits.`bigglobe:approximate_surface_y`(start.maxX, start.maxZ))",
+				")",
+				"return(start.moveToRange(maxDeepDark, minSurface))",
+			")",
+		")",
+		"return(true)"
+	]
+}

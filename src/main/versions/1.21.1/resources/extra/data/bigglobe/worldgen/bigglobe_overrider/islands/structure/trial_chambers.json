@@ -1,0 +1,11 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure ==. 'minecraft:trial_chambers':",
+			"int maxDeepDark = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ)",
+			"int minCave = world_traits.`bigglobe:cave_min_y`(start.midX, start.midZ)",
+			"return(start.moveToRange(maxDeepDark, minCave))",
+		")",
+		"return(true)"
+	]
+}

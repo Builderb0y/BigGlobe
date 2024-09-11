@@ -1,0 +1,23 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.isIn('bigglobe:dungeons') || start.structure.type ==. 'minecraft:mineshaft':",
+			"int minCave = max(",
+				"world_traits.`bigglobe:cave_min_y`(start.minX, start.minZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.minX, start.maxZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.maxX, start.minZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.maxX, start.maxZ)",
+			")",
+			"+ 16",
+			"int maxCave = min(",
+				"world_traits.`bigglobe:cave_max_y`(start.minX, start.minZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.minX, start.maxZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.maxX, start.minZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.maxX, start.maxZ)",
+			")",
+			"- 16",
+			"return(start.moveToRange(minCave, maxCave))",
+		")",
+		"return(true)"
+	]
+}

@@ -8,7 +8,7 @@
 			"return(",
 				"(start.structure ==. 'minecraft:ocean_ruin_cold')",
 				"==",
-				"random.nextBoolean(`bigglobe:overworld/hilliness`(start.midX, start.midZ))",
+				"random.nextBoolean(world_traits.`bigglobe:hilliness`(start.midX, start.midZ))",
 			")",
 		")",
 		"return(true)"

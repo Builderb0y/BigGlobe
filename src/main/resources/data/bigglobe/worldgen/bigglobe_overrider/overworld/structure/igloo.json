@@ -6,7 +6,7 @@
 			"int centerX = last.midX",
 			"int centerZ = last.midZ",
 			"int fromY = last.minY",
-			"int toY = int(`bigglobe:overworld/snow_y`(centerX, centerZ) - 0.5L)",
+			"int toY = int(world_traits.`bigglobe:snow_y`(centerX, centerZ) - 0.5L)",
 			"start.move(toY - fromY)",
 		")",
 		"return(true)"

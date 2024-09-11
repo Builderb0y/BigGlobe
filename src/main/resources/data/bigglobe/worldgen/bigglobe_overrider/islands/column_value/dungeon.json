@@ -1,0 +1,33 @@
+{
+	"type": "column_value",
+	"feature_generation": false,
+	"script": [
+		"if (surfaceOnly: return())",
+		"for (StructureStart start in structures:",
+			"if (start.structure.isIn('bigglobe:dungeons'):",
+				"int structureMinY = start.minY",
+				"int structureMaxY = start.maxY",
+				"int bufferMinY = structureMinY - 16I",
+				"int bufferMaxY = structureMaxY + 16I",
+				"float horizontalFactor = clamp(0.0I, 1.0I, 1.0I - distanceToCircle(start).as(float) * 0.0625I) ^ 2",
+				"for (",
+					"int y in range[",
+						"max(bufferMinY, world_traits.`bigglobe:cave_min_y`),",
+						"min(bufferMaxY, world_traits.`bigglobe:cave_max_y`)",
+					")",
+				":",
+					"float verticalFactor = if (y < structureMinY:",
+						"unmixLinear(double(bufferMinY), double(structureMinY), double(y)).as(float) ^ 2",
+					")",
+					"else if (y > structureMaxY:",
+						"unmixLinear(double(bufferMaxY), double(structureMaxY), double(y)).as(float) ^ 2",
+					")",
+					"else (",
+						"1.0I",
+					")",
+					"`bigglobe:islands/cave_noise`(y) *= 1.0 - horizontalFactor * verticalFactor",
+				")",
+			")",
+		")"
+	]
+}

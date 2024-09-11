@@ -129,7 +129,7 @@ public class JavaUtilScriptEnvironment {
 			int argumentCount = arguments.length;
 			ConstantValue[] constants = new ConstantValue[argumentCount];
 			for (int index = 0; index < argumentCount; index++) {
-				if ((constants[index] = arguments[index].getConstantValue()) == null) {
+				if (!(constants[index] = arguments[index].getConstantValue()).isConstantOrDynamic()) {
 					throw new ScriptParsingException("Argument " + index + " is not a constant value: " + arguments[index].describe(), parser.input);
 				}
 			}

@@ -1,0 +1,17 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type.isIn('bigglobe:restrict_to_biome') || start.structure.isIn('bigglobe:restrict_to_biome'):",
+			"BiomeTag validBiomes = start.structure.validBiomes",
+			"for (int x in range[start.minX, start.maxX] % 4:",
+				"unless (world_traits.`bigglobe:biome`(x, start.minY, start.minZ).isIn(validBiomes): return(false))",
+				"unless (world_traits.`bigglobe:biome`(x, start.minY, start.maxZ).isIn(validBiomes): return(false))",
+			")",
+			"for (int z in range[start.minZ, start.maxZ] % 4:",
+				"unless (world_traits.`bigglobe:biome`(start.minX, start.minY, z).isIn(validBiomes): return(false))",
+				"unless (world_traits.`bigglobe:biome`(start.maxX, start.minY, z).isIn(validBiomes): return(false))",
+			")",
+		")",
+		"return(true)"
+	]
+}
