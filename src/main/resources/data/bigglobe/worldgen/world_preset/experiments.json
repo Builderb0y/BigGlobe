@@ -307,7 +307,6 @@
 					"sea_level": 0
 				},
 				"world_traits": {
-					"bigglobe:approximate_surface_y":    "`bigglobe:islands/basic_surface_height`",
 					"bigglobe:biome":                    "`bigglobe:islands/biome`",
 					"bigglobe:cave_min_y":               "-384I",
 					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
@@ -315,7 +314,6 @@
 					"bigglobe:core_max_y":               "-784I",
 					"bigglobe:deep_dark_min_y":          "-752I",
 					"bigglobe:deep_dark_max_y":          "-624I",
-					"bigglobe:exact_surface_y":          "`bigglobe:islands/eroded_surface_height`",
 					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
 					"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
 					"bigglobe:hilliness":                "`bigglobe:islands/mountainness`",
@@ -326,10 +324,21 @@
 					"bigglobe:sea_level":                "0I",
 					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:islands/skyland_bottom`)",
 					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:islands/skyland_top`)",
-					"bigglobe:snow_y":                   "`bigglobe:islands/snow_height`",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 					"bigglobe:y_level_on_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`)",
-					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1"
+					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1",
+					"bigglobe:approximate_surface_y": {
+						"get": "`bigglobe:islands/basic_surface_height`",
+						"set": "`bigglobe:islands/basic_surface_height` = value"
+					},
+					"bigglobe:exact_surface_y": {
+						"get": "`bigglobe:islands/eroded_surface_height`",
+						"set": "`bigglobe:islands/eroded_surface_height` = value"
+					},
+					"bigglobe:snow_y": {
+						"get": "`bigglobe:islands/snow_height`",
+						"set": "`bigglobe:islands/snow_height` = value"
+					}
 				},
 				"layer": {
 					"state": "'minecraft:air'",

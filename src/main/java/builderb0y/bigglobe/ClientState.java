@@ -47,6 +47,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
@@ -304,7 +305,7 @@ public class ClientState {
 		public final ColorScript.@VerifyNullable Holder grassColor;
 		public final ColorScript.@VerifyNullable Holder foliageColor;
 		public final ColorScript.@VerifyNullable Holder waterColor;
-		public final Map<RegistryEntry<WorldTrait>, ScriptUsage> worldTraits;
+		public final Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits;
 		public transient ColumnEntryRegistry columnEntryRegistry;
 		public transient WorldTraits compiledWorldTraits;
 		public final transient ThreadLocal<ScriptedColumn> columns;
@@ -317,7 +318,7 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder grassColor,
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor,
-			Map<RegistryEntry<WorldTrait>, ScriptUsage> worldTraits
+			Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits
 		) {
 			this.minY = minY;
 			this.maxY = maxY;
@@ -341,7 +342,7 @@ public class ClientState {
 			this.waterColor = generator.colors != null ? generator.colors.water() : null;
 			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.world_traits.size() : 0);
 			if (generator.world_traits != null) {
-				for (Map.Entry<RegistryEntry<WorldTrait>, ScriptUsage> entry : generator.world_traits.entrySet()) {
+				for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : generator.world_traits.entrySet()) {
 					if (syncing.worldTraits.containsKey(UnregisteredObjectException.getID(entry.getKey()))) {
 						this.worldTraits.put(entry.getKey(), entry.getValue());
 					}

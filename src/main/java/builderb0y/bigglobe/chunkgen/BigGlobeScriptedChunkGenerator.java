@@ -97,6 +97,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyze
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
@@ -199,7 +200,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		) {}
 	}
 	public final @VerifyNullable EndOverrides end_overrides;
-	public final @VerifyNullable Map<RegistryEntry<WorldTrait>, ScriptUsage> world_traits;
+	public final @VerifyNullable Map<RegistryEntry<WorldTrait>, WorldTraitProvider> world_traits;
 	public final transient WorldTraits compiledWorldTraits;
 
 	public transient SortedOverriders actualOverriders;
@@ -221,7 +222,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
-		@VerifyNullable Map<RegistryEntry<WorldTrait>, ScriptUsage> world_traits,
+		@VerifyNullable Map<RegistryEntry<WorldTrait>, WorldTraitProvider> world_traits,
 		SortedStructures sortedStructures
 	)
 	throws VerifyException {
