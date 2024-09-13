@@ -8,7 +8,7 @@
 			"if (",
 				"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 				"`bigglobe:overworld/biome`(x, y, z).isIn('bigglobe:swamps') &&",
-				"world_traits.`bigglobe:surface_foliage`(x, z) > 0.0L",
+				"`bigglobe:overworld/surface_foliage`(x, z) > 0.0L",
 			":",
 				"placeFeature(x, y, z, 'bigglobe:overworld/swamp_surface')",
 			")",

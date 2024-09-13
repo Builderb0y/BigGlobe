@@ -8,6 +8,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
 import builderb0y.bigglobe.compat.voxy.ForgetfulMemoryStorageBackend;
 import builderb0y.bigglobe.compat.voxy.GeneratingStorageBackend;
@@ -25,7 +31,16 @@ public class Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging {
 
 	@ModifyReturnValue(method = "createStorageBackend", at = @At("RETURN"), remap = false)
 	private StorageBackend bigglobe_useGeneratingStorageBackend(StorageBackend original) {
-		if (BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread) {
+		ClientWorld clientWorld;
+		ServerWorld serverWorld;
+		MinecraftServer server;
+		if (
+			BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread &&
+			(clientWorld = MinecraftClient.getInstance().world) != null &&
+			(server = MinecraftClient.getInstance().getServer()) != null &&
+			(serverWorld = server.getWorld(clientWorld.getRegistryKey())) != null &&
+			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator
+		) {
 			return new GeneratingStorageBackend(original);
 		}
 		else {

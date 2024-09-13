@@ -1,7 +1,7 @@
 {
 	"condition": {
 		"type": "script_chance",
-		"script": "unmixSmooth(0.25I, 0.75I, world_traits.`bigglobe:surface_foliage`)"
+		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`)"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/jungle",
 	"if_false": "bigglobe:overworld/wood_palette/acacia"

@@ -29,11 +29,13 @@
 					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
 					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
-					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:overworld/processed_surface_y`)",
-					"bigglobe:y_level_on_surface":       " ceilInt(`bigglobe:overworld/processed_surface_y`)",
 					"bigglobe:approximate_surface_y": {
 						"get": "`bigglobe:overworld/basic_surface_y`",
 						"set": "`bigglobe:overworld/basic_surface_y` = value"
+					},
+					"bigglobe:cave_noise": {
+						"get": "`bigglobe:overworld/cave`.noise(y)",
+						"set": "`bigglobe:overworld/cave`.noise(y) = value"
 					},
 					"bigglobe:exact_surface_y": {
 						"get": "`bigglobe:overworld/processed_surface_y`",
@@ -128,7 +130,7 @@
 							],
 							"valid": {
 								"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
-								"min_y": "distantHorizons ? ceilInt(`bigglobe:overworld/basic_surface_y`) - 32 : 16x80000000U"
+								"min_y": "surfaceOnly ? ceilInt(`bigglobe:overworld/basic_surface_y`) - 32 : 16x80000000U"
 							},
 							"children": [
 								{

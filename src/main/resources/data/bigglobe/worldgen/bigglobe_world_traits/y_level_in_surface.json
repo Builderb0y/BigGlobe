@@ -1,4 +1,5 @@
 {
 	"type": "int",
-	"is_3d": false
+	"is_3d": false,
+	"default": "lowerInt(world_traits.`bigglobe:exact_surface_y`)"
 }

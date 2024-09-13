@@ -100,6 +100,11 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean skipUnderground = true;
 
+		@Tooltip(count = 3)
+		@UseName("Light Air")
+		@DefaultIgnore
+		public boolean lightAir = false;
+
 		public void validatePostLoad() {}
 	}
 

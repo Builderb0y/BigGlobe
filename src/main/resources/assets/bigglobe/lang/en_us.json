@@ -298,6 +298,11 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[1]": "If false, Big Globe will generate all terrain down to bedrock in voxy chunks.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[2]": "Enabling this option can result in a massive speed boost when generating voxy terrain.",
 
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Light Air",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "If true, Big Globe will tell Voxy what the light level of air blocks are.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "If false, Big Globe will skip air blocks when giving data to Voxy.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Enabling this option can fix some lighting errors with Voxy, at the cost of LOD generation speed.",
+
 	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "These config options have no effect outside of Big Globe worlds.",

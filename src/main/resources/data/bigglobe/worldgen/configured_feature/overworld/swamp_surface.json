@@ -8,7 +8,7 @@
 				"BlockState state = getBlockState(x, originY, z)",
 				"return(state.hasFullCubeCollision() || state.hasWater())",
 			")",
-			"double adjustedFoliage = 0.5L - 0.5L / (4.0L * world_traits.`bigglobe:surface_foliage` ^ 2 + 1.0L)",
+			"double adjustedFoliage = 0.5L - 0.5L / (4.0L * `bigglobe:overworld/surface_foliage` ^ 2 + 1.0L)",
 			"if (",
 				"random.nextBoolean(adjustedFoliage) &&",
 				"hasSolidOrWater(originX - 1, originZ) &&",

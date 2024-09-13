@@ -1,8 +1,0 @@
-{
-	"type": "script",
-	"params": {
-		"type": "float",
-		"is_3d": false
-	},
-	"script": "height_adjusted_foliage(int(basic_surface_height))"
-}

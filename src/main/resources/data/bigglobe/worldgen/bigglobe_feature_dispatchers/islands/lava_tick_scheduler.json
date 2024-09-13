@@ -6,7 +6,7 @@
 				"int z in range[minModifiableZ, maxModifiableZ],",
 				"int x in range[minModifiableX, maxModifiableX]",
 			":",
-				"int y = lowerInt(`bigglobe:islands/eroded_surface_height`(x, z))",
+				"int y = world_traits.`bigglobe:y_level_in_surface`(x, z)",
 				"BlockState state = null",
 				"while ((state := getBlockState(x, y, z)).isAir():",
 					"--y",

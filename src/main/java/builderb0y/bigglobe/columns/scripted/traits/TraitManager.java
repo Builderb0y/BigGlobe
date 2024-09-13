@@ -33,7 +33,6 @@ import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -155,7 +154,10 @@ public class TraitManager {
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
 		context.addNoArgConstructor(ACC_PUBLIC);
+		Map<RegistryEntry<WorldTrait>, SetBasedMutableDependencyView> dependencyMap = new HashMap<>(this.infos);
 		for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : implementations.entrySet()) {
+			OverriddenDependencyView dependencies = new OverriddenDependencyView();
+			dependencyMap.put(entry.getKey(), dependencies);
 			TraitInfo info = this.infos.get(entry.getKey());
 			LazyVarInfo column = new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType());
 			LazyVarInfo y = entry.getKey().value().schema().is_3d() ? new LazyVarInfo("y", TypeInfos.INT) : null;
@@ -180,7 +182,7 @@ public class TraitManager {
 					new ExternalEnvironmentParams()
 					.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
 					.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-					.trackDependencies(info)
+					.trackDependencies(dependencies)
 				);
 			});
 			if (entry.getValue().set() != null) {
@@ -208,7 +210,7 @@ public class TraitManager {
 						.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
 						.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
 						.mutable()
-						.trackDependencies(info)
+						.trackDependencies(dependencies)
 					);
 				});
 			}
@@ -223,7 +225,7 @@ public class TraitManager {
 				.getDeclaredConstructor((Class<?>[])(null))
 				.newInstance((Object[])(null))
 			);
-			traits.dependenciesPerTrait = this.infos;
+			traits.dependenciesPerTrait = dependencyMap;
 			return traits;
 		}
 		catch (Throwable throwable) {
@@ -298,6 +300,16 @@ public class TraitManager {
 			this.setter = setter;
 			this.dependencies = new HashSet<>();
 		}
+
+		@Override
+		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+			return this.dependencies;
+		}
+	}
+
+	public static class OverriddenDependencyView implements SetBasedMutableDependencyView {
+
+		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
 		@Override
 		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {

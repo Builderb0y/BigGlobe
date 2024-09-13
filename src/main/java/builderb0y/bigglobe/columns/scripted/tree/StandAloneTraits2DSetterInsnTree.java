@@ -31,17 +31,18 @@ public class StandAloneTraits2DSetterInsnTree extends Abstract2DSetterInsnTree {
 		method.node.visitInsn(DUP); //column column
 		ScriptedColumn.INFO.worldTraits.emitBytecode(method); //column traits
 		method.node.visitTypeInsn(CHECKCAST, this.getter.owner.getInternalName()); //column traits
-		method.node.visitInsn(SWAP);
-		this.getter.emitBytecode(method);
+		method.node.visitInsn(SWAP); //traits column
+		this.getter.emitBytecode(method); //value
 	}
 
 	@Override
 	public void emitSet(MethodCompileContext method) {
-		method.node.visitInsn(DUP); //column column
-		ScriptedColumn.INFO.worldTraits.emitBytecode(method); //column traits
-		method.node.visitTypeInsn(CHECKCAST, this.getter.owner.getInternalName()); //column traits
-		method.node.visitInsn(SWAP);
-		this.setter.emitBytecode(method);
+		method.node.visitInvokeDynamicInsn(
+			"set",
+			this.setter.getDescriptor(),
+			BootstrapTraitsMethods.COLUMN_VALUE_SETTER_VIA_TRAITS.toHandle(H_INVOKESTATIC),
+			this.setter.toHandle(H_INVOKEVIRTUAL)
+		);
 	}
 
 	@Override

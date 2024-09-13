@@ -9,10 +9,9 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.AbstractUpdaterInsnTree;
 
 //world_traits.`example_mod:example_value`(x, z) = value
-public class LookupTraits2DSetterInsnTree extends AbstractUpdaterInsnTree {
+public class LookupTraits2DSetterInsnTree extends Abstract2DSetterInsnTree {
 
-	public final InsnTree lookup, x, z, updater;
-	public final MethodInfo getter, setter;
+	public final InsnTree lookup, x, z;
 
 	public LookupTraits2DSetterInsnTree(
 		CombinedMode mode,
@@ -23,75 +22,37 @@ public class LookupTraits2DSetterInsnTree extends AbstractUpdaterInsnTree {
 		MethodInfo getter,
 		MethodInfo setter
 	) {
-		super(mode);
+		super(mode, updater, getter, setter);
 		this.lookup = lookup;
 		this.x = x;
 		this.z = z;
-		this.updater = updater;
-		this.getter = getter;
-		this.setter = setter;
 	}
 
 	@Override
-	public void emitBytecode(MethodCompileContext method) {
-		this.lookup.emitBytecode(method); //lookup
-		this.x.emitBytecode(method); //lookup x
-		this.z.emitBytecode(method); //lookup x z
-		ScriptedColumnLookup.LOOKUP_COLUMN.emitBytecode(method); //column
-		method.node.visitTypeInsn(CHECKCAST, this.getter.paramTypes[0].getInternalName()); //column
+	public void emitColumn(MethodCompileContext method) {
+		this.lookup.emitBytecode(method);
+		this.x.emitBytecode(method);
+		this.z.emitBytecode(method);
+		ScriptedColumnLookup.LOOKUP_COLUMN.emitBytecode(method);
+	}
+
+	@Override
+	public void emitGet(MethodCompileContext method) {
 		method.node.visitInsn(DUP); //column column
 		ScriptedColumn.INFO.worldTraits.emitBytecode(method); //column traits
 		method.node.visitTypeInsn(CHECKCAST, this.getter.returnType.getInternalName()); //column traits
 		method.node.visitInsn(SWAP); //traits column
-		switch (this.mode) {
-			case VOID -> {
-				method.node.visitInsn(DUP2); //traits column traits column
-				this.getter.emitBytecode(method); //traits column oldValue
-				this.updater.emitBytecode(method); //traits column newValue
-				this.setter.emitBytecode(method); //
-			}
-			case PRE -> {
-				method.node.visitInsn(DUP2); //traits column traits column
-				this.getter.emitBytecode(method); //traits column oldValue
-				method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X2 : DUP_X2); //oldValue traits column oldValue
-				this.updater.emitBytecode(method); //oldValue traits column newValue
-				this.setter.emitBytecode(method); //oldValue
-			}
-			case POST -> {
-				method.node.visitInsn(DUP2); //traits column traits column
-				this.getter.emitBytecode(method); //traits column oldValue
-				this.updater.emitBytecode(method); //traits column newValue
-				method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X2 : DUP_X2); //newValue traits column newValue
-				this.setter.emitBytecode(method); //newValue
-			}
-			case VOID_ASSIGN -> {
-				this.updater.emitBytecode(method);
-				this.setter.emitBytecode(method);
-			}
-			case PRE_ASSIGN -> {
-				method.node.visitInsn(DUP2); //traits column traits column
-				this.getter.emitBytecode(method); //traits column oldValue
-				method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X2 : DUP_X2); //oldValue traits column oldValue
-				method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? POP2 : POP); //oldValue traits column
-				this.updater.emitBytecode(method); //oldValue traits column newValue
-				this.setter.emitBytecode(method); //oldValue
-			}
-			case POST_ASSIGN -> {
-				this.updater.emitBytecode(method); //traits column newValue
-				method.node.visitInsn(this.getter.returnType.isDoubleWidth() ? DUP2_X2 : DUP_X2); //newValue traits column newValue
-				this.setter.emitBytecode(method); //newValue
-			}
-		}
+		this.getter.emitBytecode(method);
 	}
 
 	@Override
-	public TypeInfo getPreType() {
-		return this.getter.returnType;
-	}
-
-	@Override
-	public TypeInfo getPostType() {
-		return this.updater.getTypeInfo();
+	public void emitSet(MethodCompileContext method) {
+		method.node.visitInvokeDynamicInsn(
+			"set",
+			this.setter.getDescriptor(),
+			BootstrapTraitsMethods.COLUMN_VALUE_SETTER_VIA_TRAITS.toHandle(H_INVOKESTATIC),
+			this.setter.toHandle(H_INVOKEVIRTUAL)
+		);
 	}
 
 	@Override

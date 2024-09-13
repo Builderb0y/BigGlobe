@@ -9,13 +9,13 @@
 			{
 				"type": "script_chance",
 				"script": [
-					"float result = unmixClamp(-0.625I, -0.375I, world_traits.`bigglobe:surface_foliage`)",
+					"float result = unmixClamp(-0.625I, -0.375I, `bigglobe:overworld/surface_foliage`)",
 					"result * (2.0I - result)"
 				]
 			},
 			{
 				"type": "script_chance",
-				"script": "unmixSmooth(0.75I, 0.25I, world_traits.`bigglobe:surface_temperature`)"
+				"script": "unmixSmooth(0.75I, 0.25I, `bigglobe:overworld/surface_temperature`)"
 			}
 		]
 	},

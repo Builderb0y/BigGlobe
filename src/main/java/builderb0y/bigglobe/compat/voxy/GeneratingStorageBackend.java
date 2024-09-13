@@ -16,7 +16,7 @@ public class GeneratingStorageBackend extends DelegatingStorageAdaptor implement
 	@Override
 	public ByteBuffer getSectionData(long key) {
 		ByteBuffer data = super.getSectionData(key);
-		if (data == null) {
+		if (data == null && this.queue != null) {
 			this.queue.add(key & 0xF00F_FFFF_FFFF_FFFFL);
 		}
 		return data;

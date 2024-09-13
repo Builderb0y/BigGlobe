@@ -1,7 +1,7 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"repeat (random.roundInt(world_traits.`bigglobe:surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
+		"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
 			"int*(",
 				"x = minModifiableX | random.nextInt(16)",
 				"z = minModifiableZ | random.nextInt(16)",

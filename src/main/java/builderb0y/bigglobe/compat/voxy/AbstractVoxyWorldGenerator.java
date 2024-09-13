@@ -161,8 +161,11 @@ public abstract class AbstractVoxyWorldGenerator {
 	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
+		boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
 		for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
-			WorldSection section = null;
+			WorldSection section = lightAir ? this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ) : null;
+			long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
+			if (lightAir) Arrays.fill(sectionPayload, 0L);
 			BlockState previousColumnState = null;
 			int previousColumnStateID = -1;
 			try {
@@ -174,28 +177,34 @@ public abstract class AbstractVoxyWorldGenerator {
 						while (segmentIndex < list.size()) {
 							LitSegment segment = list.getLit(segmentIndex++);
 							if (segment.minY > (sectionBottomY | ((1 << (level + 5)) - 1))) break;
-							if (!segment.value.isAir()) {
+							if (lightAir || !segment.value.isAir()) {
 								if (section == null) {
 									section = this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ);
-									Arrays.fill(((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData(), 0L);
+									Arrays.fill(sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData(), 0L);
 								}
 								int minRelativeY = Math.max((segment.minY - sectionBottomY) >> level, 0);
 								int maxRelativeY = Math.min((segment.maxY - sectionBottomY) >> level, 31);
 								if (segment.value != previousColumnState) {
-									previousColumnStateID = this.engine.getMapper().getIdForBlockState(previousColumnState = segment.value);
+									previousColumnState = segment.value;
+									previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
 								}
 								byte startLightLevel = segment.lightLevel;
 								int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 								if (startLightLevel == 0 || diminishment == 0) {
 									long id = Mapper.composeMappingId((byte)(15 - startLightLevel), previousColumnStateID, this.plainsBiomeId);
 									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
-										section.set(relativeX, relativeY, relativeZ, id);
+										int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
+										sectionPayload[index] = id;
 									}
 								}
 								else {
 									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
-										int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - (relativeY + sectionBottomY)), 0);
-										section.set(relativeX, relativeY, relativeZ, Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, this.plainsBiomeId));
+										int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
+										int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY;
+										int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
+										sectionPayload[index] = Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, this.plainsBiomeId);
 									}
 								}
 							}

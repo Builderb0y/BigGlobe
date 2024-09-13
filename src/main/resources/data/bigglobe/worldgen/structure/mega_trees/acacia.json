@@ -11,6 +11,6 @@
 	"trunk_radius":    { "min":  4.0, "max":   8.0 },
 	"branch_sparsity": { "min":  2.0, "max":   4.0 },
 	"surface_y": "world_traits.`bigglobe:exact_surface_y`",
-	"foliage": "world_traits.`bigglobe:surface_foliage`",
+	"foliage": "`bigglobe:overworld/surface_foliage`",
 	"snow_chance": "world_traits.`bigglobe:snow_chance`"
 }

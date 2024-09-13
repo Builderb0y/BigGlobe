@@ -5,7 +5,14 @@
 		"is_3d": false
 	},
 	"script": [
-		"double height = basic_surface_height",
-		"height - height / sqrt((height / beachiness) ^ 2 + 1)"
+		";I found out way too late that ceilInt(height)",
+		";is not the correct way to get the surface Y level",
+		";from a double. it should've been floorInt(height)",
+		";instead. but I can't change it now because it's",
+		";already done that way for the normal world preset.",
+		";as such, I have to compensate for that off-by-one",
+		";error here instead.",
+		"double height = basic_surface_height + 1.0L",
+		"height - height / sqrt((height / beachiness) ^ 2 + 1.0L) - 1.0L"
 	]
 }

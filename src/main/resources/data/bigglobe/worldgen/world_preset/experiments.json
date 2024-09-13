@@ -325,11 +325,13 @@
 					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:islands/skyland_bottom`)",
 					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:islands/skyland_top`)",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
-					"bigglobe:y_level_on_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`)",
-					"bigglobe:y_level_in_surface":       "lowerInt(`bigglobe:islands/eroded_surface_height`) - 1",
 					"bigglobe:approximate_surface_y": {
 						"get": "`bigglobe:islands/basic_surface_height`",
 						"set": "`bigglobe:islands/basic_surface_height` = value"
+					},
+					"bigglobe:cave_noise": {
+						"get": "`bigglobe:islands/cave_noise`(y)",
+						"set": "`bigglobe:islands/cave_noise`(y) = value"
 					},
 					"bigglobe:exact_surface_y": {
 						"get": "`bigglobe:islands/eroded_surface_height`",
@@ -347,11 +349,11 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"max_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
-								"min_y": "distantHorizons ? lowerInt(`bigglobe:islands/eroded_surface_height`) - 32 : 16x80000000U"
+								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x80000000U"
 							},
 							"after_children": [
-								"int surfaceY = lowerInt(`bigglobe:islands/eroded_surface_height`)",
+								"int surfaceY = world_traits.`bigglobe:y_level_on_surface`",
 								"long seed = columnSeed(16x47B481311B32724DUL)",
 								"double slopeSquared = (",
 									"+ dx(`bigglobe:islands/eroded_surface_height`) ^ 2",
@@ -445,7 +447,7 @@
 									"valid": {
 										"where": "!surfaceOnly",
 										"min_y": "-384",
-										"max_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)"
+										"max_y": "world_traits.`bigglobe:y_level_on_surface`"
 									}
 								},
 								{
@@ -483,7 +485,7 @@
 							"type": "simple_2d",
 							"state": "'minecraft:water[level=0]'",
 							"valid": {
-								"min_y": "lowerInt(`bigglobe:islands/eroded_surface_height`)",
+								"min_y": "world_traits.`bigglobe:y_level_on_surface`",
 								"max_y": "0"
 							}
 						},
@@ -533,7 +535,7 @@
 				"spawn_point": [
 					"!`bigglobe:islands/is_floating` &&",
 					"`bigglobe:islands/eroded_surface_height` > 8.0L &&",
-					"`bigglobe:islands/surface_foliage` > 0.0I"
+					"`bigglobe:overworld/surface_foliage` > 0.0I"
 				],
 				"colors": {
 					"grass": {
@@ -541,8 +543,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultGrassColor(",
-									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
-									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
+									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
 							]
 						}
@@ -552,8 +554,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultFoliageColor(",
-									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L),",
-									"1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_foliage`(y)) + 1.0L)",
+									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+									"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
 								")"
 							]
 						}
@@ -562,7 +564,7 @@
 						"template": "bigglobe:block_color_adjustment",
 						"inputs": {
 							"COLOR": [
-								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:islands/height_adjusted_temperature`(y)) + 1.0L)",
+								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
 								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
 							]
 						}

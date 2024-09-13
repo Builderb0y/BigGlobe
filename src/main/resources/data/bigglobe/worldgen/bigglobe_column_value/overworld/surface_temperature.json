@@ -4,5 +4,5 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "height_adjusted_temperature(ceilInt(basic_surface_y))"
+	"script": "height_adjusted_temperature(ceilInt(world_traits.`bigglobe:approximate_surface_y`))"
 }

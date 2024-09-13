@@ -37,6 +37,8 @@ where I left off:
 	constant sets.
 
 changelog:
+	# For regular players:
+	* Fixed some issues with Voxy.
 	# For data pack makers:
 	* Added a new trait system for chunk generators to share information with other scripts.
 		* Data packs with custom world types may need to implement the same traits that built-in world types provide.

@@ -10,7 +10,7 @@
 			"float curve(float value, float coefficient:",
 				"return(value > 0.0I ? value / (value + coefficient) : 0.0I)",
 			")",
-			"float chance = curve(world_traits.`bigglobe:surface_foliage`, 0.25I)",
+			"float chance = curve(`bigglobe:overworld/surface_foliage`, 0.25I)",
 			"chance *= curve(world_traits.`bigglobe:magicalness` - 0.5I, 1.0I)",
 			"int petals = 0",
 			"while (random.nextBoolean(chance) && petals < 4: ++petals)",
