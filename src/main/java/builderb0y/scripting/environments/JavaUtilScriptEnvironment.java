@@ -12,9 +12,11 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.ConstantMap;
+import builderb0y.bigglobe.scripting.wrappers.ConstantSet;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.scripting.bytecode.tree.ConstantValue.NullConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
@@ -40,7 +42,8 @@ public class JavaUtilScriptEnvironment {
 		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
 		LIST_SET      = MethodInfo.getMethod(List     .class, "set"),
 		CONSTANT_LIST = MethodInfo.inCaller("constantList"),
-		CONSTANT_MAP  = MethodInfo.inCaller("constantMap");
+		CONSTANT_MAP  = MethodInfo.inCaller("constantMap"),
+		CONSTANT_SET  = MethodInfo.inCaller("constantSet");
 
 	@Deprecated //use withRandom() or withoutRandom() instead.
 	public static final MutableScriptEnvironment ALL = (
@@ -79,7 +82,7 @@ public class JavaUtilScriptEnvironment {
 		.addType("ConstantMap", ConstantMap.class)
 		.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("ConstantMap.new(key1: value1, key2: value2, ...)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(type(ConstantMap.class))) {
-				return ldc(CONSTANT_MAP, ConstantMapSyntax.parse(parser).keysAndValues());
+				return ldc(CONSTANT_MAP, inflate(ConstantMapSyntax.parse(parser).keysAndValues()));
 			}
 			return null;
 		}))
@@ -108,6 +111,17 @@ public class JavaUtilScriptEnvironment {
 		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class)
 		.addQualifiedSpecificConstructor(LinkedHashSet.class, Collection.class)
 		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
+		.addType("ConstantSet", ConstantSet.class)
+		.addQualifiedFunction(type(ConstantSet.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+			int elementCount = arguments.length;
+			ConstantValue[] constants = new ConstantValue[elementCount];
+			for (int index = 0; index < elementCount; index++) {
+				if (!(constants[index] = arguments[index].getConstantValue()).isConstantOrDynamic()) {
+					throw new ScriptParsingException("Argument " + index + " is not a constant value: " + arguments[index].describe(), parser.input);
+				}
+			}
+			return new CastResult(ldc(CONSTANT_SET, inflate(constants)), false);
+		})
 		.addType("List", List.class)
 		.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
 		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
@@ -133,7 +147,7 @@ public class JavaUtilScriptEnvironment {
 					throw new ScriptParsingException("Argument " + index + " is not a constant value: " + arguments[index].describe(), parser.input);
 				}
 			}
-			return new CastResult(ldc(CONSTANT_LIST, constants), false);
+			return new CastResult(ldc(CONSTANT_LIST, inflate(constants)), false);
 		})
 		.addMethodInvokes(ArrayList.class, "trimToSize", "ensureCapacity")
 		.addType("Queue", Queue.class)
@@ -228,10 +242,77 @@ public class JavaUtilScriptEnvironment {
 	}
 
 	public static ArrayWrapper<Object> constantList(MethodHandles.Lookup caller, String name, Class<?> type, Object... contents) {
-		return new ArrayWrapper<>(contents);
+		return new ArrayWrapper<>(deflate(contents));
 	}
 
 	public static ConstantMap<Object, Object> constantMap(MethodHandles.Lookup caller, String name, Class<?> type, Object... arguments) {
-		return new ConstantMap<>(arguments);
+		return new ConstantMap<>(deflate(arguments));
+	}
+
+	public static ConstantSet<Object> constantSet(MethodHandles.Lookup caller, String name, Class<?> type, Object... args) {
+		return new ConstantSet<>(deflate(args));
+	}
+
+	public static ConstantValue[] inflate(ConstantValue[] args) {
+		int length = args.length;
+		ConstantValue[] result = new ConstantValue[(length * (Long.SIZE / 3 + 1) + (Long.SIZE / 3 - 1)) / (Long.SIZE / 3)];
+		int writeIndex = 0;
+		for (int baseIndex = 0; baseIndex < length; baseIndex += Long.SIZE / 3) {
+			long types = 0L;
+			int typeIndex = writeIndex++;
+			for (int offset = 0; offset < Long.SIZE / 3; offset++) {
+				int index = baseIndex + offset;
+				if (index >= length) {
+					types >>>= 3;
+				}
+				else {
+					int type = inflateOne(args[index]);
+					result[writeIndex++] = args[index];
+					types = (types >>> 3) | (((long)(type)) << (Long.SIZE - 4));
+				}
+			}
+			result[typeIndex] = constant(types);
+		}
+		assert writeIndex == result.length;
+		return result;
+	}
+
+	public static Object[] deflate(Object[] args) {
+		int length = args.length;
+		int writeIndex = 0;
+		outer:
+		for (int baseIndex = 0; baseIndex < length; baseIndex += Long.SIZE / 3 + 1) {
+			long types = (Long)(args[baseIndex]);
+			for (int offset = 1; offset < Long.SIZE / 3 + 1; offset++) {
+				int index = baseIndex + offset;
+				if (index >= length) break outer;
+				args[writeIndex++] = deflateOne(((int)(types)) & 7, args[index]);
+				types >>>= 3;
+			}
+		}
+		return Arrays.copyOf(args, writeIndex);
+	}
+
+	public static int inflateOne(ConstantValue value) {
+		return switch (value.getTypeInfo().getSort()) {
+			case BOOLEAN -> 1;
+			case BYTE -> 2;
+			case SHORT -> 3;
+			case CHAR -> 4;
+			case OBJECT, ARRAY -> value instanceof NullConstantValue ? 5 : 0;
+			default -> 0;
+		};
+	}
+
+	public static Object deflateOne(int type, Object value) {
+		return switch (type) {
+			case 0 -> value;
+			case 1 -> Boolean.valueOf(((Integer)(value)).intValue() != 0);
+			case 2 -> Byte.valueOf(((Integer)(value)).byteValue());
+			case 3 -> Short.valueOf(((Integer)(value)).shortValue());
+			case 4 -> Character.valueOf((char)(((Integer)(value)).intValue()));
+			case 5 -> null;
+			default -> throw new IllegalArgumentException(value + " cannot be cast with type " + type);
+		};
 	}
 }

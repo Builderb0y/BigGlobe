@@ -47,16 +47,16 @@ public class NBTScriptEnvironmentTest {
 		assertSuccess(expected,
 			"""
 			nbtCompound (
-				byte : nbtByte ( 42 ) ,
-				short : nbtShort ( 42 ) ,
+				byte : nbtByte ( 42Y ) ,
+				short : nbtShort ( 42S ) ,
 				int : nbtInt ( 42 ) ,
 				long : nbtLong ( 42 ) ,
 				float : nbtFloat ( 42 ) ,
 				double : nbtDouble ( 42 ) ,
 				string : nbtString ( '42' ) ,
 				byteArray0 : nbtByteArray ( ) ,
-				byteArray1 : nbtByteArray ( 42 ) ,
-				byteArray2 : nbtByteArray ( 42 , 123 ) ,
+				byteArray1 : nbtByteArray ( 42Y ) ,
+				byteArray2 : nbtByteArray ( 42Y , 123Y ) ,
 				intArray0 : nbtIntArray ( ) ,
 				intArray1 : nbtIntArray ( 42 ) ,
 				intArray2 : nbtIntArray ( 42 , 123 ) ,
@@ -64,11 +64,11 @@ public class NBTScriptEnvironmentTest {
 				longArray1 : nbtLongArray ( 42 ) ,
 				longArray2 : nbtLongArray ( 42 , 123 ) ,
 				list0 : nbtList ( ) ,
-				list1 : nbtList ( nbtByte ( 42 ) ),
-				list2 : nbtList ( nbtByte ( 42 ), nbtByte ( 123 ) ),
+				list1 : nbtList ( nbtByte ( 42Y ) ),
+				list2 : nbtList ( nbtByte ( 42Y ), nbtByte ( 123Y ) ),
 				compound : nbtCompound (
-					a : nbtByte ( 1 ) ,
-					b : nbtByte ( 2 )
+					a : nbtByte ( 1Y ) ,
+					b : nbtByte ( 2Y )
 				)
 			)
 			"""
@@ -77,8 +77,8 @@ public class NBTScriptEnvironmentTest {
 
 	@Test
 	public void testCasting() throws ScriptParsingException {
-		assertSuccess((byte)(42), "nbtByte ( 42 ) . asByte ( )");
-		assertSuccess((short)(42), "nbtShort ( 42 ) . asShort ( )");
+		assertSuccess((byte)(42), "nbtByte ( 42Y ) . asByte ( )");
+		assertSuccess((short)(42), "nbtShort ( 42S ) . asShort ( )");
 		assertSuccess((int)(42), "nbtInt ( 42 ) . asInt ( )");
 		assertSuccess((long)(42), "nbtLong ( 42 ) . asLong ( )");
 		assertSuccess((float)(42), "nbtFloat ( 42 ) . asFloat ( )");
@@ -89,13 +89,13 @@ public class NBTScriptEnvironmentTest {
 
 	@Test
 	public void testMembers() throws ScriptParsingException {
-		assertSuccess(1, "nbtCompound ( a : nbtByte ( 1 ) , b : nbtByte ( 2 ) ) . a . asInt ( )");
+		assertSuccess(1, "nbtCompound ( a : nbtByte ( 1Y ) , b : nbtByte ( 2Y ) ) . a . asInt ( )");
 		assertSuccess(null, "nbtCompound ( ) . missing");
-		assertSuccess(null, "nbtByte ( 0 ) . notACompound");
-		assertSuccess(null, "nbtByteArray ( 1 , 2 ) . ( -1 )");
-		assertSuccess((byte)(1), "nbtByteArray ( 1 , 2 ) . ( 0 ) . asByte ( )");
-		assertSuccess((byte)(2), "nbtByteArray ( 1 , 2 ) . ( 1 ) . asByte ( )");
-		assertSuccess(null, "nbtByteArray ( 1 , 2 ) . ( 2 )");
+		assertSuccess(null, "nbtByte ( 0Y ) . notACompound");
+		assertSuccess(null, "nbtByteArray ( 1Y , 2Y ) . ( -1 )");
+		assertSuccess((byte)(1), "nbtByteArray ( 1Y , 2Y ) . ( 0 ) . asByte ( )");
+		assertSuccess((byte)(2), "nbtByteArray ( 1Y , 2Y ) . ( 1 ) . asByte ( )");
+		assertSuccess(null, "nbtByteArray ( 1Y , 2Y ) . ( 2 )");
 	}
 
 	@Test
@@ -104,21 +104,21 @@ public class NBTScriptEnvironmentTest {
 			compound(c -> c.putByte("a", (byte)(1))),
 			"""
 			var c = nbtCompound ( )
-			c . a = nbtByte ( 1 )
+			c . a = nbtByte ( 1Y )
 			c
 			"""
 		);
 		assertSuccess(NbtByte.of((byte)(1)),
 			"""
 			Nbt nbt = nbtCompound()
-			nbt.a = 1
+			nbt.a = 1Y
 			nbt.a
 			"""
 		);
 		assertSuccess(NbtByte.of((byte)(1)),
 			"""
 			Nbt nbt = nbtCompound()
-			nbt.('a') = 1
+			nbt.('a') = 1Y
 			nbt.a
 			"""
 		);

@@ -180,7 +180,8 @@ public abstract class AbstractVoxyWorldGenerator {
 							if (lightAir || !segment.value.isAir()) {
 								if (section == null) {
 									section = this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ);
-									Arrays.fill(sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData(), 0L);
+									sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
+									Arrays.fill(sectionPayload, 0L);
 								}
 								int minRelativeY = Math.max((segment.minY - sectionBottomY) >> level, 0);
 								int maxRelativeY = Math.min((segment.maxY - sectionBottomY) >> level, 31);
@@ -190,8 +191,9 @@ public abstract class AbstractVoxyWorldGenerator {
 								}
 								byte startLightLevel = segment.lightLevel;
 								int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+								int blockLightLevel = previousColumnState.getLuminance() << 4;
 								if (startLightLevel == 0 || diminishment == 0) {
-									long id = Mapper.composeMappingId((byte)(15 - startLightLevel), previousColumnStateID, this.plainsBiomeId);
+									long id = Mapper.composeMappingId((byte)((15 - startLightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
 										int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
 										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
@@ -204,7 +206,7 @@ public abstract class AbstractVoxyWorldGenerator {
 										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
 										int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY;
 										int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
-										sectionPayload[index] = Mapper.composeMappingId((byte)(15 - lightLevel), previousColumnStateID, this.plainsBiomeId);
+										sectionPayload[index] = Mapper.composeMappingId((byte)((15 - lightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 									}
 								}
 							}

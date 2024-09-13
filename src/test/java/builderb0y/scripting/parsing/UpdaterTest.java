@@ -113,28 +113,28 @@ public class UpdaterTest extends TestCommon {
 		assertFail("Cannot bitwise and primitive int and primitive double", "int x = 3 ,, x &= 6.0L ,, x");
 		assertFail("Cannot bitwise or primitive int and primitive double", "int x = 3 ,, x |= 6.0L ,, x");
 		assertFail("Cannot bitwise xor primitive int and primitive double", "int x = 3 ,, x #= 6.0L ,, x");
-		assertFail("Cannot bitwise and primitive double and primitive byte", "double x = 3 ,, x &= 6 ,, x");
-		assertFail("Cannot bitwise or primitive double and primitive byte", "double x = 3 ,, x |= 6 ,, x");
-		assertFail("Cannot bitwise xor primitive double and primitive byte", "double x = 3 ,, x #= 6 ,, x");
+		assertFail("Cannot bitwise and primitive double and primitive int", "double x = 3 ,, x &= 6 ,, x");
+		assertFail("Cannot bitwise or primitive double and primitive int", "double x = 3 ,, x |= 6 ,, x");
+		assertFail("Cannot bitwise xor primitive double and primitive int", "double x = 3 ,, x #= 6 ,, x");
 		assertFail("Cannot bitwise and primitive double and primitive double", "double x = 3 ,, x &= 6.0L ,, x");
 		assertFail("Cannot bitwise or primitive double and primitive double", "double x = 3 ,, x |= 6.0L ,, x");
 		assertFail("Cannot bitwise xor primitive double and primitive double", "double x = 3 ,, x #= 6.0L ,, x");
 
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x &&= 0 ,, x");
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x &&= false ,, x");
-		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x &&= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "boolean x = false ,, x &&= 0 ,, x");
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ||= 0 ,, x");
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ||= false ,, x");
-		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x ||= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "boolean x = false ,, x ||= 0 ,, x");
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ##= 0 ,, x");
 		assertFail("Can't implicitly cast primitive int to primitive boolean", "int x = 0 ,, x ##= false ,, x");
-		assertFail("Can't implicitly cast primitive byte to primitive boolean", "boolean x = false ,, x ##= 0 ,, x");
+		assertFail("Can't implicitly cast primitive int to primitive boolean", "boolean x = false ,, x ##= 0 ,, x");
 
 		assertFail("Cannot bitwise and primitive int and primitive boolean", "int x = 0 ,, x &= false ,, x");
-		assertFail("Cannot bitwise and primitive boolean and primitive byte", "boolean x = false ,, x &= 0 ,, x");
+		assertFail("Cannot bitwise and primitive boolean and primitive int", "boolean x = false ,, x &= 0 ,, x");
 		assertFail("Cannot bitwise or primitive int and primitive boolean", "int x = 0 ,, x |= false ,, x");
-		assertFail("Cannot bitwise or primitive boolean and primitive byte", "boolean x = false ,, x |= 0 ,, x");
+		assertFail("Cannot bitwise or primitive boolean and primitive int", "boolean x = false ,, x |= 0 ,, x");
 		assertFail("Cannot bitwise xor primitive int and primitive boolean", "int x = 0 ,, x #= false ,, x");
-		assertFail("Cannot bitwise xor primitive boolean and primitive byte", "boolean x = false ,, x #= 0 ,, x");
+		assertFail("Cannot bitwise xor primitive boolean and primitive int", "boolean x = false ,, x #= 0 ,, x");
 	}
 }

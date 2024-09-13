@@ -17,7 +17,7 @@ public class FlowTest extends TestCommon {
 		assertSuccess(1, "if ( yes : noop ) ,, 1");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, 2");
 		assertSuccess(1, "if ( yes : return ( 1 ) ) ,, return ( 2 )");
-		assertFail("Not a statement: ConstantInsnTree of type byte (constant: 1 of type byte)", "if (yes: 1) 2");
+		assertFail("Not a statement: ConstantInsnTree of type int (constant: 1 of type int)", "if (yes: 1) 2");
 		assertFail("Not a statement", "if (yes: 1) else (2) 3");
 		assertSuccess(1,
 			"""
@@ -152,7 +152,7 @@ public class FlowTest extends TestCommon {
 			"""
 			ArrayList list = new ( 5 ) .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
-			for ( byte value in list :
+			for ( int value in list :
 				sum += value
 			)
 			sum
@@ -162,7 +162,7 @@ public class FlowTest extends TestCommon {
 			"""
 			ArrayList list = new ( 5 ) .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
 			int sum = 0
-			for ( byte value in Iterable ( list ) :
+			for ( int value in Iterable ( list ) :
 				sum += value
 			)
 			sum
@@ -172,7 +172,17 @@ public class FlowTest extends TestCommon {
 			"""
 			HashMap map = new ( 2 ) .$ put ( 1 , 2 ) .$ put ( 3 , 4 )
 			int sum = 0
-			for ( byte key , byte value in map :
+			for ( int key , int value in map :
+				sum += key * value
+			)
+			sum
+			"""
+		);
+		assertSuccess(1 * 2 + 3 * 4,
+			"""
+			HashMap map = new ( 2 ) .$ put ( 1 , 2 ) .$ put ( 3 , 4 )
+			int sum = 0
+			for ( int * ( key , value ) in map :
 				sum += key * value
 			)
 			sum
@@ -316,7 +326,7 @@ public class FlowTest extends TestCommon {
 			"""
 			List list = ArrayList . new ( 5 )
 			list .$ add ( 1 ) .$ add ( 2 ) .$ add ( 3 ) .$ add ( 4 ) .$ add ( 5 )
-			for ( byte value in list :
+			for ( int value in list :
 				if ( value == 3 : return ( true ) )
 			)
 			return ( false )

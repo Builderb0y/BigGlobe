@@ -64,11 +64,15 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 	@Environment(EnvType.CLIENT)
 	public void process(ClientGeneratorParams data, PacketSender responseSender) {
 		ClientState.generatorParams = data;
-		if (data != null) DependencyDepthSorter.start(
-			data.compiledWorldTraits,
-			data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
-			"client"
-		);
+		//note for future self: columnEntryRegistry can be null if
+		//compiling was skipped because foliage colors were not present.
+		if (data != null && data.columnEntryRegistry != null) {
+			DependencyDepthSorter.start(
+				data.compiledWorldTraits,
+				data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
+				"client"
+			);
+		}
 	}
 
 	public void send(ServerPlayerEntity player) {

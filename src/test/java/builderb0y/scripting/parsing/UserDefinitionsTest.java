@@ -18,15 +18,15 @@ public class UserDefinitionsTest extends TestCommon {
 	public void testVar() throws ScriptParsingException {
 		assertSuccess(2,
 			"""
-			var a = 3
-			var b = 6
+			var a = 3Y
+			var b = 6Y
 			byte c = a & b ;will only work if a and b are bytes.
 			c
 			"""
 		);
 		assertSuccess(2,
 			"""
-			var * ( a = 3 , b = 6 )
+			var * ( a = 3Y , b = 6Y )
 			byte c = a & b
 			c
 			"""

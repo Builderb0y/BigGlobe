@@ -51,9 +51,8 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 		Object[] values = new Object[capacity];
 		int[] order = new int[size];
 		for (int orderIndex = 0, keyValueIndex = 0; keyValueIndex < keyValueLength;) {
-			Object key   = keysAndValues[keyValueIndex++];
-			Object value = keysAndValues[keyValueIndex++];
-			if (key == null) key = NULL;
+			Object key   = wrap(keysAndValues[keyValueIndex++]);
+			Object value =      keysAndValues[keyValueIndex++];
 			int position = key.hashCode();
 			position ^= position >>> 16;
 			position &= mask;

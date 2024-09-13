@@ -31,14 +31,14 @@ where I left off:
 	biome for volcanoes.
 		prevent some structures and features from generating on volcanoes.
 		charred grass on volcanoes.
-	deal with structures on akylands.
+	deal with structures on skylands in island worlds.
 	possibly add trait for small dungeon type so I can merge that feature dispatcher.
-	overriders for island worlds.
-	constant sets.
 
 changelog:
 	# For regular players:
-	* Fixed some issues with Voxy.
+	* Possibly fixed some worlds and dimensions erroring out.
+		* Not sure if this was an issue in the previous version or if this bug was introduced after that, but either way, it's fixed now.
+	* Fixed several issues with Voxy.
 	# For data pack makers:
 	* Added a new trait system for chunk generators to share information with other scripts.
 		* Data packs with custom world types may need to implement the same traits that built-in world types provide.
@@ -46,6 +46,8 @@ changelog:
 	* Scripts can now create constant literal List's and Map's.
 		* The List or Map will only ever be created once, not once every time the script runs.
 		* Iteration order is the same as the creation argument order.
+	* Scripting: integer numeric literals with no suffix no longer default to being less precise than int. Use the new 'y' or 'Y' suffix for byte literals, and 's' or 'S' for shorts.
+		* For backwards compatibility, the 'i' and 'I' suffixes will still work too.
 
 alternate world presets:
 	paradise.

@@ -928,6 +928,18 @@ public class ExpressionParser {
 						yield ldc(number.shortValueExact());
 					}
 				}
+				case 'y', 'Y' -> {
+					this.input.onCharRead(suffix);
+					if (number.scale() > 0) {
+						throw new ScriptParsingException("Quarter-precision floats not supported", this.input);
+					}
+					if (unsigned) {
+						yield ldc(BigGlobeMath.toUnsignedByteExact(number.intValueExact()));
+					}
+					else {
+						yield ldc(number.byteValueExact());
+					}
+				}
 				default -> {
 					if (number.scale() > 0) {
 						if (unsigned) throw new ScriptParsingException("Unsigned floating point literals not supported", this.input);
@@ -950,14 +962,7 @@ public class ExpressionParser {
 								throw new ScriptParsingException("Overflow", this.input);
 							}
 							if (longValue == (longValue & 0xFFFF_FFFFL)) {
-								int intValue = (int)(longValue);
-								if (intValue == (intValue & 0xFFFF)) {
-									if (intValue == (intValue & 0xFF)) {
-										yield ldc((byte)(intValue));
-									}
-									yield ldc((short)(intValue));
-								}
-								yield ldc(intValue);
+								yield ldc((int)(longValue));
 							}
 							yield ldc(longValue);
 						}
@@ -965,12 +970,6 @@ public class ExpressionParser {
 							longValue = number.longValueExact();
 							int intValue = (int)(longValue);
 							if (intValue == longValue) {
-								if (intValue == (short)(intValue)) {
-									if (intValue == (byte)(intValue)) {
-										yield ldc((byte)(intValue));
-									}
-									yield ldc((short)(intValue));
-								}
 								yield ldc(intValue);
 							}
 							yield ldc(longValue);
