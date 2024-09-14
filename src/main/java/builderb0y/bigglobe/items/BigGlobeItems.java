@@ -9,8 +9,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
-import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,8 +42,12 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION >= MC_1_21_0
 	import net.minecraft.world.biome.GrassColors;
+	import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+	import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 #else
 	import net.minecraft.client.color.world.GrassColors;
+	import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+	import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 #endif
 
 #if MC_VERSION < MC_1_20_5

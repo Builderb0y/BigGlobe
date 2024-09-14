@@ -199,10 +199,10 @@ Map<String, String> loadVersion(Version version) {
 //this is the dumbest thing I've ever done with gradle.
 //its sole purpose is to display the current
 //version in the gradle window in intellij.
-tasks.register("Current version = $project.minecraft_version") {
+tasks.register("Currently V$project.version for MC $project.minecraft_version") {
 	group('versions')
 	doFirst() {
-		println("Current version = $project.minecraft_version")
+		println("Currently V$project.version for MC $project.minecraft_version")
 	}
 }
 

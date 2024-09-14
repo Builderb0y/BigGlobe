@@ -1,3 +1,5 @@
+This environment automatically includes everything in the TraitManager environment.
+
 This environment is data-driven, so all the variables and functions it provides to scripts are defined by you! This is done by adding json files to the `/data/(modid)/worldgen/bigglobe_column_value/` directory. All files in this directory are expected to be formatted as a ColumnEntry.
 * If a column entry is 3D, then it will be exposed to scripts as a function taking a parameter for the Y level.
 	* If an implicit Y level is available, then it will *also* be exposed to scripts as a variable.

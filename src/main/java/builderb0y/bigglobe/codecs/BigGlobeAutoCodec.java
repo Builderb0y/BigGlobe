@@ -18,6 +18,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.loot.condition.LootCondition;
+import net.minecraft.loot.condition.LootConditionTypes;
 import net.minecraft.loot.entry.LootPoolEntry;
 import net.minecraft.loot.entry.LootPoolEntryTypes;
 import net.minecraft.loot.function.LootFunction;

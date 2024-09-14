@@ -11,6 +11,24 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* `min_y` - the minimum Y level (inclusive) that this chunk generator can place blocks at.
 	* `max_y` - the maximum Y level (exclusive) that this chunk generator can place blocks at.
 	* `sea_level` (optional) - the sea level reported by this chunk generator. This can affect some game mechanics. If absent, the sea level defaults to min_y.
+* `world_traits` (optional, added in V4.3.3) - a map containing the traits this generator implements. The keys and values of this map are as follows:
+	* (key) - the namespace and path of a trait.
+	* (value) - a specification for how to compute the value of this trait, and (optionally) how to set it from an overrider. The value can take one of two different forms:
+		* The short way: if the value is a string or list of strings, then it is treated as a script which dictates how to get the value associated with this trait.
+		* The long way: if the value is another map, then it may contain the following properties:
+			* `get` - a script that dictates how to get the value associated with this trait. Basically the short way goes here.
+			* `set` (optional) - a script that dictates how to set the value associated with this trait, for overriders.
+
+		In any case, the scripts have the following environments available:
+		* MathScriptEnvironment
+		* StatelessRandomScriptEnvironment
+		* MinecraftScriptEnvironment
+		* BaseColumnScriptEnvironment
+		* ColumnEntryRegistry
+
+		If the trait is 3D, then a variable named `y` of type `int` is also available, which contains the Y level being requested.
+
+		If the script is for the `set` property, then a variable named `value` of the same type as the trait is also available, which represents the value to be assigned to whatever underlying column value this trait delegates to.
 * `layer` - the root layer responsible for placing blocks in raw terrain. The root layer fills the entire column with a single block type. Placing additional blocks must be done by attaching children to the layer. See the documentation on layers for more info on how they work.
 	* `state` - a script which returns a BlockState to fill the column with. This script has the following environments present:
 		* MathScriptEnvironment
