@@ -30,7 +30,7 @@ public class RegistryKeyCoder<T> extends NamedCoder<RegistryKey<T>>  {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryKey<T>> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		return context.input(context.input.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+		if (context.object == null) return context.empty();
+		return context.object(context.object.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 	}
 }

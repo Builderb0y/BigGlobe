@@ -9,24 +9,25 @@ import java.util.List;
 import java.util.Objects;
 
 import org.intellij.lang.annotations.MagicConstant;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseDecoder;
-import builderb0y.autocodec.annotations.UseEncoder;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
-import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeContext.ArrayDecodePath;
 import builderb0y.autocodec.decoders.DecodeContext.ObjectDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.settings.Seed.SeedCoder;
 
-@UseEncoder(name = "encode", usage = MemberUsage.METHOD_IS_HANDLER)
-@UseDecoder(name = "new", in = Seed.SeedDecoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
+@UseCoder(name = "new", in = SeedCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
 public class Seed {
 
 	public static final int
@@ -48,11 +49,6 @@ public class Seed {
 		return this.value ^ other.value;
 	}
 
-	public static <T_Encoded> T_Encoded encode(EncodeContext<T_Encoded, Seed> context) {
-		Seed seed = context.input;
-		return seed == null ? context.empty() : context.createLong(seed.value);
-	}
-
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface SeedModes {
@@ -61,17 +57,17 @@ public class Seed {
 		public abstract int value();
 	}
 
-	public static class SeedDecoder extends NamedDecoder<Seed> {
+	public static class SeedCoder extends NamedCoder<Seed> {
 
 		public final int modes;
 
-		public SeedDecoder(int modes) {
-			super("SeedDecoder");
+		public SeedCoder(int modes) {
+			super("SeedCoder");
 			this.modes = modes;
 		}
 
-		public SeedDecoder(FactoryContext<Seed> context) {
-			super("SeedDecoder");
+		public SeedCoder(FactoryContext<Seed> context) {
+			super("SeedCoder");
 			SeedModes annotation = context.type.getAnnotations().getFirst(SeedModes.class);
 			this.modes = (annotation != null ? annotation.value() : -1) & (AUTO | NUMBER | STRING);
 			if (this.modes == 0) throw new FactoryException("@SeedModes annotation specified no modes.");
@@ -139,6 +135,13 @@ public class Seed {
 					true
 				)
 			);
+		}
+
+		@OverrideOnly
+		@Override
+		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Seed> context) throws EncodeException {
+			Seed seed = context.object;
+			return seed == null ? context.empty() : context.createLong(seed.value);
 		}
 	}
 }

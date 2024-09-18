@@ -41,14 +41,14 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntry<T>> context) throws EncodeException {
-		RegistryEntry<T> input = context.input;
-		if (input == null) return context.empty();
-		RegistryKey<T> key = input.getKey().orElse(null);
+		RegistryEntry<T> object = context.object;
+		if (object == null) return context.empty();
+		RegistryKey<T> key = object.getKey().orElse(null);
 		if (key != null) {
-			return context.input(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+			return context.object(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + input);
+			throw new EncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + object);
 		}
 	}
 }

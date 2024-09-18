@@ -24,7 +24,7 @@ public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction>
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ColumnRestriction> context) throws EncodeException {
-			return context.input == null || context.input == EMPTY ? context.empty() : super.encode(context);
+			return context.object == null || context.object == EMPTY ? context.empty() : super.encode(context);
 		}
 
 		@Override

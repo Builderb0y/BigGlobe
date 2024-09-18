@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.state.property.Property;
 
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
 import builderb0y.autocodec.decoders.AutoDecoder;
@@ -22,11 +23,11 @@ import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 
 public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> extends NamedImprinter<M> {
 
-	public final AutoDecoder<V> valueDecoder;
+	public final AutoCoder<V> valueCoder;
 
-	public BlockStateToObjectMapImprinter(@NotNull ReifiedType<M> type, AutoDecoder<V> valueDecoder) {
+	public BlockStateToObjectMapImprinter(@NotNull ReifiedType<M> type, AutoCoder<V> valueCoder) {
 		super(type);
-		this.valueDecoder = valueDecoder;
+		this.valueCoder = valueCoder;
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> ext
 		try {
 			for (Map.Entry<String, DecodeContext<T_Encoded>> entry : context.forceAsStringMap().entrySet()) {
 				BlockResult keys = BlockArgumentParserVersions.block(entry.getKey(), false);
-				V value = entry.getValue().decodeWith(this.valueDecoder);
+				V value = entry.getValue().decodeWith(this.valueCoder);
 				keys
 				.blockState()
 				.getBlock()
@@ -72,7 +73,7 @@ public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> ext
 		public @Nullable <T_HandledType> AutoImprinter<?> tryCreate(@NotNull FactoryContext<T_HandledType> context) throws FactoryException {
 			ReifiedType<?>[] keyValueTypes = context.type.getUpperBoundOrSelf().resolveParameters(Map.class);
 			if (keyValueTypes != null && keyValueTypes[0].getRawClass() == BlockState.class) {
-				return new BlockStateToObjectMapImprinter(context.type, context.type(keyValueTypes[1]).forceCreateDecoder());
+				return new BlockStateToObjectMapImprinter(context.type, context.type(keyValueTypes[1]).forceCreateCoder());
 			}
 			return null;
 		}

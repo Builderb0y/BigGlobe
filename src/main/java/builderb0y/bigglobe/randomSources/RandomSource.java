@@ -23,7 +23,7 @@ public interface RandomSource extends CoderRegistryTyped<RandomSource> {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RandomSource> context) throws EncodeException {
-			if (context.input instanceof ConstantRandomSource constant) {
+			if (context.object instanceof ConstantRandomSource constant) {
 				return context.createDouble(constant.value());
 			}
 			return super.encode(context);

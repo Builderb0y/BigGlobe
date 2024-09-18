@@ -176,17 +176,17 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NoiseColumnEntry> context) throws EncodeException {
-			NoiseColumnEntry entry = context.input;
+			NoiseColumnEntry entry = context.object;
 			if (entry == null) return context.empty();
 			Map<String, T_Encoded> map = new HashMap<>(8);
-			map.put("params", context.input(entry.params).encodeWith(this.params));
-			if (entry.valid != null) map.put("valid", context.input(entry.valid).encodeWith(this.valid));
+			map.put("params", context.object(entry.params).encodeWith(this.params));
+			if (entry.valid != null) map.put("valid", context.object(entry.valid).encodeWith(this.valid));
 			if (!entry.cache) map.put("cache", context.createBoolean(false));
 			map.put(
 				"grid",
 				entry.params.is_3d()
-				? context.input(entry.grid3D).encodeWith(this.grid3D)
-				: context.input(entry.grid2D).encodeWith(this.grid2D)
+				? context.object(entry.grid3D).encodeWith(this.grid3D)
+				: context.object(entry.grid2D).encodeWith(this.grid2D)
 			);
 			return context.createStringMap(map);
 		}

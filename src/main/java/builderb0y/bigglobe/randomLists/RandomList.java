@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.decoders.AutoDecoder;
@@ -504,18 +505,18 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Double.POSITIVE_INFINITY, maxInclusive = false) Double>() {}
 		);
 
-		public final @NotNull AutoDecoder<T> elementDecoder;
+		public final @NotNull AutoCoder<T> elementCoder;
 		public final @Nullable String elementName;
 		public final boolean allowSingleton;
 
 		public RandomListImprinter(
 			@NotNull ReifiedType<RandomList<T>> type,
-			@NotNull AutoDecoder<T> elementDecoder,
+			@NotNull AutoCoder<T> elementCoder,
 			@Nullable String elementName,
 			boolean allowSingleton
 		) {
 			super(type);
-			this.elementDecoder = elementDecoder;
+			this.elementCoder   = elementCoder;
 			this.elementName    = elementName;
 			this.allowSingleton = allowSingleton;
 		}
@@ -524,7 +525,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			super(context.type);
 			@SuppressWarnings("unchecked")
 			ReifiedType<T> elementType = (ReifiedType<T>)(context.type.resolveParameter(RandomList.class));
-			this.elementDecoder = context.type(elementType).forceCreateDecoder();
+			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
 			this.allowSingleton = elementType.getAnnotations().has(SingletonArray.class);
 		}
@@ -535,7 +536,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 				RandomList<T> result = context.object;
 				for (DecodeContext<T_Encoded> entry : context.forceAsList(this.allowSingleton)) {
 					result.add(
-						(this.elementName != null ? entry.getMember(this.elementName) : entry).decodeWith(this.elementDecoder),
+						(this.elementName != null ? entry.getMember(this.elementName) : entry).decodeWith(this.elementCoder),
 						entry.getMember("weight").decodeWith(WEIGHT_DECODER)
 					);
 				}
@@ -551,19 +552,19 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 
 	public static class RandomListEncoder<T> extends NamedEncoder<RandomList<T>> {
 
-		public final @NotNull AutoEncoder<T> elementEncoder;
+		public final @NotNull AutoCoder<T> elementCoder;
 		public final @Nullable String elementName;
 		public final boolean singletonArray;
 
 		public RandomListEncoder(
 			@NotNull ReifiedType<RandomList<T>> type,
-			@NotNull AutoEncoder<T> elementEncoder,
+			@NotNull AutoCoder<T> elementCoder,
 			@Nullable String elementName,
 			boolean singletonArray
 		) {
 			super(type);
-			this.elementEncoder = elementEncoder;
-			this.elementName = elementName;
+			this.elementCoder   = elementCoder;
+			this.elementName    = elementName;
 			this.singletonArray = singletonArray;
 		}
 
@@ -571,14 +572,14 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			super(context.type);
 			@SuppressWarnings("unchecked")
 			ReifiedType<T> elementType = (ReifiedType<T>)(context.type.resolveParameter(RandomList.class));
-			this.elementEncoder = context.type(elementType).forceCreateEncoder();
+			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
 			this.singletonArray = elementType.getAnnotations().has(SingletonArray.class);
 		}
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RandomList<T>> context) throws EncodeException {
-			RandomList<T> list = context.input;
+			RandomList<T> list = context.object;
 			if (list == null) return context.empty();
 			if (this.singletonArray && list.size() == 1) {
 				return this.encodeElement(context, list.get(0), list.getWeight(0));
@@ -593,8 +594,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 
 		public <T_Encoded> @NotNull T_Encoded encodeElement(EncodeContext<T_Encoded, RandomList<T>> context, T element, double weight) {
-			T_Encoded encodedElement = context.input(element).encodeWith(this.elementEncoder);
-			T_Encoded encodedWeight  = context.input(weight).encodeWith(PrimitiveCoders.DOUBLE);
+			T_Encoded encodedElement = context.object(element).encodeWith(this.elementCoder);
+			T_Encoded encodedWeight  = context.object(weight).encodeWith(PrimitiveCoders.DOUBLE);
 			if (this.elementName != null) {
 				return context.createStringMap(
 					Map.of(

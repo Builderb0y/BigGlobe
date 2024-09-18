@@ -5,22 +5,20 @@ import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.FactoryContext;
-import builderb0y.autocodec.decoders.AutoDecoder;
-import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.encoders.AutoEncoder;
-import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
 
@@ -33,8 +31,7 @@ for how elements or weights may be added or modified.
 some modification methods may throw an
 UnsupportedOperationException if this policy is not satisfied.
 */
-@UseDecoder(name = "new", in = IRandomList.IRandomListDecoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
-@UseEncoder(name = "new", in = IRandomList.IRandomListEncoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
+@UseCoder(name = "new", in = IRandomList.IRandomListCoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public interface IRandomList<E> extends List<E> {
 
 	public static final double DEFAULT_WEIGHT = 1.0D;
@@ -425,42 +422,42 @@ public interface IRandomList<E> extends List<E> {
 		return "element";
 	}
 
-	public static class IRandomListDecoder<T> extends NamedDecoder<IRandomList<T>> {
+	public static class IRandomListCoder<T> extends NamedCoder<IRandomList<T>> {
 
-		public static final AutoDecoder<Double> WEIGHT_DECODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
-			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {}
-		);
-
-		public final @NotNull AutoDecoder<T> elementDecoder;
+		public final @NotNull AutoCoder<T> elementCoder;
+		public final @NotNull AutoCoder<Double> weightCoder;
 		public final @Nullable String elementName;
 
-		public IRandomListDecoder(
-			@NotNull ReifiedType<IRandomList<T>> type,
-			@NotNull AutoDecoder<T> elementDecoder,
+		public IRandomListCoder(
+			@NotNull ReifiedType<IRandomList<T>> handledType,
+			@NotNull AutoCoder<T> elementCoder,
+			@NotNull AutoCoder<Double> weightCoder,
 			@Nullable String elementName
 		) {
-			super(type);
-			this.elementDecoder = elementDecoder;
+			super(handledType);
+			this.elementCoder = elementCoder;
+			this.weightCoder = weightCoder;
 			this.elementName = elementName;
 		}
 
-		public IRandomListDecoder(FactoryContext<IRandomList<T>> context) {
+		public IRandomListCoder(FactoryContext<IRandomList<T>> context) {
 			super(context.type);
-			@SuppressWarnings("unchecked")
-			ReifiedType<T> elementType = (ReifiedType<T>)(context.type.resolveParameter(IRandomList.class));
-			this.elementDecoder = context.type(elementType).forceCreateDecoder();
+			ReifiedType<T> elementType = context.type.resolveParameter(IRandomList.class).uncheckedCast();
+			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
+			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {}).forceCreateCoder();
 		}
 
 		public <T_Encoded> T element(DecodeContext<T_Encoded> context) throws DecodeException {
-			return (this.elementName != null && context.isMap() ? context.getMember(this.elementName) : context).decodeWith(this.elementDecoder);
+			return (this.elementName != null && context.isMap() ? context.getMember(this.elementName) : context).decodeWith(this.elementCoder);
 		}
 
 		public <T_Encoded> double weight(DecodeContext<T_Encoded> context) throws DecodeException {
-			return context.isMap() ? context.getMember("weight").decodeWith(WEIGHT_DECODER) : DEFAULT_WEIGHT;
+			return context.isMap() ? context.getMember("weight").decodeWith(this.weightCoder) : DEFAULT_WEIGHT;
 		}
 
 		@Override
+		@OverrideOnly
 		public <T_Encoded> @Nullable IRandomList<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
 			List<DecodeContext<T_Encoded>> list = context.tryAsList(false);
@@ -482,43 +479,20 @@ public interface IRandomList<E> extends List<E> {
 			}
 			else {
 				//assume singleton.
-				return new SingletonRandomList<>(context.decodeWith(this.elementDecoder), DEFAULT_WEIGHT);
+				return new SingletonRandomList<>(context.decodeWith(this.elementCoder), DEFAULT_WEIGHT);
 			}
-		}
-	}
-
-	public static class IRandomListEncoder<T> extends NamedEncoder<IRandomList<T>> {
-
-		public final @NotNull AutoEncoder<T> elementEncoder;
-		public final @Nullable String elementName;
-
-		public IRandomListEncoder(
-			@NotNull ReifiedType<IRandomList<T>> type,
-			@NotNull AutoEncoder<T> elementEncoder,
-			@Nullable String elementName
-		) {
-			super(type);
-			this.elementEncoder = elementEncoder;
-			this.elementName = elementName;
-		}
-
-		public IRandomListEncoder(FactoryContext<IRandomList<T>> context) {
-			super(context.type);
-			@SuppressWarnings("unchecked")
-			ReifiedType<T> elementType = (ReifiedType<T>)(context.type.resolveParameter(IRandomList.class));
-			this.elementEncoder = context.type(elementType).forceCreateEncoder();
-			this.elementName = elementName(elementType);
 		}
 
 		@Override
+		@OverrideOnly
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, IRandomList<T>> context) throws EncodeException {
-			IRandomList<T> input = context.input;
-			if (input == null) return context.empty();
-			if (input.isEmpty()) return context.emptyList();
+			IRandomList<T> list = context.object;
+			if (list == null) return context.empty();
+			if (list.isEmpty()) return context.emptyList();
 			return context.createList(
-				IntStream.range(0, input.size()).mapToObj((int index) -> {
-					T_Encoded encodedElement = context.input(input.get(index)).encodeWith(this.elementEncoder);
-					T_Encoded encodedWeight  = context.input(input.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
+				IntStream.range(0, list.size()).mapToObj((int index) -> {
+					T_Encoded encodedElement = context.object(list.get(index)).encodeWith(this.elementCoder);
+					T_Encoded encodedWeight  = context.object(list.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
 					if (this.elementName != null) {
 						return context.createStringMap(
 							Map.of(

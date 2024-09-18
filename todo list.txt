@@ -22,7 +22,6 @@ where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	document what version constant lists and maps were added in.
-	document traits.
 	blanket replace surface Y level with trait.
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
@@ -33,21 +32,12 @@ where I left off:
 		charred grass on volcanoes.
 	deal with structures on skylands in island worlds.
 	possibly add trait for small dungeon type so I can merge that feature dispatcher.
+	make lake column value overrider run first, before any other column value overriders.
 
 changelog:
 	# For regular players:
-	* Possibly fixed some worlds and dimensions erroring out.
-		* Not sure if this was an issue in the previous version or if this bug was introduced after that, but either way, it's fixed now.
-	* Fixed several issues with Voxy.
 	# For data pack makers:
-	* Added a new trait system for chunk generators to share information with other scripts.
-		* Data packs with custom world types may need to implement the same traits that built-in world types provide.
-	* Added script_chance decision tree type.
-	* Scripts can now create constant literal List's and Map's.
-		* The List or Map will only ever be created once, not once every time the script runs.
-		* Iteration order is the same as the creation argument order.
-	* Scripting: integer numeric literals with no suffix no longer default to being less precise than int. Use the new 'y' or 'Y' suffix for byte literals, and 's' or 'S' for shorts.
-		* For backwards compatibility, the 'i' and 'I' suffixes will still work too.
+	* Scripts can now be declared in files instead of being embedded in json.
 
 alternate world presets:
 	paradise.
@@ -72,7 +62,7 @@ braking changes I want to make:
 		lod (byte)
 		purpose (enum with auto-casting)
 	rename cavern-related overworld column values to "deep dark".
-	expose IntAABB and DoubleAABB to scripts, with min, mid, and max properties.
+	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.

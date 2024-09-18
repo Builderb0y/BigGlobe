@@ -38,7 +38,7 @@ public class TagOrObjectKeyCoder<T> extends NamedCoder<TagOrObjectKey<T>> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, TagOrObjectKey<T>> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		return context.createString(context.input.toString());
+		if (context.object == null) return context.empty();
+		return context.createString(context.object.toString());
 	}
 }

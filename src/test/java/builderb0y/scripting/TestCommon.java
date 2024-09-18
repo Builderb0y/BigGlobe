@@ -113,7 +113,7 @@ public class TestCommon {
 			threads[1].join();
 		}
 		catch (InterruptedException exception) {
-			exception.printStackTrace();
+			throw new RuntimeException("who interrupted the junit thread?", exception);
 		}
 		if (stackTrace[0] != null) {
 			AssertionFailedError error = new AssertionFailedError("Infinite loop");

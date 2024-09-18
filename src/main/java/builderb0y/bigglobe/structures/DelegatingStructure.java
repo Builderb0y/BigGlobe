@@ -94,9 +94,9 @@ public class DelegatingStructure extends Structure {
 		@VerifyNullable StructureTerrainAdaptation terrain_adaptation
 	) {
 
-		public static final AutoCoder<SpawnGroup> SPAWN_GROUP_AUTO_CODER = BigGlobeAutoCodec.forceNullable(BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(SpawnGroup.CODEC, false));
-		public static final AutoCoder<StructureSpawns> STRUCTURE_SPAWNS_AUTO_CODER = BigGlobeAutoCodec.forceNullable(BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(StructureSpawns.CODEC, false));
-		public static final AutoCoder<GenerationStep.Feature> STEP_AUTO_CODER = BigGlobeAutoCodec.forceNullable(BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(GenerationStep.Feature.CODEC, false));
+		public static final AutoCoder<SpawnGroup> SPAWN_GROUP_AUTO_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(SpawnGroup.CODEC);
+		public static final AutoCoder<StructureSpawns> STRUCTURE_SPAWNS_AUTO_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(StructureSpawns.CODEC);
+		public static final AutoCoder<GenerationStep.Feature> STEP_AUTO_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(GenerationStep.Feature.CODEC);
 
 		public Config toConfig() {
 			//fill in sensible defaults in case some other mod tries accessing this in a hacky way.

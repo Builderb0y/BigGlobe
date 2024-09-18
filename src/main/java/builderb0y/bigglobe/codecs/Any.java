@@ -41,9 +41,9 @@ public @interface Any {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Object> context) throws EncodeException {
-			Object input = context.input;
-			if (input == null) return context.empty();
-			return ObjectOps.INSTANCE.convertTo(context.ops, input);
+			Object object = context.object;
+			if (object == null) return context.empty();
+			return ObjectOps.INSTANCE.convertTo(context.ops, object);
 		}
 	};
 }

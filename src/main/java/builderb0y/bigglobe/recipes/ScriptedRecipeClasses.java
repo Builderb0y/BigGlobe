@@ -23,7 +23,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedRecipeClasses {
 
-	public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC, false);
+	public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC);
 
 	/** workaround for only some MC versions needing "value": {} */
 	public static record ScriptedRecipeData(

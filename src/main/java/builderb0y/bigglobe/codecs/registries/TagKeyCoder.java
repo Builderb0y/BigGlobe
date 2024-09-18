@@ -31,7 +31,7 @@ public class TagKeyCoder<T> extends NamedCoder<TagKey<T>> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, TagKey<T>> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		return context.input(context.input.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+		if (context.object == null) return context.empty();
+		return context.object(context.object.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 	}
 }

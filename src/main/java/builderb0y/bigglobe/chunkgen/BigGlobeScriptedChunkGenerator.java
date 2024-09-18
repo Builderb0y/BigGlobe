@@ -68,11 +68,11 @@ import net.minecraft.world.gen.structure.Structure.StructurePosition;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeContext.RootDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.decoders.RecordDecoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -285,7 +285,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	}
 
 	public static AutoCoder<BigGlobeScriptedChunkGenerator> createCoder(FactoryContext<BigGlobeScriptedChunkGenerator> context) {
-		AutoCoder<BigGlobeScriptedChunkGenerator> coder = (AutoCoder<BigGlobeScriptedChunkGenerator>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
+		AutoCoder<BigGlobeScriptedChunkGenerator> coder = context.forceCreateCoder(RecordCoder.Factory.INSTANCE);
 		return new NamedCoder<BigGlobeScriptedChunkGenerator>("jar-reloading AutoCoder for BigGlobeScriptedChunkGenerator") {
 
 			@Override
@@ -762,7 +762,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				noiseConfig,
 				structureManager,
 				seed,
-				chunk.getPos(),
+				pos,
 				chunk,
 				Predicates.alwaysTrue()
 			)

@@ -41,13 +41,13 @@ public class DynamicRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntry<T>> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		RegistryKey<T> key = context.input.getKey().orElse(null);
+		if (context.object == null) return context.empty();
+		RegistryKey<T> key = context.object.getKey().orElse(null);
 		if (key != null) {
-			return context.input(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+			return context.object(key.getValue()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException(() -> "RegistryEntry " + context.input + " is missing a key");
+			throw new EncodeException(() -> "RegistryEntry " + context.object + " is missing a key");
 		}
 	}
 }

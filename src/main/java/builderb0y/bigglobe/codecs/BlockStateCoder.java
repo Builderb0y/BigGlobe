@@ -139,7 +139,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BlockState> context) throws EncodeException {
-		BlockState state = context.input;
+		BlockState state = context.object;
 		if (state == null) return context.empty();
 		return context.createString(encodeState(state));
 	}

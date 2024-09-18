@@ -153,7 +153,7 @@ public class VariationsList<T> {
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, VariationsList<T>> context) throws EncodeException {
-			return context.input == null ? context.empty() : convert(context.input.source, context.ops);
+			return context.object == null ? context.empty() : convert(context.object.source, context.ops);
 		}
 
 		public static <T_From, T_To> T_To convert(Dynamic<T_From> dynamic, DynamicOps<T_To> ops) {

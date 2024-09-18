@@ -37,14 +37,14 @@ public class HardCodedObjectCoder<T> extends NamedCoder<T> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
-		T input = context.input;
-		if (input == null) return context.empty();
-		Identifier id = this.registry.getId(input);
+		T object = context.object;
+		if (object == null) return context.empty();
+		Identifier id = this.registry.getId(object);
 		if (id != null) {
-			return context.input(id).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+			return context.object(id).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + input);
+			throw new EncodeException(() -> "Registry " + RegistryVersions.getRegistryKey(this.registry).getValue() + " does not contain object " + object);
 		}
 	}
 }

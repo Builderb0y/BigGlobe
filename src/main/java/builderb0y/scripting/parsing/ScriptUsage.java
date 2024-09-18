@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,14 +14,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
-import builderb0y.autocodec.decoders.AutoDecoder;
-import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.decoders.RecordDecoder;
-import builderb0y.autocodec.encoders.AutoEncoder;
-import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
@@ -31,11 +29,9 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate.RequiredInput;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageDecoder;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageEncoder;
+import builderb0y.scripting.parsing.ScriptUsage.ScriptUsageCoder;
 
-@UseEncoder(name = "new", in = ScriptUsageEncoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
-@UseDecoder(name = "new", in = ScriptUsageDecoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
+@UseCoder(name = "new", in = ScriptUsageCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
 @UseVerifier(name = "verify", in = ScriptUsage.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public class ScriptUsage {
 
@@ -141,15 +137,15 @@ public class ScriptUsage {
 		}
 	}
 
-	public static class ScriptUsageDecoder extends NamedDecoder<ScriptUsage> {
+	public static class ScriptUsageCoder extends NamedCoder<ScriptUsage> {
 
-		public final AutoDecoder<@MultiLine String> stringArrayDecoder;
-		public final AutoDecoder<ScriptUsage> objectDecoder;
+		public final AutoCoder<@MultiLine String> stringArrayCoder;
+		public final AutoCoder<ScriptUsage> objectCoder;
 
-		public ScriptUsageDecoder(FactoryContext<ScriptUsage> context) {
+		public ScriptUsageCoder(FactoryContext<ScriptUsage> context) {
 			super(context.type);
-			this.stringArrayDecoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateDecoder();
-			this.objectDecoder = context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE);
+			this.stringArrayCoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateCoder();
+			this.objectCoder = context.forceCreateCoder(RecordCoder.Factory.INSTANCE);
 		}
 
 		@Override
@@ -158,38 +154,26 @@ public class ScriptUsage {
 				return null;
 			}
 			else if (context.isString() || context.isList()) {
-				return new ScriptUsage(context.decodeWith(this.stringArrayDecoder));
+				return new ScriptUsage(context.decodeWith(this.stringArrayCoder));
 			}
 			else if (context.isMap()) {
-				return context.decodeWith(this.objectDecoder);
+				return context.decodeWith(this.objectCoder);
 			}
 			else {
 				throw context.notA("string, list, or map");
 			}
 		}
-	}
 
-	public static class ScriptUsageEncoder extends NamedEncoder<ScriptUsage> {
-
-		public final AutoEncoder<@MultiLine String> stringArrayEncoder;
-		public final AutoEncoder<ScriptUsage> objectEncoder;
-
-		@SuppressWarnings("unchecked")
-		public ScriptUsageEncoder(@NotNull FactoryContext<ScriptUsage> context) {
-			super(context.type);
-			this.stringArrayEncoder = context.type(new ReifiedType<@MultiLine String>() {}).forceCreateEncoder();
-			this.objectEncoder = (AutoEncoder<ScriptUsage>)(context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE));
-		}
-
+		@OverrideOnly
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ScriptUsage> context) throws EncodeException {
-			ScriptUsage usage = context.input;
+			ScriptUsage usage = context.object;
 			if (usage == null) return context.empty();
 			if (usage.source != null && usage.debug_name == null) {
-				return context.input(usage.source).encodeWith(this.stringArrayEncoder);
+				return context.object(usage.source).encodeWith(this.stringArrayCoder);
 			}
 			else {
-				return context.encodeWith(this.objectEncoder);
+				return context.encodeWith(this.objectCoder);
 			}
 		}
 	}

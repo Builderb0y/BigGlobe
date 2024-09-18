@@ -27,11 +27,12 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.coders.EncoderDecoderCoder;
+import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.decoders.ConstructImprintDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.decoders.RecordDecoder;
 import builderb0y.autocodec.encoders.CollectionEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
@@ -218,22 +219,16 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 
 		public ConfigCoder(FactoryContext<Config> context) {
 			super("ConfigCoder");
-			this.withReplace = AutoCoder.of(
-				context.forceCreateEncoder(MultiFieldEncoder.Factory.INSTANCE),
-				context.forceCreateDecoder(RecordDecoder.Factory.INSTANCE)
-			);
+			this.withReplace = context.forceCreateCoder(RecordCoder.Factory.INSTANCE);
 			FactoryContext<List<BlockState>> replaceContext = context.type(BLOCKSTATE_LIST_REIFIED_TYPE);
-			this.placeOnly = AutoCoder.of(
-				replaceContext.forceCreateEncoder(CollectionEncoder.Factory.INSTANCE),
-				replaceContext.forceCreateDecoder(ConstructImprintDecoder.Factory.INSTANCE)
-			);
+			this.placeOnly = replaceContext.forceCreateCoder(EncoderDecoderCoder.Factory.INSTANCE);
 		}
 
 		@Override
 		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Config> context) throws EncodeException {
-			if (context.input == null) return context.empty();
-			if (context.input.replace == null) {
-				return context.input(context.input.place).encodeWith(this.placeOnly);
+			if (context.object == null) return context.empty();
+			if (context.object.replace == null) {
+				return context.object(context.object.place).encodeWith(this.placeOnly);
 			}
 			else {
 				return context.encodeWith(this.withReplace);

@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -47,9 +48,8 @@ import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.AutoCodec;
-import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.autocodec.coders.PrimitiveCoders;
-import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
+import builderb0y.autocodec.coders.*;
+import builderb0y.autocodec.coders.AutoCoder.CoderFactory;
 import builderb0y.autocodec.common.LookupFactory;
 import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
 import builderb0y.autocodec.decoders.*;
@@ -94,17 +94,17 @@ public class BigGlobeAutoCodec {
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Codecs");
 	public static final Printer PRINTER = createPrinter(LOGGER);
 
-	public static final AutoCoder<Identifier> IDENTIFIER_CODER = PrimitiveCoders.STRING.mapCoder(
-		ReifiedType.from(Identifier.class),
-		"Identifier::toString",       HandlerMapper.nullSafe(Identifier::toString),
-		"IdentifierVersions::create", HandlerMapper.nullSafe(IdentifierVersions::create)
+	public static final AutoCoder<Identifier> IDENTIFIER_CODER = PrimitiveCoders.stringBased(
+		"BigGlobeAutoCodec.IDENTIFIER_CODEC",
+		IdentifierVersions::create,
+		Identifier::toString
 	);
 
 	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
-		return PrimitiveCoders.STRING.mapCoder(
-			ReifiedType.from(Identifier.class),
-			"BigGlobeAutoCodec::toString(id, " + namespace + ')', HandlerMapper.nullSafe(id -> toString(id, namespace)),
-			"BigGlobeAutoCodec::toID(string, " + namespace + ')', HandlerMapper.nullSafe(string -> toID(string, namespace))
+		return PrimitiveCoders.stringBased(
+			"Identifier with default namespace '" + namespace + '\'',
+			string -> toID(string, namespace),
+			id -> toString(id, namespace)
 		);
 	}
 
@@ -209,105 +209,60 @@ public class BigGlobeAutoCodec {
 		}
 
 		@Override
-		public @NotNull EncoderFactoryList createEncoders() {
-			return new EncoderFactoryList(this) {
+		@OverrideOnly
+		public @NotNull CoderFactoryList createCoders() {
+			return new CoderFactoryList(this) {
 
 				@Override
 				public void setup() {
 					super.setup();
-					this.addFactoryToStart(UseSuperClass.EncoderFactory.INSTANCE);
-					this.addFactoryBefore(LookupEncoderFactory.class, GridRegistryEntryCoder.ENCODER_FACTORY);
-					this.getFactory(EnumEncoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
+					this.addFactoryToStart(UseSuperClass.Coder.Factory.INSTANCE);
+					this.addFactoryBefore(LookupCoderFactory.class, GridRegistryEntryCoder.Factory.INSTANCE);
+					this.getFactory(EnumCoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
 
 				@Override
-				public @NotNull EncoderFactory createLookupFactory() {
-					AutoCodec autoCodec = this.autoCodec;
-					return new LookupEncoderFactory() {
+				public @NotNull CoderFactory createLookupFactory() {
+					return new LookupCoderFactory() {
 
 						@Override
 						public void setup() {
 							super.setup();
-							this.addRaw(NbtElement.class, new AutoEncoder<>() {
+							this.addRaw(NbtElement.class, new AutoCoder<>() {
 
 								@Override
-								public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NbtElement> context) throws EncodeException {
-									if (context.input == null) return context.empty();
-									return NbtOps.INSTANCE.convertTo(context.ops, context.input);
-								}
-							});
-							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
-							this.addRaw(Identifier.class, IDENTIFIER_CODER);
-							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
-							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
-								coders.addAllTo(this);
-							}
-							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
-							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC, false));
-							this.addRaw(Structure.Config.class, autoCodec.wrapDFUEncoder(Structure.Config.CODEC.codec(), false));
-							#if MC_VERSION >= MC_1_20_2
-								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
-								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
-								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif, false));
-							#endif
-							#if MC_VERSION >= MC_1_20_5
-								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC, false));
-								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC, false));
-							#endif
-						}
-					};
-				}
-			};
-		}
-
-		@Override
-		public @NotNull DecoderFactoryList createDecoders() {
-			return new DecoderFactoryList(this) {
-
-				@Override
-				public void setup() {
-					super.setup();
-					this.addFactoryToStart(UseSuperClass.DecoderFactory.INSTANCE);
-					this.addFactoryBefore(LookupDecoderFactory.class, GridRegistryEntryCoder.DECODER_FACTORY);
-					this.getFactory(EnumDecoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
-				}
-
-				@Override
-				public @NotNull DecoderFactory createLookupFactory() {
-					AutoCodec autoCodec = this.autoCodec;
-					return new LookupDecoderFactory() {
-
-						@Override
-						public void setup() {
-							super.setup();
-							this.addRaw(NbtElement.class, new AutoDecoder<>() {
-
-								@Override
+								@OverrideOnly
 								public <T_Encoded> @Nullable NbtElement decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 									if (context.isEmpty()) return null;
 									return context.ops.convertTo(NbtOps.INSTANCE, context.input);
 								}
+
+								@Override
+								@OverrideOnly
+								public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NbtElement> context) throws EncodeException {
+									if (context.object == null) return context.empty();
+									return NbtOps.INSTANCE.convertTo(context.ops, context.object);
+								}
 							});
-							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
-							this.addRaw(Identifier.class, IDENTIFIER_CODER);
-							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
 							}
+							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
+							this.addRaw(Identifier.class, IDENTIFIER_CODER);
+							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
 							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
-							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC, false));
-							this.addRaw(Structure.Config.class, autoCodec.wrapDFUDecoder(Structure.Config.CODEC.codec(), false));
+							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC));
+							this.addRaw(Structure.Config.class, autoCodec.wrapDFUCodec(Structure.Config.CODEC.codec()));
 							#if MC_VERSION >= MC_1_20_2
-								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC, false));
-								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC, false));
-								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif, false));
+								this.addRaw(LootPoolEntry.class, autoCodec.wrapDFUCodec(LootPoolEntryTypes.CODEC));
+								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC));
+								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif));
 							#endif
-
-							#if MC_VERSION >= MC_1_20_3
-								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC, false));
-								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC, false));
-								this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC, false));
-								this.addRaw(WoodType.class, autoCodec.wrapDFUCodec(WoodType.CODEC, false));
+							#if MC_VERSION >= MC_1_20_5
+								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC));
+								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC));
+								this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC));
+								this.addRaw(WoodType.class, autoCodec.wrapDFUCodec(WoodType.CODEC));
 							#endif
 						}
 					};
@@ -410,7 +365,7 @@ public class BigGlobeAutoCodec {
 
 			@Override
 			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
-				return context.input == null ? context.empty() : context.encodeWith(coder);
+				return context.object == null ? context.empty() : context.encodeWith(coder);
 			}
 		};
 	}
@@ -496,7 +451,7 @@ public class BigGlobeAutoCodec {
 			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(this.registryKey);
 		}
 
-		public void addAllTo(LookupFactory<? super AutoCoder<?>> factory) {
+		public void addAllTo(LookupCoderFactory factory) {
 			addTo(factory, this.      registryEntryType, this.      dynamicRegistryEntryCoder);
 			addTo(factory, this.                tagType, this.                dynamicTagCoder);
 			addTo(factory, this.             objectType, this.           hardCodedObjectCoder);
@@ -510,7 +465,7 @@ public class BigGlobeAutoCodec {
 			addTo(factory, this.     betterRegistryType, this.   betterHardCodedRegistryCoder);
 		}
 
-		public static <T> void addTo(LookupFactory<? super AutoCoder<?>> factory, ReifiedType<T> type, AutoCoder<T> coder) {
+		public static <T> void addTo(LookupCoderFactory factory, ReifiedType<T> type, AutoCoder<T> coder) {
 			if (coder != null) factory.doAddGeneric(type, coder);
 		}
 	}

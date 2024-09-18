@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.noise;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -14,6 +15,7 @@ import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.common.FactoryException;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -83,9 +85,6 @@ public interface Grid {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static class GridRegistryEntryCoder<G extends Grid> extends NamedCoder<RegistryEntry<G>> {
 
-		public static final EncoderFactory ENCODER_FACTORY = GridRegistryEntryCoder::tryCreate;
-		public static final DecoderFactory DECODER_FACTORY = GridRegistryEntryCoder::tryCreate;
-
 		public final AutoCoder<RegistryEntry<Grid>> fallback;
 		public final int dimensions;
 
@@ -120,22 +119,29 @@ public interface Grid {
 			);
 		}
 
-		public static <T_HandledType> @Nullable AutoCoder<?> tryCreate(@NotNull FactoryContext<T_HandledType> context) {
-			ReifiedType<?> gridType = context.type.resolveParameter(RegistryEntry.class);
-			Class<?> rawType;
-			if (gridType != null && (rawType = gridType.getRawClass()) != null && Grid.class.isAssignableFrom(rawType)) {
-				AutoCoder<RegistryEntry<Grid>> fallback = context.type(ReifiedType.<RegistryEntry<Grid>>parameterize(RegistryEntry.class, ReifiedType.from(Grid.class))).forceCreateCoder();
-				if (rawType == Grid1D.class) {
-					return new GridRegistryEntryCoder(context.type, fallback, 1);
+		public static class Factory extends NamedCoderFactory {
+
+			public static final Factory INSTANCE = new Factory();
+
+			@Override
+			@OverrideOnly
+			public <T_HandledType> @Nullable AutoCoder<?> tryCreate(@NotNull FactoryContext<T_HandledType> context) throws FactoryException {
+				ReifiedType<?> gridType = context.type.resolveParameter(RegistryEntry.class);
+				Class<?> rawType;
+				if (gridType != null && (rawType = gridType.getRawClass()) != null && Grid.class.isAssignableFrom(rawType)) {
+					AutoCoder<RegistryEntry<Grid>> fallback = context.type(ReifiedType.<RegistryEntry<Grid>>parameterize(RegistryEntry.class, ReifiedType.from(Grid.class))).forceCreateCoder();
+					if (rawType == Grid1D.class) {
+						return new GridRegistryEntryCoder(context.type, fallback, 1);
+					}
+					else if (rawType == Grid2D.class) {
+						return new GridRegistryEntryCoder(context.type, fallback, 2);
+					}
+					else if (rawType == Grid3D.class) {
+						return new GridRegistryEntryCoder(context.type, fallback, 3);
+					}
 				}
-				else if (rawType == Grid2D.class) {
-					return new GridRegistryEntryCoder(context.type, fallback, 2);
-				}
-				else if (rawType == Grid3D.class) {
-					return new GridRegistryEntryCoder(context.type, fallback, 3);
-				}
+				return null;
 			}
-			return null;
 		}
 	}
 }

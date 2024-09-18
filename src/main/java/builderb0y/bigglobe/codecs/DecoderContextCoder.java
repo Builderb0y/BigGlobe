@@ -9,6 +9,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 
+@SuppressWarnings("rawtypes")
 public class DecoderContextCoder extends NamedCoder<DecodeContext> {
 
 	public static final DecoderContextCoder INSTANCE = new DecoderContextCoder("DecoderContextCoder.INSTANCE");
@@ -18,7 +19,7 @@ public class DecoderContextCoder extends NamedCoder<DecodeContext> {
 	}
 
 	@Override
-	public @Nullable <T_Encoded> DecodeContext<?> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+	public @Nullable <T_Encoded> DecodeContext decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		return context;
 	}
 

@@ -42,13 +42,13 @@ public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 
 	@Override
 	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntryList<T>> context) throws EncodeException {
-		if (context.input == null) return context.empty();
-		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(context.input);
+		if (context.object == null) return context.empty();
+		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(context.object);
 		if (key != null) {
-			return context.input(key.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
+			return context.object(key.id()).encodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		}
 		else {
-			throw new EncodeException(() -> "Tag " + context.input + " is missing a key");
+			throw new EncodeException(() -> "Tag " + context.object + " is missing a key");
 		}
 	}
 }

@@ -1,13 +1,19 @@
 package builderb0y.bigglobe.util;
 
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.autocodec.common.AutoHandler.HandlerMapper;
-import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 /**
@@ -18,7 +24,10 @@ public record SymmetricOffset(
 	@UseName("x") int offsetX,
 	@UseName("y") int offsetY,
 	@UseName("z") int offsetZ,
-	@UseName("r" /* named r for backwards compatibility */) @UseCoder(name = "RAW_SYMMETRY_CODER", in = SymmetricOffset.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) Symmetry symmetry
+
+	@UseName("r" /* named r for backwards compatibility */)
+	@UseCoder(name = "RAW_SYMMETRY_CODER", in = SymmetricOffset.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+	Symmetry symmetry
 ) {
 
 	public static class Testing {
@@ -32,16 +41,22 @@ public record SymmetricOffset(
 	}
 
 	@UnknownNullability
-	public static final AutoCoder<Symmetry> RAW_SYMMETRY_CODER = Testing.enabled ? null : (
-		BigGlobeAutoCodec
-		.AUTO_CODEC
-		.createCoder(byte.class)
-		.mapCoder(
-			ReifiedType.from(Symmetry.class),
-			HandlerMapper.nullSafe((Symmetry symmetry) -> (byte)(symmetry.ordinal())),
-			HandlerMapper.nullSafe((Byte ordinal) -> Symmetry.VALUES[ordinal])
-		)
-	);
+	public static final AutoCoder<Symmetry> RAW_SYMMETRY_CODER = Testing.enabled ? null : new NamedCoder<>("SymmetricOffset.RAW_SYMMETRY_CODER") {
+
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @Nullable Symmetry decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			if (context.isEmpty()) return null;
+			return Symmetry.VALUES[context.forceAsNumber().intValue()];
+		}
+
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Symmetry> context) throws EncodeException {
+			if (context.object == null) return context.empty();
+			return context.createByte((byte)(context.object.ordinal()));
+		}
+	};
 
 	@UnknownNullability
 	public static final AutoCoder<SymmetricOffset> CODER = Testing.enabled ? null : BigGlobeAutoCodec.AUTO_CODEC.createCoder(SymmetricOffset.class);
