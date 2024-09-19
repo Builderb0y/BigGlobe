@@ -130,7 +130,6 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.scripting.parsing.ScriptUsage;
 
 @AddPseudoField("biome_source")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)

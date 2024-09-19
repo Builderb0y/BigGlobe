@@ -29,7 +29,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.ReflectionData;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

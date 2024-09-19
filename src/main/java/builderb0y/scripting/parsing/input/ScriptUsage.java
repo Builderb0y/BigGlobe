@@ -33,8 +33,8 @@ public abstract class ScriptUsage {
 		@Override
 		@OverrideOnly
 		public @Nullable <T_Encoded> ScriptUsage decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-			if (context.isString()) {
-				return new SourceScriptUsage(null, context.decodeWith(this.sourceCoder));
+			if (context.isString() || context.isList()) {
+				return new SourceScriptUsage(context.decodeWith(this.sourceCoder));
 			}
 			return super.decode(context);
 		}

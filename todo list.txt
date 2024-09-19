@@ -36,8 +36,9 @@ where I left off:
 
 changelog:
 	# For regular players:
+	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
 	# For data pack makers:
-	* Scripts can now be declared in files instead of being embedded in json.
+	* Scripts can now be declared in files in addition to being embedded in json.
 
 alternate world presets:
 	paradise.

@@ -59,7 +59,10 @@ public class TypelessCoderRegistry<E> extends NamedCoder<E> {
 		for (Iterator<Pair<T_Encoded, T_Encoded>> iterator = stream.iterator(); iterator.hasNext();) {
 			String key = context.logger().unwrapLazy(context.ops.getStringValue(iterator.next().getFirst()), false, DecodeException::new);
 			AutoCoder<? extends E> next = this.decodeLookup.get(key);
-			if (next == null) throw new DecodeException(() -> "Unknown key: " + key);
+			if (next == null) {
+				if (this.commonFields.contains(key)) continue;
+				else throw new DecodeException(() -> "Unknown key: " + key);
+			}
 			if (coder == null) {
 				coder = next;
 				prevKey = key;

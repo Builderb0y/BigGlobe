@@ -34,7 +34,7 @@ public abstract class ScriptTemplate implements SimpleDependencyView {
 
 	public abstract String getSource();
 
-	public @Nullable List<RequiredInput> getRequiredInputs() {
+	public @Nullable List<RequiredInput> getInputs() {
 		return this.inputs;
 	}
 

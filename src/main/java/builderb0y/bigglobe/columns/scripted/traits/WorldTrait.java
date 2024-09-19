@@ -11,7 +11,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public record WorldTrait(
 	@EncodeInline AccessSchema schema,

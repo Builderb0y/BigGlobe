@@ -89,7 +89,7 @@ public class TraitManager {
 		this.traitRegistry.streamEntries().forEach((RegistryEntry<WorldTrait> entry) -> {
 			TraitInfo info = this.infos.get(entry);
 			if (entry.value().fallback() != null) {
-				info.getter.setCode(entry.value().fallback().findSource(), (MutableScriptEnvironment environment) -> {
+				info.getter.setCode(entry.value().fallback().getSource(), (MutableScriptEnvironment environment) -> {
 					environment
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
@@ -169,7 +169,7 @@ public class TraitManager {
 				? new LazyVarInfo[] { column, y }
 				: new LazyVarInfo[] { column }
 			);
-			implGetter.setCode(entry.getValue().get().findSource(), (MutableScriptEnvironment environment) -> {
+			implGetter.setCode(entry.getValue().get().getSource(), (MutableScriptEnvironment environment) -> {
 				environment
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
@@ -195,7 +195,7 @@ public class TraitManager {
 					? new LazyVarInfo[] { column, y, value }
 					: new LazyVarInfo[] { column, value }
 				);
-				implSetter.setCode(entry.getValue().set().findSource(), (MutableScriptEnvironment environment) -> {
+				implSetter.setCode(entry.getValue().set().getSource(), (MutableScriptEnvironment environment) -> {
 					environment
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns.scripted;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -10,8 +9,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
 import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -21,7 +20,7 @@ public class ScriptColumnEntryParser extends ExpressionParser {
 	public final ScriptUsage usage;
 
 	public ScriptColumnEntryParser(ScriptUsage usage, ClassCompileContext clazz, MethodCompileContext method) {
-		super(usage.findSource(), clazz, method);
+		super(usage.getSource(), clazz, method);
 		this.usage = usage;
 	}
 
@@ -37,7 +36,7 @@ public class ScriptColumnEntryParser extends ExpressionParser {
 
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
-		if (this.usage.isTemplate()) {
+		if (this.usage.getTemplate() != null) {
 			ArrayBuilder<InsnTree> initializers = TemplateScriptParser.parseInitializers(this, this.usage);
 			initializers.add(super.parseEntireInput());
 			return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));

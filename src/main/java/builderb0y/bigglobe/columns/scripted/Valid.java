@@ -7,7 +7,7 @@ import builderb0y.bigglobe.codecs.Any;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public record Valid(
 	@VerifyNullable ScriptUsage where,

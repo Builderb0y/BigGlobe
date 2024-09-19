@@ -25,6 +25,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.UserMethodDefiner.DerivativeMethodDefiner;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -113,7 +114,7 @@ public interface SurfaceScript extends Script {
 			actualMethod.endCode();
 
 			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-			return_(ldc(clazz.newConstant(usage.findSource(), TypeInfos.STRING))).emitBytecode(getSource);
+			return_(ldc(clazz.newConstant(usage.getSource(), TypeInfos.STRING))).emitBytecode(getSource);
 			getSource.endCode();
 
 			MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);

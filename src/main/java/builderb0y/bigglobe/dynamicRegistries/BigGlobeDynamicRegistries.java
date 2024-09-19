@@ -26,7 +26,7 @@ import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
+import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
 

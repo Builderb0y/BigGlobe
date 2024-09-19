@@ -5,7 +5,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
 

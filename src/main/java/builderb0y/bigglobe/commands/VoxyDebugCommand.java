@@ -25,7 +25,7 @@ import builderb0y.bigglobe.compat.voxy.DebugVoxyWorldGenerator;
 import builderb0y.bigglobe.mixinInterfaces.VoxyGeneratorHolder;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.SourceScriptUsage;
 
 public class VoxyDebugCommand {
 
@@ -70,7 +70,7 @@ public class VoxyDebugCommand {
 						else {
 							newStates = new Object2ObjectArrayMap<>(1);
 						}
-						ColumnToIntScript.Holder script = new ColumnToIntScript.Holder(new ScriptUsage(context.getArgument("script", String.class)));
+						ColumnToIntScript.Holder script = new ColumnToIntScript.Holder(new SourceScriptUsage(context.getArgument("script", String.class)));
 						if (!compile(script, context.getSource())) return 0;
 						newStates.put(context.getArgument("state", BlockStateArgument.class).getBlockState(), script);
 

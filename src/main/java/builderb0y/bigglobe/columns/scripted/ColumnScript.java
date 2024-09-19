@@ -34,6 +34,7 @@ import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTre
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -110,7 +111,7 @@ public interface ColumnScript extends Script {
 
 		public BaseHolder(ScriptUsage usage) {
 			super(usage);
-			if (usage.isTemplate()) this.dependencies.add(usage.getTemplate());
+			if (usage.getTemplate() != null) this.dependencies.add(usage.getTemplate());
 		}
 
 		@Override
@@ -198,7 +199,7 @@ public interface ColumnScript extends Script {
 			actualMethod.endCode();
 
 			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-			return_(ldc(clazz.newConstant(usage.findSource(), TypeInfos.STRING))).emitBytecode(getSource);
+			return_(ldc(clazz.newConstant(usage.getSource(), TypeInfos.STRING))).emitBytecode(getSource);
 			getSource.endCode();
 
 			MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);

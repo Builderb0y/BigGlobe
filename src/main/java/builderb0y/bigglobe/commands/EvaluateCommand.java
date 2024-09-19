@@ -37,6 +37,7 @@ import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.input.SourceScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -95,13 +96,13 @@ public class EvaluateCommand {
 			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
 			public Holder(String source) {
-				super(new ScriptUsage(source));
+				super(new SourceScriptUsage(source));
 			}
 
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
-					new ScriptParser<>(CommandScript.class, this.usage.findSource(), null) {
+					new ScriptParser<>(CommandScript.class, this.usage.getSource(), null) {
 
 						@Override
 						public InsnTree createReturn(InsnTree value) {

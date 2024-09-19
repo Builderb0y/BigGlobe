@@ -15,7 +15,8 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
+import builderb0y.scripting.parsing.input.SourceScriptUsage;
 
 @UseCoder(name = "new", in = WorldTraitProvider.Coder.class, usage = MemberUsage.METHOD_IS_FACTORY)
 public record WorldTraitProvider(ScriptUsage get, @VerifyNullable ScriptUsage set) {
@@ -25,7 +26,7 @@ public record WorldTraitProvider(ScriptUsage get, @VerifyNullable ScriptUsage se
 	}
 
 	public WorldTraitProvider(String get) {
-		this(new ScriptUsage(get), null);
+		this(new SourceScriptUsage(get), null);
 	}
 
 	public static class Coder extends NamedCoder<WorldTraitProvider> {

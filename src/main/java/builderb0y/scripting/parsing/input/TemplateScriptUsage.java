@@ -43,7 +43,7 @@ public class TemplateScriptUsage extends ScriptUsage {
 	public static <T_Encoded> void verify(VerifyContext<T_Encoded, TemplateScriptUsage> context) throws VerifyException {
 		TemplateScriptUsage usage = context.object;
 		if (usage == null) return;
-		List < RequiredInput > requiredInputs = usage.template.value().inputs;
+		List<RequiredInput> requiredInputs = usage.template.value().inputs;
 		Set<String> expected = requiredInputs == null || requiredInputs.isEmpty() ? Collections.emptySet() : requiredInputs.stream().map(RequiredInput::name).collect(Collectors.toSet());
 		Set<String> actual = usage.inputs == null || usage.inputs.isEmpty() ? Collections.emptySet() : usage.inputs.keySet();
 		if (!expected.equals(actual)) {

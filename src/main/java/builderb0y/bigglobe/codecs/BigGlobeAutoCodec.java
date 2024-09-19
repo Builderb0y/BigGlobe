@@ -87,7 +87,7 @@ import builderb0y.bigglobe.util.TagOrObjectKey;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
+import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeAutoCodec {
 

@@ -6,7 +6,7 @@ import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public abstract class ScriptHolder<S extends Script> extends ScriptErrorCatcher.Impl implements Script, DelayedCompileable {
 

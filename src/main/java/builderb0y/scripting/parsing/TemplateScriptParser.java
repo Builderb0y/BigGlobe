@@ -2,19 +2,17 @@ package builderb0y.scripting.parsing;
 
 import java.util.Collections;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import net.minecraft.registry.entry.RegistryEntry;
-
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.VariableDeclareAssignInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate;
-import builderb0y.scripting.parsing.ScriptUsage.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.parsing.input.ScriptTemplate.RequiredInput;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.ArrayBuilder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -24,7 +22,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 	public final ScriptUsage usage;
 
 	public TemplateScriptParser(Class<I> implementingClass, ScriptUsage usage) {
-		super(implementingClass, usage.findSource(), usage.debug_name);
+		super(implementingClass, usage.getSource(), usage.debug_name);
 		this.usage = usage;
 	}
 
@@ -40,7 +38,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 
 	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
-		if (this.usage.isTemplate()) {
+		if (this.usage.getTemplate() != null) {
 			ArrayBuilder<InsnTree> initializers = parseInitializers(this, this.usage);
 			initializers.add(super.parseEntireInput());
 			return seq(initializers.toArray(InsnTree.ARRAY_FACTORY));
@@ -52,7 +50,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 
 	public static ArrayBuilder<InsnTree> parseInitializers(ExpressionParser parser, ScriptUsage usage) throws ScriptParsingException {
 		ArrayBuilder<InsnTree> initializers = new ArrayBuilder<>();
-		for (RequiredInput input : usage.getTemplate().value().inputs()) {
+		for (RequiredInput input : usage.getTemplate().value().getInputs()) {
 			String inputSource = usage.getInputs().get(input.name());
 			assert inputSource != null;
 			TypeInfo type = parser.environment.getType(parser, input.type());

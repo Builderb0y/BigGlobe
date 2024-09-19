@@ -8,7 +8,7 @@ import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.ScriptUsage;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public class ScriptColumnEntry extends AbstractColumnEntry {
 

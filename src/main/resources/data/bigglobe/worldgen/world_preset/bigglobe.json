@@ -52,82 +52,12 @@
 						{
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
-							"before_children": [
-								"if (distantHorizons && `bigglobe:overworld/glacier_cell`.?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:",
-									"setBlockStates(",
-										"max(",
-											"ceilInt(`bigglobe:overworld/processed_surface_y`),",
-											"floorInt(`bigglobe:overworld/glacier_min_y`)",
-										"),",
-										"floorInt(`bigglobe:overworld/glacier_max_y`),",
-										"'minecraft:snow_block'",
-									")",
-									"int layers = truncInt(`bigglobe:overworld/glacier_max_y` % 1.0L * 8.0L)",
-									"if (layers != 0: setBlockState(floorInt(`bigglobe:overworld/glacier_max_y`), BlockState('minecraft:snow', layers: layers)))",
-								")"
-							],
-							"after_children": [
-								"int surfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
-								";skip the bulk of the work if the surface is outside the world height,",
-								";which could happen with cubic chunks.",
-								"if (surfaceY.isBetween[minY, maxY]:",
-									"long seed = columnSeed(16x89EA3521C6A72ABCUL)",
-									"double slopeSquared = (",
-										"+ dx(`bigglobe:overworld/basic_surface_y`) ^ 2",
-										"+ dz(`bigglobe:overworld/basic_surface_y`) ^ 2",
-									")",
-									"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:overworld/processed_surface_y`):",
-										"int depth = (seed := seed.newSeed()).nextInt(3, 7)",
-										"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')",
-									")",
-									"if (`bigglobe:overworld/lake_surface_states` != null:",
-										"setBlockStates(",
-											"surfaceY - (seed := seed.newSeed()).nextInt(3, 7),",
-											"surfaceY,",
-											"`bigglobe:overworld/lake_surface_states`.under",
-										")",
-									")",
-									"int depth = floorInt(",
-										"+ (seed := seed.newSeed()).nextDouble(3.0L, 7.0L) ;base randomness",
-										"- (slopeSquared * 3.0L) ;less depth when slope is high",
-										"+ (`bigglobe:overworld/height_adjusted_foliage`(surfaceY) * 2.0L)",
-									")",
-									"if (depth > 0:",
-										"if (`bigglobe:overworld/lake_surface_states` != null:",
-											"setBlockStates(",
-												"surfaceY - depth,",
-												"surfaceY,",
-												"`bigglobe:overworld/lake_surface_states`.top",
-											")",
-										")",
-										"else (",
-											"SurfaceStates states = `bigglobe:overworld/surface_states`",
-											"boolean hadBlock = false",
-											"for (int y in -range[surfaceY - depth, surfaceY):",
-												"hadBlock = (getBlockState(y) !=. 'minecraft:air').if (",
-													"setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)",
-												")",
-											")",
-										")",
-									")",
-									"if (`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextFloat() < world_traits.`bigglobe:snow_chance`:",
-										"int snowStart = surfaceY",
-										"while (snowStart > minY && getBlockState(snowStart - 1).isAir(): --snowStart)",
-										"int snowEnd = lowerInt(`bigglobe:overworld/snow_y`)",
-										"if (snowEnd >= snowStart:",
-											"setBlockStates(snowStart, snowEnd, 'minecraft:snow[layers=8]')",
-											"int remaining = floorInt((`bigglobe:overworld/snow_y` % 1.0I) * 8.0I)",
-											"if (snowStart == snowEnd: remaining = max(remaining, 1))",
-											"if (remaining != 0:",
-												"setBlockState(snowEnd, BlockState('minecraft:snow', layers: remaining))",
-											")",
-										")",
-										"else (",
-											"setBlockState(snowStart, 'minecraft:snow[layers=1]')",
-										")",
-									")",
-								")"
-							],
+							"before_children": {
+								"file": "bigglobe:world_preset/bigglobe/overworld_dh_glacier_placement"
+							},
+							"after_children": {
+								"file": "bigglobe:world_preset/bigglobe/overworld_surface_placement"
+							},
 							"valid": {
 								"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
 								"min_y": "surfaceOnly ? ceilInt(`bigglobe:overworld/basic_surface_y`) - 32 : 16x80000000U"
@@ -137,41 +67,9 @@
 									"type": "simple_3d",
 									"state": "'minecraft:air'",
 									"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
-									"after_children": [
-										"OverworldCaveCell cave = `bigglobe:overworld/cave`",
-										"float rawDepth = cave.surface_depth",
-										"CaveFloorStates floorStates = cave.floor_states",
-										"CaveCeilingStates ceilingStates = cave.ceiling_states",
-										"boolean canGenerateFloor = rawDepth > 0.0L && floorStates != null",
-										"boolean canGenerateCeiling = rawDepth > 0.0L && ceilingStates != null",
-										"if (canGenerateFloor || canGenerateCeiling:",
-											"double*(",
-												"basicSurfaceY = ceilInt(`bigglobe:overworld/basic_surface_y`)",
-												"processedSurfaceY = ceilInt(`bigglobe:overworld/processed_surface_y`)",
-												"maxCaveDepth = ceilInt(`bigglobe:overworld/cave`.depth)",
-											")",
-											"int minIteration = floorInt(basicSurfaceY - maxCaveDepth)",
-											"int maxIteration = ceilInt(processedSurfaceY)",
-											"if (canGenerateFloor:",
-												"for (int y = maxIteration + 1, (y := getBottomOfSegment(y - 1)) >= minIteration, noop:",
-													"if (getBlockState(y) ==. 'minecraft:air':",
-														"int limit = max(getBottomOfSegment(y - 1), y - floorInt(columnSeed(16x1CAD9C3F950EB0EFUL).newSeed(y).nextFloat(rawDepth)) - 1)",
-														"setBlockStates(limit, y, floorStates.under)",
-														"setBlockState(y - 1, floorStates.top)",
-													")",
-												")",
-											")",
-											"if (canGenerateCeiling:",
-												"for (int y = minIteration, (y := getTopOfSegment(y)) <= maxIteration, noop:",
-													"if (getBlockState(y - 1) ==. 'minecraft:air':",
-														"int limit = min(getTopOfSegment(y), y + higherInt(columnSeed(16xD34EFA2F169E4C50UL).newSeed(y).nextFloat(rawDepth)))",
-														"setBlockStates(y, limit, ceilingStates.above)",
-														"setBlockState(y, ceilingStates.bottom)",
-													")",
-												")",
-											")",
-										")"
-									],
+									"after_children": {
+										"file": "bigglobe:world_preset/bigglobe/overworld_cave_surface_placement"
+									},
 									"valid": {
 										"where": "!surfaceOnly",
 										"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth)",
@@ -246,33 +144,9 @@
 						{
 							"type": "simple_2d",
 							"state": "'bigglobe:cloud'",
-							"after_children": [
-								"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
-								"int boundMaxY = higherInt(bounds.max_y)",
-								"int boundMinY = max(floorInt(bounds.min_y), boundMaxY - bounds.surface_depth)",
-								"if (boundMaxY > boundMinY:",
-									"setBlockStates(boundMinY, boundMaxY, 'minecraft:dirt')",
-									"long seed = columnSeed(16x4DED4293C5E459FEUL)",
-									"setBlockState(boundMaxY - 1,",
-										"seed.if (0.25:",
-											"if (`bigglobe:overworld/skyland`.tree_feature != null:",
-												"seed.newSeed().if (0.25:",
-													"'minecraft:podzol[snowy=false]'",
-												")",
-												"else (",
-													"'bigglobe:overgrown_podzol[snowy=false]'",
-												")",
-											")",
-											"else (",
-												"'minecraft:grass_block[snowy=false]'",
-											")",
-										")",
-										"else (",
-											"'minecraft:grass_block[snowy=false]'",
-										")",
-									")",
-								")"
-							],
+							"after_children": {
+								"file": "bigglobe:world_preset/bigglobe/overworld_skyland_surface_placement"
+							},
 							"valid": {
 								"where": [
 									"if (purpose == 'heightmap': return(false))",
@@ -302,12 +176,9 @@
 					"all_possible_biomes": "bigglobe:overworld"
 				},
 				"overriders": "bigglobe:overworld",
-				"spawn_point": [
-					"`bigglobe:overworld/processed_surface_y` > 0.0L &&",
-					"`bigglobe:overworld/surface_temperature`.isBetween[-0.25I, +0.25I] &&",
-					"`bigglobe:overworld/surface_foliage` > 0.0L &&",
-					"`bigglobe:overworld/river_dip` > `bigglobe:overworld/river_depth` * 0.5L"
-				],
+				"spawn_point": {
+					"file": "bigglobe:world_preset/bigglobe/overworld_spawn_point"
+				},
 				"colors": {
 					"grass": {
 						"template": "bigglobe:block_color_adjustment",
@@ -375,27 +246,9 @@
 								"min_y": "`bigglobe:nether/min_y` + 16",
 								"max_y": "`bigglobe:nether/max_y` - 16"
 							},
-							"before_children": [
-								"BlockState state = `bigglobe:nether/bubble`.surface_state",
-								"if (state != null:",
-									"int minIteration = `bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`",
-									"int maxIteration = `bigglobe:nether/max_y`",
-									"for (int y = maxIteration, (y := getBottomOfSegment(y - 1)) >= minIteration, noop:",
-										"if (",
-											"getBlockState(y) ==. 'minecraft:air' &&",
-											"columnSeed(16x783DBB66AE78F478UL).newSeed(y).nextBoolean(",
-												"unmixSmoother(",
-													"double(`bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`),",
-													"double(`bigglobe:nether/mid_y`),",
-													"double(y)",
-												")",
-											")",
-										":",
-											"setBlockState(y - 1, state)",
-										")",
-									")",
-								")"
-							],
+							"before_children": {
+								"file": "bigglobe:world_preset/bigglobe/nether_surface_placement"
+							},
 							"children": [
 								{
 									"type": "simple_2d",
@@ -476,22 +329,9 @@
 						{
 							"type": "simple_2d",
 							"state": "'minecraft:end_stone'",
-							"after_children": [
-								"EndSurface surface = `bigglobe:end/surface`",
-								"if (surface.surface_depth > 0:",
-									"if (surface.surface_depth > 1:",
-										"setBlockStates(",
-											"max(",
-												"higherInt(`bigglobe:end/mountain_max_y`) - surface.surface_depth,",
-												"floorInt(`bigglobe:end/mountain_min_y`)",
-											"),",
-											"floorInt(`bigglobe:end/mountain_max_y`),",
-											"surface.subsurface_state",
-										")",
-									")",
-									"setBlockState(floorInt(`bigglobe:end/mountain_max_y`), surface.surface_state)",
-								")"
-							],
+							"after_children": {
+								"file": "bigglobe:world_preset/bigglobe/end_surface_placement"
+							},
 							"valid": {
 								"where": "`bigglobe:end/has_mountain`",
 								"min_y": "floorInt(`bigglobe:end/mountain_min_y`)",
