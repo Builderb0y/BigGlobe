@@ -21,7 +21,6 @@ testing:
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
-	document what version constant lists and maps were added in.
 	blanket replace surface Y level with trait.
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
@@ -32,7 +31,6 @@ where I left off:
 		charred grass on volcanoes.
 	deal with structures on skylands in island worlds.
 	possibly add trait for small dungeon type so I can merge that feature dispatcher.
-	make lake column value overrider run first, before any other column value overriders.
 
 changelog:
 	# For regular players:
@@ -61,6 +59,7 @@ braking changes I want to make:
 			fill
 			carve
 		lod (byte)
+		minY, maxY
 		purpose (enum with auto-casting)
 	rename cavern-related overworld column values to "deep dark".
 	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.

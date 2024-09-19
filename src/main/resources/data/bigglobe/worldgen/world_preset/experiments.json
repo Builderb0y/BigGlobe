@@ -352,64 +352,9 @@
 								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
 								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x80000000U"
 							},
-							"after_children": [
-								"int surfaceY = world_traits.`bigglobe:y_level_on_surface`",
-								"long seed = columnSeed(16x47B481311B32724DUL)",
-								"double slopeSquared = (",
-									"+ dx(`bigglobe:islands/eroded_surface_height`) ^ 2",
-									"+ dz(`bigglobe:islands/eroded_surface_height`) ^ 2",
-								")",
-								"if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:islands/eroded_surface_height`):",
-									"int depth = (seed := seed.newSeed()).nextInt(3, 7)",
-									"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')",
-								")",
-								"IslandSurfaceStates states = `bigglobe:islands/surface_states`",
-								"double rawDepth = floorInt(",
-									"(seed := seed.newSeed()).nextDouble(3.0L, 7.0L)",
-									"- slopeSquared * 3.0L",
-								")",
-								"if (`bigglobe:islands/is_volcano`:",
-									"for (int y in range[surfaceY - (surfaceOnly ? 32 : (seed := seed.newSeed()).nextInt(16, 32)), surfaceY):",
-										"if (getBlockState(y) ==. 'minecraft:stone':",
-											"setBlockState(y, 'minecraft:basalt[axis=y]')",
-										")",
-									")",
-								")",
-								"if (states.surfaceState ==. 'minecraft:blackstone':",
-									"for (int y in range[surfaceY - int(rawDepth), surfaceY):",
-										"if (getBlockState(y) ==. 'minecraft:basalt[axis=y]':",
-											"setBlockState(y, 'minecraft:blackstone')",
-										")",
-									")",
-								")",
-								"else (",
-									"rawDepth -= surfaceY / 192.0L",
-									"if (noscope(int depth := int(rawDepth)) > 0:",
-										"boolean hadBlock = false",
-										"for (int y in -range[surfaceY - depth, surfaceY):",
-											"hadBlock = (getBlockState(y).?hasFullCubeCollision()).if (",
-												"setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)",
-											")",
-										")",
-									")",
-								")",
-								"if (surfaceY > 0 && !`bigglobe:islands/is_volcano` && (seed := seed.newSeed()).nextFloat() < `bigglobe:islands/snow_chance`:",
-									"int snowStart = surfaceY",
-									"while (snowStart > minY && getBlockState(snowStart - 1).isAir(): --snowStart)",
-									"int snowEnd = lowerInt(`bigglobe:islands/snow_height`) - 1",
-									"if (snowEnd >= snowStart:",
-										"setBlockStates(snowStart, snowEnd, 'minecraft:snow[layers=8]')",
-										"int remaining = floorInt(`bigglobe:islands/snow_height` % 1.0I * 8.0I)",
-										"if (snowStart == snowEnd: remaining = max(remaining, 1))",
-										"if (remaining != 0:",
-											"setBlockState(snowEnd, BlockState('minecraft:snow', layers: remaining))",
-										")",
-									")",
-									"else (",
-										"setBlockState(snowStart, 'minecraft:snow[layers=1]')",
-									")",
-								")"
-							],
+							"after_children": {
+								"file": "bigglobe:world_preset/islands_surface_placement"
+							},
 							"children": [
 								{
 									"type": "simple_3d",
@@ -497,26 +442,9 @@
 								"min_y": "world_traits.`bigglobe:skyland_min_y`",
 								"max_y": "world_traits.`bigglobe:skyland_max_y`"
 							},
-							"after_children": [
-								"int surfaceY = world_traits.`bigglobe:skyland_max_y`",
-								"long seed = columnSeed(16x6C744C12C6BC713CUL)",
-								"double slopeSquared = (",
-									"+ `bigglobe:islands/dx_height_offset` ^ 2",
-									"+ `bigglobe:islands/dz_height_offset` ^ 2",
-								")",
-								"int depth = floorInt(",
-									"(seed := seed.newSeed()).nextDouble(3.0L, 7.0L)",
-									"- (slopeSquared * 3.0L)",
-								")",
-								"boolean hadBlock = false",
-								"for (int y in -range[surfaceY - depth, surfaceY):",
-									"BlockState state = getBlockState(y)",
-									"if (state == null: break())",
-									"hadBlock = (state !=. 'minecraft:air').if (",
-										"setBlockState(y, hadBlock ? 'minecraft:dirt' : 'minecraft:grass_block[snowy=false]')",
-									")",
-								")"
-							]
+							"after_children": {
+								"file": "bigglobe:world_preset/islands_skyland_surface_placement"
+							}
 						}
 					]
 				},
@@ -532,11 +460,9 @@
 					"normal": "bigglobe:islands/normal_root"
 				},
 				"overriders": "bigglobe:islands",
-				"spawn_point": [
-					"!`bigglobe:islands/is_floating` &&",
-					"`bigglobe:islands/eroded_surface_height` > 8.0L &&",
-					"`bigglobe:overworld/surface_foliage` > 0.0I"
-				],
+				"spawn_point": {
+					"file": "bigglobe:world_preset/islands_spawn_point"
+				},
 				"colors": {
 					"grass": {
 						"template": "bigglobe:block_color_adjustment",

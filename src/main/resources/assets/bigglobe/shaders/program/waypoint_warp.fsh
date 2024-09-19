@@ -4,6 +4,7 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D DiffuseDepthSampler;
 uniform mat4 ActualProjMat;
 uniform mat4 ModelViewMat;
+uniform float time;
 
 uniform int bigglobe_waypoint_count;
 //satin does not expose array-type uniforms, so I need 16 different uniforms instead.
@@ -60,10 +61,10 @@ vec2 hash23(vec3 p3) {
 	return fract((p3.xx + p3.yz) * p3.zy);
 }
 
-vec3 hash32(vec2 p) {
-	vec3 p3 = fract(p.xyx * vec3(0.1031, 0.1030, 0.0973));
-	p3 += dot(p3, p3.yxz + 33.33);
-	return fract((p3.xxy + p3.yzz) * p3.zyx);
+vec4 hash42(vec2 p) {
+	vec4 p4 = fract(p.xyxy * vec4(0.1031, 0.1030, 0.0973, 0.1099));
+	p4 += dot(p4, p4.wzxy + 33.33);
+	return fract((p4.xxyz + p4.yzzw) * p4.zywx);
 }
 
 vec3 unitVec(float seed) {
@@ -178,10 +179,11 @@ void main() {
 			vec2 scaledPlanePos = planePos * 16.0;
 			vec2 fractPos = fract(scaledPlanePos);
 			vec2 floorPos = scaledPlanePos - fractPos;
-			vec3 starData = hash32(floorPos);
+			vec4 starData = hash42(floorPos);
 			vec2  starPos = mix(starData.xy, vec2(0.5), starData.z);
 			float starIntensity = max(1.0 - 2.0 * distance(fractPos, starPos) / starData.z, 0.0);
 			starIntensity = square(square(square(starIntensity)));
+			starIntensity *= sin(time + starData.w * TAU) * 0.5 + 0.5;
 			vec3 starColor = exp2((starData.z * 8.0 - 7.0) * (vec3(1.0, 2.0, 4.0) / 4.0));
 			starSum += starColor * starIntensity * planeIntensity;
 		}

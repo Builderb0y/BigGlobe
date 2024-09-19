@@ -11,9 +11,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.util.math.Vec3d;
 
@@ -46,7 +48,7 @@ public class SatinCompat {
 			Comparator.comparingDouble((WaypointEntity entity) -> {
 				return BigGlobeMath.squareD(
 					entity.getX() - cameraPosition.x,
-					entity.getY() + 1.0D - cameraPosition.y,
+					entity.getY() - cameraPosition.y + 1.0D,
 					entity.getZ() - cameraPosition.z
 				);
 			})
@@ -87,6 +89,8 @@ public class SatinCompat {
 			public static final UniformMat4
 				ACTUAL_PROJ_MAT = SHADER.findUniformMat4("ActualProjMat"),
 				MODEL_VIEW_MAT  = SHADER.findUniformMat4("ModelViewMat");
+			public static final Uniform1f
+				TIME = SHADER.findUniform1f("time");
 			//satin does not provide uniform arrays, so I have to make 16 different uniforms instead.
 			public static final Uniform1i
 				COUNT = SHADER.findUniform1i("bigglobe_waypoint_count");
@@ -130,18 +134,32 @@ public class SatinCompat {
 			});
 			PostWorldRenderCallback.EVENT.register((Camera camera, float tickDelta #if MC_VERSION < MC_1_21_0 , long nanoTime #endif) -> {
 				if (!visibleWaypoints.isEmpty()) {
+					WaypointWarp.TIME.set(
+						(
+							(
+								(float)(
+									BigGlobeMath.modulus_BP(
+										MinecraftClient.getInstance().world.getTime(),
+										24000L
+									)
+								)
+							)
+							+ tickDelta
+						)
+						/ 20.0F
+					);
 					Vector4f position = new Vector4f();
 					int count = 0;
 					for (Iterator<WaypointEntity> iterator = visibleWaypoints.descendingIterator(); iterator.hasNext(); ) {
 						WaypointEntity waypoint = iterator.next();
 						position.set(
 							waypoint.getX() - cameraPosition.x,
-							waypoint.getY() + 1.0D - cameraPosition.y,
+							waypoint.getY() - cameraPosition.y + 1.0D,
 							waypoint.getZ() - cameraPosition.z,
 							1.0F
 						);
 						RenderSystem.getModelViewMatrix().transform(position);
-						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.health / WaypointEntity.MAX_HEALTH);
+						WaypointWarp.POSITIONS[count++].set(position.x, position.y, position.z, waypoint.health / WaypointEntity.MAX_HEALTH + (float)(Math.sin((waypoint.age + tickDelta) * (Math.PI / 50.0D)) * 0.125D));
 					}
 					WaypointWarp.COUNT.set(count);
 					WaypointWarp.ACTUAL_PROJ_MAT.set(RenderSystem.getProjectionMatrix());

@@ -53,10 +53,10 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"before_children": {
-								"file": "bigglobe:world_preset/bigglobe/overworld_dh_glacier_placement"
+								"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
 							},
 							"after_children": {
-								"file": "bigglobe:world_preset/bigglobe/overworld_surface_placement"
+								"file": "bigglobe:world_preset/overworld_surface_placement"
 							},
 							"valid": {
 								"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
@@ -68,7 +68,7 @@
 									"state": "'minecraft:air'",
 									"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
 									"after_children": {
-										"file": "bigglobe:world_preset/bigglobe/overworld_cave_surface_placement"
+										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
 									},
 									"valid": {
 										"where": "!surfaceOnly",
@@ -145,7 +145,7 @@
 							"type": "simple_2d",
 							"state": "'bigglobe:cloud'",
 							"after_children": {
-								"file": "bigglobe:world_preset/bigglobe/overworld_skyland_surface_placement"
+								"file": "bigglobe:world_preset/overworld_skyland_surface_placement"
 							},
 							"valid": {
 								"where": [
@@ -177,7 +177,7 @@
 				},
 				"overriders": "bigglobe:overworld",
 				"spawn_point": {
-					"file": "bigglobe:world_preset/bigglobe/overworld_spawn_point"
+					"file": "bigglobe:world_preset/overworld_spawn_point"
 				},
 				"colors": {
 					"grass": {
@@ -247,7 +247,7 @@
 								"max_y": "`bigglobe:nether/max_y` - 16"
 							},
 							"before_children": {
-								"file": "bigglobe:world_preset/bigglobe/nether_surface_placement"
+								"file": "bigglobe:world_preset/nether_surface_placement"
 							},
 							"children": [
 								{
@@ -330,7 +330,7 @@
 							"type": "simple_2d",
 							"state": "'minecraft:end_stone'",
 							"after_children": {
-								"file": "bigglobe:world_preset/bigglobe/end_surface_placement"
+								"file": "bigglobe:world_preset/end_surface_placement"
 							},
 							"valid": {
 								"where": "`bigglobe:end/has_mountain`",
