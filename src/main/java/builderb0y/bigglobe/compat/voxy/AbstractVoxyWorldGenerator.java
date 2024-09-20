@@ -125,7 +125,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
 			WorldSection section = lightAir ? Voxy_WorldSection_Accessors.bigglobe_create(level, levelX, sectionBottomY >> (level + 5), levelZ, ((Voxy_WorldEngine_Accessors)(this.engine)).bigglobe_getTracker()) : null;
 			long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
-			if (lightAir) Arrays.fill(sectionPayload, 0L);
+			//if (lightAir) Arrays.fill(sectionPayload, 0L);
 			BlockState previousColumnState = null;
 			int previousColumnStateID = -1;
 			try {
@@ -141,7 +141,7 @@ public abstract class AbstractVoxyWorldGenerator {
 								if (section == null) {
 									section = Voxy_WorldSection_Accessors.bigglobe_create(level, levelX, sectionBottomY >> (level + 5), levelZ, ((Voxy_WorldEngine_Accessors)(this.engine)).bigglobe_getTracker());
 									sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
-									Arrays.fill(sectionPayload, 0L);
+									//Arrays.fill(sectionPayload, 0L);
 								}
 								int minRelativeY = Math.max((segment.minY - sectionBottomY) >> level, 0);
 								int maxRelativeY = Math.min((segment.maxY - sectionBottomY) >> level, 31);
