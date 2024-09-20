@@ -1,0 +1,183 @@
+package builderb0y.bigglobe.compat.dhChunkGen;
+
+import com.seibel.distanthorizons.api.DhApi.Delayed;
+import com.seibel.distanthorizons.api.enums.config.EDhApiDataCompressionMode;
+import com.seibel.distanthorizons.api.enums.config.EDhApiWorldCompressionMode;
+import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiWorldGenerationStep;
+import com.seibel.distanthorizons.core.dataObjects.fullData.sources.FullDataSourceV2;
+import com.seibel.distanthorizons.core.pos.DhSectionPos;
+import com.seibel.distanthorizons.core.sql.dto.FullDataSourceV2DTO;
+import com.seibel.distanthorizons.core.util.FullDataPointUtil;
+import com.seibel.distanthorizons.core.wrapperInterfaces.world.IBiomeWrapper;
+import com.seibel.distanthorizons.core.wrapperInterfaces.world.ILevelWrapper;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import loaderCommon.fabric.com.seibel.distanthorizons.common.wrappers.block.BlockStateWrapper;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.util.ClientWorldEvents;
+import builderb0y.bigglobe.versions.RegistryKeyVersions;
+
+//this was a fun experiment, but I'd rather wait for DH to add
+//an official API for this before I use this code for anything.
+public class HackyDhGenerator {
+
+	public static HackyDhGenerator instance;
+	public static boolean instancePresent;
+
+	static {
+		ClientWorldEvents.WORLD_CHANGED.register((ClientWorld oldWorld, ClientWorld newWorld) -> {
+			synchronized (HackyDhGenerator.class) {
+				instance = null;
+				instancePresent = false;
+			}
+		});
+	}
+
+	public final BigGlobeScriptedChunkGenerator generator;
+	public final ThreadLocal<ScriptedColumn[]> columns;
+	public final RegistryEntry<Biome> plains;
+
+	public HackyDhGenerator(ServerWorld serverWorld, BigGlobeScriptedChunkGenerator generator) {
+		this.generator = generator;
+		this.columns = ThreadLocal.withInitial(() -> {
+			ScriptedColumn[] columns = new ScriptedColumn[4096];
+			ScriptedColumn.Params params = new ScriptedColumn.Params(generator, 0, 0, Purpose.rawGeneration(true));
+			for (int index = 0; index < 4096; index++) {
+				columns[index] = generator.columnEntryRegistry.columnFactory.create(params);
+			}
+			return columns;
+		});
+		this.plains = serverWorld.getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS);
+	}
+
+	public static FullDataSourceV2DTO generate(long pos) {
+		HackyDhGenerator generator = getInstance();
+		return generator != null ? generator.doGenerate(pos) : null;
+	}
+
+	public FullDataSourceV2DTO doGenerate(long pos) {
+		int lod = DhSectionPos.getDetailLevel(pos);
+		int sectionX = DhSectionPos.getX(pos);
+		int sectionZ = DhSectionPos.getZ(pos);
+		int startX = sectionX << lod;
+		int startZ = sectionZ << lod;
+		int step = 1 << (lod - 6);
+		ScriptedColumn[] columns = this.columns.get();
+		BlockSegmentList[] lists = new BlockSegmentList[4096];
+		//create
+		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
+			for (int offsetZ = 0; offsetZ < 64; offsetZ += 2) {
+				final int offsetZ_ = offsetZ;
+				for (int offsetX = 0; offsetX < 64; offsetX += 2) {
+					final int offsetX_ = offsetX;
+					async.submit(() -> {
+						int x = startX | (offsetX_ << (lod - 6));
+						int z = startZ | (offsetZ_ << (lod - 6));
+						int baseIndex = (offsetZ_ << 6) | offsetX_;
+						ScriptedColumn
+							column00 = columns[baseIndex     ],
+							column01 = columns[baseIndex |  1],
+							column10 = columns[baseIndex | 64],
+							column11 = columns[baseIndex | 65];
+						column00.setParamsUnchecked(column00.params.at(x,        z       ));
+						column01.setParamsUnchecked(column01.params.at(x | step, z       ));
+						column10.setParamsUnchecked(column10.params.at(x,        z | step));
+						column11.setParamsUnchecked(column11.params.at(x | step, z | step));
+						int minY = column00.minY(), maxY = column00.maxY();
+						BlockSegmentList
+							list00 = new BlockSegmentList(minY, maxY),
+							list01 = new BlockSegmentList(minY, maxY),
+							list10 = new BlockSegmentList(minY, maxY),
+							list11 = new BlockSegmentList(minY, maxY);
+						this.generator.layer.emitSegments(column00, column01, column10, column11, list00);
+						this.generator.layer.emitSegments(column01, column00, column11, column10, list01);
+						this.generator.layer.emitSegments(column10, column11, column00, column01, list10);
+						this.generator.layer.emitSegments(column11, column10, column01, column00, list11);
+						list00.computeLightLevels();
+						list01.computeLightLevels();
+						list10.computeLightLevels();
+						list11.computeLightLevels();
+						lists[baseIndex     ] = list00;
+						lists[baseIndex |  1] = list01;
+						lists[baseIndex | 64] = list10;
+						lists[baseIndex | 65] = list11;
+					});
+				}
+			}
+		}
+		//convert
+		try {
+			FullDataSourceV2 source = FullDataSourceV2.createEmpty(pos);
+			ILevelWrapper levelWrapper = (ILevelWrapper)(Delayed.worldProxy.getSinglePlayerLevel());
+			IBiomeWrapper biomeWrapper = (IBiomeWrapper)(Delayed.wrapperFactory.getBiomeWrapper("minecraft:plains", levelWrapper));
+			Reference2IntMap<BlockState> cache = new Reference2IntOpenHashMap<>();
+			int minY = columns[0].minY();
+			for (int offsetZ = 0; offsetZ < 64; offsetZ++) {
+				for (int offsetX = 0; offsetX < 64; offsetX++) {
+					BlockSegmentList from = lists[(offsetZ << 6) | offsetX];
+					LongArrayList to = new LongArrayList(from.size());
+					source.setSingleColumn(to, offsetX, offsetZ, EDhApiWorldGenerationStep.NOISE, EDhApiWorldCompressionMode.MERGE_SAME_BLOCKS);
+					for (int segmentIndex = from.size(); --segmentIndex >= 0;) {
+						LitSegment segment = from.getLit(segmentIndex);
+						int id = cache.computeIfAbsent(segment.value, (BlockState state) -> {
+							return source.mapping.addIfNotPresentAndGetId(biomeWrapper, BlockStateWrapper.fromBlockState(state, levelWrapper));
+						});
+						to.add(FullDataPointUtil.encode(
+							id,
+							segment.maxY + 1 /* exclusive */ - segment.minY,
+							segment.minY - minY,
+							(byte)(segment.value.getLuminance()),
+							segment.lightLevel
+						));
+					}
+				}
+			}
+			source.isEmpty = false;
+			//convert again
+			return FullDataSourceV2DTO.CreateFromDataSource(source, EDhApiDataCompressionMode.LZ4);
+		}
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("Failed to create DTO", exception);
+			return null;
+		}
+	}
+
+	public static synchronized HackyDhGenerator getInstance() {
+		if (!instancePresent) {
+			ClientWorld clientWorld = MinecraftClient.getInstance().world;
+			if (clientWorld != null) {
+				IntegratedServer server = MinecraftClient.getInstance().getServer();
+				if (server != null) {
+					ServerWorld serverWorld = server.getWorld(clientWorld.getRegistryKey());
+					if (serverWorld != null) {
+						ChunkGenerator generator = serverWorld.getChunkManager().getChunkGenerator();
+						if (generator instanceof BigGlobeScriptedChunkGenerator scripted) {
+							instance = new HackyDhGenerator(serverWorld, scripted);
+						}
+					}
+				}
+				instancePresent = true;
+			}
+		}
+		return instance;
+	}
+}

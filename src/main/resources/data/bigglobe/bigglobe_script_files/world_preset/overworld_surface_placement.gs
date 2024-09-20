@@ -43,7 +43,7 @@ if (surfaceY.isBetween[minY, maxY]:
 	)
 	if (`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextFloat() < world_traits.`bigglobe:snow_chance`:
 		int snowStart = surfaceY
-		while (snowStart > minY && getBlockState(snowStart - 1).isAir(): --snowStart)
+		while (snowStart > minY && getBlockState(snowStart - 1).?isAir(): --snowStart)
 		int snowEnd = lowerInt(`bigglobe:overworld/snow_y`)
 		if (snowEnd >= snowStart:
 			setBlockStates(snowStart, snowEnd, 'minecraft:snow[layers=8]')

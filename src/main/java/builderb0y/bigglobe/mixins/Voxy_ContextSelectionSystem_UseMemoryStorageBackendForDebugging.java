@@ -25,7 +25,11 @@ public class Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging {
 	@Inject(method = "createStorageBackend", at = @At("HEAD"), cancellable = true, remap = false)
 	private void bigglobe_useForgetfulStorageBackendWhenDebugging(CallbackInfoReturnable<StorageBackend> callback) {
 		if (AbstractVoxyWorldGenerator.override != null) {
-			callback.setReturnValue(new ForgetfulMemoryStorageBackend());
+			callback.setReturnValue(
+				new GeneratingStorageBackend(
+					new ForgetfulMemoryStorageBackend()
+				)
+			);
 		}
 	}
 

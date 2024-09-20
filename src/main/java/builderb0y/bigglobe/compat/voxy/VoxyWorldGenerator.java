@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.compat.voxy;
 
+import me.cortex.voxy.common.storage.StorageBackend;
 import me.cortex.voxy.common.world.WorldEngine;
 
 import net.minecraft.server.world.ServerWorld;
@@ -18,12 +19,12 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public void createChunk(int levelX, int levelZ, int level) {
+	public void createChunk(int levelX, int levelZ, int level, StorageBackend storage) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 		int step   = 1 << level;
 
-		ScriptedColumn[] columns = this.columns;
+		ScriptedColumn[] columns = this.columns.get();
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
@@ -67,6 +68,6 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		this.convertSection(levelX, levelZ, level, lists);
+		this.convertSection(levelX, levelZ, level, lists, storage);
 	}
 }

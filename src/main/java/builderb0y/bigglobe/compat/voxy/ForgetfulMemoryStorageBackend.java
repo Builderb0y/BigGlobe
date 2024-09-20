@@ -14,14 +14,13 @@ import org.lwjgl.system.*;
 
 import builderb0y.bigglobe.noise.Permuter;
 
-public class ForgetfulMemoryStorageBackend extends StorageBackend implements QueueingStorageBackend {
+public class ForgetfulMemoryStorageBackend extends StorageBackend {
 
 	public static final int MAP_COUNT = 16;
 	public static final long RETENTION_MILLISECONDS = 60L * 1000L;
 
 	public final SectionDataMap[] maps;
 	public final Int2ObjectOpenHashMap<ByteBuffer> idMappings;
-	public GenerationQueue queue;
 
 	public ForgetfulMemoryStorageBackend() {
 		this.maps = new SectionDataMap[MAP_COUNT];
@@ -39,7 +38,6 @@ public class ForgetfulMemoryStorageBackend extends StorageBackend implements Que
 		assert Thread.holdsLock(map);
 		long deadline = System.currentTimeMillis() - RETENTION_MILLISECONDS;
 		while (!map.isEmpty() && map.firstValue().timestamp < deadline) {
-			this.queue.clear(map.firstLongKey() & 0xF00F_FFFF_FFFF_FFFFL);
 			MemoryUtil.memFree(map.removeFirst().buffer);
 		}
 	}
@@ -59,7 +57,6 @@ public class ForgetfulMemoryStorageBackend extends StorageBackend implements Que
 				return copy;
 			}
 			else {
-				this.queue.add(key & 0xF00F_FFFF_FFFF_FFFFL);
 				return null;
 			}
 		}
@@ -167,16 +164,6 @@ public class ForgetfulMemoryStorageBackend extends StorageBackend implements Que
 				MemoryUtil.memFree(buffer);
 			}
 		}
-	}
-
-	@Override
-	public GenerationQueue getQueue() {
-		return this.queue;
-	}
-
-	@Override
-	public void setQueue(GenerationQueue queue) {
-		this.queue = queue;
 	}
 
 	public static class TimestampedByteBuffer {

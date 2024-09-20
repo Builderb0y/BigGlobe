@@ -29,17 +29,6 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 			MinecraftClient.getInstance().world,
 			(WorldEngine)(Object)(this)
 		);
-		if (this.bigglobe_generator != null) {
-			this.bigglobe_generator.start();
-		}
-	}
-
-	@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
-	private void bigglobe_stopGenerator(CallbackInfo callback) {
-		AbstractVoxyWorldGenerator generator = this.bigglobe_generator;
-		if (generator != null) {
-			generator.stop();
-		}
 	}
 
 	@Override

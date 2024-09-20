@@ -248,7 +248,8 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			}
 			case
 				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
-				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging"
+				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
+				"builderb0y.bigglobe.mixins.Voxy_WorldSection_Accessors"
 			-> {
 				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
 			}
