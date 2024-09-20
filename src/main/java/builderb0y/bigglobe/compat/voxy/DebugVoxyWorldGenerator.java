@@ -3,14 +3,17 @@ package builderb0y.bigglobe.compat.voxy;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import me.cortex.voxy.common.storage.StorageBackend;
+import me.cortex.voxy.common.voxelization.VoxelizedSection;
 import me.cortex.voxy.common.world.WorldEngine;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.AsyncRunner;
@@ -31,11 +34,11 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public void createChunk(int levelX, int levelZ, int level, StorageBackend storage) {
+	public void createChunk(int levelX, int levelZ, int level) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 
-		ScriptedColumn[] columns = this.columns.get();
+		ScriptedColumn[] columns = this.columns;
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
@@ -63,6 +66,6 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		this.convertSection(levelX, levelZ, level, lists, storage);
+		this.convertSection(levelX, levelZ, level, lists);
 	}
 }
