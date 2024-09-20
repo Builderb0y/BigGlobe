@@ -150,7 +150,7 @@ public abstract class AbstractVoxyWorldGenerator {
 	}
 
 	public boolean generateNextChunk() {
-		long next = this.queue.poll();
+		long next = this.queue.nextChunk();
 		if (next == -1L) return false;
 		this.createChunk(WorldEngine.getX(next), WorldEngine.getZ(next), WorldEngine.getLevel(next));
 		return true;
@@ -163,7 +163,8 @@ public abstract class AbstractVoxyWorldGenerator {
 		int maxY = this.generator.height.max_y();
 		boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
 		for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
-			WorldSection section = lightAir ? this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ) : null;
+			int levelY = sectionBottomY >> (level + 5);
+			WorldSection section = lightAir ? this.engine.acquire(level, levelX, levelY, levelZ) : null;
 			long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
 			if (lightAir) Arrays.fill(sectionPayload, 0L);
 			BlockState previousColumnState = null;
@@ -179,7 +180,7 @@ public abstract class AbstractVoxyWorldGenerator {
 							if (segment.minY > (sectionBottomY | ((1 << (level + 5)) - 1))) break;
 							if (lightAir || !segment.value.isAir()) {
 								if (section == null) {
-									section = this.engine.acquire(level, levelX, sectionBottomY >> (level + 5), levelZ);
+									section = this.engine.acquire(level, levelX, levelY, levelZ);
 									sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
 									Arrays.fill(sectionPayload, 0L);
 								}

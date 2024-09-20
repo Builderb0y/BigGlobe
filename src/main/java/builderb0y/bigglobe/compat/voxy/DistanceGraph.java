@@ -32,17 +32,17 @@ public class DistanceGraph {
 	public Node root;
 	public Query query;
 
-	public DistanceGraph(int minX, int minZ, int maxX, int maxZ) {
-		this.root = new LeafNode(minX, maxX, minZ, maxZ); //permute arguments.
+	public DistanceGraph(int minX, int minZ, int maxX, int maxZ, boolean full) {
+		this.root = new LeafNode(minX, maxX, minZ, maxZ, full); //permute arguments.
 		this.query = new Query();
 	}
 
-	public static DistanceGraph worldOfBlocks() {
-		return new DistanceGraph(-WORLD_SIZE_IN_BLOCKS, -WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS);
+	public static DistanceGraph worldOfBlocks(boolean initiallyFull) {
+		return new DistanceGraph(-WORLD_SIZE_IN_BLOCKS, -WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS, +WORLD_SIZE_IN_BLOCKS, initiallyFull);
 	}
 
-	public static DistanceGraph worldOfChunks() {
-		return new DistanceGraph(-WORLD_SIZE_IN_CHUNKS, -WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS);
+	public static DistanceGraph worldOfChunks(boolean initiallyFull) {
+		return new DistanceGraph(-WORLD_SIZE_IN_CHUNKS, -WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, +WORLD_SIZE_IN_CHUNKS, initiallyFull);
 	}
 
 	public DistanceGraph(Node root) {
@@ -50,11 +50,26 @@ public class DistanceGraph {
 		this.query = new Query();
 	}
 
-	public @Nullable Query query(int x, int z) {
-		if (this.root.isFull()) return null;
+	public boolean get(int x, int z) {
+		return this.root.get(x, z);
+	}
+
+	public void set(int x, int z, boolean full) {
+		this.root = this.root.setFull(x, z, full);
+	}
+
+	public @Nullable Query current(int x, int z, boolean full) {
+		if (this.root.matches(!full)) return null;
 		this.query.init(x, z);
-		this.root.getClosestEmpty(this.query);
-		this.root = this.root.setFull(this.query.closestX, this.query.closestZ);
+		this.root.getClosest(this.query, full);
+		return this.query;
+	}
+
+	public @Nullable Query next(int x, int z, boolean full) {
+		if (this.root.matches(!full)) return null;
+		this.query.init(x, z);
+		this.root.getClosest(this.query, full);
+		this.root = this.root.setFull(this.query.closestX, this.query.closestZ, !full);
 		return this.query;
 	}
 
@@ -111,51 +126,61 @@ public class DistanceGraph {
 			return x >= this.minX && x < this.maxX && z >= this.minZ && z < this.maxZ;
 		}
 
-		public abstract boolean isFull();
+		public abstract boolean get(int x, int z);
 
-		public abstract Node setFull(int x, int z);
+		public abstract boolean matches(boolean full);
 
-		public abstract void getClosestEmpty(Query query);
+		public abstract Node setFull(int x, int z, boolean full);
+
+		public abstract void getClosest(Query query, boolean full);
 	}
 
 	public static non-sealed class LeafNode extends Node {
 
 		public boolean full;
 
-		public LeafNode(int minX, int maxX, int minZ, int maxZ) {
+		public LeafNode(int minX, int maxX, int minZ, int maxZ, boolean full) {
 			super(minX, maxX, minZ, maxZ);
+			this.full = full;
 		}
 
-		public LeafNode(Node bounds) {
+		public LeafNode(Node bounds, boolean full) {
 			super(bounds);
+			this.full = full;
 		}
 
 		@Override
-		public boolean isFull() {
+		public boolean get(int x, int z) {
 			return this.full;
 		}
 
 		@Override
-		public Node setFull(int x, int z) {
-			if (this.full) return this;
-			if (x == this.minX && z == this.minZ && x == this.midX && z == this.midZ) {
-				//this node's area is 1x1.
-				this.full = true;
-				return this;
-			}
-			return new PartialNode(this).setFull(x, z);
+		public boolean matches(boolean full) {
+			return this.full == full;
 		}
 
 		@Override
-		public void getClosestEmpty(Query query) {
-			if (this.full) return;
-			int x = this.clampX(query.targetX);
-			int z = this.clampZ(query.targetZ);
-			long radiusSquared = square(x - query.targetX) + square(z - query.targetZ);
-			if (radiusSquared < query.distanceSquared) {
-				query.closestX = x;
-				query.closestZ = z;
-				query.distanceSquared = radiusSquared;
+		public Node setFull(int x, int z, boolean full) {
+			if (this.matches(full)) return this;
+			if (x == this.minX && z == this.minZ && x == this.midX && z == this.midZ) {
+				//this node's area is 1x1.
+				this.full = full;
+				return this;
+			}
+			return new PartialNode(this, !full).setFull(x, z, full);
+		}
+
+		@Override
+		public void getClosest(Query query, boolean full) {
+			if (this.matches(full)) {
+				int x = this.clampX(query.targetX);
+				int z = this.clampZ(query.targetZ);
+				long radiusSquared = square(x - query.targetX) + square(z - query.targetZ);
+				if (radiusSquared < query.distanceSquared) {
+					query.closestX = x;
+					query.closestZ = z;
+					query.distanceSquared = radiusSquared;
+				}
 			}
 		}
 	}
@@ -164,20 +189,20 @@ public class DistanceGraph {
 
 		public Node node00, node01, node10, node11;
 
-		public PartialNode(int minX, int maxX, int minZ, int maxZ) {
+		public PartialNode(int minX, int maxX, int minZ, int maxZ, boolean full) {
 			super(minX, maxX, minZ, maxZ);
-			this.node00 = new LeafNode(minX,      this.midX, minZ,      this.midZ);
-			this.node01 = new LeafNode(minX,      this.midX, this.midZ, maxZ     );
-			this.node10 = new LeafNode(this.midX, maxX,      minZ,      this.midZ);
-			this.node11 = new LeafNode(this.midX, maxX,      this.midZ, maxZ     );
+			this.node00 = new LeafNode(minX,      this.midX, minZ,      this.midZ, full);
+			this.node01 = new LeafNode(minX,      this.midX, this.midZ, maxZ,      full);
+			this.node10 = new LeafNode(this.midX, maxX,      minZ,      this.midZ, full);
+			this.node11 = new LeafNode(this.midX, maxX,      this.midZ, maxZ,      full);
 		}
 
-		public PartialNode(Node bounds) {
+		public PartialNode(Node bounds, boolean full) {
 			super(bounds);
-			this.node00 = new LeafNode(this.minX, this.midX, this.minZ, this.midZ);
-			this.node01 = new LeafNode(this.minX, this.midX, this.midZ, this.maxZ);
-			this.node10 = new LeafNode(this.midX, this.maxX, this.minZ, this.midZ);
-			this.node11 = new LeafNode(this.midX, this.maxX, this.midZ, this.maxZ);
+			this.node00 = new LeafNode(this.minX, this.midX, this.minZ, this.midZ, full);
+			this.node01 = new LeafNode(this.minX, this.midX, this.midZ, this.maxZ, full);
+			this.node10 = new LeafNode(this.midX, this.maxX, this.minZ, this.midZ, full);
+			this.node11 = new LeafNode(this.midX, this.maxX, this.midZ, this.maxZ, full);
 		}
 
 		public PartialNode(int minX, int maxX, int minZ, int maxZ, Void ignored) {
@@ -185,45 +210,64 @@ public class DistanceGraph {
 		}
 
 		@Override
-		public boolean isFull() {
+		public boolean get(int x, int z) {
+			if (x >= this.midX) {
+				if (z >= this.midZ) {
+					return this.node11.get(x, z);
+				}
+				else {
+					return this.node10.get(x, z);
+				}
+			}
+			else {
+				if (z >= this.midZ) {
+					return this.node01.get(x, z);
+				}
+				else {
+					return this.node00.get(x, z);
+				}
+			}
+		}
+
+		@Override
+		public boolean matches(boolean full) {
 			return false;
 		}
 
 		@Override
-		public Node setFull(int x, int z) {
+		public Node setFull(int x, int z, boolean full) {
 			if (x >= this.midX) {
 				if (z >= this.midZ) {
-					this.node11 = this.node11.setFull(x, z);
+					this.node11 = this.node11.setFull(x, z, full);
 				}
 				else {
-					this.node10 = this.node10.setFull(x, z);
+					this.node10 = this.node10.setFull(x, z, full);
 				}
 			}
 			else {
 				if (z >= this.midZ) {
-					this.node01 = this.node01.setFull(x, z);
+					this.node01 = this.node01.setFull(x, z, full);
 				}
 				else {
-					this.node00 = this.node00.setFull(x, z);
+					this.node00 = this.node00.setFull(x, z, full);
 				}
 			}
 			if (
-				this.node00.isFull() &&
-				this.node01.isFull() &&
-				this.node10.isFull() &&
-				this.node11.isFull()
+				this.node00.matches(full) &&
+				this.node01.matches(full) &&
+				this.node10.matches(full) &&
+				this.node11.matches(full)
 			) {
-				LeafNode result = new LeafNode(this);
-				result.full = true;
-				return result;
+				return new LeafNode(this, full);
 			}
 			else {
 				return this;
 			}
+
 		}
 
 		@Override
-		public void getClosestEmpty(Query query) {
+		public void getClosest(Query query, boolean full) {
 			int x = this.clampX(query.targetX);
 			int z = this.clampZ(query.targetZ);
 			long distance = square(query.targetX - x) + square(query.targetZ - z);
@@ -282,10 +326,10 @@ public class DistanceGraph {
 						n3 = this.node11;
 					}
 				}
-				n0.getClosestEmpty(query);
-				n1.getClosestEmpty(query);
-				n2.getClosestEmpty(query);
-				n3.getClosestEmpty(query);
+				n0.getClosest(query, full);
+				n1.getClosest(query, full);
+				n2.getClosest(query, full);
+				n3.getClosest(query, full);
 			}
 		}
 	}

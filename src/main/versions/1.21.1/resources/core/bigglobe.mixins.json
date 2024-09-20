@@ -19,6 +19,7 @@
 		"ChunkRegion_UseCreateFlag",
 		"ChunkSection_CountsAccess",
 		"DataPacks_StoreResourceManager",
+		"Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",
@@ -82,9 +83,9 @@
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
-		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"DebugHud_MakeSearchable",
+		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds"

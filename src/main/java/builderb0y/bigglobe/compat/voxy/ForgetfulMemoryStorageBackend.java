@@ -39,7 +39,7 @@ public class ForgetfulMemoryStorageBackend extends StorageBackend implements Que
 		assert Thread.holdsLock(map);
 		long deadline = System.currentTimeMillis() - RETENTION_MILLISECONDS;
 		while (!map.isEmpty() && map.firstValue().timestamp < deadline) {
-			this.queue.clear(map.firstLongKey() & 0xF00F_FFFF_FFFF_FFFFL);
+			if (this.queue != null) this.queue.clearChunk(map.firstLongKey());
 			MemoryUtil.memFree(map.removeFirst().buffer);
 		}
 	}
@@ -59,7 +59,7 @@ public class ForgetfulMemoryStorageBackend extends StorageBackend implements Que
 				return copy;
 			}
 			else {
-				this.queue.add(key & 0xF00F_FFFF_FFFF_FFFFL);
+				if (this.queue != null) this.queue.queueChunk(key);
 				return null;
 			}
 		}

@@ -52,6 +52,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_CreateWorldScreen_DontCrashOnFailure",                               Boolean.FALSE);
+		defaults.put(mixinPackage + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",         Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",             Boolean.TRUE);

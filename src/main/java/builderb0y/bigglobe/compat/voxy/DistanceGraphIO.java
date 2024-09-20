@@ -64,7 +64,7 @@ public class DistanceGraphIO {
 
 	public static DistanceGraph.Node readRecursiveV0(int minX, int maxX, int minZ, int maxZ, BitInputStream stream) throws IOException {
 		if (stream.readBit()) {
-			PartialNode partial = new PartialNode(minX, maxX, minZ, maxZ);
+			PartialNode partial = new PartialNode(minX, maxX, minZ, maxZ, null);
 			partial.node00 = readRecursiveV0(minX, partial.midX, minZ, partial.midZ, stream);
 			partial.node01 = readRecursiveV0(minX, partial.midX, partial.midZ, maxZ, stream);
 			partial.node10 = readRecursiveV0(partial.midX, maxX, minZ, partial.midZ, stream);
@@ -72,15 +72,13 @@ public class DistanceGraphIO {
 			return partial;
 		}
 		else {
-			LeafNode leaf = new LeafNode(minX, maxX, minZ, maxZ);
-			leaf.full = stream.readBit();
-			return leaf;
+			return new LeafNode(minX, maxX, minZ, maxZ, stream.readBit());
 		}
 	}
 
 	public static DistanceGraph.Node readRecursiveV1(int minX, int maxX, int minZ, int maxZ, BitInputStream stream) throws IOException {
 		if (maxX != minX + 1 && maxZ != minZ + 1 && stream.readBit()) {
-			PartialNode partial = new PartialNode(minX, maxX, minZ, maxZ);
+			PartialNode partial = new PartialNode(minX, maxX, minZ, maxZ, null);
 			partial.node00 = readRecursiveV1(minX, partial.midX, minZ, partial.midZ, stream);
 			partial.node01 = readRecursiveV1(minX, partial.midX, partial.midZ, maxZ, stream);
 			partial.node10 = readRecursiveV1(partial.midX, maxX, minZ, partial.midZ, stream);
@@ -88,9 +86,7 @@ public class DistanceGraphIO {
 			return partial;
 		}
 		else {
-			LeafNode leaf = new LeafNode(minX, maxX, minZ, maxZ);
-			leaf.full = stream.readBit();
-			return leaf;
+			return new LeafNode(minX, maxX, minZ, maxZ, stream.readBit());
 		}
 	}
 }

@@ -869,9 +869,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		if (nonConcentricPlacements != null) {
 			nearestConcentricDistance = Math.min(nearestConcentricDistance, radius * radius);
 			PlacedStructure[] array = nonConcentricPlacements.toArray(new PlacedStructure[nonConcentricPlacements.size()]);
-			DistanceGraph graph = DistanceGraph.worldOfChunks();
+			DistanceGraph graph = DistanceGraph.worldOfChunks(false);
 			while (true) {
-				Query query = graph.query(centerChunkX, centerChunkZ);
+				Query query = graph.next(centerChunkX, centerChunkZ, false);
 				if (query == null || query.distanceSquared >= nearestConcentricDistance) break;
 				for (PlacedStructure placedStructure : array) {
 					Pair<BlockPos, RegistryEntry<Structure>> found = getStructure(world, skipReferencedStructures, placedStructure.structure, placedStructure.placement, query.closestX, query.closestZ);
