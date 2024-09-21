@@ -1,6 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:land"
+		"#bigglobe:land_except_volcano"
 	]
 }

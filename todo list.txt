@@ -38,12 +38,8 @@ alternate world presets:
 	islands:
 		features.
 		structures.
-		biomes.
-			biome for volcano.
-				prevent some structures and features from generating on volcanoes.
-				charred grass on volcanoes.
+			deal with structures on skylands.
 		clouds somewhere.
-		deal with structures on skylands in island worlds.
 
 braking changes I want to make:
 	better Purpose system.

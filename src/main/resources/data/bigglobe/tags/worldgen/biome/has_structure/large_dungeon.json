@@ -1,6 +1,6 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:overworld"
+		"#bigglobe:overworld_except_volcano"
 	]
 }

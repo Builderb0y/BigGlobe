@@ -4,5 +4,5 @@
 		"script": "y <= world_traits.`bigglobe:deep_dark_max_y`"
 	},
 	"if_true": "bigglobe:overworld/biome/deep_dark",
-	"if_false": "bigglobe:overworld/biome/test_beach"
+	"if_false": "bigglobe:islands/biome/test_beach"
 }

@@ -13,8 +13,8 @@
 			"sound": "minecraft:ambient.nether_wastes.mood",
 			"tick_delay": 6000
 		},
-		"fog_color": 16760639,
-		"sky_color": 16744255,
+		"fog_color": 16744192,
+		"sky_color": 8359839,
 		"water_color": 4159204,
 		"water_fog_color": 329011
 	},
@@ -28,7 +28,9 @@
 		"creature": [],
 		"misc": [],
 		"monster": [],
-		"underground_water_creature": [],
+		"underground_water_creature": [
+			{ "type": "minecraft:glow_squid", "weight": 10, "minCount": 4, "maxCount": 6 }
+		],
 		"water_ambient": [],
 		"water_creature": []
 	},

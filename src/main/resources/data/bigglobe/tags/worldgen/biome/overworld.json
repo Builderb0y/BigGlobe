@@ -1,10 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:land",
-		"#bigglobe:beach",
-		"#bigglobe:ocean",
-		"bigglobe:deep_dark",
-		"bigglobe:the_core"
+		"#bigglobe:overworld_except_volcano",
+		"bigglobe:volcano"
 	]
 }

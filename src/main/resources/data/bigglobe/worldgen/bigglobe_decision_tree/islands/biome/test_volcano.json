@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:islands/is_volcano`"
+	},
+	"if_true": "bigglobe:islands/biome/volcano",
+	"if_false": "bigglobe:overworld/biome/test_hot"
+}
