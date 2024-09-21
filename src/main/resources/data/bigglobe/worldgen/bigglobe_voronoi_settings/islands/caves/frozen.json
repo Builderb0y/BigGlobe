@@ -1,0 +1,19 @@
+{
+	"weight": 1.5,
+	"owner": "bigglobe:islands/cave",
+	"enables": [
+		"bigglobe:islands/cave_surface_depth",
+		"bigglobe:overworld/caves/surface_depth_noise",
+		"bigglobe:overworld/caves/frozen_floor",
+		"bigglobe:overworld/caves/no_ceiling",
+		"bigglobe:overworld/caves/frozen_decorator",
+		"bigglobe:overworld/caves/frozen_dungeons"
+	],
+	"exports": {
+		"surface_depth":   "bigglobe:islands/cave_surface_depth",
+		"floor_states":    "bigglobe:overworld/caves/frozen_floor",
+		"ceiling_states":  "bigglobe:overworld/caves/no_ceiling",
+		"decorator":       "bigglobe:overworld/caves/frozen_decorator",
+		"dungeon_feature": "bigglobe:overworld/caves/frozen_dungeons"
+	}
+}

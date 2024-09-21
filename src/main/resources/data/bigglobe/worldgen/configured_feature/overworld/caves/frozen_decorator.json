@@ -5,7 +5,7 @@
 			"template": "bigglobe:cave_decorator",
 			"inputs": {
 				"STEP": "16.0L",
-				"FEATURE": "`bigglobe:overworld/cave`.surface_depth !> 0.0L ? 'bigglobe:overworld/caves/rock' : null",
+				"FEATURE": "world_traits.`bigglobe:cave_surface_data`.depth !> 0.0L ? 'bigglobe:overworld/caves/rock' : null",
 				"ALLOW_WATER": "true"
 			}
 		}

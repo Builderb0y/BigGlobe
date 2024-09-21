@@ -1,0 +1,35 @@
+{
+	"type": {
+		"type": "class",
+		"name": "CaveSurfaceData",
+		"fields": [
+			{
+				"name": "depth",
+				"type": "float"
+			},
+			{
+				"name": "floor_states",
+				"type": {
+					"type": "class",
+					"name": "CaveFloorStates",
+					"fields": [
+						{ "name": "top",   "type": "block_state" },
+						{ "name": "under", "type": "block_state" }
+					]
+				}
+			},
+			{
+				"name": "ceiling_states",
+				"type": {
+					"type": "class",
+					"name": "CaveCeilingStates",
+					"fields": [
+						{ "name": "bottom", "type": "block_state" },
+						{ "name": "above",  "type": "block_state" }
+					]
+				}
+			}
+		]
+	},
+	"is_3d": false
+}

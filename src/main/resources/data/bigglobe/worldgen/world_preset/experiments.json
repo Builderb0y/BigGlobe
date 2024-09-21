@@ -308,8 +308,11 @@
 				},
 				"world_traits": {
 					"bigglobe:biome":                    "`bigglobe:islands/biome`",
+					"bigglobe:cave_decorator":           "`bigglobe:islands/cave`.decorator",
+					"bigglobe:cave_dungeon_decorator":   "`bigglobe:islands/cave`.dungeon_feature",
 					"bigglobe:cave_min_y":               "-384I",
 					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
+					"bigglobe:cave_surface_data":        "IslandCaveCell*(cell := `bigglobe:islands/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
 					"bigglobe:core_min_y":               "-912I",
 					"bigglobe:core_max_y":               "-784I",
 					"bigglobe:deep_dark_min_y":          "-752I",
@@ -389,6 +392,9 @@
 									"type": "simple_3d",
 									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
+									"after_children": {
+										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+									},
 									"valid": {
 										"where": "!surfaceOnly",
 										"min_y": "-384",
@@ -452,8 +458,7 @@
 					"rock_replacers": [
 						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
-						"bigglobe:overworld/rock_layers/rocks",
-						"bigglobe:overworld/rock_layers/dirt",
+						"#bigglobe:overworld/rock_layers",
 						"#bigglobe:overworld/ores"
 					],
 					"raw": "bigglobe:islands/raw_root",

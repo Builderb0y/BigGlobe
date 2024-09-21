@@ -26,11 +26,6 @@ where I left off:
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
 	add trait for tree feature, specifically so I can get rid of the "islands/trees" feature dispatcher.
-	biome for volcanoes.
-		prevent some structures and features from generating on volcanoes.
-		charred grass on volcanoes.
-	deal with structures on skylands in island worlds.
-	possibly add trait for small dungeon type so I can merge that feature dispatcher.
 
 changelog:
 	# For regular players:
@@ -44,13 +39,11 @@ alternate world presets:
 		features.
 		structures.
 		biomes.
-		the deep dark:
-			decorations.
-		caves.
-			decorations.
-			types.
-		more rock layers.
+			biome for volcano.
+				prevent some structures and features from generating on volcanoes.
+				charred grass on volcanoes.
 		clouds somewhere.
+		deal with structures on skylands in island worlds.
 
 braking changes I want to make:
 	better Purpose system.

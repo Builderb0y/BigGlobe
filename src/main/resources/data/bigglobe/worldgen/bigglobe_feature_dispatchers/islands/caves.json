@@ -1,7 +1,0 @@
-{
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:islands/small_dungeons",
-		"bigglobe:overworld/glow_lichen"
-	]
-}

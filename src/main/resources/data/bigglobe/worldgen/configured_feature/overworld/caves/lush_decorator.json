@@ -5,16 +5,16 @@
 			"template": "bigglobe:cave_decorator",
 			"inputs": {
 				"STEP": [
-					"double surfaceDepth = `bigglobe:overworld/cave`.surface_depth",
+					"double surfaceDepth = world_traits.`bigglobe:cave_surface_data`.depth",
 					"surfaceDepth > 0.0L ? 2.0L / surfaceDepth + 2.0L : 16.0L"
 				],
 				"FEATURE": [
-					"`bigglobe:overworld/cave`.surface_depth > 0.0L",
+					"world_traits.`bigglobe:cave_surface_data`.depth > 0.0L",
 					"? 'bigglobe:overworld/caves/lush_floor_ceiling'",
 					": 'bigglobe:overworld/caves/rock'"
 				],
 				"ALLOW_WATER": [
-					"`bigglobe:overworld/cave`.surface_depth !> 0.0L"
+					"world_traits.`bigglobe:cave_surface_data`.depth !> 0.0L"
 				]
 			}
 		}

@@ -10,7 +10,7 @@
 					": 'minecraft:azalea'",
 				")",
 				"else (",
-					"switch (floorInt(double r = random.nextDouble() r * (2.0L - r) * `bigglobe:overworld/cave`.surface_depth):",
+					"switch (floorInt(double r = random.nextDouble() r * (2.0L - r) * world_traits.`bigglobe:cave_surface_data`.depth):",
 						"case (0: 'bigglobe:short_grass')",
 						"case (1: random.nextBoolean(0.25) ? 'minecraft:fern' : 'minecraft:grass')",
 						"case (2: random.nextBoolean(0.25) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]')",

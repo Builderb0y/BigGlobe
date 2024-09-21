@@ -5,7 +5,7 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"placeFeature(x, 0, z, `bigglobe:overworld/cave`(x, z).decorator)",
+			"placeFeature(x, 0, z, world_traits.`bigglobe:cave_decorator`(x, z))",
 			"random.if (",
 				"int y = random.nextInt(world_traits.`bigglobe:deep_dark_min_y`(x, z), world_traits.`bigglobe:deep_dark_max_y`(x, z))",
 				"placeFeature(x, y, z, 'minecraft:sculk_patch_deep_dark')",

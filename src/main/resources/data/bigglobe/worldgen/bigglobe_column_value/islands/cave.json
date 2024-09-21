@@ -1,0 +1,44 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "IslandCaveCell",
+			"exports": {
+				"surface_depth": { "type": "float", "is_3d": false },
+				"floor_states": {
+					"type": {
+						"type": "class",
+						"name": "CaveFloorStates",
+						"fields": [
+							{ "name": "top",   "type": "block_state" },
+							{ "name": "under", "type": "block_state" }
+						]
+					},
+					"is_3d": false
+				},
+				"ceiling_states": {
+					"type": {
+						"type": "class",
+						"name": "CaveCeilingStates",
+						"fields": [
+							{ "name": "bottom", "type": "block_state" },
+							{ "name": "above",  "type": "block_state" }
+						]
+					},
+					"is_3d": false
+				},
+				"decorator": {
+					"type": "configured_feature",
+					"is_3d": false
+				},
+				"dungeon_feature": { "type": "configured_feature", "is_3d": false }
+			}
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 128,
+		"variation": 96
+	}
+}

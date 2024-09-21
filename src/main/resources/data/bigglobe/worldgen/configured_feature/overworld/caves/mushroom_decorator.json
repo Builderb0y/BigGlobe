@@ -6,12 +6,12 @@
 			"inputs": {
 				"STEP": "16.0L",
 				"FEATURE": [
-					"`bigglobe:overworld/cave`.surface_depth > 0.0L",
+					"world_traits.`bigglobe:cave_surface_data`.depth > 0.0L",
 					"? 'bigglobe:overworld/caves/mushrooms'",
 					": 'bigglobe:overworld/caves/rock'"
 				],
 				"ALLOW_WATER": [
-					"`bigglobe:overworld/cave`.surface_depth !> 0.0L"
+					"world_traits.`bigglobe:cave_surface_data`.depth !> 0.0L"
 				]
 			}
 		}

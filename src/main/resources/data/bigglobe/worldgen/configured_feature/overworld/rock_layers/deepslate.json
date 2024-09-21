@@ -7,7 +7,7 @@
 			"weight": 1.0,
 			"restrictions": {
 				"type": "script",
-				"script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 256, `bigglobe:overworld/basic_surface_y` - 512, y)"
+				"script": "unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 256.0L, height - 512.0L, y)"
 			},
 			"blocks": {
 				"minecraft:stone": "minecraft:deepslate[axis=y]",

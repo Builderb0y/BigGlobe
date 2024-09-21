@@ -4,7 +4,7 @@
 		"script": [
 			"unless (getBlockState(originX, originY + 1, originZ) ==. 'minecraft:dripstone_block': return(false))",
 			"int height = 0",
-			"double chance = `bigglobe:overworld/cave`.surface_depth * 0.125L",
+			"double chance = world_traits.`bigglobe:cave_surface_data`.depth * 0.125L",
 			"do while (random.nextBoolean(chance) && getBlockState(originX, originY - height, originZ).isReplaceable():",
 				"++height",
 			")",

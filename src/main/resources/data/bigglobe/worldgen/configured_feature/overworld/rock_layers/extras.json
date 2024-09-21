@@ -31,10 +31,10 @@
 						"minecraft:cobblestone": "minecraft:polished_andesite"
 					},
 					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{ "type": "threshold", "property": "bigglobe:overworld/raw_temperature", "min": -0.375, "max": -0.625 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
+						"type": "script",
+						"script": [
+							"unmixSmooth(-0.375I, -0.625I, `bigglobe:overworld/surface_temperature`) *",
+							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
 				},
@@ -44,10 +44,10 @@
 						"minecraft:cobblestone": "minecraft:polished_diorite"
 					},
 					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 0.5 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
+						"type": "script",
+						"script": [
+							"unmixSmooth(0.0I, 0.5I, world_traits.`bigglobe:height_adjusted_foliage`(y)) *",
+							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
 				},
@@ -56,7 +56,10 @@
 						"minecraft:stone": "minecraft:granite",
 						"minecraft:cobblestone": "minecraft:polished_granite"
 					},
-					"restrictions": { "type": "threshold", "property": "bigglobe:overworld/hilliness", "min": 0.0, "max": 1.0, "smooth_min": false, "smooth_max": false }
+					"restrictions": {
+						"type": "script",
+						"script": "world_traits.`bigglobe:hilliness`"
+					}
 				},
 				{
 					"blocks": {
@@ -67,9 +70,9 @@
 						"type": "script",
 						"script": [
 							"unmixSmooth(",
-								"`bigglobe:overworld/sea_level` + 32,",
-								"`bigglobe:overworld/sea_level` - 32,",
-								"`bigglobe:overworld/basic_surface_y`",
+								"world_traits.`bigglobe:sea_level` + 32,",
+								"world_traits.`bigglobe:sea_level` - 32,",
+								"world_traits.`bigglobe:approximate_surface_y`",
 							")"
 						]
 					}
@@ -80,10 +83,10 @@
 						"minecraft:cobblestone": "minecraft:tuff"
 					},
 					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "max": -0.5, "min": 0.0 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
+						"type": "script",
+						"script": [
+							"unmixSmooth(0.0I, -0.5I, world_traits.`bigglobe:height_adjusted_foliage`(y)) *",
+							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
 				},
@@ -93,11 +96,11 @@
 						"minecraft:cobblestone": "minecraft:sandstone"
 					},
 					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
-							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "min": -0.625, "max": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
+						"type": "script",
+						"script": [
+							"unmixSmooth( 0.375I,  0.625I, `bigglobe:overworld/surface_temperature`) *",
+							"unmixSmooth(-0.625I, -0.375I, `bigglobe:overworld/surface_foliage`) *",
+							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
 				},
@@ -107,11 +110,11 @@
 						"minecraft:cobblestone": "minecraft:red_sandstone"
 					},
 					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{ "type": "threshold", "property": "bigglobe:overworld/surface_temperature", "min": 0.375, "max": 0.625 },
-							{ "type": "threshold", "property": "bigglobe:overworld/surface_foliage", "max": -0.625, "min": -0.375 },
-							{ "type": "script", "script": "unmixSmooth(`bigglobe:overworld/basic_surface_y` - 512, `bigglobe:overworld/basic_surface_y`, y)" }
+						"type": "script",
+						"script": [
+							"unmixSmooth( 0.375I,  0.625I, `bigglobe:overworld/surface_temperature`) *",
+							"unmixSmooth(-0.375I, -0.625I, `bigglobe:overworld/surface_foliage`) *",
+							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
 				}

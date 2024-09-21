@@ -12,8 +12,11 @@
 				},
 				"world_traits": {
 					"bigglobe:biome":                    "`bigglobe:overworld/biome`",
+					"bigglobe:cave_decorator":           "`bigglobe:overworld/cave`.decorator",
+					"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave`.dungeon_feature",
 					"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/processed_surface_y` - `bigglobe:overworld/cave`.depth)",
 					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
+					"bigglobe:cave_surface_data":        "OverworldCaveCell*(cell := `bigglobe:overworld/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
 					"bigglobe:core_min_y":               "-912I",
 					"bigglobe:core_max_y":               "-784I",
 					"bigglobe:deep_dark_min_y":          "-752I",

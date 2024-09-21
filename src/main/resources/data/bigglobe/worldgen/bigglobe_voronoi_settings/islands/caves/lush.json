@@ -1,0 +1,19 @@
+{
+	"weight": 1.0,
+	"owner": "bigglobe:islands/cave",
+	"enables": [
+		"bigglobe:islands/cave_surface_depth",
+		"bigglobe:overworld/caves/surface_depth_noise",
+		"bigglobe:overworld/caves/lush_floor",
+		"bigglobe:overworld/caves/lush_ceiling",
+		"bigglobe:overworld/caves/lush_decorator",
+		"bigglobe:overworld/caves/no_dungeons"
+	],
+	"exports": {
+		"surface_depth":   "bigglobe:islands/cave_surface_depth",
+		"floor_states":    "bigglobe:overworld/caves/lush_floor",
+		"ceiling_states":  "bigglobe:overworld/caves/lush_ceiling",
+		"decorator":       "bigglobe:overworld/caves/lush_decorator",
+		"dungeon_feature": "bigglobe:overworld/caves/no_dungeons"
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"`bigglobe:overworld/caves/surface_depth_noise` + float((1.0L - cave.soft_distance_squared) ^ 2 * 12.0L - 8.0L)"
+	]
+}
