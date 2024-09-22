@@ -21,7 +21,7 @@ public class Simple2DLayer extends Layer {
 	}
 
 	@Override
-	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList consumer) {
-		consumer.setBlockStates(this.validMinY(column), this.validMaxY(column), this.state.get(column));
+	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks) {
+		blocks.setBlockStates(this.validMinY(column), this.validMaxY(column), this.state.get(column));
 	}
 }

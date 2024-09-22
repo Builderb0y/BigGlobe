@@ -46,7 +46,7 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth(0.0I, 0.5I, world_traits.`bigglobe:height_adjusted_foliage`(y)) *",
+							"unmixSmooth(0.0I, 0.5I, `bigglobe:overworld/height_adjusted_foliage`(y)) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
@@ -85,7 +85,7 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth(0.0I, -0.5I, world_traits.`bigglobe:height_adjusted_foliage`(y)) *",
+							"unmixSmooth(0.0I, -0.5I, `bigglobe:overworld/height_adjusted_foliage`(y)) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}

@@ -7,7 +7,7 @@
 				"z = minModifiableZ | random.nextInt(16)",
 				"y = ceilInt(world_traits.`bigglobe:y_level_on_surface`(x, z))",
 			")",
-			"if (world_traits.`bigglobe:height_adjusted_foliage`(x, y, z) > 0.0L:",
+			"if (`bigglobe:overworld/height_adjusted_foliage`(x, y, z) > 0.0L:",
 				"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
 			")",
 		")"

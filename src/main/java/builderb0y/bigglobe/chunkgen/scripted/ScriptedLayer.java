@@ -47,7 +47,11 @@ public class ScriptedLayer extends Layer {
 
 	@Override
 	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks) {
-		this.script.emitSegments(column, blocks);
+		BlockSegmentList split = blocks.split(this.validMinY(column), this.validMaxY(column));
+		if (split != null) {
+			this.script.emitSegments(column, split);
+			blocks.mergeAndKeepEverywhere(split);
+		}
 	}
 
 	public static interface Impl extends Script {

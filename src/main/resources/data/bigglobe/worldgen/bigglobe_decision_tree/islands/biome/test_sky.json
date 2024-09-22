@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "y > max(world_traits.`bigglobe:exact_surface_y`, world_traits.`bigglobe:sea_level`) + 128"
+	},
+	"if_true": "bigglobe:islands/biome/sky",
+	"if_false": "bigglobe:islands/biome/test_beach"
+}

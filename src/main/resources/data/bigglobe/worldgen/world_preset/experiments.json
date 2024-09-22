@@ -353,7 +353,7 @@
 							"state": "'minecraft:stone'",
 							"valid": {
 								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x80000000U"
+								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x8000_0000U"
 							},
 							"after_children": {
 								"file": "bigglobe:world_preset/islands_surface_placement"
@@ -389,19 +389,6 @@
 									}
 								},
 								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
-									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
-									"after_children": {
-										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
-									},
-									"valid": {
-										"where": "!surfaceOnly",
-										"min_y": "-384",
-										"max_y": "world_traits.`bigglobe:y_level_on_surface`"
-									}
-								},
-								{
 									"type": "multi_state_3d",
 									"state": [
 										"switch (",
@@ -427,7 +414,20 @@
 									],
 									"valid": {
 										"where": "!surfaceOnly",
-										"max_y": "`bigglobe:islands/is_volcano` ? 16x7FFF_FFFF ;(use the bounds of the parent) : world_traits.`bigglobe:core_max_y`"
+										"max_y": "`bigglobe:islands/is_volcano` ? world_traits.`bigglobe:y_level_on_surface` : world_traits.`bigglobe:core_max_y`"
+									}
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
+									"after_children": {
+										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+									},
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "world_traits.`bigglobe:cave_min_y`",
+										"max_y": "world_traits.`bigglobe:cave_max_y`"
 									}
 								}
 							]
@@ -437,14 +437,14 @@
 							"state": "'minecraft:water[level=0]'",
 							"valid": {
 								"min_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"max_y": "0"
+								"max_y": "world_traits.`bigglobe:sea_level`"
 							}
 						},
 						{
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"where": "`bigglobe:islands/is_floating`",
+								"where": "purpose != 'heightmap' && `bigglobe:islands/is_floating`",
 								"min_y": "world_traits.`bigglobe:skyland_min_y`",
 								"max_y": "world_traits.`bigglobe:skyland_max_y`"
 							},

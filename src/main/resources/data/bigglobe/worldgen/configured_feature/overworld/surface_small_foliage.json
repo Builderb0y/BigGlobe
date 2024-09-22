@@ -11,7 +11,7 @@
 				")",
 
 				";sigmoid curve",
-				"double adjustedFoliage = 0.5 / (exp(-4.0 * world_traits.`bigglobe:height_adjusted_foliage`) + 1.0)",
+				"double adjustedFoliage = 0.5 / (exp(-4.0 * `bigglobe:overworld/height_adjusted_foliage`) + 1.0)",
 				"random.unless(adjustedFoliage: return(false))",
 
 				"BlockState existingState = getBlockState(originX, originY, originZ)",
@@ -25,7 +25,7 @@
 						"newState = 'bigglobe:charred_grass'",
 					")",
 					"else (",
-						"double fromTemperate = world_traits.`bigglobe:height_adjusted_temperature` ^ 2 + world_traits.`bigglobe:height_adjusted_foliage` ^ 2",
+						"double fromTemperate = `bigglobe:overworld/height_adjusted_temperature` ^ 2 + `bigglobe:overworld/height_adjusted_foliage` ^ 2",
 						"double deadBushChance = fromTemperate / (fromTemperate * 8.0 + 4.0)",
 						"random.if (deadBushChance:",
 							"random.unless (unmixSmooth(2.0L, 6.0L, world_traits.`bigglobe:exact_surface_y`): return(false))",

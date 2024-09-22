@@ -39,7 +39,10 @@ alternate world presets:
 		features.
 		structures.
 			deal with structures on skylands.
+			prevent ancient cities from spawning in volcanoes.
 		clouds somewhere.
+		cave excluder near the surface in beaches and oceans.
+		deal with ores in skylands.
 
 braking changes I want to make:
 	better Purpose system.

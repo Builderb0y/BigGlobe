@@ -20,7 +20,7 @@ public class RootLayer extends Layer {
 	}
 
 	@Override
-	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList consumer) {
-		consumer.setBlockStates(consumer.minY(), consumer.maxY(), this.state.get(column));
+	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks) {
+		blocks.setBlockStates(this.validMinY(column), this.validMaxY(column), this.state.get(column));
 	}
 }

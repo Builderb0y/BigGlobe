@@ -40,50 +40,45 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public abstract void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks);
 
-	public void emitSegments(ScriptedColumn column, ScriptedColumn altX, ScriptedColumn altZ, ScriptedColumn altXZ, BlockSegmentList segments) {
+	public void emitSegments(ScriptedColumn column, ScriptedColumn altX, ScriptedColumn altZ, ScriptedColumn altXZ, BlockSegmentList parentSegments) {
 		if (this.validWhere(column)) {
-			BlockSegmentList bounded = segments.split(segments.minY(), segments.maxY());
-			if (bounded != null) {
-				this.emitSelfSegments(column, bounded);
-				if (this.before_children != null) {
-					this.before_children.generateSurface(column, altX, altZ, altXZ, bounded);
-				}
-				if (this.children.length != 0) {
-					BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
-					BlockSegmentList split2 = split.split(split.minY(), split.maxY());
-					for (Layer child : this.children) {
-						child.emitSegments(column, altX, altZ, altXZ, split2);
-						split.mergeAndKeepWhereThereArentBlocks(split2);
-						split2.reset();
-					}
-					bounded.mergeAndKeepWhereThereAreBlocks(split);
-				}
-				if (this.after_children != null) {
-					this.after_children.generateSurface(column, altX, altZ, altXZ, bounded);
-				}
-				segments.mergeAndKeepEverywhere(bounded);
+			BlockSegmentList selfSegments = parentSegments.split();
+			this.emitSelfSegments(column, selfSegments);
+			if (this.before_children != null) {
+				this.before_children.generateSurface(column, altX, altZ, altXZ, selfSegments);
 			}
+			if (this.children.length != 0) {
+				BlockSegmentList split = selfSegments.split();
+				BlockSegmentList split2 = split.split();
+				for (Layer child : this.children) {
+					child.emitSegments(column, altX, altZ, altXZ, split2);
+					split.mergeAndKeepWhereThereArentBlocks(split2);
+					split2.reset();
+				}
+				selfSegments.mergeAndKeepWhereThereAreBlocks(split);
+			}
+			if (this.after_children != null) {
+				this.after_children.generateSurface(column, altX, altZ, altXZ, selfSegments);
+			}
+			parentSegments.mergeAndKeepEverywhere(selfSegments);
 		}
 	}
 
-	public void emitSegments(ScriptedColumn column, BlockSegmentList segments) {
+	public void emitSegments(ScriptedColumn column, BlockSegmentList parentSegments) {
 		if (this.validWhere(column)) {
-			BlockSegmentList bounded = segments.split(this.validMinY(column), this.validMaxY(column));
-			if (bounded != null) {
-				this.emitSelfSegments(column, bounded);
-
-				if (this.children.length != 0) {
-					BlockSegmentList split = bounded.split(bounded.minY(), bounded.maxY());
-					BlockSegmentList split2 = split.split(split.minY(), split.maxY());
-					for (Layer child : this.children) {
-						child.emitSegments(column, split2);
-						split.mergeAndKeepWhereThereArentBlocks(split2);
-						split2.reset();
-					}
-					bounded.mergeAndKeepWhereThereAreBlocks(split);
+			BlockSegmentList selfSegments = parentSegments.split();
+			this.emitSelfSegments(column, selfSegments);
+			if (this.children.length != 0) {
+				BlockSegmentList split = selfSegments.split();
+				BlockSegmentList split2 = split.split();
+				for (Layer child : this.children) {
+					child.emitSegments(column, split2);
+					split.mergeAndKeepWhereThereArentBlocks(split2);
+					split2.reset();
 				}
-				segments.mergeAndKeepEverywhere(bounded);
+				selfSegments.mergeAndKeepWhereThereAreBlocks(split);
 			}
+			parentSegments.mergeAndKeepEverywhere(selfSegments);
 		}
 	}
 

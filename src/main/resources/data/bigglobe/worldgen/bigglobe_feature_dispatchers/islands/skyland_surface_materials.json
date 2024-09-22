@@ -1,0 +1,34 @@
+{
+	"type": "script",
+	"dispatcher": [
+		";rocks",
+		"repeat (2:",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"if (world_traits.`bigglobe:has_skylands`(x, z):",
+				"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
+				"placeFeature(x, y, z, 'bigglobe:overworld/rock')",
+			")",
+		")",
+
+		";flint",
+		"random.if (",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"if (world_traits.`bigglobe:has_skylands`(x, z):",
+				"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
+				"placeFeature(x, y, z, 'bigglobe:overworld/flint')",
+			")",
+		")",
+
+		";sticks",
+		"repeat (random.roundInt(world_traits.`bigglobe:foliage_at_sea_level`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"if (world_traits.`bigglobe:has_skylands`(x, z):",
+				"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
+				"placeFeature(x, y, z, 'bigglobe:overworld/stick')",
+			")",
+		")"
+	]
+}

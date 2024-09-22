@@ -16,7 +16,7 @@
 				"hasSolidOrWater(originX, originZ - 1) &&",
 				"hasSolidOrWater(originX, originZ + 1)",
 			":",
-				"double sigmoidFoliage = 0.5L / (exp(-4.0L * world_traits.`bigglobe:height_adjusted_foliage`) + 1.0L)",
+				"double sigmoidFoliage = 0.5L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`) + 1.0L)",
 				"setBlockState(originX, originY, originZ, random.if (sigmoidFoliage: 'minecraft:seagrass') else ('minecraft:water[level=0]'))",
 				"setBlockState(originX, originY - 1, originZ, 'minecraft:mud')",
 				"block (",

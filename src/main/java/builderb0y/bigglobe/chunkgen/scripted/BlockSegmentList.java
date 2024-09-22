@@ -33,9 +33,13 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		else this.removeSegment(minY, maxY - 1);
 	}
 
+	public BlockSegmentList split() {
+		return new BlockSegmentList(this.minY(), this.maxY());
+	}
+
 	public @Nullable BlockSegmentList split(int minY, int maxY) {
-		minY = Math.max(this.minY, minY);
-		maxY = Math.min(this.maxY, maxY - 1 /* convert to inclusive */) + 1 /* back to exclusive */;
+		minY = Math.max(this.minY(), minY);
+		maxY = Math.min(this.maxY(), maxY);
 		return maxY > minY ? new BlockSegmentList(minY, maxY) : null;
 	}
 
