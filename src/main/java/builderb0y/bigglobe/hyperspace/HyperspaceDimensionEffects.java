@@ -3,6 +3,7 @@ package builderb0y.bigglobe.hyperspace;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.render.DimensionEffects;
@@ -19,6 +20,7 @@ public class HyperspaceDimensionEffects extends DimensionEffects {
 
 	public static void init() {
 		DimensionRenderingRegistry.registerDimensionEffects(BigGlobeMod.modID("hyperspace"), new HyperspaceDimensionEffects());
+		DimensionRenderingRegistry.registerCloudRenderer(HyperspaceConstants.WORLD_KEY, (WorldRenderContext context) -> {});
 	}
 
 	@Override

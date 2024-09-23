@@ -23,6 +23,9 @@ public class ScriptColumnEntry extends AbstractColumnEntry {
 	) {
 		super(params, valid, cache, decodeContext);
 		this.script = script;
+		if (script.getTemplate() != null) {
+			this.addDependency(script.getTemplate());
+		}
 	}
 
 	@Override

@@ -50,6 +50,7 @@ braking changes I want to make:
 		bitflags:
 			fill
 			carve
+			isLod
 		lod (byte)
 		minY, maxY
 		purpose (enum with auto-casting)

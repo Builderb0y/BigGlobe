@@ -32,6 +32,8 @@ import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.compat.voxy.QueueingStorageBackend.GenerationQueue;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
+import builderb0y.bigglobe.util.AsyncConsumer;
+import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -162,62 +164,67 @@ public abstract class AbstractVoxyWorldGenerator {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
-		for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
-			int levelY = sectionBottomY >> (level + 5);
-			WorldSection section = lightAir ? this.engine.acquire(level, levelX, levelY, levelZ) : null;
-			long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
-			if (lightAir) Arrays.fill(sectionPayload, 0L);
-			BlockState previousColumnState = null;
-			int previousColumnStateID = -1;
-			try {
-				for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
-					for (int relativeX = 0; relativeX < 32; relativeX++) {
-						int packedXZ = (relativeZ << 5) | relativeX;
-						BlockSegmentList list = lists[packedXZ];
-						int segmentIndex = list.getSegmentIndex(sectionBottomY, false);
-						while (segmentIndex < list.size()) {
-							LitSegment segment = list.getLit(segmentIndex++);
-							if (segment.minY > (sectionBottomY | ((1 << (level + 5)) - 1))) break;
-							if (lightAir || !segment.value.isAir()) {
-								if (section == null) {
-									section = this.engine.acquire(level, levelX, levelY, levelZ);
-									sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
-									Arrays.fill(sectionPayload, 0L);
-								}
-								int minRelativeY = Math.max((segment.minY - sectionBottomY) >> level, 0);
-								int maxRelativeY = Math.min((segment.maxY - sectionBottomY) >> level, 31);
-								if (segment.value != previousColumnState) {
-									previousColumnState = segment.value;
-									previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
-								}
-								byte startLightLevel = segment.lightLevel;
-								int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
-								int blockLightLevel = previousColumnState.getLuminance() << 4;
-								if (startLightLevel == 0 || diminishment == 0) {
-									long id = Mapper.composeMappingId((byte)((15 - startLightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
-									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
-										int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
-										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
-										sectionPayload[index] = id;
-									}
-								}
-								else {
-									for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
-										int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
-										if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
-										int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY;
-										int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
-										sectionPayload[index] = Mapper.composeMappingId((byte)((15 - lightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+		try (AsyncRunner async = new AsyncRunner(BigGlobeThreadPool.lodExecutor())) {
+			for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
+				final int sectionBottomY_ = sectionBottomY;
+				async.submit(() -> {
+					int levelY = sectionBottomY_ >> (level + 5);
+					WorldSection section = lightAir ? this.engine.acquire(level, levelX, levelY, levelZ) : null;
+					long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
+					if (lightAir) Arrays.fill(sectionPayload, 0L);
+					BlockState previousColumnState = null;
+					int previousColumnStateID = -1;
+					try {
+						for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
+							for (int relativeX = 0; relativeX < 32; relativeX++) {
+								int packedXZ = (relativeZ << 5) | relativeX;
+								BlockSegmentList list = lists[packedXZ];
+								int segmentIndex = list.getSegmentIndex(sectionBottomY_, false);
+								while (segmentIndex < list.size()) {
+									LitSegment segment = list.getLit(segmentIndex++);
+									if (segment.minY > (sectionBottomY_ | ((1 << (level + 5)) - 1))) break;
+									if (lightAir || !segment.value.isAir()) {
+										if (section == null) {
+											section = this.engine.acquire(level, levelX, levelY, levelZ);
+											sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
+											Arrays.fill(sectionPayload, 0L);
+										}
+										int minRelativeY = Math.max((segment.minY - sectionBottomY_) >> level, 0);
+										int maxRelativeY = Math.min((segment.maxY - sectionBottomY_) >> level, 31);
+										if (segment.value != previousColumnState) {
+											previousColumnState = segment.value;
+											previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
+										}
+										byte startLightLevel = segment.lightLevel;
+										int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+										int blockLightLevel = previousColumnState.getLuminance() << 4;
+										if (startLightLevel == 0 || diminishment == 0) {
+											long id = Mapper.composeMappingId((byte)((15 - startLightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+											for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+												int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+												if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
+												sectionPayload[index] = id;
+											}
+										}
+										else {
+											for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+												int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+												if (previousColumnStateID == 0 && !Mapper.isAir(sectionPayload[index])) continue;
+												int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY_;
+												int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
+												sectionPayload[index] = Mapper.composeMappingId((byte)((15 - lightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+											}
+										}
 									}
 								}
 							}
 						}
+						if (section != null) this.engine.markDirty(section);
 					}
-				}
-				if (section != null) this.engine.markDirty(section);
-			}
-			finally {
-				if (section != null) section.release();
+					finally {
+						if (section != null) section.release();
+					}
+				});
 			}
 		}
 	}
