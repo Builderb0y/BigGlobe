@@ -61,6 +61,7 @@ braking changes I want to make:
 		migrate equivalent getters from Structure/StructurePiece.
 	remove noscope.
 		replace with Type*(name := value)
+	remove script templates, replace with an include system?
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.

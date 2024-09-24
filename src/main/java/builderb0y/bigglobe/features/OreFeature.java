@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
@@ -49,15 +50,18 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),
 				sectionCoord
 			);
-			ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
-			generateAllIntersecting(
-				context,
-				worldWrapper,
-				offsetColumn,
-				config,
-				config.getReplacer(context),
-				config.seed.xor(generator.columnSeed)
-			);
+			PaletteIdReplacer replacer = config.getReplacer(context);
+			if (replacer != null) {
+				ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
+				generateAllIntersecting(
+					context,
+					worldWrapper,
+					offsetColumn,
+					config,
+					replacer,
+					config.seed.xor(generator.columnSeed)
+				);
+			}
 		});
 	}
 
@@ -250,7 +254,7 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 			this.blocks = blocks;
 		}
 
-		public PaletteIdReplacer getReplacer(SectionGenerationContext context) {
+		public @Nullable PaletteIdReplacer getReplacer(SectionGenerationContext context) {
 			return PaletteIdReplacer.of(context, this.blocks);
 		}
 	}

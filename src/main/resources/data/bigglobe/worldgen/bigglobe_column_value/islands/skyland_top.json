@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "exp(skyland_height_offset / 24.0L + 2.75L) + 768.0L"
+	"script": "exp(skyland_height_offset / 24.0L + 3.25L) + 640.0L"
 }

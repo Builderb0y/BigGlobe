@@ -8,17 +8,13 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
 import builderb0y.autocodec.annotations.VerifyFloatRange;
-import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
-import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -41,10 +37,6 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 
 	public RockLayerFeature() {
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
-
-	public static boolean isEmpty(ChunkSection section) {
-		return SectionUtil.palette(section.getBlockStateContainer()) instanceof SingularPalette_EntryAccess palette && palette.bigglobe_getEntry() == BlockStates.AIR;
 	}
 
 	@Override
@@ -95,23 +87,24 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 						int layerSectionMaxY = Math.min(layerMaxY >> 4, endSection - 1);
 						for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
 							ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(layerSectionY));
-							if (isEmpty(section)) continue;
 							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY);
 							PaletteIdReplacer replacer = entry.getReplacer(context);
-							PaletteStorage storage = context.storage();
-							int sectionMinY = context.startY();
-							int sectionMaxY = sectionMinY | 15;
+							if (replacer != null) {
+								PaletteStorage storage = context.storage();
+								int sectionMinY = context.startY();
+								int sectionMaxY = sectionMinY | 15;
 
-							for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-								int columnMinY = Math.max(columnMinYs.getI(horizontalIndex), sectionMinY);
-								int columnMaxY = Math.min(columnMaxYs.getI(horizontalIndex), sectionMaxY);
-								for (int columnY = columnMinY; columnY <= columnMaxY; columnY++) {
-									int relativeY = columnY & 15;
-									int index = (relativeY << 8) | horizontalIndex;
-									int oldID = storage.get(index);
-									int newID = replacer.getReplacement(oldID);
-									if (oldID != newID) {
-										storage.set(index, newID);
+								for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+									int columnMinY = Math.max(columnMinYs.getI(horizontalIndex), sectionMinY);
+									int columnMaxY = Math.min(columnMaxYs.getI(horizontalIndex), sectionMaxY);
+									for (int columnY = columnMinY; columnY <= columnMaxY; columnY++) {
+										int relativeY = columnY & 15;
+										int index = (relativeY << 8) | horizontalIndex;
+										int oldID = storage.get(index);
+										int newID = replacer.getReplacement(oldID);
+										if (oldID != newID) {
+											storage.set(index, newID);
+										}
 									}
 								}
 							}
