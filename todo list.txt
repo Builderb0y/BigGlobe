@@ -25,7 +25,9 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
-	add trait for tree feature, specifically so I can get rid of the "islands/trees" feature dispatcher.
+
+to finish before release:
+	script includes/custom files need to work for synced scripts.
 
 changelog:
 	# For regular players:

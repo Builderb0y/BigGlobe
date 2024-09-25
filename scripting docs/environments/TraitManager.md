@@ -24,7 +24,7 @@ world_traits cannot be renamed or stored in a variable. Attempting to do so will
 var traits = world_traits ;technically works.
 var biome = traits.`bigglobe:biome`(x, y, z) ;does not work.
 ```
-If you know a bit of java and are curious why this restriction is currently in place, the short answer is that `world_traits` behaves more like a class name than a variable name, and the traits themselves behave more like static methods than object methods. The *actual* WorldTraits object is actually stored on the ScriptedColumn itself. A simple call like
+If you know a bit of java and are curious why this restriction is currently in place, the short answer is that `world_traits` behaves more like a class name than a variable name, and the traits themselves behave more like static methods than object methods. This isn't actually the case internally, but it's a useful way to think about things for the purpose of scripting. The *actual* WorldTraits object is actually stored on the ScriptedColumn itself. A simple call like
 ```
 world_traits.`bigglobe:biome`(y)
 ```

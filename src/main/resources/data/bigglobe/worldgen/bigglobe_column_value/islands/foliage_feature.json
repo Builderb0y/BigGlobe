@@ -4,6 +4,6 @@
 		"type": "configured_feature",
 		"is_3d": false
 	},
-	"root": "bigglobe:overworld/foliage_features/test_beach",
+	"root": "bigglobe:overworld/foliage_feature/test_beach",
 	"cache": false
 }

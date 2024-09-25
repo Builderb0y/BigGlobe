@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`)"
 	},
-	"if_true": "bigglobe:overworld/foliage_features/oak_tree",
-	"if_false": "bigglobe:overworld/foliage_features/birch_tree"
+	"if_true": "bigglobe:overworld/foliage_feature/jungle_tree",
+	"if_false": "bigglobe:overworld/foliage_feature/acacia_tree"
 }

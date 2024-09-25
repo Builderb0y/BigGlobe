@@ -10,6 +10,7 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.Valid;
 
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer> {
@@ -48,14 +49,16 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 				this.before_children.generateSurface(column, altX, altZ, altXZ, selfSegments);
 			}
 			if (this.children.length != 0) {
-				BlockSegmentList split = selfSegments.split();
-				BlockSegmentList split2 = split.split();
-				for (Layer child : this.children) {
-					child.emitSegments(column, altX, altZ, altXZ, split2);
-					split.mergeAndKeepWhereThereArentBlocks(split2);
-					split2.reset();
+				BlockSegmentList split = selfSegments.splitAtPlacedRange();
+				if (split != null) {
+					BlockSegmentList split2 = split.split();
+					for (Layer child : this.children) {
+						child.emitSegments(column, altX, altZ, altXZ, split2);
+						split.mergeAndKeepWhereThereArentBlocks(split2);
+						split2.reset();
+					}
+					selfSegments.mergeAndKeepWhereThereAreBlocks(split);
 				}
-				selfSegments.mergeAndKeepWhereThereAreBlocks(split);
 			}
 			if (this.after_children != null) {
 				this.after_children.generateSurface(column, altX, altZ, altXZ, selfSegments);
@@ -69,14 +72,16 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 			BlockSegmentList selfSegments = parentSegments.split();
 			this.emitSelfSegments(column, selfSegments);
 			if (this.children.length != 0) {
-				BlockSegmentList split = selfSegments.split();
-				BlockSegmentList split2 = split.split();
-				for (Layer child : this.children) {
-					child.emitSegments(column, split2);
-					split.mergeAndKeepWhereThereArentBlocks(split2);
-					split2.reset();
+				BlockSegmentList split = selfSegments.splitAtPlacedRange();
+				if (split != null) {
+					BlockSegmentList split2 = split.split();
+					for (Layer child : this.children) {
+						child.emitSegments(column, split2);
+						split.mergeAndKeepWhereThereArentBlocks(split2);
+						split2.reset();
+					}
+					selfSegments.mergeAndKeepWhereThereAreBlocks(split);
 				}
-				selfSegments.mergeAndKeepWhereThereAreBlocks(split);
 			}
 			parentSegments.mergeAndKeepEverywhere(selfSegments);
 		}

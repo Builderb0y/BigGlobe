@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "clamp(0.0I, 1.0I, `bigglobe:overworld/surface_temperature`) ^ 2"
 	},
-	"if_true": "bigglobe:overworld/foliage_features/coral",
-	"if_false": "bigglobe:overworld/foliage_features/no_feature"
+	"if_true": "bigglobe:overworld/foliage_feature/coral",
+	"if_false": "bigglobe:overworld/foliage_feature/no_feature"
 }

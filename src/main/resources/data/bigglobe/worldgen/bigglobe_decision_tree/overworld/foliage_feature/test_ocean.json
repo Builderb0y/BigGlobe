@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "unmixSmooth(-4.0L, -8.0L, world_traits.`bigglobe:exact_surface_y`)"
 	},
-	"if_true": "bigglobe:overworld/foliage_features/ocean_test_warm",
-	"if_false": "bigglobe:overworld/foliage_features/no_feature"
+	"if_true": "bigglobe:overworld/foliage_feature/ocean_test_warm",
+	"if_false": "bigglobe:overworld/foliage_feature/no_feature"
 }

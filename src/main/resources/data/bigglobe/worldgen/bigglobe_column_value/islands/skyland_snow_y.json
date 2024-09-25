@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "skyland_top + skyland_snow_chance",
+	"cache": false
+}

@@ -43,6 +43,11 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		return maxY > minY ? new BlockSegmentList(minY, maxY) : null;
 	}
 
+	public @Nullable BlockSegmentList splitAtPlacedRange() {
+		if (this.isEmpty()) return null;
+		else return new BlockSegmentList(this.getLit(0).minY(), this.getLit(this.size() - 1).maxY());
+	}
+
 	public void mergeAndKeepEverywhere(BlockSegmentList that) {
 		this.addAllSegments(that);
 	}
@@ -83,7 +88,7 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		for (int index = this.size(); --index >= 0;) {
 			LitSegment segment = this.getLit(index);
 			segment.lightLevel = lightLevel;
-			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY - segment.minY + 1), 0));
+			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY() - segment.minY()), 0));
 		}
 	}
 
@@ -93,6 +98,14 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 
 		public LitSegment(int minY, int maxY, BlockState value) {
 			super(minY, maxY, value);
+		}
+
+		public int minY() {
+			return this.minY;
+		}
+
+		public int maxY() {
+			return this.maxY + 1; //convert to exclusive.
 		}
 	}
 }

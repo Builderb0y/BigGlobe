@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_temperature`)"
 	},
-	"if_true": "bigglobe:overworld/foliage_features/hot_test_forest",
-	"if_false": "bigglobe:overworld/foliage_features/test_cold"
+	"if_true": "bigglobe:overworld/foliage_feature/hot_test_forest",
+	"if_false": "bigglobe:overworld/foliage_feature/test_cold"
 }

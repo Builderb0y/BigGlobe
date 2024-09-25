@@ -207,6 +207,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
 	public transient long columnSeed;
+	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
@@ -232,19 +233,18 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			source.generator = this;
 		}
 		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
-		this.reload_preset = reload_preset;
-		this.reload_dimension = reload_dimension;
-		this.height = height;
-		this.layer = layer;
-		this.feature_dispatcher = feature_dispatcher;
-		this.overriders = overriders;
-		this.spawn_point = spawn_point;
-		this.colors = colors;
-		this.nether_overrides = nether_overrides;
-		this.end_overrides = end_overrides;
-		this.world_traits = world_traits;
-		this.sortedStructures = sortedStructures;
-
+		this.reload_preset       = reload_preset;
+		this.reload_dimension    = reload_dimension;
+		this.height              = height;
+		this.layer               = layer;
+		this.feature_dispatcher  = feature_dispatcher;
+		this.overriders          = overriders;
+		this.spawn_point         = spawn_point;
+		this.colors              = colors;
+		this.nether_overrides    = nether_overrides;
+		this.end_overrides       = end_overrides;
+		this.world_traits        = world_traits;
+		this.sortedStructures    = sortedStructures;
 		this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(world_traits);
 		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
 		WorldTraits traits = this.compiledWorldTraits;
@@ -266,6 +266,60 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.normal);
 		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.raw);
+	}
+
+	@Hidden //copy constructor.
+	public BigGlobeScriptedChunkGenerator(BigGlobeScriptedChunkGenerator from) {
+		super(copyBiomeSource(from.biomeSource));
+		this.reload_preset       = from.reload_preset;
+		this.reload_dimension    = from.reload_dimension;
+		this.columnEntryRegistry = from.columnEntryRegistry;
+		this.height              = from.height;
+		this.layer               = from.layer;
+		this.feature_dispatcher  = from.feature_dispatcher;
+		this.overriders          = from.overriders;
+		this.spawn_point         = from.spawn_point;
+		this.colors              = from.colors;
+		this.nether_overrides    = from.nether_overrides;
+		this.end_overrides       = from.end_overrides;
+		this.world_traits        = from.world_traits;
+		this.compiledWorldTraits = from.compiledWorldTraits;
+		this.sortedStructures    = from.sortedStructures;
+		ScriptedColumn.Factory factory = from.columnEntryRegistry.columnFactory;
+		WorldTraits traits = from.compiledWorldTraits;
+		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
+			ScriptedColumn[] columns = new ScriptedColumn[256];
+			for (int index = 0; index < 256; index++) {
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC, traits));
+			}
+			return columns;
+		});
+		this.rootDebugDisplay = new DisplayEntry(this);
+	}
+
+	public static BiomeSource copyBiomeSource(BiomeSource source) {
+		return source instanceof ScriptedColumnBiomeSource scripted ? new ScriptedColumnBiomeSource(scripted.script, scripted.all_possible_biomes, scripted.biomeRegistry) : source;
+	}
+
+	public BigGlobeScriptedChunkGenerator copy() {
+		return new BigGlobeScriptedChunkGenerator(this);
+	}
+
+	/**
+	important note: because this seed is sent to clients,
+	it is highly recommended to ensure that it cannot be
+	used to derive the seed used to create the world.
+	one way to do this is to put the seed through a
+	secure hash function like SHA-256 before calling
+	this method. alternatively, the seed could just be
+	chosen completely randomly, and independently of the
+	original world seed.
+	*/
+	public BigGlobeScriptedChunkGenerator copyWithSeed(long seed) {
+		BigGlobeScriptedChunkGenerator copy = this.copy();
+		copy.columnSeed = seed;
+		copy.seedSet = true;
+		return copy;
 	}
 
 	public BiomeSource biome_source() {
@@ -377,14 +431,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		);
 	}
 
-	public void setSeed(long worldSeed) {
-		//make it impossible to reverse-engineer the seed from information sent to the client.
-		this.columnSeed = Hashing.sha256().hashLong(worldSeed).asLong();
-	}
-
 	@Override
 	public StructurePlacementCalculator createStructurePlacementCalculator(RegistryWrapper<StructureSet> structureSetRegistry, NoiseConfig noiseConfig, long seed) {
-		this.setSeed(seed);
+		if (!this.seedSet) {
+			//make it impossible to reverse-engineer the seed from information sent to the client.
+			this.columnSeed = Hashing.sha256().hashLong(seed).asLong();
+			this.seedSet = true;
+		}
+
 		return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
 	}
 

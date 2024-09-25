@@ -4,6 +4,6 @@
 		"type": "configured_feature",
 		"is_3d": false
 	},
-	"root": "bigglobe:overworld/foliage_features/test_river",
+	"root": "bigglobe:overworld/foliage_feature/test_river",
 	"cache": false
 }

@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script_chance",
-		"script": "world_traits.`bigglobe:snow_chance`"
-	},
-	"if_true": "bigglobe:overworld/foliage_features/cold_test_forest",
-	"if_false": "bigglobe:overworld/foliage_features/temperate_test_magical"
-}

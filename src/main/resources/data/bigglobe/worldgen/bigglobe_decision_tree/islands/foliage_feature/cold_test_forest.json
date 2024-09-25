@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`)"
 	},
-	"if_true": "bigglobe:overworld/foliage_features/jungle_tree",
-	"if_false": "bigglobe:overworld/foliage_features/acacia_tree"
+	"if_true": "bigglobe:islands/foliage_feature/dark_oak_tree",
+	"if_false": "bigglobe:islands/foliage_feature/spruce_tree"
 }

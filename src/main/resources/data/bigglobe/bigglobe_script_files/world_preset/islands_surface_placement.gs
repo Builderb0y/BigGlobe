@@ -56,21 +56,6 @@ else (
 	)
 )
 
-if (surfaceY > 0 && !`bigglobe:islands/is_volcano` && (seed := seed.newSeed()).nextBoolean(`bigglobe:islands/snow_chance`):
-	int snowStart = surfaceY
-	if (getBlockState(snowStart - 1).isAir():
-		snowStart = getBottomOfSegment(snowStart - 1)
-	)
-	int snowEnd = lowerInt(`bigglobe:islands/snow_height`)
-	if (snowEnd >= snowStart:
-		setBlockStates(snowStart, snowEnd, 'minecraft:snow[layers=8]')
-		int remaining = floorInt(`bigglobe:islands/snow_height` % 1.0I * 8.0I)
-		if (snowStart == snowEnd: remaining = max(remaining, 1))
-		if (remaining != 0:
-			setBlockState(snowEnd, BlockState('minecraft:snow', layers: remaining))
-		)
-	)
-	else (
-		setBlockState(snowStart, 'minecraft:snow[layers=1]')
-	)
+if (surfaceY > world_traits.`bigglobe:sea_level` && !`bigglobe:islands/is_volcano` && (seed := seed.newSeed()).nextBoolean(`bigglobe:islands/snow_chance`):
+	generateSnow(surfaceY, `bigglobe:islands/snow_height`)
 )

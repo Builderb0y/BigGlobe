@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": "raw_temperature * -4.0I - 2.0I",
+	"cache": false
+}

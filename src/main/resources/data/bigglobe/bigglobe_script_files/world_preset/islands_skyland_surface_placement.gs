@@ -19,3 +19,7 @@ for (int y in -range[surfaceY - depth, surfaceY):
 		setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)
 	)
 )
+
+(seed := seed.newSeed()).if (`bigglobe:islands/skyland_snow_chance`:
+	generateSnow(surfaceY, `bigglobe:islands/skyland_snow_y`)
+)

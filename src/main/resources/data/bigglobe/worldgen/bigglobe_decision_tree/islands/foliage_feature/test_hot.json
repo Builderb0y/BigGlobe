@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "unmixSmooth(0.25I, 0.75I, world_traits.`bigglobe:temperature_at_sea_level`)"
+	},
+	"if_true": "bigglobe:overworld/foliage_feature/hot_test_forest",
+	"if_false": "bigglobe:islands/foliage_feature/test_cold"
+}

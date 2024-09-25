@@ -356,7 +356,10 @@
 								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x8000_0000U"
 							},
 							"after_children": {
-								"file": "bigglobe:world_preset/islands_surface_placement"
+								"file": "bigglobe:world_preset/islands_surface_placement",
+								"includes": [
+									"bigglobe:include/generate_snow"
+								]
 							},
 							"children": [
 								{
@@ -444,12 +447,15 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"where": "purpose != 'heightmap' && `bigglobe:islands/is_floating`",
+								"where": "purpose != 'heightmap' && `bigglobe:islands/has_skylands`",
 								"min_y": "world_traits.`bigglobe:skyland_min_y`",
 								"max_y": "world_traits.`bigglobe:skyland_max_y`"
 							},
 							"after_children": {
-								"file": "bigglobe:world_preset/islands_skyland_surface_placement"
+								"file": "bigglobe:world_preset/islands_skyland_surface_placement",
+								"includes": [
+									"bigglobe:include/generate_snow"
+								]
 							}
 						}
 					]

@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script_chance",
-		"script": "unmixSmooth(0.5I, 1.0I, world_traits.`bigglobe:magicalness`)"
-	},
-	"if_true": "bigglobe:overworld/foliage_features/cherry_tree",
-	"if_false": "bigglobe:overworld/foliage_features/temperate_test_ominous"
-}

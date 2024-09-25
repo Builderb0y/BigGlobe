@@ -59,7 +59,10 @@
 								"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
 							},
 							"after_children": {
-								"file": "bigglobe:world_preset/overworld_surface_placement"
+								"file": "bigglobe:world_preset/overworld_surface_placement",
+								"includes": [
+									"bigglobe:include/generate_snow"
+								]
 							},
 							"valid": {
 								"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
