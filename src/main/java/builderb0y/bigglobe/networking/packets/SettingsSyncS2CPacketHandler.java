@@ -25,6 +25,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
@@ -66,7 +67,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 		ClientState.generatorParams = data;
 		//note for future self: columnEntryRegistry can be null if
 		//compiling was skipped because foliage colors were not present.
-		if (data != null && data.columnEntryRegistry != null) {
+		if (data != null && data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			DependencyDepthSorter.start(
 				data.compiledWorldTraits,
 				data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),

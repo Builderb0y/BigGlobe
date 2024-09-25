@@ -42,7 +42,11 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public final BetterRegistry<Biome> biomeRegistry;
 	public transient Set<RegistryEntry<Biome>> allPossibleBiomes = Collections.emptySet();
 
-	public ScriptedColumnBiomeSource(ColumnYToBiomeScript.Holder script, TagKey<Biome> all_possible_biomes, BetterRegistry<Biome> biomeRegistry) {
+	public ScriptedColumnBiomeSource(
+		ColumnYToBiomeScript.Holder script,
+		TagKey<Biome> all_possible_biomes,
+		BetterRegistry<Biome> biomeRegistry
+	) {
 		this.script = script;
 		this.all_possible_biomes = all_possible_biomes;
 		this.biomeRegistry = biomeRegistry;

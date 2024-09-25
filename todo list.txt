@@ -31,6 +31,7 @@ changelog:
 	# For regular players:
 	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
 	* Some structures are now more likely to spawn in hilly areas.
+	* Fixed bug causing a bunch of images to be created in .minecraft/bigglobe_dependency_graphs when the config option which controls this is disabled.
 	# For data pack makers:
 	* Scripts can now be declared in files in addition to being embedded in json.
 	* Scripts can now include code from multiple files.

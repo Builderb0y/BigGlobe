@@ -1,4 +1,19 @@
 Chunk generators of type `bigglobe:scripted` allow data pack makers to place blocks in the world based on several scripts. Scripted chunk generators have the following properties:
+* `biome_source` - can be a [vanilla biome source](https://minecraft.wiki/w/Dimension_definition#Biome_sources) or Big Globe's "scripted" biome source. Scripted biome sources have the following properties:
+	* `type` - must be set to `bigglobe:scripted`.
+	* `script` - a script which returns the biome for the current position. This script has the following environments available:
+		* MathScriptEnvironment
+		* StatelessRandomScriptEnvironment
+		* GridScriptEnvironment
+		* MinecraftScriptEnvironment
+		* BaseColumnScriptEnvironment
+		* ColumnEntryRegistry
+		* ColorScriptEnvironment
+		* ExternalImageScriptEnvironment
+		* ExternalDataScriptEnvironment
+
+		And a variable `y` which represents the Y level that the biome is being queried at.
+	* `all_possible_biomes` - a biome tag containing all the biomes that this script could potentially return. The `#` is implicit, and you only need to provide the namespace and path of the tag.
 * `reload_dimension` (optional) - Normally, chunk generators are stored in level.dat. This can be desirable, because if I change something small about the chunk generator in a new version, old worlds won't necessarily break. On the other hand, it makes development harder, since I need to remember to edit my level.dat file all the time. Also, if I change something bigger in a way which is incompatible with the old spec, or if you do legitimately want to update a world to a newer version of Big Globe for any other reason, you may have to resort to editing level.dat yourself, which is also undesirable. That's where `reload_dimension` comes in. If present, it specifies the dimension inside the world preset inside the Big Globe mod jar which contains the most up-to-date version of this chunk generator. If Big Globe can find this dimension inside the mod jar, then Big Globe will use the chunk generator from the mod jar instead of the one from level.dat.
 
 	In 3.x, the reload dimension was automatically inferred from the chunk generator type. But this posed a problem: how would datapack makers indicate that their own custom world presets should NOT be overridden by the default ones? At the time, I simply made this a config option. In 4.0, all 3 dimensions started using the same chunk generator type, so I now needed a way to distinguish them. Hence why this property was added. And in 4.3.0, I broke existing worlds again, which would've required users to enable that config option. But then I realized something: now that I have this property, data pack makers can just remove it if they don't want their world presets to be overridden. And that meant I didn't need the config option anymore. So, the config option was removed, and users do not need to enable it to update old worlds anymore.

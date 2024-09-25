@@ -51,11 +51,17 @@ public class DependencyDepthSorter {
 		synchronized (saveTasks) {
 			CompletableFuture<Void> future = saveTasks.get(name);
 			if (future != null) future.join();
-			saveTasks.put(name, CompletableFuture.runAsync(() -> {
-				DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
-				columns.streamEntries().forEach(sorter::recursiveComputeDepth);
-				sorter.outputResults(name);
-			}));
+			saveTasks.put(
+				name,
+				CompletableFuture.runAsync(() -> {
+					DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
+					columns.streamEntries().forEach(sorter::recursiveComputeDepth);
+					sorter.outputResults(name);
+				})
+				.whenComplete((Void result, Throwable throwable) -> {
+					if (throwable != null) BigGlobeMod.LOGGER.error("Exception generating dependency graph:", throwable);
+				})
+			);
 		}
 	}
 
