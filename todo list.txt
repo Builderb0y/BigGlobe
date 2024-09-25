@@ -30,8 +30,10 @@ where I left off:
 changelog:
 	# For regular players:
 	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
+	* Some structures are now more likely to spawn in hilly areas.
 	# For data pack makers:
 	* Scripts can now be declared in files in addition to being embedded in json.
+	* Scripts can now include code from multiple files.
 
 alternate world presets:
 	paradise.
@@ -40,6 +42,7 @@ alternate world presets:
 		structures.
 			deal with structures on skylands.
 			prevent ancient cities from spawning in volcanoes.
+			lakes on skylands.
 		clouds somewhere.
 		cave excluder near the surface in beaches and oceans.
 		deal with ores in skylands.
@@ -61,7 +64,6 @@ braking changes I want to make:
 		migrate equivalent getters from Structure/StructurePiece.
 	remove noscope.
 		replace with Type*(name := value)
-	remove script templates, replace with an include system?
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.
@@ -141,6 +143,7 @@ AutoCodec:
 
 scripting:
 	if a script template input declares a function and the template uses $INPUT more than once, this will probably cause problems.
+	if a synced script uses files, that will probably cause problems.
 	fully immutable NBT elements for scripts.
 	immutable user-defined classes for column values.
 		basically I don't want one column value to be able to mutate a different column value.
@@ -162,7 +165,7 @@ scripting:
 				if foo is non-null, then bar() is invoked and is required to return a non-null value.
 	lambdas?
 		Stream API?
-			ability to iterate over a Stream (whenever Stream support is added).
+			ability to iterate over a Stream in a for loop (whenever Stream support is added).
 	add copy constructor and clone() for user-defined classes.
 		clone() is deep copy, constructor is shallow copy?
 			this is the more intuitive option, but it is more difficult to implement.
@@ -173,10 +176,6 @@ scripting:
 	inline getters and setters for user-defined classes.
 	scriptable loot tables.
 	scriptable advancements?
-	swap() keyword?
-		swaps 2 local variables.
-			does not work on arguments that aren't local variables.
-		then again, you can also just use a = b =: a instead.
 	.= operator, along with :. and .:
 		applies a function to the lvalue and stores it in the lvalue.
 		example usage: value .= abs
@@ -191,13 +190,46 @@ scripting:
 		attempts to cast the expression to Type, but returns null if this fails for any reason.
 		can be chained with ?:
 		might also need to make "as" into a keyword too so I can do .as?(Type)
+	enhanced type system?
+		Type(attribute1: constant1, attribute2: constant2, ...) defines a full type.
+		ExpressionParser.nextType() will be added as a replacement for environment.getType().
+		need better syntax than Type(...)(expression) for casting.
+		some kind of "type parameters" in TypeInfo.
+		example usage:
+			Array(of: int) array = new(5)
+			HashMap(key: String, value: String) map = new()
+		user-defined classes need thinking about.
+			class Sub(type) extends Super(type: type) (...) is ugly.
+		more advanced usage:
+			Array(of: int, length: 5, null: false) array = new()
+				compile-time checking of lengths and nullability in parameters and stuff.
+			UserType(mutable: false)
+				immutable variants of objects.
+			Array(of: UserType, split: true)
+				compiles
+					class UserType(
+						int a
+						String b
+					)
+				into
+					class UserTypeArray(
+						Array(of: int) a
+						Array(of: String) b
+					)
+			Array(of: int, lengths: (3, 3, 3))
+				compiles into a 1D array indexed via array.(a, b, c).
+				the internal index of the array is (a * length + b) * length + c.
+				iterate via for (int*(a, b, c, value) in array: body)
+		generics for methods... need some thinking on the syntax.
+			generic(type) type List(of: type) whatever(: body)
+		"expose" fastutil collection types.
+			List(of: int) will compile into IntList.
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		make charred hanging sign look a bit more programmer art-y?
-		look into a custom loader for scripted configured features that doesn't rely on json format.
 		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
 		fast DH tree generation
 			skips a lot of the more expensive work for tree generation,
@@ -208,7 +240,6 @@ features:
 		deep ocean hydrothermal vents?
 			new biome for extremely deep oceans: the abyss.
 		overrider to ensure that the deep dark doesn't break the surface in the abyss.
-		alternate curvy shape for biome distribution which compensates for distribution of noise.
 		desert fossils.
 		fallen logs.
 		allow flowers to place a Feature for every flower.
@@ -218,15 +249,11 @@ features:
 			roots.
 				use for mangrove trees.
 		cave biomes:
-			lush:
-				walls:
-					vines.
 			mushroom:
 				glowing mushrooms?
 					that hang from the ceiling?
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		more types of geodes/more colors of pretty crystals?
-		make underground pocket placement faster by only computing noise in a circle instead of a square.
 		dungeons:
 			piles of gold?
 			occasional "big rooms".
@@ -250,12 +277,6 @@ features:
 		asteroids in the void biome.
 		ender clam?
 			source of ender pearls.
-
-before release:
-	make sure nothing in test package is used.
-	disable BigGlobeItems.TEST_ITEM.
-	ensure BigGlobeChunkGenerator.WORLD_SLICES is set to false.
-	make sure SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE is set to false.
 
 porting to newer MC versions:
 	check if ShapedRecipe implements serialization yet.

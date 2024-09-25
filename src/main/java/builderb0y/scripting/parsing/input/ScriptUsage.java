@@ -1,6 +1,8 @@
 package builderb0y.scripting.parsing.input;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
@@ -55,12 +57,20 @@ public abstract class ScriptUsage {
 	}
 
 	public final @VerifyNullable @IdentifierName String debug_name;
+	public final Identifier @VerifyNullable [] includes;
+	public final transient @Nullable String includeText;
 
-	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name) {
+	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name, Identifier @VerifyNullable [] includes) {
 		this.debug_name = debug_name;
+		this.includes = includes;
+		this.includeText = ScriptFileResolver.resolveIncludes(includes);
 	}
 
-	public abstract String getSource();
+	public abstract String getRawSource();
+
+	public String getSource() {
+		return this.includeText != null ? this.includeText + this.getRawSource() : this.getRawSource();
+	}
 
 	public String getDebugName() {
 		return this.debug_name;

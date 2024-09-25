@@ -24,4 +24,18 @@ public class ScriptFileResolver {
 			throw new RuntimeException("Failed to read " + full, exception);
 		}
 	}
+
+	public static String resolveIncludes(Identifier[] includes) {
+		if (includes == null) return null;
+		StringBuilder builder = new StringBuilder(8192);
+		for (Identifier include : includes) {
+			builder
+			.append(";BEGIN INCLUDE ")
+			.append(include)
+			.append('\n')
+			.append(resolve(include))
+			.append("\n\n");
+		}
+		return builder.append(";BEGIN SCRIPT\n").toString();
+	}
 }

@@ -117,9 +117,16 @@ If the exponent does not have a radix, it defaults to 10.
 
 ## Suffixes
 
+A number literal without a suffix will, in general, default to the smallest precision necessary to represent the number exactly, with the following rules:
+* If the literal has a fractional part, it will be a float if a float can exactly represent the number. If a float cannot exactly represent the number, then the literal is treated as a double. 0.5 is a float literal, where as 0.1 is a double literal. It is recommended to use I and L suffixes for numbers with fractional parts, to avoid confusion about which numbers can and can't be represented exactly with floats.
+* If the number does NOT have a fractional part, then it will be an int if the number is within the range of an int. Otherwise, if the number is within the range of a long, then it will be treated as a long literal. If a long can't represent it exactly either, then an exception is thrown.
+* New in V4.3.3: If the number does NOT have a fractional part and can be represented exactly by a byte or short, it will be treated as an int. This was added because I kept foot-gunning myself with random numbers that I expected to be ints, but they were actually bytes.
+
+All suffixes are case-insensitive.
+
 ### U
 
-Specifies that the number is unsigned. **This does NOT mean that normal arithmetic operations will treat it as an unsigned value!** It just means the range that it uses for validity checking and auto-typing is shifted. For example, `255` is a `short` literal, because the `byte` range is -128 to +127 (inclusive). However, `255u` is a `byte` literal, because the *unsighed* `byte` range is 0 to 255 (also inclusive).
+Specifies that the number is unsigned. **This does NOT mean that normal arithmetic operations will treat it as an unsigned value!** It just means the range that it uses for validity checking and auto-typing is shifted. For example, if the default precision of a number without a suffix were allowed to be a byte or short (like it was in old versions), then `255` would be a `short` literal, because the `byte` range is -128 to +127 (inclusive). However, `255u` would be a `byte` literal, because the *unsighed* `byte` range is 0 to 255 (also inclusive).
 
 The unsigned suffix is not allowed for numbers which have a fractional part.
 
@@ -141,9 +148,9 @@ Specifies that the number should have 32 bits. If the number contains a fraction
 
 Specifies that the number should have 16 bits. If the number contains a fractional part, an exception is thrown. Otherwise, the number is treated as a `short` literal.
 
-## Precision
+### Y
 
-Unless specified otherwise with suffixes, the precision of the number is the smallest precision which can contain it exactly. For example, `123` is a `byte` literal, where as `456` is a `short` literal. If the number has a fractional part and cannot be represented exactly as a `float`, then it is a `double` literal, regardless of whether a `double` can represent it exactly or not.
+Specifies that the number should have 8 bits. If the number contains a fractional part, an exception is thrown. Otherwise, the number is treated as a `byte` literal.
 
 # Operators
 

@@ -35,7 +35,7 @@ public class TemplateScriptUsage extends ScriptUsage {
 		RegistryEntry<ScriptTemplate> template,
 		@VerifyNullable Map<@IdentifierName String, @MultiLine String> inputs
 	) {
-		super(debug_name);
+		super(debug_name, null);
 		this.template = template;
 		this.inputs = inputs;
 	}
@@ -52,7 +52,7 @@ public class TemplateScriptUsage extends ScriptUsage {
 	}
 
 	@Override
-	public String getSource() {
+	public String getRawSource() {
 		return this.template.value().getSource();
 	}
 

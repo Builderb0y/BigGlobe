@@ -1,10 +1,7 @@
 {
-	"script": [
-		"double depth = `bigglobe:approximate_distance_below_surface` / delay",
-		"double scale = (4.0L * peak) / (2.0L * peak - limit)",
-		"double rampUp = 1.0L - exp2(-(depth ^ 2))",
-		"double taperOut = mixLinear(limit / peak, 2.0L, exp2(scale * (1.0L - depth)))",
-		"return(rampUp * taperOut * peak)"
+	"script": "delayedPeek2(`bigglobe:approximate_distance_below_surface` / delay, peek, limit)",
+	"includes": [
+		"bigglobe:include/ores/delayed_peek_2"
 	],
 	"inputs": [
 		{ "name": "delay", "type": "double" },

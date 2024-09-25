@@ -11,14 +11,14 @@ public class FileScriptUsage extends ScriptUsage {
 	public final Identifier file;
 	public final transient String source;
 
-	public FileScriptUsage(@VerifyNullable String debug_name, Identifier file) {
-		super(debug_name);
+	public FileScriptUsage(@VerifyNullable String debug_name, Identifier @VerifyNullable [] includes, Identifier file) {
+		super(debug_name, includes);
 		this.file = file;
 		this.source = ScriptFileResolver.resolve(file);
 	}
 
 	@Override
-	public String getSource() {
+	public String getRawSource() {
 		return this.source;
 	}
 

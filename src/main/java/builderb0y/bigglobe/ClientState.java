@@ -168,11 +168,11 @@ public class ClientState {
 			Map<Identifier, NbtElement> decisionTrees,
 			Map<Identifier, NbtElement> worldTraits
 		) {
-			this.templates = templates;
-			this.columnEntries = columnEntries;
+			this.templates       = templates;
+			this.columnEntries   = columnEntries;
 			this.voronoiSettings = voronoiSettings;
-			this.decisionTrees = decisionTrees;
-			this.worldTraits = worldTraits;
+			this.decisionTrees   = decisionTrees;
+			this.worldTraits     = worldTraits;
 		}
 
 		@Hidden

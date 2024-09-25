@@ -2,7 +2,7 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure.type ==. 'minecraft:woodland_mansion':",
-			"return(world_traits.`bigglobe:hilliness`(start.midX, start.midZ) < 0.25L)",
+			"return(world_traits.`bigglobe:hilliness`(start.midX, start.midZ) < 0.5L)",
 		")",
 		"return(true)"
 	]}
