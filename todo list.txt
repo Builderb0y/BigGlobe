@@ -31,6 +31,7 @@ to finish before release:
 
 changelog:
 	# For regular players:
+	* Fixed nether fungi not growing into Big Globe trees when bonemealed.
 	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
 	* Some structures are now more likely to spawn in hilly areas.
 	* Fixed bug causing a bunch of images to be created in .minecraft/bigglobe_dependency_graphs when the config option which controls this is disabled.
@@ -42,6 +43,7 @@ alternate world presets:
 	paradise.
 	islands:
 		features.
+			stuff on the underside of skylands.
 		structures.
 			deal with structures on skylands.
 			prevent ancient cities from spawning in volcanoes.
@@ -50,7 +52,7 @@ alternate world presets:
 		cave excluder near the surface in beaches and oceans.
 		deal with ores in skylands.
 
-braking changes I want to make:
+breaking changes I want to make:
 	better Purpose system.
 		rename to "Hints"
 		bitflags:

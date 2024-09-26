@@ -20,6 +20,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
@@ -45,7 +46,6 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		}
 	}
 	public static record Data(
-		ColumnToDoubleScript.@VerifyNullable Holder surface_y,
 		ColumnToDoubleScript.@VerifyNullable Holder foliage,
 		ColumnToDoubleScript.@VerifyNullable Holder snow_chance,
 		FoliageRange size,
@@ -56,8 +56,8 @@ public class MegaTreeStructure extends BigGlobeStructure {
 
 	public final @EncodeInline Data data;
 
-	public MegaTreeStructure(Config config, Data data) {
-		super(config);
+	public MegaTreeStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y, Data data) {
+		super(config, surface_y);
 		this.data = data;
 	}
 
@@ -67,7 +67,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
 		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), Purpose.generic()) : null;
-		double y = column != null && this.data.surface_y != null ? this.data.surface_y.get(column) : context.chunkGenerator().getHeightOnGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
+		double y = (column != null && this.surface_y != null ? this.surface_y.get(column) : context.chunkGenerator().getHeightInGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())) + 1;
 		double foliage = column != null && this.data.foliage != null ? this.data.foliage.get(column) : 0.0D;
 		return Optional.of(
 			new StructurePosition(

@@ -11,10 +11,9 @@
 				"double mixLevel = smooth(distance * 0.0625L)",
 				"int minY = start.minY",
 				"if (start.structure ==. 'bigglobe:log_cabin': ++minY)",
-				"world_traits.`bigglobe:exact_surface_y` = mixLinear(minY - 0.5L, world_traits.`bigglobe:exact_surface_y`, mixLevel)",
-				"world_traits.`bigglobe:approximate_surface_y`     = mixLinear(minY - 0.5L, world_traits.`bigglobe:approximate_surface_y`,     mixLevel)",
-				"world_traits.`bigglobe:snow_y`              = mixLinear(minY - 1.5L, world_traits.`bigglobe:snow_y`,              mixLevel)",
-				"`bigglobe:overworld/surface_foliage`    *= float(mixLevel)",
+				"world_traits.`bigglobe:automatic_surface_y`(start.minY) = mixLinear(minY - 0.5L, world_traits.`bigglobe:automatic_surface_y`(start.minY), mixLevel)",
+				"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(minY - 1.5L, world_traits.`bigglobe:automatic_snow_y`(start.minY), mixLevel)",
+				"`bigglobe:overworld/surface_foliage` *= float(mixLevel)",
 			")",
 		")"
 	]

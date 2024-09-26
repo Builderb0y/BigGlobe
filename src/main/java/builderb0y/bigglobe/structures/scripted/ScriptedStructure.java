@@ -30,6 +30,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -56,16 +57,16 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	public final StructureLayoutScript.Holder layout;
 
 	public ScriptedStructure(Config config, StructureLayoutScript.Holder layout) {
-		super(config);
+		super(config, null);
 		this.layout = layout;
 	}
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		Permuter permuter = Permuter.from(context.random());
 		int x = context.chunkPos().getStartX() | permuter.nextInt(16);
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
-		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons), generator.compiledWorldTraits));
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);

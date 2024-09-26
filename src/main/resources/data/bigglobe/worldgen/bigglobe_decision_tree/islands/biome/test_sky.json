@@ -1,8 +1,14 @@
 {
 	"condition": {
 		"type": "script",
-		"script": "y > max(world_traits.`bigglobe:exact_surface_y`, world_traits.`bigglobe:sea_level`) + 128"
+		"script": [
+			"`bigglobe:islands/is_floating` &&",
+			"y >= max(",
+				"world_traits.`bigglobe:approximate_surface_y`,",
+				"world_traits.`bigglobe:sea_level`",
+			") + 128"
+		]
 	},
-	"if_true": "bigglobe:islands/biome/sky",
+	"if_true": "bigglobe:islands/biome/test_hot",
 	"if_false": "bigglobe:islands/biome/test_beach"
 }

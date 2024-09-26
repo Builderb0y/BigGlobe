@@ -35,9 +35,11 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -61,8 +63,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public final @VerifyRandomRange(min = 0.0D, max = 1.0D) RandomSource cracked_chance;
 
-	public PortalTempleStructure(Config config, RandomSource cracked_chance) {
-		super(config);
+	public PortalTempleStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y, RandomSource cracked_chance) {
+		super(config, surface_y);
 		this.cracked_chance = cracked_chance;
 	}
 

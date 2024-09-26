@@ -1,0 +1,5 @@
+{
+	"type": "double",
+	"is_3d": true,
+	"default": "world_traits.`bigglobe:exact_surface_y`"
+}

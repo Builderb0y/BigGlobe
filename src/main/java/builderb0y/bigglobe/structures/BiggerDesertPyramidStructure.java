@@ -30,8 +30,10 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.LabyrinthLayout.HallPiece;
@@ -48,8 +50,8 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 		public static final Codec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BiggerDesertPyramidStructure.class).codec();
 	#endif
 
-	public BiggerDesertPyramidStructure(Config config) {
-		super(config);
+	public BiggerDesertPyramidStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y) {
+		super(config, surface_y);
 	}
 
 	@Override

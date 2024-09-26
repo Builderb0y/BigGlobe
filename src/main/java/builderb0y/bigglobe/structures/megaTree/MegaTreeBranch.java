@@ -5,6 +5,7 @@ import org.joml.Vector3d;
 import net.minecraft.world.Heightmap;
 
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -62,7 +63,7 @@ public class MegaTreeBranch {
 		Vector3d scratchPos = new Vector3d();
 		Vector3d shyness = new Vector3d();
 		ScriptedColumn column = context.column;
-		ColumnToDoubleScript.Holder surfaceYGetter = context.structure.data.surface_y();
+		ColumnToIntScript.Holder surfaceYGetter = context.structure.surface_y;
 		while (this.currentStep < this.totalSteps) {
 			this.currentStep++;
 			this.stepsUntilNextSplit--;

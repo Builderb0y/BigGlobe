@@ -27,6 +27,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.math.pointSequences.PointIterator3D;
@@ -58,13 +59,14 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 	public GeodeStructure(
 		Config config,
+		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		Grid3D noise,
 		RandomSource radius,
 		BlocksConfig[] blocks,
 		SpikesConfig spikes,
 		GrowthConfig @VerifyNullable [] growth
 	) {
-		super(config);
+		super(config, surface_y);
 		this.noise  = noise;
 		this.radius = radius;
 		this.blocks = blocks;

@@ -319,18 +319,26 @@
 					"bigglobe:deep_dark_max_y":          "-624I",
 					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
 					"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
-					"bigglobe:hilliness":                "`bigglobe:islands/mountainness`",
+					"bigglobe:hilliness":                "`bigglobe:islands/is_floating` ? `bigglobe:islands/skyland_hilliness` : `bigglobe:islands/mountainness`",
 					"bigglobe:lava_y":                   "-896I",
 					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
 					"bigglobe:max_y":                    " 1024I",
 					"bigglobe:min_y":                    "-1024I",
 					"bigglobe:sea_level":                "0I",
-					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:islands/skyland_bottom`)",
-					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:islands/skyland_top`)",
+					"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
+					"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
 					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 					"bigglobe:approximate_surface_y": {
 						"get": "`bigglobe:islands/basic_surface_height`",
 						"set": "`bigglobe:islands/basic_surface_height` = value"
+					},
+					"bigglobe:automatic_snow_y": {
+						"get": "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_snow_y` : `bigglobe:islands/snow_height`",
+						"set": "if (`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128: `bigglobe:islands/skyland_snow_y` = value) else (`bigglobe:islands/snow_height` = value)"
+					},
+					"bigglobe:automatic_surface_y": {
+						"get": "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_top` : `bigglobe:islands/eroded_surface_height`",
+						"set": "if (`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128: `bigglobe:islands/skyland_top` = value) else (`bigglobe:islands/eroded_surface_height` = value)"
 					},
 					"bigglobe:cave_noise": {
 						"get": "`bigglobe:islands/cave_noise`(y)",
@@ -447,7 +455,7 @@
 							"type": "simple_2d",
 							"state": "'minecraft:stone'",
 							"valid": {
-								"where": "purpose != 'heightmap' && `bigglobe:islands/has_skylands`",
+								"where": "`bigglobe:islands/has_skylands`",
 								"min_y": "world_traits.`bigglobe:skyland_min_y`",
 								"max_y": "world_traits.`bigglobe:skyland_max_y`"
 							},

@@ -5,9 +5,8 @@
 			"if (start.structure.type ==. 'minecraft:woodland_mansion':",
 				"double distance = distanceToSquare(start)",
 				"double mixLevel = smooth(1.0 - distance * 0.0625)",
-				"world_traits.`bigglobe:approximate_surface_y` = mixLinear(world_traits.`bigglobe:approximate_surface_y`, start.minY - 0.5L, mixLevel)",
-				"double oldY = world_traits.`bigglobe:exact_surface_y` =: mixLinear(world_traits.`bigglobe:exact_surface_y`, start.minY - 0.5L, mixLevel)",
-				"world_traits.`bigglobe:snow_y` += world_traits.`bigglobe:exact_surface_y` - oldY",
+				"double oldY = world_traits.`bigglobe:automatic_surface_y`(start.minY) =: mixLinear(world_traits.`bigglobe:automatic_surface_y`(start.minY), start.minY - 0.5L, mixLevel)",
+				"world_traits.`bigglobe:automatic_snow_y`(start.minY) += world_traits.`bigglobe:automatic_surface_y`(start.minY) - oldY",
 			")",
 		")"
 	]

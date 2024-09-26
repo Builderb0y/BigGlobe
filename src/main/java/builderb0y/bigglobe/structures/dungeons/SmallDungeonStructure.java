@@ -32,8 +32,10 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
@@ -52,8 +54,14 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 		public static final Codec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class).codec();
 	#endif
 
-	public SmallDungeonStructure(Config config, TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
-		super(config, room_decorators, spawner_entries, palettes);
+	public SmallDungeonStructure(
+		Config config,
+		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		TagKey<ConfiguredFeature<?, ?>> room_decorators,
+		IRandomList<EntityType<?>> spawner_entries,
+		List<Palette> palettes
+	) {
+		super(config, surface_y, room_decorators, spawner_entries, palettes);
 	}
 
 	@Override

@@ -1,0 +1,17 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type.isIn('bigglobe:restrict_to_biome') || start.structure.isIn('bigglobe:restrict_to_biome'):",
+			"boolean skyland = `bigglobe:islands/has_skylands`(start.midX, start.midZ)",
+			"for (int x in range[start.minX, start.maxX] % 4:",
+				"if (`bigglobe:islands/has_skylands`(x, start.minZ) != skyland: return(false))",
+				"if (`bigglobe:islands/has_skylands`(x, start.maxZ) != skyland: return(false))",
+			")",
+			"for (int z in range[start.minZ, start.maxZ] % 4:",
+				"if (`bigglobe:islands/has_skylands`(start.minX, z) != skyland: return(false))",
+				"if (`bigglobe:islands/has_skylands`(start.maxX, z) != skyland: return(false))",
+			")",
+		")",
+		"return(true)"
+	]
+}

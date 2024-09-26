@@ -18,7 +18,7 @@ public class BigGlobeFeatures {
 	public static final EndSpikeWorldgenFeature                                 END_SPIKE_WORLDGEN                 = register("end_spike_worldgen",                 new         EndSpikeWorldgenFeature());
 	public static final GenericOreFeature                                       GENERIC_ORE                        = register("generic_ore",                        new               GenericOreFeature());
 	public static final FlowerFeature                                           FLOWER                             = register("flower",                             new                   FlowerFeature());
-	public static final FlowerControllerFeature                                 FLOWER_CONTROlLER                  = register("flower_controller",                  new         FlowerControllerFeature());
+	public static final FlowerControllerFeature                                 FLOWER_CONTROLLER                  = register("flower_controller",                  new         FlowerControllerFeature());
 	public static final NetherFlowerFeature                                     NETHER_FLOWER                      = register("nether_flower",                      new             NetherFlowerFeature());
 
 	public static final ChunkSprinkleFeature                                    CHUNK_SPRINKLE                     = register("chunk_sprinkle",                     new            ChunkSprinkleFeature());

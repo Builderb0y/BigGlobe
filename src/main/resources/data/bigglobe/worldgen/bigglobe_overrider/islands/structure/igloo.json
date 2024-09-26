@@ -1,0 +1,18 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type ==. 'minecraft:igloo':",
+			"StructurePiece last = start.pieces.(start.pieces.size - 1)",
+			"int centerX = last.midX",
+			"int centerZ = last.midZ",
+			"int fromY = last.minY",
+			"int toY = int(",
+				"`bigglobe:islands/has_skylands`(centerX, centerZ)",
+				"? `bigglobe:islands/skyland_snow_y`(centerX, centerZ) - 0.5L",
+				": `bigglobe:islands/snow_height`(centerX, centerZ) - 0.5L",
+			")",
+			"start.move(toY - fromY)",
+		")",
+		"return(true)"
+	]
+}

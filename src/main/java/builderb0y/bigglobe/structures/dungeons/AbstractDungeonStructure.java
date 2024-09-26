@@ -51,6 +51,7 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -80,11 +81,12 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public AbstractDungeonStructure(
 		Config config,
+		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
 		IRandomList<EntityType<?>> spawner_entries,
 		List<Palette> palettes
 	) {
-		super(config);
+		super(config, surface_y);
 		this.room_decorators = room_decorators;
 		this.spawner_entries = spawner_entries;
 		this.palettes = palettes;

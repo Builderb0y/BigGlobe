@@ -34,6 +34,7 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything;
@@ -52,8 +53,14 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 		public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class).codec();
 	#endif
 
-	public MediumDungeonStructure(Config config, @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators, IRandomList<EntityType<?>> spawner_entries, List<Palette> palettes) {
-		super(config, room_decorators, spawner_entries, palettes);
+	public MediumDungeonStructure(
+		Config config,
+		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
+		IRandomList<EntityType<?>> spawner_entries,
+		List<Palette> palettes
+	) {
+		super(config, surface_y, room_decorators, spawner_entries, palettes);
 	}
 
 	@Override

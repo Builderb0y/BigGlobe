@@ -30,6 +30,7 @@
 		"Entity_CurrentIdGetter",
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"FlowableFluid_DontFlowInRivers",
+		"FungusBlock_GrowIntoBigGlobeTree",
 		"Heightmap_StorageAccess",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
 		"ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds",

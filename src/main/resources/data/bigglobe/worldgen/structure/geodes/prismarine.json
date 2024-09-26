@@ -12,6 +12,7 @@
 		"water_creature":             { "bounding_box": "full", "spawns": [] }
 	},
 	"step": "raw_generation",
+	"surface_y": "world_traits.`bigglobe:y_level_in_surface`",
 	"noise": {
 		"type": "sum",
 		"layers": [

@@ -58,6 +58,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",             Boolean.TRUE);
 		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",                Boolean.TRUE);
 		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                                Boolean.TRUE);
+		defaults.put(mixinPackage + ".FungusBlock_GrowIntoBigGlobeTree",                                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                   Boolean.TRUE);

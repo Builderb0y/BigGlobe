@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "skyland_top + skyland_snow_chance"
+	"script": "1.0L / (exp(skyland_height_offset / -24.0L + 1.0L) + 1.0L)"
 }

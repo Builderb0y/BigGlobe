@@ -34,6 +34,7 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.trees.TreeGenerator;
+import builderb0y.bigglobe.trees.decoration.BallLeafDecorator;
 import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
@@ -150,7 +151,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
 		BlockDecorator @VerifyNullable [] branches,
-		BlockDecorator @VerifyNullable [] leaves
+		BlockDecorator @VerifyNullable [] leaves,
+		@VerifyNullable BallLeaves ball_leaves
 	) {
 
 		public static List<BlockDecorator> addAll(
@@ -170,8 +172,14 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			builder.trunkBlock  = addAll(this.trunk,    builder. trunkBlock);
 			builder.branchBlock = addAll(this.branches, builder.branchBlock);
 			builder.leafBlock   = addAll(this.leaves,   builder.  leafBlock);
+			if (this.ball_leaves != null) {
+				BallLeafDecorator decorator = new BallLeafDecorator(this.ball_leaves.inner_state);
+				builder.branch(decorator).trunk(decorator);
+			}
 		}
 	}
+
+	public static record BallLeaves(BlockState inner_state) {}
 
 	public static interface TreeHeightScript extends Script {
 

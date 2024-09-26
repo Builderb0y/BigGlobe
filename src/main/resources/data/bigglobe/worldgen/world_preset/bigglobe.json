@@ -36,6 +36,14 @@
 						"get": "`bigglobe:overworld/basic_surface_y`",
 						"set": "`bigglobe:overworld/basic_surface_y` = value"
 					},
+					"bigglobe:automatic_snow_y": {
+						"get": "`bigglobe:overworld/snow_y`",
+						"set": "`bigglobe:overworld/snow_y` = value"
+					},
+					"bigglobe:automatic_surface_y": {
+						"get": "`bigglobe:overworld/processed_surface_y`",
+						"set": "`bigglobe:overworld/processed_surface_y` = value"
+					},
 					"bigglobe:cave_noise": {
 						"get": "`bigglobe:overworld/cave`.noise(y)",
 						"set": "`bigglobe:overworld/cave`.noise(y) = value"
