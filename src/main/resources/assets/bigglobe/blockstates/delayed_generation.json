@@ -1,0 +1,5 @@
+{
+	"variants": {
+		"": { "model": "bigglobe:block/delayed_generation" }
+	}
+}

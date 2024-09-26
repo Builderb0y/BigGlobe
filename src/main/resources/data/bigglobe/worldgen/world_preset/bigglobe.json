@@ -244,10 +244,12 @@
 					"place_portal_at_high_y_level": true
 				},
 				"world_traits": {
-					"bigglobe:biome":  "`bigglobe:nether/bubble`.biome",
-					"bigglobe:lava_y": "`bigglobe:nether/bubble`.lava_level",
-					"bigglobe:max_y":  "1024I",
-					"bigglobe:min_y":  "0I"
+					"bigglobe:biome":              "`bigglobe:nether/bubble`.biome",
+					"bigglobe:lava_y":             "`bigglobe:nether/bubble`.lava_level",
+					"bigglobe:max_y":              "1024I",
+					"bigglobe:min_y":              "0I",
+					"bigglobe:y_level_in_surface": "1023I",
+					"bigglobe:y_level_on_surface": "1024I"
 				},
 				"layer": {
 					"state": "`bigglobe:nether/bubble`.filler",
