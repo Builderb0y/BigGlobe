@@ -1,0 +1,8 @@
+{
+	"type": "group",
+	"dispatchers": [
+		"bigglobe:islands/skyland_trees",
+		"bigglobe:islands/skyland_amethyst",
+		"bigglobe:islands/skyland_hanging_roots"
+	]
+}

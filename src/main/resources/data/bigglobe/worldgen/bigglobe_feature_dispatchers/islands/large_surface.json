@@ -3,7 +3,6 @@
 	"dispatchers": [
 		"bigglobe:islands/liquidfalls",
 		"bigglobe:islands/trees",
-		"bigglobe:islands/skyland_trees",
 		"bigglobe:overworld/bushes",
 		"bigglobe:overworld/prismarine"
 	]

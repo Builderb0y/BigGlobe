@@ -1,0 +1,23 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"if (`bigglobe:islands/is_floating`(minModifiableX | 8, minModifiableZ | 8):",
+			"repeat (",
+				"random.roundInt(",
+					"`bigglobe:islands/raw_foliage`(",
+						"minModifiableX | 8,",
+						"minModifiableZ | 8",
+					")",
+					"* 16I",
+				")",
+			":",
+				"int x = minModifiableX | random.nextInt(16)",
+				"int z = minModifiableZ | random.nextInt(16)",
+				"if (`bigglobe:islands/has_skylands`(x, z):",
+					"int y = world_traits.`bigglobe:skyland_min_y`(x, z) - 1",
+					"placeFeature(x, y, z, 'bigglobe:overworld/skylands/hanging_roots')",
+				")",
+			")",
+		")"
+	]
+}
