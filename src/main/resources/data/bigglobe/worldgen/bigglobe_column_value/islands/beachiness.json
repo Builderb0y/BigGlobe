@@ -13,11 +13,11 @@
 			"base": {
 				"type": "sum",
 				"layers": [
-					{ "type": "smooth", "scaleX": 512, "scaleY": 512, "amplitude": 8.0 },
-					{ "type": "smooth", "scaleX": 256, "scaleY": 256, "amplitude": 4.0 },
-					{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 2.0 },
-					{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude": 1.0 },
-					{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude": 0.5 }
+					{ "type": "smooth", "scale": 512, "amplitude": 8.0 },
+					{ "type": "smooth", "scale": 256, "amplitude": 4.0 },
+					{ "type": "smooth", "scale": 128, "amplitude": 2.0 },
+					{ "type": "smooth", "scale":  64, "amplitude": 1.0 },
+					{ "type": "smooth", "scale":  32, "amplitude": 0.5 }
 				]
 			}
 		}

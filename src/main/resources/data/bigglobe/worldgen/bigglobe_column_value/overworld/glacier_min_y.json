@@ -8,9 +8,9 @@
 		"type": "sum",
 		"layers": [
 			{ "type": "constant", "value": -4.0 },
-			{ "type": "cubic", "scaleX": 64, "scaleY": 64, "amplitude": 2.0 },
-			{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0 },
-			{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.5 }
+			{ "type": "cubic", "scale": 64, "amplitude": 2.0 },
+			{ "type": "cubic", "scale": 32, "amplitude": 1.0 },
+			{ "type": "cubic", "scale": 16, "amplitude": 0.5 }
 		]
 	}
 }

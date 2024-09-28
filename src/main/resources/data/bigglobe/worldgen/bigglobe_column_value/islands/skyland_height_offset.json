@@ -8,12 +8,12 @@
 		"type": "sum",
 		"salt": "island_height_offset",
 		"layers": [
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scaleX": 256, "scaleY": 256 },
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scaleX": 128, "scaleY": 128 },
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 },
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  2.5     }, "scaleX":  32, "scaleY":  32 },
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  1.0     }, "scaleX":  16, "scaleY":  16 },
-			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  0.4     }, "scaleX":   8, "scaleY":   8 }
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scale": 256 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scale": 128 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scale":  64 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  2.5     }, "scale":  32 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  1.0     }, "scale":  16 },
+			{ "type": "smoother_resample", "source": { "type": "white_noise", "amplitude":  0.4     }, "scale":   8 }
 		]
 	}
 }

@@ -49,7 +49,7 @@
 				")",
 
 				";place crystal.",
-				"summon(originX + 0.5L, originY + 1, originZ + 0.5L, 'minecraft:end_crystal', nbtCompound(ShowBottom: 0))",
+				"summon(originX + 0.5L, originY + 1, originZ + 0.5L, 'minecraft:end_crystal', nbtCompound(ShowBottom: 0Y))",
 
 				"return(true)"
 			]

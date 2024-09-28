@@ -15,11 +15,11 @@
 			"base": {
 				"type": "sum",
 				"layers": [
-					{ "type": "cubic", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.5 },
-					{ "type": "cubic", "scaleX":  512, "scaleY":  512, "amplitude": 0.25 },
-					{ "type": "cubic", "scaleX":  256, "scaleY":  256, "amplitude": 0.125 },
-					{ "type": "cubic", "scaleX":  128, "scaleY":  128, "amplitude": 0.0625 },
-					{ "type": "cubic", "scaleX":   64, "scaleY":   64, "amplitude": 0.03125 }
+					{ "type": "cubic", "scale": 1024, "amplitude": 0.5 },
+					{ "type": "cubic", "scale":  512, "amplitude": 0.25 },
+					{ "type": "cubic", "scale":  256, "amplitude": 0.125 },
+					{ "type": "cubic", "scale":  128, "amplitude": 0.0625 },
+					{ "type": "cubic", "scale":   64, "amplitude": 0.03125 }
 				]
 			}
 		}

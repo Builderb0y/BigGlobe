@@ -7,11 +7,11 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 4.0    }, "scaleX": 64, "scaleY": 64 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.6    }, "scaleX": 32, "scaleY": 32 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.64   }, "scaleX": 16, "scaleY": 16 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.256  }, "scaleX":  8, "scaleY":  8 },
-			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.1024 }, "scaleX":  4, "scaleY":  4 }
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 4.0    }, "scale": 64 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.6    }, "scale": 32 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.64   }, "scale": 16 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.256  }, "scale":  8 },
+			{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.1024 }, "scale":  4 }
 		]
 	},
 	"valid": {

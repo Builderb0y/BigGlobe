@@ -17,11 +17,11 @@
 		"type": "sum",
 		"layers": [
 			{ "type": "constant", "value": 32.0 },
-			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "scaleZ": 32, "amplitude": 16.0 },
-			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude":  8.0 },
-			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude":  4.0 },
-			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude":  2.0 },
-			{ "type": "linear", "scaleX":  2, "scaleY":  2, "scaleZ":  2, "amplitude":  1.0 }
+			{ "type": "smooth", "scale": 32, "amplitude": 16.0 },
+			{ "type": "smooth", "scale": 16, "amplitude":  8.0 },
+			{ "type": "smooth", "scale":  8, "amplitude":  4.0 },
+			{ "type": "smooth", "scale":  4, "amplitude":  2.0 },
+			{ "type": "linear", "scale":  2, "amplitude":  1.0 }
 		]
 	},
 	"radius": { "type": "uniform", "min": 32.0, "max": 64.0 },

@@ -6,10 +6,10 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 0.4 },
-			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 0.16 },
-			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 0.064 },
-			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "amplitude": 0.0256 }
+			{ "type": "smooth", "scale": 32, "amplitude": 0.4 },
+			{ "type": "smooth", "scale": 16, "amplitude": 0.16 },
+			{ "type": "smooth", "scale":  8, "amplitude": 0.064 },
+			{ "type": "smooth", "scale":  4, "amplitude": 0.0256 }
 		]
 	}
 }

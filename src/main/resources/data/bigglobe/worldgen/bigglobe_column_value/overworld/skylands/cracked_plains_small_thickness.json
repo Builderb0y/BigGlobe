@@ -7,9 +7,9 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "cubic", "scaleX": 32, "scaleY": 32, "amplitude": 1.0        },
-			{ "type": "cubic", "scaleX": 16, "scaleY": 16, "amplitude": 0.33333333 },
-			{ "type": "cubic", "scaleX":  8, "scaleY":  8, "amplitude": 0.11111111 }
+			{ "type": "cubic", "scale": 32, "amplitude": 1.0        },
+			{ "type": "cubic", "scale": 16, "amplitude": 0.33333333 },
+			{ "type": "cubic", "scale":  8, "amplitude": 0.11111111 }
 		]
 	}
 }

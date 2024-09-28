@@ -16,18 +16,18 @@
 			"center": {
 				"type": "sum",
 				"layers": [
-					{ "type": "smooth", "scaleX": 128, "scaleY": 128, "amplitude": 16.0 },
-					{ "type": "smooth", "scaleX":  64, "scaleY":  64, "amplitude":  8.0 },
-					{ "type": "smooth", "scaleX":  32, "scaleY":  32, "amplitude":  4.0 }
+					{ "type": "smooth", "scale": 128, "amplitude": 16.0 },
+					{ "type": "smooth", "scale":  64, "amplitude":  8.0 },
+					{ "type": "smooth", "scale":  32, "amplitude":  4.0 }
 				]
 			},
 			"thickness": {
 				"type": "sum",
 				"layers": [
 					{ "type": "constant", "value": 4.0 },
-					{ "type": "smooth", "scaleX": 32, "scaleY": 32, "amplitude": 4.0 },
-					{ "type": "smooth", "scaleX": 16, "scaleY": 16, "amplitude": 2.0 },
-					{ "type": "smooth", "scaleX":  8, "scaleY":  8, "amplitude": 1.0 }
+					{ "type": "smooth", "scale": 32, "amplitude": 4.0 },
+					{ "type": "smooth", "scale": 16, "amplitude": 2.0 },
+					{ "type": "smooth", "scale":  8, "amplitude": 1.0 }
 				]
 			}
 		}

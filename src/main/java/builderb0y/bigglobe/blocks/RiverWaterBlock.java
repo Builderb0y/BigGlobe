@@ -93,7 +93,7 @@ public class RiverWaterBlock extends FluidBlock {
 	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		super.randomDisplayTick(state, world, pos, random);
 		if (world.isClient && ClientState.dangerousRapids) {
-			if (random.nextInt(16) == 0) {
+			if (random.nextInt(64) == 0) {
 				world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
 			}
 			if (world.getBlockState(pos.up()).getBlock() != this) {

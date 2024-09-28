@@ -39,7 +39,9 @@ changelog:
 	* Fixed nether fungi not growing into Big Globe trees when bonemealed.
 	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
 	* Some structures are now more likely to spawn in hilly areas.
+	* Reduced sounds from rivers again.
 	* Fixed bug causing a bunch of images to be created in .minecraft/bigglobe_dependency_graphs when the config option which controls this is disabled.
+	* Fixed end crystals spawned during worldgen showing the base plate.
 	# For data pack makers:
 	* Scripts can now be declared in files in addition to being embedded in json.
 	* Scripts can now include code from multiple files.

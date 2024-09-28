@@ -7,13 +7,13 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth", "scaleX": 4096, "scaleY": 4096, "amplitude": 0.5 },
-			{ "type": "smooth", "scaleX": 2048, "scaleY": 2048, "amplitude": 0.25 },
-			{ "type": "smooth", "scaleX": 1024, "scaleY": 1024, "amplitude": 0.125 },
-			{ "type": "smooth", "scaleX":  512, "scaleY":  512, "amplitude": 0.0625 },
-			{ "type": "smooth", "scaleX":  256, "scaleY":  256, "amplitude": 0.03125 },
-			{ "type": "smooth", "scaleX":  128, "scaleY":  128, "amplitude": 0.015625 },
-			{ "type": "smooth", "scaleX":   64, "scaleY":   64, "amplitude": 0.0078125 }
+			{ "type": "smooth", "scale": 4096, "amplitude": 0.5 },
+			{ "type": "smooth", "scale": 2048, "amplitude": 0.25 },
+			{ "type": "smooth", "scale": 1024, "amplitude": 0.125 },
+			{ "type": "smooth", "scale":  512, "amplitude": 0.0625 },
+			{ "type": "smooth", "scale":  256, "amplitude": 0.03125 },
+			{ "type": "smooth", "scale":  128, "amplitude": 0.015625 },
+			{ "type": "smooth", "scale":   64, "amplitude": 0.0078125 }
 		]
 	}
 }

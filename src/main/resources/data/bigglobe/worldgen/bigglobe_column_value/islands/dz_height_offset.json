@@ -8,10 +8,10 @@
 		"type": "sum",
 		"salt": "island_height_offset",
 		"layers": [
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 97.65625 }, "scaleX": 512, "scaleY": 512 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scaleX": 256, "scaleY": 256 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scaleX": 128, "scaleY": 128 },
-			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scaleX":  64, "scaleY":  64 }
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 97.65625 }, "scale": 512 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 39.0625  }, "scale": 256 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 15.625   }, "scale": 128 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  6.25    }, "scale":  64 }
 		]
 	}
 }
