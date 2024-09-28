@@ -34,7 +34,7 @@ public class TraitLoader {
 		Map<RegistryEntry<WorldTrait>, WorldTraitProvider> result = new HashMap<>(32);
 		TraitLoadingException failure = null;
 		for (Resource resource : resources) {
-			context.logger().logMessageLazy(() -> "Loading traits from " + resource.getPackId());
+			context.logger().logMessageLazy(() -> "Loading traits from " + resource.#if MC_VERSION >= MC_1_20_5 getPackId() #else getResourcePackName() #endif);
 			try (BufferedReader reader = resource.getReader()) {
 				T_Encoded data = JsonOps.INSTANCE.convertTo(context.ops, JsonParser.parseReader(reader));
 				result.putAll(context.input(data).decodeWith(MAP_CODER));

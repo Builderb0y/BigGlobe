@@ -36,11 +36,12 @@
 			"components.=$`minecraft:damage`(damage).=`minecraft:max_damage`(maxDamage)",
 		")",
 		"else (",
-			"int damage = nbt.Damage.asInt()",
-			"int maxDamage = nbt.MaxDamage.asInt()",
+			"int damage = nbt.tag.Damage.?asInt() ?: 0",
+			"int maxDamage = nbt.tag.MaxDamage.?asInt() ?: 0",
 			"damage -= string",
 			"if (damage < 0: maxDamage -= (damage =: 0))",
-			"nbt.=$Damage(damage).=MaxDamage(maxDamage)",
+			"Nbt tag = nbt.tag ?: (nbt.tag := nbtCompound())",
+			"tag.=$Damage(damage).=$MaxDamage(maxDamage)",
 		")",
 		"return(ItemStack.new(nbt))"
 	]
