@@ -15,7 +15,7 @@ public class ScriptFileResolver {
 			throw new IllegalArgumentException("No, you may not access parent directories this way.");
 		}
 		Identifier full = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_script_files/" + identifier.getPath() + ".gs");
-		try (BufferedReader reader = BigGlobeMod.getResourceFactory().openAsReader(full)) {
+		try (BufferedReader reader = BigGlobeMod.getResourceManager().openAsReader(full)) {
 			StringWriter writer = new StringWriter(1024);
 			reader.transferTo(writer);
 			return writer.toString();

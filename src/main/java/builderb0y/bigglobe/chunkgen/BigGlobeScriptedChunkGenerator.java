@@ -93,6 +93,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
@@ -129,6 +130,7 @@ import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 @AddPseudoField("biome_source")
+@AddPseudoField("decodeContext")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
@@ -198,7 +200,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		) {}
 	}
 	public final @VerifyNullable EndOverrides end_overrides;
-	public final @VerifyNullable Map<RegistryEntry<WorldTrait>, WorldTraitProvider> world_traits;
+	public final @VerifyNullable Identifier world_traits;
+	public final transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
 	public final transient WorldTraits compiledWorldTraits;
 
 	public transient SortedOverriders actualOverriders;
@@ -210,6 +213,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 
 	public BigGlobeScriptedChunkGenerator(
+		DecodeContext<?> decodeContext,
 		@VerifyNullable String reload_preset,
 		@VerifyNullable String reload_dimension,
 		Height height,
@@ -221,7 +225,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
-		@VerifyNullable Map<RegistryEntry<WorldTrait>, WorldTraitProvider> world_traits,
+		@VerifyNullable Identifier world_traits,
 		SortedStructures sortedStructures
 	)
 	throws VerifyException {
@@ -242,7 +246,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.end_overrides       = end_overrides;
 		this.world_traits        = world_traits;
 		this.sortedStructures    = sortedStructures;
-		this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(world_traits);
+		this.loadedWorldTraits   = TraitLoader.load(world_traits, decodeContext);
+		this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.loadedWorldTraits);
 		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
 		WorldTraits traits = this.compiledWorldTraits;
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
@@ -280,6 +285,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.nether_overrides    = from.nether_overrides;
 		this.end_overrides       = from.end_overrides;
 		this.world_traits        = from.world_traits;
+		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;
 		this.sortedStructures    = from.sortedStructures;
 		ScriptedColumn.Factory factory = from.columnEntryRegistry.columnFactory;
@@ -317,6 +323,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		copy.columnSeed = seed;
 		copy.seedSet = true;
 		return copy;
+	}
+
+	/** used by pseudo-field. */
+	public DecodeContext<?> decodeContext() {
+		return null;
 	}
 
 	public BiomeSource biome_source() {

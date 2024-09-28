@@ -159,7 +159,7 @@ public class ExternalData {
 		if (id.contains("..")) throw new IOException("No, you may not access parent directories this way.");
 		Identifier identifier = IdentifierVersions.create(id);
 		identifier = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".dat");
-		try (InputStream stream = BigGlobeMod.getResourceFactory().open(identifier)) {
+		try (InputStream stream = BigGlobeMod.getResourceManager().open(identifier)) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 			stream.transferTo(baos);
 			return new ExternalData(baos.toByteArray());

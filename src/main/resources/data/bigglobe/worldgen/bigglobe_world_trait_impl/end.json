@@ -1,0 +1,5 @@
+{
+	"bigglobe:biome": "`bigglobe:end/surface`.biome",
+	"bigglobe:max_y": " 512I",
+	"bigglobe:min_y": "-512I"
+}

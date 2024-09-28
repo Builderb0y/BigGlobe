@@ -25,11 +25,14 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
-	ability to load generator traits from external file.
 	"scale" alias for scaleXYZ in grids.
+		make use of this.
+		test this.
+		document this.
 
 to finish before release:
 	script includes/custom files need to work for synced scripts.
+	document loading traits from multiple data packs.
 
 changelog:
 	# For regular players:
@@ -40,6 +43,7 @@ changelog:
 	# For data pack makers:
 	* Scripts can now be declared in files in addition to being embedded in json.
 	* Scripts can now include code from multiple files.
+	* Chunk generators can now load world traits from files provided by multiple data packs.
 
 alternate world presets:
 	paradise.

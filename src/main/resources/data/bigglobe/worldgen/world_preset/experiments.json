@@ -306,54 +306,7 @@
 					"max_y":  1024,
 					"sea_level": 0
 				},
-				"world_traits": {
-					"bigglobe:biome":                    "`bigglobe:islands/biome`",
-					"bigglobe:cave_decorator":           "`bigglobe:islands/cave`.decorator",
-					"bigglobe:cave_dungeon_decorator":   "`bigglobe:islands/cave`.dungeon_feature",
-					"bigglobe:cave_min_y":               "-384I",
-					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
-					"bigglobe:cave_surface_data":        "IslandCaveCell*(cell := `bigglobe:islands/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
-					"bigglobe:core_min_y":               "-912I",
-					"bigglobe:core_max_y":               "-784I",
-					"bigglobe:deep_dark_min_y":          "-752I",
-					"bigglobe:deep_dark_max_y":          "-624I",
-					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
-					"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
-					"bigglobe:hilliness":                "`bigglobe:islands/is_floating` ? `bigglobe:islands/skyland_hilliness` : `bigglobe:islands/mountainness`",
-					"bigglobe:lake_y":                   "`bigglobe:islands/has_skylands` ? `bigglobe:islands/skyland_top` : `bigglobe:islands/basic_surface_height`",
-					"bigglobe:lava_y":                   "-896I",
-					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
-					"bigglobe:max_y":                    " 1024I",
-					"bigglobe:min_y":                    "-1024I",
-					"bigglobe:sea_level":                "0I",
-					"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
-					"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
-					"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
-					"bigglobe:approximate_surface_y": {
-						"get": "`bigglobe:islands/basic_surface_height`",
-						"set": "`bigglobe:islands/basic_surface_height` = value"
-					},
-					"bigglobe:automatic_snow_y": {
-						"get": "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_snow_y` : `bigglobe:islands/snow_height`",
-						"set": "if (`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128: `bigglobe:islands/skyland_snow_y` = value) else (`bigglobe:islands/snow_height` = value)"
-					},
-					"bigglobe:automatic_surface_y": {
-						"get": "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_top` : `bigglobe:islands/eroded_surface_height`",
-						"set": "if (`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128: `bigglobe:islands/skyland_top` = value) else (`bigglobe:islands/eroded_surface_height` = value)"
-					},
-					"bigglobe:cave_noise": {
-						"get": "`bigglobe:islands/cave_noise`(y)",
-						"set": "`bigglobe:islands/cave_noise`(y) = value"
-					},
-					"bigglobe:exact_surface_y": {
-						"get": "`bigglobe:islands/eroded_surface_height`",
-						"set": "`bigglobe:islands/eroded_surface_height` = value"
-					},
-					"bigglobe:snow_y": {
-						"get": "`bigglobe:islands/snow_height`",
-						"set": "`bigglobe:islands/snow_height` = value"
-					}
-				},
+				"world_traits": "bigglobe:islands",
 				"layer": {
 					"state": "'minecraft:air'",
 					"children": [

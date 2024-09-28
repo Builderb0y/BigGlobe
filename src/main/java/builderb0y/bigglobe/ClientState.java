@@ -340,9 +340,9 @@ public class ClientState {
 			this.grassColor = generator.colors != null ? generator.colors.grass() : null;
 			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
 			this.waterColor = generator.colors != null ? generator.colors.water() : null;
-			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.world_traits.size() : 0);
+			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
 			if (generator.world_traits != null) {
-				for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : generator.world_traits.entrySet()) {
+				for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : generator.loadedWorldTraits.entrySet()) {
 					if (syncing.worldTraits.containsKey(UnregisteredObjectException.getID(entry.getKey()))) {
 						this.worldTraits.put(entry.getKey(), entry.getValue());
 					}

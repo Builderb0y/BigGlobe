@@ -10,53 +10,7 @@
 					"max_y":  1024,
 					"sea_level": 0
 				},
-				"world_traits": {
-					"bigglobe:biome":                    "`bigglobe:overworld/biome`",
-					"bigglobe:cave_decorator":           "`bigglobe:overworld/cave`.decorator",
-					"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave`.dungeon_feature",
-					"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/processed_surface_y` - `bigglobe:overworld/cave`.depth)",
-					"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
-					"bigglobe:cave_surface_data":        "OverworldCaveCell*(cell := `bigglobe:overworld/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
-					"bigglobe:core_min_y":               "-912I",
-					"bigglobe:core_max_y":               "-784I",
-					"bigglobe:deep_dark_min_y":          "-752I",
-					"bigglobe:deep_dark_max_y":          "-624I",
-					"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw_foliage`",
-					"bigglobe:has_skylands":             "SkylandBounds*(bounds := `bigglobe:overworld/skyland`.bounds) != null && bounds.max_y > bounds.min_y",
-					"bigglobe:hilliness":                "`bigglobe:overworld/hilliness`",
-					"bigglobe:lava_y":                   "-896I",
-					"bigglobe:magicalness":              "`bigglobe:overworld/magicalness`",
-					"bigglobe:min_y":                    "-1024I",
-					"bigglobe:max_y":                    " 1024I",
-					"bigglobe:sea_level":                "0I",
-					"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
-					"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
-					"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
-					"bigglobe:approximate_surface_y": {
-						"get": "`bigglobe:overworld/basic_surface_y`",
-						"set": "`bigglobe:overworld/basic_surface_y` = value"
-					},
-					"bigglobe:automatic_snow_y": {
-						"get": "`bigglobe:overworld/snow_y`",
-						"set": "`bigglobe:overworld/snow_y` = value"
-					},
-					"bigglobe:automatic_surface_y": {
-						"get": "`bigglobe:overworld/processed_surface_y`",
-						"set": "`bigglobe:overworld/processed_surface_y` = value"
-					},
-					"bigglobe:cave_noise": {
-						"get": "`bigglobe:overworld/cave`.noise(y)",
-						"set": "`bigglobe:overworld/cave`.noise(y) = value"
-					},
-					"bigglobe:exact_surface_y": {
-						"get": "`bigglobe:overworld/processed_surface_y`",
-						"set": "`bigglobe:overworld/processed_surface_y` = value"
-					},
-					"bigglobe:snow_y": {
-						"get": "`bigglobe:overworld/snow_y`",
-						"set": "`bigglobe:overworld/snow_y` = value"
-					}
-				},
+				"world_traits": "bigglobe:overworld",
 				"layer": {
 					"state": "'minecraft:air'",
 					"children": [
@@ -243,14 +197,7 @@
 				"nether_overrides": {
 					"place_portal_at_high_y_level": true
 				},
-				"world_traits": {
-					"bigglobe:biome":              "`bigglobe:nether/bubble`.biome",
-					"bigglobe:lava_y":             "`bigglobe:nether/bubble`.lava_level",
-					"bigglobe:max_y":              "1024I",
-					"bigglobe:min_y":              "0I",
-					"bigglobe:y_level_in_surface": "1023I",
-					"bigglobe:y_level_on_surface": "1024I"
-				},
+				"world_traits": "bigglobe:nether",
 				"layer": {
 					"state": "`bigglobe:nether/bubble`.filler",
 					"children": [
@@ -308,11 +255,7 @@
 					"min_y": -512,
 					"max_y":  512
 				},
-				"world_traits": {
-					"bigglobe:biome": "`bigglobe:end/surface`.biome",
-					"bigglobe:max_y": " 512I",
-					"bigglobe:min_y": "-512I"
-				},
+				"world_traits": "bigglobe:end",
 				"layer": {
 					"state": "'minecraft:air'",
 					"children": [

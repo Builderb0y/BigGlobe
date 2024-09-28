@@ -2,7 +2,12 @@ package builderb0y.bigglobe;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.Lifecycle;
@@ -20,7 +25,9 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.ResourceFactory;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourcePack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionOptions;
@@ -69,7 +76,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static MinecraftServer currentServer;
 	public static BetterRegistry.Lookup currentRegistries;
-	public static ResourceFactory currentResourceFactory;
+	public static ResourceManager currentResourceManager;
 
 	@Override
 	public void onInitialize() {
@@ -113,12 +120,12 @@ public class BigGlobeMod implements ModInitializer {
 					return new BetterHardCodedRegistry<>(server.getRegistryManager().get(key));
 				}
 			};
-			currentResourceFactory = (Identifier identifier) -> server.getResourceManager().getResource(identifier);
+			currentResourceManager = new DelegatingResourceManager(server::getResourceManager);
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
 			currentServer = null;
 			currentRegistries = null;
-			currentResourceFactory = null;
+			currentResourceManager = null;
 		});
 		if (REGEN_WORLDS) {
 			LOGGER.error("################################################################");
@@ -152,8 +159,8 @@ public class BigGlobeMod implements ModInitializer {
 		return getCurrentRegistries().getRegistry((RegistryKey<Registry<T>>)(key));
 	}
 
-	public static ResourceFactory getResourceFactory() {
-		if (currentResourceFactory != null) return currentResourceFactory;
+	public static ResourceManager getResourceManager() {
+		if (currentResourceManager != null) return currentResourceManager;
 		else throw new IllegalStateException("Resources not available at this time.");
 	}
 
@@ -196,6 +203,45 @@ public class BigGlobeMod implements ModInitializer {
 					LOGGER.error("Could not delete " + toDelete, exception);
 				}
 			});
+		}
+	}
+
+	public static class DelegatingResourceManager implements ResourceManager {
+
+		public final Supplier<ResourceManager> delegate;
+
+		public DelegatingResourceManager(Supplier<ResourceManager> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<String> getAllNamespaces() {
+			return this.delegate.get().getAllNamespaces();
+		}
+
+		@Override
+		public List<Resource> getAllResources(Identifier id) {
+			return this.delegate.get().getAllResources(id);
+		}
+
+		@Override
+		public Map<Identifier, Resource> findResources(String startingPath, Predicate<Identifier> allowedPathPredicate) {
+			return this.delegate.get().findResources(startingPath, allowedPathPredicate);
+		}
+
+		@Override
+		public Map<Identifier, List<Resource>> findAllResources(String startingPath, Predicate<Identifier> allowedPathPredicate) {
+			return this.delegate.get().findAllResources(startingPath, allowedPathPredicate);
+		}
+
+		@Override
+		public Stream<ResourcePack> streamResourcePacks() {
+			return this.delegate.get().streamResourcePacks();
+		}
+
+		@Override
+		public Optional<Resource> getResource(Identifier id) {
+			return this.delegate.get().getResource(id);
 		}
 	}
 }

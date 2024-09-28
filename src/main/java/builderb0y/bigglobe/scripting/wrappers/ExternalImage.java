@@ -107,7 +107,7 @@ public class ExternalImage {
 		if (id.contains("..")) throw new IOException("No, you may not access parent directories this way.");
 		Identifier identifier = IdentifierVersions.create(id);
 		identifier = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_external/" + identifier.getPath() + ".png");
-		try (InputStream stream = BigGlobeMod.getResourceFactory().open(identifier)) {
+		try (InputStream stream = BigGlobeMod.getResourceManager().open(identifier)) {
 			BufferedImage image = ImageIO.read(stream);
 			int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 			return new ExternalImage(image.getWidth(), image.getHeight(), pixels);
