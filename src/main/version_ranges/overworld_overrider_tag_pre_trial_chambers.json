@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:overworld/column_value/0_lake",
 		"bigglobe:overworld/column_value/ancient_city",
 		"bigglobe:overworld/column_value/bigger_desert_pyramid",
 		"bigglobe:overworld/column_value/campfire",
@@ -8,7 +9,6 @@
 		"bigglobe:overworld/column_value/dungeon",
 		"bigglobe:overworld/column_value/igloo",
 		"bigglobe:overworld/column_value/jigsaw",
-		"bigglobe:overworld/column_value/0_lake",
 		"bigglobe:overworld/column_value/medium_large_house",
 		"bigglobe:overworld/column_value/ocean_monument",
 		"bigglobe:overworld/column_value/small_house",

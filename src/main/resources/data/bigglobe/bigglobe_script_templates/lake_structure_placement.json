@@ -1,11 +1,11 @@
 {
 	"script": [
-		"double*(minSample = `bigglobe:overworld/basic_surface_y`, maxSample = minSample)",
+		"double*(minSample = world_traits.`bigglobe:lake_y`, maxSample = minSample)",
 		"for (int angleIndex in range[0, 8):",
 			"double angle = angleIndex * (tau / 8.0L)",
 			"int sampleX = floorInt(originX + cos(angle) * RADIUS)",
 			"int sampleZ = floorInt(originZ + sin(angle) * RADIUS)",
-			"double sampleY = `bigglobe:overworld/basic_surface_y`(sampleX, sampleZ)",
+			"double sampleY = world_traits.`bigglobe:lake_y`(sampleX, sampleZ)",
 			"minSample = min(minSample, sampleY)",
 			"maxSample = max(maxSample, sampleY)",
 		")",

@@ -28,7 +28,24 @@ if (`bigglobe:islands/is_volcano`:
 	)
 )
 
-if (states.surfaceState ==. 'minecraft:blackstone':
+if (`bigglobe:overworld/lake_surface_states` != null:
+	setBlockStates(
+		surfaceY - (seed := seed.newSeed()).nextInt(3, 7),
+		surfaceY,
+		`bigglobe:overworld/lake_surface_states`.under
+	)
+)
+
+if (`bigglobe:overworld/lake_surface_states` != null:
+	if (int*(depth := int(rawDepth)) > 0:
+		setBlockStates(
+			surfaceY - depth,
+			surfaceY,
+			`bigglobe:overworld/lake_surface_states`.top
+		)
+	)
+)
+else if (states.surfaceState ==. 'minecraft:blackstone':
 	int limit = surfaceY - int(rawDepth)
 	int segmentTop = surfaceY - 1
 	while (segmentTop >= limit:

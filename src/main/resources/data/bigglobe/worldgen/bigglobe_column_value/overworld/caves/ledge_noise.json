@@ -12,7 +12,7 @@
 		]
 	},
 	"valid": {
-		"min_y": "floorInt(`bigglobe:overworld/basic_surface_y` - depth) + 1",
-		"max_y": "floorInt(`bigglobe:overworld/processed_surface_y`) + 1"
+		"min_y": "world_traits.`bigglobe:cave_min_y`",
+		"max_y": "world_traits.`bigglobe:cave_max_y`"
 	}
 }

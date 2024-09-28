@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:overworld/column_value/0_lake",
 		"bigglobe:overworld/column_value/ancient_city",
 		"bigglobe:overworld/column_value/bigger_desert_pyramid",
 		"bigglobe:overworld/column_value/campfire",

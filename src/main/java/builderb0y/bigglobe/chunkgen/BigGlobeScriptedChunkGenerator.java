@@ -48,10 +48,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.StructureTerrainAdaptation;
@@ -579,7 +576,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 					int baseY = coord << 4;
 					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
 					BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
-					if (centerState != null) context.setAllStates(centerState);
+					if (centerState != null) context.setAllStates(centerState, distantHorizons);
 					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 						BlockSegmentList list = lists[horizontalIndex];
 						int size = list.size();

@@ -8,6 +8,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.*;
 
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.util.Tripwire;
 
@@ -67,7 +68,7 @@ public class SectionGenerationContext {
 		SectionUtil.setRandomTickingFluids(this.section(), nonEmptyFluids);
 	}
 
-	public void setAllStates(BlockState state) {
+	public void setAllStates(BlockState state, boolean distantHorizons) {
 		if (this.palette() instanceof SingularPalette_EntryAccess singular) {
 			//how to set 4096 blocks in one operation.
 			singular.bigglobe_setEntry(state);
@@ -77,7 +78,11 @@ public class SectionGenerationContext {
 			//if for any reason the call happens at the wrong time,
 			//or another mod changes how palettes work,
 			//we should still handle those cases sanely.
-			if (Tripwire.isEnabled()) {
+			//
+			//note: distant horizons changes the order which chunk statuses are generated in,
+			//causing feature and empty chunks to generate adjacent to each other.
+			//the features spill over into empty chunks, causing them to no longer be empty.
+			if (Tripwire.isEnabled() && !distantHorizons) {
 				Tripwire.logWithStackTrace(this + " does not have a SingularPalette.");
 			}
 			long payload = this.id(state);

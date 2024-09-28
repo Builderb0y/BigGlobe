@@ -25,6 +25,8 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
+	ability to load generator traits from external file.
+	"scale" alias for scaleXYZ in grids.
 
 to finish before release:
 	script includes/custom files need to work for synced scripts.
@@ -43,9 +45,7 @@ alternate world presets:
 	paradise.
 	islands:
 		features.
-			stuff on the underside of skylands.
 		structures.
-			deal with structures on skylands.
 			prevent ancient cities from spawning in volcanoes.
 			lakes on skylands.
 		clouds somewhere.
@@ -62,6 +62,7 @@ breaking changes I want to make:
 		lod (byte)
 		minY, maxY
 		purpose (enum with auto-casting)
+			generic, raw, features, heightmap.
 	rename cavern-related overworld column values to "deep dark".
 	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z

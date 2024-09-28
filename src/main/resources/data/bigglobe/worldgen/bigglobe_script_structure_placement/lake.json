@@ -8,7 +8,7 @@
 		":",
 			"double distance = sqrt((x - piece.midX) ^ 2 + (z - piece.midZ) ^ 2)",
 			"if (distance < radius:",
-				"for (int y in range[ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)), piece.maxY - 4):",
+				"for (int y in range[ceilInt(world_traits.`bigglobe:automatic_surface_y`(x, piece.minY, z)), piece.maxY - 4):",
 					"setBlockState(x, y, z, fluid)",
 				")",
 			")",

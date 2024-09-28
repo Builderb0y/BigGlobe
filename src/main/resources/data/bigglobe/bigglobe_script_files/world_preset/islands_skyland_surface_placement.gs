@@ -11,12 +11,31 @@ int depth = floorInt(
 	- (slopeSquared * 3.0L)
 )
 
-boolean hadBlock = false
-for (int y in -range[surfaceY - depth, surfaceY):
-	BlockState state = getBlockState(y)
-	if (state == null: break())
-	hadBlock = (state !=. 'minecraft:air').if (
-		setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)
+if (`bigglobe:overworld/lake_surface_states` != null:
+	setBlockStates(
+		surfaceY - (seed := seed.newSeed()).nextInt(3, 7),
+		surfaceY,
+		`bigglobe:overworld/lake_surface_states`.under
+	)
+)
+
+if (depth > 0:
+	if (`bigglobe:overworld/lake_surface_states` != null:
+		setBlockStates(
+			surfaceY - depth,
+			surfaceY,
+			`bigglobe:overworld/lake_surface_states`.top
+		)
+	)
+	else (
+		boolean hadBlock = false
+		for (int y in -range[surfaceY - depth, surfaceY):
+			BlockState state = getBlockState(y)
+			if (state == null: break())
+			hadBlock = (state !=. 'minecraft:air').if (
+				setBlockState(y, hadBlock ? states.subsurfaceState : states.surfaceState)
+			)
+		)
 	)
 )
 

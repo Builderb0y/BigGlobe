@@ -320,6 +320,7 @@
 					"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
 					"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
 					"bigglobe:hilliness":                "`bigglobe:islands/is_floating` ? `bigglobe:islands/skyland_hilliness` : `bigglobe:islands/mountainness`",
+					"bigglobe:lake_y":                   "`bigglobe:islands/has_skylands` ? `bigglobe:islands/skyland_top` : `bigglobe:islands/basic_surface_height`",
 					"bigglobe:lava_y":                   "-896I",
 					"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
 					"bigglobe:max_y":                    " 1024I",
