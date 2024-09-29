@@ -1,0 +1,29 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"if (`bigglobe:islands/is_floating`(minModifiableX | 8, minModifiableZ | 8):",
+			"for (",
+				"int z in range[minModifiableZ, maxModifiableZ],",
+				"int x in range[minModifiableX, maxModifiableX]",
+			":",
+				"if (`bigglobe:islands/has_skylands`(x, z):",
+					"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
+					"Biome biome = world_traits.`bigglobe:biome`(x, y, z)",
+					"if (biome.isIn('bigglobe:hot'):",
+						"random.if (",
+							"float chance = max(`bigglobe:islands/raw_foliage`(x, z) * 2.0I + 1.0I, 0.0I)",
+							"chance * 0.03125I / (chance + 1.0I)",
+						":",
+							"placeFeature(x, y, z, 'bigglobe:overworld/cactus')",
+						")",
+					")",
+					"else unless (biome.isIn('bigglobe:cold'):",
+						"random.if ((`bigglobe:islands/raw_foliage`(x, z) - 0.5I) * 0.125I:",
+							"placeFeature(x, y, z, 'bigglobe:overworld/bamboo')",
+						")",
+					")",
+				")",
+			")",
+		")"
+	]
+}

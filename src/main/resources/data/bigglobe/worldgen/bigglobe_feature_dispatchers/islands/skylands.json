@@ -2,6 +2,9 @@
 	"type": "group",
 	"dispatchers": [
 		"bigglobe:islands/skyland_trees",
+		"bigglobe:islands/skyland_bushes",
+		"bigglobe:islands/skyland_medium_foliage",
+		"bigglobe:islands/skyland_surface_materials",
 		"bigglobe:islands/skyland_amethyst",
 		"bigglobe:islands/skyland_hanging_roots"
 	]

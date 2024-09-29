@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"if (`bigglobe:islands/has_skylands`(minModifiableX | 8, minModifiableZ | 8):",
+			"repeat (random.roundInt(`bigglobe:islands/raw_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
+				"int*(",
+					"x = minModifiableX | random.nextInt(16)",
+					"z = minModifiableZ | random.nextInt(16)",
+				")",
+				"if (`bigglobe:islands/raw_foliage`(x, z) > 0.0L:",
+					"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
+					"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
+				")",
+			")",
+		")"
+	]
+}

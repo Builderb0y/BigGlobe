@@ -3,7 +3,6 @@
 	"dispatchers": [
 		"bigglobe:overworld/flowers",
 		"bigglobe:islands/surface_materials",
-		"bigglobe:islands/skyland_surface_materials",
 		"bigglobe:islands/small_foliage"
 	]
 }

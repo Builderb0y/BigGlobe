@@ -132,8 +132,12 @@ public abstract class AbstractVoxyWorldGenerator {
 				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to world closing.");
 				break;
 			}
-			if (BigGlobeThreadPool.isBusy() || !this.generateNextChunk()) try {
-				Thread.sleep(500L);
+			if (BigGlobeThreadPool.isBusy()) try {
+				Thread.sleep(100L);
+			}
+			catch (InterruptedException ignored) {}
+			if (!this.generateNextChunk()) try {
+				Thread.sleep(1000L);
 			}
 			catch (InterruptedException ignored) {}
 			failures = 0;

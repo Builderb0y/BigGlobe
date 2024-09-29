@@ -1,0 +1,15 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": [
+			"(",
+				"`bigglobe:islands/is_floating` &&",
+				"y >= world_traits.`bigglobe:sea_level` + 128",
+			")",
+			"? 1.0L",
+			": unmixSmooth(4.0L, 8.0L, world_traits.`bigglobe:exact_surface_y`)"
+		]
+	},
+	"if_true": "bigglobe:overworld/wood_palette/test_hot",
+	"if_false": "bigglobe:overworld/wood_palette/none"
+}

@@ -20,6 +20,7 @@
 	"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
 	"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
+	"bigglobe:wood_palette":             "`bigglobe:overworld/wood_palette`",
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:overworld/basic_surface_y`",
 		"set": "`bigglobe:overworld/basic_surface_y` = value"

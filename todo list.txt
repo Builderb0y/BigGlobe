@@ -25,14 +25,12 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
-	"scale" alias for scaleXYZ in grids.
-		make use of this.
-		test this.
-		document this.
+	move strongholds from the cave Y range to the "between deep dark and caves" Y range.
+		remove cave overrider for strongholds.
 
 to finish before release:
-	script includes/custom files need to work for synced scripts.
 	document loading traits from multiple data packs.
+	document new "scale" alias for grids.
 
 changelog:
 	# For regular players:
@@ -54,9 +52,7 @@ alternate world presets:
 		features.
 		structures.
 			prevent ancient cities from spawning in volcanoes.
-			lakes on skylands.
 		clouds somewhere.
-		cave excluder near the surface in beaches and oceans.
 		deal with ores in skylands.
 
 breaking changes I want to make:

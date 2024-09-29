@@ -25,7 +25,7 @@
 					"`bigglobe:overworld/processed_surface_y`,",
 					"y",
 				"))",
-				"if (topExclusion > 0.0I: curve += topExclusion ^ 2)",
+				"if (topExclusion > 0.0I: curve += topExclusion ^ 2 * `bigglobe:overworld/beach_cave_exclusion`)",
 			")",
 			"return(curve)",
 		")",

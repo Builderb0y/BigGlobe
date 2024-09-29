@@ -122,6 +122,10 @@ public class EvaluateCommand {
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						environment
+						.addVariableLoad("originX", TypeInfos.INT)
+						.addVariableLoad("originY", TypeInfos.INT)
+						.addVariableLoad("originZ", TypeInfos.INT);
 						registry.setupExternalEnvironment(
 							environment,
 							new ExternalEnvironmentParams()

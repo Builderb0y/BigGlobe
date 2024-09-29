@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:decision_tree",
+	"params": {
+		"type": "wood_palette",
+		"is_3d": true
+	},
+	"root": "bigglobe:islands/wood_palette/test_skylands",
+	"cache": false
+}

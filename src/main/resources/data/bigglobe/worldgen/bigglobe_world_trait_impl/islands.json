@@ -21,6 +21,7 @@
 	"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
 	"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
+	"bigglobe:wood_palette":             "`bigglobe:islands/wood_palette`",
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:islands/basic_surface_height`",
 		"set": "`bigglobe:islands/basic_surface_height` = value"

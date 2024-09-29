@@ -1,7 +1,7 @@
 {
 	"condition": {
 		"type": "script_chance",
-		"script": "unmixSmooth(4.0I, 8.0I, world_traits.`bigglobe:exact_surface_y`)"
+		"script": "unmixSmooth(4.0L, 8.0L, world_traits.`bigglobe:exact_surface_y`)"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/test_hot",
 	"if_false": "bigglobe:overworld/wood_palette/none"

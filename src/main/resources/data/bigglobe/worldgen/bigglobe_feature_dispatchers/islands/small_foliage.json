@@ -5,10 +5,13 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"placeFeature(x, world_traits.`bigglobe:y_level_on_surface`(x, z), z, 'bigglobe:overworld/surface_small_foliage')",
-			"placeFeature(x, world_traits.`bigglobe:y_level_on_surface`(x, z), z, 'bigglobe:overworld/cherry_blossoms')",
+			"int surfaceY = world_traits.`bigglobe:y_level_on_surface`(x, z)",
+			"placeFeature(x, surfaceY, z, 'bigglobe:overworld/surface_small_foliage')",
+			"placeFeature(x, surfaceY, z, 'bigglobe:overworld/cherry_blossoms')",
 			"if (world_traits.`bigglobe:has_skylands`(x, z):",
-				"placeFeature(x, world_traits.`bigglobe:skyland_max_y`(x, z), z, 'bigglobe:overworld/surface_small_foliage')",
+				"surfaceY = world_traits.`bigglobe:skyland_max_y`(x, z)",
+				"placeFeature(x, surfaceY, z, 'bigglobe:overworld/surface_small_foliage')",
+				"placeFeature(x, surfaceY, z, 'bigglobe:overworld/cherry_blossoms')",
 			")",
 		")"
 	]
