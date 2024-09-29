@@ -438,7 +438,7 @@
 				},
 				"colors": {
 					"grass": {
-						"template": "bigglobe:block_color_adjustment",
+						"template": "bigglobe:islands_block_color_adjustment",
 						"inputs": {
 							"COLOR": [
 								"getDefaultGrassColor(",
@@ -449,7 +449,7 @@
 						}
 					},
 					"foliage": {
-						"template": "bigglobe:block_color_adjustment",
+						"template": "bigglobe:islands_block_color_adjustment",
 						"inputs": {
 							"COLOR": [
 								"getDefaultFoliageColor(",
@@ -460,7 +460,7 @@
 						}
 					},
 					"water": {
-						"template": "bigglobe:block_color_adjustment",
+						"template": "bigglobe:islands_block_color_adjustment",
 						"inputs": {
 							"COLOR": [
 								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",

@@ -25,6 +25,7 @@ public class ScriptChanceDecisionTreeCondition extends DecisionTreeCondition.Imp
 
 	public ScriptChanceDecisionTreeCondition(ScriptUsage script) {
 		this.script = script;
+		this.addAllDependencies(script);
 	}
 
 	@Override

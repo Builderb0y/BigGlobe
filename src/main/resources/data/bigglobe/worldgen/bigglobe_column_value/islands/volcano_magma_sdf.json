@@ -43,7 +43,7 @@
 		")",
 		"result += volcano_magma_noise * (1.0I - abs(result))",
 		"if (y >= island_height - 192.0L && result >= 0.0I:",
-			"result = 1.0I",
+			"result = mixLinear(result, 1.0I, unmixSmooth(island_height - 192.0L, island_height - 184.0L, y).as(float))",
 		")",
 		"result"
 	],

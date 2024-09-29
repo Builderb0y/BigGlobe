@@ -3,7 +3,6 @@ package builderb0y.bigglobe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
@@ -69,6 +68,8 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.input.ScriptFileResolver;
+import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedInclude;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.InfoHolder;
@@ -155,6 +156,7 @@ public class ClientState {
 		public static final AutoCoder<Syncing> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Syncing.class);
 
 		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees, worldTraits;
+		public Map<Identifier, String> includes;
 		public transient SimpleRegistry<ScriptTemplate> templateRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<ColumnEntry> columnEntryRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<VoronoiSettings> voronoiSettingsRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
@@ -162,12 +164,14 @@ public class ClientState {
 		public transient SimpleRegistry<WorldTrait> worldTraitRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
+			Map<Identifier, String>     includes,
 			Map<Identifier, NbtElement> templates,
 			Map<Identifier, NbtElement> columnEntries,
 			Map<Identifier, NbtElement> voronoiSettings,
 			Map<Identifier, NbtElement> decisionTrees,
 			Map<Identifier, NbtElement> worldTraits
 		) {
+			this.includes        = includes;
 			this.templates       = templates;
 			this.columnEntries   = columnEntries;
 			this.voronoiSettings = voronoiSettings;
@@ -177,14 +181,17 @@ public class ClientState {
 
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
-			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			if (generator.colors != null) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 				if (generator.colors.grass  () != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
 				if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
 				if (generator.colors.water  () != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
 				for (RegistryEntry<? extends DependencyView> entry : collector) {
-					if (entry.value() instanceof ScriptTemplate template) {
+					if (entry.value() instanceof ResolvedInclude include) {
+						this.includes.put(include.id(), include.source());
+					}
+					else if (entry.value() instanceof ScriptTemplate template) {
 						Registry.register(this.templateRegistry, UnregisteredObjectException.getID(entry), template);
 					}
 					else if (entry.value() instanceof ColumnEntry columnEntry) {
@@ -223,27 +230,33 @@ public class ClientState {
 		}
 
 		public void parse() throws DecodeException {
-			RegistryOps<NbtElement> ops = this.createOps(NbtOps.INSTANCE, true);
-			for (Map.Entry<Identifier, NbtElement> entry : this.templates.entrySet()) {
-				Registry.register(this.templateRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ScriptTemplate.CODER, entry.getValue(), ops));
+			try {
+				ScriptFileResolver.OVERRIDES.set(this.includes);
+				RegistryOps<NbtElement> ops = this.createOps(NbtOps.INSTANCE, true);
+				for (Map.Entry<Identifier, NbtElement> entry : this.templates.entrySet()) {
+					Registry.register(this.templateRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ScriptTemplate.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<Identifier, NbtElement> entry : this.columnEntries.entrySet()) {
+					Registry.register(this.columnEntryRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ColumnEntry.REGISTRY, entry.getValue(), ops));
+				}
+				for (Map.Entry<Identifier, NbtElement> entry : this.voronoiSettings.entrySet()) {
+					Registry.register(this.voronoiSettingsRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(VoronoiSettings.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<Identifier, NbtElement> entry : this.decisionTrees.entrySet()) {
+					Registry.register(this.decisionTreeRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(DecisionTreeSettings.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<Identifier, NbtElement> entry : this.worldTraits.entrySet()) {
+					Registry.register(this.worldTraitRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(WorldTrait.CODER, entry.getValue(), ops));
+				}
+				this.templateRegistry.freeze();
+				this.columnEntryRegistry.freeze();
+				this.voronoiSettingsRegistry.freeze();
+				this.decisionTreeRegistry.freeze();
+				this.worldTraitRegistry.freeze();
 			}
-			for (Map.Entry<Identifier, NbtElement> entry : this.columnEntries.entrySet()) {
-				Registry.register(this.columnEntryRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ColumnEntry.REGISTRY, entry.getValue(), ops));
+			finally {
+				ScriptFileResolver.OVERRIDES.set(null);
 			}
-			for (Map.Entry<Identifier, NbtElement> entry : this.voronoiSettings.entrySet()) {
-				Registry.register(this.voronoiSettingsRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(VoronoiSettings.CODER, entry.getValue(), ops));
-			}
-			for (Map.Entry<Identifier, NbtElement> entry : this.decisionTrees.entrySet()) {
-				Registry.register(this.decisionTreeRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(DecisionTreeSettings.CODER, entry.getValue(), ops));
-			}
-			for (Map.Entry<Identifier, NbtElement> entry : this.worldTraits.entrySet()) {
-				Registry.register(this.worldTraitRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(WorldTrait.CODER, entry.getValue(), ops));
-			}
-			this.templateRegistry.freeze();
-			this.columnEntryRegistry.freeze();
-			this.voronoiSettingsRegistry.freeze();
-			this.decisionTreeRegistry.freeze();
-			this.worldTraitRegistry.freeze();
 		}
 
 		@SuppressWarnings("unchecked")

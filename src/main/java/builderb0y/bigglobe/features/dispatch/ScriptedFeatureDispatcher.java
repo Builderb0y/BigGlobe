@@ -44,7 +44,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
 	@Override
 	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		return Stream.empty();
+		return this.dispatcher.usage.streamDirectDependencies();
 	}
 
 	public static interface ScriptedFeatureDispatcherImpl extends Script {

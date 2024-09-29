@@ -21,9 +21,21 @@ public interface DependencyView {
 		}
 	}
 
+	public static interface EmptyDependencyView extends SimpleDependencyView {
+
+		@Override
+		public default Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+			return Stream.empty();
+		}
+	}
+
 	public static interface MutableDependencyView extends DependencyView {
 
 		public abstract void addDependency(RegistryEntry<? extends DependencyView> entry);
+
+		public default void addAllDependencies(SimpleDependencyView dependency) {
+			dependency.streamDirectDependencies().forEach(this::addDependency);
+		}
 	}
 
 	public static interface SetBasedMutableDependencyView extends MutableDependencyView, SimpleDependencyView {

@@ -23,6 +23,7 @@ public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
 
 	public ScriptDecisionTreeCondition(ScriptUsage script) {
 		this.script = script;
+		this.addAllDependencies(script);
 	}
 
 	@Override

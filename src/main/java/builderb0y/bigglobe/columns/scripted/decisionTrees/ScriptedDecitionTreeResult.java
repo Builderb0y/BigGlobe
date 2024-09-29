@@ -28,6 +28,7 @@ public class ScriptedDecitionTreeResult implements DecisionTreeResult, SetBasedM
 
 	public ScriptedDecitionTreeResult(ScriptUsage script) {
 		this.script = script;
+		this.addAllDependencies(script);
 	}
 
 	@Override

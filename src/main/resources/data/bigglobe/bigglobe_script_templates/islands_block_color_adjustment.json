@@ -1,9 +1,9 @@
 {
 	"script": [
-		"adjustTint(COLOR)"
+		"adjustTintIslands(COLOR)"
 	],
 	"includes": [
-		"bigglobe:include/adjust_tint"
+		"bigglobe:include/adjust_tint_islands"
 	],
 	"inputs": [
 		{ "name": "COLOR", "type": "int" }

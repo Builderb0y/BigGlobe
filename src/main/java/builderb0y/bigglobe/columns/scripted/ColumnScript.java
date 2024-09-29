@@ -111,7 +111,7 @@ public interface ColumnScript extends Script {
 
 		public BaseHolder(ScriptUsage usage) {
 			super(usage);
-			if (usage.getTemplate() != null) this.dependencies.add(usage.getTemplate());
+			this.addAllDependencies(usage);
 		}
 
 		@Override

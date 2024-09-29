@@ -1,8 +1,7 @@
 package builderb0y.scripting.parsing.input;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
@@ -23,10 +22,13 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.TypelessCoderRegistry;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 
 @UseCoder(name = "CODER", in = ScriptUsage.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public abstract class ScriptUsage {
+public abstract class ScriptUsage implements SimpleDependencyView {
 
 	public static final TypelessCoderRegistry<ScriptUsage> CODER = new TypelessCoderRegistry<>(ReifiedType.from(ScriptUsage.class), BigGlobeAutoCodec.AUTO_CODEC) {
 
@@ -57,19 +59,37 @@ public abstract class ScriptUsage {
 	}
 
 	public final @VerifyNullable @IdentifierName String debug_name;
-	public final Identifier @VerifyNullable [] includes;
-	public final transient @Nullable String includeText;
+	public final @VerifyNullable ResolvedIncludes includes;
 
-	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name, Identifier @VerifyNullable [] includes) {
+	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name, @Nullable ResolvedIncludes includes) {
 		this.debug_name = debug_name;
 		this.includes = includes;
-		this.includeText = ScriptFileResolver.resolveIncludes(includes);
+	}
+
+	@Override
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		if (this.includes != null) {
+			if (this.getTemplate() != null) {
+				return Stream.concat(this.includes.streamDirectDependencies(), Stream.of(this.getTemplate()));
+			}
+			else {
+				return this.includes.streamDirectDependencies();
+			}
+		}
+		else {
+			if (this.getTemplate() != null) {
+				return Stream.of(this.getTemplate());
+			}
+			else {
+				return Stream.empty();
+			}
+		}
 	}
 
 	public abstract String getRawSource();
 
 	public String getSource() {
-		return this.includeText != null ? this.includeText + this.getRawSource() : this.getRawSource();
+		return this.includes != null ? this.includes.assemble(this.getRawSource()) : this.getRawSource();
 	}
 
 	public String getDebugName() {
