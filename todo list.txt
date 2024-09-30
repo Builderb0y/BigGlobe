@@ -27,11 +27,13 @@ where I left off:
 		do islands need height_adjusted_temperature/foliage?
 
 to finish before release:
-	document loading traits from multiple data packs.
-	document new "scale" alias for grids.
 
 changelog:
 	# For regular players:
+	* Added a new island world preset.
+		* This preset is experimental. Please report any bugs you find with it!
+		* Known issues:
+			* Worldgen is slower in this world type compared to the normal Big Globe world type.
 	* Fixed nether fungi not growing into Big Globe trees when bonemealed.
 	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
 	* Some structures are now more likely to spawn in hilly areas.
@@ -48,11 +50,9 @@ changelog:
 alternate world presets:
 	paradise.
 	islands:
-		features.
-		structures.
+		features:
+		structures:
 			prevent ancient cities from spawning in volcanoes.
-		clouds somewhere.
-		deal with ores in skylands.
 
 breaking changes I want to make:
 	better Purpose system.

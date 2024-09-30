@@ -1,0 +1,8 @@
+{
+	"type": "constant",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"value": 128.0
+}

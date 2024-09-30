@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:aura_infused_clouds",
+			"inputs": {
+				"MIN_Y": "higherInt(`bigglobe:islands/cloud_vertical_center` - `bigglobe:islands/cloud_vertical_limit`)",
+				"MAX_Y": "  ceilInt(`bigglobe:islands/cloud_vertical_center` + `bigglobe:islands/cloud_vertical_limit`)",
+				"HUE": [
+					"Island island = `bigglobe:islands/island`",
+					"double angle = atan2(originX - island.center_x, originZ - island.center_z)",
+					"angle * (16.0L * 12.0L / tau)"
+				]
+			}
+		}
+	}
+}

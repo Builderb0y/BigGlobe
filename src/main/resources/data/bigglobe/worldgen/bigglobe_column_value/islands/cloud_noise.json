@@ -1,0 +1,26 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "constant", "value": 0.5 },
+			{ "type": "smooth", "scale": 64, "amplitude":  0.25   },
+			{ "type": "smooth", "scale": 32, "amplitude":  0.1    },
+			{ "type": "smooth", "scale": 16, "amplitude":  0.04   },
+			{ "type": "smooth", "scale":  8, "amplitude":  0.016  },
+			{ "type": "smooth", "scale":  4, "amplitude":  0.0064 },
+			{ "type": "worley", "scale": 64, "amplitude": -1.0    },
+			{ "type": "worley", "scale": 32, "amplitude": -0.5    },
+			{ "type": "worley", "scale": 16, "amplitude": -0.25   }
+		]
+	},
+	"valid": {
+		"where": "is_floating && abs(island.soft_distance_squared - cloud_horizontal_center) < cloud_horizontal_extent",
+		"min_y": "higherInt(cloud_vertical_center - cloud_vertical_limit)",
+		"max_y": "  ceilInt(cloud_vertical_center + cloud_vertical_limit)"
+	}
+}

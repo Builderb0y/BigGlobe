@@ -1,0 +1,29 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"boolean valid(int*(x, z):",
+			"`bigglobe:islands/is_floating`(x, z)",
+			"&& abs(",
+				"`bigglobe:islands/island`(x, z).soft_distance_squared",
+				"- `bigglobe:islands/cloud_horizontal_center`(x, z)",
+			")",
+			"< `bigglobe:islands/cloud_horizontal_extent`(x, z)",
+		")",
+		"",
+		"if (",
+			"valid(minModifiableX, minModifiableZ) ||",
+			"valid(minModifiableX, maxModifiableZ) ||",
+			"valid(maxModifiableX, minModifiableZ) ||",
+			"valid(maxModifiableX, maxModifiableZ)",
+		":",
+			"for (",
+				"int z in range[minModifiableZ, maxModifiableZ],",
+				"int x in range[minModifiableX, maxModifiableX]",
+			":",
+				"if (valid(x, z):",
+					"placeFeature(x, 0, z, 'bigglobe:islands/aura_infused_clouds')",
+				")",
+			")",
+		")"
+	]
+}

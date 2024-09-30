@@ -23,3 +23,7 @@ accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lne
 accessible class net/minecraft/client/world/ClientChunkManager$ClientChunkMap
 accessible field net/minecraft/client/world/ClientChunkManager chunks Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
 accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
+
+#protected in 1.20.4, but private and package-private respectively in 1.20.2.
+accessible method net/minecraft/registry/entry/RegistryEntry$Reference <init> (Lnet/minecraft/registry/entry/RegistryEntry$Reference$Type;Lnet/minecraft/registry/entry/RegistryEntryOwner;Lnet/minecraft/registry/RegistryKey;Ljava/lang/Object;)V
+accessible class net/minecraft/registry/entry/RegistryEntry$Reference$Type

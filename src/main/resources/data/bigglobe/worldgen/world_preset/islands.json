@@ -1,0 +1,211 @@
+{
+	"dimensions": {
+		"minecraft:overworld": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"reload_preset": "islands",
+				"reload_dimension": "minecraft:overworld",
+				"biome_source": {
+					"type": "bigglobe:scripted",
+					"script": "`bigglobe:islands/biome`",
+					"all_possible_biomes": "bigglobe:overworld"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024,
+					"sea_level": 0
+				},
+				"world_traits": "bigglobe:islands",
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x8000_0000U"
+							},
+							"after_children": {
+								"file": "bigglobe:world_preset/islands_surface_placement",
+								"includes": [
+									"bigglobe:include/generate_snow"
+								]
+							},
+							"children": [
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "world_traits.`bigglobe:core_min_y`",
+										"max_y": "world_traits.`bigglobe:core_max_y`"
+									},
+									"children": [
+										{
+											"type": "simple_2d",
+											"state": "'minecraft:lava[level=0]'",
+											"valid": {
+												"max_y": "world_traits.`bigglobe:lava_y`"
+											}
+										}
+									]
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "world_traits.`bigglobe:deep_dark_min_y`",
+										"max_y": "world_traits.`bigglobe:deep_dark_max_y`"
+									}
+								},
+								{
+									"type": "multi_state_3d",
+									"state": [
+										"switch (",
+											"min(",
+												"clamp(-1I, 8I, int(`bigglobe:islands/volcano_magma_sdf` * 16.0I)),",
+												"clamp( 0I, 8I, int(unmixLinear(-896.0L, -768.0L, y + `bigglobe:islands/core_gradient_offset`) * 8.0L))",
+											")",
+										":",
+											"case (-1:",
+												"if (y >= `bigglobe:islands/island_height` - 192: 'minecraft:air')",
+												"else ('minecraft:lava[level=0]')",
+											")",
+											"case (0: 'bigglobe:molten_rock_8')",
+											"case (1: 'bigglobe:molten_rock_7')",
+											"case (2: 'bigglobe:molten_rock_6')",
+											"case (3: 'bigglobe:molten_rock_5')",
+											"case (4: 'bigglobe:molten_rock_4')",
+											"case (5: 'bigglobe:molten_rock_3')",
+											"case (6: 'bigglobe:molten_rock_2')",
+											"case (7: 'bigglobe:molten_rock_1')",
+											"default (null)",
+										")"
+									],
+									"valid": {
+										"where": "!surfaceOnly",
+										"max_y": "`bigglobe:islands/is_volcano` ? world_traits.`bigglobe:y_level_on_surface` : world_traits.`bigglobe:core_max_y`"
+									}
+								},
+								{
+									"type": "simple_3d",
+									"state": "'minecraft:air'",
+									"condition": "`bigglobe:islands/cave_noise` < 0.5I",
+									"after_children": {
+										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+									},
+									"valid": {
+										"where": "!surfaceOnly",
+										"min_y": "world_traits.`bigglobe:cave_min_y`",
+										"max_y": "world_traits.`bigglobe:cave_max_y`"
+									}
+								}
+							]
+						},
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:water[level=0]'",
+							"valid": {
+								"min_y": "world_traits.`bigglobe:y_level_on_surface`",
+								"max_y": "world_traits.`bigglobe:sea_level`"
+							}
+						},
+						{
+							"type": "simple_3d",
+							"state": "'bigglobe:cloud'",
+							"condition": "`bigglobe:islands/cloud_sdf` > 0.0I",
+							"valid": {
+								"where": "`bigglobe:islands/is_floating` && abs(`bigglobe:islands/island`.soft_distance_squared - `bigglobe:islands/cloud_horizontal_center`) < `bigglobe:islands/cloud_horizontal_extent`",
+								"min_y": "higherInt(`bigglobe:islands/cloud_vertical_center` - `bigglobe:islands/cloud_vertical_limit`)",
+								"max_y": "  ceilInt(`bigglobe:islands/cloud_vertical_center` + `bigglobe:islands/cloud_vertical_limit`)"
+							}
+						},
+						{
+							"type": "simple_2d",
+							"state": "'minecraft:stone'",
+							"valid": {
+								"where": "`bigglobe:islands/has_skylands`",
+								"min_y": "world_traits.`bigglobe:skyland_min_y`",
+								"max_y": "world_traits.`bigglobe:skyland_max_y`"
+							},
+							"after_children": {
+								"file": "bigglobe:world_preset/islands_skyland_surface_placement",
+								"includes": [
+									"bigglobe:include/generate_snow"
+								]
+							}
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [
+						"bigglobe:overworld/bedrock",
+						"bigglobe:overworld/cobblestone_sprinkle",
+						"#bigglobe:overworld/rock_layers",
+						"#bigglobe:islands/ores"
+					],
+					"raw": "bigglobe:islands/raw_root",
+					"normal": "bigglobe:islands/normal_root"
+				},
+				"overriders": "bigglobe:islands",
+				"spawn_point": {
+					"file": "bigglobe:world_preset/islands_spawn_point"
+				},
+				"colors": {
+					"grass": {
+						"template": "bigglobe:islands_block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"getDefaultGrassColor(",
+								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+								")"
+							]
+						}
+					},
+					"foliage": {
+						"template": "bigglobe:islands_block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"getDefaultFoliageColor(",
+								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
+								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+								")"
+							]
+						}
+					},
+					"water": {
+						"template": "bigglobe:islands_block_color_adjustment",
+						"inputs": {
+							"COLOR": [
+								"double temperature = 1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
+								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+							]
+						}
+					}
+				}
+			}
+		},
+
+		"minecraft:the_nether": {
+			"type": "bigglobe:nether",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"reload_dimension": "minecraft:the_nether"
+			}
+		},
+
+		"minecraft:the_end": {
+			"type": "bigglobe:nether",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"reload_dimension": "minecraft:the_end"
+			}
+		}
+	}
+}

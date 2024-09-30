@@ -2,6 +2,8 @@ Files in this directory are Grid instances. Fields:
 
 * `dimensions` - the number of dimensions in the grid. Can be anywhere from 1 to 3 (inclusive).
 	* Some grids have a "scale" parameter, and of these, most allow you to tweak the scale on the X, Y, and Z axis independently. To make writing this documentation easier, whenever I write `scaleX/Y/Z`, I mean there are separate fields for `scaleX`, `scaleY`, and `scaleZ`, up to the number of dimensions in the grid. For example, if the grid has 2 dimensions, then only `scaleX` and `scaleY` are valid, and `scaleZ` will be ignored. Note that most 2D grids are used horizontally in Minecraft, but X and Z are the horizontal axes in Minecraft, not X and Y. Despite this, 2D grids do NOT use `scaleX` and `scaleZ`. It is always `scaleX` and `scaleY`. Note also that `scaleY` is typically up/down for 3D grids.
+
+		**New in V4.4.0:** you can now also provide a single `scale` property, which applies to all X, Y, and Z. If `scale` and `scaleX/Y/Z` are both provided, `scaleX/Y/Z` takes priority.
 	* In most cases, the number of dimensions is implicit depending on where you're defining the grid. At the time of writing this, only grids in the "bigglobe_noise_sources" folder need to specify the number of dimensions.
 * `type` - how the values in this grid are computed.
 

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "(float(y - cloud_vertical_center) / float(cloud_vertical_limit)) ^ 2",
+	"cache": false
+}

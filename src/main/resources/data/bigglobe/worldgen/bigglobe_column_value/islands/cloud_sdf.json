@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "cloud_noise - cloud_horizontal_bias - cloud_vertical_bias",
+	"valid": {
+		"where": "is_floating && abs(island.soft_distance_squared - cloud_horizontal_center) < cloud_horizontal_extent",
+		"min_y": "higherInt(cloud_vertical_center - cloud_vertical_limit)",
+		"max_y": "  ceilInt(cloud_vertical_center + cloud_vertical_limit)"
+	},
+	"cache": false
+}

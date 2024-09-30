@@ -1,4 +1,6 @@
 {
 	"type": "group",
-	"dispatchers": []
+	"dispatchers": [
+		"bigglobe:islands/cloud_aura"
+	]
 }

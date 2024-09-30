@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "height_offset + 512.0L",
+	"cache": false
+}
