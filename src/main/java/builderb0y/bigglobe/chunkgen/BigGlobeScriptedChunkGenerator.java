@@ -134,6 +134,8 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
+	public static final boolean WORLD_SLICES = false;
+
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class);
 	#else
@@ -500,6 +502,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
 			return CompletableFuture.completedFuture(chunk);
 		}
+		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) {
+			return CompletableFuture.completedFuture(chunk);
+		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons), this.compiledWorldTraits);
@@ -671,6 +676,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
+			return;
+		}
+		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) {
 			return;
 		}
 		this.generateStructures(world, chunk, structureAccessor);

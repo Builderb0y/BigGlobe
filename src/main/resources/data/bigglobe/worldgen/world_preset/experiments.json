@@ -427,7 +427,7 @@
 						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
 						"#bigglobe:overworld/rock_layers",
-						"#bigglobe:overworld/ores"
+						"#bigglobe:islands/ores"
 					],
 					"raw": "bigglobe:islands/raw_root",
 					"normal": "bigglobe:islands/normal_root"

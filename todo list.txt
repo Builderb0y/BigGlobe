@@ -25,8 +25,6 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
-	move strongholds from the cave Y range to the "between deep dark and caves" Y range.
-		remove cave overrider for strongholds.
 
 to finish before release:
 	document loading traits from multiple data packs.
@@ -39,6 +37,7 @@ changelog:
 	* Some structures are now more likely to spawn in hilly areas.
 	* Fixed recipes involving balls of string.
 	* Reduced sounds from rivers again.
+	* Strongholds now generate below caves instead of inside caves.
 	* Fixed bug causing a bunch of images to be created in .minecraft/bigglobe_dependency_graphs when the config option which controls this is disabled.
 	* Fixed end crystals spawned during worldgen showing the base plate.
 	# For data pack makers:

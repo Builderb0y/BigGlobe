@@ -5,6 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"island.soft_distance * 1024.0L + 256.0L + skyland_erosion.highFrequency * 2.0L"
+		"island.soft_distance * 1024.0L + skyland_bottom_point + world_traits.`bigglobe:sea_level` + skyland_erosion.highFrequency * 2.0L"
 	]
 }

@@ -1,0 +1,37 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "diamond",
+		"blocks": {
+			"minecraft:stone":             "minecraft:diamond_ore",
+			"minecraft:cobblestone":       "minecraft:diamond_ore",
+			"minecraft:andesite":          "minecraft:diamond_ore",
+			"minecraft:polished_andesite": "minecraft:diamond_ore",
+			"minecraft:diorite":           "minecraft:diamond_ore",
+			"minecraft:polished_diorite":  "minecraft:diamond_ore",
+			"minecraft:granite":           "minecraft:diamond_ore",
+			"minecraft:polished_granite":  "minecraft:diamond_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_diamond_ore"
+		},
+		"chance": [
+			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
+				"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
+				"double curve = 1.0L - exp(-line)",
+				"return(curve * 0.25L)",
+			")",
+			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
+				"double line = unmixLinear(world_traits.`bigglobe:skyland_max_y`, `bigglobe:islands/skyland_bottom_point` + world_traits.`bigglobe:sea_level`, y)",
+				"return(line ^ 2 * 0.5L)",
+			")",
+			"else (",
+				"return(0.0L)",
+			")"
+		],
+		"radius": {
+			"type": "average",
+			"min": 1.5,
+			"max": 4.0,
+			"average": 2.5
+		}
+	}
+}

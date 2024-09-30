@@ -54,6 +54,7 @@ public class BigGlobeCommands {
 		RespawnCommand       .register(dispatcher);
 		EvaluateCommand      .register(dispatcher);
 		DumpRegistriesCommand.register(dispatcher);
+		DevDebugCommand      .register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering commands to dispatcher.");
 	}
 

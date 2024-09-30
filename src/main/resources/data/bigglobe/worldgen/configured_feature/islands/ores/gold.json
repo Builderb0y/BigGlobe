@@ -1,0 +1,37 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "gold",
+		"blocks": {
+			"minecraft:stone":             "minecraft:gold_ore",
+			"minecraft:cobblestone":       "minecraft:gold_ore",
+			"minecraft:andesite":          "minecraft:gold_ore",
+			"minecraft:polished_andesite": "minecraft:gold_ore",
+			"minecraft:diorite":           "minecraft:gold_ore",
+			"minecraft:polished_diorite":  "minecraft:gold_ore",
+			"minecraft:granite":           "minecraft:gold_ore",
+			"minecraft:polished_granite":  "minecraft:gold_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_gold_ore"
+		},
+		"chance": [
+			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
+				"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
+				"double curve = 1.0L - exp(-line)",
+				"return(curve * 0.25L)",
+			")",
+			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
+				"double curve = ((world_traits.`bigglobe:skyland_max_y` - y) / 64.0L) ^ 2",
+				"return(curve / (curve + 1.0L) * max(world_traits.`bigglobe:temperature_at_sea_level`, 0.0I) ^ 2)",
+			")",
+			"else (",
+				"return(0.0L)",
+			")"
+		],
+		"radius": {
+			"type": "average",
+			"min": 2.0,
+			"max": 6.0,
+			"average": 3.0
+		}
+	}
+}

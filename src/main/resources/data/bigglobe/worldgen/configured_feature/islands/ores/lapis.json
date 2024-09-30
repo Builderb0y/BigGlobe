@@ -1,0 +1,52 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "lapis",
+		"blocks": {
+			"minecraft:stone":             "minecraft:lapis_ore",
+			"minecraft:cobblestone":       "minecraft:lapis_ore",
+			"minecraft:andesite":          "minecraft:lapis_ore",
+			"minecraft:polished_andesite": "minecraft:lapis_ore",
+			"minecraft:diorite":           "minecraft:lapis_ore",
+			"minecraft:polished_diorite":  "minecraft:lapis_ore",
+			"minecraft:granite":           "minecraft:lapis_ore",
+			"minecraft:polished_granite":  "minecraft:lapis_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_lapis_ore"
+		},
+		"chance": [
+			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
+				"return(",
+					"sqrt(",
+						"unmixLinear(",
+							"world_traits.`bigglobe:sea_level`,",
+							"world_traits.`bigglobe:min_y`,",
+							"world_traits.`bigglobe:approximate_surface_y`",
+						")",
+					")",
+					"- `bigglobe:approximate_distance_below_surface` / 1024.0L",
+				")",
+			")",
+			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
+				"return(",
+					"exp2(",
+						"-(",
+							"(",
+								"(y - `bigglobe:islands/skyland_top_plain`) / 64.0L",
+							")",
+							"^ 2",
+						")",
+					")",
+				")",
+			")",
+			"else (",
+				"return(0.0L)",
+			")"
+		],
+		"radius": {
+			"type": "average",
+			"min": 3.0,
+			"max": 8.0,
+			"average": 4.0
+		}
+	}
+}

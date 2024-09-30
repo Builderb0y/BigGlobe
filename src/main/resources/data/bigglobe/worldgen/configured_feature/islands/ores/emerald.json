@@ -1,0 +1,34 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "emerald",
+		"blocks": {
+			"minecraft:stone":             "minecraft:emerald_ore",
+			"minecraft:cobblestone":       "minecraft:emerald_ore",
+			"minecraft:andesite":          "minecraft:emerald_ore",
+			"minecraft:polished_andesite": "minecraft:emerald_ore",
+			"minecraft:diorite":           "minecraft:emerald_ore",
+			"minecraft:polished_diorite":  "minecraft:emerald_ore",
+			"minecraft:granite":           "minecraft:emerald_ore",
+			"minecraft:polished_granite":  "minecraft:emerald_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_emerald_ore"
+		},
+		"chance": [
+			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
+				"return(exp(`bigglobe:approximate_distance_below_surface` / -192.0L) * world_traits.`bigglobe:hilliness`)",
+			")",
+			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
+				"return(exp((world_traits.`bigglobe:skyland_max_y` - y) / -192.0L) * `bigglobe:islands/skyland_hilliness`)",
+			")",
+			"else (",
+				"return(0.0L)",
+			")"
+		],
+		"radius": {
+			"type": "average",
+			"min": 1.5,
+			"max": 4.0,
+			"average": 2.5
+		}
+	}
+}

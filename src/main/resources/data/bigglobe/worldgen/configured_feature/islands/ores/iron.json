@@ -1,0 +1,34 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "iron",
+		"blocks": {
+			"minecraft:stone":             "minecraft:iron_ore",
+			"minecraft:cobblestone":       "minecraft:iron_ore",
+			"minecraft:andesite":          "minecraft:iron_ore",
+			"minecraft:polished_andesite": "minecraft:iron_ore",
+			"minecraft:diorite":           "minecraft:iron_ore",
+			"minecraft:polished_diorite":  "minecraft:iron_ore",
+			"minecraft:granite":           "minecraft:iron_ore",
+			"minecraft:polished_granite":  "minecraft:iron_ore",
+			"minecraft:deepslate":         "minecraft:deepslate_iron_ore"
+		},
+		"chance": [
+			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
+				"return(exp2((world_traits.`bigglobe:exact_surface_y` - y) / -512.0L) * 0.5L + 0.25L)",
+			")",
+			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
+				"return(exp2((world_traits.`bigglobe:skyland_max_y` - y) / -256.0L) * 0.5L + 0.25L)",
+			")",
+			"else (",
+				"return(0.0L)",
+			")"
+		],
+		"radius": {
+			"type": "average",
+			"min": 2.5,
+			"max": 8.0,
+			"average": 3.5
+		}
+	}
+}
