@@ -258,7 +258,7 @@ public class BigGlobeAutoCodec {
 								this.addRaw(LootFunction.class, autoCodec.wrapDFUCodec(LootFunctionTypes.CODEC));
 								this.addRaw(LootCondition.class, autoCodec.wrapDFUCodec(#if MC_VERSION >= MC_1_21_0 LootCondition.CODEC #else LootConditionTypes.CODEC #endif));
 							#endif
-							#if MC_VERSION >= MC_1_20_5
+							#if MC_VERSION >= MC_1_20_3
 								this.addRaw(AbstractBlock.Settings.class, autoCodec.wrapDFUCodec(AbstractBlock.Settings.CODEC));
 								this.addRaw(SaplingGenerator.class, autoCodec.wrapDFUCodec(SaplingGenerator.CODEC));
 								this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC));

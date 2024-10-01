@@ -29,8 +29,7 @@ where I left off:
 to finish before release:
 
 changelog:
-	* Island world type generates a bit faster.
-		* Expect some small differences on the border between old chunks and new chunks.
+	* Island world type generates a bit faster, but generation is not equivalent to previous version. Expect some differences on the border between old chunks and new chunks.
 
 alternate world presets:
 	paradise.
