@@ -257,8 +257,8 @@
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[2]": "This config option has no effect on trees that spawn during worldgen.",
 
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled": "Hyperspace Enabled",
-	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[0]": "If true, the hyperspace dimension and all mechanics related to it will be enabled.",
-	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[1]": "If false, the hyperspace dimension and all mechanics related to it will be disabled.",
+	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[0]": "If true, waypoints will be usable.",
+	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[1]": "If false, waypoints cannot be used.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[2]": "The hyperspace dimension is a fast travel mechanic which allows players to quickly visit places they've been to before. This config option is provided for players who don't like fast travel or prefer a different mod's teleportation mechanics.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging": "Output Data Pack Debugging Information",

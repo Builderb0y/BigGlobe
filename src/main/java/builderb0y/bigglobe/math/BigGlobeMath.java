@@ -263,11 +263,7 @@ public class BigGlobeMath {
 	*/
 	@SuppressWarnings("UseOfRemainderOperator")
 	public static float modulus_BP(float a, float b) {
-		float mod = a % b;
-		if (mod < 0.0F) mod += b;
-		//convert -0.0F to +0.0F.
-		mod = Float.intBitsToFloat(Float.floatToRawIntBits(mod) & 0x7FFF_FFFF);
-		return mod;
+		return (a %= b) + (a < 0.0F ? b : 0.0F); //adding 0.0 will convert -0.0 to +0.0.
 	}
 
 	/**
@@ -297,11 +293,7 @@ public class BigGlobeMath {
 	*/
 	@SuppressWarnings("UseOfRemainderOperator")
 	public static double modulus_BP(double a, double b) {
-		double mod = a % b;
-		if (mod < 0.0D) mod += b;
-		//convert -0.0D to +0.0D.
-		mod = Double.longBitsToDouble(Double.doubleToRawLongBits(mod) & 0x7FFF_FFFF_FFFF_FFFFL);
-		return mod;
+		return (a %= b) + (a < 0.0D ? b : 0.0D); //adding 0.0 will convert -0.0 to +0.0.
 	}
 
 	/**

@@ -29,23 +29,8 @@ where I left off:
 to finish before release:
 
 changelog:
-	# For regular players:
-	* Added a new island world preset.
-		* This preset is experimental. Please report any bugs you find with it!
-		* Known issues:
-			* Worldgen is slower in this world type compared to the normal Big Globe world type.
-	* Fixed nether fungi not growing into Big Globe trees when bonemealed.
-	* Some structures which spawn on top of lakes will now have hills below them instead of floating in mid-air.
-	* Some structures are now more likely to spawn in hilly areas.
-	* Fixed recipes involving balls of string.
-	* Reduced sounds from rivers again.
-	* Strongholds now generate below caves instead of inside caves.
-	* Fixed bug causing a bunch of images to be created in .minecraft/bigglobe_dependency_graphs when the config option which controls this is disabled.
-	* Fixed end crystals spawned during worldgen showing the base plate.
-	# For data pack makers:
-	* Scripts can now be declared in files in addition to being embedded in json.
-	* Scripts can now include code from multiple files.
-	* Chunk generators can now load world traits from files provided by multiple data packs.
+	* Island world type generates a bit faster.
+		* Expect some small differences on the border between old chunks and new chunks.
 
 alternate world presets:
 	paradise.

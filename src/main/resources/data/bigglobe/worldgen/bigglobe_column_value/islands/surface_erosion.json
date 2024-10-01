@@ -14,8 +14,8 @@
 	"script": {
 		"template": "bigglobe:sine_wave_erosion",
 		"inputs": {
-			"DX": "(dx_island_height + dx_height_offset) * mountainness",
-			"DZ": "(dz_island_height + dz_height_offset) * mountainness"
+			"DX": "dx_island_height * mountainness + dx_height_offset",
+			"DZ": "dz_island_height * mountainness + dz_height_offset"
 		}
 	},
 	"valid": {

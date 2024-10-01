@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"(2.0L - 8192.0L / (max(beachy_surface_height, 0.0L) ^ 2 + 4096.0L))",
+		"(4.0L - 16384.0L / (max(beachy_surface_height, 0.0L) ^ 2 + 4096.0L))",
 		"* unmixSmooth(1.0L, 0.9L, island.soft_distance)"
 	]
 }

@@ -6,7 +6,7 @@
 	},
 	"script": [
 		"double snowHeight = beachy_surface_height - surface_erosion.lowFrequency * erosion_multiplier",
-		"snowHeight = snowHeight * (1.0L + 1.0L / 32.0L) - 12.0L - `bigglobe:overworld/surface_temperature` * 16.0L",
+		"snowHeight = snowHeight * (1.0L + 1.0L / 64.0L) - 6.0L - `bigglobe:overworld/surface_temperature` * 8.0L",
 		"double terrainHeight = eroded_surface_height",
 		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",
 			"snowHeight = mixSmooth(",
