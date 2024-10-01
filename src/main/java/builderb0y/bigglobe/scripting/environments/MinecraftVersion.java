@@ -33,12 +33,12 @@ public record MinecraftVersion(int major, int minor, int bugfix) implements Comp
 
 	public static MinecraftVersion of(String string) {
 		int major = 0, minor = 0, bugfix = 0;
-		int part = 0;
+		int point = 0;
 		for (int index = 0, length = string.length(); index < length; index++) {
 			char c = string.charAt(index);
 			if (c == '.') {
-				if (++part > 2) {
-					throw new IllegalArgumentException("More than 3 parts in version: " + string);
+				if (++point > 2) {
+					throw new IllegalArgumentException("More than 2 points in version: " + string);
 				}
 				major = minor;
 				minor = bugfix;
@@ -50,8 +50,16 @@ public record MinecraftVersion(int major, int minor, int bugfix) implements Comp
 				else throw new NumberFormatException("Non-digit character in version string: " + string);
 			}
 		}
-		if (part < 2) {
-			throw new IllegalArgumentException("Less than 3 parts in version: " + string);
+		//1.21.1: fine.
+		//1.21: fine.
+		//1: not fine.
+		if (point == 0) {
+			throw new IllegalArgumentException("No points in version: " + string);
+		}
+		else if (point == 1) { //special handle versions with only one point.
+			major = minor;
+			minor = bugfix;
+			bugfix = 0;
 		}
 		return new MinecraftVersion(major, minor, bugfix);
 	}

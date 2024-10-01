@@ -95,7 +95,7 @@ public class ItemStackVersions {
 
 	public static ItemStack fromNbt(NbtCompound nbt) {
 		#if MC_VERSION >= MC_1_20_5
-			return ItemStack.fromNbtOrEmpty(BigGlobeMod.currentServer.getRegistryManager(), nbt);
+			return ItemStack.fromNbtOrEmpty(BigGlobeMod.getCurrentServer().getRegistryManager(), nbt);
 		#else
 			return ItemStack.fromNbt(nbt);
 		#endif
