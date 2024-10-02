@@ -2,7 +2,7 @@
 	"bigglobe:biome":                    "`bigglobe:islands/biome`",
 	"bigglobe:cave_decorator":           "`bigglobe:islands/cave`.decorator",
 	"bigglobe:cave_dungeon_decorator":   "`bigglobe:islands/cave`.dungeon_feature",
-	"bigglobe:cave_min_y":               "-384I",
+	"bigglobe:cave_min_y":               "-256I",
 	"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
 	"bigglobe:cave_surface_data":        "IslandCaveCell*(cell := `bigglobe:islands/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
 	"bigglobe:core_min_y":               "-912I",
