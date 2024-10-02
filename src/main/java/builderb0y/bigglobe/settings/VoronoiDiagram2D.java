@@ -162,27 +162,25 @@ public class VoronoiDiagram2D {
 	in other words, center.angleTo(left) <= center.angleTo(test) <= center.angleTo(right).
 	*/
 	public static boolean isInsideCircumCircle(SeedPoint center, SeedPoint left, SeedPoint test, SeedPoint right) {
-		long a11 = center.centerX - test.centerX;
-		long a21 = left  .centerX - test.centerX;
-		long a31 = right .centerX - test.centerX;
+		//apparently longs do not have enough scale to
+		//avoid overflows for this math, so... double time!
+		double a11 = center.centerX - test.centerX;
+		double a21 = left  .centerX - test.centerX;
+		double a31 = right .centerX - test.centerX;
 
-		long a12 = center.centerZ - test.centerZ;
-		long a22 = left  .centerZ - test.centerZ;
-		long a32 = right .centerZ - test.centerZ;
+		double a12 = center.centerZ - test.centerZ;
+		double a22 = left  .centerZ - test.centerZ;
+		double a32 = right .centerZ - test.centerZ;
 
-		long a13 = BigGlobeMath.squareL(center.centerX - test.centerX, center.centerZ - test.centerZ);
-		long a23 = BigGlobeMath.squareL(left  .centerX - test.centerX, left  .centerZ - test.centerZ);
-		long a33 = BigGlobeMath.squareL(right .centerX - test.centerX, right .centerZ - test.centerZ);
+		double a13 = BigGlobeMath.squareD(center.centerX - test.centerX, center.centerZ - test.centerZ);
+		double a23 = BigGlobeMath.squareD(left  .centerX - test.centerX, left  .centerZ - test.centerZ);
+		double a33 = BigGlobeMath.squareD(right .centerX - test.centerX, right .centerZ - test.centerZ);
 
-		//a13, a23, and a33 are likely to be much bigger than the other numbers.
-		//since we can't make them any smaller, the best we can do is to
-		//make the numbers they're being multiplied by smaller instead.
-		//we do this by factoring them out of the original determinant equation.
 		return (
 			a13 * (a21 * a32 - a22 * a31) +
 			a23 * (a12 * a31 - a11 * a32) +
 			a33 * (a11 * a22 - a12 * a21)
-		) > 0L;
+		) > 0.0D;
 	}
 
 	/**

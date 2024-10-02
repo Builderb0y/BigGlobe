@@ -16,7 +16,6 @@ testing:
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
 	test all hyperspace renderers (waypoints and dimension) with iris shader packs.
-	make sure glow lichen and small dungeons spawn in island caves.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
@@ -29,7 +28,10 @@ where I left off:
 to finish before release:
 
 changelog:
+	* Fixed crash on startup in MC 1.20.4.
 	* Island world type generates a bit faster, but generation is not equivalent to previous version. Expect some differences on the border between old chunks and new chunks.
+	* Fixed ball of string recipe in MC 1.21.0. Again.
+	* Fixed data packs with excessively large voronoi diagrams having integer overflow issues that sometimes cause exceptions to be thrown.
 
 alternate world presets:
 	paradise.
