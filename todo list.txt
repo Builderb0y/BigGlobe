@@ -24,14 +24,12 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
+	use delegation with a new biome tag for all vanilla structures.
 
 to finish before release:
 
 changelog:
-	* Fixed crash on startup in MC 1.20.4.
-	* Island world type generates a bit faster, but generation is not equivalent to previous version. Expect some differences on the border between old chunks and new chunks.
-	* Fixed ball of string recipe in MC 1.21.0. Again.
-	* Fixed data packs with excessively large voronoi diagrams having integer overflow issues that sometimes cause exceptions to be thrown.
+	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).
 
 alternate world presets:
 	paradise.
