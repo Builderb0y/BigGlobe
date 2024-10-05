@@ -6,7 +6,7 @@
 		"spacing": 8
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:mineshaft" },
-		{ "weight": 1, "structure": "bigglobe:mineshaft_mesa" }
+		{ "weight": 1, "structure": "bigglobe:vanilla/mineshaft" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/mineshaft_mesa" }
 	]
 }

@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:buried_treasure",
+	"biomes": "#bigglobe:has_structure/buried_treasure"
+}

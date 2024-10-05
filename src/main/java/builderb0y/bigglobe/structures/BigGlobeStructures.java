@@ -23,6 +23,11 @@ public class BigGlobeStructures {
 
 	static { BigGlobeMod.LOGGER.debug("Registering structures..."); }
 
+	//////////////// noop ////////////////
+
+	public static final StructureType<NoopStructure>
+		NOOP = registerType("noop", NoopStructure.CODEC);
+
 	//////////////// delegating ////////////////
 
 	public static final StructureType<DelegatingStructure>

@@ -6,7 +6,7 @@
 		"spacing": 32
 	},
 	"structures": [
-		{ "weight": 2, "structure": "bigglobe:desert_pyramid" },
+		{ "weight": 2, "structure": "bigglobe:vanilla/desert_pyramid" },
 		{ "weight": 1, "structure": "bigglobe:bigger_desert_pyramid" }
 	]
 }

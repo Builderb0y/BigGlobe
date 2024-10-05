@@ -6,6 +6,6 @@
 		"spacing": 32
 	},
 	"structures": [
-		{ "structure": "bigglobe:ancient_city", "weight": 1 }
+		{ "structure": "bigglobe:vanilla/ancient_city", "weight": 1 }
 	]
 }

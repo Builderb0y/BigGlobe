@@ -6,6 +6,6 @@
 		"spacing": 16
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:jungle_temple" }
+		{ "weight": 1, "structure": "bigglobe:vanilla/jungle_temple" }
 	]
 }

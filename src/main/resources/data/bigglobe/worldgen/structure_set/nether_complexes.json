@@ -6,7 +6,7 @@
 		"spacing": 12
 	},
 	"structures": [
-		{ "weight": 2, "structure": "bigglobe:nether_fortress" },
-		{ "weight": 3, "structure": "bigglobe:bastion_remnant" }
+		{ "weight": 2, "structure": "bigglobe:vanilla/nether_fortress" },
+		{ "weight": 3, "structure": "bigglobe:vanilla/bastion_remnant" }
 	]
 }

@@ -1,0 +1,11 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 14357618,
+		"separation": 8,
+		"spacing": 24
+	},
+	"structures": [
+		{ "structure": "bigglobe:vanilla/igloo", "weight": 1 }
+	]
+}

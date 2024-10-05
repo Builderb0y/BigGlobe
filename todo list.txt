@@ -30,6 +30,9 @@ to finish before release:
 
 changelog:
 	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).
+	* Tweaked how often some structures spawn.
+		* Igloos are a bit more common.
+	* Fixed crash with Ryoamic Lights (integration code won't work though).
 
 alternate world presets:
 	paradise.
