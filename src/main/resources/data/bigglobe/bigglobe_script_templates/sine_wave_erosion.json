@@ -2,7 +2,7 @@
 	"script": [
 		"double cosCurve(double x:",
 			"x ^= 2",
-			"(0.25L - 4.0L * x) / (0.25L + x)",
+			"(1.0L - 16.0L * x) * (1.0L - (16.0L - 4.0L * pi) * x)",
 		")",
 		"",
 		"double approxSin(double x:",
@@ -49,7 +49,7 @@
 			"DX += tmpCos * unitX",
 			"DZ += tmpCos * unitZ",
 			"highFrequencyErosion += tmpSin",
-			"if (loop < 384: lowFrequencyErosion += tmpSin)",
+			"if (loop < 256: lowFrequencyErosion += tmpSin)",
 		")",
 		"return(ErosionNoise.new(highFrequencyErosion, lowFrequencyErosion))"
 	],
