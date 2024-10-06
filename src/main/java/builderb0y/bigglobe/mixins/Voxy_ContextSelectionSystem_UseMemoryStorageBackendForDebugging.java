@@ -39,7 +39,7 @@ public class Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging {
 			(clientWorld = MinecraftClient.getInstance().world) != null &&
 			(server = MinecraftClient.getInstance().getServer()) != null &&
 			(serverWorld = server.getWorld(clientWorld.getRegistryKey())) != null &&
-			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator
+			serverWorld.isScripted()
 		) {
 			return new GeneratingStorageBackend(original);
 		}

@@ -26,7 +26,7 @@ public class FeatureDecorator implements BlockDecorator {
 		if (feature != null) {
 			feature.generate(
 				generator.worldQueue,
-				((ServerChunkManager)(generator.worldQueue.getChunkManager())).getChunkGenerator(),
+				generator.worldQueue.getChunkManager().<ServerChunkManager>as().getChunkGenerator(),
 				generator.random.mojang(),
 				pos
 			);

@@ -12,7 +12,7 @@ public class ScriptLogger {
 	//use BuiltinScriptEnvironment.PRINTER instead.
 	//unless you *only* want to print something to the console,
 	//in which case suppress the deprecation warning.
-	@Deprecated
+	//@Deprecated
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Scripting");
 
 	public static String addLineNumbers(String source) {

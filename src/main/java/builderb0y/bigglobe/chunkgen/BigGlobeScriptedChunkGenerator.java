@@ -146,8 +146,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		ServerLifecycleEvents.SERVER_STARTED.register((MinecraftServer server) -> {
 			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 				for (ServerWorld world : server.getWorlds()) {
-					BigGlobeScriptedChunkGenerator generator = world.getScriptedChunkGenerator();
-					if (generator != null) {
+					if (world.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 						Identifier worldID = world.getRegistryKey().getValue();
 						DependencyDepthSorter.start(generator.compiledWorldTraits, generator.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY), "server " + worldID.getNamespace() + ' ' + worldID.getPath());
 					}

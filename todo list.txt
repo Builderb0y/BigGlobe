@@ -34,6 +34,7 @@ changelog:
 	* Tweaked how often some structures spawn.
 		* Igloos are a bit more common.
 	* Fixed crash with Ryoamic Lights (integration code won't work though).
+	* Possibly fixed compatibility with Flashback.
 
 alternate world presets:
 	paradise.

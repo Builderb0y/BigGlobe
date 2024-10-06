@@ -29,7 +29,7 @@ public class LocateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":locate")
-			.requires((ServerCommandSource source) -> source.getWorld().getScriptedChunkGenerator() != null && source.hasPermissionLevel(4))
+			.requires((ServerCommandSource source) -> source.getWorld().isScripted() && source.hasPermissionLevel(4))
 			.then(
 				CommandManager.literal("nearest").then(
 					CommandManager

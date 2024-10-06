@@ -24,4 +24,8 @@ public class ServerWorldExtensions {
 	public static @NotNull BigGlobeScriptedChunkGenerator requireScriptedChunkGenerator(@This ServerWorld world) {
 		return (BigGlobeScriptedChunkGenerator)(world.getChunkGenerator());
 	}
+
+	public static boolean isScripted(@This ServerWorld world) {
+		return world.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator;
+	}
 }

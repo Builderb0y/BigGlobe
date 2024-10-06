@@ -79,7 +79,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 	public void send(ServerPlayerEntity player) {
 		ClientState.Syncing syncing;
 		ClientGeneratorParams params;
-		if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+		if (EntityVersions.getServerWorld(player).getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			syncing = new ClientState.Syncing(generator);
 			params = new ClientGeneratorParams(generator, syncing);
 		}
