@@ -1,17 +1,10 @@
 package builderb0y.bigglobe.mixins;
 
-import java.util.List;
-import java.util.Map;
-
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.registry.*;
-import net.minecraft.registry.DynamicRegistryManager.Immutable;
 import net.minecraft.registry.RegistryOps.RegistryInfo;
 import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
 
@@ -22,29 +15,13 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistr
 @Mixin(RegistryLoader.class)
 public class RegistryLoader_LoadColumnEntryRegistry {
 
-	@Inject(
-		method = "load",
-		at = @At(
-			value = "INVOKE",
-			target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V",
-			ordinal = 0
-		),
-		locals = LocalCapture.CAPTURE_FAILHARD
-	)
-	private static void bigglobe_beginLoading(
-		@Coerce Object loadable, //the actual type became package-private in MC 1.21.
-		DynamicRegistryManager baseRegistryManager,
-		List<RegistryLoader.Entry<?>> entries,
-		CallbackInfoReturnable<Immutable> callback,
-		Map<RegistryKey<?>, Exception> map,
-		List<?> loadableRegistries,
-		RegistryInfoGetter registryInfoGetter
-	) {
+	@ModifyReturnValue(method = "createInfoGetter", at = @At("RETURN"))
+	private static RegistryInfoGetter bigglobe_beginLoading(RegistryInfoGetter getter) {
 		ColumnEntryRegistry.Loading.beginLoad(new BetterRegistry.Lookup() {
 
 			@Override
 			public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
-				RegistryInfo<T> info = registryInfoGetter.getRegistryInfo(key).orElse(null);
+				RegistryInfo<T> info = getter.getRegistryInfo(key).orElse(null);
 				if (info == null) {
 					throw new IllegalStateException("Missing registry: " + key.getValue());
 				}
@@ -55,5 +32,6 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 				return new BetterDynamicRegistry<>(impl, lookup);
 			}
 		});
+		return getter;
 	}
 }
