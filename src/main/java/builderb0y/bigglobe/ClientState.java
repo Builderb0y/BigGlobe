@@ -104,7 +104,7 @@ public class ClientState {
 		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
-		if (player.getWaypointManager() instanceof ServerPlayerWaypointManager manager) {
+		if (PlayerWaypointManager.get(player) instanceof ServerPlayerWaypointManager manager) {
 			manager.updateOnWorldChange();
 		}
 	}

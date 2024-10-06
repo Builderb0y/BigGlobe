@@ -10,6 +10,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
+
 /**
 manages waypoints visible to a specific player at a specific time.
 the waypoints visible to a player can change when waypoints are
@@ -33,7 +35,11 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 		this.player = player;
 	}
 
-	public static PlayerWaypointManager forPlayer(PlayerEntity player) {
+	public static @Nullable PlayerWaypointManager get(PlayerEntity player) {
+		return ((WaypointTracker)(player)).bigglobe_getWaypointManager();
+	}
+
+	public static PlayerWaypointManager create(PlayerEntity player) {
 		if (player.getClass() == ServerPlayerEntity.class) {
 			return new ServerPlayerWaypointManager((ServerPlayerEntity)(player));
 		}

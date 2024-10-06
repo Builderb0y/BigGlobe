@@ -86,7 +86,7 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 	public void process(SyncedWaypointData waypoint, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
-			PlayerWaypointManager manager = player.getWaypointManager();
+			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 			if (manager != null) {
 				manager.addWaypoint(waypoint.resolve(player), true);
 			}

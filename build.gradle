@@ -71,15 +71,12 @@ dependencies() {
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
 	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
-	String manifoldVersion = '2024.1.34'
-	annotationProcessor("systems.manifold:manifold-preprocessor:$manifoldVersion")
-	annotationProcessor("systems.manifold:manifold-ext:$manifoldVersion")
-	implementation("systems.manifold:manifold-ext-rt:$manifoldVersion")
-	include("systems.manifold:manifold-ext-rt:$manifoldVersion")
+	annotationProcessor('systems.manifold:manifold-preprocessor:2024.1.34')
 }
 
 compileJava() {
-	options.compilerArgs.add('-Xplugin:Manifold no-bootstrap')
+	//-parameters is enabled lower for all java compile tasks, including tests.
+	options.compilerArgs.add('-Xplugin:Manifold')
 }
 
 processResources() {
@@ -115,6 +112,7 @@ tasks.withType(JavaCompile).configureEach() {
 	//see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 	//If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
+	//-Xplugin:Manifold is enabled higher for compileJava only.
 	it.options.compilerArgs.add('-parameters')
 }
 

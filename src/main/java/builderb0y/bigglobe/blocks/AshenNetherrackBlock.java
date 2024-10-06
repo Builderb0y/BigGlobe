@@ -54,6 +54,6 @@ public class AshenNetherrackBlock extends Block implements Fertilizable {
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
 		ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(PATCH_CHARRED_GRASS);
-		if (feature != null) feature.generate(world, world.getChunkGenerator(), random, pos.up());
+		if (feature != null) feature.generate(world, world.getChunkManager().getChunkGenerator(), random, pos.up());
 	}
 }

@@ -41,7 +41,7 @@ public class DevDebugCommand {
 					CommandManager
 					.argument("ore", IdentifierArgumentType.identifier())
 					.executes((CommandContext<ServerCommandSource> context) -> {
-						if (context.getSource().getWorld().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+						if (context.getSource().getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 							ConfiguredFeature<?, ?> ore = (
 								context
 								.getSource()
@@ -82,7 +82,7 @@ public class DevDebugCommand {
 					})
 				)
 				.executes((CommandContext<ServerCommandSource> context) -> {
-					if (context.getSource().getWorld().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+					if (context.getSource().getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 						Vec3d pos = context.getSource().getPosition();
 						context.getSource().sendFeedback(
 							() -> Text.literal(

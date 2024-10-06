@@ -44,7 +44,7 @@ public class PortalForcer_PlaceInNetherCaverns {
 	@Inject(method = "createPortal", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_overridePortalLocation(BlockPos pos, Direction.Axis axis, CallbackInfoReturnable<Optional<BlockLocating.Rectangle>> callback) {
 		if (
-			this.world.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
+			this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
 			generator.nether_overrides != null &&
 			generator.nether_overrides.place_portal_at_high_y_level()
 		) {

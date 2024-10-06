@@ -44,7 +44,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	@Inject(method = "findTeleportLocation", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerWorld world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3d> callback) {
 		bigglobe_exitPosition = null;
-		if (world.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
 			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
 			Vector2d position = new Vector2d();
@@ -136,7 +136,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	*/
 	@Inject(method = "findExitPortalPos", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockView world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
-		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			BlockPos.Mutable
 				search = new BlockPos.Mutable(),
 				found  = pos.mutableCopy().setY(world.getBottomY());

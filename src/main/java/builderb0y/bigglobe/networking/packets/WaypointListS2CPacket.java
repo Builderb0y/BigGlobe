@@ -62,7 +62,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		HAS_NAME = 1 << 1;
 
 	public void send(ServerPlayerEntity player) {
-		PlayerWaypointManager manager = player.getWaypointManager();
+		PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 		if (manager == null) return;
 		PacketByteBuf buffer = this.buffer();
 
@@ -131,7 +131,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
 			EntityVersions.setPortalCooldown(player, 20);
-			PlayerWaypointManager manager = player.getWaypointManager();
+			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 			if (manager != null) {
 				manager.clear();
 				for (SyncedWaypointData waypoint : waypoints) {

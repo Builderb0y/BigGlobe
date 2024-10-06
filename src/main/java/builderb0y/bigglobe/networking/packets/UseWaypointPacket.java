@@ -49,7 +49,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			player.sendMessage(Text.translatable("bigglobe.hyperspace.disabled").formatted(Formatting.RED), true);
 			return;
 		}
-		PlayerWaypointManager manager = player.getWaypointManager();
+		PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 		if (manager == null) {
 			BigGlobeMod.LOGGER.warn(player + " has no waypoint manager?");
 			return;

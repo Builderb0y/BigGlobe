@@ -84,7 +84,7 @@ public class EvaluateCommand {
 	}
 
 	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(ServerCommandSource source) {
-		return source.getWorld().getScriptedChunkGenerator();
+		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 
 	public static interface CommandScript extends Script {

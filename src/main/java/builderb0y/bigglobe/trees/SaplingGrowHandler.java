@@ -29,7 +29,7 @@ public class SaplingGrowHandler {
 
 	public static boolean replaceSaplingGrowth(ServerWorld world, BlockPos origin, BlockState saplingState, Random random) {
 		if (
-			world.isScripted()
+			world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator
 			? BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds
 			: BigGlobeConfig.INSTANCE.get().bigGlobeTreesInOtherWorlds
 		) {
@@ -38,7 +38,7 @@ public class SaplingGrowHandler {
 				list
 				.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
 				.value()
-				.generate(world, world.getChunkGenerator(), random, origin);
+				.generate(world, world.getChunkManager().getChunkGenerator(), random, origin);
 				return true;
 			}
 		}

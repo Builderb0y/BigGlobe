@@ -36,7 +36,7 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<Integer> {
 	public void process(Integer data, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
-			PlayerWaypointManager manager = player.getWaypointManager();
+			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 			if (manager != null) {
 				manager.removeWaypoint(data, true);
 			}

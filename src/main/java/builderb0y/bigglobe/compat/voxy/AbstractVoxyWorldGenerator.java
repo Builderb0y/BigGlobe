@@ -98,7 +98,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread &&
 			(server = MinecraftClient.getInstance().getServer()) != null &&
 			(serverWorld = server.getWorld(newWorld.getRegistryKey())) != null &&
-			serverWorld.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
+			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
 		) {
 			Factory factory = override;
 			if (factory != null) return factory.create(engine, serverWorld, generator);

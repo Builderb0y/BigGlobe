@@ -39,7 +39,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 		if (!player.isSpectator()) {
 			ServerWaypointManager serverManager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
 			if (serverManager != null) {
-				PlayerWaypointManager serverPlayerManager = player.getWaypointManager();
+				PlayerWaypointManager serverPlayerManager = PlayerWaypointManager.get(player);
 				if (serverPlayerManager != null) {
 					PlayerWaypointData waypoint = serverPlayerManager.getWaypoint(id);
 					if (waypoint != null) {

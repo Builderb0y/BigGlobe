@@ -24,7 +24,7 @@ public class BigGlobeSpawnLocator {
 
 	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
 	public static boolean initWorldSpawn(ServerWorld world) {
-		if (world.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			SpawnPoint spawnPoint = findSpawn(world, generator, world.getSeed());
 			if (spawnPoint != null) {
 				world.setSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw);
@@ -38,7 +38,7 @@ public class BigGlobeSpawnLocator {
 	public static void initPlayerSpawn(ServerPlayerEntity player) {
 		if (
 			BigGlobeConfig.INSTANCE.get().playerSpawning.perPlayerSpawnPoints &&
-			EntityVersions.getServerWorld(player).getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
+			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
 		) {
 			SpawnPoint spawnPoint = findSpawn(
 				EntityVersions.getServerWorld(player),

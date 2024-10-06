@@ -32,7 +32,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(MiscConfiguredFeatures.BONUS_CHEST);
 				if (feature != null) feature.generate(
 					world,
-					world.getChunkGenerator(),
+					world.getChunkManager().getChunkGenerator(),
 					world.random,
 					WorldPropertiesVersions.getSpawnPos(worldProperties)
 				);

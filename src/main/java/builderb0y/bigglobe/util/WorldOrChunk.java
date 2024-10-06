@@ -117,7 +117,7 @@ public interface WorldOrChunk extends BlockView {
 		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random) {
 			return feature.generate(
 				this.world,
-				this.world.getChunkManager().<ServerChunkManager>as().getChunkGenerator(),
+				((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
 				random,
 				pos
 			);

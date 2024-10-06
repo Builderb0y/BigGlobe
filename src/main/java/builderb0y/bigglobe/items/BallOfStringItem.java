@@ -44,13 +44,11 @@ public class BallOfStringItem extends Item
 
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
-		ItemStack stack1 = context.getStack();
-		int damage = ItemStackVersions.getDamage(stack1);
 		ItemStack stack = context.getStack();
+		int damage = ItemStackVersions.getDamage(stack);
 		int maxDamage = ItemStackVersions.getMaxDamage(stack);
 		if (damage < maxDamage) {
-			ItemStack stack2 = context.getStack();
-			ItemStackVersions.setDamage(stack2, damage + 1);
+			ItemStackVersions.setDamage(stack, damage + 1);
 			Vec3d pos = context.getHitPos();
 			StringEntity entity = new StringEntity(BigGlobeEntityTypes.STRING, context.getWorld(), pos.x, pos.y, pos.z);
 			entity.setNextEntity(context.getPlayer());

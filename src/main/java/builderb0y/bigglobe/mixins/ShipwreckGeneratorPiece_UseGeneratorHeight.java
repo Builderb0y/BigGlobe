@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +35,7 @@ public abstract class ShipwreckGeneratorPiece_UseGeneratorHeight extends SimpleS
 	@Redirect(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/StructureWorldAccess;getTopY(Lnet/minecraft/world/Heightmap$Type;II)I"))
 	private int bigglobe_useGeneratorHeight(StructureWorldAccess receiver, Heightmap.Type type, int x, int z, StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator) {
 		if (generator instanceof BigGlobeScriptedChunkGenerator) {
-			return generator.getHeight(x, z, type, world, world.getChunkManager().<ServerChunkManager>as().getNoiseConfig());
+			return generator.getHeight(x, z, type, world, ((ServerWorld)(world)).getChunkManager().getNoiseConfig());
 		}
 		return receiver.getTopY(type, x, z);
 	}

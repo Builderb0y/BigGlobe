@@ -32,10 +32,3 @@ accessible method net/minecraft/server/network/ServerPlayerEntity findRespawnPos
 
 #this method became private in 1.21 but is still needed by TorchArrowEntity.
 accessible method net/minecraft/entity/projectile/PersistentProjectileEntity setPierceLevel (B)V
-
-#why are these necessary? good question! I don't know either.
-#all I know is that the project fails to compile without them.
-#I didn't used to need them, and I'm not using them for anything.
-accessible method net/minecraft/entity/player/PlayerEntity damageArmor (Lnet/minecraft/entity/damage/DamageSource;F)V
-accessible method net/minecraft/entity/player/PlayerEntity damageHelmet (Lnet/minecraft/entity/damage/DamageSource;F)V
-accessible method net/minecraft/entity/player/PlayerEntity damageShield (F)V

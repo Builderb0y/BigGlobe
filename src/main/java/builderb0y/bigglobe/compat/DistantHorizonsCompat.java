@@ -120,7 +120,7 @@ public class DistantHorizonsCompat {
 				public void onLevelLoad(DhApiEventParam<EventParam> param) {
 					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
 					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
-						if (serverWorld.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+						if (serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 							if (BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.hyperspeedGeneration) {
 								DhApi.worldGenOverrides.registerWorldGeneratorOverride(levelWrapper, new DhScriptedWorldGenerator(levelWrapper, serverWorld, generator));
 							}

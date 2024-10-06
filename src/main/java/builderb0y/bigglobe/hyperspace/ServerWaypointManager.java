@@ -126,7 +126,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					if (waypoint.owner() != null) {
 						ServerPlayerEntity player = server.getPlayerManager().getPlayer(waypoint.owner());
 						if (player != null) {
-							PlayerWaypointManager playerManager = player.getWaypointManager();
+							PlayerWaypointManager playerManager = PlayerWaypointManager.get(player);
 							if (playerManager != null) {
 								PlayerWaypointData serverWaypoint;
 								if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
@@ -143,7 +143,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 						ServerWorld world = server.getWorld(waypoint.position().world());
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								PlayerWaypointManager manager = player.getWaypointManager();
+								PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 								if (manager != null) {
 									manager.addWaypoint(waypoint.absolutize(), true);
 								}
@@ -155,7 +155,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 						world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								PlayerWaypointManager serverManager = player.getWaypointManager();
+								PlayerWaypointManager serverManager = PlayerWaypointManager.get(player);
 								if (serverManager != null) {
 									PlayerWaypointData serverWaypoint = waypoint.relativize(serverManager.entrance != null ? serverManager.entrance.pos() : PackedPos.ZERO);
 									serverManager.addWaypoint(serverWaypoint, true);
@@ -181,7 +181,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 				if (removed.owner() != null) {
 					ServerPlayerEntity player = server.getPlayerManager().getPlayer(removed.owner());
 					if (player != null) {
-						PlayerWaypointManager manager = player.getWaypointManager();
+						PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 						if (manager != null) {
 							manager.removeWaypoint(id, true);
 						}
@@ -191,7 +191,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					ServerWorld world = server.getWorld(removed.position().world());
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							PlayerWaypointManager manager = player.getWaypointManager();
+							PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 							if (manager != null) {
 								manager.removeWaypoint(id, true);
 							}
@@ -203,7 +203,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							PlayerWaypointManager manager = player.getWaypointManager();
+							PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 							if (manager != null) {
 								manager.removeWaypoint(id, true);
 							}

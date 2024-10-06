@@ -49,8 +49,8 @@ public class TestItem extends Item {
 			structure.getValidStructurePosition(
 				new Structure.Context(
 					world.getRegistryManager(),
-					world.getChunkGenerator(),
-					world.getChunkGenerator().getBiomeSource(),
+					world.getChunkManager().getChunkGenerator(),
+					world.getChunkManager().getChunkGenerator().getBiomeSource(),
 					world.getChunkManager().getNoiseConfig(),
 					world.getStructureTemplateManager(),
 					world.getSeed(),
@@ -73,7 +73,7 @@ public class TestItem extends Item {
 				piece.generate(
 					world,
 					world.getStructureAccessor(),
-					world.getChunkGenerator(),
+					world.getChunkManager().getChunkGenerator(),
 					world.random,
 					infiniteBox,
 					chunkPos,

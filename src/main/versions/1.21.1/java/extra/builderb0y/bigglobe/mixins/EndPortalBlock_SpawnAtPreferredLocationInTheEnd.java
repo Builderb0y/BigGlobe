@@ -26,7 +26,7 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 	@WrapWithCondition(method = "createTeleportTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/EndPlatformFeature;generate(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Z)V"))
 	private boolean bigglobe_skipPlatformWhenRequested(ServerWorldAccess world, BlockPos pos, boolean breakBlocks) {
 		return (
-			!(world.<ServerWorld>as().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) ||
+			!(((ServerWorld)(world)).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) ||
 			generator.end_overrides == null ||
 			generator.end_overrides.spawning().obsidian_platform()
 		);
@@ -36,7 +36,7 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 	private BlockPos bigglobe_generatePlatformAtRequestedPosition(BlockPos original, @Local(ordinal = 1) ServerWorld destination, @Share("bigglobe_platformPosition") LocalRef<BlockPos> platformPosition) {
 		int[] position;
 		BlockPos result;
-		if (destination.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (destination.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			position = generator.end_overrides.spawning().location();
 			BlockPos.Mutable pos = new BlockPos.Mutable(position[0], position[1], position[2]);
 			Chunk chunk = destination.getChunk(pos);

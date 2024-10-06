@@ -54,6 +54,6 @@ public class ChorusNyliumBlock extends Block implements Fertilizable {
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
 		ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(FEATURE_KEY);
-		if (feature != null) feature.generate(world, world.getChunkGenerator(), random, pos.up());
+		if (feature != null) feature.generate(world, world.getChunkManager().getChunkGenerator(), random, pos.up());
 	}
 }

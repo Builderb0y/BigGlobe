@@ -20,7 +20,6 @@ import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.parsing.input.SourceScriptUsage;
 
 public class LocateCommand {
@@ -29,7 +28,7 @@ public class LocateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":locate")
-			.requires((ServerCommandSource source) -> source.getWorld().isScripted() && source.hasPermissionLevel(4))
+			.requires((ServerCommandSource source) -> source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator && source.hasPermissionLevel(4))
 			.then(
 				CommandManager.literal("nearest").then(
 					CommandManager
@@ -143,9 +142,14 @@ public class LocateCommand {
 	public static boolean compile(ScriptHolder<?> script, ServerCommandSource source) {
 		try {
 			script.compile(
-				source
-				.getWorld()
-				.requireScriptedChunkGenerator()
+				(
+					(BigGlobeScriptedChunkGenerator)(
+						source
+						.getWorld()
+						.getChunkManager()
+						.getChunkGenerator()
+					)
+				)
 				.columnEntryRegistry
 			);
 			return true;
