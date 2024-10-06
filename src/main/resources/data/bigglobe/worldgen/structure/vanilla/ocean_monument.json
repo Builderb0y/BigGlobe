@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:monument",
+	"biomes": "#bigglobe:has_structure/vanilla/ocean_monument"
+}

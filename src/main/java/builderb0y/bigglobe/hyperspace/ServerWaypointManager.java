@@ -126,24 +126,27 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					if (waypoint.owner() != null) {
 						ServerPlayerEntity player = server.getPlayerManager().getPlayer(waypoint.owner());
 						if (player != null) {
-							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							PlayerWaypointData clientWaypoint;
-							if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-								clientWaypoint = waypoint.relativize(clientManager.entrance != null ? clientManager.entrance.pos() : PackedPos.ZERO);
+							PlayerWaypointManager playerManager = player.getWaypointManager();
+							if (playerManager != null) {
+								PlayerWaypointData serverWaypoint;
+								if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+									serverWaypoint = waypoint.relativize(playerManager.entrance != null ? playerManager.entrance.pos() : PackedPos.ZERO);
+								}
+								else {
+									serverWaypoint = waypoint.absolutize();
+								}
+								playerManager.addWaypoint(serverWaypoint, true);
 							}
-							else {
-								clientWaypoint = waypoint.absolutize();
-							}
-							clientManager.addWaypoint(clientWaypoint, true);
 						}
 					}
 					else {
 						ServerWorld world = server.getWorld(waypoint.position().world());
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-								PlayerWaypointData clientWaypoint = waypoint.absolutize();
-								clientManager.addWaypoint(clientWaypoint, true);
+								PlayerWaypointManager manager = player.getWaypointManager();
+								if (manager != null) {
+									manager.addWaypoint(waypoint.absolutize(), true);
+								}
 							}
 						}
 						else {
@@ -152,9 +155,11 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 						world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 						if (world != null) {
 							for (ServerPlayerEntity player : world.getPlayers()) {
-								PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-								PlayerWaypointData clientWaypoint = waypoint.relativize(clientManager.entrance != null ? clientManager.entrance.pos() : PackedPos.ZERO);
-								clientManager.addWaypoint(clientWaypoint, true);
+								PlayerWaypointManager serverManager = player.getWaypointManager();
+								if (serverManager != null) {
+									PlayerWaypointData serverWaypoint = waypoint.relativize(serverManager.entrance != null ? serverManager.entrance.pos() : PackedPos.ZERO);
+									serverManager.addWaypoint(serverWaypoint, true);
+								}
 							}
 						}
 					}
@@ -176,16 +181,20 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 				if (removed.owner() != null) {
 					ServerPlayerEntity player = server.getPlayerManager().getPlayer(removed.owner());
 					if (player != null) {
-						PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-						clientManager.removeWaypoint(id, true);
+						PlayerWaypointManager manager = player.getWaypointManager();
+						if (manager != null) {
+							manager.removeWaypoint(id, true);
+						}
 					}
 				}
 				else {
 					ServerWorld world = server.getWorld(removed.position().world());
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(id, true);
+							PlayerWaypointManager manager = player.getWaypointManager();
+							if (manager != null) {
+								manager.removeWaypoint(id, true);
+							}
 						}
 					}
 					else {
@@ -194,8 +203,10 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 					world = server.getWorld(HyperspaceConstants.WORLD_KEY);
 					if (world != null) {
 						for (ServerPlayerEntity player : world.getPlayers()) {
-							PlayerWaypointManager clientManager = ((WaypointTracker)(player)).bigglobe_getWaypointManager();
-							clientManager.removeWaypoint(id, true);
+							PlayerWaypointManager manager = player.getWaypointManager();
+							if (manager != null) {
+								manager.removeWaypoint(id, true);
+							}
 						}
 					}
 				}

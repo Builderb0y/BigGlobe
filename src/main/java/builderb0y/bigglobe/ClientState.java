@@ -51,6 +51,7 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
@@ -103,20 +104,9 @@ public class ClientState {
 		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
-		//player
-		//.as(WaypointTracker)
-		//.bigglobe_getWaypointManager()
-		//.as(ServerPlayerWaypointManager)
-		//.updateOnWorldChange()
-		(
-			(ServerPlayerWaypointManager)(
-				(
-					(WaypointTracker)(player)
-				)
-				.bigglobe_getWaypointManager()
-			)
-		)
-		.updateOnWorldChange();
+		if (player.getWaypointManager() instanceof ServerPlayerWaypointManager manager) {
+			manager.updateOnWorldChange();
+		}
 	}
 
 	@Environment(EnvType.CLIENT)

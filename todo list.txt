@@ -27,6 +27,7 @@ where I left off:
 	use delegation with a new biome tag for all vanilla structures.
 
 to finish before release:
+	test respawning ender dragon to make sure the spike logic still works.
 
 changelog:
 	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).

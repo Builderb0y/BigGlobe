@@ -25,19 +25,20 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 
 	@WrapWithCondition(method = "createTeleportTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/EndPlatformFeature;generate(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Z)V"))
 	private boolean bigglobe_skipPlatformWhenRequested(ServerWorldAccess world, BlockPos pos, boolean breakBlocks) {
+		BigGlobeScriptedChunkGenerator generator;
 		return (
-			!(((ServerWorld)(world)).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) ||
+			(generator = world.<ServerWorld>as().getScriptedChunkGenerator()) == null ||
 			generator.end_overrides == null ||
 			generator.end_overrides.spawning().obsidian_platform()
 		);
 	}
 
-	//@ModifyArg can't capture target method parameters, so I'm using @ModifyExpressionValue instead.
 	@ModifyExpressionValue(method = "createTeleportTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/BlockPos;down()Lnet/minecraft/util/math/BlockPos;"))
 	private BlockPos bigglobe_generatePlatformAtRequestedPosition(BlockPos original, @Local(ordinal = 1) ServerWorld destination, @Share("bigglobe_platformPosition") LocalRef<BlockPos> platformPosition) {
 		int[] position;
 		BlockPos result;
-		if (destination.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		BigGlobeScriptedChunkGenerator generator;
+		if ((generator = destination.getScriptedChunkGenerator()) != null && generator.end_overrides != null) {
 			position = generator.end_overrides.spawning().location();
 			BlockPos.Mutable pos = new BlockPos.Mutable(position[0], position[1], position[2]);
 			Chunk chunk = destination.getChunk(pos);

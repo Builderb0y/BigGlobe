@@ -44,7 +44,8 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	@Inject(method = "findTeleportLocation", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerWorld world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3d> callback) {
 		bigglobe_exitPosition = null;
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		BigGlobeScriptedChunkGenerator generator = world.getScriptedChunkGenerator();
+		if (generator != null && generator.end_overrides != null) {
 			ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
 			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
 			Vector2d position = new Vector2d();
@@ -136,12 +137,14 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	*/
 	@Inject(method = "findExitPortalPos", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockView world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
-		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		BigGlobeScriptedChunkGenerator generator;
+		if (world instanceof ServerWorld serverWorld && (generator = serverWorld.getScriptedChunkGenerator()) != null && generator.end_overrides != null) {
 			BlockPos.Mutable
 				search = new BlockPos.Mutable(),
 				found  = pos.mutableCopy().setY(world.getBottomY());
 			for (int offsetX = -searchRadius; offsetX <= searchRadius; offsetX++) {
-				innerSquare: for (int offsetZ = -searchRadius; offsetZ <= searchRadius; offsetZ++) {
+				innerSquare:
+				for (int offsetZ = -searchRadius; offsetZ <= searchRadius; offsetZ++) {
 					search.set(pos.getX() + offsetX, pos.getY(), pos.getZ() + offsetZ);
 					while (bigglobe_canSpawnOn(world, search)) {
 						search.setY(search.getY() + 1);

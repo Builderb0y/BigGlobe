@@ -1,5 +1,5 @@
 {
 	"type": "bigglobe:delegating",
 	"delegate": "minecraft:mineshaft_mesa",
-	"biomes": "#bigglobe:has_structure/mineshaft_mesa"
+	"biomes": "#bigglobe:has_structure/vanilla/mineshaft_mesa"
 }

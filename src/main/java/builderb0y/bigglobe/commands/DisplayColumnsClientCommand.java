@@ -55,6 +55,6 @@ public class DisplayColumnsClientCommand {
 		if (client.getServer() == null || client.world == null) return null;
 		ServerWorld world = client.getServer().getWorld(client.world.getRegistryKey());
 		if (world == null) return null;
-		return world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator displayer ? displayer : null;
+		return world.getScriptedChunkGenerator();
 	}
 }

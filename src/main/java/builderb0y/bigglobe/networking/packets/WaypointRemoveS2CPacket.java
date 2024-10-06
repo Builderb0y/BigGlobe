@@ -10,6 +10,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
@@ -35,7 +36,10 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<Integer> {
 	public void process(Integer data, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
-			((WaypointTracker)(player)).bigglobe_getWaypointManager().removeWaypoint(data, true);
+			PlayerWaypointManager manager = player.getWaypointManager();
+			if (manager != null) {
+				manager.removeWaypoint(data, true);
+			}
 		}
 	}
 }

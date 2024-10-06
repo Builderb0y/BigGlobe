@@ -11,10 +11,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.PackedWorldPos;
-import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
-import builderb0y.bigglobe.hyperspace.SyncedWaypointData;
+import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
@@ -88,7 +85,11 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 	@Environment(EnvType.CLIENT)
 	public void process(SyncedWaypointData waypoint, PacketSender responseSender) {
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player == null) return;
-		((WaypointTracker)(player)).bigglobe_getWaypointManager().addWaypoint(waypoint.resolve(player), true);
+		if (player != null) {
+			PlayerWaypointManager manager = player.getWaypointManager();
+			if (manager != null) {
+				manager.addWaypoint(waypoint.resolve(player), true);
+			}
+		}
 	}
 }

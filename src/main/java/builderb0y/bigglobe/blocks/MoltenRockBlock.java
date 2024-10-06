@@ -62,10 +62,8 @@ public class MoltenRockBlock extends Block {
 			neighborState.getFluidState().isIn(FluidTags.WATER)
 		) {
 			serverWorld.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
-			if (
-				serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
-				serverWorld.random.nextInt(8) < this.heat
-			) {
+			BigGlobeScriptedChunkGenerator generator = serverWorld.getScriptedChunkGenerator();
+			if (generator != null && serverWorld.random.nextInt(8) < this.heat) {
 				RandomSelector<BlockState> selector = new RandomSelector<>(new Permuter(serverWorld.random.nextLong()));
 				ScriptedColumn column = generator.newColumn(world, pos.getX(), pos.getZ(), Purpose.GENERIC);
 				for (ConfiguredRockReplacerFeature<?> feature : generator.feature_dispatcher.getFlattenedRockReplacers()) {

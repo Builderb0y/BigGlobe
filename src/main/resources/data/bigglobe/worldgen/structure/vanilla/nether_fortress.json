@@ -1,5 +1,5 @@
 {
 	"type": "bigglobe:delegating",
 	"delegate": "minecraft:fortress",
-	"biomes": "#bigglobe:has_structure/nether_fortress"
+	"biomes": "#bigglobe:has_structure/vanilla/nether_fortress"
 }

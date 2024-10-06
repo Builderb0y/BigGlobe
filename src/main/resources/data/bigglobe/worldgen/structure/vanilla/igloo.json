@@ -1,5 +1,5 @@
 {
 	"type": "bigglobe:delegating",
 	"delegate": "minecraft:igloo",
-	"biomes": "#bigglobe:has_structure/igloo"
+	"biomes": "#bigglobe:has_structure/vanilla/igloo"
 }

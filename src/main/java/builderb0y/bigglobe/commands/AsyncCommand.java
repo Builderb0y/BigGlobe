@@ -20,11 +20,10 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 
 	public ScriptedColumn newScriptedColumn() {
 		return (
-			(
-				(BigGlobeScriptedChunkGenerator)(
-					this.source.getWorld().getChunkManager().getChunkGenerator()
-				)
-			)
+			this
+			.source
+			.getWorld()
+			.requireScriptedChunkGenerator()
 			.newColumn(this.source.getWorld(), 0, 0, Purpose.GENERIC)
 		);
 	}

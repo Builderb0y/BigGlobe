@@ -71,11 +71,15 @@ dependencies() {
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
 	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
-	annotationProcessor('systems.manifold:manifold-preprocessor:2024.1.34')
+	String manifoldVersion = '2024.1.34'
+	annotationProcessor("systems.manifold:manifold-preprocessor:$manifoldVersion")
+	annotationProcessor("systems.manifold:manifold-ext:$manifoldVersion")
+	implementation("systems.manifold:manifold-ext-rt:$manifoldVersion")
+	include("systems.manifold:manifold-ext-rt:$manifoldVersion")
 }
 
 compileJava() {
-	options.compilerArgs.add('-Xplugin:Manifold')
+	options.compilerArgs.addAll([ '-Xplugin:Manifold', 'no-bootstrap' ])
 }
 
 processResources() {
