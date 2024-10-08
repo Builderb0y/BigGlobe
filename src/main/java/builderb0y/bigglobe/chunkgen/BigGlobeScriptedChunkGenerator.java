@@ -888,7 +888,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		return true;
 	}
 
-	public boolean canStructureSpawn(RegistryEntry<Structure> entry, StructureStart start, Permuter permuter, boolean distantHorizons) {
+	public boolean canStructureSpawn(
+		RegistryEntry<Structure> entry,
+		StructureStart start,
+		Permuter permuter,
+		boolean distantHorizons
+	) {
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(this.columnEntryRegistry.columnFactory, new ScriptedColumn.Params(this, 0, 0, Purpose.generic(distantHorizons)));
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (StructureOverrider overrider : this.getOverriders().structures) {

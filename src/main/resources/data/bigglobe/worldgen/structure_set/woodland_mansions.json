@@ -1,0 +1,12 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 10387319,
+		"separation": 24,
+		"spacing": 64,
+		"spread_type": "triangular"
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:vanilla/woodland_mansion" }
+	]
+}

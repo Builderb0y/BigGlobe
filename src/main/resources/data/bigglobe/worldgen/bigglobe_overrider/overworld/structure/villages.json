@@ -2,15 +2,8 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure.isIn('minecraft:village'):",
-			"return(",
-				"random.nextBoolean(",
-					"unmixSmooth(",
-						"0.75L,",
-						"0.5L,",
-						"world_traits.`bigglobe:hilliness`(start.midX, start.midZ)",
-					")",
-				")",
-			")",
+			"double hilliness = world_traits.`bigglobe:hilliness`(start.midX, start.midZ)",
+			"return(random.nextBoolean(unmixSmooth(0.75L, 0.5L, hilliness)))",
 		")",
 		"return(true)"
 	]

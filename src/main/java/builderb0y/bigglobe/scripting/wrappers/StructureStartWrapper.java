@@ -9,13 +9,18 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.structures.DelegatingStructure;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public record StructureStartWrapper(StructureEntry entry, StructureStart start, BlockBox box) {
+public record StructureStartWrapper(
+	StructureEntry entry,
+	StructureStart start,
+	BlockBox box
+) {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
-	public static StructureStartWrapper of(RegistryEntry<Structure> entry, StructureStart start) {
+	public static StructureStartWrapper of(RegistryEntry<Structure> original, StructureStart start) {
 		//the bounding box of the start might be expanded,
 		//but we don't want to expose that expansion to scripts.
 		//so, re-calculate the size.
@@ -35,10 +40,21 @@ public record StructureStartWrapper(StructureEntry entry, StructureStart start, 
 			maxY = Math.max(maxY, box.getMaxY());
 			maxZ = Math.max(maxZ, box.getMaxZ());
 		}
+		RegistryEntry<Structure> entry = original;
 		if (entry.value() instanceof DelegatingStructure delegating) {
 			entry = delegating.delegate;
 		}
-		return new StructureStartWrapper(new StructureEntry(entry), start, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ));
+		return new StructureStartWrapper(
+			new StructureEntry(
+				entry,
+				UnregisteredObjectException.getTagKey(
+					original.value().getValidBiomes()
+				),
+				original.value().getFeatureGenerationStep()
+			),
+			start,
+			new BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
+		);
 	}
 
 	public int minX() { return this.box.getMinX(); }

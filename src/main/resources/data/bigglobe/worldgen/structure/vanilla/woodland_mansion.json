@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:mansion",
+	"biomes": "#bigglobe:has_structure/vanilla/woodland_mansion"
+}

@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_plains"
+	]
+}

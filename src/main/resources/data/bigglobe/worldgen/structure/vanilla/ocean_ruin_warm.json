@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:ocean_ruin_warm",
+	"biomes": "#bigglobe:has_structure/vanilla/ocean_ruin_warm"
+}

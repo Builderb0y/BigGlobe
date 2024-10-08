@@ -1,7 +1,7 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure ==. 'bigglobe:desert_pyramid':",
+		"if (start.structure ==. 'minecraft:desert_pyramid':",
 			"return(world_traits.`bigglobe:hilliness`(start.midX, start.midZ) < 0.75L)",
 		")",
 		"else if (start.structure ==. 'bigglobe:bigger_desert_pyramid':",

@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:trail_ruins",
+	"biomes": "#bigglobe:has_structure/vanilla/trail_ruins"
+}

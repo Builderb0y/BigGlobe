@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:village_snowy",
+	"biomes": "#bigglobe:has_structure/vanilla/village_snowy"
+}

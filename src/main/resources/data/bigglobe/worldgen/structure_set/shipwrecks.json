@@ -1,0 +1,12 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 165745295,
+		"separation": 4,
+		"spacing": 24
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:vanilla/shipwreck" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/shipwreck_beached" }
+	]
+}

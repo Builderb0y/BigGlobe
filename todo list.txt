@@ -24,17 +24,19 @@ where I left off:
 	remove column values which have been replaced by traits.
 		do islands need surface_temperature/foliage?
 		do islands need height_adjusted_temperature/foliage?
-	use delegation with a new biome tag for all vanilla structures.
+	actual biomes for cave types?
 
 to finish before release:
-	test respawning ender dragon to make sure the spike logic still works.
 
 changelog:
 	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).
-	* Tweaked how often some structures spawn.
-		* Igloos are a bit more common.
+	* Some structures are now more common.
 	* Fixed crash with Ryoamic Lights (integration code won't work though).
 	* Possibly fixed compatibility with Flashback.
+	* Big Globe biomes are no longer in vanilla "has_structure" tags.
+		* This prevents modded structures which use those tags from spawning, but also makes it easier to support such structures with data packs.
+		* The only vanilla biome tag remaining is `#required_ocean_monument_surrounding`.
+		* All vanilla structures are now delegated and use Big Globe biome tags instead of vanilla biome tags.
 
 alternate world presets:
 	paradise.
@@ -221,6 +223,11 @@ scripting:
 			generic(type) type List(of: type) whatever(: body)
 		"expose" fastutil collection types.
 			List(of: int) will compile into IntList.
+	range in switch cases.
+		switch (x:
+			case (range[0, 5): body)
+			case (range[5, 10): body)
+		)
 
 features:
 	general:

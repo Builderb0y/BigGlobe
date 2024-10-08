@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:trial_chambers",
+	"biomes": "#bigglobe:has_structure/vanilla/trial_chambers"
+}

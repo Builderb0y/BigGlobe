@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:pillager_outpost",
+	"biomes": "#bigglobe:has_structure/vanilla/pillager_outpost"
+}

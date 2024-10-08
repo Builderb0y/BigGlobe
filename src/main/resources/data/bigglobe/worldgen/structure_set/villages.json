@@ -1,0 +1,14 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 10387312,
+		"separation": 8,
+		"spacing": 32
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:vanilla/village_desert" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/village_plains" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/village_snowy" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/village_taiga" }
+	]
+}

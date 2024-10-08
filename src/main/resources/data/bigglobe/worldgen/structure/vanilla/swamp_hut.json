@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:swamp_hut",
+	"biomes": "#bigglobe:has_structure/vanilla/swamp_hut"
+}

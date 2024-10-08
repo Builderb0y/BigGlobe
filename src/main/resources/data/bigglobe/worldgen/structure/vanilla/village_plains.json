@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:village_plains",
+	"biomes": "#bigglobe:has_structure/vanilla/village_plains"
+}

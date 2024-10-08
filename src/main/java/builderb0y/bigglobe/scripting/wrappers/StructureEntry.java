@@ -2,18 +2,18 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryEntryListVersions;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> {
@@ -22,10 +22,20 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public final RegistryEntry<Structure> entry;
+	public final TagKey<Biome> validBiomes;
+	public final GenerationStep.Feature step;
 	public StructureTypeEntry type;
 
 	public StructureEntry(RegistryEntry<Structure> entry) {
 		this.entry = entry;
+		this.validBiomes = UnregisteredObjectException.getTagKey(entry.value().getValidBiomes());
+		this.step = entry.value().getFeatureGenerationStep();
+	}
+
+	public StructureEntry(RegistryEntry<Structure> entry, TagKey<Biome> validBiomes, GenerationStep.Feature step) {
+		this.entry = entry;
+		this.validBiomes = validBiomes;
+		this.step = step;
 	}
 
 	public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
@@ -66,11 +76,11 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 	}
 
 	public String generationStep() {
-		return this.entry.value().getFeatureGenerationStep().asString();
+		return this.step.asString();
 	}
 
 	public BiomeTagKey validBiomes() {
-		return new BiomeTagKey(RegistryEntryListVersions.getKeyOrThrow(this.entry.value().getValidBiomes()));
+		return new BiomeTagKey(this.validBiomes);
 	}
 
 	@Override

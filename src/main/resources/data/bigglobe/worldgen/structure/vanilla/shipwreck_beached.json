@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:shipwreck_beached",
+	"biomes": "#bigglobe:has_structure/vanilla/shipwreck_beached"
+}

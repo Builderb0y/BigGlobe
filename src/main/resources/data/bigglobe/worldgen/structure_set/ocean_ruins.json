@@ -1,0 +1,12 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 14357621,
+		"separation": 8,
+		"spacing": 16
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:vanilla/ocean_ruin_cold" },
+		{ "weight": 1, "structure": "bigglobe:vanilla/ocean_ruin_warm" }
+	]
+}
