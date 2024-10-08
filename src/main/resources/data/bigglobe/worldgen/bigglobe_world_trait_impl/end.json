@@ -1,5 +1,6 @@
 {
 	"bigglobe:biome": "`bigglobe:end/surface`.biome",
+	"bigglobe:has_terrain": "`bigglobe:end/has_mountain`",
 	"bigglobe:max_y": " 512I",
 	"bigglobe:min_y": "-512I"
 }

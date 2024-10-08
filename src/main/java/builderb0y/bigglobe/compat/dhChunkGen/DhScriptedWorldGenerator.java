@@ -12,6 +12,7 @@ import com.seibel.distanthorizons.api.interfaces.block.IDhApiBiomeWrapper;
 import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiWorldGenerator;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
+import com.seibel.distanthorizons.api.objects.data.IDhApiFullDataSource;
 
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.biome.BiomeKeys;
@@ -34,7 +35,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	public final IDhApiLevelWrapper level;
 	public final ServerWorld serverWorld;
 	public final BigGlobeScriptedChunkGenerator chunkGenerator;
-	public final AtomicInteger runningCount, maxRunningCount;
+	public final ThreadLocal<ScriptedColumn[]> columns;
 
 	public DhScriptedWorldGenerator(
 		IDhApiLevelWrapper level,
@@ -44,18 +45,106 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		this.level = level;
 		this.serverWorld = serverWorld;
 		this.chunkGenerator = chunkGenerator;
-		this.runningCount = new AtomicInteger();
-		this.maxRunningCount = new AtomicInteger();
+		this.columns = new ThreadLocal<>();
 	}
 
-	@Override
-	public boolean isBusy() {
-		int runningCount = this.runningCount.get();
-		int maxRunningCount = runningCount == 0 ? this.maxRunningCount.incrementAndGet() : this.maxRunningCount.get();
-		return runningCount >= maxRunningCount;
+	public ScriptedColumn[] getColumns(int length) {
+		ScriptedColumn[] columns = this.columns.get();
+		if (columns == null || columns.length < length) {
+			columns = new ScriptedColumn[length];
+			ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
+			ScriptedColumn.Factory factory = this.chunkGenerator.columnEntryRegistry.columnFactory;
+			for (int index = 0; index < length; index++) {
+				columns[index] = factory.create(params);
+			}
+			this.columns.set(columns);
+		}
+		return columns;
 	}
 
+	//note: this method is removed via ASM if API_DATA_SOURCES is unavailable.
 	@Override
+	public CompletableFuture<Void> generateLod(
+		int chunkPosMinX,
+		int chunkPosMinZ,
+		int lodPosX,
+		int lodPosZ,
+		byte detailLevel,
+		IDhApiFullDataSource pooledFullDataSource,
+		EDhApiDistantGeneratorMode generatorMode,
+		ExecutorService worldGeneratorThreadPool,
+		Consumer<IDhApiFullDataSource> resultConsumer
+	) {
+		return CompletableFuture.runAsync(
+			() -> {
+				int step = 1 << detailLevel;
+				int startX = chunkPosMinX << (detailLevel + 4);
+				int startZ = chunkPosMinZ << (detailLevel + 4);
+				int width = pooledFullDataSource.getWidthInDataColumns();
+				int totalColumns = width * width;
+				BigGlobeScriptedChunkGenerator generator = this.chunkGenerator;
+				ScriptedColumn[] columns = this.getColumns(totalColumns);
+				IDhApiBiomeWrapper biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(
+					new Object[] {
+						this
+						.serverWorld
+						.getRegistryManager()
+						.get(RegistryKeyVersions.biome())
+						.entryOf(BiomeKeys.PLAINS)
+					},
+					this.level
+				);
+				int yOffset = generator.height.min_y();
+				DataPointListBuilder[] dataPointBuilders = new DataPointListBuilder[totalColumns];
+				for (int index = 0; index < totalColumns; index++) {
+					dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, yOffset);
+				}
+				try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
+					for (int offsetZ = 0; offsetZ < width; offsetZ += 2) {
+						final int offsetZ_ = offsetZ;
+						for (int offsetX = 0; offsetX < width; offsetX += 2) {
+							final int offsetX_ = offsetX;
+							async.submit(() -> {
+								int baseIndex = offsetZ_ * width + offsetX_;
+								int quadX = startX | (offsetX_ << detailLevel);
+								int quadZ = startZ | (offsetZ_ << detailLevel);
+								ScriptedColumn
+									column00 = columns[baseIndex            ],
+									column01 = columns[baseIndex + 1        ],
+									column10 = columns[baseIndex + width    ],
+									column11 = columns[baseIndex + width + 1];
+								column00.setParamsUnchecked(column00.params.at(quadX,        quadZ       ));
+								column01.setParamsUnchecked(column01.params.at(quadX | step, quadZ       ));
+								column10.setParamsUnchecked(column10.params.at(quadX,        quadZ | step));
+								column11.setParamsUnchecked(column11.params.at(quadX | step, quadZ | step));
+								BlockSegmentList
+									list00 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
+									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
+									list10 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
+									list11 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y());
+								generator.layer.emitSegments(column00, column01, column10, column11, list00);
+								generator.layer.emitSegments(column01, column00, column11, column10, list01);
+								generator.layer.emitSegments(column10, column11, column00, column01, list10);
+								generator.layer.emitSegments(column11, column10, column01, column00, list11);
+								this.convertToDataPoints(dataPointBuilders[baseIndex            ], list00);
+								this.convertToDataPoints(dataPointBuilders[baseIndex + 1        ], list01);
+								this.convertToDataPoints(dataPointBuilders[baseIndex + width    ], list10);
+								this.convertToDataPoints(dataPointBuilders[baseIndex + width + 1], list11);
+							});
+						}
+					}
+				}
+				for (int offsetZ = 0; offsetZ < width; offsetZ++) {
+					for (int offsetX = 0; offsetX < width; offsetX++) {
+						pooledFullDataSource.setApiDataPointColumn(offsetX, offsetZ, dataPointBuilders[offsetZ * width + offsetX]);
+					}
+				}
+				resultConsumer.accept(pooledFullDataSource);
+			},
+			worldGeneratorThreadPool
+		);
+	}
+
 	public CompletableFuture<Void> generateApiChunks(
 		int chunkPosMinX,
 		int chunkPosMinZ,
@@ -65,26 +154,41 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		ExecutorService worldGeneratorThreadPool,
 		Consumer<DhApiChunk> resultConsumer
 	) {
-		this.runningCount.getAndIncrement();
+		return this.generateApiChunks(
+			chunkPosMinX,
+			chunkPosMinZ,
+			1 << (granularity - 4),
+			targetDataDetail,
+			generatorMode,
+			worldGeneratorThreadPool,
+			resultConsumer
+		);
+	}
+
+	@Override
+	public CompletableFuture<Void> generateApiChunks(
+		int chunkPosMinX,
+		int chunkPosMinZ,
+		int chunkWidth,
+		byte targetDataDetail,
+		EDhApiDistantGeneratorMode generatorMode,
+		ExecutorService worldGeneratorThreadPool,
+		Consumer<DhApiChunk> resultConsumer
+	) {
 		return CompletableFuture.runAsync(
 			() -> {
-				try {
-					int chunkPosMaxX = chunkPosMinX + (1 << (granularity - 4));
-					int chunkPosMaxZ = chunkPosMinZ + (1 << (granularity - 4));
-					for (int chunkZ = chunkPosMinZ; chunkZ < chunkPosMaxZ; chunkZ++) {
-						for (int chunkX = chunkPosMinX; chunkX < chunkPosMaxX; chunkX++) {
-							try {
-								resultConsumer.accept(this.generateChunkOfDataPoints(chunkX, chunkZ));
-							}
-							catch (Throwable throwable) {
-								BigGlobeMod.LOGGER.error("An error occurred in a hyperspeed DH world generator for chunk [" + chunkX + ", " + chunkZ + ']', throwable);
-								throw AutoCodecUtil.rethrow(throwable);
-							}
+				int chunkPosMaxX = chunkPosMinX + chunkWidth;
+				int chunkPosMaxZ = chunkPosMinZ + chunkWidth;
+				for (int chunkZ = chunkPosMinZ; chunkZ < chunkPosMaxZ; chunkZ++) {
+					for (int chunkX = chunkPosMinX; chunkX < chunkPosMaxX; chunkX++) {
+						try {
+							resultConsumer.accept(this.generateChunkOfDataPoints(chunkX, chunkZ));
+						}
+						catch (Throwable throwable) {
+							BigGlobeMod.LOGGER.error("An error occurred in a hyperspeed DH world generator for chunk [" + chunkX + ", " + chunkZ + ']', throwable);
+							throw AutoCodecUtil.rethrow(throwable);
 						}
 					}
-				}
-				finally {
-					this.runningCount.getAndDecrement();
 				}
 			},
 			worldGeneratorThreadPool
@@ -104,7 +208,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		);
 		DataPointListBuilder[] dataPointBuilders = new DataPointListBuilder[256];
 		for (int index = 0; index < 256; index++) {
-			dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome);
+			dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, 0);
 		}
 		ScriptedColumn[] columns = this.chunkGenerator.chunkReuseColumns.get();
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
@@ -168,9 +272,10 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		}
 	}
 
+	//note: this method is ASM'd to return API_CHUNKS if API_DATA_SOURCES is unavailable.
 	@Override
 	public EDhApiWorldGeneratorReturnType getReturnType() {
-		return EDhApiWorldGeneratorReturnType.API_CHUNKS;
+		return EDhApiWorldGeneratorReturnType.API_DATA_SOURCES;
 	}
 
 	@Override

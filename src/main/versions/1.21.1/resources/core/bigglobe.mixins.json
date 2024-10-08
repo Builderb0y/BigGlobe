@@ -20,6 +20,7 @@
 		"ChunkSection_CountsAccess",
 		"DataPacks_StoreResourceManager",
 		"Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",
+		"DhScriptedWorldGenerator_BackwardsCompatibility",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",

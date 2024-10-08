@@ -192,6 +192,110 @@
 				"overriders": "bigglobe:empty"
 			}
 		},
+		"bigglobe:endger_sponge": {
+			"type": "minecraft:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"reload_preset": "experiments",
+				"reload_dimension": "bigglobe:endger_sponge",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -64,
+					"max_y": 320
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "multi_state_3d",
+							"state": [
+								"int*(iterX = x, iterY = y - 64, iterZ = z)",
+								"int scale = 3 ^ 4",
+								"if (max(abs(iterX), abs(iterY), abs(iterZ)) <= scale >> 1:",
+									"repeat (4:",
+										"int scale3 = scale / 3",
+										"int scale6 = scale3 >> 1",
+										"if (max(abs(iterX), abs(iterY), abs(iterZ)) < scale3:",
+											"return(null)",
+										")",
+										"if (",
+											"+ int(abs(iterX) <= scale6)",
+											"+ int(abs(iterY) <= scale6)",
+											"+ int(abs(iterZ) <= scale6)",
+											">= 2",
+										":",
+											"return(null)",
+										")",
+										"if      (iterX >  scale6: iterX -= scale3)",
+										"else if (iterX < -scale6: iterX += scale3)",
+										"if      (iterY >  scale6: iterY -= scale3)",
+										"else if (iterY < -scale6: iterY += scale3)",
+										"if      (iterZ >  scale6: iterZ -= scale3)",
+										"else if (iterZ < -scale6: iterZ += scale3)",
+										"scale = scale3",
+									")",
+									"return('minecraft:end_stone_bricks')",
+								")",
+								"else if (",
+									"int*(scale2 = scale >> 1),,",
+									"abs(iterX) <= scale &&",
+									"abs(iterY) <= scale &&",
+									"abs(iterZ) <= scale &&",
+									"(",
+										"+ int(abs(iterX) <= scale2)",
+										"+ int(abs(iterY) <= scale2)",
+										"+ int(abs(iterZ) <= scale2)",
+										"== 2",
+									")",
+								":",
+									"boolean corner = false",
+									"if      (iterX >  scale2: iterX -= scale)",
+									"else if (iterX < -scale2: iterX += scale)",
+									"if      (iterY >  scale2: iterY -= scale)",
+									"else if (iterY < -scale2: iterY += scale)",
+									"if      (iterZ >  scale2: iterZ -= scale)",
+									"else if (iterZ < -scale2: iterZ += scale)",
+									"repeat (4:",
+										"int scale3 = scale / 3",
+										"int scale6 = scale3 >> 1",
+										"int sum = (",
+											"+ int(abs(iterX) <= scale6)",
+											"+ int(abs(iterY) <= scale6)",
+											"+ int(abs(iterZ) <= scale6)",
+										")",
+										"if (sum == 0: corner = true)",
+										"if (sum >= (!corner && scale3 == 1 ? 1 : 2):",
+											"return(null)",
+										")",
+										"",
+										"if      (iterX >  scale6: iterX -= scale3)",
+										"else if (iterX < -scale6: iterX += scale3)",
+										"if      (iterY >  scale6: iterY -= scale3)",
+										"else if (iterY < -scale6: iterY += scale3)",
+										"if      (iterZ >  scale6: iterZ -= scale3)",
+										"else if (iterZ < -scale6: iterZ += scale3)",
+										"scale = scale3",
+									")",
+									"return('minecraft:purpur_block')",
+								")",
+								"else (",
+									"return(null)",
+								")"
+							]
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
 		"minecraft:overworld": {
 			"type": "bigglobe:overworld",
 			"generator": {

@@ -19,6 +19,7 @@
 		"ChunkRegion_UseCreateFlag",
 		"ChunkSection_CountsAccess",
 		"DataPacks_StoreResourceManager",
+		"DhScriptedWorldGenerator_BackwardsCompatibility",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",
