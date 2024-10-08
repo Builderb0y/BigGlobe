@@ -1,32 +1,33 @@
 {
 	"type": "minecraft:block",
 	"pools": [{
-		"bonus_rolls": 0.0,
+		"rolls": 1,
 		"entries": [{
 			"type": "minecraft:alternatives",
 			"children": [
 				{
 					"type": "minecraft:item",
+					"name": "bigglobe:overgrown_sand",
 					"conditions": [{
 						"condition": "minecraft:match_tool",
 						"predicate": {
-							"enchantments": [{
-								"enchantment": "minecraft:silk_touch",
-								"levels": { "min": 1 }
-							}]
+							"predicates": {
+								"minecraft:enchantments": [{
+									"enchantments": "minecraft:silk_touch",
+									"levels": { "min": 1 }
+								}]
+							}
 						}
-					}],
-					"name": "bigglobe:chorus_nylium"
+					}]
 				},
 				{
 					"type": "minecraft:item",
+					"name": "minecraft:sand",
 					"conditions": [{
 						"condition": "minecraft:survives_explosion"
-					}],
-					"name": "minecraft:end_stone"
+					}]
 				}
 			]
-		}],
-		"rolls": 1.0
+		}]
 	}]
 }

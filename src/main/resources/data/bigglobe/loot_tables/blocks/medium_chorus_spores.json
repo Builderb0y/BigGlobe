@@ -10,9 +10,7 @@
 					"conditions": [{
 						"condition": "minecraft:match_tool",
 						"predicate": {
-							"items": [
-								"minecraft:shears"
-							]
+							"items": [ "minecraft:shears" ]
 						}}
 					],
 					"name": "bigglobe:medium_chorus_spores"

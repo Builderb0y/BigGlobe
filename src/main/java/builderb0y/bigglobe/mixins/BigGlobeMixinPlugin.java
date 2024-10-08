@@ -284,7 +284,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-		if (targetClassName.equals("builderb0y/bigglobe/compat/dhChunkGen/DhScriptedWorldGenerator_BackwardsCompatibility")) {
+		if (targetClassName.equals("builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator")) {
 			BigGlobeMod.LOGGER.info("DhScriptedWorldGenerator class loaded");
 			try {
 				Class<?> returnTypeClass = Class.forName("com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiWorldGeneratorReturnType");
