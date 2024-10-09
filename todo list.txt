@@ -28,10 +28,13 @@ where I left off:
 
 to finish before release:
 	test terralith already.
+	make sure DH backwards compatibility ASM code works.
 
 changelog:
+	* Added some new fractal structures to the end dimension.
 	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).
 	* Some structures are now more common.
+	* Fixed loot tables that interact with silk touch.
 	* Fixed crash with Ryoamic Lights (integration code won't work though).
 	* Possibly fixed compatibility with Flashback.
 	* Big Globe biomes are no longer in vanilla "has_structure" tags.

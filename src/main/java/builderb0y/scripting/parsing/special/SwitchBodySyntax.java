@@ -41,7 +41,30 @@ public record SwitchBodySyntax(InsnTree value, Int2ObjectSortedMap<InsnTree> cas
 			if (parser.input.hasIdentifierAfterWhitespace("case")) {
 				parser.input.expectAfterWhitespace('(');
 				parser.environment.user().push();
-				do builder.add(nextConstantInt(parser, enumClass));
+				do {
+					if (parser.input.hasIdentifierAfterWhitespace("range")) {
+						boolean lowerBoundInclusive;
+						if (parser.input.hasAfterWhitespace("[")) lowerBoundInclusive = true;
+						else if (parser.input.hasAfterWhitespace("(")) lowerBoundInclusive = false;
+						else throw new ScriptParsingException("Expected '[' or '('", parser.input);
+						long lowerBound = nextConstantInt(parser, enumClass);
+						parser.input.expectOperatorAfterWhitespace(",");
+						long upperBound = nextConstantInt(parser, enumClass);
+						boolean upperBoundInclusive;
+						if (parser.input.hasAfterWhitespace("]")) upperBoundInclusive = true;
+						else if (parser.input.hasAfterWhitespace(")")) upperBoundInclusive = false;
+						else throw new ScriptParsingException("Expected ']' or ')'", parser.input);
+						if (!lowerBoundInclusive) lowerBound++;
+						if (!upperBoundInclusive) upperBound--;
+						if (upperBound < lowerBound) throw new ScriptParsingException("Empty range", parser.input);
+						for (long case_ = lowerBound; case_ <= upperBound; case_++) {
+							builder.add((int)(case_));
+						}
+					}
+					else {
+						builder.add(nextConstantInt(parser, enumClass));
+					}
+				}
 				while (parser.input.hasOperatorAfterWhitespace(","));
 				parser.input.expectOperatorAfterWhitespace(":");
 				InsnTree body = parser.nextScript();
@@ -50,7 +73,6 @@ public record SwitchBodySyntax(InsnTree value, Int2ObjectSortedMap<InsnTree> cas
 					body = scoped(body);
 				}
 				parser.environment.user().pop();
-				;
 
 				int[] elements = builder.elements();
 				int size = builder.size();

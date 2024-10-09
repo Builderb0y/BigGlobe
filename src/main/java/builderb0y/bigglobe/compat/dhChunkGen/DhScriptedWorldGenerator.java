@@ -61,6 +61,11 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		return columns;
 	}
 
+	@Override
+	public byte getLargestDataDetailLevel() {
+		return 20;
+	}
+
 	//note: this method is removed via ASM if API_DATA_SOURCES is unavailable.
 	@Override
 	public CompletableFuture<Void> generateLod(
@@ -74,11 +79,12 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		ExecutorService worldGeneratorThreadPool,
 		Consumer<IDhApiFullDataSource> resultConsumer
 	) {
+		//System.out.println("Request for chunk [" + chunkPosMinX + ", " + chunkPosMinZ + "], LOD [" + lodPosX + ", " + lodPosZ + "] @ " + detailLevel);
 		return CompletableFuture.runAsync(
 			() -> {
 				int step = 1 << detailLevel;
-				int startX = chunkPosMinX << (detailLevel + 4);
-				int startZ = chunkPosMinZ << (detailLevel + 4);
+				int startX = chunkPosMinX << 4;
+				int startZ = chunkPosMinZ << 4;
 				int width = pooledFullDataSource.getWidthInDataColumns();
 				int totalColumns = width * width;
 				BigGlobeScriptedChunkGenerator generator = this.chunkGenerator;

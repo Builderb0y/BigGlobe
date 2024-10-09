@@ -1,6 +1,7 @@
 package builderb0y.scripting.parsing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -292,6 +293,44 @@ public class FlowTest extends TestCommon {
 				default (value & 1)
 			)
 			value
+			"""
+		);
+		assertSuccess(Arrays.asList(1, 2, 2, 3, 3, 3),
+			"""
+			ArrayList list = new()
+			for (int number in range[0, 6):
+				list.add(
+					switch (number:
+						case (0: 1)
+						case (range[1, 3): 2)
+						case (range[3, 6): 3)
+						default (-1)
+					)
+				)
+			)
+			list
+			"""
+		);
+		assertSuccess(true,
+			"""
+			for (int number in range [5, 25] % 10:
+				switch (number:
+					case (range[0, 10), range[20, 30):
+						if (number != 5 && number != 25:
+							return(false)
+						)
+					)
+					case (range[10, 20):
+						if (number != 15:
+							return(false)
+						)
+					)
+					default (
+						return(false)
+					)
+				)
+			)
+			true
 			"""
 		);
 	}
